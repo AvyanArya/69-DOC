@@ -3,625 +3,476 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<meta name="theme-color" content="#0A0A0A" />
-<title>FORMA — Your style, finally understood.</title>
-<meta name="description" content="FORMA is the first personal style OS. Take a 3-minute visual quiz, discover your Style DNA, and build a wardrobe that actually feels like you." />
+<meta name="theme-color" content="#FFFFFF" />
+<title>FORMA — find your style DNA</title>
+<meta name="description" content="FORMA is a personal style OS. Take a fast visual quiz, get your Style DNA, build your closet, and generate fits." />
 
-<!-- Fonts: Fraunces (editorial display) + Inter (UI). Falls back to system serif/sans offline. -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
 
 <style>
 /* ============================================================
-   FORMA — DESIGN SYSTEM
-   Reduction as luxury. Dark mode first. Editorial scale.
+   FORMA — BRUTALIST STREETWEAR SYSTEM
+   Pure white. Hard black. Loud red. Zero luxury.
    ============================================================ */
-
 :root{
-  /* Core palette */
-  --void:    #0A0A0A;
-  --chalk:   #F5F4F0;
-  --bone:    #E8E3D9;
-  --smoke:   #1C1C1E;
-  --ash:     #2C2C2E;
-  --mist:    #8A8A8E;
+  --white:#FFFFFF;
+  --ink:#0A0A0A;
+  --red:#FF2D2D;
+  --red-dark:#D81616;
+  --gray:#6B6B6B;
+  --line:#0A0A0A;
+  --soft:#F2F2F2;
 
-  /* Elevation (no shadows on dark — background steps instead) */
-  --lvl0: #0A0A0A;
-  --lvl1: #141414;
-  --lvl2: #1C1C1E;
-  --lvl3: #2C2C2E;
+  --display:'Space Grotesk', system-ui, sans-serif;
+  --mono:'Space Mono', ui-monospace, monospace;
+  --ui:'Inter', system-ui, sans-serif;
 
-  /* Accents — used sparingly, never decoratively */
-  --gold:  #C9A96E;
-  --sage:  #8A9E7E;
-  --clay:  #C4886A;
-
-  /* Type */
-  --display: 'Fraunces', 'Georgia', 'Times New Roman', serif;
-  --ui: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-
-  /* Spacing scale (4px base) */
-  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s6:24px;
-  --s8:32px; --s12:48px; --s16:64px; --s24:96px; --s32:128px;
-
-  /* Radius */
-  --r-card:12px; --r-btn:8px; --r-img:8px; --r-modal:16px;
-
-  --ease: cubic-bezier(.22,.61,.36,1);
-  --nav-h: 68px;
+  --bd:2px solid #0A0A0A;
+  --sh:5px 5px 0 #0A0A0A;
+  --sh-red:5px 5px 0 #FF2D2D;
+  --nav-h:64px;
+  --ease:cubic-bezier(.2,.8,.2,1);
 }
-
-*{box-sizing:border-box; margin:0; padding:0;}
-html{ -webkit-text-size-adjust:100%; }
+*{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-text-size-adjust:100%;}
 body{
-  background:var(--void);
-  color:var(--chalk);
-  font-family:var(--ui);
-  font-weight:400;
-  line-height:1.5;
+  background:var(--white); color:var(--ink);
+  font-family:var(--ui); line-height:1.45;
   -webkit-font-smoothing:antialiased;
-  text-rendering:optimizeLegibility;
-  overflow-x:hidden;
-  min-height:100vh;
+  overflow-x:hidden; min-height:100vh;
 }
-img{display:block; max-width:100%;}
-button{font-family:inherit; cursor:pointer; border:none; background:none; color:inherit;}
-a{color:inherit; text-decoration:none;}
-::selection{background:var(--gold); color:var(--void);}
+img{display:block;max-width:100%;}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+a{color:inherit;text-decoration:none;}
+::selection{background:var(--red);color:#fff;}
+input,textarea,select{font-family:inherit;}
 
-/* Editorial film grain over everything for premium depth */
-body::after{
-  content:""; position:fixed; inset:0; z-index:9999; pointer-events:none; opacity:.035;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
+/* ---- custom cursor (desktop, after first mouse move) ---- */
+#cur,#curDot{position:fixed;z-index:9999;pointer-events:none;display:none;}
+#cur{width:30px;height:30px;border:2px solid var(--red);border-radius:50%;transform:translate(-50%,-50%);
+  transition:width .2s var(--ease),height .2s var(--ease),background .2s,border-radius .2s;}
+#curDot{width:6px;height:6px;background:var(--ink);transform:translate(-50%,-50%);}
+body.has-cursor #cur,body.has-cursor #curDot{display:block;}
+body.has-cursor *{cursor:none !important;}
+#cur.big{width:64px;height:64px;background:rgba(255,45,45,.08);}
+#cur.tag{width:54px;height:54px;background:var(--red);border-radius:4px;}
 
-/* ---------- Typography helpers ---------- */
-.display{ font-family:var(--display); font-weight:300; line-height:.98; letter-spacing:.01em; }
-.eyebrow{ font-size:11px; letter-spacing:.28em; text-transform:uppercase; color:var(--mist); font-weight:500; }
-.serif{ font-family:var(--display); }
-.muted{ color:var(--mist); }
+/* ---- type helpers ---- */
+.mono{font-family:var(--mono);}
+.eyebrow{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--red);}
+.eyebrow.k{color:var(--ink);}
+h1,h2,h3{font-family:var(--display);font-weight:700;letter-spacing:-.01em;line-height:.96;text-transform:uppercase;}
+.mark{color:var(--red);}
+.box-mark{background:var(--red);color:#fff;padding:0 .12em;display:inline-block;}
+.muted{color:var(--gray);}
 
-/* ---------- Buttons ---------- */
-.btn{
-  display:inline-flex; align-items:center; justify-content:center; gap:10px;
-  font-size:15px; font-weight:500; letter-spacing:.01em;
-  padding:15px 26px; border-radius:var(--r-btn);
-  transition:transform .2s var(--ease), background .25s var(--ease), opacity .25s, color .25s;
-  white-space:nowrap;
-}
-.btn:active{ transform:scale(.98); }
-.btn-primary{ background:var(--chalk); color:var(--void); }
-.btn-primary:hover{ background:#fff; }
-.btn-secondary{ background:transparent; color:var(--chalk); border:1px solid var(--ash); }
-.btn-secondary:hover{ border-color:var(--mist); }
-.btn-ghost{ padding:14px 6px; }
-.btn-ghost span{ border-bottom:1px solid transparent; transition:border-color .25s; padding-bottom:2px; }
-.btn-ghost:hover span{ border-color:var(--mist); }
-.btn-gold{ background:var(--gold); color:var(--void); }
-.btn-block{ width:100%; }
-.btn[disabled]{ opacity:.35; pointer-events:none; }
+/* ---- buttons ---- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  font-family:var(--display);font-weight:600;font-size:14px;letter-spacing:.02em;text-transform:uppercase;
+  padding:14px 24px;border:var(--bd);background:var(--white);color:var(--ink);
+  box-shadow:var(--sh);border-radius:0;
+  transition:transform .12s var(--ease),box-shadow .12s var(--ease),background .15s,color .15s;}
+.btn:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--ink);}
+.btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink);}
+.btn-primary{background:var(--ink);color:#fff;}
+.btn-red{background:var(--red);color:#fff;}
+.btn-red:hover{box-shadow:7px 7px 0 var(--ink);}
+.btn-block{width:100%;}
+.btn-sm{padding:9px 16px;font-size:12px;box-shadow:3px 3px 0 var(--ink);}
+.btn-sm:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--ink);}
+.btn-ghost{border:none;box-shadow:none;padding:12px 6px;text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:2px;}
+.btn-ghost:hover{transform:none;box-shadow:none;color:var(--red);}
+.btn[disabled]{opacity:.35;pointer-events:none;}
 
-/* ---------- App shell ---------- */
-#app{ min-height:100vh; }
-.page{ animation:pageIn .5s var(--ease) both; }
-@keyframes pageIn{ from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:none;} }
-.wrap{ max-width:1280px; margin:0 auto; padding:0 24px; }
-.section{ padding:var(--s24) 0; }
+/* ---- app shell ---- */
+#app{min-height:100vh;}
+.page{animation:pop .35s var(--ease) both;}
+@keyframes pop{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+.wrap{max-width:1320px;margin:0 auto;padding:0 24px;}
+.section{padding:80px 0;}
+.hr{height:2px;background:var(--ink);margin:48px 0;border:0;}
 
-/* ---------- Top nav ---------- */
-.nav{
-  position:fixed; top:0; left:0; right:0; z-index:200; height:var(--nav-h);
-  display:flex; align-items:center; justify-content:space-between;
-  padding:0 28px;
-  background:linear-gradient(to bottom, rgba(10,10,10,.92), rgba(10,10,10,.5) 70%, transparent);
-  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
-  transition:background .3s;
-}
-.nav.solid{ background:rgba(10,10,10,.96); border-bottom:1px solid rgba(255,255,255,.05); }
-.brand{ font-family:var(--display); font-weight:400; font-size:23px; letter-spacing:.32em; padding-left:.32em; }
-.nav-links{ display:flex; align-items:center; gap:30px; }
-.nav-link{ font-size:14px; color:var(--mist); letter-spacing:.02em; transition:color .2s; position:relative; }
-.nav-link:hover, .nav-link.active{ color:var(--chalk); }
-.nav-link.active::after{ content:""; position:absolute; left:0; right:0; bottom:-7px; height:1px; background:var(--gold); }
-@media(max-width:760px){ .nav-links .hide-mobile{ display:none; } .nav{ padding:0 18px; } }
+/* ---- nav ---- */
+.nav{position:fixed;top:0;left:0;right:0;z-index:300;height:var(--nav-h);
+  display:flex;align-items:center;justify-content:space-between;padding:0 24px;
+  background:var(--white);border-bottom:var(--bd);}
+.brand{font-family:var(--display);font-weight:700;font-size:22px;letter-spacing:.04em;text-transform:uppercase;display:flex;align-items:center;gap:8px;}
+.brand::after{content:"";width:9px;height:9px;background:var(--red);border-radius:50%;}
+.nav-links{display:flex;align-items:center;gap:6px;}
+.nav-link{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink);padding:8px 12px;transition:color .15s;}
+.nav-link:hover{color:var(--red);}
+.nav-link.active{color:var(--red);}
+@media(max-width:780px){.nav-links .hide-m{display:none;}.nav{padding:0 16px;}}
 
-/* ---------- Bottom nav (mobile, authed) ---------- */
-.tabbar{
-  position:fixed; bottom:0; left:0; right:0; z-index:200; height:62px;
-  padding-bottom:env(safe-area-inset-bottom);
-  display:none; align-items:center; justify-content:space-around;
-  background:rgba(14,14,14,.96); backdrop-filter:blur(14px);
-  border-top:1px solid rgba(255,255,255,.06);
-}
-.tabbar button{ display:flex; flex-direction:column; align-items:center; gap:4px; font-size:10px; letter-spacing:.04em; color:var(--mist); padding:8px 10px; }
-.tabbar button.active{ color:var(--chalk); }
-.tabbar svg{ width:21px; height:21px; }
-body.authed .tabbar{ display:flex; }
-@media(min-width:761px){ body.authed .tabbar{ display:none; } }
+/* ---- bottom tabbar (mobile authed) ---- */
+.tabbar{position:fixed;bottom:0;left:0;right:0;z-index:300;height:60px;padding-bottom:env(safe-area-inset-bottom);
+  display:none;align-items:center;justify-content:space-around;background:var(--white);border-top:var(--bd);}
+.tabbar button{display:flex;flex-direction:column;align-items:center;gap:3px;font-family:var(--mono);font-size:9px;font-weight:700;text-transform:uppercase;color:var(--ink);padding:6px 8px;}
+.tabbar button.active{color:var(--red);}
+.tabbar svg{width:20px;height:20px;}
+body.authed .tabbar{display:flex;}
+@media(min-width:781px){body.authed .tabbar{display:none;}}
 
 /* ============================================================
-   HOMEPAGE (logged out)
+   HOMEPAGE
    ============================================================ */
-.hero{ position:relative; min-height:100vh; display:flex; align-items:center; padding-top:var(--nav-h); overflow:hidden; }
-.hero-bg{ position:absolute; inset:0; z-index:0; opacity:.55; }
-.hero-bg .panel{ position:absolute; inset:0; opacity:0; transition:opacity 1.6s var(--ease); background-size:cover; background-position:center; }
-.hero-bg .panel.show{ opacity:1; }
-.hero::before{ content:""; position:absolute; inset:0; z-index:1;
-  background:linear-gradient(90deg, var(--void) 22%, rgba(10,10,10,.55) 60%, rgba(10,10,10,.2));
-}
-.hero::after{ content:""; position:absolute; inset:0; z-index:1; background:linear-gradient(to top, var(--void), transparent 38%); }
-.hero-inner{ position:relative; z-index:2; max-width:1280px; margin:0 auto; padding:0 28px; width:100%; }
-.hero h1{ font-size:clamp(52px, 9vw, 132px); margin:18px 0 24px; }
-.hero h1 em{ font-style:italic; color:var(--bone); }
-.hero p.sub{ font-size:clamp(16px,2.1vw,20px); color:var(--mist); max-width:520px; margin-bottom:38px; line-height:1.55; }
-.hero-cta{ display:flex; gap:14px; flex-wrap:wrap; align-items:center; }
-.scroll-hint{ position:absolute; bottom:30px; left:50%; transform:translateX(-50%); z-index:2; color:var(--mist); font-size:11px; letter-spacing:.25em; text-transform:uppercase; display:flex; flex-direction:column; align-items:center; gap:10px; }
-.scroll-hint .line{ width:1px; height:42px; background:linear-gradient(var(--mist), transparent); animation:drip 2.2s var(--ease) infinite; }
-@keyframes drip{ 0%{transform:scaleY(0); transform-origin:top;} 50%{transform:scaleY(1); transform-origin:top;} 51%{transform-origin:bottom;} 100%{transform:scaleY(0); transform-origin:bottom;} }
+.hero{padding-top:var(--nav-h);border-bottom:var(--bd);}
+.hero-grid{display:grid;grid-template-columns:1.15fr .85fr;}
+.hero-copy{padding:60px 48px 60px 24px;border-right:var(--bd);display:flex;flex-direction:column;justify-content:center;}
+.hero-copy h1{font-size:clamp(46px,8vw,104px);margin:22px 0 26px;}
+.hero-copy p{font-size:17px;max-width:440px;color:var(--ink);margin-bottom:34px;}
+.hero-cta{display:flex;gap:14px;flex-wrap:wrap;}
+.hero-meta{margin-top:40px;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gray);}
+.hero-art{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;}
+.hero-art .cell{position:relative;border-bottom:var(--bd);border-right:var(--bd);overflow:hidden;min-height:170px;}
+.hero-art .cell:nth-child(2n){border-right:none;}
+.hero-art .cell .ph{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform .9s var(--ease);}
+.hero-art .cell:hover .ph{transform:scale(1.08);}
+.hero-art .cell .tg{position:absolute;bottom:10px;left:10px;background:var(--white);border:var(--bd);font-family:var(--mono);font-size:10px;font-weight:700;text-transform:uppercase;padding:4px 8px;z-index:1;}
+.hero-art .cell .num{position:absolute;top:10px;right:10px;background:var(--red);color:#fff;font-family:var(--mono);font-size:10px;font-weight:700;padding:3px 7px;z-index:1;}
+@media(max-width:860px){.hero-grid{grid-template-columns:1fr;}.hero-copy{border-right:none;border-bottom:var(--bd);padding:40px 24px;}.hero-art{grid-template-columns:1fr 1fr;}}
 
-/* Reveal on scroll */
-.reveal{ opacity:0; transform:translateY(28px); transition:opacity .9s var(--ease), transform .9s var(--ease); }
-.reveal.in{ opacity:1; transform:none; }
+/* ticker */
+.ticker-wrap{overflow:hidden;background:var(--ink);padding:12px 0;}
+.ticker{display:flex;white-space:nowrap;animation:tick 24s linear infinite;}
+.ticker:hover{animation-play-state:paused;}
+.ticker span{font-family:var(--display);font-weight:700;font-size:14px;letter-spacing:.14em;text-transform:uppercase;color:#fff;padding:0 26px;}
+.ticker span.r{color:var(--red);}
+@keyframes tick{from{transform:translateX(0);}to{transform:translateX(-50%);}}
 
-/* Aesthetic strip */
-.strip{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
-.strip .tile{ aspect-ratio:3/4; border-radius:var(--r-img); position:relative; overflow:hidden; }
-@media(max-width:760px){ .strip{ grid-template-columns:1fr; } }
+/* how it works */
+.how{display:grid;grid-template-columns:repeat(3,1fr);border:var(--bd);}
+.how .step{padding:38px 30px;border-right:var(--bd);}
+.how .step:last-child{border-right:none;}
+.how .step .n{font-family:var(--mono);font-weight:700;font-size:14px;color:var(--red);}
+.how .step h3{font-size:30px;margin:16px 0 12px;}
+.how .step p{color:var(--gray);font-size:15px;}
+@media(max-width:780px){.how{grid-template-columns:1fr;}.how .step{border-right:none;border-bottom:var(--bd);}.how .step:last-child{border-bottom:none;}}
 
-/* How it works */
-.how{ display:grid; grid-template-columns:repeat(3,1fr); gap:48px; }
-.how .step .n{ font-family:var(--display); font-size:64px; color:var(--ash); line-height:1; }
-.how .step h3{ font-family:var(--display); font-weight:400; font-size:26px; margin:14px 0 10px; }
-.how .step p{ color:var(--mist); font-size:15px; line-height:1.6; }
-@media(max-width:760px){ .how{ grid-template-columns:1fr; gap:42px; } }
+/* manifesto */
+.manifesto{font-family:var(--display);font-weight:700;text-transform:uppercase;font-size:clamp(30px,5.5vw,72px);line-height:1;letter-spacing:-.01em;}
+.manifesto .mark{color:var(--red);}
 
-/* Manifesto */
-.manifesto{ font-family:var(--display); font-weight:300; font-size:clamp(30px,5vw,62px); line-height:1.12; letter-spacing:.005em; max-width:1000px; }
-.manifesto em{ font-style:italic; color:var(--gold); }
+/* proof chips */
+.proof{display:flex;gap:0;flex-wrap:wrap;border:var(--bd);}
+.dna-chip{padding:22px 26px;border-right:var(--bd);flex:1;min-width:220px;}
+.dna-chip:last-child{border-right:none;}
+.dna-chip .name{font-family:var(--display);font-weight:700;font-size:22px;text-transform:uppercase;}
+.dna-chip .pct{font-family:var(--mono);font-size:12px;color:var(--red);margin-top:6px;font-weight:700;}
 
-/* Social proof DNA chips */
-.proof{ display:flex; gap:14px; flex-wrap:wrap; }
-.dna-chip{ background:var(--lvl2); border:1px solid rgba(255,255,255,.05); border-radius:var(--r-card); padding:18px 22px; min-width:200px; }
-.dna-chip .name{ font-family:var(--display); font-size:19px; }
-.dna-chip .pct{ color:var(--gold); font-size:13px; letter-spacing:.04em; margin-top:4px; }
+/* footer */
+.foot{border-top:var(--bd);padding:40px 0 110px;}
+.foot-cols{display:flex;justify-content:space-between;flex-wrap:wrap;gap:24px;font-family:var(--mono);font-size:12px;text-transform:uppercase;color:var(--gray);}
+.foot .brand{color:var(--ink);}
 
-/* Footer */
-.foot{ border-top:1px solid rgba(255,255,255,.06); padding:54px 0 110px; color:var(--mist); font-size:13px; }
-.foot .brand{ color:var(--chalk); display:inline-block; margin-bottom:18px; }
-.foot-cols{ display:flex; justify-content:space-between; flex-wrap:wrap; gap:30px; }
+/* reveal */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s var(--ease),transform .6s var(--ease);}
+.reveal.in{opacity:1;transform:none;}
 
 /* ============================================================
    QUIZ
    ============================================================ */
-.quiz{ min-height:100vh; display:flex; flex-direction:column; padding-top:var(--nav-h); }
-.quiz-top{ max-width:760px; width:100%; margin:0 auto; padding:18px 24px 0; }
-.dots{ display:flex; gap:7px; justify-content:center; margin-bottom:6px; }
-.dot{ width:7px; height:7px; border-radius:50%; background:var(--ash); transition:all .35s var(--ease); }
-.dot.done{ background:var(--mist); }
-.dot.active{ background:var(--gold); width:22px; border-radius:4px; }
-.quiz-stage{ flex:1; display:flex; align-items:center; justify-content:center; padding:20px 24px 60px; }
-.q-card{ max-width:880px; width:100%; animation:qIn .45s var(--ease) both; }
-.q-card.out{ animation:qOut .3s var(--ease) both; }
-@keyframes qIn{ from{opacity:0; transform:translateX(40px);} to{opacity:1; transform:none;} }
-@keyframes qOut{ from{opacity:1;} to{opacity:0; transform:translateX(-40px);} }
-.q-head{ text-align:center; margin-bottom:36px; }
-.q-head .eyebrow{ display:block; margin-bottom:14px; }
-.q-head h2{ font-family:var(--display); font-weight:300; font-size:clamp(28px,4.4vw,46px); line-height:1.08; }
-.q-head p{ color:var(--mist); margin-top:12px; font-size:15px; }
+.quiz{min-height:100vh;display:flex;flex-direction:column;padding-top:var(--nav-h);}
+.quiz-top{max-width:820px;width:100%;margin:0 auto;padding:20px 24px 0;}
+.qbar{display:flex;gap:4px;}
+.qbar .seg{flex:1;height:8px;background:var(--white);border:var(--bd);transition:background .3s;}
+.qbar .seg.done{background:var(--ink);}
+.qbar .seg.active{background:var(--red);}
+.qcount{font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase;color:var(--gray);margin-top:10px;text-align:center;}
+.quiz-stage{flex:1;display:flex;align-items:center;justify-content:center;padding:24px 24px 40px;}
+.q-card{max-width:900px;width:100%;animation:qin .35s var(--ease) both;}
+.q-card.out{animation:qout .25s var(--ease) both;}
+@keyframes qin{from{opacity:0;transform:translateX(34px);}to{opacity:1;transform:none;}}
+@keyframes qout{to{opacity:0;transform:translateX(-34px);}}
+.q-head{margin-bottom:30px;}
+.q-head .eyebrow{display:block;margin-bottom:14px;}
+.q-head h2{font-size:clamp(30px,5vw,52px);}
+.q-head p{font-family:var(--mono);color:var(--gray);margin-top:12px;font-size:13px;text-transform:uppercase;letter-spacing:.04em;}
 
-.tile-grid{ display:grid; gap:14px; }
-.tile-grid.cols-2{ grid-template-columns:repeat(2,1fr); }
-.tile-grid.cols-3{ grid-template-columns:repeat(3,1fr); }
-.tile-grid.cols-4{ grid-template-columns:repeat(4,1fr); }
-@media(max-width:680px){ .tile-grid.cols-3, .tile-grid.cols-4{ grid-template-columns:repeat(2,1fr); } }
+.tile-grid{display:grid;gap:14px;}
+.tile-grid.cols-2{grid-template-columns:repeat(2,1fr);}
+.tile-grid.cols-3{grid-template-columns:repeat(3,1fr);}
+.tile-grid.cols-4{grid-template-columns:repeat(4,1fr);}
+@media(max-width:680px){.tile-grid.cols-3,.tile-grid.cols-4{grid-template-columns:repeat(2,1fr);}}
 
-.choice{ position:relative; border-radius:var(--r-img); overflow:hidden; aspect-ratio:4/5; border:2px solid transparent; transition:transform .25s var(--ease), border-color .25s; }
-.choice:hover{ transform:translateY(-4px); }
-.choice.sel{ border-color:var(--gold); }
-.choice .cap{ position:absolute; left:0; right:0; bottom:0; padding:16px 14px 13px; font-size:13px; font-weight:500; letter-spacing:.02em;
-  background:linear-gradient(to top, rgba(0,0,0,.85), transparent); }
-.choice .check{ position:absolute; top:10px; right:10px; width:26px; height:26px; border-radius:50%; background:var(--gold); color:var(--void);
-  display:flex; align-items:center; justify-content:center; opacity:0; transform:scale(.5); transition:all .25s var(--ease); font-size:14px; }
-.choice.sel .check{ opacity:1; transform:none; }
+.choice{position:relative;border:var(--bd);background:var(--soft);overflow:hidden;aspect-ratio:4/5;
+  background-size:cover;background-position:center;
+  box-shadow:var(--sh);transition:transform .14s var(--ease),box-shadow .14s var(--ease);}
+.choice:hover{transform:translate(-3px,-3px);box-shadow:8px 8px 0 var(--ink);}
+.choice.sel{box-shadow:6px 6px 0 var(--red);transform:translate(-2px,-2px);}
+.choice.sel{outline:3px solid var(--red);outline-offset:-3px;}
+.choice .cap{position:absolute;left:0;right:0;bottom:0;padding:14px 12px;font-family:var(--mono);font-size:12px;font-weight:700;text-transform:uppercase;
+  background:var(--white);border-top:var(--bd);}
+.choice .check{position:absolute;top:8px;right:8px;width:28px;height:28px;background:var(--red);color:#fff;
+  display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(.4);transition:all .2s var(--ease);}
+.choice.sel .check{opacity:1;transform:none;}
+.choice.swatch{aspect-ratio:1/1;}
 
-/* swatch choices */
-.choice.swatch{ aspect-ratio:1/1; }
-/* slider question */
-.slider-wrap{ max-width:560px; margin:0 auto; text-align:center; }
-.slider-labels{ display:flex; justify-content:space-between; color:var(--mist); font-size:13px; margin-top:18px; }
-input[type=range]{ -webkit-appearance:none; width:100%; height:2px; background:var(--ash); border-radius:2px; margin-top:10px; }
-input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:24px; height:24px; border-radius:50%; background:var(--gold); cursor:pointer; border:4px solid var(--void); box-shadow:0 0 0 1px var(--gold); }
-input[type=range]::-moz-range-thumb{ width:24px; height:24px; border-radius:50%; background:var(--gold); cursor:pointer; border:4px solid var(--void); }
-.slider-val{ font-family:var(--display); font-size:54px; color:var(--gold); margin-top:8px; }
+/* slider */
+.slider-wrap{max-width:600px;margin:0 auto;text-align:center;border:var(--bd);box-shadow:var(--sh);padding:40px 30px;}
+.slider-val{font-family:var(--display);font-weight:700;font-size:72px;color:var(--red);line-height:1;}
+input[type=range]{-webkit-appearance:none;width:100%;height:6px;background:var(--ink);margin-top:24px;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;background:var(--red);cursor:pointer;border:var(--bd);}
+input[type=range]::-moz-range-thumb{width:30px;height:30px;background:var(--red);cursor:pointer;border:var(--bd);border-radius:0;}
+.slider-labels{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase;color:var(--gray);margin-top:16px;}
 
-.quiz-foot{ position:sticky; bottom:0; display:flex; align-items:center; justify-content:space-between; gap:14px;
-  max-width:880px; margin:0 auto; width:100%; padding:18px 24px calc(18px + env(safe-area-inset-bottom));
-  background:linear-gradient(to top, var(--void) 60%, transparent); }
-.q-back{ color:var(--mist); font-size:14px; display:flex; align-items:center; gap:8px; transition:color .2s; }
-.q-back:hover{ color:var(--chalk); }
-
-/* ============================================================
-   STYLE DNA RESULT
-   ============================================================ */
-.result{ min-height:100vh; padding:calc(var(--nav-h) + 30px) 24px 120px; }
-.result-inner{ max-width:760px; margin:0 auto; }
-.result .lead{ text-align:center; margin-bottom:46px; }
-.result .lead .eyebrow{ display:block; margin-bottom:18px; }
-.result h1.primary{ font-family:var(--display); font-weight:300; font-size:clamp(42px,8vw,86px); line-height:1; }
-.result h1.primary em{ font-style:italic; color:var(--gold); }
-.dna-bars{ display:flex; flex-direction:column; gap:18px; margin:46px 0; }
-.dna-row .top{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:9px; }
-.dna-row .nm{ font-family:var(--display); font-size:21px; }
-.dna-row .pc{ font-variant-numeric:tabular-nums; color:var(--mist); font-size:15px; }
-.bar{ height:6px; border-radius:4px; background:var(--lvl2); overflow:hidden; }
-.bar > i{ display:block; height:100%; width:0; border-radius:4px; transition:width 1.3s var(--ease); }
-
-.dna-summary{ font-family:var(--display); font-weight:300; font-size:clamp(20px,3vw,27px); line-height:1.4; text-align:center; color:var(--bone); margin:10px 0 40px; }
-.color-story{ margin:40px 0; }
-.color-story h4{ text-align:center; margin-bottom:18px; }
-.swatches{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
-.swatch-chip{ text-align:center; }
-.swatch-chip .sw{ width:62px; height:62px; border-radius:50%; border:1px solid rgba(255,255,255,.1); }
-.swatch-chip .hx{ font-size:10px; color:var(--mist); margin-top:8px; letter-spacing:.04em; }
-.result-actions{ display:flex; flex-direction:column; gap:12px; margin-top:46px; }
-
-/* Share card (screenshot-optimised) */
-.share-card{ background:linear-gradient(160deg,#16151a,#0a0a0a); border:1px solid rgba(255,255,255,.08); border-radius:20px;
-  padding:44px 38px; margin:30px 0; text-align:center; position:relative; overflow:hidden; }
-.share-card .brand{ font-size:18px; }
-.share-card .big{ font-family:var(--display); font-weight:300; font-size:40px; line-height:1.05; margin:24px 0 8px; }
-.share-card .big em{ font-style:italic; color:var(--gold); }
-.share-card .mini-bars{ display:flex; flex-direction:column; gap:9px; margin:26px auto 8px; max-width:340px; }
-.share-card .url{ margin-top:26px; color:var(--mist); font-size:12px; letter-spacing:.18em; text-transform:uppercase; }
+.quiz-foot{position:sticky;bottom:0;display:flex;align-items:center;justify-content:space-between;gap:14px;
+  max-width:900px;margin:0 auto;width:100%;padding:16px 24px calc(16px + env(safe-area-inset-bottom));
+  background:var(--white);border-top:var(--bd);}
+.q-back{font-family:var(--mono);font-weight:700;font-size:12px;text-transform:uppercase;color:var(--ink);display:flex;align-items:center;gap:8px;}
+.q-back:hover{color:var(--red);}
 
 /* ============================================================
-   AUTHED DASHBOARD / SHARED
+   RESULT
    ============================================================ */
-.authed-page{ padding:calc(var(--nav-h) + 26px) 0 120px; }
-.page-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:20px; margin-bottom:34px; flex-wrap:wrap; }
-.page-head h1{ font-family:var(--display); font-weight:300; font-size:clamp(34px,5vw,56px); line-height:1; }
-.page-head p{ color:var(--mist); margin-top:10px; max-width:460px; }
+.result{min-height:100vh;padding:calc(var(--nav-h) + 40px) 24px 120px;}
+.result-inner{max-width:780px;margin:0 auto;}
+.result .lead .eyebrow{display:block;margin-bottom:18px;}
+.result h1.primary{font-size:clamp(44px,9vw,108px);}
+.result h1.primary .mark{display:block;}
+.dna-bars{display:flex;flex-direction:column;gap:0;margin:40px 0;border:var(--bd);}
+.dna-row{padding:18px 20px;border-bottom:var(--bd);}
+.dna-row:last-child{border-bottom:none;}
+.dna-row .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;}
+.dna-row .nm{font-family:var(--display);font-weight:700;font-size:20px;text-transform:uppercase;}
+.dna-row .pc{font-family:var(--mono);font-weight:700;font-size:16px;color:var(--red);}
+.bar{height:14px;background:var(--white);border:var(--bd);overflow:hidden;}
+.bar>i{display:block;height:100%;width:0;background:var(--red);transition:width 1.1s var(--ease);}
+.dna-summary{font-family:var(--mono);font-size:14px;line-height:1.6;text-transform:uppercase;letter-spacing:.02em;border-left:6px solid var(--red);padding-left:18px;margin:28px 0;color:var(--ink);}
+.color-story{margin:40px 0;}
+.color-story h4{margin-bottom:16px;}
+.swatches{display:flex;gap:0;flex-wrap:wrap;border:var(--bd);width:fit-content;}
+.swatch-chip{border-right:var(--bd);}
+.swatch-chip:last-child{border-right:none;}
+.swatch-chip .sw{width:70px;height:70px;}
+.swatch-chip .hx{font-family:var(--mono);font-size:9px;font-weight:700;padding:6px;text-align:center;border-top:var(--bd);}
+.result-actions{display:flex;flex-direction:column;gap:12px;margin-top:40px;}
 
-/* greeting cards on /home */
-.home-grid{ display:grid; grid-template-columns:1.4fr 1fr; gap:18px; }
-@media(max-width:860px){ .home-grid{ grid-template-columns:1fr; } }
-.feature-card{ background:var(--lvl1); border:1px solid rgba(255,255,255,.05); border-radius:var(--r-card); padding:28px; transition:border-color .25s, transform .25s var(--ease); position:relative; overflow:hidden; }
-.feature-card:hover{ border-color:rgba(255,255,255,.14); transform:translateY(-3px); }
-.feature-card .eyebrow{ margin-bottom:14px; }
-.feature-card h3{ font-family:var(--display); font-weight:400; font-size:26px; margin-bottom:10px; }
-.feature-card p{ color:var(--mist); font-size:14px; line-height:1.6; margin-bottom:18px; }
-.feature-card.tall{ grid-row:span 2; display:flex; flex-direction:column; }
-.mini-dna{ display:flex; flex-direction:column; gap:12px; margin-top:auto; }
-
-/* ---------- Filter pills ---------- */
-.pills{ display:flex; gap:9px; overflow-x:auto; padding-bottom:6px; margin-bottom:26px; -ms-overflow-style:none; scrollbar-width:none; }
-.pills::-webkit-scrollbar{ display:none; }
-.pill{ flex:none; padding:9px 18px; border-radius:100px; border:1px solid var(--ash); font-size:13px; color:var(--mist); transition:all .2s; white-space:nowrap; }
-.pill:hover{ color:var(--chalk); }
-.pill.active{ background:var(--chalk); color:var(--void); border-color:var(--chalk); }
-
-/* ---------- Masonry explorer ---------- */
-.masonry{ column-count:4; column-gap:16px; }
-@media(max-width:1100px){ .masonry{ column-count:3; } }
-@media(max-width:760px){ .masonry{ column-count:2; column-gap:12px; } }
-.look{ break-inside:avoid; margin-bottom:16px; border-radius:var(--r-img); overflow:hidden; position:relative; cursor:pointer;
-  transition:transform .3s var(--ease); }
-.look:hover{ transform:translateY(-4px); }
-.look .cover{ width:100%; background-size:cover; background-position:center; transition:filter .6s, transform .5s var(--ease); }
-.look:hover .cover{ transform:scale(1.04); }
-.look .meta{ position:absolute; inset:0; opacity:0; transition:opacity .25s; background:linear-gradient(to top, rgba(0,0,0,.8), transparent 45%);
-  display:flex; flex-direction:column; justify-content:flex-end; padding:16px; }
-.look:hover .meta, .look.touch .meta{ opacity:1; }
-.look .meta .tag{ font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--bone); }
-.look .save{ position:absolute; top:12px; right:12px; width:36px; height:36px; border-radius:50%; background:rgba(10,10,10,.6);
-  backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity .25s, transform .2s; }
-.look:hover .save, .look.touch .save, .look.saved .save{ opacity:1; }
-.look.saved .save{ background:var(--gold); color:var(--void); }
-.look.saved{ outline:2px solid var(--gold); outline-offset:-2px; }
-.sentinel{ height:40px; }
-
-/* ---------- Closet ---------- */
-.closet-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:16px; }
-.citem{ background:var(--lvl1); border:1px solid rgba(255,255,255,.05); border-radius:var(--r-card); overflow:hidden; transition:transform .25s var(--ease), border-color .25s; cursor:pointer; }
-.citem:hover{ transform:translateY(-3px); border-color:rgba(255,255,255,.14); }
-.citem .thumb{ aspect-ratio:1/1; display:flex; align-items:center; justify-content:center; position:relative; background:var(--lvl2); }
-.citem .thumb img{ width:100%; height:100%; object-fit:cover; }
-.citem .swatch-fill{ width:54%; height:54%; border-radius:12px; }
-.citem .info{ padding:13px 14px; }
-.citem .info .cat{ font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--mist); }
-.citem .info .nm{ font-size:14px; margin-top:3px; }
-.citem .dot{ width:9px; height:9px; border-radius:50%; display:inline-block; margin-right:6px; vertical-align:middle; border:1px solid rgba(255,255,255,.2); }
-.add-card{ border:1px dashed var(--ash); border-radius:var(--r-card); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; color:var(--mist); min-height:200px; transition:all .25s; cursor:pointer; }
-.add-card:hover{ border-color:var(--mist); color:var(--chalk); }
-.add-card svg{ width:30px; height:30px; }
-
-/* empty states */
-.empty{ text-align:center; padding:70px 20px; }
-.empty .ic{ width:54px; height:54px; margin:0 auto 20px; color:var(--ash); }
-.empty h3{ font-family:var(--display); font-weight:400; font-size:26px; margin-bottom:10px; }
-.empty p{ color:var(--mist); max-width:360px; margin:0 auto 24px; }
-
-/* ---------- Outfits ---------- */
-.outfit-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:20px; }
-.outfit-card{ background:var(--lvl1); border:1px solid rgba(255,255,255,.06); border-radius:var(--r-card); overflow:hidden; animation:pageIn .5s var(--ease) both; }
-.outfit-hero{ padding:22px; display:grid; grid-template-columns:repeat(2,1fr); gap:10px; background:var(--lvl0); }
-.outfit-hero .slot{ aspect-ratio:4/5; border-radius:8px; display:flex; align-items:flex-end; padding:10px; position:relative; overflow:hidden; }
-.outfit-hero .slot img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
-.outfit-hero .slot .lab{ position:relative; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--bone); z-index:1;
-  text-shadow:0 1px 4px rgba(0,0,0,.8); }
-.outfit-body{ padding:20px 22px; }
-.outfit-body .occ{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
-.outfit-body .occ .o{ font-family:var(--display); font-size:21px; }
-.outfit-body .match{ font-size:12px; color:var(--gold); letter-spacing:.04em; }
-.chips{ display:flex; flex-wrap:wrap; gap:7px; margin-bottom:18px; }
-.chip{ font-size:11px; padding:5px 11px; border-radius:100px; background:var(--lvl3); color:var(--bone); letter-spacing:.02em; }
-.outfit-actions{ display:flex; gap:8px; border-top:1px solid rgba(255,255,255,.06); }
-.outfit-actions button{ flex:1; padding:15px 6px; font-size:13px; color:var(--mist); display:flex; align-items:center; justify-content:center; gap:7px; transition:color .2s, background .2s; }
-.outfit-actions button:hover{ color:var(--chalk); background:rgba(255,255,255,.03); }
-.outfit-actions button.on{ color:var(--gold); }
-.outfit-actions svg{ width:16px; height:16px; }
-
-/* ---------- Style Lab ---------- */
-.lab-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:18px; margin-bottom:40px; }
-.score-card{ background:var(--lvl1); border:1px solid rgba(255,255,255,.05); border-radius:var(--r-card); padding:26px; text-align:center; }
-.ring{ width:120px; height:120px; margin:0 auto 16px; position:relative; }
-.ring svg{ transform:rotate(-90deg); }
-.ring .num{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:var(--display); font-size:34px; }
-.score-card .lab-name{ font-size:14px; letter-spacing:.03em; }
-.score-card .lab-sub{ font-size:12px; color:var(--mist); margin-top:5px; }
-.insights{ display:flex; flex-direction:column; gap:12px; }
-.insight{ display:flex; gap:16px; align-items:flex-start; background:var(--lvl1); border:1px solid rgba(255,255,255,.05); border-radius:var(--r-card); padding:20px 22px; }
-.insight .ib{ width:38px; height:38px; flex:none; border-radius:10px; display:flex; align-items:center; justify-content:center; }
-.insight h4{ font-size:15px; margin-bottom:5px; }
-.insight p{ color:var(--mist); font-size:14px; line-height:1.5; }
-
-/* ---------- Profile ---------- */
-.profile-head{ display:flex; gap:22px; align-items:center; margin-bottom:36px; flex-wrap:wrap; }
-.avatar{ width:88px; height:88px; border-radius:50%; background:linear-gradient(135deg,var(--gold),var(--clay)); display:flex; align-items:center; justify-content:center;
-  font-family:var(--display); font-size:34px; color:var(--void); flex:none; }
-.stat-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin:30px 0; }
-@media(max-width:600px){ .stat-row{ grid-template-columns:repeat(2,1fr); } }
-.stat{ background:var(--lvl1); border:1px solid rgba(255,255,255,.05); border-radius:var(--r-card); padding:22px; text-align:center; }
-.stat .v{ font-family:var(--display); font-size:38px; line-height:1; }
-.stat .l{ font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--mist); margin-top:8px; }
-
-/* ---------- Modal ---------- */
-.modal-back{ position:fixed; inset:0; z-index:500; background:rgba(0,0,0,.7); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px; opacity:0; animation:fade .3s forwards; }
-@keyframes fade{ to{opacity:1;} }
-.modal{ background:var(--lvl2); border:1px solid rgba(255,255,255,.08); border-radius:var(--r-modal); max-width:480px; width:100%; padding:32px; animation:rise .35s var(--ease) both; max-height:88vh; overflow:auto; }
-@keyframes rise{ from{transform:translateY(30px); opacity:0;} to{transform:none; opacity:1;} }
-.modal h3{ font-family:var(--display); font-weight:400; font-size:26px; margin-bottom:6px; }
-.modal .field{ margin-top:18px; }
-.modal label{ font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--mist); display:block; margin-bottom:8px; }
-.modal select, .modal input[type=text]{ width:100%; padding:13px 14px; background:var(--lvl0); border:1px solid var(--ash); border-radius:8px; color:var(--chalk); font-family:inherit; font-size:15px; }
-.preview-img{ width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:10px; background:var(--lvl0); margin-bottom:6px; }
-.color-pick{ display:flex; gap:10px; flex-wrap:wrap; }
-.color-pick .cp{ width:34px; height:34px; border-radius:50%; cursor:pointer; border:2px solid transparent; }
-.color-pick .cp.sel{ border-color:var(--chalk); }
-
-/* ---------- Toast ---------- */
-.toast-host{ position:fixed; bottom:90px; left:50%; transform:translateX(-50%); z-index:800; display:flex; flex-direction:column; gap:10px; align-items:center; pointer-events:none; }
-.toast{ background:var(--chalk); color:var(--void); padding:13px 22px; border-radius:100px; font-size:14px; font-weight:500; box-shadow:0 10px 40px rgba(0,0,0,.5); animation:toastIn .3s var(--ease), toastOut .3s var(--ease) 2.4s forwards; }
-@keyframes toastIn{ from{opacity:0; transform:translateY(16px);} to{opacity:1; transform:none;} }
-@keyframes toastOut{ to{opacity:0; transform:translateY(16px);} }
-
-/* utility */
-.center{ text-align:center; }
-.mt-s{ margin-top:14px; } .mt-m{ margin-top:28px; } .mt-l{ margin-top:54px; }
-.flex{ display:flex; } .gap{ gap:14px; } .wrap-f{ flex-wrap:wrap; } .between{ justify-content:space-between; } .aic{ align-items:center; }
-.hr{ height:1px; background:rgba(255,255,255,.06); margin:48px 0; }
-
-@media (prefers-reduced-motion: reduce){
-  *{ animation-duration:.001ms !important; transition-duration:.001ms !important; }
-  .scroll-hint{ display:none; }
-}
+/* share card — the loud black/red poster */
+.share-card{background:var(--ink);color:#fff;border:var(--bd);box-shadow:var(--sh-red);padding:40px 32px;margin:30px 0;position:relative;overflow:hidden;}
+.share-card .brand{color:#fff;}
+.share-card .brand::after{background:var(--red);}
+.share-card .big{font-family:var(--display);font-weight:700;text-transform:uppercase;font-size:clamp(30px,6vw,52px);line-height:.95;margin:22px 0 10px;}
+.share-card .big .mark{color:var(--red);display:block;}
+.share-card .mini-bars{margin:24px 0 6px;}
+.share-card .mini-bars .dna-row{border-color:rgba(255,255,255,.2);padding:12px 0;}
+.share-card .mini-bars .nm{font-size:14px;color:#fff;}
+.share-card .mini-bars .bar{border-color:rgba(255,255,255,.4);background:transparent;}
+.share-card .url{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-top:24px;}
 
 /* ============================================================
-   EXPLORER — WHITE HYPEBEAST MODE
-   Fully inverted; lives on #explore only.
+   AUTHED / SHARED
    ============================================================ */
+.authed-page{padding:calc(var(--nav-h) + 28px) 0 120px;}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:36px;flex-wrap:wrap;border-bottom:var(--bd);padding-bottom:24px;}
+.page-head h1{font-size:clamp(34px,6vw,64px);}
+.page-head .eyebrow{display:block;margin-bottom:12px;}
+.page-head p{font-family:var(--mono);font-size:12px;text-transform:uppercase;color:var(--gray);margin-top:12px;max-width:440px;line-height:1.6;}
 
-/* Custom cursor — only when .explore-active on body */
-#xCursor{
-  position:fixed; z-index:9998; pointer-events:none;
-  width:34px; height:34px; border-radius:50%;
-  border:1.5px solid #0A0A0A; background:transparent;
-  transform:translate(-50%,-50%);
-  transition:transform .08s, width .3s var(--ease), height .3s var(--ease), background .3s, border-color .3s, border-radius .3s;
-  mix-blend-mode:multiply;
-  display:none;
+/* card base */
+.card{border:var(--bd);background:var(--white);box-shadow:var(--sh);}
+
+/* dashboard */
+.home-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:18px;}
+@media(max-width:860px){.home-grid{grid-template-columns:1fr;}}
+.feature-card{border:var(--bd);box-shadow:var(--sh);padding:28px;background:var(--white);transition:transform .14s var(--ease),box-shadow .14s var(--ease);position:relative;}
+.feature-card:hover{transform:translate(-3px,-3px);box-shadow:8px 8px 0 var(--ink);}
+.feature-card .eyebrow{margin-bottom:14px;}
+.feature-card h3{font-size:28px;margin-bottom:10px;}
+.feature-card p{font-family:var(--mono);font-size:12px;text-transform:uppercase;color:var(--gray);line-height:1.6;margin-bottom:20px;}
+.feature-card.tall{grid-row:span 2;background:var(--red);color:#fff;display:flex;flex-direction:column;justify-content:space-between;min-height:320px;}
+.feature-card.tall .eyebrow{color:#fff;}
+.feature-card.tall h3{font-size:38px;}
+.feature-card.tall p{color:rgba(255,255,255,.85);}
+
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);border:var(--bd);margin:30px 0;}
+@media(max-width:600px){.stat-row{grid-template-columns:repeat(2,1fr);}}
+.stat{padding:26px 20px;text-align:center;border-right:var(--bd);}
+.stat:last-child{border-right:none;}
+@media(max-width:600px){.stat:nth-child(2n){border-right:none;}.stat:nth-child(-n+2){border-bottom:var(--bd);}}
+.stat .v{font-family:var(--display);font-weight:700;font-size:44px;line-height:1;}
+.stat .l{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gray);margin-top:8px;}
+
+/* filter tabs (shared) */
+.tabs{display:flex;border:var(--bd);overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none;margin-bottom:24px;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{flex:none;padding:13px 20px;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gray);border-right:var(--bd);white-space:nowrap;transition:background .15s,color .15s;}
+.tab:last-child{border-right:none;}
+.tab:hover{color:var(--ink);}
+.tab.active{background:var(--ink);color:#fff;}
+
+/* ============================================================
+   EXPLORER
+   ============================================================ */
+.x-hero{display:grid;grid-template-columns:1.1fr 1fr;border-bottom:var(--bd);}
+.x-hero .big-cell{position:relative;overflow:hidden;border-right:var(--bd);min-height:62vh;display:flex;align-items:flex-end;padding:34px;}
+.x-hero .big-cell .ph{position:absolute;inset:0;background-size:cover;background-position:center;transform:scale(1.06);transition:transform 8s linear;}
+.x-hero .big-cell::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.65),transparent 55%);}
+.x-hero .big-cell .ov{position:relative;z-index:1;color:#fff;}
+.x-hero .big-cell .ov .badge{display:inline-block;background:var(--red);font-family:var(--mono);font-weight:700;font-size:11px;text-transform:uppercase;padding:6px 12px;margin-bottom:16px;}
+.x-hero .big-cell .ov h2{font-size:clamp(34px,4.5vw,60px);}
+.x-hero .side{display:grid;grid-template-rows:1fr 1fr;}
+.x-hero .side .cell{position:relative;overflow:hidden;border-bottom:var(--bd);display:flex;align-items:flex-end;padding:22px;}
+.x-hero .side .cell:last-child{border-bottom:none;}
+.x-hero .side .cell .ph{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform 6s linear;}
+.x-hero .side .cell::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.55),transparent 55%);}
+.x-hero .side .cell .lbl{position:relative;z-index:1;color:#fff;font-family:var(--display);font-weight:700;font-size:22px;text-transform:uppercase;}
+.x-hero .side .cell .lbl small{display:block;font-family:var(--mono);font-size:10px;color:var(--red);margin-bottom:4px;}
+@media(max-width:860px){.x-hero{grid-template-columns:1fr;}.x-hero .big-cell{border-right:none;border-bottom:var(--bd);min-height:55vw;}}
+
+.x-stats{display:flex;border-bottom:var(--bd);}
+.x-stat{flex:1;padding:22px;text-align:center;border-right:var(--bd);}
+.x-stat:last-child{border-right:none;}
+.x-stat .v{font-family:var(--display);font-weight:700;font-size:clamp(26px,4vw,44px);line-height:1;}
+.x-stat .l{font-family:var(--mono);font-size:10px;font-weight:700;text-transform:uppercase;color:var(--gray);margin-top:6px;}
+@media(max-width:600px){.x-stats{flex-wrap:wrap;}.x-stat{flex:1 1 50%;}}
+
+.x-filters{display:flex;border-bottom:var(--bd);overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none;position:sticky;top:var(--nav-h);z-index:100;background:var(--white);}
+.x-filters::-webkit-scrollbar{display:none;}
+.x-filter{flex:none;padding:15px 22px;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gray);border-right:var(--bd);white-space:nowrap;transition:background .15s,color .15s;}
+.x-filter:hover{color:var(--ink);}
+.x-filter.active{background:var(--red);color:#fff;}
+
+.x-grid{column-count:4;column-gap:0;border-left:var(--bd);}
+@media(max-width:1100px){.x-grid{column-count:3;}}
+@media(max-width:720px){.x-grid{column-count:2;}}
+.x-card{break-inside:avoid;position:relative;overflow:hidden;border-right:var(--bd);border-bottom:var(--bd);background:var(--soft);
+  opacity:0;transform:translateY(26px);will-change:transform;}
+.x-card.xin{opacity:1;transform:none;transition:opacity .55s var(--ease),transform .55s var(--ease);}
+.x-card .ximg{width:100%;background-size:cover;background-position:center;transition:transform .8s var(--ease);}
+.x-card:hover .ximg{transform:scale(1.05);}
+.x-card .x-over{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.8) 30%,transparent 65%);opacity:0;transition:opacity .3s var(--ease);display:flex;flex-direction:column;justify-content:flex-end;padding:18px;}
+.x-card:hover .x-over{opacity:1;}
+.x-card .x-over .xa{font-family:var(--mono);font-size:10px;font-weight:700;text-transform:uppercase;color:var(--red);}
+.x-card .x-over .xt{font-family:var(--display);font-weight:700;font-size:clamp(16px,2.4vw,24px);text-transform:uppercase;color:#fff;line-height:1;margin-top:5px;}
+.x-save{position:absolute;top:10px;right:10px;z-index:2;width:38px;height:38px;background:var(--white);border:var(--bd);
+  display:flex;align-items:center;justify-content:center;color:var(--ink);opacity:0;transform:translateY(-6px);transition:opacity .2s,transform .2s var(--ease);}
+.x-card:hover .x-save{opacity:1;transform:none;}
+.x-card.xsaved .x-save{opacity:1;transform:none;background:var(--red);color:#fff;}
+.x-card.xsaved{outline:3px solid var(--red);outline-offset:-3px;}
+@keyframes burst{0%{transform:scale(1);}35%{transform:scale(1.4);}65%{transform:scale(.9);}100%{transform:scale(1);}}
+.x-save.pop{animation:burst .4s var(--ease);}
+.x-card .x-n{position:absolute;top:10px;left:10px;z-index:2;background:var(--ink);color:#fff;font-family:var(--mono);font-size:10px;font-weight:700;padding:3px 8px;opacity:0;transition:opacity .2s;}
+.x-card:hover .x-n{opacity:1;}
+
+.x-card.x-feat{background:var(--ink);color:#fff;padding:36px 26px;min-height:320px;display:flex;flex-direction:column;justify-content:flex-end;}
+.x-card.x-feat.red{background:var(--red);}
+.x-card.x-feat .xf-ey{font-family:var(--mono);font-size:10px;font-weight:700;text-transform:uppercase;color:var(--red);margin-bottom:16px;}
+.x-card.x-feat.red .xf-ey{color:#fff;}
+.x-card.x-feat .xf-h{font-family:var(--display);font-weight:700;text-transform:uppercase;font-size:clamp(26px,3.5vw,40px);line-height:.95;}
+.x-card.x-feat .xf-sub{font-family:var(--mono);font-size:11px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-top:12px;line-height:1.6;}
+.x-card.x-feat .xf-btn{margin-top:20px;display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase;border-bottom:2px solid var(--red);padding-bottom:3px;width:fit-content;}
+
+.x-marquee-wrap{overflow:hidden;background:var(--red);padding:16px 0;border-bottom:var(--bd);}
+.x-marquee{display:flex;white-space:nowrap;animation:tick 26s linear infinite;}
+.x-marquee span{font-family:var(--display);font-weight:700;font-style:italic;font-size:clamp(22px,3vw,38px);text-transform:uppercase;color:#fff;padding:0 30px;}
+.x-marquee span.k{color:var(--ink);}
+
+.x-sentinel{height:50px;}
+
+/* ============================================================
+   CLOSET
+   ============================================================ */
+.closet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:16px;}
+.citem{border:var(--bd);box-shadow:var(--sh);overflow:hidden;background:var(--white);transition:transform .14s var(--ease),box-shadow .14s var(--ease);}
+.citem:hover{transform:translate(-3px,-3px);box-shadow:7px 7px 0 var(--ink);}
+.citem .thumb{aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;position:relative;background:var(--soft);border-bottom:var(--bd);}
+.citem .thumb img{width:100%;height:100%;object-fit:cover;}
+.citem .swatch-fill{width:56%;height:56%;border:var(--bd);}
+.citem .info{padding:12px 14px;}
+.citem .info .cat{font-family:var(--mono);font-size:10px;font-weight:700;text-transform:uppercase;color:var(--red);}
+.citem .info .nm{font-family:var(--display);font-weight:600;font-size:14px;text-transform:uppercase;margin-top:3px;display:flex;align-items:center;gap:7px;}
+.citem .dot{width:11px;height:11px;border:var(--bd);display:inline-block;flex:none;}
+.add-card{border:2px dashed var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:220px;font-family:var(--mono);font-weight:700;text-transform:uppercase;font-size:12px;transition:background .15s,color .15s;}
+.add-card:hover{background:var(--red);color:#fff;border-style:solid;}
+.add-card svg{width:30px;height:30px;}
+
+.empty{text-align:center;padding:70px 20px;border:2px dashed var(--ink);}
+.empty .ic{width:50px;height:50px;margin:0 auto 18px;color:var(--red);}
+.empty h3{font-size:30px;margin-bottom:12px;}
+.empty p{font-family:var(--mono);font-size:12px;text-transform:uppercase;color:var(--gray);max-width:380px;margin:0 auto 24px;line-height:1.6;}
+
+/* ============================================================
+   OUTFITS
+   ============================================================ */
+.outfit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:20px;}
+.outfit-card{border:var(--bd);box-shadow:var(--sh);overflow:hidden;background:var(--white);animation:pop .4s var(--ease) both;}
+.outfit-hero{padding:0;display:grid;grid-template-columns:repeat(2,1fr);}
+.outfit-hero .slot{aspect-ratio:1/1;display:flex;align-items:flex-end;padding:10px;position:relative;overflow:hidden;border-right:var(--bd);border-bottom:var(--bd);}
+.outfit-hero .slot:nth-child(2n){border-right:none;}
+.outfit-hero .slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.outfit-hero .slot .lab{position:relative;z-index:1;font-family:var(--mono);font-size:9px;font-weight:700;text-transform:uppercase;color:#fff;background:var(--ink);padding:3px 6px;}
+.outfit-body{padding:18px 20px;}
+.outfit-body .occ{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.outfit-body .occ .o{font-family:var(--display);font-weight:700;font-size:22px;text-transform:uppercase;}
+.outfit-body .match{font-family:var(--mono);font-weight:700;font-size:13px;color:#fff;background:var(--red);padding:4px 9px;}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px;}
+.chip{font-family:var(--mono);font-size:10px;font-weight:700;text-transform:uppercase;padding:5px 10px;border:var(--bd);}
+.chip .dot{width:9px;height:9px;display:inline-block;border:1px solid var(--ink);margin-right:5px;vertical-align:middle;}
+.outfit-actions{display:flex;border-top:var(--bd);}
+.outfit-actions button{flex:1;padding:14px 6px;font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase;color:var(--ink);display:flex;align-items:center;justify-content:center;gap:6px;border-right:var(--bd);transition:background .15s,color .15s;}
+.outfit-actions button:last-child{border-right:none;}
+.outfit-actions button:hover{background:var(--ink);color:#fff;}
+.outfit-actions button.on{background:var(--red);color:#fff;}
+.outfit-actions svg{width:15px;height:15px;}
+
+/* ============================================================
+   STYLE LAB
+   ============================================================ */
+.lab-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px;margin-bottom:40px;}
+.score-card{border:var(--bd);box-shadow:var(--sh);padding:24px;background:var(--white);}
+.score-card .v{font-family:var(--display);font-weight:700;font-size:60px;line-height:1;}
+.score-card .v small{font-size:22px;color:var(--gray);}
+.score-card .lab-name{font-family:var(--display);font-weight:700;font-size:16px;text-transform:uppercase;margin-top:8px;}
+.score-card .lab-sub{font-family:var(--mono);font-size:10px;text-transform:uppercase;color:var(--gray);margin-top:5px;line-height:1.5;}
+.score-card .lbar{height:12px;border:var(--bd);margin-top:16px;overflow:hidden;}
+.score-card .lbar>i{display:block;height:100%;width:0;transition:width 1.1s var(--ease);}
+.insights{display:flex;flex-direction:column;gap:14px;}
+.insight{display:flex;gap:16px;align-items:flex-start;border:var(--bd);box-shadow:var(--sh);padding:20px 22px;background:var(--white);}
+.insight .ib{width:40px;height:40px;flex:none;border:var(--bd);display:flex;align-items:center;justify-content:center;background:var(--red);color:#fff;}
+.insight.win .ib{background:var(--ink);}
+.insight h4{font-family:var(--display);font-weight:700;font-size:16px;text-transform:uppercase;margin-bottom:5px;}
+.insight p{font-family:var(--mono);font-size:11px;text-transform:uppercase;color:var(--gray);line-height:1.6;}
+
+/* ============================================================
+   PROFILE
+   ============================================================ */
+.profile-head{display:flex;gap:22px;align-items:center;margin-bottom:32px;flex-wrap:wrap;}
+.avatar{width:90px;height:90px;border:var(--bd);box-shadow:var(--sh-red);background:var(--red);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:700;font-size:40px;color:#fff;flex:none;}
+.tag-row{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0;}
+
+/* ============================================================
+   MODAL / TOAST
+   ============================================================ */
+.modal-back{position:fixed;inset:0;z-index:500;background:rgba(10,10,10,.55);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;animation:fade .2s forwards;}
+@keyframes fade{to{opacity:1;}}
+.modal{background:var(--white);border:var(--bd);box-shadow:var(--sh-red);max-width:480px;width:100%;padding:30px;max-height:88vh;overflow:auto;animation:rise .3s var(--ease) both;}
+@keyframes rise{from{transform:translateY(24px);opacity:0;}to{transform:none;opacity:1;}}
+.modal h3{font-size:28px;margin-bottom:6px;}
+.modal .sub{font-family:var(--mono);font-size:11px;text-transform:uppercase;color:var(--gray);}
+.modal .field{margin-top:18px;}
+.modal label{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink);display:block;margin-bottom:8px;}
+.modal select,.modal input[type=text]{width:100%;padding:13px 14px;background:var(--white);border:var(--bd);color:var(--ink);font-size:15px;}
+.modal input[type=file]{font-family:var(--mono);font-size:12px;}
+.preview-img{width:100%;aspect-ratio:1/1;object-fit:cover;border:var(--bd);margin-bottom:10px;background:var(--soft);}
+.color-pick{display:flex;gap:8px;flex-wrap:wrap;}
+.color-pick .cp{width:36px;height:36px;border:var(--bd);cursor:pointer;}
+.color-pick .cp.sel{outline:3px solid var(--red);outline-offset:2px;}
+
+.toast-host{position:fixed;bottom:84px;left:50%;transform:translateX(-50%);z-index:800;display:flex;flex-direction:column;gap:10px;align-items:center;pointer-events:none;}
+.toast{background:var(--ink);color:#fff;border-left:5px solid var(--red);padding:13px 22px;font-family:var(--mono);font-size:12px;font-weight:700;text-transform:uppercase;box-shadow:var(--sh);animation:tin .25s var(--ease),tout .25s var(--ease) 2.4s forwards;}
+@keyframes tin{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+@keyframes tout{to{opacity:0;transform:translateY(14px);}}
+
+/* utils */
+.flex{display:flex;}.gap{gap:14px;}.wrap-f{flex-wrap:wrap;}.aic{align-items:center;}.between{justify-content:space-between;}
+.mt-m{margin-top:28px;}.mt-l{margin-top:54px;}.center{text-align:center;}
+
+@media(prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms !important;transition-duration:.001ms !important;}
 }
-body.explore-active #xCursor{ display:block; }
-#xCursor.xl{ width:80px; height:80px; background:rgba(10,10,10,.07); }
-#xCursor.heart{ width:50px; height:50px; background:#ff3b5c; border-color:#ff3b5c; border-radius:50%; }
-#xDot{
-  position:fixed; z-index:9999; pointer-events:none;
-  width:5px; height:5px; border-radius:50%; background:#0A0A0A;
-  transform:translate(-50%,-50%); display:none;
-}
-body.explore-active #xDot{ display:block; }
-
-/* Explorer page shell — white */
-.xpage{
-  min-height:100vh;
-  background:#fff;
-  color:#0A0A0A;
-  padding-top: var(--nav-h);
-  cursor:none; /* use custom cursor */
-}
-
-/* Nav override on explore */
-body.explore-active .nav{
-  background:rgba(255,255,255,.94) !important;
-  backdrop-filter:blur(16px);
-  border-bottom:1px solid rgba(0,0,0,.08);
-}
-body.explore-active .nav .brand,
-body.explore-active .nav .nav-link{ color:#0A0A0A !important; }
-body.explore-active .nav .nav-link.active{ color:#0A0A0A; }
-body.explore-active .nav .nav-link.active::after{ background:#0A0A0A; }
-
-/* TICKER TAPE */
-.ticker-wrap{ overflow:hidden; border-top:1px solid rgba(0,0,0,.1); border-bottom:1px solid rgba(0,0,0,.1); padding:14px 0; margin-bottom:0; background:#fff; }
-.ticker{ display:flex; gap:0; white-space:nowrap; animation:ticker 22s linear infinite; }
-.ticker:hover{ animation-play-state:paused; }
-.ticker span{ font-family:var(--display); font-size:15px; letter-spacing:.18em; text-transform:uppercase; padding:0 40px; color:#0A0A0A; }
-.ticker span.sep{ color:rgba(0,0,0,.2); padding:0; }
-@keyframes ticker{ from{transform:translateX(0)} to{transform:translateX(-50%)} }
-
-/* HERO BAND */
-.x-hero{
-  display:grid; grid-template-columns:1fr 1fr; min-height:90vh;
-  border-bottom:1px solid rgba(0,0,0,.1);
-}
-.x-hero-left{
-  padding:80px 60px; display:flex; flex-direction:column; justify-content:flex-end;
-  border-right:1px solid rgba(0,0,0,.1);
-  position:relative; overflow:hidden;
-}
-.x-hero-left .bg{
-  position:absolute; inset:0; background-size:cover; background-position:center;
-  transform:scale(1.08); transition:transform 8s linear;
-  filter:saturate(.8);
-}
-.x-hero-left::after{ content:''; position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,.7) 30%, rgba(0,0,0,.1)); }
-.x-hero-left .txt{ position:relative; z-index:1; color:#fff; }
-.x-hero-left .txt h2{ font-family:var(--display); font-weight:300; font-size:clamp(36px,4vw,58px); line-height:1; }
-.x-hero-left .txt p{ color:rgba(255,255,255,.65); margin-top:12px; font-size:15px; }
-.x-hero-left .txt .badge{ display:inline-block; background:rgba(255,255,255,.15); backdrop-filter:blur(6px); color:#fff; font-size:11px; letter-spacing:.2em; text-transform:uppercase; padding:7px 14px; border-radius:100px; margin-bottom:20px; border:1px solid rgba(255,255,255,.2); }
-
-.x-hero-right{ display:grid; grid-template-rows:1fr 1fr; }
-.x-hero-right .cell{
-  position:relative; overflow:hidden;
-  border-bottom:1px solid rgba(0,0,0,.1);
-  min-height:200px;
-}
-.x-hero-right .cell:last-child{ border-bottom:none; }
-.x-hero-right .cell .bg{ position:absolute; inset:0; background-size:cover; background-position:center; transform:scale(1.06); transition:transform 6s linear; }
-.x-hero-right .cell::after{ content:''; position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,.55) 25%, transparent); }
-.x-hero-right .cell .lbl{ position:absolute; bottom:18px; left:20px; z-index:1; color:#fff; font-family:var(--display); font-weight:300; font-size:22px; line-height:1.1; }
-.x-hero-right .cell .lbl small{ display:block; font-family:var(--ui); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:rgba(255,255,255,.6); margin-bottom:5px; }
-
-@media(max-width:860px){ .x-hero{ grid-template-columns:1fr; min-height:auto; } .x-hero-left{ min-height:60vw; padding:40px 28px; } .x-hero-left .txt h2{ font-size:34px; } }
-
-/* FILTER ROW */
-.x-filters{
-  display:flex; align-items:center; gap:0;
-  border-bottom:1px solid rgba(0,0,0,.1);
-  overflow-x:auto; -ms-overflow-style:none; scrollbar-width:none;
-  position:sticky; top:var(--nav-h); z-index:100; background:#fff;
-}
-.x-filters::-webkit-scrollbar{ display:none; }
-.x-filter{
-  flex:none; padding:16px 22px; font-size:12px; letter-spacing:.12em; text-transform:uppercase;
-  font-weight:500; color:rgba(0,0,0,.45); border-bottom:2px solid transparent;
-  border-right:1px solid rgba(0,0,0,.08); cursor:none; transition:color .2s;
-  white-space:nowrap;
-}
-.x-filter:hover{ color:#0A0A0A; }
-.x-filter.active{ color:#0A0A0A; border-bottom-color:#0A0A0A; }
-
-/* MASONRY GRID — white Hypebeast */
-.x-grid{
-  column-count:4; column-gap:1px;
-  border-left:1px solid rgba(0,0,0,.08);
-}
-@media(max-width:1100px){ .x-grid{ column-count:3; } }
-@media(max-width:720px){ .x-grid{ column-count:2; } }
-
-.x-card{
-  break-inside:avoid; margin-bottom:1px;
-  position:relative; overflow:hidden; cursor:none;
-  background:#f5f4f0;
-}
-.x-card .ximg{
-  width:100%; display:block;
-  background-size:cover; background-position:center;
-  transform-origin:center; transition:transform .8s var(--ease);
-}
-.x-card:hover .ximg{ transform:scale(1.06); }
-
-/* Tilt effect — applied via JS */
-.x-card{ transform-style:preserve-3d; transition:transform .15s var(--ease), box-shadow .15s; will-change:transform; }
-
-/* Overlay on hover */
-.x-card .x-over{
-  position:absolute; inset:0;
-  background:linear-gradient(to top, rgba(0,0,0,.82) 35%, rgba(0,0,0,0) 65%);
-  opacity:0; transition:opacity .35s var(--ease);
-  display:flex; flex-direction:column; justify-content:flex-end; padding:20px;
-}
-.x-card:hover .x-over{ opacity:1; }
-.x-card .x-over .xa{ font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:rgba(255,255,255,.6); }
-.x-card .x-over .xt{ font-family:var(--display); font-weight:300; font-size:clamp(16px,2.5vw,24px); color:#fff; line-height:1.1; margin-top:4px; }
-.x-card .x-over .xi{ margin-top:12px; display:flex; gap:8px; align-items:center; }
-
-/* Save button */
-.x-save{
-  position:absolute; top:12px; right:12px; z-index:2;
-  width:38px; height:38px; border-radius:50%;
-  background:rgba(255,255,255,.9); backdrop-filter:blur(6px);
-  display:flex; align-items:center; justify-content:center;
-  opacity:0; transform:scale(.7) translateY(-4px);
-  transition:opacity .25s, transform .3s var(--ease); color:#0A0A0A;
-  cursor:none;
-}
-.x-card:hover .x-save{ opacity:1; transform:none; }
-.x-card.xsaved .x-save{ opacity:1; transform:none; background:#ff3b5c; color:#fff; }
-.x-card.xsaved{ outline:2px solid #ff3b5c; outline-offset:-2px; }
-
-/* BURST animation on save */
-@keyframes burst{
-  0%{ transform:scale(1); }
-  30%{ transform:scale(1.45); }
-  60%{ transform:scale(.92); }
-  100%{ transform:scale(1); }
-}
-.x-save.pop{ animation:burst .4s var(--ease); }
-
-/* Number badge (save count) */
-.x-card .x-n{
-  position:absolute; top:12px; left:12px; z-index:2;
-  background:#0A0A0A; color:#fff; font-size:10px; font-weight:600; letter-spacing:.04em;
-  padding:4px 9px; border-radius:100px;
-  opacity:0; transition:opacity .25s;
-}
-.x-card:hover .x-n{ opacity:1; }
-
-/* EDITORIAL FEATURE CARD (every ~8th item) */
-.x-card.x-feat{
-  break-inside:avoid; column-span:none;
-  background:#0A0A0A; color:#fff;
-  padding:40px 28px 36px;
-  min-height:340px; display:flex; flex-direction:column; justify-content:flex-end;
-}
-.x-card.x-feat .xf-ey{ font-size:10px; letter-spacing:.22em; text-transform:uppercase; color:rgba(255,255,255,.45); margin-bottom:18px; }
-.x-card.x-feat .xf-h{ font-family:var(--display); font-weight:300; font-size:clamp(28px,3.5vw,42px); line-height:1.05; }
-.x-card.x-feat .xf-sub{ color:rgba(255,255,255,.55); font-size:13px; margin-top:12px; line-height:1.5; }
-.x-card.x-feat .xf-btn{ margin-top:22px; display:inline-flex; align-items:center; gap:8px; font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:#fff; border-bottom:1px solid rgba(255,255,255,.3); padding-bottom:2px; }
-
-/* SCROLL FADE-IN for cards */
-.x-card{ opacity:0; transform:translateY(30px); }
-.x-card.xin{ opacity:1; transform:none; transition:opacity .65s var(--ease), transform .65s var(--ease); }
-
-/* MARQUEE between sections */
-.x-marquee-wrap{ overflow:hidden; padding:18px 0; border-top:1px solid rgba(0,0,0,.08); border-bottom:1px solid rgba(0,0,0,.08); background:#0A0A0A; }
-.x-marquee{ display:flex; gap:0; white-space:nowrap; animation:ticker 30s linear infinite; }
-.x-marquee span{ font-family:var(--display); font-size:clamp(22px,3vw,36px); font-weight:300; font-style:italic; letter-spacing:.02em; color:rgba(255,255,255,.55); padding:0 48px; }
-.x-marquee span.xhigh{ color:#fff; }
-
-/* SENTINEL */
-.x-sentinel{ height:60px; }
-
-/* STATS BAR */
-.x-stats{ display:flex; border-top:1px solid rgba(0,0,0,.1); border-bottom:1px solid rgba(0,0,0,.1); }
-.x-stat{ flex:1; padding:24px; text-align:center; border-right:1px solid rgba(0,0,0,.1); }
-.x-stat:last-child{ border-right:none; }
-.x-stat .v{ font-family:var(--display); font-size:clamp(28px,4vw,48px); line-height:1; }
-.x-stat .l{ font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:rgba(0,0,0,.4); margin-top:6px; }
-@media(max-width:600px){ .x-stats{ flex-wrap:wrap; } .x-stat{ flex:1 1 50%; } }
 </style>
 </head>
 <body>
@@ -629,75 +480,32 @@ body.explore-active .nav .nav-link.active::after{ background:#0A0A0A; }
   <a class="brand" href="#/" data-link>FORMA</a>
   <div class="nav-links" id="navLinks"></div>
 </nav>
-
 <main id="app"></main>
-
 <nav class="tabbar" id="tabbar"></nav>
 <div class="toast-host" id="toastHost"></div>
 <div id="modalRoot"></div>
+<div id="cur"></div><div id="curDot"></div>
 
 <script>
 /* ============================================================================
-   FORMA — APPLICATION LOGIC
-   Self-contained single-page app. Hash router + localStorage state.
-   No build step, no dependencies. Open this file in any browser.
+   FORMA — brutalist streetwear edition. Single file, no deps.
    ============================================================================ */
 
-/* ---------------------------------------------------------------------------
-   1. AESTHETIC LIBRARY  (the 8 core archetypes + signature palettes)
-   --------------------------------------------------------------------------- */
+/* 1. AESTHETICS ------------------------------------------------------------ */
 const AESTHETICS = {
-  editorial: { name:'Editorial Minimal', accent:'#E8E3D9',
-    blurb:'Architectural lines, monochrome restraint, and the confidence to wear almost nothing.',
-    tags:['Tailored','Monochrome','Considered','Sculptural'],
-    palette:['#0A0A0A','#F5F4F0','#E8E3D9','#8A8A8E','#2C2C2E'],
-    grad:'linear-gradient(135deg,#26252b,#0e0e10 55%,#3a3942)' },
-  streetwear: { name:'Streetwear', accent:'#C4886A',
-    blurb:'Proportion play, cultural references, and pieces that start conversations.',
-    tags:['Oversized','Layered','Cultural','Bold'],
-    palette:['#1A1A1A','#E8E3D9','#C4886A','#3A4A55','#8A8A8E'],
-    grad:'linear-gradient(150deg,#2a2620,#101012 50%,#3d342a)' },
-  quiet: { name:'Quiet Luxury', accent:'#C9A96E',
-    blurb:'Logos whispered, never shouted. Fabric does the talking.',
-    tags:['Refined','Tactile','Understated','Timeless'],
-    palette:['#1C1A17','#E8E3D9','#C9A96E','#9A8C76','#3a352d'],
-    grad:'linear-gradient(140deg,#2c281f,#13110d 55%,#403a2c)' },
-  oldmoney: { name:'Old Money', accent:'#8A9E7E',
-    blurb:'Heritage codes, weathered elegance, and clothes that look inherited.',
-    tags:['Heritage','Preppy','Tailored','Earthy'],
-    palette:['#20231C','#E8E3D9','#8A9E7E','#7A6A52','#2C2C28'],
-    grad:'linear-gradient(150deg,#252a20,#111310 55%,#3a4232)' },
-  y2k: { name:'Y2K', accent:'#B08FB0',
-    blurb:'Chrome dreams, low-rise nostalgia, and unapologetic shine.',
-    tags:['Glossy','Nostalgic','Playful','Metallic'],
-    palette:['#15131A','#F5F4F0','#B08FB0','#7E9BC4','#C4886A'],
-    grad:'linear-gradient(135deg,#2a2433,#101015 50%,#3a3450)' },
-  scandi: { name:'Scandinavian', accent:'#A9B5B0',
-    blurb:'Functional minimalism, soft neutrals, and the warmth of less.',
-    tags:['Functional','Soft','Neutral','Calm'],
-    palette:['#1A1C1B','#F5F4F0','#A9B5B0','#C9BBA8','#2C2E2D'],
-    grad:'linear-gradient(150deg,#232726,#101211 55%,#363b39)' },
-  archive: { name:'Archive', accent:'#9E8AA0',
-    blurb:'Deconstruction, rare references, and a wardrobe that reads like a thesis.',
-    tags:['Avant','Conceptual','Dark','Rare'],
-    palette:['#0E0E10','#E8E3D9','#9E8AA0','#5A5560','#2C2C2E'],
-    grad:'linear-gradient(140deg,#221f26,#0c0c0e 55%,#34303a)' },
-  vintage: { name:'Vintage', accent:'#C4A06A',
-    blurb:'Lived-in textures, decade-hopping finds, and stories in every seam.',
-    tags:['Retro','Textured','Eclectic','Warm'],
-    palette:['#1C1813','#E8E3D9','#C4A06A','#9A6A4E','#3a322a'],
-    grad:'linear-gradient(150deg,#2a241b,#121009 55%,#3e352700)' }
+  editorial:{name:'Editorial Minimal',blurb:'Hard lines, monochrome restraint, the confidence to wear almost nothing.',tags:['Tailored','Monochrome','Sharp','Sculptural'],palette:['#0A0A0A','#FFFFFF','#E8E3D9','#8A8A8E','#2C2C2E'],grad:'linear-gradient(135deg,#d8d8d8,#9a9a9a)'},
+  streetwear:{name:'Streetwear',blurb:'Proportion play, cultural references, pieces that start conversations.',tags:['Oversized','Layered','Loud','Bold'],palette:['#1A1A1A','#FF2D2D','#E8E3D9','#3A4A55','#8A8A8E'],grad:'linear-gradient(135deg,#c9b8a8,#7a6a58)'},
+  quiet:{name:'Quiet Luxury',blurb:'Logos whispered, never shouted. Fabric does the talking.',tags:['Refined','Tactile','Clean','Timeless'],palette:['#1C1A17','#E8E3D9','#C9A96E','#9A8C76','#3a352d'],grad:'linear-gradient(135deg,#ddd0b8,#a08c6e)'},
+  oldmoney:{name:'Old Money',blurb:'Heritage codes, weathered ease, clothes that look inherited.',tags:['Heritage','Preppy','Tailored','Earthy'],palette:['#20231C','#E8E3D9','#8A9E7E','#7A6A52','#2C2C28'],grad:'linear-gradient(135deg,#b8c0a8,#7a8268)'},
+  y2k:{name:'Y2K',blurb:'Chrome dreams, low-rise nostalgia, unapologetic shine.',tags:['Glossy','Nostalgic','Playful','Metallic'],palette:['#15131A','#FFFFFF','#B08FB0','#7E9BC4','#C4886A'],grad:'linear-gradient(135deg,#c8b0d0,#90a8c8)'},
+  scandi:{name:'Scandinavian',blurb:'Functional minimalism, soft neutrals, the warmth of less.',tags:['Functional','Soft','Neutral','Calm'],palette:['#1A1C1B','#FFFFFF','#A9B5B0','#C9BBA8','#2C2E2D'],grad:'linear-gradient(135deg,#cdd5d0,#a0aaa5)'},
+  archive:{name:'Archive',blurb:'Deconstruction, rare references, a wardrobe that reads like a thesis.',tags:['Avant','Conceptual','Dark','Rare'],palette:['#0E0E10','#E8E3D9','#9E8AA0','#5A5560','#2C2C2E'],grad:'linear-gradient(135deg,#b0a8b4,#74707a)'},
+  vintage:{name:'Vintage',blurb:'Lived-in textures, decade-hopping finds, stories in every seam.',tags:['Retro','Textured','Eclectic','Warm'],palette:['#1C1813','#E8E3D9','#C4A06A','#9A6A4E','#3a322a'],grad:'linear-gradient(135deg,#cdb89a,#9a7a5e)'}
 };
-const AES_KEYS = Object.keys(AESTHETICS);
-// Explorer filter labels map to aesthetic keys
-const FILTERS = [
-  ['all','All'],['editorial','Editorial'],['streetwear','Streetwear'],['oldmoney','Old Money'],
-  ['quiet','Quiet Luxury'],['scandi','Scandinavian'],['y2k','Y2K'],['archive','Archive'],['vintage','Vintage']
-];
+const AES_KEYS=Object.keys(AESTHETICS);
+const FILTERS=[['all','All'],['editorial','Editorial'],['streetwear','Streetwear'],['oldmoney','Old Money'],['quiet','Quiet Luxury'],['scandi','Scandi'],['y2k','Y2K'],['archive','Archive'],['vintage','Vintage']];
 
-/* Optional real Unsplash editorial photos (progressively enhanced; gradient
-   fallback shown instantly so nothing ever appears broken or empty). */
-const PHOTOS = {
+const PHOTOS={
   editorial:['photo-1483985988355-763728e1935b','photo-1485462537746-965f33f7f6a7','photo-1469334031218-e382a71b716b'],
   streetwear:['photo-1523398002811-999ca8dec234','photo-1517841905240-472988babdf9','photo-1529139574466-a303027c1d8b'],
   quiet:['photo-1490481651871-ab68de25d43d','photo-1487412720507-e7ab37603c6f','photo-1496747611176-843222e1e57c'],
@@ -707,208 +515,105 @@ const PHOTOS = {
   archive:['photo-1503342217505-b0a15ec3261c','photo-1488716820095-cbe80883c496','photo-1506634572416-48cdfe530110'],
   vintage:['photo-1485125639709-a60c3a500bf1','photo-1495385794356-15371f348c31','photo-1539109136881-3be0616acf4b']
 };
-function photoFor(aes, i){
-  const arr = PHOTOS[aes] || PHOTOS.editorial;
-  const id = arr[i % arr.length];
-  return `https://images.unsplash.com/${id}?auto=format&fit=crop&w=640&q=70`;
-}
+function photoFor(aes,i){const a=PHOTOS[aes]||PHOTOS.editorial;return `https://images.unsplash.com/${a[i%a.length]}?auto=format&fit=crop&w=640&q=72`;}
+function uns(id,w=600){return `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=72`;}
 
-/* ---------------------------------------------------------------------------
-   2. QUIZ — questions + answer→aesthetic weighting
-   --------------------------------------------------------------------------- */
-const QUESTIONS = [
-  { id:'space', type:'tiles', cols:2,
-    eyebrow:'01 · Instinct',
-    q:'Which space feels like home?',
-    sub:'No overthinking. Go with your gut.',
-    options:[
-      { label:'Concrete loft, one chair', grad:AESTHETICS.editorial.grad, photo:'photo-1524758631624-e2822e304c36', scores:{editorial:3, scandi:1} },
-      { label:'Record-lined studio', grad:AESTHETICS.streetwear.grad, photo:'photo-1598300042247-d088f8ab3a91', scores:{streetwear:3, archive:1} },
-      { label:'Wood-panelled library', grad:AESTHETICS.oldmoney.grad, photo:'photo-1507003211169-0a1dd7228f2d', scores:{oldmoney:3, quiet:1} },
-      { label:'Chrome & glass apartment', grad:AESTHETICS.y2k.grad, photo:'photo-1564078516393-cf04bd966897', scores:{y2k:3, quiet:1} },
-    ] },
-  { id:'palette', type:'tiles', cols:4, swatch:true,
-    eyebrow:'02 · Colour',
-    q:'Pick the palette you keep returning to.',
-    options:[
-      { label:'Greyscale', grad:'linear-gradient(135deg,#f5f4f0,#8a8a8e 60%,#1c1c1e)', scores:{editorial:3, archive:1} },
-      { label:'Camel & cream', grad:'linear-gradient(135deg,#e8e3d9,#c9a96e 60%,#3a352d)', scores:{quiet:3, oldmoney:1} },
-      { label:'Earth & olive', grad:'linear-gradient(135deg,#c9bba8,#8a9e7e 55%,#3a4232)', scores:{oldmoney:2, scandi:2} },
-      { label:'Chrome & lilac', grad:'linear-gradient(135deg,#b08fb0,#7e9bc4 60%,#15131a)', scores:{y2k:3, archive:1} },
-    ] },
-  { id:'fabric', type:'tiles', cols:2,
-    eyebrow:'03 · Touch',
-    q:'Which fabric do you reach for?',
-    options:[
-      { label:'Crisp cotton & wool', grad:AESTHETICS.editorial.grad, photo:'photo-1490481651871-ab68de25d43d', scores:{editorial:2, oldmoney:1, scandi:1} },
-      { label:'Heavyweight jersey', grad:AESTHETICS.streetwear.grad, photo:'photo-1523398002811-999ca8dec234', scores:{streetwear:3} },
-      { label:'Cashmere & silk', grad:AESTHETICS.quiet.grad, photo:'photo-1469334031218-e382a71b716b', scores:{quiet:3} },
-      { label:'Worn denim & leather', grad:AESTHETICS.vintage.grad, photo:'photo-1495385794356-15371f348c31', scores:{vintage:3, streetwear:1} },
-    ] },
-  { id:'budget', type:'slider',
-    eyebrow:'04 · Spend',
-    q:'Where does your money go?',
-    sub:'Fewer, finer pieces — or more, for less?',
-    min:0, max:100, start:50, leftLabel:'Volume & value', rightLabel:'Rare & considered',
-    score:(v)=>{ const s={}; const t=v/100;
-      add(s,'quiet',t*3); add(s,'oldmoney',t*2); add(s,'editorial',t*1);
-      add(s,'streetwear',(1-t)*2); add(s,'y2k',(1-t)*2); add(s,'vintage',(1-t)*1); return s; } },
-  { id:'comfort', type:'slider',
-    eyebrow:'05 · Energy',
-    q:'How do you want to feel getting dressed?',
-    min:0, max:100, start:50, leftLabel:'Effortless & easy', rightLabel:'Sharp & deliberate',
-    score:(v)=>{ const s={}; const t=v/100;
-      add(s,'scandi',(1-t)*2); add(s,'streetwear',(1-t)*2);
-      add(s,'editorial',t*2); add(s,'oldmoney',t*1.5); add(s,'quiet',t*1.5); return s; } },
-  { id:'weekend', type:'tiles', cols:2,
-    eyebrow:'06 · Uniform',
-    q:'Your perfect weekend outfit?',
-    options:[
-      { label:'Tee, trousers, loafers', grad:AESTHETICS.quiet.grad, photo:'photo-1487222477894-8943e31ef7b2', scores:{quiet:2, editorial:2} },
-      { label:'Hoodie, cargos, sneakers', grad:AESTHETICS.streetwear.grad, photo:'photo-1529139574466-a303027c1d8b', scores:{streetwear:3} },
-      { label:'Knit, chinos, suede', grad:AESTHETICS.oldmoney.grad, photo:'photo-1519085360753-af0119f7cbe7', scores:{oldmoney:3} },
-      { label:'Vintage tee, baggy jeans', grad:AESTHETICS.vintage.grad, photo:'photo-1485125639709-a60c3a500bf1', scores:{vintage:3, archive:1} },
-    ] },
-  { id:'accessory', type:'tiles', cols:4, swatch:true,
-    eyebrow:'07 · Metal',
-    q:'Your accessory instinct?',
-    sub:'This shapes your jewellery story.',
-    options:[
-      { label:'Warm gold', grad:'linear-gradient(135deg,#c9a96e,#9a8c76)', scores:{quiet:2, oldmoney:1} },
-      { label:'Cool silver', grad:'linear-gradient(135deg,#c8ccd0,#8a8a8e)', scores:{editorial:2, archive:1} },
-      { label:'Chrome & stones', grad:'linear-gradient(135deg,#b08fb0,#7e9bc4)', scores:{y2k:3} },
-      { label:'Barely any', grad:'linear-gradient(135deg,#2c2c2e,#0a0a0a)', scores:{scandi:2, editorial:1} },
-    ] },
-  { id:'occasions', type:'tiles', cols:2, multi:true,
-    eyebrow:'08 · Life',
-    q:'Where does your week happen?',
-    sub:'Select all that fit.',
-    options:[
-      { label:'Studio / creative work', grad:AESTHETICS.archive.grad, photo:'photo-1503342217505-b0a15ec3261c', scores:{archive:2, editorial:1} },
-      { label:'Office / meetings', grad:AESTHETICS.quiet.grad, photo:'photo-1496747611176-843222e1e57c', scores:{quiet:2, oldmoney:1} },
-      { label:'Out & social', grad:AESTHETICS.streetwear.grad, photo:'photo-1517841905240-472988babdf9', scores:{streetwear:2, y2k:1} },
-      { label:'Slow & at home', grad:AESTHETICS.scandi.grad, photo:'photo-1515886657613-9f3515b0c78f', scores:{scandi:2} },
-    ] },
-  { id:'icon', type:'tiles', cols:3,
-    eyebrow:'09 · Energy',
-    q:'Which energy is most you?',
-    options:[
-      { label:'Quiet intellectual', grad:AESTHETICS.editorial.grad, photo:'photo-1485462537746-965f33f7f6a7', scores:{editorial:3} },
-      { label:'Cultural tastemaker', grad:AESTHETICS.streetwear.grad, photo:'photo-1506634572416-48cdfe530110', scores:{streetwear:2, archive:1} },
-      { label:'Old soul', grad:AESTHETICS.oldmoney.grad, photo:'photo-1488161628813-04466f872be2', scores:{oldmoney:2, vintage:1} },
-      { label:'Future-facing', grad:AESTHETICS.y2k.grad, photo:'photo-1492707892479-7bc8d5a4ee93', scores:{y2k:3} },
-      { label:'Calm minimalist', grad:AESTHETICS.scandi.grad, photo:'photo-1496217590455-aa63a8350eea', scores:{scandi:3} },
-      { label:'Quiet luxury', grad:AESTHETICS.quiet.grad, photo:'photo-1487412720507-e7ab37603c6f', scores:{quiet:3} },
-    ] },
-  { id:'fit', type:'slider',
-    eyebrow:'10 · Silhouette',
-    q:'Your silhouette runs…',
-    min:0, max:100, start:50, leftLabel:'Close & tailored', rightLabel:'Loose & generous',
-    score:(v)=>{ const s={}; const t=v/100;
-      add(s,'editorial',(1-t)*2); add(s,'quiet',(1-t)*1.5); add(s,'oldmoney',(1-t)*1);
-      add(s,'streetwear',t*2.5); add(s,'archive',t*1.5); return s; } },
+/* 2. QUIZ ------------------------------------------------------------------ */
+const QUESTIONS=[
+  {id:'space',type:'tiles',cols:2,eyebrow:'01 / Instinct',q:'Which space feels like home?',sub:'No overthinking. Gut only.',options:[
+    {label:'Concrete loft',photo:'photo-1524758631624-e2822e304c36',scores:{editorial:3,scandi:1}},
+    {label:'Record-lined studio',photo:'photo-1598300042247-d088f8ab3a91',scores:{streetwear:3,archive:1}},
+    {label:'Wood-panel library',photo:'photo-1507003211169-0a1dd7228f2d',scores:{oldmoney:3,quiet:1}},
+    {label:'Chrome apartment',photo:'photo-1564078516393-cf04bd966897',scores:{y2k:3,quiet:1}}]},
+  {id:'palette',type:'tiles',cols:4,swatch:true,eyebrow:'02 / Colour',q:'Pick the palette you keep returning to.',options:[
+    {label:'Greyscale',grad:'linear-gradient(135deg,#fff,#888 60%,#111)',scores:{editorial:3,archive:1}},
+    {label:'Camel & cream',grad:'linear-gradient(135deg,#e8e3d9,#c9a96e 60%,#3a352d)',scores:{quiet:3,oldmoney:1}},
+    {label:'Earth & olive',grad:'linear-gradient(135deg,#c9bba8,#8a9e7e 55%,#3a4232)',scores:{oldmoney:2,scandi:2}},
+    {label:'Chrome & lilac',grad:'linear-gradient(135deg,#b08fb0,#7e9bc4 60%,#15131a)',scores:{y2k:3,archive:1}}]},
+  {id:'fabric',type:'tiles',cols:2,eyebrow:'03 / Touch',q:'Which fabric do you reach for?',options:[
+    {label:'Crisp cotton & wool',photo:'photo-1490481651871-ab68de25d43d',scores:{editorial:2,oldmoney:1,scandi:1}},
+    {label:'Heavyweight jersey',photo:'photo-1523398002811-999ca8dec234',scores:{streetwear:3}},
+    {label:'Cashmere & silk',photo:'photo-1469334031218-e382a71b716b',scores:{quiet:3}},
+    {label:'Worn denim & leather',photo:'photo-1495385794356-15371f348c31',scores:{vintage:3,streetwear:1}}]},
+  {id:'budget',type:'slider',eyebrow:'04 / Spend',q:'Where does your money go?',sub:'Volume — or rare?',min:0,max:100,start:50,leftLabel:'Volume & value',rightLabel:'Rare & considered',
+    score:(v)=>{const s={},t=v/100;add(s,'quiet',t*3);add(s,'oldmoney',t*2);add(s,'editorial',t*1);add(s,'streetwear',(1-t)*2);add(s,'y2k',(1-t)*2);add(s,'vintage',(1-t)*1);return s;}},
+  {id:'comfort',type:'slider',eyebrow:'05 / Energy',q:'How do you wanna feel getting dressed?',min:0,max:100,start:50,leftLabel:'Easy & effortless',rightLabel:'Sharp & deliberate',
+    score:(v)=>{const s={},t=v/100;add(s,'scandi',(1-t)*2);add(s,'streetwear',(1-t)*2);add(s,'editorial',t*2);add(s,'oldmoney',t*1.5);add(s,'quiet',t*1.5);return s;}},
+  {id:'weekend',type:'tiles',cols:2,eyebrow:'06 / Uniform',q:'Your perfect weekend fit?',options:[
+    {label:'Tee, trousers, loafers',photo:'photo-1487222477894-8943e31ef7b2',scores:{quiet:2,editorial:2}},
+    {label:'Hoodie, cargos, sneakers',photo:'photo-1529139574466-a303027c1d8b',scores:{streetwear:3}},
+    {label:'Knit, chinos, suede',photo:'photo-1519085360753-af0119f7cbe7',scores:{oldmoney:3}},
+    {label:'Vintage tee, baggy jeans',photo:'photo-1485125639709-a60c3a500bf1',scores:{vintage:3,archive:1}}]},
+  {id:'accessory',type:'tiles',cols:4,swatch:true,eyebrow:'07 / Metal',q:'Your accessory instinct?',sub:'Shapes your jewellery story.',options:[
+    {label:'Warm gold',grad:'linear-gradient(135deg,#c9a96e,#9a8c76)',scores:{quiet:2,oldmoney:1}},
+    {label:'Cool silver',grad:'linear-gradient(135deg,#c8ccd0,#8a8a8e)',scores:{editorial:2,archive:1}},
+    {label:'Chrome & stones',grad:'linear-gradient(135deg,#b08fb0,#7e9bc4)',scores:{y2k:3}},
+    {label:'Barely any',grad:'linear-gradient(135deg,#2c2c2e,#0a0a0a)',scores:{scandi:2,editorial:1}}]},
+  {id:'occasions',type:'tiles',cols:2,multi:true,eyebrow:'08 / Life',q:'Where does your week happen?',sub:'Select all that fit.',options:[
+    {label:'Studio / creative',photo:'photo-1503342217505-b0a15ec3261c',scores:{archive:2,editorial:1}},
+    {label:'Office / meetings',photo:'photo-1496747611176-843222e1e57c',scores:{quiet:2,oldmoney:1}},
+    {label:'Out & social',photo:'photo-1517841905240-472988babdf9',scores:{streetwear:2,y2k:1}},
+    {label:'Slow & at home',photo:'photo-1515886657613-9f3515b0c78f',scores:{scandi:2}}]},
+  {id:'icon',type:'tiles',cols:3,eyebrow:'09 / Energy',q:'Which energy is most you?',options:[
+    {label:'Quiet intellectual',photo:'photo-1485462537746-965f33f7f6a7',scores:{editorial:3}},
+    {label:'Cultural tastemaker',photo:'photo-1506634572416-48cdfe530110',scores:{streetwear:2,archive:1}},
+    {label:'Old soul',photo:'photo-1488161628813-04466f872be2',scores:{oldmoney:2,vintage:1}},
+    {label:'Future-facing',photo:'photo-1492707892479-7bc8d5a4ee93',scores:{y2k:3}},
+    {label:'Calm minimalist',photo:'photo-1496217590455-aa63a8350eea',scores:{scandi:3}},
+    {label:'Quiet luxury',photo:'photo-1487412720507-e7ab37603c6f',scores:{quiet:3}}]},
+  {id:'fit',type:'slider',eyebrow:'10 / Silhouette',q:'Your silhouette runs…',min:0,max:100,start:50,leftLabel:'Close & tailored',rightLabel:'Loose & baggy',
+    score:(v)=>{const s={},t=v/100;add(s,'editorial',(1-t)*2);add(s,'quiet',(1-t)*1.5);add(s,'oldmoney',(1-t)*1);add(s,'streetwear',t*2.5);add(s,'archive',t*1.5);return s;}}
 ];
-function add(o,k,v){ o[k]=(o[k]||0)+v; }
+function add(o,k,v){o[k]=(o[k]||0)+v;}
 
-/* ---------------------------------------------------------------------------
-   3. STATE  (localStorage-backed)
-   --------------------------------------------------------------------------- */
-const DB = {
-  get(k,d){ try{ const v=localStorage.getItem('forma.'+k); return v?JSON.parse(v):d; }catch(e){ return d; } },
-  set(k,v){ try{ localStorage.setItem('forma.'+k, JSON.stringify(v)); }catch(e){} },
-  del(k){ localStorage.removeItem('forma.'+k); }
+/* 3. STATE ----------------------------------------------------------------- */
+const DB={get(k,d){try{const v=localStorage.getItem('forma.'+k);return v?JSON.parse(v):d;}catch(e){return d;}},set(k,v){try{localStorage.setItem('forma.'+k,JSON.stringify(v));}catch(e){}},del(k){localStorage.removeItem('forma.'+k);}};
+const State={
+  dna(){return DB.get('dna',null);},
+  setDna(d){DB.set('dna',d);reflectAuth();},
+  saved(){return DB.get('saved',[]);},
+  toggleSave(id){let s=State.saved();s=s.includes(id)?s.filter(x=>x!==id):[...s,id];DB.set('saved',s);return s.includes(id);},
+  closet(){return DB.get('closet',[]);},
+  addItem(it){const c=State.closet();c.unshift(it);DB.set('closet',c);},
+  removeItem(id){DB.set('closet',State.closet().filter(i=>i.id!==id));},
+  outfits(){return DB.get('outfits',[]);},
+  saveOutfit(o){const a=State.outfits();if(!a.find(x=>x.id===o.id)){a.unshift(o);DB.set('outfits',a);}},
+  removeOutfit(id){DB.set('outfits',State.outfits().filter(o=>o.id!==id));},
+  reset(){['dna','saved','closet','outfits','quiz'].forEach(DB.del);reflectAuth();}
 };
-const State = {
-  dna(){ return DB.get('dna', null); },
-  setDna(d){ DB.set('dna', d); reflectAuth(); },
-  saved(){ return DB.get('saved', []); },
-  toggleSave(id){ let s=State.saved(); s = s.includes(id)? s.filter(x=>x!==id) : [...s,id]; DB.set('saved', s); return s.includes(id); },
-  closet(){ return DB.get('closet', []); },
-  addItem(it){ const c=State.closet(); c.unshift(it); DB.set('closet', c); },
-  removeItem(id){ DB.set('closet', State.closet().filter(i=>i.id!==id)); },
-  outfits(){ return DB.get('outfits', []); },
-  saveOutfit(o){ const a=State.outfits(); if(!a.find(x=>x.id===o.id)){ a.unshift(o); DB.set('outfits', a); } },
-  removeOutfit(id){ DB.set('outfits', State.outfits().filter(o=>o.id!==id)); },
-  reset(){ ['dna','saved','closet','outfits','quiz'].forEach(DB.del); reflectAuth(); }
-};
-function reflectAuth(){ document.body.classList.toggle('authed', !!State.dna()); }
+function reflectAuth(){document.body.classList.toggle('authed',!!State.dna());}
 
-/* ---------------------------------------------------------------------------
-   4. QUIZ SCORING  → Style DNA
-   --------------------------------------------------------------------------- */
+/* 4. SCORING --------------------------------------------------------------- */
 function scoreQuiz(answers){
-  const totals = {}; AES_KEYS.forEach(k=>totals[k]=0);
+  const totals={};AES_KEYS.forEach(k=>totals[k]=0);
   QUESTIONS.forEach(qq=>{
-    const a = answers[qq.id];
-    if(a==null) return;
-    if(qq.type==='slider' && qq.score){
-      const s = qq.score(a); for(const k in s) add(totals,k,s[k]);
-    } else if(qq.multi){
-      (a||[]).forEach(i=>{ const sc=qq.options[i]?.scores||{}; for(const k in sc) add(totals,k,sc[k]); });
-    } else {
-      const sc = qq.options[a]?.scores||{}; for(const k in sc) add(totals,k,sc[k]);
-    }
+    const a=answers[qq.id];if(a==null)return;
+    if(qq.type==='slider'&&qq.score){const s=qq.score(a);for(const k in s)add(totals,k,s[k]);}
+    else if(qq.multi){(a||[]).forEach(i=>{const sc=qq.options[i]?.scores||{};for(const k in sc)add(totals,k,sc[k]);});}
+    else{const sc=qq.options[a]?.scores||{};for(const k in sc)add(totals,k,sc[k]);}
   });
-  const sum = Object.values(totals).reduce((x,y)=>x+y,0) || 1;
-  let breakdown = AES_KEYS.map(k=>({ key:k, name:AESTHETICS[k].name, pct: totals[k]/sum*100 }))
-    .filter(b=>b.pct>0).sort((a,b)=>b.pct-a.pct);
-  // Keep meaningful slices (top up to 4, each ≥6%), then re-normalise to 100.
-  let top = breakdown.filter(b=>b.pct>=6).slice(0,4);
-  if(top.length<2) top = breakdown.slice(0,3);
-  const tsum = top.reduce((x,y)=>x+y.pct,0) || 1;
-  top = top.map(b=>({...b, pct: Math.round(b.pct/tsum*100)}));
-  // fix rounding to 100
-  const diff = 100 - top.reduce((x,y)=>x+y.pct,0); if(top[0]) top[0].pct += diff;
-  const primary = top[0];
-  return {
-    primary: primary.key,
-    primaryName: primary.name,
-    breakdown: top,
-    palette: AESTHETICS[primary.key].palette,
-    summary: buildSummary(top),
-    tags: AESTHETICS[primary.key].tags,
-    createdAt: Date.now()
-  };
+  const sum=Object.values(totals).reduce((x,y)=>x+y,0)||1;
+  let bd=AES_KEYS.map(k=>({key:k,name:AESTHETICS[k].name,pct:totals[k]/sum*100})).filter(b=>b.pct>0).sort((a,b)=>b.pct-a.pct);
+  let top=bd.filter(b=>b.pct>=6).slice(0,4);if(top.length<2)top=bd.slice(0,3);
+  const tsum=top.reduce((x,y)=>x+y.pct,0)||1;
+  top=top.map(b=>({...b,pct:Math.round(b.pct/tsum*100)}));
+  const diff=100-top.reduce((x,y)=>x+y.pct,0);if(top[0])top[0].pct+=diff;
+  const p=top[0];
+  return{primary:p.key,primaryName:p.name,breakdown:top,palette:AESTHETICS[p.key].palette,summary:buildSummary(top),tags:AESTHETICS[p.key].tags,createdAt:Date.now()};
 }
-function buildSummary(top){
-  const a = AESTHETICS[top[0].key];
-  const secondName = top[1] ? top[1].name : null;
-  let s = a.blurb;
-  if(secondName) s += ` A current of ${secondName.toLowerCase()} keeps it from ever feeling predictable.`;
-  return s;
-}
+function buildSummary(top){const a=AESTHETICS[top[0].key];let s=a.blurb;if(top[1])s+=` Plus a streak of ${top[1].name.toLowerCase()} so it never gets predictable.`;return s;}
 
-/* ---------------------------------------------------------------------------
-   5. EXPLORER FEED (generated, deterministic per aesthetic)
-   --------------------------------------------------------------------------- */
-const LOOK_TITLES = ['Off-duty','Editorial','Layered','Tonal','After hours','Studio','Weekend','Tailored','Monochrome','Texture study','Capsule','Evening'];
-function buildFeed(filter, page){
-  const items=[]; const per=14;
-  for(let i=0;i<per;i++){
-    const idx = page*per+i;
-    const aes = filter==='all' ? AES_KEYS[idx % AES_KEYS.length] : filter;
-    const h = 230 + ((idx*73)%170); // varied heights for masonry
-    items.push({
-      id: `${aes}-${idx}`,
-      aes,
-      title: LOOK_TITLES[idx % LOOK_TITLES.length],
-      height: h,
-      photo: photoFor(aes, idx)
-    });
-  }
-  return items;
-}
+/* 5. FEED ------------------------------------------------------------------ */
+const LOOK_TITLES=['Off-duty','Editorial','Layered','Tonal','After hours','Studio','Weekend','Tailored','Mono','Texture','Capsule','Evening'];
+function buildFeed(filter,page){const items=[],per=14;for(let i=0;i<per;i++){const idx=page*per+i;const aes=filter==='all'?AES_KEYS[idx%AES_KEYS.length]:filter;items.push({id:`${aes}-${idx}`,aes,title:LOOK_TITLES[idx%LOOK_TITLES.length],photo:photoFor(aes,idx)});}return items;}
 
-/* ---------------------------------------------------------------------------
-   6. ITEM CATALOG (fills outfits + sample wardrobe)
-   --------------------------------------------------------------------------- */
-const CATALOG = [
-  // name, category, color hex, colorName, season, aesthetics
+/* 6. CATALOG --------------------------------------------------------------- */
+const CATALOG=[
   ['Boxy crew tee','top','#E8E3D9','Cream',['all'],['editorial','scandi','streetwear']],
   ['Ribbed knit','top','#9A8C76','Taupe',['fall','winter'],['quiet','oldmoney']],
   ['Oversized hoodie','top','#2C2C2E','Charcoal',['fall','winter'],['streetwear','archive']],
   ['Silk shirt','top','#C9A96E','Gold',['all'],['quiet','y2k']],
-  ['Oxford shirt','top','#F5F4F0','White',['all'],['oldmoney','editorial']],
+  ['Oxford shirt','top','#FFFFFF','White',['all'],['oldmoney','editorial']],
   ['Vintage band tee','top','#1A1A1A','Black',['summer'],['vintage','streetwear']],
   ['Tailored trouser','bottom','#1C1C1E','Ink',['all'],['editorial','quiet']],
   ['Wide cargo','bottom','#8A9E7E','Olive',['all'],['streetwear','archive']],
@@ -916,7 +621,7 @@ const CATALOG = [
   ['Baggy denim','bottom','#3A4A55','Indigo',['all'],['vintage','streetwear']],
   ['Wool trouser','bottom','#2C2C28','Slate',['fall','winter'],['oldmoney','quiet']],
   ['Leather loafer','shoes','#1C1813','Espresso',['all'],['quiet','oldmoney']],
-  ['Minimal sneaker','shoes','#F5F4F0','White',['all'],['scandi','editorial']],
+  ['Minimal sneaker','shoes','#FFFFFF','White',['all'],['scandi','editorial']],
   ['Chunky trainer','shoes','#8A8A8E','Grey',['all'],['streetwear','y2k']],
   ['Suede boot','shoes','#9A6A4E','Tan',['fall','winter'],['vintage','oldmoney']],
   ['Wool overcoat','outerwear','#3a352d','Camel',['fall','winter'],['quiet','editorial']],
@@ -924,975 +629,401 @@ const CATALOG = [
   ['Trench coat','outerwear','#C9BBA8','Stone',['spring','fall'],['oldmoney','editorial']],
   ['Gold signet','accessory','#C9A96E','Gold',['all'],['quiet','oldmoney']],
   ['Silver cuff','accessory','#C8CCD0','Silver',['all'],['editorial','archive']],
-  ['Leather tote','accessory','#1C1813','Black',['all'],['quiet','editorial']],
+  ['Leather tote','accessory','#1C1813','Black',['all'],['quiet','editorial']]
 ];
-function catItem(row, i){
-  return { id:'cat-'+i, name:row[0], category:row[1], color:row[2], colorName:row[3], season:row[4], aes:row[5], sample:true };
-}
-const CAT_ITEMS = CATALOG.map(catItem);
+const CAT_ITEMS=CATALOG.map((r,i)=>({id:'cat-'+i,name:r[0],category:r[1],color:r[2],colorName:r[3],season:r[4],aes:r[5],sample:true}));
 
-/* ---------------------------------------------------------------------------
-   7. OUTFIT ENGINE
-   --------------------------------------------------------------------------- */
-const OCCASIONS = ['Everyday','Work','Evening','Weekend','Event'];
-function scoreItemForDna(item, dna){
-  if(!dna) return 1;
-  let best=0;
-  dna.breakdown.forEach(b=>{ if(item.aes.includes(b.key)) best=Math.max(best, b.pct); });
-  return best/100 + 0.15;
-}
+/* 7. OUTFITS --------------------------------------------------------------- */
+const OCCASIONS=['Everyday','Work','Evening','Weekend','Event'];
+function scoreItemForDna(item,dna){if(!dna)return 1;let best=0;dna.breakdown.forEach(b=>{if(item.aes.includes(b.key))best=Math.max(best,b.pct);});return best/100+0.15;}
 function generateOutfit(occasion){
-  const dna = State.dna();
-  let pool = State.closet().filter(i=>i.category);
-  if(pool.length<3) pool = pool.concat(CAT_ITEMS); // top up from catalog
-  const pick = (cat)=>{
-    const cands = pool.filter(i=>i.category===cat);
-    if(!cands.length) return null;
-    // weight by DNA match + a little randomness so Regenerate varies
-    const weighted = cands.map(i=>({i, w: scoreItemForDna(i,dna)*(0.6+Math.random()*0.8)}));
-    weighted.sort((a,b)=>b.w-a.w);
-    return weighted[0].i;
-  };
-  const slots = [pick('top'), pick('bottom'), pick('shoes')];
-  if(['Work','Evening','Event'].includes(occasion) || Math.random()>0.5) slots.push(pick('outerwear'));
+  const dna=State.dna();let pool=State.closet().filter(i=>i.category);if(pool.length<3)pool=pool.concat(CAT_ITEMS);
+  const pick=(cat)=>{const c=pool.filter(i=>i.category===cat);if(!c.length)return null;const w=c.map(i=>({i,w:scoreItemForDna(i,dna)*(0.6+Math.random()*0.8)}));w.sort((a,b)=>b.w-a.w);return w[0].i;};
+  const slots=[pick('top'),pick('bottom'),pick('shoes')];
+  if(['Work','Evening','Event'].includes(occasion)||Math.random()>0.5)slots.push(pick('outerwear'));
   slots.push(pick('accessory'));
-  const items = slots.filter(Boolean);
-  // match score = avg DNA fit
-  const match = Math.round( items.reduce((s,i)=>s+scoreItemForDna(i,dna),0)/items.length * 70 + 24 );
-  return {
-    id:'of-'+Date.now()+'-'+Math.floor(Math.random()*1000),
-    occasion, items,
-    match: Math.min(98, match),
-    palette: [...new Set(items.map(i=>i.color))].slice(0,4),
-    createdAt: Date.now()
-  };
+  const items=slots.filter(Boolean);
+  const match=Math.round(items.reduce((s,i)=>s+scoreItemForDna(i,dna),0)/items.length*70+24);
+  return{id:'of-'+Date.now()+'-'+Math.floor(Math.random()*1000),occasion,items,match:Math.min(98,match),palette:[...new Set(items.map(i=>i.color))].slice(0,4),createdAt:Date.now()};
 }
 
-/* ---------------------------------------------------------------------------
-   8. STYLE LAB scoring
-   --------------------------------------------------------------------------- */
-const NEUTRALS = ['#E8E3D9','#F5F4F0','#1C1C1E','#2C2C2E','#0A0A0A','#8A8A8E','#9A8C76','#C9BBA8','#2C2C28','#3a352d','Cream','White','Black','Charcoal','Grey','Taupe','Sand','Stone','Ink','Slate'];
-function isNeutral(it){ return NEUTRALS.includes(it.color) || NEUTRALS.includes(it.colorName); }
+/* 8. LAB ------------------------------------------------------------------- */
+const NEUTRALS=['#E8E3D9','#FFFFFF','#1C1C1E','#2C2C2E','#0A0A0A','#8A8A8E','#9A8C76','#C9BBA8','#2C2C28','#3a352d','Cream','White','Black','Charcoal','Grey','Taupe','Sand','Stone','Ink','Slate'];
+function isNeutral(it){return NEUTRALS.includes(it.color)||NEUTRALS.includes(it.colorName);}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
 function computeLab(){
-  let items = State.closet();
-  const usingSample = items.length<4;
-  if(usingSample) items = CAT_ITEMS;
-  const cats = new Set(items.map(i=>i.category));
-  const catCoverage = cats.size/5; // top,bottom,shoes,outerwear,accessory
-  const neutralRatio = items.filter(isNeutral).length / items.length;
-  // aesthetic consistency: concentration of dominant aesthetic tag
-  const aesCount={}; items.forEach(i=>(i.aes||[]).forEach(a=>aesCount[a]=(aesCount[a]||0)+1));
-  const maxAes = Math.max(1,...Object.values(aesCount));
-  const consistency = maxAes / items.length;
-  const outfitsPossible = Math.min(
-    items.filter(i=>i.category==='top').length,
-    items.filter(i=>i.category==='bottom').length,
-    items.filter(i=>i.category==='shoes').length || 1
-  );
-  const scores = {
-    colour: clamp(Math.round( (0.5*neutralRatio + 0.5*(1-Math.abs(neutralRatio-0.7))) *100 ), 40, 96),
-    versatility: clamp(Math.round( (0.55*catCoverage + 0.45*neutralRatio)*100 ), 35, 95),
-    consistency: clamp(Math.round( consistency*120 ), 38, 97),
-    efficiency: clamp(Math.round( Math.min(1, outfitsPossible/Math.max(3, items.length/3))*100 ), 40, 94)
+  let items=State.closet();const usingSample=items.length<4;if(usingSample)items=CAT_ITEMS;
+  const cats=new Set(items.map(i=>i.category));const catCoverage=cats.size/5;
+  const neutralRatio=items.filter(isNeutral).length/items.length;
+  const aesCount={};items.forEach(i=>(i.aes||[]).forEach(a=>aesCount[a]=(aesCount[a]||0)+1));
+  const maxAes=Math.max(1,...Object.values(aesCount));const consistency=maxAes/items.length;
+  const outfitsPossible=Math.min(items.filter(i=>i.category==='top').length,items.filter(i=>i.category==='bottom').length,items.filter(i=>i.category==='shoes').length||1);
+  const scores={
+    colour:clamp(Math.round((0.5*neutralRatio+0.5*(1-Math.abs(neutralRatio-0.7)))*100),40,96),
+    versatility:clamp(Math.round((0.55*catCoverage+0.45*neutralRatio)*100),35,95),
+    consistency:clamp(Math.round(consistency*120),38,97),
+    efficiency:clamp(Math.round(Math.min(1,outfitsPossible/Math.max(3,items.length/3))*100),40,94)
   };
-  const insights = buildInsights(items, {neutralRatio, catCoverage, scores});
-  return { usingSample, scores, insights, itemCount: State.closet().length };
+  return{usingSample,scores,insights:buildInsights(items,{neutralRatio,catCoverage,scores}),itemCount:State.closet().length};
 }
-function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
-function buildInsights(items, ctx){
-  const out=[];
-  const warm = items.filter(i=>['Gold','Tan','Camel','Espresso','Sand'].includes(i.colorName)).length;
-  const hasSilver = items.some(i=>i.colorName==='Silver');
-  if(warm> items.length*0.4 && !hasSilver)
-    out.push(['accent','Add one silver piece','Your palette skews warm. A single silver cuff or chain adds contrast without breaking harmony.']);
-  if(ctx.neutralRatio < 0.5)
-    out.push(['layer','Increase neutral layers','A few more neutral basics will let your statement pieces breathe and multiply your outfit count.']);
-  if(ctx.catCoverage < 0.8)
-    out.push(['gap','Close a wardrobe gap','You\'re light on outerwear — one considered coat would unlock cold-weather looks across every aesthetic.']);
-  if(ctx.scores.consistency < 60)
-    out.push(['focus','Sharpen your throughline','Your closet spans several aesthetics. Leaning into your top two will make everything feel more intentional.']);
-  out.push(['win','Strong tonal base','Your neutral foundation is working — it\'s the quiet backbone every versatile wardrobe needs.']);
+function buildInsights(items,ctx){
+  const out=[];const warm=items.filter(i=>['Gold','Tan','Camel','Espresso','Sand'].includes(i.colorName)).length;const hasSilver=items.some(i=>i.colorName==='Silver');
+  if(warm>items.length*0.4&&!hasSilver)out.push(['accent','Add one silver piece','Palette skews warm. A silver cuff adds contrast without breaking harmony.']);
+  if(ctx.neutralRatio<0.5)out.push(['layer','Stack more neutrals','A few neutral basics let your loud pieces breathe and multiply your fits.']);
+  if(ctx.catCoverage<0.8)out.push(['gap','Close a gap','Light on outerwear — one coat unlocks cold-weather looks across the board.']);
+  if(ctx.scores.consistency<60)out.push(['focus','Sharpen the throughline','Closet spans several aesthetics. Lean into your top two for more intent.']);
+  out.push(['win','Strong base','Your neutral foundation is working — the backbone every versatile wardrobe needs.']);
   return out.slice(0,4);
 }
 
-/* ---------------------------------------------------------------------------
-   9. UI HELPERS
-   --------------------------------------------------------------------------- */
-const $ = (s,r=document)=>r.querySelector(s);
-const app = $('#app');
-function toast(msg){
-  const h=$('#toastHost'); const t=document.createElement('div'); t.className='toast'; t.textContent=msg;
-  h.appendChild(t); setTimeout(()=>t.remove(), 2900);
-}
-function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
-function tile(grad){ return `background:${grad};`; }
-function svgIcon(name){
-  const I={
-    home:'<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>',
-    explore:'<circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/>',
-    closet:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>',
-    outfit:'<path d="M6 3h12l-2 4v14H8V7L6 3Z"/>',
-    lab:'<path d="M9 3v6L4 19a2 2 0 0 0 2 3h12a2 2 0 0 0 2-3l-5-10V3"/><path d="M8 3h8"/>',
-    profile:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
-    heart:'<path d="M12 21s-7-4.5-9.5-8.5C.8 9.5 2.5 6 6 6c2 0 3 1 3 1s1-1 3-1c3.5 0 5.2 3.5 3.5 6.5C19 16.5 12 21 12 21Z"/>',
-    save:'<path d="M5 3h14v18l-7-4-7 4Z"/>',
-    refresh:'<path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 4v5h-5"/>',
-    share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5 8.6 10.5"/>',
-    plus:'<path d="M12 5v14M5 12h14"/>',
-    check:'<path d="M20 6 9 17l-5-5"/>',
-    bag:'<path d="M6 7h12l1 14H5L6 7Z"/><path d="M9 7a3 3 0 0 1 6 0"/>',
-    arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
-    back:'<path d="M19 12H5M11 18l-6-6 6-6"/>'
-  };
-  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${I[name]||''}</svg>`;
-}
+/* 9. HELPERS --------------------------------------------------------------- */
+const $=(s,r=document)=>r.querySelector(s);
+const app=$('#app');
+function toast(m){const h=$('#toastHost'),t=document.createElement('div');t.className='toast';t.textContent=m;h.appendChild(t);setTimeout(()=>t.remove(),2900);}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function tile(g){return `background:${g};`;}
+function svgIcon(n){const I={
+  home:'<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>',explore:'<circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/>',
+  closet:'<rect x="3" y="3" width="18" height="18"/><path d="M3 9h18M9 21V9"/>',outfit:'<path d="M6 3h12l-2 4v14H8V7L6 3Z"/>',
+  lab:'<path d="M9 3v6L4 19a2 2 0 0 0 2 3h12a2 2 0 0 0 2-3l-5-10V3"/><path d="M8 3h8"/>',profile:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  heart:'<path d="M12 21s-7-4.5-9.5-8.5C.8 9.5 2.5 6 6 6c2 0 3 1 3 1s1-1 3-1c3.5 0 5.2 3.5 3.5 6.5C19 16.5 12 21 12 21Z"/>',
+  save:'<path d="M5 3h14v18l-7-4-7 4Z"/>',refresh:'<path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 4v5h-5"/>',
+  share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5 8.6 10.5"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',check:'<path d="M20 6 9 17l-5-5"/>',arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',back:'<path d="M19 12H5M11 18l-6-6 6-6"/>'};
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${I[n]||''}</svg>`;}
+function enhance(el,url){const img=new Image();img.onload=()=>{el.style.backgroundImage=`url('${url}')`;};img.onerror=()=>{};img.src=url;}
 
-/* progressive image enhancement (no broken-image flash) */
-function enhance(el, url){
-  const img = new Image();
-  img.onload = ()=>{ el.style.backgroundImage=`url('${url}')`; el.style.filter='none'; };
-  img.onerror = ()=>{}; // keep gradient
-  img.src = url;
-}
-
-/* ---------------------------------------------------------------------------
-   10. NAV rendering
-   --------------------------------------------------------------------------- */
+/* 10. NAV ------------------------------------------------------------------ */
 function renderNav(route){
-  const dna = State.dna();
-  const nl = $('#navLinks');
+  const dna=State.dna();const nl=$('#navLinks');
   if(dna){
-    const links = [['#/home','Home'],['#/explore','Explore'],['#/closet','Closet'],['#/outfits','Outfits'],['#/lab','Lab'],['#/profile','Profile']];
-    nl.innerHTML = links.map(([h,t])=>`<a class="nav-link hide-mobile ${route===h?'active':''}" href="${h}" data-link>${t}</a>`).join('')
-      + `<a class="nav-link" href="#/profile" data-link style="display:none"></a>`;
-    // show a compact profile link on mobile
-    nl.innerHTML += `<a class="nav-link ${route==='#/profile'?'active':''}" href="#/profile" data-link style="display:none">·</a>`;
+    const links=[['#/home','Home'],['#/explore','Explore'],['#/closet','Closet'],['#/outfits','Fits'],['#/lab','Lab'],['#/profile','You']];
+    nl.innerHTML=links.map(([h,t])=>`<a class="nav-link hide-m ${route===h?'active':''}" href="${h}" data-link>${t}</a>`).join('')
+      +`<a class="nav-link ${route==='#/profile'?'active':''}" href="#/profile" data-link style="display:none">·</a>`;
   } else {
-    nl.innerHTML = `
-      <a class="nav-link hide-mobile ${route==='#/explore'?'active':''}" href="#/explore" data-link>Explore</a>
-      <a class="nav-link" href="#/quiz" data-link>Take the quiz</a>`;
+    nl.innerHTML=`<a class="nav-link hide-m ${route==='#/explore'?'active':''}" href="#/explore" data-link>Explore</a>
+      <a class="btn btn-red btn-sm" href="#/quiz" data-link>Take the quiz</a>`;
   }
-  // tabbar (mobile authed)
   const tb=$('#tabbar');
-  if(dna){
-    const tabs=[['#/home','home','Home'],['#/explore','explore','Explore'],['#/closet','closet','Closet'],['#/outfits','outfit','Outfits'],['#/lab','lab','Lab']];
-    tb.innerHTML = tabs.map(([h,ic,l])=>`<button onclick="go('${h}')" class="${route===h?'active':''}">${svgIcon(ic)}<span>${l}</span></button>`).join('');
-  } else tb.innerHTML='';
+  if(dna){const tabs=[['#/home','home','Home'],['#/explore','explore','Explore'],['#/closet','closet','Closet'],['#/outfits','outfit','Fits'],['#/lab','lab','Lab']];
+    tb.innerHTML=tabs.map(([h,ic,l])=>`<button onclick="go('${h}')" class="${route===h?'active':''}">${svgIcon(ic)}<span>${l}</span></button>`).join('');}
+  else tb.innerHTML='';
 }
-function go(hash){ location.hash = hash; }
+function go(h){location.hash=h;}
 
-/* ============================================================================
-   11. VIEWS
-   ============================================================================ */
-
-/* ---- Homepage (logged out) ---- */
+/* 11. VIEWS ---------------------------------------------------------------- */
 function viewHome(){
-  const examples = [
-    {name:'Editorial Minimal', pct:'72% · 18% Street · 10% Quiet'},
-    {name:'Old Money', pct:'64% · 22% Quiet Lux · 14% Vintage'},
-    {name:'Archive', pct:'58% · 30% Street · 12% Editorial'},
-  ];
-  app.innerHTML = `
-  <div class="page">
+  const ex=[{n:'Editorial Minimal',p:'72% · 18% Street · 10% Quiet'},{n:'Old Money',p:'64% · 22% Quiet · 14% Vintage'},{n:'Archive',p:'58% · 30% Street · 12% Editorial'}];
+  const tick=['Discover','Style DNA','Build','Express','Closet','Fits','Aesthetic','Identity'];
+  app.innerHTML=`<div class="page">
     <section class="hero">
-      <div class="hero-bg" id="heroBg">
-        ${AES_KEYS.slice(0,5).map((k,i)=>`<div class="panel ${i===0?'show':''}" data-i="${i}" style="${tile(AESTHETICS[k].grad)}"></div>`).join('')}
-      </div>
-      <div class="hero-inner">
-        <span class="eyebrow reveal in">The first personal style OS</span>
-        <h1 class="display reveal in">Your style,<br/><em>finally</em><br/>understood.</h1>
-        <p class="sub reveal in">Take a 3-minute visual quiz. Discover your Style DNA. Build a wardrobe that actually feels like you.</p>
-        <div class="hero-cta reveal in">
-          <a class="btn btn-primary" href="#/quiz" data-link>Take the Style Quiz ${svgIcon('arrow')}</a>
-          <a class="btn btn-ghost" href="#/explore" data-link><span>Explore styles</span></a>
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <span class="eyebrow reveal in">[ The personal style OS ]</span>
+          <h1 class="reveal in">Find your<br><span class="box-mark">style</span><br>DNA.</h1>
+          <p class="reveal in">A fast visual quiz reads your taste and hands you a Style DNA. Then build your closet and generate fits that actually look like you.</p>
+          <div class="hero-cta reveal in">
+            <a class="btn btn-red" href="#/quiz" data-link>Start the quiz ${svgIcon('arrow')}</a>
+            <a class="btn" href="#/explore" data-link>Browse styles</a>
+          </div>
+          <div class="hero-meta reveal in">10 questions — 3 minutes — 8 aesthetics</div>
+        </div>
+        <div class="hero-art" id="heroArt">
+          ${AES_KEYS.slice(0,4).map((k,i)=>`<div class="cell"><div class="ph" data-aes="${k}" data-i="${i}" style="${tile(AESTHETICS[k].grad)}"></div><span class="tg">${AESTHETICS[k].name}</span><span class="num">0${i+1}</span></div>`).join('')}
         </div>
       </div>
-      <div class="scroll-hint"><span>Scroll</span><span class="line"></span></div>
     </section>
+    <div class="ticker-wrap"><div class="ticker">${[...tick,...tick,...tick].map((s,i)=>`<span class="${i%3===0?'r':''}">${s} ✱</span>`).join('')}</div></div>
 
     <section class="section wrap">
-      <span class="eyebrow reveal">Eight aesthetics, one of them yours</span>
-      <div class="strip reveal" style="margin-top:24px">
-        ${['editorial','streetwear','oldmoney'].map((k,i)=>`
-          <div class="tile" style="${tile(AESTHETICS[k].grad)}">
-            <div class="choice" style="position:absolute;inset:0;border:none;pointer-events:none">
-              <div class="cap">${AESTHETICS[k].name}</div>
-            </div>
-          </div>`).join('')}
+      <span class="eyebrow k reveal">How it works</span>
+      <div class="how reveal" style="margin-top:24px">
+        <div class="step"><div class="n">01 / Discover</div><h3>Take the<br>quiz</h3><p>Spaces, palettes, fabrics, instincts — translated into your Style DNA.</p></div>
+        <div class="step"><div class="n">02 / Build</div><h3>Load your<br>closet</h3><p>Upload pieces. We tag colour, category and season automatically.</p></div>
+        <div class="step"><div class="n">03 / Express</div><h3>Generate<br>fits</h3><p>Outfits, scores and shopping tuned to who you actually are.</p></div>
       </div>
     </section>
+
+    <section class="section wrap"><p class="manifesto reveal">Style isn't what<br>you buy. it's <span class="mark">who<br>you are.</span></p></section>
 
     <section class="section wrap">
-      <span class="eyebrow reveal">How it works</span>
-      <div class="how" style="margin-top:34px">
-        <div class="step reveal"><div class="n">01</div><h3>Discover</h3><p>A visual quiz reads your taste — spaces, palettes, fabrics, instincts — and translates it into a Style DNA.</p></div>
-        <div class="step reveal"><div class="n">02</div><h3>Build</h3><p>Upload your wardrobe. We remove backgrounds, tag every piece, and turn your closet into something you can actually use.</p></div>
-        <div class="step reveal"><div class="n">03</div><h3>Express</h3><p>Get outfits, scores, and shopping that fit who you are — not who an algorithm thinks you should be.</p></div>
-      </div>
+      <span class="eyebrow k reveal">Real Style DNA</span>
+      <div class="proof reveal" style="margin-top:24px">${ex.map(e=>`<div class="dna-chip"><div class="name">${e.n}</div><div class="pct">${e.p}</div></div>`).join('')}</div>
+      <div class="reveal" style="margin-top:36px"><a class="btn btn-red" href="#/quiz" data-link>Find your DNA ${svgIcon('arrow')}</a></div>
     </section>
 
-    <section class="section wrap">
-      <p class="manifesto reveal">Style isn't what you buy. It's <em>who you are.</em> FORMA helps you find out — then helps you wear it.</p>
-    </section>
-
-    <section class="section wrap">
-      <span class="eyebrow reveal">Real Style DNA</span>
-      <div class="proof reveal" style="margin-top:24px">
-        ${examples.map(e=>`<div class="dna-chip"><div class="name">${e.name}</div><div class="pct">${e.pct}</div></div>`).join('')}
-      </div>
-      <div class="reveal" style="margin-top:40px">
-        <a class="btn btn-primary" href="#/quiz" data-link>Find your Style DNA ${svgIcon('arrow')}</a>
-      </div>
-    </section>
-
-    <footer class="foot">
-      <div class="wrap foot-cols">
-        <div><span class="brand">FORMA</span><br/>Where identity becomes wardrobe.</div>
-        <div>Discover · Build · Express<br/>© 2026 FORMA</div>
-      </div>
-    </footer>
+    <footer class="foot"><div class="wrap foot-cols"><div><span class="brand">FORMA</span><br>Identity → wardrobe.</div><div>Discover · Build · Express<br>© 2026 FORMA</div></div></footer>
   </div>`;
-  // hero panel rotation
-  const panels = [...app.querySelectorAll('#heroBg .panel')];
-  panels.forEach((p,i)=>enhance(p, photoFor(AES_KEYS[i], 0)));
-  let pi=0; clearInterval(window._heroT);
-  window._heroT = setInterval(()=>{ panels[pi].classList.remove('show'); pi=(pi+1)%panels.length; panels[pi].classList.add('show'); }, 4200);
+  app.querySelectorAll('#heroArt .ph').forEach(p=>enhance(p,photoFor(p.dataset.aes,+p.dataset.i)));
   observeReveals();
 }
 
 /* ---- Quiz ---- */
-let quizState = { i:0, answers:{} };
+let quizState={i:0,answers:{}};
 function viewQuiz(){
-  clearInterval(window._heroT);
-  quizState = { i:0, answers: DB.get('quiz', {}) };
-  app.innerHTML = `<div class="page quiz">
-    <div class="quiz-top"><div class="dots" id="dots"></div></div>
-    <div class="quiz-stage" id="stage"></div>
-    <div class="quiz-foot" id="qfoot"></div>
-  </div>`;
+  quizState={i:0,answers:DB.get('quiz',{})};
+  app.innerHTML=`<div class="page quiz"><div class="quiz-top"><div class="qbar" id="qbar"></div><div class="qcount" id="qcount"></div></div><div class="quiz-stage" id="stage"></div><div class="quiz-foot" id="qfoot"></div></div>`;
   renderQuestion();
 }
-function renderDots(){
-  $('#dots').innerHTML = QUESTIONS.map((_,i)=>`<span class="dot ${i<quizState.i?'done':''} ${i===quizState.i?'active':''}"></span>`).join('');
+function renderBar(){
+  $('#qbar').innerHTML=QUESTIONS.map((_,i)=>`<span class="seg ${i<quizState.i?'done':''} ${i===quizState.i?'active':''}"></span>`).join('');
+  $('#qcount').textContent=`Question ${String(quizState.i+1).padStart(2,'0')} / ${QUESTIONS.length}`;
 }
 function renderQuestion(){
-  renderDots();
-  const q = QUESTIONS[quizState.i];
-  const stage = $('#stage');
-  let body='';
+  renderBar();const q=QUESTIONS[quizState.i];const stage=$('#stage');let body='';
   if(q.type==='slider'){
-    const val = quizState.answers[q.id] ?? q.start;
-    body = `<div class="slider-wrap">
-      <div class="slider-val" id="sval">${val}</div>
-      <input type="range" id="slider" min="${q.min}" max="${q.max}" value="${val}" />
-      <div class="slider-labels"><span>${q.leftLabel}</span><span>${q.rightLabel}</span></div>
-    </div>`;
+    const val=quizState.answers[q.id]??q.start;
+    body=`<div class="slider-wrap"><div class="slider-val" id="sval">${val}</div><input type="range" id="slider" min="${q.min}" max="${q.max}" value="${val}"/><div class="slider-labels"><span>${q.leftLabel}</span><span>${q.rightLabel}</span></div></div>`;
   } else {
-    const sel = quizState.answers[q.id];
-    body = `<div class="tile-grid cols-${q.cols}">${q.options.map((o,i)=>{
-      const isSel = q.multi ? Array.isArray(sel)&&sel.includes(i) : sel===i;
-      return `<button class="choice ${q.swatch?'swatch':''} ${isSel?'sel':''}" data-i="${i}" data-photo="${o.photo||''}" style="${tile(o.grad)}">
-        <div class="check">${svgIcon('check')}</div>
-        <div class="cap">${o.label}</div>
-      </button>`;
+    const sel=quizState.answers[q.id];
+    body=`<div class="tile-grid cols-${q.cols}">${q.options.map((o,i)=>{
+      const isSel=q.multi?Array.isArray(sel)&&sel.includes(i):sel===i;
+      return `<button class="choice ${q.swatch?'swatch':''} ${isSel?'sel':''}" data-i="${i}" data-photo="${o.photo||''}" style="${o.grad?tile(o.grad):''}"><div class="check">${svgIcon('check')}</div><div class="cap">${o.label}</div></button>`;
     }).join('')}</div>`;
   }
-  stage.innerHTML = `<div class="q-card" id="qcard">
-    <div class="q-head">
-      <span class="eyebrow">${q.eyebrow}</span>
-      <h2>${q.q}</h2>
-      ${q.sub?`<p>${q.sub}</p>`:''}
-    </div>
-    ${body}
-  </div>`;
-  // Load real photos progressively into tile choices
+  stage.innerHTML=`<div class="q-card" id="qcard"><div class="q-head"><span class="eyebrow">${q.eyebrow}</span><h2>${q.q}</h2>${q.sub?`<p>${q.sub}</p>`:''}</div>${body}</div>`;
   if(q.type!=='slider'){
-    stage.querySelectorAll('.choice[data-photo]').forEach(btn=>{
-      const pid=btn.dataset.photo; if(!pid) return;
-      const url=`https://images.unsplash.com/${pid}?auto=format&fit=crop&w=600&q=72`;
-      const img=new Image(); img.onload=()=>{ btn.style.backgroundImage=`url('${url}')`; btn.style.backgroundSize='cover'; btn.style.backgroundPosition='center'; };
-      img.src=url;
-    });
+    stage.querySelectorAll('.choice[data-photo]').forEach(btn=>{const pid=btn.dataset.photo;if(!pid)return;const url=uns(pid,600);const im=new Image();im.onload=()=>{btn.style.backgroundImage=`url('${url}')`;};im.src=url;});
   }
-
-  // foot
-  const isLast = quizState.i===QUESTIONS.length-1;
-  const answered = isAnswered(q);
-  $('#qfoot').innerHTML = `
-    <button class="q-back" id="qback" ${quizState.i===0?'style=visibility:hidden':''}>${svgIcon('back')} Back</button>
-    ${!q.multi && q.type!=='slider' ? '' : `<button class="btn btn-primary" id="qnext" ${answered?'':'disabled'}>${isLast?'See my Style DNA':'Continue'}</button>`}
-  `;
-  // interactions
+  const isLast=quizState.i===QUESTIONS.length-1;const answered=isAnswered(q);
+  $('#qfoot').innerHTML=`<button class="q-back" id="qback" ${quizState.i===0?'style=visibility:hidden':''}>${svgIcon('back')} Back</button>
+    ${(!q.multi&&q.type!=='slider')?'':`<button class="btn btn-red btn-sm" id="qnext" ${answered?'':'disabled'}>${isLast?'See my DNA':'Continue'} ${svgIcon('arrow')}</button>`}`;
   if(q.type==='slider'){
-    const sl=$('#slider'); const sv=$('#sval');
-    sl.addEventListener('input',()=>{ sv.textContent=sl.value; quizState.answers[q.id]=+sl.value; });
-    if(quizState.answers[q.id]==null) quizState.answers[q.id]=q.start;
+    const sl=$('#slider'),sv=$('#sval');sl.addEventListener('input',()=>{sv.textContent=sl.value;quizState.answers[q.id]=+sl.value;});
+    if(quizState.answers[q.id]==null)quizState.answers[q.id]=q.start;
   } else {
-    stage.querySelectorAll('.choice').forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        const i=+btn.dataset.i;
-        if(q.multi){
-          let arr = Array.isArray(quizState.answers[q.id])?quizState.answers[q.id]:[];
-          arr = arr.includes(i)? arr.filter(x=>x!==i):[...arr,i];
-          quizState.answers[q.id]=arr;
-          renderQuestion();
-        } else {
-          quizState.answers[q.id]=i;
-          DB.set('quiz', quizState.answers);
-          setTimeout(next, 240); // auto-advance single-select
-          stage.querySelectorAll('.choice').forEach(b=>b.classList.remove('sel'));
-          btn.classList.add('sel');
-        }
-      });
-    });
+    stage.querySelectorAll('.choice').forEach(btn=>btn.addEventListener('click',()=>{
+      const i=+btn.dataset.i;
+      if(q.multi){let arr=Array.isArray(quizState.answers[q.id])?quizState.answers[q.id]:[];arr=arr.includes(i)?arr.filter(x=>x!==i):[...arr,i];quizState.answers[q.id]=arr;renderQuestion();}
+      else{quizState.answers[q.id]=i;DB.set('quiz',quizState.answers);stage.querySelectorAll('.choice').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');setTimeout(next,260);}
+    }));
   }
-  $('#qback')?.addEventListener('click', prev);
-  $('#qnext')?.addEventListener('click', next);
-  DB.set('quiz', quizState.answers);
+  $('#qback')?.addEventListener('click',prev);$('#qnext')?.addEventListener('click',next);DB.set('quiz',quizState.answers);
 }
-function isAnswered(q){
-  const a=quizState.answers[q.id];
-  if(q.type==='slider') return true;
-  if(q.multi) return Array.isArray(a)&&a.length>0;
-  return a!=null;
-}
-function next(){
-  const q=QUESTIONS[quizState.i];
-  if(!isAnswered(q)) return;
-  DB.set('quiz', quizState.answers);
-  if(quizState.i===QUESTIONS.length-1){ finishQuiz(); return; }
-  const card=$('#qcard'); card.classList.add('out');
-  setTimeout(()=>{ quizState.i++; renderQuestion(); }, 240);
-}
-function prev(){
-  if(quizState.i===0) return;
-  quizState.i--; renderQuestion();
-}
-function finishQuiz(){
-  const dna = scoreQuiz(quizState.answers);
-  State.setDna(dna);
-  renderNav('#/result');
-  location.hash='#/result';
-}
+function isAnswered(q){const a=quizState.answers[q.id];if(q.type==='slider')return true;if(q.multi)return Array.isArray(a)&&a.length>0;return a!=null;}
+function next(){const q=QUESTIONS[quizState.i];if(!isAnswered(q))return;DB.set('quiz',quizState.answers);if(quizState.i===QUESTIONS.length-1){finishQuiz();return;}const c=$('#qcard');c.classList.add('out');setTimeout(()=>{quizState.i++;renderQuestion();},230);}
+function prev(){if(quizState.i===0)return;quizState.i--;renderQuestion();}
+function finishQuiz(){State.setDna(scoreQuiz(quizState.answers));renderNav('#/result');location.hash='#/result';}
 
-/* ---- Style DNA Result ---- */
+/* ---- Result ---- */
 function viewResult(){
-  const dna = State.dna();
-  if(!dna){ go('#/quiz'); return; }
-  app.innerHTML = `<div class="page result"><div class="result-inner">
-    <div class="lead">
-      <span class="eyebrow">Your Style DNA</span>
-      <h1 class="primary">You are<br/><em>${esc(dna.primaryName)}</em></h1>
-    </div>
+  const dna=State.dna();if(!dna){go('#/quiz');return;}
+  app.innerHTML=`<div class="page result"><div class="result-inner">
+    <div class="lead"><span class="eyebrow">Your Style DNA</span><h1 class="primary">You are<span class="mark">${esc(dna.primaryName)}</span></h1></div>
     <p class="dna-summary">${esc(dna.summary)}</p>
-    <div class="dna-bars">
-      ${dna.breakdown.map(b=>`
-        <div class="dna-row">
-          <div class="top"><span class="nm">${esc(b.name)}</span><span class="pc" data-pc="${b.pct}">0%</span></div>
-          <div class="bar"><i data-w="${b.pct}" style="background:${AESTHETICS[b.key].accent}"></i></div>
-        </div>`).join('')}
-    </div>
-
-    <div class="color-story">
-      <h4 class="eyebrow">Your colour story</h4>
-      <div class="swatches">
-        ${dna.palette.map(c=>`<div class="swatch-chip"><div class="sw" style="background:${c}"></div><div class="hx">${c}</div></div>`).join('')}
-      </div>
-    </div>
-
-    <div class="share-card" id="shareCard">
-      <div class="brand serif">FORMA</div>
-      <div class="big">My Style DNA is<br/><em>${esc(dna.primaryName)}</em></div>
-      <div class="mini-bars">
-        ${dna.breakdown.map(b=>`<div class="dna-row"><div class="top"><span class="nm" style="font-size:14px">${esc(b.name)}</span><span class="pc">${b.pct}%</span></div><div class="bar"><i style="width:${b.pct}%;background:${AESTHETICS[b.key].accent}"></i></div></div>`).join('')}
-      </div>
-      <div class="url">forma.style</div>
-    </div>
-
+    <div class="dna-bars">${dna.breakdown.map(b=>`<div class="dna-row"><div class="top"><span class="nm">${esc(b.name)}</span><span class="pc" data-pc="${b.pct}">0%</span></div><div class="bar"><i data-w="${b.pct}"></i></div></div>`).join('')}</div>
+    <div class="color-story"><h4 class="eyebrow k">Your colour story</h4><div class="swatches">${dna.palette.map(c=>`<div class="swatch-chip"><div class="sw" style="background:${c}"></div><div class="hx">${c}</div></div>`).join('')}</div></div>
+    <div class="share-card"><div class="brand">FORMA</div><div class="big">My Style DNA<span class="mark">${esc(dna.primaryName)}</span></div>
+      <div class="mini-bars">${dna.breakdown.map(b=>`<div class="dna-row"><div class="top"><span class="nm">${esc(b.name)}</span><span class="pc">${b.pct}%</span></div><div class="bar"><i style="width:${b.pct}%"></i></div></div>`).join('')}</div>
+      <div class="url">forma.style / get yours</div></div>
     <div class="result-actions">
-      <a class="btn btn-primary btn-block" href="#/explore" data-link>Explore your style ${svgIcon('arrow')}</a>
-      <button class="btn btn-gold btn-block" id="shareBtn">${svgIcon('share')} Share your DNA</button>
-      <a class="btn btn-secondary btn-block" href="#/closet" data-link>Build your closet</a>
-      <button class="btn btn-ghost" id="retake" style="align-self:center">Retake the quiz</button>
-    </div>
-  </div></div>`;
-
-  // animate bars + count up
-  setTimeout(()=>{
-    app.querySelectorAll('.dna-bars .bar > i').forEach(el=>{ el.style.width=el.dataset.w+'%'; });
-    app.querySelectorAll('.dna-bars .pc').forEach(el=>countUp(el, +el.dataset.pc));
-  }, 200);
-
-  $('#shareBtn').addEventListener('click', ()=>{
-    const text = `My Style DNA is ${dna.primaryName} (${dna.breakdown.map(b=>b.pct+'% '+b.name).join(', ')}). Find yours on FORMA.`;
-    if(navigator.share){ navigator.share({title:'My Style DNA · FORMA', text}).catch(()=>{}); }
-    else if(navigator.clipboard){ navigator.clipboard.writeText(text); toast('DNA copied — paste it anywhere'); }
-    else toast('Screenshot the card above to share');
-  });
-  $('#retake').addEventListener('click', ()=>{ DB.del('quiz'); go('#/quiz'); });
+      <a class="btn btn-red btn-block" href="#/explore" data-link>Explore your style ${svgIcon('arrow')}</a>
+      <button class="btn btn-block" id="shareBtn">${svgIcon('share')} Share your DNA</button>
+      <a class="btn btn-block" href="#/closet" data-link>Build your closet</a>
+      <button class="btn-ghost mono" id="retake" style="align-self:center;text-transform:uppercase;font-size:12px">Retake the quiz</button>
+    </div></div></div>`;
+  setTimeout(()=>{app.querySelectorAll('.dna-bars .bar>i').forEach(el=>el.style.width=el.dataset.w+'%');app.querySelectorAll('.dna-bars .pc').forEach(el=>countUp(el,+el.dataset.pc));},150);
+  $('#shareBtn').addEventListener('click',()=>{const t=`My Style DNA is ${dna.primaryName} (${dna.breakdown.map(b=>b.pct+'% '+b.name).join(', ')}). Find yours on FORMA.`;if(navigator.share)navigator.share({title:'My Style DNA · FORMA',text:t}).catch(()=>{});else if(navigator.clipboard){navigator.clipboard.writeText(t);toast('Copied — paste anywhere');}else toast('Screenshot the card');});
+  $('#retake').addEventListener('click',()=>{DB.del('quiz');go('#/quiz');});
 }
-function countUp(el, to){
-  const dur=1100, t0=performance.now();
-  function frame(t){ const p=Math.min(1,(t-t0)/dur); el.textContent=Math.round(p*to)+'%'; if(p<1) requestAnimationFrame(frame); }
-  requestAnimationFrame(frame);
-}
+function countUp(el,to){const d=1000,t0=performance.now();(function f(t){const p=Math.min(1,(t-t0)/d);el.textContent=Math.round(p*to)+'%';if(p<1)requestAnimationFrame(f);})(performance.now());}
 
-/* ---- Authed Home / Dashboard ---- */
+/* ---- Dashboard ---- */
 function viewDashboard(){
-  const dna = State.dna(); if(!dna){ go('#/quiz'); return; }
-  const closet=State.closet().length, saved=State.saved().length, outfits=State.outfits().length;
-  app.innerHTML = `<div class="page authed-page"><div class="wrap">
-    <div class="page-head">
-      <div>
-        <span class="eyebrow">Your style OS</span>
-        <h1>You're<br/><em style="font-style:italic;color:var(--gold)">${esc(dna.primaryName)}</em></h1>
-      </div>
-      <a class="btn btn-secondary" href="#/profile" data-link>View Style DNA</a>
-    </div>
-
+  const dna=State.dna();if(!dna){go('#/quiz');return;}
+  const c=State.closet().length,s=State.saved().length,o=State.outfits().length;
+  app.innerHTML=`<div class="page authed-page"><div class="wrap">
+    <div class="page-head"><div><span class="eyebrow">Your style OS</span><h1>You're<br><span class="mark">${esc(dna.primaryName)}</span></h1></div><a class="btn btn-sm" href="#/profile" data-link>View DNA</a></div>
     <div class="home-grid">
-      <div class="feature-card tall" style="${tile(AESTHETICS[dna.primary].grad)};min-height:320px;border:none">
-        <div style="position:relative;z-index:1">
-          <span class="eyebrow" style="color:var(--bone)">Today</span>
-          <h3 style="font-size:32px;margin-top:10px">Generate an outfit<br/>for right now</h3>
-          <p style="color:rgba(245,244,240,.8)">Your DNA, your closet, the occasion — one tap to a look that's actually you.</p>
-          <a class="btn btn-primary" href="#/outfits" data-link>Open Outfit Engine ${svgIcon('arrow')}</a>
-        </div>
-      </div>
-
-      <div class="feature-card">
-        <span class="eyebrow">Explore</span>
-        <h3>Your feed</h3>
-        <p>A discovery feed tuned to your aesthetics. Save looks that pull you in.</p>
-        <a class="btn btn-secondary" href="#/explore" data-link>Open Explorer</a>
-      </div>
-
-      <div class="feature-card">
-        <span class="eyebrow">Style Lab</span>
-        <h3>Your scores</h3>
-        <p>Colour harmony, versatility, consistency — with gentle, never-judgmental nudges.</p>
-        <a class="btn btn-secondary" href="#/lab" data-link>Open Style Lab</a>
-      </div>
+      <div class="feature-card tall"><div><span class="eyebrow">Today</span><h3>Generate a fit<br>right now</h3></div><div><p>Your DNA + closet + the occasion = one fit that's actually you.</p><a class="btn btn-primary btn-sm" href="#/outfits" data-link>Open engine ${svgIcon('arrow')}</a></div></div>
+      <div class="feature-card"><span class="eyebrow">Explore</span><h3>Your feed</h3><p>Discovery tuned to your aesthetics. Save what hits.</p><a class="btn btn-sm" href="#/explore" data-link>Open explorer</a></div>
+      <div class="feature-card"><span class="eyebrow">Style Lab</span><h3>Your scores</h3><p>Colour, versatility, consistency — with real nudges.</p><a class="btn btn-sm" href="#/lab" data-link>Open lab</a></div>
     </div>
-
-    <div class="stat-row">
-      <div class="stat"><div class="v">${closet}</div><div class="l">Closet items</div></div>
-      <div class="stat"><div class="v">${saved}</div><div class="l">Saved looks</div></div>
-      <div class="stat"><div class="v">${outfits}</div><div class="l">Saved outfits</div></div>
-      <div class="stat"><div class="v">${dna.breakdown.length}</div><div class="l">Aesthetics</div></div>
-    </div>
+    <div class="stat-row"><div class="stat"><div class="v">${c}</div><div class="l">Closet</div></div><div class="stat"><div class="v">${s}</div><div class="l">Saved</div></div><div class="stat"><div class="v">${o}</div><div class="l">Fits</div></div><div class="stat"><div class="v">${dna.breakdown.length}</div><div class="l">Aesthetics</div></div></div>
   </div></div>`;
 }
 
-/* ---- Explorer (Hypebeast white mode) ---- */
-let exploreState = { filter:'all', page:0, io:null, cardCount:0 };
-// Editorial feature card texts
-const X_FEATURES = [
-  { ey:'This season', h:'The only\nlook you\nneed', sub:'Distilled from 1,200 saves this week across Editorial and Quiet Luxury.' },
-  { ey:'FORMA picks', h:'Proportion\nis\neverything', sub:'The silhouette shift everyone is talking about — and how to wear it now.' },
-  { ey:'Cultural moment', h:'Streetwear\ngrew up', sub:'How the hoodie became the most considered garment in a modern wardrobe.' },
-];
-
+/* ---- Explorer ---- */
+let exploreState={filter:'all',page:0,io:null,count:0};
+const X_FEATURES=[{ey:'This week',h:'The only\nfit you\nneed',sub:'Distilled from 1,200 saves across Editorial & Street.',red:false},{ey:'FORMA picks',h:'Proportion\nis\neverything',sub:'The silhouette shift everyone is on right now.',red:true},{ey:'Culture',h:'Street\ngrew\nup',sub:'How the hoodie became the most considered garment you own.',red:false}];
 function viewExplore(){
-  document.body.classList.add('explore-active');
-  // inject custom cursor elements if not present
-  if(!$('#xCursor')){ const c=document.createElement('div'); c.id='xCursor'; document.body.appendChild(c); }
-  if(!$('#xDot')){ const d=document.createElement('div'); d.id='xDot'; document.body.appendChild(d); }
-  initCursor();
-
-  const marqItems = ['Editorial Minimal','Streetwear','Quiet Luxury','Old Money','Archive','Y2K','Scandinavian','Vintage'];
-  const heroAes = AES_KEYS;
-  app.innerHTML = `<div class="xpage" id="xpage">
-
-    <!-- TICKER -->
-    <div class="ticker-wrap">
-      <div class="ticker">
-        ${[...marqItems,...marqItems].map(s=>`<span>${s}</span><span class="sep">·</span>`).join('')}
+  const tick=AES_KEYS.map(k=>AESTHETICS[k].name);
+  app.innerHTML=`<div class="page">
+    <div class="ticker-wrap"><div class="ticker">${[...tick,...tick].map((s,i)=>`<span class="${i%2?'r':''}">${s} ✱</span>`).join('')}</div></div>
+    <div class="x-hero">
+      <div class="big-cell"><div class="ph" id="xh0" style="${tile(AESTHETICS[AES_KEYS[0]].grad)}"></div><div class="ov"><span class="badge">Trending</span><h2>The fits<br>people are<br>saving</h2></div></div>
+      <div class="side">
+        <div class="cell"><div class="ph" id="xh1" style="${tile(AESTHETICS[AES_KEYS[1]].grad)}"></div><div class="lbl"><small>Aesthetic</small>${AESTHETICS[AES_KEYS[1]].name}</div></div>
+        <div class="cell"><div class="ph" id="xh2" style="${tile(AESTHETICS[AES_KEYS[2]].grad)}"></div><div class="lbl"><small>Aesthetic</small>${AESTHETICS[AES_KEYS[2]].name}</div></div>
       </div>
     </div>
-
-    <!-- HERO BAND -->
-    <div class="x-hero" id="xhero">
-      <div class="x-hero-left">
-        <div class="bg" id="xhl-bg"></div>
-        <div class="txt">
-          <span class="badge">Trending now</span>
-          <h2>The looks<br/>people are<br/>saving</h2>
-          <p>Curated across eight aesthetics, updated weekly.</p>
-        </div>
-      </div>
-      <div class="x-hero-right" id="xhr">
-        <div class="cell"><div class="bg" id="xhr-bg0"></div><div class="lbl"><small>Aesthetic</small>${AESTHETICS[heroAes[1]].name}</div></div>
-        <div class="cell"><div class="bg" id="xhr-bg1"></div><div class="lbl"><small>Aesthetic</small>${AESTHETICS[heroAes[2]].name}</div></div>
-      </div>
-    </div>
-
-    <!-- STATS BAR -->
-    <div class="x-stats">
-      <div class="x-stat"><div class="v">8</div><div class="l">Aesthetics</div></div>
-      <div class="x-stat"><div class="v">2.4K</div><div class="l">Looks curated</div></div>
-      <div class="x-stat"><div class="v">98K</div><div class="l">Saves this month</div></div>
-      <div class="x-stat"><div class="v">∞</div><div class="l">Combinations</div></div>
-    </div>
-
-    <!-- FILTER ROW -->
-    <div class="x-filters" id="xfilters">
-      ${FILTERS.map(([k,l])=>`<button class="x-filter ${k==='all'?'active':''}" data-f="${k}">${l}</button>`).join('')}
-    </div>
-
-    <!-- GRID -->
+    <div class="x-stats"><div class="x-stat"><div class="v">8</div><div class="l">Aesthetics</div></div><div class="x-stat"><div class="v">2.4K</div><div class="l">Looks</div></div><div class="x-stat"><div class="v">98K</div><div class="l">Saves / mo</div></div><div class="x-stat"><div class="v">∞</div><div class="l">Combos</div></div></div>
+    <div class="x-filters" id="xfilters">${FILTERS.map(([k,l])=>`<button class="x-filter ${k==='all'?'active':''}" data-f="${k}">${l}</button>`).join('')}</div>
     <div class="x-grid" id="xgrid"></div>
-
-    <!-- MARQUEE -->
-    <div class="x-marquee-wrap">
-      <div class="x-marquee">
-        ${['Discovery','Identity','Expression','Taste','Wardrobe','DNA','Aesthetic','Persona','Signature'].flatMap(w=>[`<span class="${Math.random()>.5?'xhigh':''}">${w}</span><span style="color:rgba(255,255,255,.2);padding:0 24px">—</span>`,'']).join('')}
-        ${['Discovery','Identity','Expression','Taste','Wardrobe','DNA','Aesthetic','Persona','Signature'].flatMap(w=>[`<span>${w}</span><span style="color:rgba(255,255,255,.2);padding:0 24px">—</span>`,'']).join('')}
-      </div>
-    </div>
-
+    <div class="x-marquee-wrap"><div class="x-marquee">${['Discovery','Identity','Expression','Taste','Wardrobe','DNA','Signature','Discovery','Identity','Expression','Taste','Wardrobe','DNA','Signature'].map((w,i)=>`<span class="${i%2?'k':''}">${w} —</span>`).join('')}</div></div>
     <div class="x-sentinel" id="xsentinel"></div>
   </div>`;
-
-  // Hero images
-  enhance($('#xhl-bg'), photoFor(heroAes[0], 0));
-  enhance($('#xhr-bg0'), photoFor(heroAes[1], 1));
-  enhance($('#xhr-bg1'), photoFor(heroAes[2], 2));
-  // Subtle parallax on hero panels
-  const heroPanel=$('#xhl-bg');
-  window._xParallax = ()=>{
-    if(!heroPanel || !heroPanel.isConnected) return;
-    const y=window.scrollY; heroPanel.style.transform=`scale(1.08) translateY(${y*.04}px)`;
-  };
-  window.addEventListener('scroll', window._xParallax, {passive:true});
-
-  // Filter clicks
-  exploreState={ filter:'all', page:0, io:null, cardCount:0 };
-  loadMoreX();
-  $('#xfilters').querySelectorAll('.x-filter').forEach(p=>p.addEventListener('click',()=>{
-    $('#xfilters').querySelectorAll('.x-filter').forEach(x=>x.classList.remove('active'));
-    p.classList.add('active');
-    exploreState.filter=p.dataset.f; exploreState.page=0; exploreState.cardCount=0;
-    $('#xgrid').innerHTML=''; loadMoreX();
-  }));
-  // Infinite scroll
-  exploreState.io = new IntersectionObserver((ents)=>{ if(ents[0].isIntersecting) loadMoreX(); }, {rootMargin:'500px'});
-  exploreState.io.observe($('#xsentinel'));
+  enhance($('#xh0'),photoFor(AES_KEYS[0],0));enhance($('#xh1'),photoFor(AES_KEYS[1],1));enhance($('#xh2'),photoFor(AES_KEYS[2],2));
+  const hp=$('#xh0');window._xPar=()=>{if(hp&&hp.isConnected)hp.style.transform=`scale(1.06) translateY(${window.scrollY*.04}px)`;};window.addEventListener('scroll',window._xPar,{passive:true});
+  exploreState={filter:'all',page:0,io:null,count:0};loadMoreX();
+  $('#xfilters').querySelectorAll('.x-filter').forEach(p=>p.addEventListener('click',()=>{$('#xfilters').querySelectorAll('.x-filter').forEach(x=>x.classList.remove('active'));p.classList.add('active');exploreState.filter=p.dataset.f;exploreState.page=0;exploreState.count=0;$('#xgrid').innerHTML='';loadMoreX();}));
+  exploreState.io=new IntersectionObserver(e=>{if(e[0].isIntersecting)loadMoreX();},{rootMargin:'500px'});exploreState.io.observe($('#xsentinel'));
 }
-
 function loadMoreX(){
-  const g=$('#xgrid'); if(!g) return;
-  const items=buildFeed(exploreState.filter, exploreState.page++);
-  const saved=State.saved();
-  items.forEach((it,localIdx)=>{
-    const globalIdx = exploreState.cardCount++;
-    // Insert editorial feature card every 9th item
-    if(globalIdx>0 && globalIdx%9===0){
-      const f=X_FEATURES[Math.floor(globalIdx/9-1)%X_FEATURES.length];
-      const fc=document.createElement('div');
-      fc.className='x-card x-feat xin';
-      fc.innerHTML=`<div class="xf-ey">${f.ey}</div><div class="xf-h">${f.h.replace(/\n/g,'<br/>')}</div><div class="xf-sub">${f.sub}</div><div class="xf-btn">Read more ${svgIcon('arrow')}</div>`;
-      g.appendChild(fc);
-    }
-    const el=document.createElement('div');
-    const isSaved=saved.includes(it.id);
-    el.className='x-card'+(isSaved?' xsaved':'');
-    const h=230+((globalIdx*71)%180);
-    el.innerHTML=`
-      <div class="ximg" style="height:${h}px;${tile(AESTHETICS[it.aes].grad)}"></div>
-      <button class="x-save" data-id="${it.id}" title="Save look">${svgIcon('heart')}</button>
-      <div class="x-n">#${String(globalIdx+1).padStart(3,'0')}</div>
-      <div class="x-over">
-        <span class="xa">${AESTHETICS[it.aes].name}</span>
-        <div class="xt">${it.title}</div>
-      </div>`;
-    // Progressive image
-    const cover=el.querySelector('.ximg');
-    enhance(cover, it.photo);
-    // 3D tilt on hover
-    el.addEventListener('mousemove', e=>tiltCard(el, e));
-    el.addEventListener('mouseleave', ()=>{ el.style.transform=''; el.style.boxShadow=''; });
-    // Save
-    const saveBtn=el.querySelector('.x-save');
-    saveBtn.addEventListener('click', e=>{
-      e.stopPropagation();
-      const on=State.toggleSave(it.id);
-      el.classList.toggle('xsaved',on);
-      saveBtn.classList.add('pop'); setTimeout(()=>saveBtn.classList.remove('pop'),400);
-      toast(on?'Saved to your looks ♥':'Removed');
-    });
-    // Scroll reveal (IntersectionObserver per card)
-    const cio=new IntersectionObserver((ents)=>{
-      ents.forEach(e=>{ if(e.isIntersecting){ el.classList.add('xin'); cio.unobserve(el); } });
-    }, {rootMargin:'-40px'});
-    cio.observe(el);
+  const g=$('#xgrid');if(!g)return;const items=buildFeed(exploreState.filter,exploreState.page++);const saved=State.saved();
+  items.forEach(it=>{
+    const gi=exploreState.count++;
+    if(gi>0&&gi%9===0){const f=X_FEATURES[Math.floor(gi/9-1)%X_FEATURES.length];const fc=document.createElement('div');fc.className='x-card x-feat xin'+(f.red?' red':'');fc.innerHTML=`<div class="xf-ey">${f.ey}</div><div class="xf-h">${f.h.replace(/\n/g,'<br>')}</div><div class="xf-sub">${f.sub}</div><div class="xf-btn">Read ${svgIcon('arrow')}</div>`;g.appendChild(fc);}
+    const el=document.createElement('div');const isSaved=saved.includes(it.id);el.className='x-card'+(isSaved?' xsaved':'');const h=230+((gi*71)%180);
+    el.innerHTML=`<div class="ximg" style="height:${h}px;${tile(AESTHETICS[it.aes].grad)}"></div><button class="x-save" data-id="${it.id}">${svgIcon('heart')}</button><div class="x-n">#${String(gi+1).padStart(3,'0')}</div><div class="x-over"><span class="xa">${AESTHETICS[it.aes].name}</span><div class="xt">${it.title}</div></div>`;
+    enhance(el.querySelector('.ximg'),it.photo);
+    el.addEventListener('mousemove',e=>tiltCard(el,e));el.addEventListener('mouseleave',()=>{el.style.transform='';el.style.zIndex='';});
+    const sb=el.querySelector('.x-save');sb.addEventListener('click',e=>{e.stopPropagation();const on=State.toggleSave(it.id);el.classList.toggle('xsaved',on);sb.classList.add('pop');setTimeout(()=>sb.classList.remove('pop'),400);toast(on?'Saved ♥':'Removed');});
+    const cio=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){el.classList.add('xin');cio.unobserve(el);}}),{rootMargin:'-30px'});cio.observe(el);
     g.appendChild(el);
   });
-  if(exploreState.page>7 && exploreState.io){ exploreState.io.disconnect(); }
+  if(exploreState.page>7&&exploreState.io)exploreState.io.disconnect();
 }
+function tiltCard(el,e){const r=el.getBoundingClientRect();const x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;el.style.zIndex='5';el.style.transform=`perspective(900px) rotateY(${x*9}deg) rotateX(${-y*9}deg) scale(1.03)`;}
 
-function tiltCard(el, e){
-  const r=el.getBoundingClientRect();
-  const x=(e.clientX-r.left)/r.width-.5;
-  const y=(e.clientY-r.top)/r.height-.5;
-  el.style.transform=`perspective(900px) rotateY(${x*10}deg) rotateX(${-y*10}deg) scale(1.02)`;
-  el.style.boxShadow=`${-x*14}px ${-y*14}px 36px rgba(0,0,0,.12)`;
-}
-
+/* ---- Custom cursor ---- */
 function initCursor(){
-  if(window._cursorInit) return; window._cursorInit=true;
-  const cur=$('#xCursor'), dot=$('#xDot');
-  let mx=0,my=0,cx=0,cy=0;
-  document.addEventListener('mousemove',e=>{ mx=e.clientX; my=e.clientY; dot.style.left=mx+'px'; dot.style.top=my+'px'; });
-  (function loop(){ cx+=(mx-cx)*.12; cy+=(my-cy)*.12; cur.style.left=cx+'px'; cur.style.top=cy+'px'; requestAnimationFrame(loop); })();
-  document.addEventListener('mouseover',e=>{
-    const t=e.target; const isSave=t.closest('.x-save');
-    cur.classList.toggle('xl', !!(t.closest('.x-card')&&!isSave));
-    cur.classList.toggle('heart', !!isSave);
-  });
-  document.addEventListener('mouseleave',()=>{ cur.classList.remove('xl','heart'); });
+  if(window._curInit)return;window._curInit=true;
+  const cur=$('#cur'),dot=$('#curDot');let mx=0,my=0,cx=0,cy=0,on=false;
+  window.addEventListener('mousemove',e=>{if(!on){on=true;document.body.classList.add('has-cursor');}mx=e.clientX;my=e.clientY;dot.style.left=mx+'px';dot.style.top=my+'px';});
+  (function loop(){cx+=(mx-cx)*.18;cy+=(my-cy)*.18;cur.style.left=cx+'px';cur.style.top=cy+'px';requestAnimationFrame(loop);})();
+  document.addEventListener('mouseover',e=>{const t=e.target;const save=t.closest('.x-save,.x-filter,.tab,.btn,a,button');const card=t.closest('.x-card,.choice,.citem,.feature-card');cur.classList.toggle('tag',!!save&&!card);cur.classList.toggle('big',!!card&&!save);});
 }
 
-/* ---- Digital Closet ---- */
+/* ---- Closet ---- */
 let closetFilter='all';
 function viewCloset(){
   const items=State.closet();
-  app.innerHTML = `<div class="page authed-page"><div class="wrap">
-    <div class="page-head">
-      <div><span class="eyebrow">Digital Closet</span><h1>Your wardrobe</h1>
-      <p>Upload a piece — we'll tag colour, category and season. Backgrounds cleaned automatically.</p></div>
-      <div class="flex gap wrap-f">
-        <button class="btn btn-primary" id="addBtn">${svgIcon('plus')} Add item</button>
-        ${items.length===0?`<button class="btn btn-secondary" id="seedBtn">Add sample wardrobe</button>`:''}
-      </div>
-    </div>
-    ${items.length? `
-      <div class="pills" id="cpills">
-        ${['all','top','bottom','shoes','outerwear','accessory'].map(c=>`<button class="pill ${c===closetFilter?'active':''}" data-c="${c}">${c==='all'?'All':cap(c)}</button>`).join('')}
-      </div>
-      <div class="closet-grid" id="cgrid"></div>`
-    : emptyState('closet','Your closet is empty','Add your real pieces, or drop in a sample wardrobe to see how outfits and scores come alive.', 'addBtn2','Add your first item')}
+  app.innerHTML=`<div class="page authed-page"><div class="wrap">
+    <div class="page-head"><div><span class="eyebrow">Digital Closet</span><h1>Your<br>wardrobe</h1><p>Upload a piece — we tag colour, category & season.</p></div>
+      <div class="flex gap wrap-f"><button class="btn btn-red btn-sm" id="addBtn">${svgIcon('plus')} Add item</button>${items.length===0?`<button class="btn btn-sm" id="seedBtn">Sample wardrobe</button>`:''}</div></div>
+    ${items.length?`<div class="tabs" id="cpills">${['all','top','bottom','shoes','outerwear','accessory'].map(c=>`<button class="tab ${c===closetFilter?'active':''}" data-c="${c}">${c==='all'?'All':cap(c)}</button>`).join('')}</div><div class="closet-grid" id="cgrid"></div>`
+      :`<div class="empty"><div class="ic">${svgIcon('closet')}</div><h3>Empty closet</h3><p>Add real pieces or drop in a sample wardrobe to see fits & scores light up.</p><button class="btn btn-red" id="addBtn2">${svgIcon('plus')} Add first item</button></div>`}
   </div></div>`;
-  if(items.length) renderClosetGrid();
-  $('#addBtn')?.addEventListener('click', openAddItem);
-  $('#addBtn2')?.addEventListener('click', openAddItem);
-  $('#seedBtn')?.addEventListener('click', ()=>{ seedCloset(); toast('Sample wardrobe added'); viewCloset(); });
-  $('#cpills')?.querySelectorAll('.pill').forEach(p=>p.addEventListener('click',()=>{ closetFilter=p.dataset.c; viewCloset(); }));
+  if(items.length)renderClosetGrid();
+  $('#addBtn')?.addEventListener('click',openAddItem);$('#addBtn2')?.addEventListener('click',openAddItem);
+  $('#seedBtn')?.addEventListener('click',()=>{seedCloset();toast('Sample wardrobe added');viewCloset();});
+  $('#cpills')?.querySelectorAll('.tab').forEach(p=>p.addEventListener('click',()=>{closetFilter=p.dataset.c;viewCloset();}));
 }
 function renderClosetGrid(){
   const items=State.closet().filter(i=>closetFilter==='all'||i.category===closetFilter);
-  const g=$('#cgrid');
-  g.innerHTML = items.map(it=>`
-    <div class="citem" data-id="${it.id}">
-      <div class="thumb">
-        ${it.image?`<img src="${it.image}" alt="">`:`<div class="swatch-fill" style="background:${it.color}"></div>`}
-      </div>
-      <div class="info">
-        <div class="cat">${cap(it.category)}</div>
-        <div class="nm"><span class="dot" style="background:${it.color}"></span>${esc(it.name)}</div>
-      </div>
-    </div>`).join('');
-  g.querySelectorAll('.citem').forEach(c=>c.addEventListener('click',()=>openItemDetail(c.dataset.id)));
+  $('#cgrid').innerHTML=items.map(it=>`<div class="citem" data-id="${it.id}"><div class="thumb">${it.image?`<img src="${it.image}">`:`<div class="swatch-fill" style="background:${it.color}"></div>`}</div><div class="info"><div class="cat">${cap(it.category)}</div><div class="nm"><span class="dot" style="background:${it.color}"></span>${esc(it.name)}</div></div></div>`).join('');
+  $('#cgrid').querySelectorAll('.citem').forEach(c=>c.addEventListener('click',()=>openItemDetail(c.dataset.id)));
 }
-function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
-function seedCloset(){
-  // add a balanced sample set
-  ['top','top','bottom','bottom','shoes','outerwear','accessory'].forEach((cat,idx)=>{
-    const opts=CAT_ITEMS.filter(i=>i.category===cat);
-    const pick=opts[idx%opts.length];
-    State.addItem({ id:'own-'+Date.now()+'-'+idx, name:pick.name, category:cat, color:pick.color, colorName:pick.colorName, season:pick.season, aes:pick.aes });
-  });
-}
-const COLOR_CHOICES=[['#0A0A0A','Black'],['#F5F4F0','White'],['#E8E3D9','Cream'],['#8A8A8E','Grey'],['#C9A96E','Gold'],['#9A6A4E','Tan'],['#8A9E7E','Olive'],['#3A4A55','Indigo'],['#C4886A','Rust'],['#9A8C76','Taupe']];
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+function seedCloset(){['top','top','bottom','bottom','shoes','outerwear','accessory'].forEach((cat,idx)=>{const o=CAT_ITEMS.filter(i=>i.category===cat);const p=o[idx%o.length];State.addItem({id:'own-'+Date.now()+'-'+idx,name:p.name,category:cat,color:p.color,colorName:p.colorName,season:p.season,aes:p.aes});});}
+const COLOR_CHOICES=[['#0A0A0A','Black'],['#FFFFFF','White'],['#E8E3D9','Cream'],['#8A8A8E','Grey'],['#C9A96E','Gold'],['#9A6A4E','Tan'],['#8A9E7E','Olive'],['#3A4A55','Indigo'],['#FF2D2D','Red'],['#9A8C76','Taupe']];
 function openAddItem(){
-  let chosen={ color:'#E8E3D9', colorName:'Cream', image:null };
-  modal(`
-    <h3>Add to closet</h3>
-    <p class="muted" style="font-size:14px">Upload a photo — or just describe the piece.</p>
-    <div class="field">
-      <img class="preview-img" id="prev" alt="" style="display:none"/>
-      <label>Photo (optional)</label>
-      <input type="file" id="file" accept="image/*" />
-    </div>
-    <div class="field"><label>Name</label><input type="text" id="nm" placeholder="e.g. Boxy crew tee" /></div>
-    <div class="field"><label>Category</label>
-      <select id="cat">${['top','bottom','shoes','outerwear','accessory'].map(c=>`<option value="${c}">${cap(c)}</option>`).join('')}</select>
-    </div>
-    <div class="field"><label>Colour</label>
-      <div class="color-pick" id="cp">${COLOR_CHOICES.map((c,i)=>`<div class="cp ${i===2?'sel':''}" data-h="${c[0]}" data-n="${c[1]}" style="background:${c[0]}"></div>`).join('')}</div>
-    </div>
-    <div class="field" style="display:flex;gap:10px;margin-top:26px">
-      <button class="btn btn-primary btn-block" id="saveItem">Add to closet</button>
-      <button class="btn btn-secondary" id="closeM">Cancel</button>
-    </div>
-  `, (root)=>{
-    root.querySelector('#cp').querySelectorAll('.cp').forEach(c=>c.addEventListener('click',()=>{
-      root.querySelector('#cp').querySelectorAll('.cp').forEach(x=>x.classList.remove('sel'));
-      c.classList.add('sel'); chosen.color=c.dataset.h; chosen.colorName=c.dataset.n;
-    }));
-    root.querySelector('#file').addEventListener('change', e=>{
-      const f=e.target.files[0]; if(!f) return;
-      compressImage(f, (dataUrl)=>{ chosen.image=dataUrl; const p=root.querySelector('#prev'); p.src=dataUrl; p.style.display='block'; });
-    });
-    root.querySelector('#saveItem').addEventListener('click',()=>{
-      const name=root.querySelector('#nm').value.trim()||'Untitled piece';
-      const cat=root.querySelector('#cat').value;
-      State.addItem({ id:'own-'+Date.now(), name, category:cat, color:chosen.color, colorName:chosen.colorName, season:['all'], aes:[State.dna()?.primary||'editorial'], image:chosen.image });
-      closeModal(); toast('Added to your closet'); viewCloset();
-    });
-    root.querySelector('#closeM').addEventListener('click', closeModal);
+  let chosen={color:'#E8E3D9',colorName:'Cream',image:null};
+  modal(`<h3>Add to closet</h3><p class="sub">Upload a photo or just describe it.</p>
+    <div class="field"><img class="preview-img" id="prev" style="display:none"><label>Photo (optional)</label><input type="file" id="file" accept="image/*"></div>
+    <div class="field"><label>Name</label><input type="text" id="nm" placeholder="e.g. Boxy crew tee"></div>
+    <div class="field"><label>Category</label><select id="cat">${['top','bottom','shoes','outerwear','accessory'].map(c=>`<option value="${c}">${cap(c)}</option>`).join('')}</select></div>
+    <div class="field"><label>Colour</label><div class="color-pick" id="cp">${COLOR_CHOICES.map((c,i)=>`<div class="cp ${i===2?'sel':''}" data-h="${c[0]}" data-n="${c[1]}" style="background:${c[0]}"></div>`).join('')}</div></div>
+    <div class="field flex gap"><button class="btn btn-red btn-block" id="saveItem">Add</button><button class="btn" id="closeM">Cancel</button></div>`,
+  (root)=>{
+    root.querySelector('#cp').querySelectorAll('.cp').forEach(c=>c.addEventListener('click',()=>{root.querySelector('#cp').querySelectorAll('.cp').forEach(x=>x.classList.remove('sel'));c.classList.add('sel');chosen.color=c.dataset.h;chosen.colorName=c.dataset.n;}));
+    root.querySelector('#file').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;compressImage(f,d=>{chosen.image=d;const p=root.querySelector('#prev');p.src=d;p.style.display='block';});});
+    root.querySelector('#saveItem').addEventListener('click',()=>{const name=root.querySelector('#nm').value.trim()||'Untitled';const cat=root.querySelector('#cat').value;State.addItem({id:'own-'+Date.now(),name,category:cat,color:chosen.color,colorName:chosen.colorName,season:['all'],aes:[State.dna()?.primary||'editorial'],image:chosen.image});closeModal();toast('Added to closet');viewCloset();});
+    root.querySelector('#closeM').addEventListener('click',closeModal);
   });
 }
-function compressImage(file, cb){
-  const r=new FileReader();
-  r.onload=()=>{ const img=new Image(); img.onload=()=>{
-    const max=600; let {width:w,height:h}=img; const sc=Math.min(1,max/Math.max(w,h)); w*=sc; h*=sc;
-    const cv=document.createElement('canvas'); cv.width=w; cv.height=h; cv.getContext('2d').drawImage(img,0,0,w,h);
-    cb(cv.toDataURL('image/jpeg',0.72));
-  }; img.src=r.result; };
-  r.readAsDataURL(file);
-}
+function compressImage(file,cb){const r=new FileReader();r.onload=()=>{const img=new Image();img.onload=()=>{const max=600;let{width:w,height:h}=img;const sc=Math.min(1,max/Math.max(w,h));w*=sc;h*=sc;const cv=document.createElement('canvas');cv.width=w;cv.height=h;cv.getContext('2d').drawImage(img,0,0,w,h);cb(cv.toDataURL('image/jpeg',0.72));};img.src=r.result;};r.readAsDataURL(file);}
 function openItemDetail(id){
-  const it=State.closet().find(i=>i.id===id); if(!it) return;
-  const inOutfits = State.outfits().filter(o=>o.items.some(x=>x.id===id)).length;
-  modal(`
-    <h3>${esc(it.name)}</h3>
-    <div class="field">
-      <div class="thumb" style="aspect-ratio:1/1;border-radius:12px;overflow:hidden;background:var(--lvl0);display:flex;align-items:center;justify-content:center">
-        ${it.image?`<img src="${it.image}" style="width:100%;height:100%;object-fit:cover" alt="">`:`<div class="swatch-fill" style="width:50%;height:50%;border-radius:12px;background:${it.color}"></div>`}
-      </div>
-    </div>
-    <div class="chips" style="margin-top:18px">
-      <span class="chip">${cap(it.category)}</span>
-      <span class="chip"><span class="dot" style="background:${it.color}"></span>${esc(it.colorName||'Colour')}</span>
-      ${(it.season||['all']).map(s=>`<span class="chip">${cap(s)}</span>`).join('')}
-      ${(it.aes||[]).slice(0,2).map(a=>`<span class="chip">${esc(AESTHETICS[a]?.name||a)}</span>`).join('')}
-    </div>
-    <p class="muted" style="font-size:14px;margin-top:8px">Appears in ${inOutfits} saved outfit${inOutfits===1?'':'s'}.</p>
-    <div style="display:flex;gap:10px;margin-top:26px">
-      <button class="btn btn-secondary btn-block" id="closeM">Done</button>
-      <button class="btn btn-ghost" id="del" style="color:var(--clay)">Remove</button>
-    </div>
-  `, (root)=>{
-    root.querySelector('#closeM').addEventListener('click', closeModal);
-    root.querySelector('#del').addEventListener('click',()=>{ State.removeItem(id); closeModal(); toast('Removed'); viewCloset(); });
-  });
+  const it=State.closet().find(i=>i.id===id);if(!it)return;const inO=State.outfits().filter(o=>o.items.some(x=>x.id===id)).length;
+  modal(`<h3>${esc(it.name)}</h3><div class="field"><div class="preview-img" style="display:flex;align-items:center;justify-content:center">${it.image?`<img src="${it.image}" style="width:100%;height:100%;object-fit:cover">`:`<div style="width:50%;height:50%;border:var(--bd);background:${it.color}"></div>`}</div></div>
+    <div class="chips" style="margin-top:14px"><span class="chip">${cap(it.category)}</span><span class="chip"><span class="dot" style="background:${it.color}"></span>${esc(it.colorName||'')}</span>${(it.season||['all']).map(s=>`<span class="chip">${cap(s)}</span>`).join('')}${(it.aes||[]).slice(0,2).map(a=>`<span class="chip">${esc(AESTHETICS[a]?.name||a)}</span>`).join('')}</div>
+    <p class="sub" style="margin-top:10px">In ${inO} saved fit${inO===1?'':'s'}.</p>
+    <div class="field flex gap"><button class="btn btn-block" id="closeM">Done</button><button class="btn btn-red" id="del">Remove</button></div>`,
+  (root)=>{root.querySelector('#closeM').addEventListener('click',closeModal);root.querySelector('#del').addEventListener('click',()=>{State.removeItem(id);closeModal();toast('Removed');viewCloset();});});
 }
 
-/* ---- Outfit Engine ---- */
-let outfitState={ occasion:'Everyday', current:null };
+/* ---- Outfits ---- */
+let outfitState={occasion:'Everyday',current:null};
 function viewOutfits(){
-  const dna=State.dna(); if(!dna){ go('#/quiz'); return; }
-  const saved=State.outfits();
-  app.innerHTML = `<div class="page authed-page"><div class="wrap">
-    <div class="page-head">
-      <div><span class="eyebrow">Outfit Engine</span><h1>Today's look</h1>
-      <p>Pick an occasion. We build a look from your closet and your DNA${State.closet().length<3?' — sampling a few pieces until your closet fills out.':''}.</p></div>
-    </div>
-    <div class="pills" id="opills">
-      ${OCCASIONS.map(o=>`<button class="pill ${o===outfitState.occasion?'active':''}" data-o="${o}">${o}</button>`).join('')}
-    </div>
+  const dna=State.dna();if(!dna){go('#/quiz');return;}const saved=State.outfits();
+  app.innerHTML=`<div class="page authed-page"><div class="wrap">
+    <div class="page-head"><div><span class="eyebrow">Outfit Engine</span><h1>Today's<br>fit</h1><p>Pick an occasion. We build from your closet + DNA${State.closet().length<3?' — sampling pieces till your closet fills.':'.'}</p></div></div>
+    <div class="tabs" id="opills">${OCCASIONS.map(o=>`<button class="tab ${o===outfitState.occasion?'active':''}" data-o="${o}">${o}</button>`).join('')}</div>
     <div id="genArea"></div>
-    ${saved.length?`<div class="hr"></div><span class="eyebrow">Saved outfits</span><div class="outfit-grid" id="savedGrid" style="margin-top:18px"></div>`:''}
+    ${saved.length?`<div class="hr"></div><span class="eyebrow k">Saved fits</span><div class="outfit-grid" id="savedGrid" style="margin-top:18px"></div>`:''}
   </div></div>`;
-  $('#opills').querySelectorAll('.pill').forEach(p=>p.addEventListener('click',()=>{
-    $('#opills').querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));
-    p.classList.add('active'); outfitState.occasion=p.dataset.o; regenOutfit();
-  }));
-  regenOutfit();
-  if(saved.length) renderSavedOutfits();
+  $('#opills').querySelectorAll('.tab').forEach(p=>p.addEventListener('click',()=>{$('#opills').querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));p.classList.add('active');outfitState.occasion=p.dataset.o;regenOutfit();}));
+  regenOutfit();if(saved.length)renderSavedOutfits();
 }
-function regenOutfit(){
-  outfitState.current = generateOutfit(outfitState.occasion);
-  const area=$('#genArea');
-  area.innerHTML = `<div style="max-width:480px">${outfitCardHTML(outfitState.current, false)}</div>`;
-  wireOutfitCard(area.querySelector('.outfit-card'), outfitState.current, false);
+function regenOutfit(){outfitState.current=generateOutfit(outfitState.occasion);const a=$('#genArea');a.innerHTML=`<div style="max-width:460px">${outfitCardHTML(outfitState.current,false)}</div>`;wireOutfitCard(a.querySelector('.outfit-card'),outfitState.current,false);}
+function outfitCardHTML(o,isSaved){
+  const saved=State.outfits().some(x=>x.id===o.id);
+  return `<div class="outfit-card" data-id="${o.id}"><div class="outfit-hero">${o.items.slice(0,4).map(it=>`<div class="slot" style="background:${it.color}">${it.image?`<img src="${it.image}">`:''}<span class="lab">${esc(it.name)}</span></div>`).join('')}</div>
+    <div class="outfit-body"><div class="occ"><span class="o">${o.occasion}</span><span class="match">${o.match}% YOU</span></div><div class="chips">${o.items.map(it=>`<span class="chip"><span class="dot" style="background:${it.color}"></span>${esc(it.name)}</span>`).join('')}</div></div>
+    <div class="outfit-actions"><button data-act="save" class="${saved?'on':''}">${svgIcon('save')} ${saved?'Saved':'Save'}</button>${isSaved?`<button data-act="remove">${svgIcon('refresh')} Remove</button>`:`<button data-act="regen">${svgIcon('refresh')} Regen</button>`}<button data-act="share">${svgIcon('share')} Share</button></div></div>`;
 }
-function outfitCardHTML(o, isSaved){
-  const saved = State.outfits().some(x=>x.id===o.id);
-  return `<div class="outfit-card" data-id="${o.id}">
-    <div class="outfit-hero">
-      ${o.items.slice(0,4).map(it=>`
-        <div class="slot" style="background:${it.color}">
-          ${it.image?`<img src="${it.image}" alt="">`:''}
-          <span class="lab">${esc(it.name)}</span>
-        </div>`).join('')}
-    </div>
-    <div class="outfit-body">
-      <div class="occ"><span class="o">${o.occasion}</span><span class="match">${o.match}% you</span></div>
-      <div class="chips">${o.items.map(it=>`<span class="chip">${esc(it.name)}</span>`).join('')}</div>
-    </div>
-    <div class="outfit-actions">
-      <button data-act="save" class="${saved?'on':''}">${svgIcon('save')} ${saved?'Saved':'Save'}</button>
-      ${isSaved?`<button data-act="remove">${svgIcon('refresh')} Remove</button>`:`<button data-act="regen">${svgIcon('refresh')} Regenerate</button>`}
-      <button data-act="share">${svgIcon('share')} Share</button>
-    </div>
-  </div>`;
-}
-function wireOutfitCard(card, o, isSaved){
-  if(!card) return;
-  card.querySelectorAll('[data-act]').forEach(b=>b.addEventListener('click',()=>{
-    const act=b.dataset.act;
-    if(act==='regen'){ regenOutfit(); }
-    else if(act==='save'){ State.saveOutfit(o); toast('Outfit saved'); if(isSaved) viewOutfits(); else regenOutfit(); }
-    else if(act==='remove'){ State.removeOutfit(o.id); toast('Removed'); viewOutfits(); }
-    else if(act==='share'){
-      const text=`My ${o.occasion} look on FORMA: ${o.items.map(i=>i.name).join(', ')}. ${o.match}% me.`;
-      if(navigator.share) navigator.share({text}).catch(()=>{});
-      else { if(navigator.clipboard) navigator.clipboard.writeText(text); toast('Outfit copied'); }
-    }
+function wireOutfitCard(card,o,isSaved){
+  if(!card)return;
+  card.querySelectorAll('[data-act]').forEach(b=>b.addEventListener('click',()=>{const act=b.dataset.act;
+    if(act==='regen')regenOutfit();
+    else if(act==='save'){State.saveOutfit(o);toast('Fit saved');if(isSaved)viewOutfits();else regenOutfit();}
+    else if(act==='remove'){State.removeOutfit(o.id);toast('Removed');viewOutfits();}
+    else if(act==='share'){const t=`My ${o.occasion} fit on FORMA: ${o.items.map(i=>i.name).join(', ')}. ${o.match}% me.`;if(navigator.share)navigator.share({text:t}).catch(()=>{});else{if(navigator.clipboard)navigator.clipboard.writeText(t);toast('Fit copied');}}
   }));
 }
-function renderSavedOutfits(){
-  const g=$('#savedGrid'); const saved=State.outfits();
-  g.innerHTML = saved.map(o=>outfitCardHTML(o,true)).join('');
-  g.querySelectorAll('.outfit-card').forEach(card=>{ const o=saved.find(x=>x.id===card.dataset.id); wireOutfitCard(card,o,true); });
-}
+function renderSavedOutfits(){const g=$('#savedGrid'),saved=State.outfits();g.innerHTML=saved.map(o=>outfitCardHTML(o,true)).join('');g.querySelectorAll('.outfit-card').forEach(c=>wireOutfitCard(c,saved.find(x=>x.id===c.dataset.id),true));}
 
-/* ---- Style Lab ---- */
+/* ---- Lab ---- */
 function viewLab(){
-  const dna=State.dna(); if(!dna){ go('#/quiz'); return; }
-  const lab=computeLab();
-  const labels={ colour:['Colour Harmony','How well your palette holds together'], versatility:['Versatility','How many ways pieces combine'], consistency:['Aesthetic Consistency','How focused your style reads'], efficiency:['Wardrobe Efficiency','Outfits per piece you own'] };
-  app.innerHTML = `<div class="page authed-page"><div class="wrap">
-    <div class="page-head">
-      <div><span class="eyebrow">Style Lab</span><h1>Your style health</h1>
-      <p>${lab.usingSample?'Add a few closet items to score your real wardrobe. Here\'s a preview on sample pieces.':'Scores from your wardrobe. Always a nudge — never a verdict.'}</p></div>
-    </div>
-    <div class="lab-grid">
-      ${Object.entries(lab.scores).map(([k,v])=>`
-        <div class="score-card">
-          ${ring(v, scoreColor(v))}
-          <div class="lab-name">${labels[k][0]}</div>
-          <div class="lab-sub">${labels[k][1]}</div>
-        </div>`).join('')}
-    </div>
-    <span class="eyebrow">Suggestions</span>
-    <div class="insights" style="margin-top:18px">
-      ${lab.insights.map(([type,h,p])=>`
-        <div class="insight">
-          <div class="ib" style="background:${insightColor(type)}1f;color:${insightColor(type)}">${svgIcon(type==='win'?'check':'plus')}</div>
-          <div><h4>${esc(h)}</h4><p>${esc(p)}</p></div>
-        </div>`).join('')}
-    </div>
-    ${lab.usingSample?`<div style="margin-top:34px"><a class="btn btn-primary" href="#/closet" data-link>Build your closet ${svgIcon('arrow')}</a></div>`:''}
+  const dna=State.dna();if(!dna){go('#/quiz');return;}const lab=computeLab();
+  const L={colour:['Colour Harmony','How your palette holds together'],versatility:['Versatility','How many ways pieces combine'],consistency:['Consistency','How focused your style reads'],efficiency:['Efficiency','Fits per piece you own']};
+  app.innerHTML=`<div class="page authed-page"><div class="wrap">
+    <div class="page-head"><div><span class="eyebrow">Style Lab</span><h1>Style<br>health</h1><p>${lab.usingSample?'Add closet items to score your real wardrobe — preview on samples below.':'Scored from your wardrobe. A nudge, never a verdict.'}</p></div></div>
+    <div class="lab-grid">${Object.entries(lab.scores).map(([k,v])=>`<div class="score-card"><div class="v" data-v="${v}">0<small>/100</small></div><div class="lab-name">${L[k][0]}</div><div class="lab-sub">${L[k][1]}</div><div class="lbar"><i data-w="${v}" style="background:${scoreColor(v)}"></i></div></div>`).join('')}</div>
+    <span class="eyebrow k">Suggestions</span>
+    <div class="insights" style="margin-top:18px">${lab.insights.map(([t,h,p])=>`<div class="insight ${t==='win'?'win':''}"><div class="ib">${svgIcon(t==='win'?'check':'plus')}</div><div><h4>${esc(h)}</h4><p>${esc(p)}</p></div></div>`).join('')}</div>
+    ${lab.usingSample?`<div style="margin-top:30px"><a class="btn btn-red" href="#/closet" data-link>Build your closet ${svgIcon('arrow')}</a></div>`:''}
   </div></div>`;
-  // animate rings
-  setTimeout(()=>app.querySelectorAll('.ring circle.fg').forEach(c=>{ c.style.strokeDashoffset=c.dataset.off; }),150);
-  setTimeout(()=>app.querySelectorAll('.ring .num').forEach(n=>countUpNum(n,+n.dataset.v)),150);
+  setTimeout(()=>{app.querySelectorAll('.lbar>i').forEach(el=>el.style.width=el.dataset.w+'%');app.querySelectorAll('.score-card .v').forEach(n=>countUpNum(n,+n.dataset.v));},150);
 }
-function ring(val,color){
-  const r=52, circ=2*Math.PI*r, off=circ*(1-val/100);
-  return `<div class="ring"><svg width="120" height="120">
-    <circle cx="60" cy="60" r="${r}" stroke="var(--lvl3)" stroke-width="6" fill="none"/>
-    <circle class="fg" cx="60" cy="60" r="${r}" stroke="${color}" stroke-width="6" fill="none" stroke-linecap="round"
-      stroke-dasharray="${circ}" stroke-dashoffset="${circ}" data-off="${off}" style="transition:stroke-dashoffset 1.3s var(--ease)"/>
-  </svg><div class="num" data-v="${val}">0</div></div>`;
-}
-function countUpNum(el,to){ const t0=performance.now(); (function f(t){ const p=Math.min(1,(t-t0)/1100); el.textContent=Math.round(p*to); if(p<1) requestAnimationFrame(f); })(performance.now()); }
-function scoreColor(v){ return v>=75?'var(--sage)':v>=55?'var(--gold)':'var(--clay)'; }
-function insightColor(t){ return t==='win'?'#8A9E7E':t==='accent'?'#C9A96E':'#C4886A'; }
+function countUpNum(el,to){const t0=performance.now();(function f(t){const p=Math.min(1,(t-t0)/1000);el.innerHTML=Math.round(p*to)+'<small>/100</small>';if(p<1)requestAnimationFrame(f);})(performance.now());}
+function scoreColor(v){return v>=75?'#0A0A0A':v>=55?'#FF2D2D':'#FF2D2D';}
 
 /* ---- Profile ---- */
 function viewProfile(){
-  const dna=State.dna(); if(!dna){ go('#/quiz'); return; }
-  const initial=(localStorage.getItem('forma.name')||'F')[0].toUpperCase();
-  app.innerHTML = `<div class="page authed-page"><div class="wrap" style="max-width:780px">
-    <div class="profile-head">
-      <div class="avatar">${initial}</div>
-      <div>
-        <span class="eyebrow">Style DNA</span>
-        <h1 style="font-family:var(--display);font-weight:300;font-size:42px;margin-top:6px">${esc(dna.primaryName)}</h1>
-      </div>
-    </div>
-    <div class="dna-bars">
-      ${dna.breakdown.map(b=>`<div class="dna-row"><div class="top"><span class="nm">${esc(b.name)}</span><span class="pc">${b.pct}%</span></div><div class="bar"><i style="width:${b.pct}%;background:${AESTHETICS[b.key].accent}"></i></div></div>`).join('')}
-    </div>
-    <div class="color-story"><h4 class="eyebrow">Colour story</h4>
-      <div class="swatches">${dna.palette.map(c=>`<div class="swatch-chip"><div class="sw" style="background:${c}"></div><div class="hx">${c}</div></div>`).join('')}</div>
-    </div>
-    <div class="chips" style="justify-content:center;margin:24px 0">${dna.tags.map(t=>`<span class="chip">${esc(t)}</span>`).join('')}</div>
-    <div class="stat-row">
-      <div class="stat"><div class="v">${State.closet().length}</div><div class="l">Items</div></div>
-      <div class="stat"><div class="v">${State.saved().length}</div><div class="l">Saved</div></div>
-      <div class="stat"><div class="v">${State.outfits().length}</div><div class="l">Outfits</div></div>
-      <div class="stat"><div class="v">${dna.breakdown.length}</div><div class="l">Aesthetics</div></div>
-    </div>
+  const dna=State.dna();if(!dna){go('#/quiz');return;}const initial=(localStorage.getItem('forma.name')||'F')[0].toUpperCase();
+  app.innerHTML=`<div class="page authed-page"><div class="wrap" style="max-width:800px">
+    <div class="profile-head"><div class="avatar">${initial}</div><div><span class="eyebrow">Style DNA</span><h1 style="font-size:44px;margin-top:6px">${esc(dna.primaryName)}</h1></div></div>
+    <div class="dna-bars">${dna.breakdown.map(b=>`<div class="dna-row"><div class="top"><span class="nm">${esc(b.name)}</span><span class="pc">${b.pct}%</span></div><div class="bar"><i style="width:${b.pct}%"></i></div></div>`).join('')}</div>
+    <div class="color-story"><h4 class="eyebrow k">Colour story</h4><div class="swatches">${dna.palette.map(c=>`<div class="swatch-chip"><div class="sw" style="background:${c}"></div><div class="hx">${c}</div></div>`).join('')}</div></div>
+    <div class="tag-row">${dna.tags.map(t=>`<span class="chip">${esc(t)}</span>`).join('')}</div>
+    <div class="stat-row"><div class="stat"><div class="v">${State.closet().length}</div><div class="l">Items</div></div><div class="stat"><div class="v">${State.saved().length}</div><div class="l">Saved</div></div><div class="stat"><div class="v">${State.outfits().length}</div><div class="l">Fits</div></div><div class="stat"><div class="v">${dna.breakdown.length}</div><div class="l">Aesthetics</div></div></div>
     <div class="hr"></div>
-    <div class="flex gap wrap-f" style="justify-content:center">
-      <button class="btn btn-secondary" id="retake2">Retake quiz</button>
-      <button class="btn btn-ghost" id="reset" style="color:var(--clay)">Reset everything</button>
-    </div>
+    <div class="flex gap wrap-f"><button class="btn btn-sm" id="retake2">Retake quiz</button><button class="btn btn-red btn-sm" id="reset">Reset all</button></div>
   </div></div>`;
-  $('#retake2').addEventListener('click',()=>{ DB.del('quiz'); go('#/quiz'); });
-  $('#reset').addEventListener('click',()=>{ if(confirm('Clear your DNA, closet, saves and outfits?')){ State.reset(); go('#/'); } });
+  $('#retake2').addEventListener('click',()=>{DB.del('quiz');go('#/quiz');});
+  $('#reset').addEventListener('click',()=>{if(confirm('Clear DNA, closet, saves & fits?')){State.reset();go('#/');}});
 }
 
-/* ---- Shared bits ---- */
-function emptyState(icon,title,sub,btnId,btnText){
-  return `<div class="empty">
-    <div class="ic">${svgIcon('closet')}</div>
-    <h3>${title}</h3><p>${sub}</p>
-    <button class="btn btn-primary" id="${btnId}">${btnText}</button>
-  </div>`;
-}
-function modal(html, onMount){
-  const root=$('#modalRoot');
-  root.innerHTML=`<div class="modal-back" id="mb"><div class="modal" id="m">${html}</div></div>`;
-  $('#mb').addEventListener('click',e=>{ if(e.target.id==='mb') closeModal(); });
-  if(onMount) onMount($('#m'));
-}
-function closeModal(){ $('#modalRoot').innerHTML=''; }
+/* ---- shared ---- */
+function modal(html,onMount){const root=$('#modalRoot');root.innerHTML=`<div class="modal-back" id="mb"><div class="modal" id="m">${html}</div></div>`;$('#mb').addEventListener('click',e=>{if(e.target.id==='mb')closeModal();});if(onMount)onMount($('#m'));}
+function closeModal(){$('#modalRoot').innerHTML='';}
+function observeReveals(){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{rootMargin:'-30px'});document.querySelectorAll('.reveal:not(.in)').forEach(el=>io.observe(el));}
 
-/* reveal-on-scroll */
-function observeReveals(){
-  const io=new IntersectionObserver((ents)=>ents.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }),{rootMargin:'-40px'});
-  document.querySelectorAll('.reveal:not(.in)').forEach(el=>io.observe(el));
-}
-
-/* ============================================================================
-   12. ROUTER
-   ============================================================================ */
-const ROUTES = {
-  '#/': viewHome,
-  '#/quiz': viewQuiz,
-  '#/result': viewResult,
-  '#/home': viewDashboard,
-  '#/explore': viewExplore,
-  '#/closet': guard(viewCloset),
-  '#/outfits': guard(viewOutfits),
-  '#/lab': guard(viewLab),
-  '#/profile': guard(viewProfile),
-};
-function guard(fn){ return ()=>{ if(!State.dna()){ toast('Take the quiz first'); go('#/quiz'); return; } fn(); }; }
-
+/* 12. ROUTER --------------------------------------------------------------- */
+const ROUTES={'#/':viewHome,'#/quiz':viewQuiz,'#/result':viewResult,'#/home':viewDashboard,'#/explore':viewExplore,'#/closet':guard(viewCloset),'#/outfits':guard(viewOutfits),'#/lab':guard(viewLab),'#/profile':guard(viewProfile)};
+function guard(fn){return()=>{if(!State.dna()){toast('Take the quiz first');go('#/quiz');return;}fn();};}
 function router(){
-  const hash = location.hash || '#/';
-  const route = ROUTES[hash] ? hash : '#/';
-  if(hash==='#/' && State.dna()){ location.hash='#/home'; return; }
-  // Leave explore mode
-  if(route!=='#/explore'){
-    document.body.classList.remove('explore-active');
-    window.removeEventListener('scroll', window._xParallax);
-    window._cursorInit=false;
-    const c=$('#xCursor'); if(c) c.remove();
-    const d=$('#xDot'); if(d) d.remove();
-  }
-  window.scrollTo(0,0);
-  $('#nav').classList.toggle('solid', route!=='#/');
-  renderNav(route);
-  (ROUTES[route]||viewHome)();
+  const hash=location.hash||'#/';const route=ROUTES[hash]?hash:'#/';
+  if(hash==='#/'&&State.dna()){location.hash='#/home';return;}
+  if(route!=='#/explore'){window.removeEventListener('scroll',window._xPar);}
+  window.scrollTo(0,0);renderNav(route);(ROUTES[route]||viewHome)();
 }
-window.addEventListener('hashchange', router);
-window.addEventListener('load', ()=>{ reflectAuth(); router(); });
-// nav scroll solidify on homepage
-window.addEventListener('scroll', ()=>{ if((location.hash||'#/')==='#/') $('#nav').classList.toggle('solid', window.scrollY>40); });
-// delegate data-link
-document.addEventListener('click',e=>{ const a=e.target.closest('[data-link]'); if(a&&a.getAttribute('href')?.startsWith('#')){ /* native hash nav */ } });
-// expose for inline handlers
+window.addEventListener('hashchange',router);
+window.addEventListener('load',()=>{reflectAuth();initCursor();router();});
 window.go=go;
-reflectAuth();
-router();
+reflectAuth();initCursor();router();
 </script>
 </body>
 </html>
