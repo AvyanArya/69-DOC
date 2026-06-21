@@ -607,6 +607,44 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--red)
 .spec-entry .e-meta{font-family:var(--mono);font-size:10px;font-weight:700;text-transform:uppercase;color:var(--gray);text-align:right;flex:none;line-height:1.5;}
 .spec-entry .e-meta b{display:block;color:var(--red);font-size:17px;}
 
+/* ===== SKETCH HOMEPAGE ===== */
+.hero2{padding-top:var(--nav-h);border-bottom:1px solid var(--line);}
+.hero2-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 22px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gray);}
+.hero2-stage{position:relative;min-height:82vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;overflow:hidden;padding:48px 18px;}
+.hero2-eyebrow{font-family:var(--hand);font-size:clamp(34px,6vw,64px);color:var(--ink);line-height:.8;position:relative;z-index:2;}
+.hero2-title{font-family:var(--bebas);font-size:clamp(110px,30vw,360px);line-height:.78;letter-spacing:.01em;position:relative;z-index:2;display:inline-flex;align-items:flex-start;gap:.05em;}
+.hero2-title .up{font-size:.32em;color:var(--red);animation:bounceUp 1.6s var(--ease) infinite;}
+@keyframes bounceUp{0%,100%{transform:translateY(0);}50%{transform:translateY(-14px);}}
+.hero2-stage .btn{position:relative;z-index:2;}
+.fly{position:absolute;width:clamp(72px,11vw,140px);aspect-ratio:1/1;border:1px solid var(--ink);background:#fff;display:flex;align-items:center;justify-content:center;color:var(--ink);transform:rotate(var(--r,0deg));animation:floaty var(--d,6s) ease-in-out infinite;box-shadow:4px 4px 0 rgba(0,0,0,.08);z-index:0;}
+.fly svg{width:62%;height:62%;}
+@media(max-width:640px){.fly:nth-child(n+4){display:none;}.fly{width:84px;}}
+
+/* scroll-spin steps */
+.spin-sec{position:relative;height:260vh;}
+.spin-stage{position:sticky;top:var(--nav-h);height:calc(100vh - var(--nav-h));overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--paper);border-bottom:1px solid var(--line);}
+.spin-obj{width:clamp(220px,40vmin,420px);aspect-ratio:1/1;border-radius:50%;border:1px solid var(--ink);background-size:cover;background-position:center;will-change:transform;box-shadow:8px 8px 0 rgba(0,0,0,.1);}
+.bub{position:absolute;max-width:250px;border:1px solid var(--ink);background:#fff;padding:15px 17px;opacity:0;transform:scale(.85) translateY(12px);transition:opacity .45s var(--ease),transform .45s var(--ease);box-shadow:5px 5px 0 var(--red);}
+.bub.show{opacity:1;transform:none;}
+.bub .bn{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--red);}
+.bub b{font-family:var(--bebas);font-size:26px;line-height:.85;display:block;margin-top:4px;}
+.bub p{font-family:var(--mono);font-size:10px;text-transform:uppercase;color:var(--gray);margin-top:7px;}
+.b1{top:11%;left:5%;}.b2{top:15%;right:5%;}.b3{bottom:17%;left:7%;}.b4{bottom:11%;right:6%;}
+@media(max-width:640px){.bub{max-width:160px;padding:11px 12px;box-shadow:3px 3px 0 var(--red);}.bub b{font-size:18px;}.b1{top:4%;left:3%;}.b2{top:6%;right:3%;}.b3{bottom:8%;left:3%;}.b4{bottom:4%;right:3%;}}
+
+/* let's start */
+.start-sec{position:relative;padding:84px 22px 104px;overflow:hidden;border-top:1px solid var(--line);background:var(--white);}
+.start-h{font-family:var(--marker);font-size:clamp(60px,15vw,200px);line-height:.82;text-align:center;margin-bottom:42px;position:relative;z-index:2;}
+.start-rows{max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:14px;position:relative;z-index:2;}
+.start-row{display:flex;align-items:center;gap:18px;border:1px solid var(--ink);padding:20px 24px;background:#fff;font-family:var(--bebas);font-size:clamp(28px,5.5vw,56px);line-height:.9;text-transform:uppercase;transition:background .15s,color .15s,transform .15s var(--ease),box-shadow .15s var(--ease);box-shadow:4px 4px 0 var(--ink);}
+.start-row .sn{font-family:var(--mono);font-size:13px;color:var(--red);}
+.start-row .st{flex:1;}
+.start-row svg{width:24px;height:24px;flex:none;}
+.start-row:hover{background:var(--red);color:#fff;transform:translate(-3px,-3px);box-shadow:8px 8px 0 var(--ink);}
+.start-row:hover .sn{color:#fff;}
+.emoji{position:absolute;font-size:clamp(22px,3.4vw,44px);opacity:.85;animation:floaty2 5s ease-in-out infinite;z-index:1;}
+.e1{top:9%;left:8%;}.e2{top:15%;right:10%;}.e3{top:48%;left:5%;animation-delay:.6s;}.e4{bottom:22%;right:7%;animation-delay:.3s;}.e5{bottom:13%;left:12%;animation-delay:.9s;}.e6{top:32%;right:4%;animation-delay:1.2s;}
+
 @media(prefers-reduced-motion:reduce){*{animation-duration:.001ms !important;transition-duration:.001ms !important;}}
 </style>
 </head>
@@ -821,51 +859,30 @@ function go(h){location.hash=h;}
 
 /* 11. VIEWS ---------------------------------------------------------------- */
 function viewHome(){
-  const ex=[{n:'Editorial Minimal',p:'72% · 18% Street · 10% Quiet',c:'EDT'},{n:'Old Money',p:'64% · 22% Quiet · 14% Vintage',c:'OLD'},{n:'Archive',p:'58% · 30% Street · 12% Editorial',c:'ARC'}];
-  const tick=['Discover','Style DNA','Build','Express','Closet','Fits','Aesthetic','Identity'];
-  const scrap=AES_KEYS;
+  const tick=['Select your style','Upload your fit','Level up','Style DNA','Every occasion','For the 13–25'];
+  const flys=[['top','7%','9%','-9deg','6s'],['bottom','74%','11%','7deg','7s'],['shoes','13%','72%','5deg','6.5s'],['outerwear','70%','75%','-7deg','7.6s'],['accessory','45%','87%','11deg','5.5s']];
   app.innerHTML=`<div class="page">
-    <section class="hero reg w">
-      <div class="hero-bar"><span>FORMA® — Style Operating System</span><span>EST. 2026 / NO.001</span><span class="sticker">● for the 13–25</span></div>
-      <div class="hero-stage">
-        <div class="hero-photo reg w"><div class="ph" id="heroPh" style="${tile(AESTHETICS.streetwear.grad)}"></div>
-          <div class="id"><small>hello, i am</small><b>Undefined</b></div></div>
-        <div class="hero-note">A fast visual quiz reads your taste and hands you a Style DNA. Then build your closet + generate fits. <a href="#/quiz" data-link>Start ↗</a></div>
-        <div class="hero-giant"><h1>Style<br><span class="o">DNA.</span></h1></div>
-      </div>
-      <div class="meta-grid">
-        <div class="m"><div class="l">Aesthetics</div><div class="v">08</div></div>
-        <div class="m"><div class="l">Questions</div><div class="v">10</div></div>
-        <div class="m"><div class="l">Time</div><div class="v">3 Min</div></div>
-        <div class="m"><div class="l">Price</div><div class="v">Free</div></div>
+    <section class="hero2 reg">
+      <div class="hero2-bar"><span>FORMA® · Style OS</span><span>EST. 2026</span><span class="sticker">● for the 13–25</span></div>
+      <div class="hero2-stage" id="heroStage">
+        ${flys.map((f,i)=>`<div class="fly" style="top:${f[1]};left:${f[2]};--r:${f[3]};--d:${f[4]};animation-delay:${(i*0.4).toFixed(1)}s">${garmentIcon(f[0])}</div>`).join('')}
+        <span class="hero2-eyebrow">select your</span>
+        <h1 class="hero2-title">STYLE<span class="up">↑</span></h1>
+        <a class="btn btn-red" href="#/quiz" data-link style="margin-top:14px">Start the quiz ${svgIcon('arrow')}</a>
       </div>
     </section>
 
-    <section class="band">
-      <div class="band-row"><span>New / V.001</span><span>Find your fit</span></div>
-      <div class="wordmark">FORMA</div>
-      <div class="band-row"><span>Personal style OS</span><span>Quiz — 3 min</span></div>
-    </section>
+    <div class="ticker-wrap"><div class="ticker">${[...tick,...tick].map((s,i)=>`<span class="${i%2?'r':''}">${s} ✱</span>`).join('')}</div></div>
 
-    <div class="ticker-wrap"><div class="ticker">${[...tick,...tick,...tick].map((s,i)=>`<span class="${i%3===0?'r':''}">${s} ✱</span>`).join('')}</div></div>
-
-    <section class="section wrap">
-      <div class="flex between aic" style="margin-bottom:22px;flex-wrap:wrap;gap:10px"><span class="eyebrow k">The archive / 8 aesthetics</span><span class="archcode">GRID_01–08 //</span></div>
-      <div class="collage" id="collage">
-        ${scrap.map((k,i)=>`<div class="scrap"><span class="pin"></span><div class="ph" data-aes="${k}" data-i="${i}"></div><span class="cap">CODE_${pad(i+1)} // ${AESTHETICS[k].name}</span></div>`).join('')}
+    <section class="spin-sec" id="spinSec">
+      <div class="spin-stage">
+        <div class="spin-obj" id="spinObj" style="${tile(AESTHETICS.streetwear.grad)}"></div>
+        <div class="bub b1" data-i="0"><span class="bn">01</span><b>Upload your wardrobe</b><p>snap your real clothes</p></div>
+        <div class="bub b2" data-i="1"><span class="bn">02</span><b>We read your Style DNA</b><p>a 3-min visual quiz</p></div>
+        <div class="bub b3" data-i="2"><span class="bn">03</span><b>Fits for every occasion</b><p>work · casual · evening</p></div>
+        <div class="bub b4" data-i="3"><span class="bn">04</span><b>Level up daily</b><p>scores · saves · repeat</p></div>
       </div>
     </section>
-
-    <section class="section wrap">
-      <div class="flex between aic" style="margin-bottom:24px;flex-wrap:wrap;gap:10px"><span class="eyebrow k">Process</span><span class="archcode">FILE_PROC //</span></div>
-      <div class="how">
-        <div class="step"><div class="n">01 / Discover</div><h3>Take the<br>quiz</h3><p>Spaces, palettes, fabrics, instincts — translated into your Style DNA.</p></div>
-        <div class="step"><div class="n">02 / Build</div><h3>Load your<br>closet</h3><p>Upload pieces. We tag colour, category & season automatically.</p></div>
-        <div class="step"><div class="n">03 / Express</div><h3>Generate<br>fits</h3><p>Outfits, scores & shopping tuned to who you actually are.</p></div>
-      </div>
-    </section>
-
-    <section class="section wrap"><p class="manifesto reveal">style isn't what<br>you buy. it's <span class="mark">who you are.</span></p></section>
 
     <section class="section wrap">
       <div class="snap-head"><div><span class="eyebrow k">One wardrobe · every occasion</span><h3>Every fit,<br>a new mood.</h3></div><span class="snap-hint">Swipe <span class="ar">→</span></span></div>
@@ -874,18 +891,35 @@ function viewHome(){
       </div>
     </section>
 
-    <section class="section wrap">
-      <div class="flex between aic" style="margin-bottom:30px;flex-wrap:wrap;gap:10px"><span class="eyebrow k">Real Style DNA / case files</span><span class="archcode">REF_DNA //</span></div>
-      <div class="proof">${ex.map((e,i)=>`<div class="folder"><div class="tab red">DNA_${e.c} · NO.${pad(i+1)}</div><div class="f-body"><div class="name">${e.n}</div><div class="pct">${e.p}</div></div></div>`).join('')}</div>
-      <div style="margin-top:40px"><a class="btn btn-red" href="#/quiz" data-link>Find your DNA ${svgIcon('arrow')}</a></div>
+    <section class="start-sec reg">
+      ${['✦','★','♥','✱','⚡','✺'].map((e,i)=>`<span class="emoji e${i+1}">${e}</span>`).join('')}
+      <h2 class="start-h">Let's<br>start</h2>
+      <div class="start-rows">
+        <a class="start-row" href="#/closet" data-link><span class="sn">01</span><span class="st">Upload your clothes</span>${svgIcon('arrow')}</a>
+        <a class="start-row" href="#/quiz" data-link><span class="sn">02</span><span class="st">Figure out your style</span>${svgIcon('arrow')}</a>
+        <a class="start-row" href="#/quiz" data-link><span class="sn">03</span><span class="st">Level up your fashion game</span>${svgIcon('arrow')}</a>
+      </div>
     </section>
 
     <footer class="foot"><div class="wrap foot-cols"><div><span class="brand bebas" style="font-size:28px">FORMA®</span><br>Identity → wardrobe.</div><div>Discover · Build · Express<br>© 2026 / NO.001</div></div></footer>
   </div>`;
-  enhance($('#heroPh'),photoFor('streetwear',2));
-  app.querySelectorAll('#collage .ph').forEach(p=>enhance(p,photoFor(p.dataset.aes,+p.dataset.i)));
+  enhance($('#spinObj'),photoFor('streetwear',1));
   app.querySelectorAll('#snapStrip .ph').forEach(p=>enhance(p,uns(p.dataset.photo,900)));
+  initScrollSpin();
   observeReveals();
+}
+function initScrollSpin(){
+  const sec=$('#spinSec'),obj=$('#spinObj');if(!sec||!obj)return;
+  const bubs=[...sec.querySelectorAll('.bub')];
+  window._spinScroll=()=>{
+    if(!sec.isConnected)return;
+    const r=sec.getBoundingClientRect();const total=r.height-window.innerHeight;
+    const p=Math.min(1,Math.max(0,(-r.top)/(total||1)));
+    obj.style.transform=`rotate(${(p*460).toFixed(1)}deg)`;
+    bubs.forEach((b,i)=>b.classList.toggle('show',p>=(i+0.35)/bubs.length));
+  };
+  window.addEventListener('scroll',window._spinScroll,{passive:true});
+  window._spinScroll();
 }
 
 /* ---- Quiz ---- */
@@ -1148,7 +1182,7 @@ function observeReveals(){const io=new IntersectionObserver(es=>es.forEach(e=>{i
 /* 12. ROUTER --------------------------------------------------------------- */
 const ROUTES={'#/':viewHome,'#/quiz':viewQuiz,'#/result':viewResult,'#/home':viewDashboard,'#/explore':viewExplore,'#/closet':guard(viewCloset),'#/outfits':guard(viewOutfits),'#/lab':guard(viewLab),'#/profile':guard(viewProfile)};
 function guard(fn){return()=>{if(!State.dna()){toast('Take the quiz first');go('#/quiz');return;}fn();};}
-function router(){const hash=location.hash||'#/';const route=ROUTES[hash]?hash:'#/';if(hash==='#/'&&State.dna()){location.hash='#/home';return;}if(route!=='#/explore')window.removeEventListener('scroll',window._xPar);window.scrollTo(0,0);renderNav(route);(ROUTES[route]||viewHome)();}
+function router(){const hash=location.hash||'#/';const route=ROUTES[hash]?hash:'#/';if(hash==='#/'&&State.dna()){location.hash='#/home';return;}if(route!=='#/explore')window.removeEventListener('scroll',window._xPar);window.removeEventListener('scroll',window._spinScroll);window.scrollTo(0,0);renderNav(route);(ROUTES[route]||viewHome)();}
 window.addEventListener('hashchange',router);
 window.addEventListener('load',()=>{reflectAuth();initCursor();router();});
 window.go=go;
