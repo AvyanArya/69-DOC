@@ -349,47 +349,34 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--red)
 .x-stat .l{font-family:var(--mono);font-size:10px;font-weight:700;text-transform:uppercase;color:var(--gray);margin-top:5px;}
 @media(max-width:600px){.x-stats{flex-wrap:wrap;}.x-stat{flex:1 1 50%;}.x-stat:nth-child(2n){border-right:none;}}
 
-.x-filters{display:flex;border-bottom:1px solid var(--line);overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none;position:sticky;top:var(--nav-h);z-index:100;background:var(--white);}
+/* Pinterest-style explore */
+.x-page{background:#fff;min-height:100vh;}
+.x-top{position:sticky;top:var(--nav-h);z-index:100;background:#fff;padding:12px 16px;display:flex;gap:8px;align-items:center;border-bottom:1px solid #e9e9e9;}
+.x-top-title{font-family:var(--bebas);font-size:22px;letter-spacing:.02em;margin-right:8px;flex-shrink:0;}
+.x-filters{display:flex;gap:8px;overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none;flex:1;}
 .x-filters::-webkit-scrollbar{display:none;}
-.x-filter{flex:none;padding:14px 20px;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gray);border-right:1px solid var(--line);white-space:nowrap;transition:background .15s,color .15s;}
-.x-filter:hover{color:var(--ink);}
+.x-filter{flex:none;padding:9px 16px;font-family:var(--grot);font-size:13px;font-weight:600;border-radius:100px;border:none;background:#efefef;color:#333;white-space:nowrap;transition:background .15s,color .15s;}
+.x-filter:hover{background:#e0e0e0;}
 .x-filter.active{background:var(--red);color:#fff;}
-
-.x-grid{column-count:4;column-gap:0;border-left:1px solid var(--line);}
+.x-grid{column-count:4;column-gap:12px;padding:12px 12px 0;}
 @media(max-width:1100px){.x-grid{column-count:3;}}
-@media(max-width:720px){.x-grid{column-count:2;}}
-.x-card{break-inside:avoid;position:relative;overflow:hidden;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--paper);opacity:0;transform:translateY(22px);will-change:transform;}
-.x-card.xin{opacity:1;transform:none;transition:opacity .55s var(--ease),transform .55s var(--ease);}
-.x-card .ximg{width:100%;background-size:cover;background-position:center;transition:transform .8s var(--ease);}
-.x-card:hover .ximg{transform:scale(1.05);}
-.x-card .x-over{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.78) 30%,transparent 65%);opacity:0;transition:opacity .3s var(--ease);display:flex;flex-direction:column;justify-content:flex-end;padding:16px;}
-.x-card:hover .x-over{opacity:1;}
-.x-card .x-over .xa{font-family:var(--mono);font-size:10px;font-weight:700;text-transform:uppercase;color:#fff;background:var(--red);width:fit-content;padding:2px 6px;}
-.x-card .x-over .xt{font-family:var(--bebas);font-size:clamp(20px,3vw,30px);color:#fff;line-height:.85;margin-top:6px;}
-.x-save{position:absolute;top:9px;right:9px;z-index:3;width:36px;height:36px;background:var(--white);border:1px solid var(--ink);display:flex;align-items:center;justify-content:center;color:var(--ink);opacity:0;transform:translateY(-6px);transition:opacity .2s,transform .2s var(--ease);}
-.x-card:hover .x-save{opacity:1;transform:none;}
-.x-card.xsaved .x-save{opacity:1;transform:none;background:var(--red);color:#fff;border-color:var(--red);}
-.x-card.xsaved{outline:2px solid var(--red);outline-offset:-2px;}
+@media(max-width:720px){.x-grid{column-count:2;column-gap:8px;padding:8px 8px 0;}}
+@media(max-width:480px){.x-grid{column-count:2;}}
+.x-card{break-inside:avoid;position:relative;border-radius:16px;overflow:hidden;margin-bottom:12px;background:#efefef;cursor:zoom-in;}
+@media(max-width:720px){.x-card{margin-bottom:8px;border-radius:12px;}}
+.x-card .ximg{width:100%;background-size:cover;background-position:center;display:block;border-radius:16px;}
+@media(max-width:720px){.x-card .ximg{border-radius:12px;}}
+.x-save{position:absolute;top:10px;right:10px;z-index:3;width:38px;height:38px;border-radius:50%;background:var(--red);border:none;display:flex;align-items:center;justify-content:center;color:#fff;opacity:0;transform:scale(.7);transition:opacity .18s,transform .18s var(--ease);}
+.x-save svg{width:18px;height:18px;}
+.x-card:hover .x-save{opacity:1;transform:scale(1);}
+.x-card.xsaved .x-save{opacity:1;transform:scale(1);}
+.x-card.xsaved .x-save svg{fill:#fff;}
 @keyframes burst{0%{transform:scale(1);}35%{transform:scale(1.4);}65%{transform:scale(.9);}100%{transform:scale(1);}}
 .x-save.pop{animation:burst .4s var(--ease);}
-.x-card .x-n{position:absolute;top:9px;left:9px;z-index:3;background:var(--ink);color:#fff;font-family:var(--mono);font-size:10px;font-weight:700;padding:3px 7px;opacity:0;transition:opacity .2s;}
-.x-card:hover .x-n{opacity:1;}
-
-.x-card.x-feat{background:var(--paper);color:var(--ink);padding:30px 22px;min-height:300px;display:flex;flex-direction:column;justify-content:flex-end;}
-.x-card.x-feat.red{background:var(--red);color:#fff;}
-.x-card.x-feat.dark{background:var(--ink);color:#fff;}
-.x-card.x-feat .xf-ey{font-family:var(--mono);font-size:10px;font-weight:700;text-transform:uppercase;color:var(--red);margin-bottom:14px;}
-.x-card.x-feat.red .xf-ey,.x-card.x-feat.dark .xf-ey{color:#fff;}
-.x-card.x-feat .xf-h{font-family:var(--bebas);font-size:clamp(34px,4.5vw,52px);line-height:.82;}
-.x-card.x-feat .xf-sub{font-family:var(--mono);font-size:11px;text-transform:uppercase;color:var(--gray);margin-top:12px;line-height:1.6;}
-.x-card.x-feat.red .xf-sub,.x-card.x-feat.dark .xf-sub{color:rgba(255,255,255,.7);}
-.x-card.x-feat .xf-btn{margin-top:18px;display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase;border-bottom:1.5px solid currentColor;padding-bottom:3px;width:fit-content;}
-.x-card.x-feat svg{width:14px;height:14px;}
-
-.x-marquee-wrap{overflow:hidden;background:var(--red);padding:14px 0;border-bottom:1px solid var(--line);}
-.x-marquee{display:flex;white-space:nowrap;animation:tick 26s linear infinite;}
-.x-marquee span{font-family:var(--marker);font-size:clamp(24px,3vw,40px);color:#fff;padding:0 26px;}
-.x-marquee span.k{color:var(--ink);}
+.x-card .x-info{padding:8px 4px 2px;display:none;}
+.x-card:hover .x-info{display:block;}
+.x-card .x-info .xt{font-family:var(--grot);font-size:13px;font-weight:600;color:#111;line-height:1.3;}
+.x-card .x-info .xa{font-family:var(--grot);font-size:12px;color:#767676;margin-top:2px;}
 .x-sentinel{height:50px;}
 
 /* ============================================================
@@ -616,8 +603,8 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--red)
 .hero2-title .up{font-size:.32em;color:var(--red);animation:bounceUp 1.6s var(--ease) infinite;}
 @keyframes bounceUp{0%,100%{transform:translateY(0);}50%{transform:translateY(-14px);}}
 .hero2-stage .btn{position:relative;z-index:2;}
-.fly{position:absolute;width:clamp(72px,11vw,140px);aspect-ratio:1/1;border:1px solid var(--ink);background:#fff;display:flex;align-items:center;justify-content:center;color:var(--ink);transform:rotate(var(--r,0deg));animation:floaty var(--d,6s) ease-in-out infinite;box-shadow:4px 4px 0 rgba(0,0,0,.08);z-index:0;}
-.fly svg{width:62%;height:62%;}
+.fly{position:absolute;width:clamp(80px,12vw,160px);aspect-ratio:1/1;border:1px solid var(--ink);background-size:cover;background-position:center;background-color:#f0ede6;transform:rotate(var(--r,0deg));animation:floaty var(--d,6s) ease-in-out infinite;box-shadow:4px 4px 0 rgba(0,0,0,.08);z-index:0;overflow:hidden;}
+.fly svg{display:none;}
 @media(max-width:640px){.fly:nth-child(n+4){display:none;}.fly{width:84px;}}
 
 /* scroll-spin steps */
@@ -679,14 +666,14 @@ const AES_KEYS=Object.keys(AESTHETICS);
 const FILTERS=[['all','All'],['editorial','Editorial'],['streetwear','Streetwear'],['oldmoney','Old Money'],['quiet','Quiet Luxury'],['scandi','Scandi'],['y2k','Y2K'],['archive','Archive'],['vintage','Vintage']];
 
 const PHOTOS={
-  editorial:['photo-1483985988355-763728e1935b','photo-1485462537746-965f33f7f6a7','photo-1469334031218-e382a71b716b'],
-  streetwear:['photo-1523398002811-999ca8dec234','photo-1517841905240-472988babdf9','photo-1529139574466-a303027c1d8b'],
-  quiet:['photo-1490481651871-ab68de25d43d','photo-1487412720507-e7ab37603c6f','photo-1496747611176-843222e1e57c'],
-  oldmoney:['photo-1507003211169-0a1dd7228f2d','photo-1519085360753-af0119f7cbe7','photo-1488161628813-04466f872be2'],
-  y2k:['photo-1469334031218-e382a71b716b','photo-1492707892479-7bc8d5a4ee93','photo-1524504388940-b1c1722653e1'],
-  scandi:['photo-1515886657613-9f3515b0c78f','photo-1496217590455-aa63a8350eea','photo-1485231183945-fffde7cc051e'],
-  archive:['photo-1503342217505-b0a15ec3261c','photo-1488716820095-cbe80883c496','photo-1506634572416-48cdfe530110'],
-  vintage:['photo-1485125639709-a60c3a500bf1','photo-1495385794356-15371f348c31','photo-1539109136881-3be0616acf4b']
+  editorial:['photo-1558618666-fcd25c85cd64','photo-1549298916-b41d501d3772','photo-1578662996442-48f60103fc96','photo-1562157873-818bc0726f68','photo-1523381210434-271e8be1f52b'],
+  streetwear:['photo-1542291026-7eec264c27ff','photo-1600269452121-4f2416e55c28','photo-1556821840-3a63f15732ce','photo-1568702846914-96b305d2aaeb','photo-1515347619252-60a4bf4fff4f'],
+  quiet:['photo-1490481651871-ab68de25d43d','photo-1596755094514-f87e34085b2c','photo-1508214751196-bcfd4ca60f91','photo-1515886657613-9f3515b0c78f','photo-1434389677669-e08b4cac3105'],
+  oldmoney:['photo-1591047139829-d91aecb6caea','photo-1625910513597-7ecc8c8c2c2a','photo-1621072156002-e2fccdc0b176','photo-1552374196-1ab2a1c593e8','photo-1617137968427-85924c800a22'],
+  y2k:['photo-1583743814966-8936f5b7be1a','photo-1572635196237-14b3f281503f','photo-1592878904946-b3cd8ae243d0','photo-1521577352947-9bb58764b69a','photo-1509631179647-0177331693ae'],
+  scandi:['photo-1434389677669-e08b4cac3105','photo-1485462537746-965f33f7f6a7','photo-1469334031218-e382a71b716b','photo-1544441452-d53f8f8f9f45','photo-1550614000-4895a10e1bfd'],
+  archive:['photo-1503342217505-b0a15ec3261c','photo-1549298916-b41d501d3772','photo-1606107557195-0e29a4b5b4aa','photo-1595341888016-a392ef81b7de','photo-1551488831-00ddcb6c6bd3'],
+  vintage:['photo-1487412720507-e7ab37603c6f','photo-1495385794356-15371f348c31','photo-1547153760-18fc86324498','photo-1539109136881-3be0616acf4b','photo-1585386959984-a4155224a1ad']
 };
 function photoFor(aes,i){const a=PHOTOS[aes]||PHOTOS.editorial;return `https://images.unsplash.com/${a[i%a.length]}?auto=format&fit=crop&w=640&q=72`;}
 function uns(id,w=600){return `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=72`;}
@@ -860,12 +847,18 @@ function go(h){location.hash=h;}
 /* 11. VIEWS ---------------------------------------------------------------- */
 function viewHome(){
   const tick=['Select your style','Upload your fit','Level up','Style DNA','Every occasion','For the 13–25'];
-  const flys=[['top','7%','9%','-9deg','6s'],['bottom','74%','11%','7deg','7s'],['shoes','13%','72%','5deg','6.5s'],['outerwear','70%','75%','-7deg','7.6s'],['accessory','45%','87%','11deg','5.5s']];
+  const flys=[
+    ['photo-1523381210434-271e8be1f52b','7%','9%','-9deg','6s'],
+    ['photo-1606107557195-0e29a4b5b4aa','74%','11%','7deg','7s'],
+    ['photo-1542291026-7eec264c27ff','13%','72%','5deg','6.5s'],
+    ['photo-1558618666-fcd25c85cd64','70%','75%','-7deg','7.6s'],
+    ['photo-1549298916-b41d501d3772','45%','87%','11deg','5.5s']
+  ];
   app.innerHTML=`<div class="page">
     <section class="hero2 reg">
       <div class="hero2-bar"><span>FORMA® · Style OS</span><span>EST. 2026</span><span class="sticker">● for the 13–25</span></div>
       <div class="hero2-stage" id="heroStage">
-        ${flys.map((f,i)=>`<div class="fly" style="top:${f[1]};left:${f[2]};--r:${f[3]};--d:${f[4]};animation-delay:${(i*0.4).toFixed(1)}s">${garmentIcon(f[0])}</div>`).join('')}
+        ${flys.map((f,i)=>`<div class="fly fly-ph" data-photo="${f[0]}" style="top:${f[1]};left:${f[2]};--r:${f[3]};--d:${f[4]};animation-delay:${(i*0.4).toFixed(1)}s"></div>`).join('')}
         <span class="hero2-eyebrow">select your</span>
         <h1 class="hero2-title">STYLE<span class="up">↑</span></h1>
         <a class="btn btn-red" href="#/quiz" data-link style="margin-top:14px">Start the quiz ${svgIcon('arrow')}</a>
@@ -903,7 +896,8 @@ function viewHome(){
 
     <footer class="foot"><div class="wrap foot-cols"><div><span class="brand bebas" style="font-size:28px">FORMA®</span><br>Identity → wardrobe.</div><div>Discover · Build · Express<br>© 2026 / NO.001</div></div></footer>
   </div>`;
-  enhance($('#spinObj'),photoFor('streetwear',1));
+  enhance($('#spinObj'),uns('photo-1542291026-7eec264c27ff',800));
+  app.querySelectorAll('.fly-ph').forEach(p=>enhance(p,uns(p.dataset.photo,400)));
   app.querySelectorAll('#snapStrip .ph').forEach(p=>enhance(p,uns(p.dataset.photo,900)));
   initScrollSpin();
   observeReveals();
@@ -985,43 +979,31 @@ function viewDashboard(){
 let exploreState={filter:'all',page:0,io:null,count:0};
 const X_FEATURES=[{ey:'This week',h:'The only\nfit you\nneed',sub:'Distilled from 1,200 saves across Editorial & Street.',cls:''},{ey:'FORMA picks',h:'Proportion\nis\neverything',sub:'The silhouette shift everyone is on right now.',cls:'red'},{ey:'Culture',h:'Street\ngrew\nup',sub:'How the hoodie became the most considered garment you own.',cls:'dark'}];
 function viewExplore(){
-  const tick=AES_KEYS.map(k=>AESTHETICS[k].name);
-  app.innerHTML=`<div class="page">
-    <div class="masthead"><div class="mh-top"><span>Style Weekly</span><span>Issue No.001 · 2026</span><span>£0.00</span></div><div class="mh-name">FORMA</div><div class="mh-bot"><span>The discovery issue — ${AES_KEYS.length} aesthetics inside</span><div class="barcode"></div></div></div>
-    <div class="ticker-wrap"><div class="ticker">${[...tick,...tick].map((s,i)=>`<span class="${i%2?'r':''}">${s} ✱</span>`).join('')}</div></div>
-    <div class="x-hero">
-      <div class="big-cell"><div class="ph" id="xh0" style="${tile(AESTHETICS[AES_KEYS[0]].grad)}"></div><div class="ov"><span class="sticker">trending now</span><h2>The fits<br>people are<br>saving</h2></div></div>
-      <div class="side">
-        <div class="cell"><div class="ph" id="xh1" style="${tile(AESTHETICS[AES_KEYS[1]].grad)}"></div><div class="lbl"><small>CODE_02</small>${AESTHETICS[AES_KEYS[1]].name}</div></div>
-        <div class="cell"><div class="ph" id="xh2" style="${tile(AESTHETICS[AES_KEYS[2]].grad)}"></div><div class="lbl"><small>CODE_03</small>${AESTHETICS[AES_KEYS[2]].name}</div></div>
-      </div>
+  app.innerHTML=`<div class="page x-page">
+    <div class="x-top">
+      <span class="x-top-title">Explore</span>
+      <div class="x-filters" id="xfilters">${FILTERS.map(([k,l])=>`<button class="x-filter ${k==='all'?'active':''}" data-f="${k}">${l}</button>`).join('')}</div>
     </div>
-    <div class="x-stats"><div class="x-stat"><div class="v">08</div><div class="l">Aesthetics</div></div><div class="x-stat"><div class="v">2.4K</div><div class="l">Looks</div></div><div class="x-stat"><div class="v">98K</div><div class="l">Saves / mo</div></div><div class="x-stat"><div class="v">∞</div><div class="l">Combos</div></div></div>
-    <div class="x-filters" id="xfilters">${FILTERS.map(([k,l])=>`<button class="x-filter ${k==='all'?'active':''}" data-f="${k}">${l}</button>`).join('')}</div>
     <div class="x-grid" id="xgrid"></div>
-    <div class="x-marquee-wrap"><div class="x-marquee">${['Discovery','Identity','Expression','Taste','Wardrobe','DNA','Signature','Discovery','Identity','Expression','Taste','Wardrobe','DNA','Signature'].map((w,i)=>`<span class="${i%2?'k':''}">${w} —</span>`).join('')}</div></div>
     <div class="x-sentinel" id="xsentinel"></div>
   </div>`;
-  enhance($('#xh0'),photoFor(AES_KEYS[0],0));enhance($('#xh1'),photoFor(AES_KEYS[1],1));enhance($('#xh2'),photoFor(AES_KEYS[2],2));
-  const hp=$('#xh0');window._xPar=()=>{if(hp&&hp.isConnected)hp.style.transform=`scale(1.05) translateY(${window.scrollY*.04}px)`;};window.addEventListener('scroll',window._xPar,{passive:true});
   exploreState={filter:'all',page:0,io:null,count:0};loadMoreX();
   $('#xfilters').querySelectorAll('.x-filter').forEach(p=>p.addEventListener('click',()=>{$('#xfilters').querySelectorAll('.x-filter').forEach(x=>x.classList.remove('active'));p.classList.add('active');exploreState.filter=p.dataset.f;exploreState.page=0;exploreState.count=0;$('#xgrid').innerHTML='';loadMoreX();}));
-  exploreState.io=new IntersectionObserver(e=>{if(e[0].isIntersecting)loadMoreX();},{rootMargin:'500px'});exploreState.io.observe($('#xsentinel'));
+  exploreState.io=new IntersectionObserver(e=>{if(e[0].isIntersecting)loadMoreX();},{rootMargin:'600px'});exploreState.io.observe($('#xsentinel'));
 }
 function loadMoreX(){
   const g=$('#xgrid');if(!g)return;const items=buildFeed(exploreState.filter,exploreState.page++);const saved=State.saved();
   items.forEach(it=>{
     const gi=exploreState.count++;
-    if(gi>0&&gi%9===0){const f=X_FEATURES[Math.floor(gi/9-1)%X_FEATURES.length];const fc=document.createElement('div');fc.className='x-card x-feat xin '+f.cls;fc.innerHTML=`<div class="xf-ey">${f.ey}</div><div class="xf-h">${f.h.replace(/\n/g,'<br>')}</div><div class="xf-sub">${f.sub}</div><div class="xf-btn">Read ${svgIcon('arrow')}</div>`;g.appendChild(fc);}
-    const el=document.createElement('div');const isSaved=saved.includes(it.id);el.className='x-card'+(isSaved?' xsaved':'');const h=230+((gi*71)%180);
-    el.innerHTML=`<div class="ximg" style="height:${h}px;${tile(AESTHETICS[it.aes].grad)}"></div><button class="x-save" data-id="${it.id}">${svgIcon('heart')}</button><div class="x-n">#${pad(gi+1)}</div><div class="x-over"><span class="xa">${AESTHETICS[it.aes].name}</span><div class="xt">${it.title}</div></div>`;
+    const isSaved=saved.includes(it.id);
+    const el=document.createElement('div');el.className='x-card'+(isSaved?' xsaved':'');
+    const h=200+((gi*83+it.aes.length*17)%220);
+    el.innerHTML=`<div class="ximg" style="height:${h}px;background:${AESTHETICS[it.aes].grad};"></div><button class="x-save" title="Save" data-id="${it.id}"><svg viewBox="0 0 24 24" fill="${isSaved?'#fff':'none'}" stroke="#fff" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button><div class="x-info"><div class="xt">${it.title}</div><div class="xa">${AESTHETICS[it.aes].name}</div></div>`;
     enhance(el.querySelector('.ximg'),it.photo);
-    el.addEventListener('mousemove',e=>tiltCard(el,e));el.addEventListener('mouseleave',()=>{el.style.transform='';el.style.zIndex='';});
-    const sb=el.querySelector('.x-save');sb.addEventListener('click',e=>{e.stopPropagation();const on=State.toggleSave(it.id);el.classList.toggle('xsaved',on);sb.classList.add('pop');setTimeout(()=>sb.classList.remove('pop'),400);toast(on?'Saved ♥':'Removed');});
-    const cio=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){el.classList.add('xin');cio.unobserve(el);}}),{rootMargin:'-30px'});cio.observe(el);
+    const sb=el.querySelector('.x-save');sb.addEventListener('click',e=>{e.stopPropagation();const on=State.toggleSave(it.id);el.classList.toggle('xsaved',on);sb.querySelector('svg').setAttribute('fill',on?'#fff':'none');sb.classList.add('pop');setTimeout(()=>sb.classList.remove('pop'),400);toast(on?'Saved ♥':'Removed');});
     g.appendChild(el);
   });
-  if(exploreState.page>7&&exploreState.io)exploreState.io.disconnect();
+  if(exploreState.page>8&&exploreState.io)exploreState.io.disconnect();
 }
 function tiltCard(el,e){const r=el.getBoundingClientRect();const x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;el.style.zIndex='5';el.style.transform=`perspective(900px) rotateY(${x*8}deg) rotateX(${-y*8}deg) scale(1.02)`;}
 
