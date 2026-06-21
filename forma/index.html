@@ -565,6 +565,48 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--red)
 /* gentle float on hero photo */
 .hero-photo{animation:floaty2 7s ease-in-out infinite;}
 
+/* ===== PER-PAGE EDITORIAL LAYOUTS ===== */
+/* magazine masthead (Explore cover + Lab report) */
+.masthead{padding:14px 22px 18px;display:flex;flex-direction:column;gap:8px;border-bottom:1px solid var(--line);}
+.masthead .mh-top,.masthead .mh-bot{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gray);}
+.masthead .mh-name{font-family:var(--bebas);font-size:clamp(58px,13vw,158px);line-height:.78;letter-spacing:.02em;}
+.masthead .barcode{width:118px;height:24px;flex:none;}
+@media(max-width:600px){.masthead .mh-top span:nth-child(3),.masthead .mh-bot span{font-size:9px;}}
+
+/* Lab — spec / data sheet */
+.spec{border:1px solid var(--line);}
+.spec-head,.spec-row{display:grid;grid-template-columns:58px 1fr 130px 78px;}
+.spec-head{background:var(--ink);color:#fff;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid var(--line);}
+.spec-head div{padding:11px 14px;border-right:1px solid rgba(255,255,255,.22);}
+.spec-head div:last-child{border-right:none;}
+.spec-row{border-bottom:1px solid var(--line);align-items:stretch;transition:background .15s;}
+.spec-row:last-child{border-bottom:none;}
+.spec-row:hover{background:var(--paper);}
+.spec-row>div{padding:16px 14px;border-right:1px solid var(--line);display:flex;align-items:center;}
+.spec-row>div:last-child{border-right:none;}
+.spec-row .s-no{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--gray);}
+.spec-row .s-name{flex-direction:column;align-items:flex-start;gap:3px;font-family:var(--bebas);font-size:26px;line-height:.85;}
+.spec-row .s-name small{font-family:var(--mono);font-size:9px;font-weight:700;text-transform:uppercase;color:var(--gray);letter-spacing:.04em;}
+.spec-row .s-bar .lbar{width:100%;height:8px;border:1px solid var(--line);overflow:hidden;}
+.spec-row .s-val{font-family:var(--bebas);font-size:32px;justify-content:flex-end;}
+@media(max-width:680px){.spec-head,.spec-row{grid-template-columns:44px 1fr 66px;}.spec-head div:nth-child(3),.spec-row .s-bar{display:none;}}
+
+/* Profile — type specimen sheet */
+.spec-masthead{border:1px solid var(--line);padding:20px 24px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;}
+.spec-masthead .l{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gray);}
+.spec-hero{border:1px solid var(--line);border-top:none;padding:42px 24px 46px;text-align:center;}
+.spec-hero .lab{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--red);}
+.spec-hero .big{font-family:var(--serif);font-weight:600;font-style:italic;font-size:clamp(54px,13vw,152px);line-height:.86;margin:14px 0 22px;}
+.spec-hero .sizes{display:flex;flex-direction:column;gap:6px;align-items:center;}
+.spec-hero .sizes span{font-family:var(--serif);line-height:1;}
+.spec-rows{border:1px solid var(--line);border-top:none;}
+.spec-entry{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:18px 24px;border-bottom:1px solid var(--line);transition:background .15s;}
+.spec-entry:last-child{border-bottom:none;}
+.spec-entry:hover{background:var(--paper);}
+.spec-entry .e-name{font-family:var(--serif);font-size:clamp(26px,4.5vw,46px);line-height:.9;}
+.spec-entry .e-meta{font-family:var(--mono);font-size:10px;font-weight:700;text-transform:uppercase;color:var(--gray);text-align:right;flex:none;line-height:1.5;}
+.spec-entry .e-meta b{display:block;color:var(--red);font-size:17px;}
+
 @media(prefers-reduced-motion:reduce){*{animation-duration:.001ms !important;transition-duration:.001ms !important;}}
 </style>
 </head>
@@ -911,6 +953,7 @@ const X_FEATURES=[{ey:'This week',h:'The only\nfit you\nneed',sub:'Distilled fro
 function viewExplore(){
   const tick=AES_KEYS.map(k=>AESTHETICS[k].name);
   app.innerHTML=`<div class="page">
+    <div class="masthead"><div class="mh-top"><span>Style Weekly</span><span>Issue No.001 · 2026</span><span>£0.00</span></div><div class="mh-name">FORMA</div><div class="mh-bot"><span>The discovery issue — ${AES_KEYS.length} aesthetics inside</span><div class="barcode"></div></div></div>
     <div class="ticker-wrap"><div class="ticker">${[...tick,...tick].map((s,i)=>`<span class="${i%2?'r':''}">${s} ✱</span>`).join('')}</div></div>
     <div class="x-hero">
       <div class="big-cell"><div class="ph" id="xh0" style="${tile(AESTHETICS[AES_KEYS[0]].grad)}"></div><div class="ov"><span class="sticker">trending now</span><h2>The fits<br>people are<br>saving</h2></div></div>
@@ -1055,28 +1098,40 @@ function renderSavedOutfits(){const g=$('#savedGrid'),saved=State.outfits();g.in
 /* ---- Lab ---- */
 function viewLab(){
   const dna=State.dna();if(!dna){go('#/quiz');return;}const lab=computeLab();
-  const L={colour:['Colour Harmony','How your palette holds together'],versatility:['Versatility','How many ways pieces combine'],consistency:['Consistency','How focused your style reads'],efficiency:['Efficiency','Fits per piece you own']};
-  let idx=0;
+  const L={colour:['Colour Harmony','Palette cohesion'],versatility:['Versatility','Mix potential'],consistency:['Consistency','Style focus'],efficiency:['Efficiency','Fits per piece']};
+  const status=v=>v>=75?'STRONG':v>=55?'STEADY':'WATCH';let idx=0;
   app.innerHTML=`<div class="page authed-page"><div class="wrap">
-    <div class="page-head"><div><span class="eyebrow">Style Lab / FILE_LAB</span><h1>Style<br>health</h1><p>${lab.usingSample?'Add closet items to score your real wardrobe — preview on samples below.':'Scored from your wardrobe. A nudge, never a verdict.'}</p></div></div>
-    <div class="lab-grid">${Object.entries(lab.scores).map(([k,v])=>{idx++;return `<div class="score-card"><div class="code">METRIC_${pad(idx,2)} //</div><div class="v" data-v="${v}">0<small>/100</small></div><div class="lab-name">${L[k][0]}</div><div class="lab-sub">${L[k][1]}</div><div class="lbar"><i data-w="${v}" style="background:${scoreColor(v)}"></i></div></div>`;}).join('')}</div>
-    <div class="flex between aic" style="margin-bottom:18px;flex-wrap:wrap;gap:10px"><span class="eyebrow k">Suggestions</span><span class="archcode">NOTES //</span></div>
+    <div class="masthead" style="border:1px solid var(--line);margin-bottom:26px">
+      <div class="mh-top"><span>The Style Report</span><span>FILE_LAB / No.001</span><span>${lab.usingSample?'Sample data':'Live data'}</span></div>
+      <div class="mh-name">The Audit</div>
+      <div class="mh-bot"><span>${lab.usingSample?'Add closet items to score your real wardrobe':'Scored from your wardrobe — a nudge, never a verdict'}</span><div class="barcode"></div></div>
+    </div>
+    <div class="spec">
+      <div class="spec-head"><div>No.</div><div>Metric</div><div>Score</div><div>Val</div></div>
+      ${Object.entries(lab.scores).map(([k,v])=>{idx++;return `<div class="spec-row"><div class="s-no">${pad(idx,2)}</div><div class="s-name">${L[k][0]}<small>${L[k][1]} · ${status(v)}</small></div><div class="s-bar"><span class="lbar"><i data-w="${v}" style="display:block;height:100%;width:0;background:${scoreColor(v)};transition:width 1.1s var(--ease)"></i></span></div><div class="s-val" data-v="${v}">0</div></div>`;}).join('')}
+    </div>
+    <div class="flex between aic" style="margin:34px 0 18px;flex-wrap:wrap;gap:10px"><span class="eyebrow k">Field notes</span><span class="archcode">NOTES //</span></div>
     <div class="insights">${lab.insights.map(([t,h,p])=>`<div class="insight ${t==='win'?'win':''}"><div class="ib">${svgIcon(t==='win'?'check':'plus')}</div><div><h4>${esc(h)}</h4><p>${esc(p)}</p></div></div>`).join('')}</div>
     ${lab.usingSample?`<div style="margin-top:30px"><a class="btn btn-red" href="#/closet" data-link>Build your closet ${svgIcon('arrow')}</a></div>`:''}
   </div></div>`;
-  setTimeout(()=>{app.querySelectorAll('.lbar>i').forEach(el=>el.style.width=el.dataset.w+'%');app.querySelectorAll('.score-card .v').forEach(n=>countUpNum(n,+n.dataset.v));},150);
+  setTimeout(()=>{app.querySelectorAll('.spec-row .lbar>i').forEach(el=>el.style.width=el.dataset.w+'%');app.querySelectorAll('.s-val').forEach(n=>countNum(n,+n.dataset.v));},150);
 }
-function countUpNum(el,to){const t0=performance.now();(function f(t){const p=Math.min(1,(t-t0)/1000);el.innerHTML=Math.round(p*to)+'<small>/100</small>';if(p<1)requestAnimationFrame(f);})(performance.now());}
+function countNum(el,to){const t0=performance.now();(function f(t){const p=Math.min(1,(t-t0)/1000);el.textContent=Math.round(p*to);if(p<1)requestAnimationFrame(f);})(performance.now());}
 function scoreColor(v){return v>=75?'#0A0A0A':'#E5231B';}
 
 /* ---- Profile ---- */
 function viewProfile(){
-  const dna=State.dna();if(!dna){go('#/quiz');return;}const initial=(localStorage.getItem('forma.name')||'F')[0].toUpperCase();
-  app.innerHTML=`<div class="page authed-page"><div class="wrap" style="max-width:800px">
-    <div class="profile-head"><div class="avatar">${initial}</div><div><span class="eyebrow">Style DNA / FILE_YOU</span><h1 style="font-size:50px;margin-top:6px">${esc(dna.primaryName)}</h1></div></div>
-    <div class="dna-bars">${dna.breakdown.map(b=>`<div class="dna-row"><div class="top"><span class="nm">${esc(b.name)}</span><span class="pc">${b.pct}%</span></div><div class="bar"><i style="width:${b.pct}%"></i></div></div>`).join('')}</div>
-    <div class="color-story"><h4 class="eyebrow k">Colour story</h4><div class="swatches">${dna.palette.map(c=>`<div class="swatch-chip"><div class="sw" style="background:${c}"></div><div class="hx">${c}</div></div>`).join('')}</div></div>
-    <div class="tag-row">${dna.tags.map(t=>`<span class="chip">${esc(t)}</span>`).join('')}</div>
+  const dna=State.dna();if(!dna){go('#/quiz');return;}
+  const today=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}).toUpperCase();
+  app.innerHTML=`<div class="page authed-page"><div class="wrap" style="max-width:880px">
+    <div class="spec-masthead"><div><div class="l">FORMA Type Foundry</div><div class="l" style="color:var(--ink);margin-top:5px">Specimen No.001</div></div><div class="l">${today}</div></div>
+    <div class="spec-hero">
+      <div class="lab">Your style, set in —</div>
+      <div class="big">${esc(dna.primaryName)}</div>
+      <div class="sizes"><span style="font-size:34px">${esc(dna.primaryName)}</span><span style="font-size:22px">${esc(dna.primaryName)}</span><span style="font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--gray)">${dna.tags.join(' · ')}</span></div>
+    </div>
+    <div class="spec-rows">${dna.breakdown.map((b,i)=>`<div class="spec-entry"><div class="e-name">${esc(b.name)}</div><div class="e-meta">Weight<b>${b.pct}%</b>No.${pad(i+1,2)}</div></div>`).join('')}</div>
+    <div class="color-story" style="margin-top:32px"><h4 class="eyebrow k">Colour story / ink set</h4><div class="swatches">${dna.palette.map(c=>`<div class="swatch-chip"><div class="sw" style="background:${c}"></div><div class="hx">${c}</div></div>`).join('')}</div></div>
     <div class="stat-row"><div class="stat"><div class="v">${pad(State.closet().length,2)}</div><div class="l">Items</div></div><div class="stat"><div class="v">${pad(State.saved().length,2)}</div><div class="l">Saved</div></div><div class="stat"><div class="v">${pad(State.outfits().length,2)}</div><div class="l">Fits</div></div><div class="stat"><div class="v">${pad(dna.breakdown.length,2)}</div><div class="l">Aesthetics</div></div></div>
     <div class="hr"></div>
     <div class="flex gap wrap-f"><button class="btn btn-sm" id="retake2">Retake quiz</button><button class="btn btn-red btn-sm" id="reset">Reset all</button></div>
