@@ -9,7 +9,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Caveat:wght@600;700&family=Permanent+Marker&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Caveat:wght@600;700&family=Permanent+Marker&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
 
 <style>
 /* ============================================================
@@ -33,6 +33,7 @@
   --mono:'Space Mono', ui-monospace, monospace;
   --marker:'Permanent Marker', cursive;
   --hand:'Caveat', cursive;
+  --serif:'Cormorant Garamond', Georgia, serif;
   --ui:'Inter', system-ui, sans-serif;
 
   --nav-h:60px;
@@ -492,6 +493,78 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--red)
 .flex{display:flex;}.gap{gap:12px;}.wrap-f{flex-wrap:wrap;}.aic{align-items:center;}.between{justify-content:space-between;}
 .mt-m{margin-top:26px;}.center{text-align:center;}
 
+/* ===== FLOATING CLOTHES + OCCASION VIBES + SCROLL-STOP ===== */
+@keyframes floaty{0%,100%{transform:translateY(0) rotate(var(--r,0deg));}50%{transform:translateY(-11px) rotate(calc(var(--r,0deg) + 1.5deg));}}
+@keyframes floaty2{0%,100%{transform:translateY(0);}50%{transform:translateY(-9px);}}
+@keyframes slidex{0%,100%{transform:translateX(0);}50%{transform:translateX(6px);}}
+
+/* upload-first callout */
+.upload-note{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;border:1px solid var(--ink);background:var(--paper);padding:16px 20px;margin-bottom:22px;}
+.upload-note b{font-family:var(--bebas);font-size:24px;display:block;line-height:.9;}
+.upload-note span{font-family:var(--mono);font-size:11px;text-transform:uppercase;color:var(--gray);display:block;margin-top:6px;max-width:520px;line-height:1.6;}
+
+/* occasion stage (re-skins fully per occasion) */
+.occ-stage,.ofolder{--t-bg:#fff;--t-fg:#0A0A0A;--t-acc:#E5231B;--t-soft:#F1EEE5;--t-head:var(--bebas);}
+.occ-stage{border:1px solid var(--line);background:var(--t-bg);color:var(--t-fg);overflow:hidden;margin-top:22px;animation:pop .45s var(--ease) both;}
+.occ-banner{position:relative;min-height:188px;display:flex;align-items:flex-end;padding:24px;overflow:hidden;border-bottom:1px solid var(--line);}
+.occ-banner .ph{position:absolute;inset:0;background-size:cover;background-position:center;transform:scale(1.05);animation:floaty2 9s ease-in-out infinite;}
+.occ-banner::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.72),rgba(0,0,0,.05) 65%);}
+.occ-banner .lbl{position:relative;z-index:2;color:#fff;}
+.occ-banner .occ-kicker{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#fff;background:var(--t-acc);padding:3px 9px;display:inline-block;}
+.occ-banner .vibe{font-family:var(--t-head);font-size:clamp(40px,6.5vw,68px);line-height:.84;text-transform:uppercase;margin-top:10px;}
+.occ-banner .occ-tag{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.03em;margin-top:8px;opacity:.9;}
+
+/* fit stage — clothes float */
+.fit-stage{position:relative;display:flex;flex-wrap:wrap;gap:14px 10px;align-items:center;justify-content:center;padding:30px 18px 36px;background:radial-gradient(120% 95% at 50% 28%,var(--t-soft),var(--t-bg));min-height:280px;}
+.garment{width:30%;max-width:128px;text-align:center;animation:floaty 5.5s ease-in-out infinite;}
+.garment .g-img{aspect-ratio:1/1;border:1px solid var(--line);background:#fff;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;}
+.garment .g-img svg{width:52%;height:52%;}
+.garment .g-lab{font-family:var(--mono);font-size:9px;font-weight:700;text-transform:uppercase;margin-top:7px;display:block;color:var(--t-fg);}
+.sample-flag{position:absolute;left:14px;bottom:10px;font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--t-fg);opacity:.75;}
+.sample-flag a{color:var(--t-acc);border-bottom:1px solid var(--t-acc);}
+
+/* card consumes the theme */
+.occ-stage .outfit-card{border:none;background:var(--t-bg);color:var(--t-fg);}
+.ofolder .outfit-card{background:var(--t-bg);color:var(--t-fg);}
+.occ-stage .outfit-body .o,.ofolder .outfit-body .o{font-family:var(--t-head);}
+.occ-stage .match,.ofolder .match{background:var(--t-acc);color:#fff;}
+.occ-stage .outfit-actions button:hover,.ofolder .outfit-actions button:hover{background:var(--t-acc);color:#fff;}
+.occ-stage .chip,.ofolder .chip{border-color:currentColor;}
+.ofolder>.tab{background:var(--t-acc);border-color:var(--t-acc);}
+
+/* ---- OCCASION THEMES ---- */
+.occ-stage[data-occ="Everyday"],.ofolder[data-occ="Everyday"]{--t-bg:#fff;--t-fg:#0A0A0A;--t-acc:#E5231B;--t-soft:#FCE9E2;--t-head:var(--grot);}
+.occ-stage[data-occ="Work"],.ofolder[data-occ="Work"]{--t-bg:#F3EFE4;--t-fg:#22303A;--t-acc:#1F3A5F;--t-soft:#E6DEC9;--t-head:var(--serif);}
+.occ-stage[data-occ="Work"] .occ-banner .vibe,.occ-stage[data-occ="Evening"] .occ-banner .vibe{font-style:italic;font-weight:600;}
+.occ-stage[data-occ="Evening"],.ofolder[data-occ="Evening"]{--t-bg:#0E0E10;--t-fg:#F2EFE9;--t-acc:#C9A96E;--t-soft:#1C1C20;--t-head:var(--serif);}
+.occ-stage[data-occ="Weekend"],.ofolder[data-occ="Weekend"]{--t-bg:#F4EDDE;--t-fg:#2A2018;--t-acc:#C4663A;--t-soft:#EADFC8;--t-head:var(--hand);}
+.occ-stage[data-occ="Weekend"] .occ-banner .vibe{font-size:clamp(50px,8vw,84px);}
+.occ-stage[data-occ="Event"],.ofolder[data-occ="Event"]{--t-bg:#E5231B;--t-fg:#FFFFFF;--t-acc:#0A0A0A;--t-soft:#C71910;--t-head:var(--bebas);}
+.occ-stage[data-occ="Event"] .occ-banner::after{background:linear-gradient(to top,rgba(120,8,4,.78),rgba(0,0,0,.05) 65%);}
+.occ-stage[data-occ="Evening"] .garment .g-img,.occ-stage[data-occ="Event"] .garment .g-img{background-color:rgba(255,255,255,.06);}
+
+/* ---- SCROLL-SNAP showcase ---- */
+.snap-head{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:10px;margin-bottom:18px;}
+.snap-head h3{font-family:var(--bebas);font-size:clamp(40px,7vw,84px);margin-top:10px;}
+.snap-hint{font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase;color:var(--gray);display:flex;align-items:center;gap:8px;}
+.snap-hint .ar{display:inline-block;animation:slidex 1.4s ease-in-out infinite;}
+.snap-strip{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;border:1px solid var(--line);-ms-overflow-style:none;scrollbar-width:none;scroll-behavior:smooth;}
+.snap-strip::-webkit-scrollbar{display:none;}
+.snap-panel{flex:0 0 86%;max-width:600px;scroll-snap-align:center;min-height:62vh;position:relative;border-right:1px solid var(--line);display:flex;align-items:flex-end;padding:30px;overflow:hidden;}
+.snap-panel .ph{position:absolute;inset:0;background-size:cover;background-position:center;transform:scale(1.06);transition:transform 1.2s var(--ease);}
+.snap-panel:hover .ph{transform:scale(1.12);}
+.snap-panel::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.74),transparent 60%);}
+.snap-panel .cap{position:relative;z-index:2;color:#fff;}
+.snap-panel .cap .k{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;background:var(--red);padding:3px 9px;display:inline-block;}
+.snap-panel .cap .v{font-family:var(--bebas);text-transform:uppercase;font-size:clamp(48px,7vw,90px);line-height:.84;margin-top:12px;}
+.snap-panel .cap .d{font-family:var(--mono);font-size:11px;text-transform:uppercase;color:rgba(255,255,255,.82);margin-top:10px;max-width:300px;line-height:1.6;}
+.snap-panel[data-occ="Work"] .cap .v{font-family:var(--serif);font-style:italic;}
+.snap-panel[data-occ="Weekend"] .cap .v{font-family:var(--hand);}
+@media(max-width:600px){.snap-panel{flex:0 0 90%;min-height:56vh;}}
+
+/* gentle float on hero photo */
+.hero-photo{animation:floaty2 7s ease-in-out infinite;}
+
 @media(prefers-reduced-motion:reduce){*{animation-duration:.001ms !important;transition-duration:.001ms !important;}}
 </style>
 </head>
@@ -682,6 +755,15 @@ function svgIcon(n){const I={
   share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5 8.6 10.5"/>',
   plus:'<path d="M12 5v14M5 12h14"/>',check:'<path d="M20 6 9 17l-5-5"/>',arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',back:'<path d="M19 12H5M11 18l-6-6 6-6"/>'};
   return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${I[n]||''}</svg>`;}
+function garmentIcon(cat){const G={
+  top:'<path d="M8 3 4 6l2.4 2.4L8 7v14h8V7l1.6 1.4L20 6l-4-3a4 4 0 0 1-8 0Z"/>',
+  bottom:'<path d="M6 3h12l-1.4 18h-3.3L12 11l-1.3 10H7.4L6 3Z"/>',
+  shoes:'<path d="M3 17c4.2 0 6.6-1 8.5-3 .8 2 3.6 2.6 6.5 2.6 1.8 0 3 .7 3 2.1V20H3Z"/>',
+  outerwear:'<path d="M8 3 4 6v15h5V12M16 3l4 3v15h-5V12M9 3l3 3 3-3"/>',
+  accessory:'<path d="M6 8h12l-1 13H7L6 8Z"/><path d="M9.5 8a2.5 2.5 0 0 1 5 0"/>'};
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round">${G[cat]||G.top}</svg>`;}
+function lum(hex){const c=String(hex).replace('#','');if(c.length<6)return .5;const r=parseInt(c.substr(0,2),16),g=parseInt(c.substr(2,2),16),b=parseInt(c.substr(4,2),16);return (0.299*r+0.587*g+0.114*b)/255;}
+function garmColor(hex){return lum(hex)>0.82?'#9A958E':hex;}
 function enhance(el,url){const img=new Image();img.onload=()=>{el.style.backgroundImage=`url('${url}')`;};img.onerror=()=>{};img.src=url;}
 
 /* 10. NAV ------------------------------------------------------------------ */
@@ -744,6 +826,13 @@ function viewHome(){
     <section class="section wrap"><p class="manifesto reveal">style isn't what<br>you buy. it's <span class="mark">who you are.</span></p></section>
 
     <section class="section wrap">
+      <div class="snap-head"><div><span class="eyebrow k">One wardrobe · every occasion</span><h3>Every fit,<br>a new mood.</h3></div><span class="snap-hint">Swipe <span class="ar">→</span></span></div>
+      <div class="snap-strip" id="snapStrip">
+        ${OCCASIONS.map((o,i)=>{const th=OCC_THEME[o];return `<div class="snap-panel" data-occ="${o}"><div class="ph" data-photo="${th.photo}" style="${tile(AESTHETICS[AES_KEYS[i%AES_KEYS.length]].grad)}"></div><div class="cap"><span class="k">${o}</span><div class="v">${th.vibe}</div><div class="d">${th.tag}</div></div></div>`;}).join('')}
+      </div>
+    </section>
+
+    <section class="section wrap">
       <div class="flex between aic" style="margin-bottom:30px;flex-wrap:wrap;gap:10px"><span class="eyebrow k">Real Style DNA / case files</span><span class="archcode">REF_DNA //</span></div>
       <div class="proof">${ex.map((e,i)=>`<div class="folder"><div class="tab red">DNA_${e.c} · NO.${pad(i+1)}</div><div class="f-body"><div class="name">${e.n}</div><div class="pct">${e.p}</div></div></div>`).join('')}</div>
       <div style="margin-top:40px"><a class="btn btn-red" href="#/quiz" data-link>Find your DNA ${svgIcon('arrow')}</a></div>
@@ -753,6 +842,7 @@ function viewHome(){
   </div>`;
   enhance($('#heroPh'),photoFor('streetwear',2));
   app.querySelectorAll('#collage .ph').forEach(p=>enhance(p,photoFor(p.dataset.aes,+p.dataset.i)));
+  app.querySelectorAll('#snapStrip .ph').forEach(p=>enhance(p,uns(p.dataset.photo,900)));
   observeReveals();
 }
 
@@ -914,32 +1004,48 @@ function openItemDetail(id){
   (root)=>{root.querySelector('#closeM').addEventListener('click',closeModal);root.querySelector('#del').addEventListener('click',()=>{State.removeItem(id);closeModal();toast('Removed');viewCloset();});});
 }
 
-/* ---- Outfits ---- */
+/* ---- Outfits (occasion-themed, floating clothes, upload-first) ---- */
 let outfitState={occasion:'Everyday',current:null};
+const OCC_THEME={
+  Everyday:{photo:'photo-1516257984-b1b4d707412e',vibe:'Casual / Chill',tag:'Easy pieces, zero effort — all you.'},
+  Work:{photo:'photo-1519085360753-af0119f7cbe7',vibe:'Heritage',tag:'Polished, preppy, quietly expensive.'},
+  Evening:{photo:'photo-1485462537746-965f33f7f6a7',vibe:'After Dark',tag:'Sharp lines for the night.'},
+  Weekend:{photo:'photo-1485125639709-a60c3a500bf1',vibe:'Lazy Days',tag:'Soft, warm, in no rush.'},
+  Event:{photo:'photo-1492707892479-7bc8d5a4ee93',vibe:'Big Night',tag:'Turn it all the way up.'}
+};
 function viewOutfits(){
-  const dna=State.dna();if(!dna){go('#/quiz');return;}const saved=State.outfits();
+  const dna=State.dna();if(!dna){go('#/quiz');return;}
+  const real=State.closet().filter(i=>!i.sample).length;const saved=State.outfits();
   app.innerHTML=`<div class="page authed-page"><div class="wrap">
-    <div class="page-head"><div><span class="eyebrow">Outfit Engine / FILE_FIT</span><h1>Today's<br>fit</h1><p>Pick an occasion. We build from your closet + DNA${State.closet().length<3?' — sampling pieces till your closet fills.':'.'}</p></div></div>
+    <div class="page-head"><div><span class="eyebrow">Outfit Engine / FILE_FIT</span><h1>Today's<br>fit</h1><p>Pick an occasion — the whole vibe changes. Fits are curated from clothes you own.</p></div></div>
+    ${real<1?`<div class="upload-note"><div><b>These are sample fits</b><span>FORMA builds outfits from YOUR clothes. Upload a few pieces and every fit rebuilds around what you actually own.</span></div><a class="btn btn-red btn-sm" href="#/closet" data-link>${svgIcon('plus')} Upload clothes</a></div>`:''}
     <div class="tabs" id="opills">${OCCASIONS.map(o=>`<button class="tab ${o===outfitState.occasion?'active':''}" data-o="${o}">${o}</button>`).join('')}</div>
-    <div id="genArea"></div>
+    <div id="occStage"></div>
     ${saved.length?`<div class="hr"></div><div class="flex between aic" style="margin-bottom:24px;flex-wrap:wrap;gap:10px"><span class="eyebrow k">Saved fits / archive</span><span class="archcode">FITS_REF //</span></div><div class="outfit-grid" id="savedGrid"></div>`:''}
   </div></div>`;
-  $('#opills').querySelectorAll('.tab').forEach(p=>p.addEventListener('click',()=>{$('#opills').querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));p.classList.add('active');outfitState.occasion=p.dataset.o;regenOutfit();}));
-  regenOutfit();if(saved.length)renderSavedOutfits();
+  $('#opills').querySelectorAll('.tab').forEach(p=>p.addEventListener('click',()=>{$('#opills').querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));p.classList.add('active');outfitState.occasion=p.dataset.o;renderStage();}));
+  renderStage();if(saved.length)renderSavedOutfits();
 }
-function regenOutfit(){outfitState.current=generateOutfit(outfitState.occasion);const a=$('#genArea');a.innerHTML=`<div style="max-width:460px;margin-top:24px">${folderWrap(outfitState.current,false,0)}</div>`;wireOutfitCard(a.querySelector('.outfit-card'),outfitState.current,false);}
-function folderWrap(o,isSaved,i){return `<div class="ofolder"><div class="tab">FIT_${pad(i+1)} · ${o.occasion} · ${o.match}%</div>${outfitCardHTML(o,isSaved)}</div>`;}
+function renderStage(){
+  const occ=outfitState.occasion,th=OCC_THEME[occ];outfitState.current=generateOutfit(occ);
+  const stage=$('#occStage');
+  stage.innerHTML=`<div class="occ-stage" data-occ="${occ}"><div class="occ-banner"><div class="ph" id="occPh" style="${tile(AESTHETICS[State.dna().primary].grad)}"></div><div class="lbl"><span class="occ-kicker">${occ} · vibe</span><div class="vibe">${th.vibe}</div><div class="occ-tag">${th.tag}</div></div></div>${outfitCardHTML(outfitState.current,false)}</div>`;
+  enhance($('#occPh'),uns(th.photo,1000));
+  wireOutfitCard(stage.querySelector('.outfit-card'),outfitState.current,false);
+}
+function folderWrap(o,isSaved,i){return `<div class="ofolder" data-occ="${o.occasion}"><div class="tab">FIT_${pad(i+1)} · ${o.occasion} · ${o.match}%</div>${outfitCardHTML(o,isSaved)}</div>`;}
 function outfitCardHTML(o,isSaved){
-  const saved=State.outfits().some(x=>x.id===o.id);
-  return `<div class="outfit-card" data-id="${o.id}"><div class="outfit-hero">${o.items.slice(0,4).map(it=>`<div class="slot" style="background:${it.color}">${it.image?`<img src="${it.image}">`:''}<span class="lab">${esc(it.name)}</span></div>`).join('')}</div>
+  const saved=State.outfits().some(x=>x.id===o.id);const usingSample=o.items.every(i=>!i.image);
+  return `<div class="outfit-card" data-id="${o.id}">
+    <div class="fit-stage">${o.items.map((it,n)=>`<div class="garment" style="--r:${n%2?'':'-'}${2+(n%3)}deg;animation-delay:${(n*0.5).toFixed(1)}s"><div class="g-img" style="${it.image?`background-image:url('${it.image}')`:`color:${garmColor(it.color)}`}">${it.image?'':garmentIcon(it.category)}</div><span class="g-lab">${esc(it.name)}</span></div>`).join('')}${usingSample?`<div class="sample-flag">Sample · <a href="#/closet" data-link>upload yours ↗</a></div>`:''}</div>
     <div class="outfit-body"><div class="occ"><span class="o">${o.occasion}</span><span class="match">${o.match}% YOU</span></div><div class="chips">${o.items.map(it=>`<span class="chip"><span class="dot" style="background:${it.color}"></span>${esc(it.name)}</span>`).join('')}</div></div>
     <div class="outfit-actions"><button data-act="save" class="${saved?'on':''}">${svgIcon('save')} ${saved?'Saved':'Save'}</button>${isSaved?`<button data-act="remove">${svgIcon('refresh')} Remove</button>`:`<button data-act="regen">${svgIcon('refresh')} Regen</button>`}<button data-act="share">${svgIcon('share')} Share</button></div></div>`;
 }
 function wireOutfitCard(card,o,isSaved){
   if(!card)return;
   card.querySelectorAll('[data-act]').forEach(b=>b.addEventListener('click',()=>{const act=b.dataset.act;
-    if(act==='regen')regenOutfit();
-    else if(act==='save'){State.saveOutfit(o);toast('Fit saved');if(isSaved)viewOutfits();else regenOutfit();}
+    if(act==='regen')renderStage();
+    else if(act==='save'){State.saveOutfit(o);toast('Fit saved');if(isSaved)viewOutfits();else renderStage();}
     else if(act==='remove'){State.removeOutfit(o.id);toast('Removed');viewOutfits();}
     else if(act==='share'){const t=`My ${o.occasion} fit on FORMA: ${o.items.map(i=>i.name).join(', ')}. ${o.match}% me.`;if(navigator.share)navigator.share({text:t}).catch(()=>{});else{if(navigator.clipboard)navigator.clipboard.writeText(t);toast('Fit copied');}}
   }));
