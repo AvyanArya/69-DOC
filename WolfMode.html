@@ -279,11 +279,11 @@ h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;font-weight:700}
   <div class="modal">
     <button class="modal-close" id="modalClose">✕</button>
     <div class="modal-icon">🔑</div>
-    <h2 class="modal-title">Anthropic API Key</h2>
-    <p class="modal-desc">Your key is saved in this browser only and goes directly to Anthropic — nothing else sees it.</p>
-    <input type="password" id="apiKeyInput" class="modal-input" placeholder="sk-ant-..."/>
+    <h2 class="modal-title">Google Gemini API Key</h2>
+    <p class="modal-desc">Free — no credit card needed. Your key is saved in this browser only and goes directly to Google.</p>
+    <input type="password" id="apiKeyInput" class="modal-input" placeholder="AIza..."/>
     <button class="btn-primary full-width" id="saveApiKey">Save & Continue</button>
-    <p class="modal-note">Get a free key at <strong>console.anthropic.com</strong></p>
+    <p class="modal-note">Free key at <strong>aistudio.google.com</strong> → Get API key</p>
   </div>
 </div>
 
@@ -582,7 +582,7 @@ function openScenario(scenario) {
   setTimeout(() => {
     msgs.innerHTML = '';
     appendMessage('ai', meta.opener, meta.avatar);
-    conversationHistory.push({ role: 'assistant', content: meta.opener });
+    // opener shown only — history stays empty so Gemini always starts with user turn
   }, 400);
   document.getElementById('chatInput').focus();
 }
@@ -616,31 +616,31 @@ async function sendMessage() {
 
   try {
     const meta = PERSONAS[currentScenario];
-    const body = {
-      model: 'claude-sonnet-4-6',
-      max_tokens: 300,
-      system: meta.system,
-      messages: conversationHistory.map(m => ({ role: m.role, content: m.content }))
-    };
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': getKey(),
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify(body)
-    });
+    const contents = conversationHistory.map(m => ({
+      role: m.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: m.content }]
+    }));
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${getKey()}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: meta.system }] },
+          contents,
+          generationConfig: { maxOutputTokens: 300, temperature: 0.9 }
+        })
+      }
+    );
     removeTyping(typingId);
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       const msg = err.error?.message || `API error ${res.status}`;
       appendMessage('ai', '⚠️ ' + msg, meta.avatar);
-      if (res.status === 401) setTimeout(() => document.getElementById('apiModal').classList.add('active'), 400);
+      if (res.status === 400 || res.status === 401) setTimeout(() => document.getElementById('apiModal').classList.add('active'), 400);
     } else {
       const data = await res.json();
-      const reply = data.content[0].text;
+      const reply = data.candidates[0].content.parts[0].text;
       appendMessage('ai', reply, meta.avatar);
       conversationHistory.push({ role: 'assistant', content: reply });
     }
@@ -685,18 +685,7 @@ async function getFeedback() {
   const transcript = conversationHistory.map(m => `${m.role === 'user' ? 'YOU' : 'AI'}: ${m.content}`).join('\n\n');
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': getKey(),
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 600,
-        system: `You are a world-class sales coach. Analyse this sales conversation and give brutal, honest, actionable feedback.
+    const feedbackSystem = `You are a world-class sales coach. Analyse this sales conversation and give brutal, honest, actionable feedback.
 
 Format your response EXACTLY like this:
 SCORE: X/10
@@ -712,16 +701,25 @@ WEAKNESSES:
 TOP TIP:
 [One sentence — the most important thing to fix]
 
-Be direct, specific, use examples from the transcript. Target a young ambitious person learning sales.`,
-        messages: [{ role: 'user', content: `Scenario: ${scenarioNames[currentScenario]}\n\nTranscript:\n${transcript}` }]
-      })
-    });
+Be direct, specific, use examples from the transcript. Target a young ambitious person learning sales.`;
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${getKey()}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: feedbackSystem }] },
+          contents: [{ role: 'user', parts: [{ text: `Scenario: ${scenarioNames[currentScenario]}\n\nTranscript:\n${transcript}` }] }],
+          generationConfig: { maxOutputTokens: 600, temperature: 0.5 }
+        })
+      }
+    );
     loading.style.display = 'none';
     if (!res.ok) {
       content.innerHTML = `<p style="color:var(--red)">API error ${res.status}</p>`;
     } else {
       const data = await res.json();
-      content.innerHTML = parseFeedback(data.content[0].text);
+      content.innerHTML = parseFeedback(data.candidates[0].content.parts[0].text);
     }
     content.classList.add('show');
   } catch (err) {
