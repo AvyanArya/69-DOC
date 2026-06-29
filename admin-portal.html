@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Lumera — Admin Analytics Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{ --ivory:#F6F2EB; --cream:#FCFAF6; --card:#FFFDFA; --line:#E9E2D5; --charcoal:#272320; --muted:#7C7264; --faint:#9C9387; --gold:#BFA06A; --goldd:#9E7E45; --sage:#6E8B6A; --saged:#4C6447; --sky:#6E86A0; --clay:#C0714F; }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  body{ margin:0; font-family:'Inter',system-ui,sans-serif; color:var(--charcoal); background:var(--ivory);
+    background-image:radial-gradient(1200px 600px at 100% -10%, rgba(191,160,106,.10), transparent 60%); min-height:100vh; }
+  h1,h2,.serif{ font-family:'Fraunces',Georgia,serif; }
+  .wrap{ max-width:1100px; margin:0 auto; padding:28px 20px 60px; }
+  .top{ display:flex; align-items:center; gap:12px; margin-bottom:6px; }
+  .mark{ font-family:'Fraunces',serif; letter-spacing:.16em; font-size:20px; }
+  .pill{ display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; border-radius:999px; padding:4px 10px; background:#EFE8DC; color:var(--muted); }
+  .live{ background:rgba(110,139,106,.15); color:var(--saged); }
+  .dot{ width:8px; height:8px; border-radius:50%; background:var(--sage); display:inline-block; animation:p 1.6s infinite; }
+  @keyframes p{ 0%{box-shadow:0 0 0 0 rgba(110,139,106,.4)} 70%{box-shadow:0 0 0 8px rgba(110,139,106,0)} 100%{box-shadow:0 0 0 0 rgba(110,139,106,0)} }
+  .card{ background:linear-gradient(180deg,#fffdfa,#fdfbf6); border:1px solid var(--line); border-radius:18px; padding:18px; box-shadow:0 1px 2px rgba(39,35,32,.04),0 6px 16px rgba(39,35,32,.05); }
+  .grid{ display:grid; gap:14px; }
+  .eyebrow{ font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--goldd); font-weight:600; margin-bottom:10px; }
+  .kpi .v{ font-family:'Fraunces',serif; font-size:28px; margin-top:2px; }
+  .kpi .l{ font-size:12px; color:var(--muted); }
+  .bar{ display:flex; align-items:center; gap:10px; margin:8px 0; }
+  .bar .lab{ width:120px; font-size:13px; color:#3a342d; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .bar .track{ flex:1; height:9px; border-radius:99px; background:#EFE8DC; overflow:hidden; }
+  .bar .fill{ height:100%; border-radius:99px; transition:width .6s cubic-bezier(.22,1,.36,1); }
+  .bar .val{ width:46px; text-align:right; font-size:13px; color:var(--muted); font-variant-numeric:tabular-nums; }
+  .btn{ border:1px solid var(--line); background:var(--card); border-radius:999px; padding:8px 14px; font-size:13px; font-weight:600; cursor:pointer; color:var(--charcoal); }
+  .btn:hover{ border-color:#d8ccb4; }
+  .btn.gold{ background:linear-gradient(180deg,#caa971,#b0894f); color:#2a2016; border:none; }
+  .muted{ color:var(--muted); } .faint{ color:var(--faint); } .tnum{ font-variant-numeric:tabular-nums; }
+  input,textarea{ font-family:inherit; border:1px solid var(--line); border-radius:12px; padding:10px 12px; width:100%; background:var(--cream); }
+  input:focus,textarea:focus{ outline:none; border-color:var(--gold); box-shadow:0 0 0 4px rgba(191,160,106,.12); }
+  .gate{ min-height:100vh; display:grid; place-items:center; padding:24px; }
+  .recent{ font-size:12.5px; max-height:240px; overflow:auto; }
+  .recent div{ display:flex; gap:10px; padding:3px 0; }
+  a{ color:var(--goldd); }
+</style>
+</head>
+<body>
+<div id="gate" class="gate">
+  <div class="card" style="max-width:380px; text-align:center;">
+    <div style="margin:0 auto 10px; width:46px;height:46px;border-radius:14px;background:var(--charcoal);color:var(--gold);display:grid;place-items:center;">🔒</div>
+    <h1 style="font-size:24px; margin:0;">Lumera Admin Portal</h1>
+    <p class="muted" style="font-size:14px; margin:6px 0 16px;">Owner-only. Enter the admin access key.</p>
+    <input id="key" type="password" placeholder="Access key" style="text-align:center;" />
+    <div id="gerr" style="color:var(--clay); font-size:12px; margin-top:8px; display:none;">Incorrect key.</div>
+    <button class="btn gold" style="width:100%; margin-top:12px;" onclick="tryUnlock()">Unlock portal</button>
+    <p class="faint" style="font-size:11px; margin-top:14px; line-height:1.5;">Default key is <b>lumera-admin-2026</b>. To set a new key, hash it with <code>SHA-256</code> and update <code>ADMIN_KEY_HASH</code> in this file. Open from the <b>same folder or host</b> as Lumera to read live data.</p>
+  </div>
+</div>
+
+<div id="app" class="wrap" style="display:none;">
+  <div class="top">
+    <span class="mark">L U M E R A</span>
+    <span class="pill">Admin</span>
+    <span class="pill live"><span class="dot"></span> Live</span>
+    <span class="faint" id="updated" style="font-size:12px;"></span>
+    <span style="flex:1"></span>
+    <button class="btn" onclick="exportJSON()">Export</button>
+    <button class="btn" onclick="clearData()">Clear</button>
+    <button class="btn" onclick="lock()">Lock</button>
+  </div>
+  <h1 style="font-size:30px; margin:6px 0 2px;">Live product metrics</h1>
+  <p class="muted" style="margin:0 0 18px; max-width:640px;">Real usage from this browser/origin, refreshing every 3 seconds. For aggregated data across all users and devices, connect a backend analytics service (see INTEGRATION.md, Step 3).</p>
+  <div id="content"></div>
+  <div id="empty" style="display:none;" class="card">
+    <div class="eyebrow">Connect your data</div>
+    <p class="muted" style="font-size:14px; line-height:1.6;">Because this file was opened on its own, the browser keeps its storage separate from Lumera’s — so there’s nothing to read yet. Pick the easiest option:</p>
+    <div style="display:grid; gap:12px; margin-top:6px;">
+      <div style="border:1px solid var(--line); border-radius:14px; padding:14px;">
+        <b>Option A — instant, zero setup (recommended)</b>
+        <p class="muted" style="font-size:13.5px; margin:6px 0 0;">You don’t need this file at all. The same comprehensive live dashboard is built into Lumera: open <b>Lumera.html → Settings is hidden; just go to the address bar and add <code>#/analytics</code></b> (or paste <code>lumera.html#/analytics</code>), enter the key, and it shows your real data live.</p>
+      </div>
+      <div style="border:1px solid var(--line); border-radius:14px; padding:14px;">
+        <b>Option B — load a snapshot file</b>
+        <p class="muted" style="font-size:13.5px; margin:6px 0 10px;">In Lumera’s analytics click <b>Export</b>, then load that file here:</p>
+        <input type="file" accept="application/json" onchange="loadFile(this)" />
+      </div>
+      <div style="border:1px solid var(--line); border-radius:14px; padding:14px;">
+        <b>Option C — live, shared (one command)</b>
+        <p class="muted" style="font-size:13.5px; margin:6px 0;">Put <code>Lumera.html</code> and <code>admin-portal.html</code> in one folder, open a terminal there and run:</p>
+        <pre style="background:#2b2620;color:#f3ead9;padding:10px 12px;border-radius:10px;font-size:12.5px;overflow:auto;">python3 -m http.server 8000</pre>
+        <p class="muted" style="font-size:13.5px; margin:6px 0 0;">Then open <b>http://localhost:8000/Lumera.html</b> and <b>http://localhost:8000/admin-portal.html</b>. Now they share an origin and this portal updates <b>live</b> automatically.</p>
+      </div>
+      <details><summary style="cursor:pointer;font-size:13px;color:var(--goldd);font-weight:600;">Or paste exported JSON manually</summary>
+        <textarea id="paste" rows="4" placeholder='Paste exported analytics JSON…' style="margin-top:8px;"></textarea>
+        <button class="btn gold" style="margin-top:8px;" onclick="importPaste()">Load pasted data</button>
+      </details>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px;">
+    <div class="eyebrow">Upcoming updates — publish to the website</div>
+    <p class="muted" style="font-size:13px;margin:0 0 10px;">Type an update and publish; it appears on Lumera’s <b>“What’s new”</b> page (instantly when served from the same origin, otherwise on refresh).</p>
+    <div style="display:grid;grid-template-columns:1fr 130px 130px;gap:8px;">
+      <input id="u_title" placeholder="Update title"/>
+      <input id="u_tag" placeholder="Tag (e.g. Coming)"/>
+      <input id="u_date" placeholder="Date (e.g. Jul 2026)"/>
+    </div>
+    <textarea id="u_body" rows="2" placeholder="Short description" style="margin-top:8px;"></textarea>
+    <button class="btn gold" style="margin-top:8px;" onclick="addUpdate()">Publish update</button>
+    <div id="u_list" style="margin-top:12px;"></div>
+  </div>
+  <div class="card" style="margin-top:14px;">
+    <div class="eyebrow">News &amp; articles — publish to the feed</div>
+    <p class="muted" style="font-size:13px;margin:0 0 10px;">Publish a custom article to Lumera’s <b>News</b> page. It appears at the top of the feed, tagged “Lumera”.</p>
+    <div style="display:grid;grid-template-columns:1fr 150px 130px;gap:8px;">
+      <input id="n_title" placeholder="Headline"/>
+      <select id="n_cat"><option>Markets</option><option>Economy</option><option>Rates</option><option>Saving</option></select>
+      <input id="n_date" placeholder="Date (e.g. Jun 2026)"/>
+    </div>
+    <textarea id="n_summary" rows="2" placeholder="Summary / body" style="margin-top:8px;"></textarea>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+      <input id="n_url" placeholder="Source link (optional)"/>
+      <input id="n_image" placeholder="Image URL (optional)"/>
+    </div>
+    <input id="n_impact" placeholder="Why it matters (optional)" style="margin-top:8px;width:100%;box-sizing:border-box;"/>
+    <button class="btn gold" style="margin-top:8px;" onclick="addNews()">Publish article</button>
+    <div id="n_list" style="margin-top:12px;"></div>
+  </div>
+  <div class="card" style="margin-top:14px;">
+    <div class="eyebrow">Accounts on this device</div>
+    <div id="acct_list" style="font-size:13px;"></div>
+  </div>
+</div>
+
+<script>
+// SHA-256 hash of 'lumera-admin-2026'. Change ADMIN_KEY_HASH to hash of your new key.
+// Generate: crypto.subtle.digest('SHA-256',new TextEncoder().encode('yourkey')).then(b=>btoa(String.fromCharCode(...new Uint8Array(b))))
+const ADMIN_KEY_HASH='6amaKQQaPKpH7vitzjbX5v/iI6FYoKB7qEjyi/fXDrM=';
+let imported=null, timer=null;
+async function tryUnlock(){
+  const v=document.getElementById('key').value;
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(v));
+  const hash=btoa(String.fromCharCode(...new Uint8Array(buf)));
+  if(hash===ADMIN_KEY_HASH){ sessionStorage.setItem('lumera_admin_portal','1'); unlock(); }
+  else { document.getElementById('gerr').style.display='block'; }
+}
+function lock(){ sessionStorage.removeItem('lumera_admin_portal'); location.reload(); }
+function unlock(){ document.getElementById('gate').style.display='none'; document.getElementById('app').style.display='block'; render(); renderUpdates(); renderNews(); renderAccounts(); timer=setInterval(()=>{ render(); renderAccounts(); },3000); }
+function readUpdates(){ try{ return JSON.parse(localStorage.getItem('lumera_updates'))||[]; }catch(e){ return []; } }
+function saveUpdates(a){ try{ localStorage.setItem('lumera_updates', JSON.stringify(a)); }catch(e){} try{ new BroadcastChannel('lumera_updates').postMessage(1); }catch(e){} renderUpdates(); }
+function addUpdate(){ const t=document.getElementById('u_title').value.trim(); if(!t){ alert('Add a title.'); return; } const a=readUpdates(); a.unshift({ title:t, tag:(document.getElementById('u_tag').value.trim()||'Coming'), date:(document.getElementById('u_date').value.trim()||'Soon'), body:document.getElementById('u_body').value.trim() }); saveUpdates(a); ['u_title','u_tag','u_date','u_body'].forEach(id=>{ const e=document.getElementById(id); if(e) e.value=''; }); }
+function removeUpdate(i){ const a=readUpdates(); a.splice(i,1); saveUpdates(a); }
+function renderUpdates(){ const el=document.getElementById('u_list'); if(!el) return; const a=readUpdates(); el.innerHTML = a.length? a.map((u,i)=>`<div style="display:flex;gap:8px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px;"><div style="flex:1"><b>${esc(u.title)}</b> <span class="faint" style="font-size:12px">· ${esc(u.tag)} · ${esc(u.date)}</span><div class="muted" style="font-size:13px">${esc(u.body||'')}</div></div><button class="btn" onclick="removeUpdate(${i})">Remove</button></div>`).join('') : '<div class="faint" style="font-size:13px">No published updates yet — the website shows the default roadmap until you add one.</div>'; }
+function renderAccounts(){ const el=document.getElementById('acct_list'); if(!el) return; const a=readAccounts(); const keys=Object.keys(a); el.innerHTML = keys.length? ('<div class="muted" style="margin-bottom:6px">'+keys.length+' unique account'+(keys.length>1?'s':'')+' (counted by email):</div>'+keys.map(k=>`<div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:5px 0"><span>${esc(k)}</span><span class="faint">${a[k]&&a[k].onboarded?'onboarded':'new'}</span></div>`).join('')) : '<div class="faint">No accounts saved on this device yet.</div>'; }
+try{ const bcu=new BroadcastChannel('lumera_updates'); bcu.onmessage=()=>renderUpdates(); }catch(e){}
+function readNews(){ try{ return JSON.parse(localStorage.getItem('lumera_news'))||[]; }catch(e){ return []; } }
+function saveNews(a){ try{ localStorage.setItem('lumera_news', JSON.stringify(a)); }catch(e){} try{ new BroadcastChannel('lumera_news').postMessage(1); }catch(e){} renderNews(); }
+function addNews(){ const t=document.getElementById('n_title').value.trim(); if(!t){ alert('Add a headline.'); return; } const a=readNews(); a.unshift({ title:t, cat:document.getElementById('n_cat').value, date:(document.getElementById('n_date').value.trim()||''), summary:document.getElementById('n_summary').value.trim(), url:document.getElementById('n_url').value.trim(), image:document.getElementById('n_image').value.trim(), impact:document.getElementById('n_impact').value.trim(), source:'Lumera' }); saveNews(a); ['n_title','n_date','n_summary','n_url','n_image','n_impact'].forEach(id=>{ const e=document.getElementById(id); if(e) e.value=''; }); }
+function removeNews(i){ const a=readNews(); a.splice(i,1); saveNews(a); }
+function renderNews(){ const el=document.getElementById('n_list'); if(!el) return; const a=readNews(); el.innerHTML = a.length? a.map((u,i)=>`<div style="display:flex;gap:8px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px;"><div style="flex:1"><b>${esc(u.title)}</b> <span class="faint" style="font-size:12px">· ${esc(u.cat||'')}${u.date?' · '+esc(u.date):''}</span><div class="muted" style="font-size:13px">${esc(u.summary||'')}</div></div><button class="btn" onclick="removeNews(${i})">Remove</button></div>`).join('') : '<div class="faint" style="font-size:13px">No custom articles yet — the website shows the built-in sourced headlines until you publish one.</div>'; }
+try{ const bcn=new BroadcastChannel('lumera_news'); bcn.onmessage=()=>renderNews(); }catch(e){}
+function readData(){ if(imported) return imported; try{ return JSON.parse(localStorage.getItem('lumera_analytics'))||{sessions:[],events:[]}; }catch(e){ return {sessions:[],events:[]}; } }
+function readAccounts(){ try{ return JSON.parse(localStorage.getItem('lumera_accounts'))||{}; }catch(e){ return {}; } }
+function importPaste(){ try{ imported=JSON.parse(document.getElementById('paste').value); render(); }catch(e){ alert('That doesn’t look like valid JSON.'); } }
+function loadFile(input){ const f=input.files&&input.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{ try{ imported=JSON.parse(r.result); render(); }catch(e){ alert('That file isn’t valid analytics JSON.'); } }; r.readAsText(f); }
+// Live sync when served from the same origin as Lumera (e.g. via a local server or host)
+try{ const bc=new BroadcastChannel('lumera_analytics'); bc.onmessage=(e)=>{ imported=null; render(); }; }catch(e){}
+function exportJSON(){ const d=readData(); const blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'}); const u=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=u; a.download='lumera-analytics.json'; a.click(); URL.revokeObjectURL(u); }
+function clearData(){ if(confirm('Clear all locally-tracked analytics?')){ localStorage.removeItem('lumera_analytics'); imported=null; render(); } }
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const labelOf=p=>({'/dashboard':'Dashboard','/budget':'Budget','/subscriptions':'Subscriptions','/invest':'Investing','/market':'Stock Market','/news':'News','/assistant':'Assistant','/simulator':'Simulator','/goals':'Goals','/debt':'Debt','/credit':'Credit','/insurance':'Insurance','/networth':'Net Worth','/retirement':'Retirement','/globe':'Global Markets','/world':'World Monitor','/learn':'Learn','/resources':'Knowledge Hub','/twin':'Twin','/emergency':'Emergency','/settings':'Settings','/':'Landing','/login':'Login','/signup':'Sign up','/onboarding':'Onboarding','/review':'Review'}[p]||p||'—');
+const langName=c=>({en:'English',ar:'Arabic',ur:'Urdu',hi:'Hindi',fr:'French',es:'Spanish',de:'German'}[c]||c||'—');
+function bars(rows,color){ if(!rows.length) return '<div class="faint" style="font-size:13px">No data yet.</div>'; const max=Math.max(1,...rows.map(r=>r[1])); return rows.map(r=>`<div class="bar"><span class="lab">${esc(r[0])}</span><span class="track"><span class="fill" style="width:${Math.round(r[1]/max*100)}%;background:${color}"></span></span><span class="val tnum">${r[1]}${r[2]||''}</span></div>`).join(''); }
+function spark(days){
+  const max=Math.max(1,...days); const w=560,h=152,padX=24,padTop=30,padBot=30,n=days.length;
+  const X=i=>padX+(i/(n-1||1))*(w-padX*2);
+  const Y=v=>h-padBot-(v/max)*(h-padBot-padTop);
+  const d=days.map((v,i)=>`${i?'L':'M'}${X(i)},${Y(v)}`).join(' ');
+  const area=`M${X(0)},${h-padBot} `+days.map((v,i)=>`L${X(i)},${Y(v)}`).join(' ')+` L${X(n-1)},${h-padBot} Z`;
+  const labs=[]; for(let i=n-1;i>=0;i--){ const dt=new Date(); dt.setDate(dt.getDate()-i); labs.push(dt.toLocaleDateString([], {day:'numeric',month:'short'})); }
+  return `<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto" font-family="inherit">
+    <path d="${area}" fill="var(--gold)" opacity="0.08"/>
+    <path d="${d}" fill="none" stroke="var(--gold)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    ${days.map((v,i)=>`<circle cx="${X(i)}" cy="${Y(v)}" r="3.5" fill="var(--gold)"/>`).join('')}
+    ${days.map((v,i)=>`<text x="${X(i)}" y="${Y(v)-10}" text-anchor="middle" font-size="13" font-weight="700" fill="#3a342d" style="font-variant-numeric:tabular-nums">${v}</text>`).join('')}
+    ${labs.map((l,i)=>`<text x="${X(i)}" y="${h-9}" text-anchor="middle" font-size="9.5" fill="var(--muted)">${l}</text>`).join('')}
+  </svg>`;
+}
+function render(){
+  const data=readData(); const sessions=data.sessions||[], events=data.events||[]; const accounts=readAccounts();
+  const hasData = sessions.length||events.length;
+  document.getElementById('empty').style.display = hasData? 'none':'block';
+  document.getElementById('updated').textContent = '· '+new Date().toLocaleTimeString();
+  if(!hasData){ document.getElementById('content').innerHTML=''; return; }
+  const DAY=864e5; const startToday=new Date(); startToday.setHours(0,0,0,0);
+  const views=events.filter(e=>e.type==='view');
+  const guests=sessions.filter(s=>!s.user||s.user==='guest').length;
+  const activeToday=sessions.filter(s=>s.start>=startToday.getTime()).length;
+  const durs=sessions.map(s=>Math.max(0,(s.end||s.start)-s.start)); const avg=durs.length?durs.reduce((a,b)=>a+b,0)/durs.length:0;
+  const fmtDur=ms=>`${Math.floor(ms/60000)}m ${Math.round(ms%60000/1000)}s`;
+  const vc={}; views.forEach(v=>{ const k=labelOf(v.path); vc[k]=(vc[k]||0)+1; }); const feats=Object.entries(vc).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const days=[]; for(let i=9;i>=0;i--){ const d0=new Date(); d0.setHours(0,0,0,0); d0.setDate(d0.getDate()-i); const a=d0.getTime(); days.push(sessions.filter(s=>s.start>=a&&s.start<a+DAY).length); }
+  const bd=key=>{ const m={}; sessions.forEach(s=>{ const v=s[key]||'—'; m[v]=(m[v]||0)+1; }); const t=sessions.length||1; return Object.entries(m).sort((a,b)=>b[1]-a[1]).map(([k,v])=>[key==='lang'?langName(k):k, Math.round(v/t*100),'%']); };
+  const recent=events.slice(-16).reverse();
+  const kpis=[['Total sessions',sessions.length],['Accounts',Object.keys(accounts).length],['Active today',activeToday],['Page views',views.length],['Avg session',fmtDur(avg)],['Guest sessions',guests]];
+  document.getElementById('content').innerHTML=`
+    <div class="grid" style="grid-template-columns:repeat(3,1fr); margin-bottom:14px;">
+      ${kpis.map(k=>`<div class="card kpi"><div class="l">${k[0]}</div><div class="v tnum">${k[1]}</div></div>`).join('')}
+    </div>
+    <div class="grid" style="grid-template-columns:2fr 1fr; margin-bottom:14px;">
+      <div class="card"><div class="eyebrow">Sessions · last 10 days</div>${spark(days)}</div>
+      <div class="card"><div class="eyebrow">Feature usage</div>${bars(feats,'var(--goldd)')}</div>
+    </div>
+    <div class="grid" style="grid-template-columns:repeat(3,1fr);">
+      <div class="card"><div class="eyebrow">By language</div>${bars(bd('lang'),'var(--sky)')}</div>
+      <div class="card"><div class="eyebrow">By currency</div>${bars(bd('cur'),'var(--gold)')}</div>
+      <div class="card"><div class="eyebrow">Recent activity</div><div class="recent">${recent.length?recent.map(e=>`<div><span class="faint tnum" style="width:54px">${new Date(e.ts).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</span><span>${esc(e.type)}${e.path?' · '+labelOf(e.path):''}${e.lang?' · '+e.lang:''}${e.cur?' · '+e.cur:''}</span></div>`).join(''):'<div class="faint">No events.</div>'}</div></div>
+    </div>`;
+}
+// responsive: collapse grids on small screens
+const mq=matchMedia('(max-width:760px)'); function resp(){ document.querySelectorAll('.grid').forEach(g=>{ g.style.gridTemplateColumns = mq.matches? '1fr' : g.style.gridTemplateColumns; }); }
+if(sessionStorage.getItem('lumera_admin_portal')==='1') unlock();
+document.getElementById('key').addEventListener('keydown',e=>{ if(e.key==='Enter') tryUnlock(); });
+</script>
+</body>
+</html>
