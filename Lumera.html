@@ -1089,7 +1089,11 @@ const BUDGET_TEMPLATES = [
 /* ============================================================
    REUSABLE COMPONENTS + CHARTS
    ============================================================ */
-const COLORS = { gold:'#BFA06A', goldd:'#9E7E45', sage:'#6E8B6A', saged:'#4C6447', clay:'#C0714F', berry:'#A6534A', charcoal:'#272320', ink:'#16130F', sky:'#6E86A0', stone:'#D9CFBE', taupe:'#CFC4B1', muted:'#9C9387', line:'#E9E2D5' };
+// gold/goldd are getters so JS-driven chart & ring colours follow Spark mode's
+// violet accent (read live from <html data-mode>); every other token is fixed.
+const _spark = ()=> typeof document!=='undefined' && document.documentElement.getAttribute('data-mode')==='spark';
+const COLORS = { get gold(){ return _spark()?'#6D5EF6':'#BFA06A'; }, get goldd(){ return _spark()?'#5742E0':'#9E7E45'; },
+  sage:'#6E8B6A', saged:'#4C6447', clay:'#C0714F', berry:'#A6534A', charcoal:'#272320', ink:'#16130F', sky:'#6E86A0', stone:'#D9CFBE', taupe:'#CFC4B1', muted:'#9C9387', line:'#E9E2D5' };
 
 /* ---- Icon set (stroke, currentColor) ---- */
 const P = {
@@ -1299,14 +1303,14 @@ function AreaProjection({ a, b, width=560, height=210, labels=['If you change no
   const area = arr => `${line(arr)} L${x(n-1)},${H-pad} L${x(0)},${H-pad} Z`;
   return <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto">
     <defs>
-      <linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#BFA06A" stopOpacity=".28"/><stop offset="1" stopColor="#BFA06A" stopOpacity="0"/></linearGradient>
+      <linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor={COLORS.gold} stopOpacity=".28"/><stop offset="1" stopColor={COLORS.gold} stopOpacity="0"/></linearGradient>
       <linearGradient id="gb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#6E8B6A" stopOpacity=".30"/><stop offset="1" stopColor="#6E8B6A" stopOpacity="0"/></linearGradient>
     </defs>
     {[0,.5,1].map((g,i)=><line key={i} x1={pad} x2={W-pad} y1={pad+(H-pad*1.6)*g} y2={pad+(H-pad*1.6)*g} stroke="#EAE3D6" strokeWidth="1"/>)}
     <path d={area(a)} fill="url(#ga)"/><path d={area(b)} fill="url(#gb)"/>
-    <path d={line(a)} fill="none" stroke="#BFA06A" strokeWidth="2.4" strokeLinecap="round" style={{strokeDasharray:1400, animation:'none'}}/>
+    <path d={line(a)} fill="none" stroke={COLORS.gold} strokeWidth="2.4" strokeLinecap="round" style={{strokeDasharray:1400, animation:'none'}}/>
     <path d={line(b)} fill="none" stroke="#4C6447" strokeWidth="2.6" strokeLinecap="round"/>
-    <circle cx={x(n-1)} cy={y(b[n-1])} r="4.5" fill="#4C6447"/><circle cx={x(n-1)} cy={y(a[n-1])} r="4" fill="#BFA06A"/>
+    <circle cx={x(n-1)} cy={y(b[n-1])} r="4.5" fill="#4C6447"/><circle cx={x(n-1)} cy={y(a[n-1])} r="4" fill={COLORS.gold}/>
   </svg>;
 }
 
@@ -2537,14 +2541,14 @@ function WealthSimulator(){
           <div className="flex items-center justify-between mb-2"><Eyebrow>Projected wealth (10 years)</Eyebrow><Pill tone="neutral">{scen} · {round(rate*100)}%/yr assumed</Pill></div>
           <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto">
             <defs>
-              <linearGradient id="simG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#BFA06A" stopOpacity=".22"/><stop offset="1" stopColor="#BFA06A" stopOpacity="0"/></linearGradient>
+              <linearGradient id="simG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor={COLORS.gold} stopOpacity=".22"/><stop offset="1" stopColor={COLORS.gold} stopOpacity="0"/></linearGradient>
               <linearGradient id="simS" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#6E8B6A" stopOpacity=".30"/><stop offset="1" stopColor="#6E8B6A" stopOpacity="0"/></linearGradient>
             </defs>
             {yticks.map((v,i)=><g key={i}><line x1={padL} x2={W-padR} y1={Y(v)} y2={Y(v)} stroke="#EAE3D6"/><text x={padL-8} y={Y(v)+3} textAnchor="end" fontSize="9" fill="#9C9387">{fmt.compact(v)}</text></g>)}
             <path d={ar(base)} fill="url(#simG)"/><path d={ar(proj)} fill="url(#simS)"/>
-            <path d={ln(base)} fill="none" stroke="#BFA06A" strokeWidth="2.4" strokeLinecap="round"/>
+            <path d={ln(base)} fill="none" stroke={COLORS.gold} strokeWidth="2.4" strokeLinecap="round"/>
             <path d={ln(proj)} fill="none" stroke="#4C6447" strokeWidth="2.8" strokeLinecap="round"/>
-            <circle cx={X(10)} cy={Y(base[10])} r="4" fill="#BFA06A"/><circle cx={X(10)} cy={Y(proj[10])} r="4.5" fill="#4C6447"/>
+            <circle cx={X(10)} cy={Y(base[10])} r="4" fill={COLORS.gold}/><circle cx={X(10)} cy={Y(proj[10])} r="4.5" fill="#4C6447"/>
             {['Now','5 yrs','10 yrs'].map((l,i)=><text key={l} x={X(i*5)} y={H-padB+16} textAnchor="middle" fontSize="9" fill="#9C9387">{l}</text>)}
           </svg>
           <div className="flex flex-wrap items-center gap-4 text-xs mt-1">
