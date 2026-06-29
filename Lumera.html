@@ -64,7 +64,7 @@
   // Apply saved theme before paint to avoid a flash. 'system' follows the OS setting.
   (function(){
     try{
-      var saved = localStorage.getItem('lumera_theme') || 'light';
+      var saved = localStorage.getItem('lumera_theme') || 'dark';
       var dark = saved==='dark' || (saved==='system' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
       document.documentElement.setAttribute('data-theme', dark?'dark':'light');
       document.documentElement.setAttribute('data-theme-pref', saved);
@@ -136,43 +136,61 @@
   [data-theme="dark"] .skeleton{ background:linear-gradient(90deg,#241e17 25%,#2c261d 37%,#241e17 63%); background-size:200% 100%; }
   [data-theme="dark"] img:not([src*=".svg"]){ filter:brightness(.92); }
 
-  /* ===== SPARK MODE — "Nebula": dark, gamified. Purple + blue accents on a
-     black/grey base. Same layout & components; only the palette changes.
-     Self-contained (works regardless of the light/dark theme toggle). ===== */
-  [data-mode="spark"]{
-    --c-ivory:14 14 22; --c-canvas:18 18 28; --c-cream:24 24 38; --c-card:26 26 42;
-    --c-sand:36 36 58; --c-stone:48 48 74; --c-taupe:64 64 96; --c-line:42 42 66;
-    --c-charcoal:233 233 245; --c-ink:244 244 252; --c-muted:156 156 184; --c-faint:112 112 142;
-    --c-gold:139 92 246; --c-goldd:124 110 240; --c-golddd:99 102 241;
-    --ivory:#0E0E16; --cream:#181826; --card:#1A1A2A; --line:#2A2A42; --charcoal:#E9E9F5; --muted:#9C9CB8; --gold:#8B5CF6; --goldd:#7C6EF0;
+  /* ===== SPARK MODE — gamified. Purple/blue accent by default, but each
+     sub-product recolours the WHOLE shell (Leaf green · Atlas blue · Shield
+     grey · Forge red). Works in light OR dark (follows the theme toggle).
+     btn-gold / gold-text use var(--gold/--goldd) so they retint per product. */
+  [data-mode="spark"]{ --c-gold:139 92 246; --c-goldd:124 110 240; --c-golddd:99 102 241; --gold:#8B5CF6; --goldd:#6D4FE6; --glow:139,92,246; }
+  [data-mode="spark"] .btn-gold{ background:linear-gradient(180deg,var(--gold),var(--goldd)); color:#fff; box-shadow:0 6px 22px rgba(var(--glow),.40); }
+  [data-mode="spark"] .btn-gold:hover{ box-shadow:0 12px 34px rgba(var(--glow),.52); }
+  [data-mode="spark"] .gold-text{ background:linear-gradient(100deg,var(--goldd),var(--gold),var(--goldd)); background-size:200% auto; -webkit-background-clip:text; background-clip:text; color:transparent; }
+  [data-mode="spark"] input[type=range].lux{ background:linear-gradient(90deg,var(--gold) var(--p,40%), rgba(128,128,150,.22) var(--p,40%)); }
+  [data-mode="spark"] input[type=range].lux::-webkit-slider-thumb{ background:radial-gradient(circle at 35% 30%, #fff, var(--gold) 100%); box-shadow:0 3px 10px rgba(var(--glow),.5), 0 0 0 1px rgba(var(--glow),.3); }
+  [data-mode="spark"] .lift:hover{ border-color:rgba(var(--glow),.5); box-shadow:0 0 0 1px rgba(var(--glow),.30), 0 18px 50px rgba(var(--glow),.20); }
+  [data-mode="spark"] ::selection{ background:rgba(var(--glow),.32); color:#fff; }
+
+  /* per-product accent — recolours the whole shell */
+  [data-mode="spark"][data-product="leaf"]  { --c-gold:34 197 94;  --c-goldd:22 163 74;  --c-golddd:21 128 61;  --gold:#22C55E; --goldd:#16A34A; --glow:34,197,94; }
+  [data-mode="spark"][data-product="atlas"] { --c-gold:59 130 246; --c-goldd:37 99 235;  --c-golddd:29 78 216;  --gold:#3B82F6; --goldd:#2563EB; --glow:59,130,246; }
+  [data-mode="spark"][data-product="shield"]{ --c-gold:148 163 184;--c-goldd:100 116 139;--c-golddd:71 85 105;  --gold:#94A3B8; --goldd:#64748B; --glow:148,163,184; }
+  [data-mode="spark"][data-product="forge"] { --c-gold:239 68 68;  --c-goldd:220 38 38;  --c-golddd:185 28 28;  --gold:#EF4444; --goldd:#DC2626; --glow:239,68,68; }
+
+  /* ----- DARK base ("Nebula": black/grey) ----- */
+  [data-mode="spark"][data-theme="dark"]{
+    --c-ivory:14 14 19; --c-canvas:18 18 24; --c-cream:24 24 32; --c-card:26 26 35;
+    --c-sand:38 38 50; --c-stone:50 50 66; --c-taupe:66 66 86; --c-line:42 42 56;
+    --c-charcoal:233 234 244; --c-ink:245 246 252; --c-muted:158 160 180; --c-faint:112 114 136;
+    --ivory:#0E0E13; --cream:#181820; --card:#1A1A23; --line:#2A2A38; --charcoal:#E9EAF4; --muted:#9EA0B4;
   }
-  [data-mode="spark"] body{ background:#0E0E16;
-    background-image:radial-gradient(1000px 560px at 100% -10%, rgba(139,92,246,.24), transparent 60%),
-      radial-gradient(820px 480px at -10% 110%, rgba(59,130,246,.16), transparent 55%),
-      radial-gradient(620px 520px at 50% 120%, rgba(99,102,241,.12), transparent 60%); }
-  /* dark-surface + light-text plumbing (charcoal/cream are overloaded) */
-  [data-mode="spark"] .bg-charcoal{ background-color:#15152A !important; }
-  [data-mode="spark"] .bg-ink{ background-color:#0A0A14 !important; }
-  [data-mode="spark"] .text-cream,[data-mode="spark"] .text-ivory{ color:#ECECF6 !important; }
-  [data-mode="spark"] .glass{ background:rgba(16,16,28,.80) !important; }
-  [data-mode="spark"] .bg-white{ background-color:#1B1B2B !important; }
-  [data-mode="spark"] .lux-card{ background:linear-gradient(180deg,#1B1B2C,#15151F); }
-  [data-mode="spark"] .lift:hover{ border-color:#3a2f6a; box-shadow:0 0 0 1px rgba(139,92,246,.30), 0 18px 50px rgba(99,102,241,.22); }
-  [data-mode="spark"] .skeleton{ background:linear-gradient(90deg,#1c1c2c 25%,#262640 37%,#1c1c2c 63%); background-size:200% 100%; }
-  [data-mode="spark"] img:not([src*=".svg"]){ filter:brightness(.88); }
-  [data-mode="spark"] .btn-gold{ background:linear-gradient(180deg,#9B6CFF,#6D4FE6); color:#fff; box-shadow:0 6px 22px rgba(139,92,246,.45); }
-  [data-mode="spark"] .btn-gold:hover{ box-shadow:0 12px 34px rgba(139,92,246,.55); }
-  [data-mode="spark"] .btn-primary{ background:linear-gradient(180deg,#2B2B4C,#1A1A2E); color:#ECECF6; }
-  [data-mode="spark"] .btn-ghost{ background:rgba(255,255,255,.04); border-color:#2A2A42; color:#E9E9F5; }
-  [data-mode="spark"] .btn-ghost:hover{ background:rgba(255,255,255,.08); border-color:#4a3f7a; }
-  [data-mode="spark"] .gold-text{ background:linear-gradient(100deg,#A78BFA,#7C6EF0,#3B82F6); background-size:200% auto; -webkit-background-clip:text; background-clip:text; color:transparent; }
-  [data-mode="spark"] input[type=range].lux{ background:linear-gradient(90deg,#8B5CF6 var(--p,40%), #2A2A42 var(--p,40%)); }
-  [data-mode="spark"] input[type=range].lux::-webkit-slider-thumb{ background:radial-gradient(circle at 35% 30%, #fff, #b9a6f7 40%, #8B5CF6 100%); box-shadow:0 3px 10px rgba(124,110,240,.5), 0 0 0 1px rgba(124,110,240,.3); }
-  [data-mode="spark"] #loader{ background:#0E0E16; }
-  [data-mode="spark"] #loader .mark{ color:#ECECF6; }
-  [data-mode="spark"] #loader .bar{ background:#26263e; }
-  [data-mode="spark"] #loader .bar>i{ background:linear-gradient(90deg,#9B6CFF,#3B82F6); }
-  [data-mode="spark"] ::selection{ background:rgba(139,92,246,.34); color:#fff; }
+  [data-mode="spark"][data-theme="dark"] body{ background:#0E0E13;
+    background-image:radial-gradient(1000px 560px at 100% -10%, rgba(var(--glow),.22), transparent 60%),
+      radial-gradient(820px 520px at -10% 110%, rgba(var(--glow),.12), transparent 58%); }
+  [data-mode="spark"][data-theme="dark"] .bg-charcoal{ background-color:#15151E !important; }
+  [data-mode="spark"][data-theme="dark"] .bg-ink{ background-color:#0A0A10 !important; }
+  [data-mode="spark"][data-theme="dark"] .text-cream,[data-mode="spark"][data-theme="dark"] .text-ivory{ color:#ECEDF6 !important; }
+  [data-mode="spark"][data-theme="dark"] .glass{ background:rgba(14,14,20,.82) !important; }
+  [data-mode="spark"][data-theme="dark"] .bg-white{ background-color:#1B1B24 !important; }
+  [data-mode="spark"][data-theme="dark"] .lux-card{ background:linear-gradient(180deg,#1B1B25,#15151C); }
+  [data-mode="spark"][data-theme="dark"] .skeleton{ background:linear-gradient(90deg,#1c1c26 25%,#26263340 37%,#1c1c26 63%); background-size:200% 100%; }
+  [data-mode="spark"][data-theme="dark"] img:not([src*=".svg"]){ filter:brightness(.9); }
+  [data-mode="spark"][data-theme="dark"] .btn-primary{ background:linear-gradient(180deg,#2A2A38,#1A1A24); color:#ECEDF6; }
+  [data-mode="spark"][data-theme="dark"] .btn-ghost{ background:rgba(255,255,255,.04); border-color:#2A2A38; color:#E9EAF4; }
+  [data-mode="spark"][data-theme="dark"] .btn-ghost:hover{ background:rgba(255,255,255,.08); border-color:rgba(var(--glow),.4); }
+  [data-mode="spark"][data-theme="dark"] #loader{ background:#0E0E13; }
+  [data-mode="spark"][data-theme="dark"] #loader .mark{ color:#ECEDF6; }
+  [data-mode="spark"][data-theme="dark"] #loader .bar{ background:#26263a; }
+
+  /* ----- LIGHT base (clean white/grey, same accents) ----- */
+  [data-mode="spark"][data-theme="light"]{
+    --c-ivory:244 245 248; --c-canvas:238 240 245; --c-cream:255 255 255; --c-card:255 255 255;
+    --c-sand:235 237 243; --c-stone:222 226 234; --c-taupe:196 202 214; --c-line:226 229 237;
+    --c-charcoal:24 26 40; --c-ink:14 16 28; --c-muted:88 92 112; --c-faint:138 142 162;
+    --ivory:#F4F5F8; --cream:#FFFFFF; --card:#FFFFFF; --line:#E2E5ED; --charcoal:#181A28; --muted:#585C70;
+  }
+  [data-mode="spark"][data-theme="light"] body{ background:#F4F5F8;
+    background-image:radial-gradient(1000px 560px at 100% -10%, rgba(var(--glow),.12), transparent 60%),
+      radial-gradient(820px 520px at -10% 110%, rgba(var(--glow),.07), transparent 58%); }
+  [data-mode="spark"][data-theme="light"] #loader .bar>i,[data-mode="spark"][data-theme="dark"] #loader .bar>i{ background:linear-gradient(90deg,var(--gold),var(--goldd)); }
 
   /* Gamification widgets (shown only in Spark mode) */
   .xpbar{ height:9px; border-radius:999px; background:rgba(139,92,246,.16); overflow:hidden; }
@@ -1499,11 +1517,18 @@ function Sidebar(){
   const [showMore,setShowMore]=useState(false);
   const spark = app.mode==='spark'; const band = bandFromAge(app.profile.ageBracket);
   useEffect(()=>{ if(navRef.current) navRef.current.scrollTop=_sbScroll; },[]);
+  const curSub = SUBS.find(s=>s.key===app.product);
+  const inProduct = spark && app.product!=='lumera' && curSub;
   return <aside className="hidden lg:flex flex-col w-64 shrink-0 h-screen sticky top-0 border-r border-line bg-cream/60 glass">
-    <div className="px-5 py-5"><button onClick={()=>app.nav(app.user?'/dashboard':'/')}><Logo size={20} sub/></button></div>
+    <div className="px-5 py-5">
+      {inProduct
+        ? <button onClick={()=>app.nav('/'+curSub.key)} className="flex items-center gap-2.5 text-left">
+            <span className="grid place-items-center h-9 w-9 rounded-xl text-lg" style={{background:curSub.accent+'24', color:curSub.accent, boxShadow:'0 0 0 1px '+curSub.accent+'44'}}>{curSub.emoji}</span>
+            <span className="leading-none"><span className="block font-serif tracking-[.12em] text-charcoal" style={{fontSize:17}}>{curSub.name}</span><span className="block text-[9px] tracking-[.28em] uppercase mt-1 font-semibold" style={{color:curSub.accent}}>by Lumera</span></span>
+          </button>
+        : <button onClick={()=>app.nav(app.user?'/dashboard':'/')}><Logo size={20} sub/></button>}
+    </div>
     <nav ref={navRef} onScroll={e=>{_sbScroll=e.target.scrollTop;}} className="flex-1 overflow-y-auto no-scrollbar px-3 pb-4">
-      {spark && <button onClick={()=>app.nav('/hub')} className={cx('w-full flex items-center gap-3 rounded-xl px-3 py-2.5 mb-3 text-sm transition-all duration-300', route==='/hub'?'bg-charcoal text-cream shadow-soft':'text-charcoal/80 hover:bg-sand')}>
-        <Icon name="grid" size={18} className={route==='/hub'?'text-gold':'text-muted'}/>All products</button>}
       {(()=>{ const navBtn=(it)=>{ const active=route===it.to;
           return <button key={it.to} onClick={()=>app.nav(it.to)}
             className={cx('w-full flex items-center gap-3 rounded-xl px-3 py-2.5 mb-0.5 text-sm transition-all duration-300',
@@ -1512,12 +1537,22 @@ function Sidebar(){
         if(!spark) return NAV.map(grp=><div key={grp.section} className="mb-4">
           <div className="px-3 mb-1.5 text-[10px] tracking-[.22em] uppercase text-faint">{grp.section}</div>
           {grp.items.map(navBtn)}</div>);
-        // Spark mode: Lumera's own core tools, then one link per sub-product
-        // (Leaf / Atlas / Shield / Forge) — each opens its own branded site.
+        // Inside a sub-product: show only that product's tools + a way back to Lumera.
+        if(inProduct){ const tools=curSub.routes.map(r=>NAV_BY_ROUTE[r]).filter(Boolean);
+          return <>
+            <button onClick={()=>app.nav('/dashboard')} className="w-full flex items-center gap-2 rounded-xl px-3 py-2 mb-3 text-xs text-muted hover:bg-sand hover:text-charcoal transition">
+              <Icon name="chevron" size={14} className="rotate-180"/>Back to Lumera</button>
+            <div className="px-3 mb-1.5 text-[10px] tracking-[.22em] uppercase text-faint">{curSub.tag}</div>
+            {tools.map(navBtn)}
+          </>;
+        }
+        // Lumera home (Spark): core tools, then one link per sub-product.
         const lumeraSub=SUBS.find(s=>s.key==='lumera');
         const core=lumeraSub.routes.filter(r=>isFeatured(r,band)).map(r=>NAV_BY_ROUTE[r]).filter(Boolean);
         const products=SUBS.filter(s=>s.key!=='lumera');
         return <>
+          <button onClick={()=>app.nav('/hub')} className={cx('w-full flex items-center gap-3 rounded-xl px-3 py-2.5 mb-3 text-sm transition-all duration-300', route==='/hub'?'bg-charcoal text-cream shadow-soft':'text-charcoal/80 hover:bg-sand')}>
+            <Icon name="grid" size={18} className={route==='/hub'?'text-gold':'text-muted'}/>All products</button>
           <div className="mb-4">
             <div className="px-3 mb-1.5 text-[10px] tracking-[.22em] uppercase text-faint">Lumera</div>
             {core.map(navBtn)}
@@ -1527,10 +1562,10 @@ function Sidebar(){
             {products.map(s=>{ const to='/'+s.key; const active=route===to;
               return <button key={s.key} onClick={()=>s.live&&app.nav(to)} disabled={!s.live}
                 className={cx('w-full flex items-center gap-3 rounded-xl px-3 py-2.5 mb-0.5 text-sm transition-all duration-300',
-                  active?'bg-charcoal text-cream shadow-soft':'text-charcoal/80 hover:bg-sand', !s.live&&'opacity-50 cursor-default')}>
+                  'text-charcoal/80 hover:bg-sand', !s.live&&'opacity-50 cursor-default')}>
                 <span className="w-[18px] text-center text-base">{s.emoji}</span>
-                <span className="flex-1 text-left leading-tight">{s.name}<span className="block text-[10px] text-faint">{s.tag}</span></span>
-                {!s.live&&<span className="text-[9px] text-faint uppercase tracking-wider">soon</span>}</button>; })}
+                <span className="flex-1 text-left leading-tight">{s.name}<span className="block text-[10px]" style={{color:s.accent}}>{s.tag}</span></span>
+                {s.live? <Icon name="chevron" size={14} className="text-faint"/> : <span className="text-[9px] text-faint uppercase tracking-wider">soon</span>}</button>; })}
           </div>
         </>;
       })()}
@@ -2193,23 +2228,27 @@ function QuestsPanel(){
    from one place. Lumera is the parent; the rest are "by Lumera".
    ============================================================ */
 const SUBS = [
-  { key:'lumera', name:'Lumera', tag:'Core money', accent:'#2563EB', emoji:'🪙', live:true,
+  { key:'lumera', name:'Lumera', tag:'Core money', accent:'#8B5CF6', emoji:'🪙', live:true,
     blurb:'The parent. Your everyday money HQ — budgeting, goals, net worth and the wealth simulator.',
     routes:['/dashboard','/budget','/goals','/emergency','/subscriptions','/networth','/simulator','/twin'] },
-  { key:'leaf', name:'Leaf', tag:'Learn & grow', accent:'#16A34A', emoji:'🌿', live:true,
+  { key:'leaf', name:'Leaf', tag:'Learn & grow', accent:'#22C55E', emoji:'🌿', live:true,
     blurb:'Money education that doesn’t bore you — bite-size lessons, a knowledge hub and badges for every win.',
     routes:['/learn','/resources','/badges','/updates'] },
-  { key:'atlas', name:'Atlas', tag:'Markets & investing', accent:'#0EA5E9', emoji:'🛰️', live:true,
+  { key:'atlas', name:'Atlas', tag:'Markets & investing', accent:'#3B82F6', emoji:'🛰️', live:true,
     blurb:'Markets explained for humans — stocks, indices, a globe of exchanges and plain-English news.',
     routes:['/invest','/market','/globe','/world','/news'] },
-  { key:'shield', name:'Shield', tag:'Protect & plan', accent:'#475569', emoji:'🛡️', live:true,
+  { key:'shield', name:'Shield', tag:'Protect & plan', accent:'#64748B', emoji:'🛡️', live:true,
     blurb:'The grown-up stuff on your terms — credit building, insurance, debt payoff and long-term planning.',
     routes:['/credit','/debt','/insurance','/retirement'] },
-  { key:'forge', name:'Forge', tag:'Career & income', accent:'#F59E0B', emoji:'🔥', live:false,
+  { key:'forge', name:'Forge', tag:'Career & income', accent:'#EF4444', emoji:'🔥', live:false,
     blurb:'Grow what you earn, not just what you save — side-income ideas, salary benchmarks and career moves.',
     routes:[] },
 ];
 const NAV_BY_ROUTE = {}; NAV.forEach(g=>g.items.forEach(it=>{ NAV_BY_ROUTE[it.to]=it; }));
+// Which sub-product "world" a route belongs to (drives the per-product theme + shell).
+const ROUTE_PRODUCT = { '/lumera':'lumera','/leaf':'leaf','/atlas':'atlas','/shield':'shield','/forge':'forge' };
+SUBS.forEach(s=>s.routes.forEach(r=>{ if(s.key!=='lumera') ROUTE_PRODUCT[r]=s.key; }));
+const productOf = (path)=> ROUTE_PRODUCT[path] || 'lumera';
 const SUB_TOOL_DESC = {
   '/dashboard':'Your money at a glance.', '/budget':'See where every dirham goes.', '/goals':'Save for the things that matter.',
   '/emergency':'Size your safety buffer.', '/subscriptions':'Catch the silent money leaks.', '/networth':'One honest number, tracked.',
@@ -4461,7 +4500,7 @@ function App(){
   const [expenses,setExpenses] = useState(persisted.expenses||DEFAULT_EXPENSES);
   const [balances,setBalances] = useState(persisted.balances||DEFAULT_BALANCES);
   const [lang,setLang] = useState(persisted.lang||'en');
-  const [theme,setThemeState] = useState(()=>{ try{ return localStorage.getItem('lumera_theme')||'light'; }catch(e){ return 'light'; } });
+  const [theme,setThemeState] = useState(()=>{ try{ return localStorage.getItem('lumera_theme')||'dark'; }catch(e){ return 'dark'; } });
   const [mode,setModeState] = useState(()=>{ try{ return localStorage.getItem('lumera_mode')||'spark'; }catch(e){ return 'spark'; } });
   // Spark-mode gamification (only surfaced when mode==='spark'; harmless otherwise)
   const [xp,setXp] = useState(()=>{ try{ return JSON.parse(localStorage.getItem('lumera_spark_xp'))||0; }catch(e){ return 0; } });
@@ -4538,9 +4577,13 @@ function App(){
   // Redirect synchronously so there is no blank-frame flash before navigation fires
   if(redirect && redirect!==route){ location.hash=redirect; }
 
+  // Which sub-product "world" we're in — recolours the whole shell in Spark mode.
+  const product = mode==='spark' ? productOf(path) : 'lumera';
+  useEffect(()=>{ document.documentElement.setAttribute('data-product', product); },[product]);
+
   const value = { route, nav, user, signup, login, loginProvider, demo, logout:askLogout, askLogout, completeOnboarding, checkIn, onboarded,
     profile, updateProfile, setProfile, expenses, setExpenses, balances, setBalances,
-    lang, setLang, theme, setTheme, mode, setMode, xp, quests, awardXp, completeQuest,
+    lang, setLang, theme, setTheme, mode, setMode, product, xp, quests, awardXp, completeQuest,
     setRegion, resetAll, fmt, metrics, mobileMenu, setMobileMenu, t: tfn(lang) };
 
   const Page = redirect ? (()=> null) : (ROUTES[path]||Landing);
