@@ -2280,30 +2280,83 @@ const SUB_TOOL_DESC = {
 };
 // Each sub-product gets its own branded "site": a bold accent hero + its real
 // tools. Reached from the sidebar or the hub; opens the real Lumera tools.
+const FORGE_FEATURES = [
+  ['Side-income ideas','💡','Curated ways to earn more, matched to your skills and time.'],
+  ['Salary benchmarks','📊','See what your role really pays — by city, level and industry.'],
+  ['Raise & negotiation','🤝','Scripts and data to ask for (and get) more.'],
+  ['Career roadmaps','🧭','Step-by-step moves to your next role.'],
+];
 function ProductPage({ k }){
   const app=useApp(); const { t }=app; const sub=SUBS.find(s=>s.key===k);
   if(!sub) return <AppShell><div className="text-center text-muted py-20">Unknown product.</div></AppShell>;
   const tools=sub.routes.map(r=>NAV_BY_ROUTE[r]).filter(Boolean); const a=sub.accent;
+  const lvl=levelFromXp(app.xp); const base=xpForLevel(lvl),next=xpForLevel(lvl+1);
+  const pct=Math.round(((app.xp-base)/((next-base)||1))*100); const badges=Math.floor(app.xp/100);
+  const stat=(l,v)=><div className="rounded-xl2 p-3.5" style={{background:'rgba(255,255,255,.07)', border:'1px solid rgba(255,255,255,.10)'}}>
+    <div className="text-[11px] uppercase tracking-wider text-cream/55">{l}</div><div className="font-serif text-2xl text-cream tnum mt-0.5">{v}</div></div>;
   return <AppShell>
-    <button onClick={()=>app.nav('/hub')} className="text-sm text-muted hover:text-charcoal flex items-center gap-1"><Icon name="chevron" size={14} className="rotate-180"/>All products</button>
-    <div className="relative overflow-hidden rounded-xl3 mt-3 mb-6 p-7 sm:p-9"
-      style={{background:`linear-gradient(135deg, ${a}2E, ${a}0F 55%, rgba(10,10,20,.6)), #14142A`, boxShadow:`0 0 0 1px ${a}40`}}>
-      <div className="absolute -top-16 -right-10 h-52 w-52 rounded-full blur-3xl opacity-50" style={{background:a}}/>
+    {/* ===== GRAND HERO ===== */}
+    <div className="relative overflow-hidden rounded-xl3 mb-5 p-8 sm:p-12"
+      style={{background:`radial-gradient(900px 400px at 80% -20%, ${a}3A, transparent 60%), linear-gradient(135deg, ${a}24, rgba(8,8,16,.7) 60%), #111120`, boxShadow:`0 0 0 1px ${a}40, 0 30px 80px rgba(0,0,0,.4)`}}>
+      <div className="absolute -top-20 -right-16 h-64 w-64 rounded-full blur-3xl opacity-50" style={{background:a}}/>
+      <div className="absolute -bottom-24 -left-10 h-56 w-56 rounded-full blur-3xl opacity-30" style={{background:a}}/>
       <div className="relative">
-        <div className="text-[11px] font-semibold uppercase tracking-[.24em]" style={{color:a}}>{sub.key!=='lumera'?'A Lumera company':'Lumera'}</div>
-        <div className="flex items-center gap-3 mt-2"><span className="text-4xl">{sub.emoji}</span>
-          <h1 className="font-serif text-4xl sm:text-5xl text-cream leading-none">{sub.name}</h1></div>
-        <p className="text-cream/70 mt-3 max-w-xl leading-relaxed">{sub.blurb}</p>
-        <div className="mt-4 inline-flex items-center gap-2 text-xs text-cream/60"><span className="h-1.5 w-1.5 rounded-full" style={{background:a}}/>{tools.length} tool{tools.length!==1?'s':''} · powered by Lumera</div>
+        <button onClick={backToLumera} className="inline-flex items-center gap-1.5 text-xs font-semibold mb-5 px-3 py-1.5 rounded-full" style={{color:'#fff', background:'rgba(255,255,255,.10)'}}><Icon name="chevron" size={13} className="rotate-180"/>Lumera</button>
+        <div className="text-[11px] font-bold uppercase tracking-[.28em]" style={{color:a}}>{sub.key!=='lumera'?'A Lumera company':'The parent company'}</div>
+        <div className="flex items-center gap-4 mt-3"><span className="text-5xl sm:text-6xl drop-shadow">{sub.emoji}</span>
+          <div><h1 className="font-serif text-5xl sm:text-6xl text-cream leading-none">{sub.name}</h1>
+            <div className="text-sm font-semibold mt-1.5" style={{color:a}}>{sub.tag}</div></div></div>
+        <p className="text-cream/75 mt-4 max-w-2xl text-lg leading-relaxed">{sub.blurb}</p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-7 max-w-2xl">
+          {stat('Level', lvl)}{stat('Total XP', app.xp)}{stat('Day streak', app.profile.streak)}{stat('Badges', badges)}
+        </div>
       </div>
     </div>
-    {tools.length? <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
-      {tools.map(it=><Card key={it.to} onClick={()=>app.nav(it.to)} className="group">
-        <div className="flex items-start gap-3"><span className="grid place-items-center h-11 w-11 rounded-xl shrink-0 group-hover:scale-110 transition" style={{background:a+'22', color:a}}><Icon name={it.icon} size={20}/></span>
-          <div><div className="font-serif text-lg text-charcoal">{t(it.k)}</div><p className="text-sm text-muted mt-1 leading-relaxed">{SUB_TOOL_DESC[it.to]||''}</p></div></div>
-        <div className="mt-3 text-xs font-semibold flex items-center gap-1 opacity-0 group-hover:opacity-100 transition" style={{color:a}}>Open <Icon name="arrowR" size={13}/></div>
-      </Card>)}
-    </div> : <div className="text-center text-muted py-12">This product is launching soon.</div>}
+
+    {/* ===== PROGRESS DASHBOARD ===== */}
+    <Card className="mb-5 relative overflow-hidden">
+      <div className="absolute -top-10 -right-10 h-28 w-28 rounded-full blur-2xl opacity-20" style={{background:a}}/>
+      <div className="relative">
+        <div className="flex items-center justify-between"><Eyebrow>Your {sub.name} journey</Eyebrow><Pill tone="gold">Level {lvl}</Pill></div>
+        <div className="flex items-end justify-between mt-3 mb-2 flex-wrap gap-2">
+          <div className="font-serif text-4xl text-charcoal leading-none">{pct}<span className="text-2xl">%</span> <span className="text-base font-sans text-muted">to level {lvl+1}</span></div>
+          <div className="text-sm text-muted tnum">{app.xp} / {next} XP</div>
+        </div>
+        <div className="h-3.5 rounded-full overflow-hidden" style={{background:a+'22'}}>
+          <div className="h-full rounded-full transition-all duration-700" style={{width:Math.max(5,pct)+'%', background:`linear-gradient(90deg, ${a}, ${a}bb)`, boxShadow:`0 0 18px ${a}88`}}/>
+        </div>
+        <div className="flex items-center gap-2 mt-4">
+          {Array.from({length:6}).map((_,i)=>{ const got=i<badges;
+            return <div key={i} className="grid place-items-center h-9 w-9 rounded-full text-sm shrink-0"
+              style={{background:got?a:'transparent', color:got?'#fff':a, border:`1.5px solid ${got?a:a+'55'}`}}>{got?'★':i+1}</div>; })}
+          <span className="text-xs text-muted ml-1">Earn 100 XP per milestone</span>
+        </div>
+      </div>
+    </Card>
+
+    {/* ===== FEATURES ===== */}
+    {tools.length? <>
+      <div className="flex items-center justify-between mb-3"><h2 className="font-serif text-2xl text-charcoal">Everything in {sub.name}</h2><span className="text-sm text-muted">{tools.length} features</span></div>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
+        {tools.map(it=><Card key={it.to} onClick={()=>app.nav(it.to)} className="group relative overflow-hidden">
+          <div className="absolute -top-8 -right-8 h-20 w-20 rounded-full blur-2xl opacity-0 group-hover:opacity-40 transition" style={{background:a}}/>
+          <div className="relative">
+            <div className="flex items-start gap-3"><span className="grid place-items-center h-12 w-12 rounded-xl2 shrink-0 group-hover:scale-110 transition" style={{background:a+'22', color:a}}><Icon name={it.icon} size={22}/></span>
+              <div><div className="font-serif text-lg text-charcoal">{t(it.k)}</div><p className="text-sm text-muted mt-1 leading-relaxed">{SUB_TOOL_DESC[it.to]||''}</p></div></div>
+            <div className="mt-4 flex items-center gap-1 text-xs font-semibold" style={{color:a}}>Open <Icon name="arrowR" size={13} className="group-hover:translate-x-1 transition-transform"/></div>
+          </div>
+        </Card>)}
+      </div>
+    </> : <>
+      <div className="flex items-center justify-between mb-3"><h2 className="font-serif text-2xl text-charcoal">Coming to {sub.name}</h2><Pill tone="gold">Launching soon</Pill></div>
+      <div className="grid sm:grid-cols-2 gap-4 stagger">
+        {FORGE_FEATURES.map(([n,e,d])=><Card key={n} hover={false}><div className="flex items-start gap-3"><span className="grid place-items-center h-12 w-12 rounded-xl2 text-xl shrink-0" style={{background:a+'1A'}}>{e}</span>
+          <div><div className="font-serif text-lg text-charcoal">{n}</div><p className="text-sm text-muted mt-1 leading-relaxed">{d}</p></div></div></Card>)}
+      </div>
+      <Card className="mt-4 text-center"><div className="font-serif text-xl text-charcoal">Be first into {sub.name}.</div>
+        <p className="text-sm text-muted mt-1 mb-4">We’ll let you know the moment it opens.</p>
+        <button onClick={()=>app.awardXp&&app.awardXp(10)} className="btn btn-gold px-6 py-3 text-sm">Join the waitlist · +10 XP</button></Card>
+    </>}
   </AppShell>;
 }
 function ProductHub(){
