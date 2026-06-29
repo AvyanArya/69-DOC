@@ -68,7 +68,7 @@
       var dark = saved==='dark' || (saved==='system' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
       document.documentElement.setAttribute('data-theme', dark?'dark':'light');
       document.documentElement.setAttribute('data-theme-pref', saved);
-      var mode = localStorage.getItem('lumera_mode') || 'classic';
+      var mode = localStorage.getItem('lumera_mode') || 'spark';
       document.documentElement.setAttribute('data-mode', mode==='spark'?'spark':'classic');
     }catch(e){ document.documentElement.setAttribute('data-theme','light'); }
   })();
@@ -136,12 +136,36 @@
   [data-theme="dark"] .skeleton{ background:linear-gradient(90deg,#241e17 25%,#2c261d 37%,#241e17 63%); background-size:200% 100%; }
   [data-theme="dark"] img:not([src*=".svg"]){ filter:brightness(.92); }
 
-  /* ===== SPARK MODE — keeps the refined gold palette; adds gamification + the
-     product hub. (No app-wide colour swap — the original look is preserved.) ===== */
+  /* ===== SPARK MODE — "Deep Ocean" theme: crisp white/navy with blue accents.
+     Same layout & components as the original; only the palette changes. Remaps
+     every neutral + accent channel, so all existing tools restyle at once. ===== */
+  [data-mode="spark"]{
+    --c-ivory:245 247 250; --c-canvas:238 242 247; --c-cream:250 252 254; --c-card:255 255 255;
+    --c-sand:232 237 243; --c-stone:214 223 234; --c-taupe:184 196 210; --c-line:226 232 240;
+    --c-charcoal:15 32 48; --c-ink:11 26 42; --c-muted:86 103 122; --c-faint:134 150 166;
+    --c-gold:37 99 235; --c-goldd:29 79 208; --c-golddd:26 63 160;
+    --ivory:#F5F7FA; --cream:#FFFFFF; --card:#FFFFFF; --line:#E2E8F0; --charcoal:#0F2030; --muted:#56677A; --gold:#2563EB; --goldd:#1D4FD0;
+  }
+  [data-mode="spark"] body{ background:#F5F7FA;
+    background-image:radial-gradient(1100px 600px at 100% -10%, rgba(37,99,235,.12), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, rgba(11,36,71,.08), transparent 55%); }
+  [data-mode="spark"] .lux-card{ background:linear-gradient(180deg,#ffffff,#f7fafd); }
+  [data-mode="spark"] .lift:hover{ border-color:#c2d2e8; }
+  [data-mode="spark"] .glass{ background:rgba(248,250,253,.75) !important; }
+  [data-mode="spark"] .btn-gold{ background:linear-gradient(180deg,#3B82F6,#2563EB); color:#fff; box-shadow:0 6px 20px rgba(37,99,235,.30); }
+  [data-mode="spark"] .btn-gold:hover{ box-shadow:0 12px 32px rgba(37,99,235,.42); }
+  [data-mode="spark"] .btn-primary{ background:linear-gradient(180deg,#13283C,#0B1A2A); color:#eef4fb; }
+  [data-mode="spark"] .gold-text{ background:linear-gradient(100deg,#1D4FD0,#3B82F6,#0B2447); background-size:200% auto; -webkit-background-clip:text; background-clip:text; color:transparent; }
+  [data-mode="spark"] input[type=range].lux{ background:linear-gradient(90deg,#2563EB var(--p,40%), #dbe3ee var(--p,40%)); }
+  [data-mode="spark"] input[type=range].lux::-webkit-slider-thumb{ background:radial-gradient(circle at 35% 30%, #fff, #93b4f7 40%, #2563EB 100%); box-shadow:0 3px 10px rgba(29,79,208,.45), 0 0 0 1px rgba(29,79,208,.25); }
+  [data-mode="spark"] #loader{ background:#F5F7FA; }
+  [data-mode="spark"] #loader .mark{ color:#0F2030; }
+  [data-mode="spark"] #loader .bar>i{ background:linear-gradient(90deg,#3B82F6,#1D4FD0); }
+  [data-mode="spark"] ::selection{ background:rgba(37,99,235,.22); color:#0B1A2A; }
 
   /* Gamification widgets (shown only in Spark mode) */
-  .xpbar{ height:9px; border-radius:999px; background:rgba(191,160,106,.16); overflow:hidden; }
-  .xpbar>i{ display:block; height:100%; border-radius:999px; background:linear-gradient(90deg,#caa971,#9E7E45,#caa971); background-size:200% 100%; animation:shimmer 3s linear infinite, barfill 1s cubic-bezier(.22,1,.36,1); }
+  .xpbar{ height:9px; border-radius:999px; background:rgba(37,99,235,.14); overflow:hidden; }
+  .xpbar>i{ display:block; height:100%; border-radius:999px; background:linear-gradient(90deg,#3B82F6,#1D4FD0,#3B82F6); background-size:200% 100%; animation:shimmer 3s linear infinite, barfill 1s cubic-bezier(.22,1,.36,1); }
   @keyframes shimmer{ 0%{background-position:-200% 0} 100%{background-position:200% 0} }
   @keyframes barfill{ from{width:0} }
   @keyframes confetti{ 0%{transform:translateY(0) rotate(0); opacity:1} 100%{transform:translateY(130px) rotate(380deg); opacity:0} }
@@ -1077,7 +1101,13 @@ const BUDGET_TEMPLATES = [
 /* ============================================================
    REUSABLE COMPONENTS + CHARTS
    ============================================================ */
-const COLORS = { gold:'#BFA06A', goldd:'#9E7E45', sage:'#6E8B6A', saged:'#4C6447', clay:'#C0714F', berry:'#A6534A', charcoal:'#272320', ink:'#16130F', sky:'#6E86A0', stone:'#D9CFBE', taupe:'#CFC4B1', muted:'#9C9387', line:'#E9E2D5' };
+// gold/goldd/charcoal are getters so JS-driven chart & ring colours follow the
+// active mode (Deep Ocean blue + navy in Spark; original gold otherwise).
+const _spark = ()=> typeof document!=='undefined' && document.documentElement.getAttribute('data-mode')==='spark';
+const COLORS = {
+  get gold(){ return _spark()?'#2563EB':'#BFA06A'; }, get goldd(){ return _spark()?'#1D4FD0':'#9E7E45'; },
+  get charcoal(){ return _spark()?'#0F2030':'#272320'; }, get ink(){ return _spark()?'#0B1A2A':'#16130F'; },
+  sage:'#6E8B6A', saged:'#4C6447', clay:'#C0714F', berry:'#A6534A', sky:'#6E86A0', stone:'#D9CFBE', taupe:'#CFC4B1', muted:'#9C9387', line:'#E9E2D5' };
 
 /* ---- Icon set (stroke, currentColor) ---- */
 const P = {
@@ -1515,7 +1545,7 @@ function TopBar(){
       <button onClick={()=>app.nav('/dashboard')} className="hidden sm:flex items-center gap-2 rounded-full bg-charcoal text-cream px-3 py-1.5">
         <span className="text-xs text-gold">Score</span><span className="text-sm font-semibold tnum">{m.overall}</span></button>
       {app.mode==='spark' && <Hint text="Your Spark level — earn XP by completing daily quests."><button onClick={()=>app.nav('/dashboard')} className="hidden sm:flex items-center gap-1.5 rounded-full bg-gold/15 px-3 py-1.5">
-        <span className="grid place-items-center h-5 w-5 rounded-full text-white text-[10px] font-bold tnum" style={{background:'linear-gradient(135deg,#caa971,#b0894f)'}}>{levelFromXp(app.xp)}</span><span className="text-xs font-semibold text-goldd tnum">{app.xp} XP</span></button></Hint>}
+        <span className="grid place-items-center h-5 w-5 rounded-full text-white text-[10px] font-bold tnum" style={{background:'linear-gradient(135deg,#3B82F6,#1D4FD0)'}}>{levelFromXp(app.xp)}</span><span className="text-xs font-semibold text-goldd tnum">{app.xp} XP</span></button></Hint>}
       <CurrencySwitcher/><LanguageSwitcher compact/>
       <ThemeToggle/>
       <button onClick={()=>app.nav('/settings')} className="grid place-items-center h-10 w-10 rounded-full bg-gradient-to-br from-gold to-goldd text-cream font-serif">{app.profile.name[0]}</button>
@@ -2080,7 +2110,7 @@ const levelFromXp = (xp)=> Math.floor(Math.sqrt((xp||0)/40))+1;
 const xpForLevel = (lvl)=> 40*Math.pow(lvl-1,2);
 function XPBurst({ fire }){
   const [bits,setBits]=useState([]);
-  useEffect(()=>{ if(!fire) return; const cols=['#BFA06A','#6E8B6A','#C0714F','#9E7E45','#6E86A0'];
+  useEffect(()=>{ if(!fire) return; const cols=['#2563EB','#0EA5E9','#16A34A','#F59E0B','#475569'];
     setBits(Array.from({length:24},(_,i)=>({id:i+'-'+fire,left:Math.random()*100,bg:cols[i%cols.length],delay:Math.random()*.2})));
     const t=setTimeout(()=>setBits([]),1150); return ()=>clearTimeout(t);
   },[fire]);
@@ -2092,10 +2122,10 @@ function SparkBanner(){
   const done=app.quests.filter(q=>q.done).length, total=app.quests.length, qpct=Math.round(done/total*100);
   return <div className="grid lg:grid-cols-3 gap-4 mb-4">
     <Card className="lg:col-span-1 relative overflow-hidden">
-      <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full blur-3xl opacity-30" style={{background:'#BFA06A'}}/>
+      <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full blur-3xl opacity-30" style={{background:'#2563EB'}}/>
       <div className="relative">
         <Eyebrow className="mb-2">Your level</Eyebrow>
-        <div className="flex items-end gap-3"><span className="grid place-items-center h-14 w-14 rounded-2xl text-white font-serif text-2xl shadow-soft" style={{background:'linear-gradient(135deg,#caa971,#b0894f)'}}>{lvl}</span>
+        <div className="flex items-end gap-3"><span className="grid place-items-center h-14 w-14 rounded-2xl text-white font-serif text-2xl shadow-soft" style={{background:'linear-gradient(135deg,#3B82F6,#1D4FD0)'}}>{lvl}</span>
           <div><div className="font-serif text-2xl text-charcoal leading-none">Level {lvl}</div><div className="text-sm text-muted mt-1 tnum">{xp} XP</div></div></div>
         <div className="mt-4 xpbar"><i style={{width:Math.max(6,pct)+'%'}}/></div>
         <div className="text-xs text-muted mt-1.5">{next-xp} XP to level {lvl+1}</div>
@@ -2111,8 +2141,8 @@ function SparkBanner(){
 function QuestsPanel(){
   const app=useApp(); const done=app.quests.filter(q=>q.done).length, total=app.quests.length; const pct=Math.round(done/total*100);
   return <Card className="overflow-hidden !p-0">
-    <div className="relative px-5 sm:px-6 pt-5 pb-4" style={{background:'linear-gradient(120deg, rgba(191,160,106,.14), rgba(110,139,106,.10) 60%, rgba(192,113,79,.08))'}}>
-      <div className="absolute -top-8 -right-8 h-28 w-28 rounded-full blur-2xl opacity-40" style={{background:'#BFA06A'}}/>
+    <div className="relative px-5 sm:px-6 pt-5 pb-4" style={{background:'linear-gradient(120deg, rgba(37,99,235,.14), rgba(14,165,233,.10) 60%, rgba(71,85,105,.06))'}}>
+      <div className="absolute -top-8 -right-8 h-28 w-28 rounded-full blur-2xl opacity-40" style={{background:'#2563EB'}}/>
       <div className="relative flex items-center justify-between">
         <div className="flex items-center gap-2"><span className="grid place-items-center h-9 w-9 rounded-xl bg-card text-goldd shadow-soft"><Icon name="spark" size={18}/></span>
           <div><div className="font-serif text-lg text-charcoal leading-none">Today’s quests</div>
@@ -2140,32 +2170,58 @@ function QuestsPanel(){
    from one place. Lumera is the parent; the rest are "by Lumera".
    ============================================================ */
 const SUBS = [
-  { key:'lumera', name:'Lumera', tag:'Core money', accent:'#9E7E45', emoji:'🪙', live:true,
+  { key:'lumera', name:'Lumera', tag:'Core money', accent:'#2563EB', emoji:'🪙', live:true,
     blurb:'The parent. Your everyday money HQ — budgeting, goals, net worth and the wealth simulator.',
     routes:['/dashboard','/budget','/goals','/emergency','/subscriptions','/networth','/simulator','/twin'] },
-  { key:'leaf', name:'Leaf', tag:'Learn & grow', accent:'#6E8B6A', emoji:'🌿', live:true,
+  { key:'leaf', name:'Leaf', tag:'Learn & grow', accent:'#16A34A', emoji:'🌿', live:true,
     blurb:'Money education that doesn’t bore you — bite-size lessons, a knowledge hub and badges for every win.',
     routes:['/learn','/resources','/badges','/updates'] },
-  { key:'atlas', name:'Atlas', tag:'Markets & investing', accent:'#6E86A0', emoji:'🛰️', live:true,
+  { key:'atlas', name:'Atlas', tag:'Markets & investing', accent:'#0EA5E9', emoji:'🛰️', live:true,
     blurb:'Markets explained for humans — stocks, indices, a globe of exchanges and plain-English news.',
     routes:['/invest','/market','/globe','/world','/news'] },
-  { key:'shield', name:'Shield', tag:'Protect & plan', accent:'#9C5638', emoji:'🛡️', live:true,
+  { key:'shield', name:'Shield', tag:'Protect & plan', accent:'#475569', emoji:'🛡️', live:true,
     blurb:'The grown-up stuff on your terms — credit building, insurance, debt payoff and long-term planning.',
     routes:['/credit','/debt','/insurance','/retirement'] },
-  { key:'forge', name:'Forge', tag:'Career & income', accent:'#C0714F', emoji:'🔥', live:false,
+  { key:'forge', name:'Forge', tag:'Career & income', accent:'#F59E0B', emoji:'🔥', live:false,
     blurb:'Grow what you earn, not just what you save — side-income ideas, salary benchmarks and career moves.',
     routes:[] },
 ];
 const NAV_BY_ROUTE = {}; NAV.forEach(g=>g.items.forEach(it=>{ NAV_BY_ROUTE[it.to]=it; }));
+const SUB_TOOL_DESC = {
+  '/dashboard':'Your money at a glance.', '/budget':'See where every dirham goes.', '/goals':'Save for the things that matter.',
+  '/emergency':'Size your safety buffer.', '/subscriptions':'Catch the silent money leaks.', '/networth':'One honest number, tracked.',
+  '/simulator':'Watch small changes compound.', '/twin':'Meet your what-if self.',
+  '/learn':'Two-minute lessons on money basics.', '/resources':'Deep dives, guides and a glossary.', '/badges':'Track your wins and streaks.', '/updates':'What’s new in Lumera.',
+  '/invest':'Start investing, explained simply.', '/market':'Live-style markets with the “why”.', '/globe':'Spin the world’s exchanges.', '/world':'The big economic picture.', '/news':'Headlines in plain English.',
+  '/credit':'Build a score you’re proud of.', '/debt':'A clear plan to clear what you owe.', '/insurance':'Cover what would actually hurt to lose.', '/retirement':'Tiny amounts now, huge later.',
+};
 function ProductHub(){
-  const app=useApp(); const { t } = app; const band=bandFromAge(app.profile.ageBracket);
+  const app=useApp(); const { t } = app; const [sel,setSel]=useState(null);
+  const sub = sel && SUBS.find(s=>s.key===sel);
+  if(sub){ const tools=sub.routes.map(r=>NAV_BY_ROUTE[r]).filter(Boolean);
+    return <AppShell>
+      <button onClick={()=>setSel(null)} className="text-sm text-muted hover:text-charcoal flex items-center gap-1"><Icon name="chevron" size={14} className="rotate-180"/>All products</button>
+      <div className="mt-4 mb-5 flex items-center gap-3">
+        <span className="grid place-items-center h-14 w-14 rounded-2xl text-2xl" style={{background:sub.accent+'1A', boxShadow:'0 0 0 1px '+sub.accent+'33'}}>{sub.emoji}</span>
+        <div><h1 className="font-serif text-3xl text-charcoal leading-tight">{sub.name} <span className="text-base font-sans text-muted">{sub.key!=='lumera'?'· by Lumera':''}</span></h1>
+          <div className="text-sm font-semibold" style={{color:sub.accent}}>{sub.tag}</div></div>
+      </div>
+      <p className="text-muted max-w-xl mb-6">{sub.blurb}</p>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
+        {tools.map(it=><Card key={it.to} onClick={()=>app.nav(it.to)} className="group">
+          <div className="flex items-start gap-3"><span className="grid place-items-center h-11 w-11 rounded-xl shrink-0 group-hover:scale-110 transition" style={{background:sub.accent+'18', color:sub.accent}}><Icon name={it.icon} size={20}/></span>
+            <div><div className="font-serif text-lg text-charcoal">{t(it.k)}</div><p className="text-sm text-muted mt-1 leading-relaxed">{SUB_TOOL_DESC[it.to]||''}</p></div></div>
+          <div className="mt-3 text-xs font-semibold flex items-center gap-1 opacity-0 group-hover:opacity-100 transition" style={{color:sub.accent}}>Open <Icon name="arrowR" size={13}/></div>
+        </Card>)}
+      </div>
+    </AppShell>;
+  }
   return <AppShell>
     <PageHead eyebrow="Lumera Group" title="Your products."
-      desc="Lumera is the parent company. Each product below is its own focused world — enter any of them from one place." />
+      desc="Lumera is the parent company. Each product is its own focused world — open one to see its tools." />
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
       {SUBS.map(s=>{ const tools=s.routes.map(r=>NAV_BY_ROUTE[r]).filter(Boolean);
-        const enter=()=>{ if(!s.live) return; const first=s.routes.find(r=>isFeatured(r,band))||s.routes[0]; if(first) app.nav(first); };
-        return <Card key={s.key} hover={s.live} onClick={s.live?enter:undefined} className="relative overflow-hidden sweep-wrap">
+        return <Card key={s.key} hover={s.live} onClick={s.live?()=>setSel(s.key):undefined} className="relative overflow-hidden sweep-wrap">
           <div className="absolute -top-10 -right-10 h-28 w-28 rounded-full blur-2xl opacity-30" style={{background:s.accent}}/>
           <div className="relative">
             <div className="flex items-center gap-2"><span className="text-2xl">{s.emoji}</span>
@@ -4372,7 +4428,7 @@ function App(){
   const [balances,setBalances] = useState(persisted.balances||DEFAULT_BALANCES);
   const [lang,setLang] = useState(persisted.lang||'en');
   const [theme,setThemeState] = useState(()=>{ try{ return localStorage.getItem('lumera_theme')||'light'; }catch(e){ return 'light'; } });
-  const [mode,setModeState] = useState(()=>{ try{ return localStorage.getItem('lumera_mode')||'classic'; }catch(e){ return 'classic'; } });
+  const [mode,setModeState] = useState(()=>{ try{ return localStorage.getItem('lumera_mode')||'spark'; }catch(e){ return 'spark'; } });
   // Spark-mode gamification (only surfaced when mode==='spark'; harmless otherwise)
   const [xp,setXp] = useState(()=>{ try{ return JSON.parse(localStorage.getItem('lumera_spark_xp'))||0; }catch(e){ return 0; } });
   const [quests,setQuests] = useState(()=>{ try{ const s=JSON.parse(localStorage.getItem('lumera_spark_quests'))||{}; const today=new Date().toISOString().slice(0,10); return (s.day===today&&s.list)?s.list:DEFAULT_QUESTS; }catch(e){ return DEFAULT_QUESTS; } });
