@@ -68,6 +68,8 @@
       var dark = saved==='dark' || (saved==='system' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
       document.documentElement.setAttribute('data-theme', dark?'dark':'light');
       document.documentElement.setAttribute('data-theme-pref', saved);
+      var mode = localStorage.getItem('lumera_mode') || 'classic';
+      document.documentElement.setAttribute('data-mode', mode==='spark'?'spark':'classic');
     }catch(e){ document.documentElement.setAttribute('data-theme','light'); }
   })();
 </script>
@@ -133,6 +135,30 @@
   [data-theme="dark"] .lux-card{ background:linear-gradient(180deg,#241E18,#1B1610); }
   [data-theme="dark"] .skeleton{ background:linear-gradient(90deg,#241e17 25%,#2c261d 37%,#241e17 63%); background-size:200% 100%; }
   [data-theme="dark"] img:not([src*=".svg"]){ filter:brightness(.92); }
+
+  /* ===== SPARK MODE — gamified accent overlay (works on light OR dark base) =====
+     Remaps the gold accent family to grape/violet, so every *-gold / *-goldd
+     utility across all existing tools re-themes at once. Placed after the theme
+     blocks so it wins on the accent channels regardless of light/dark. */
+  [data-mode="spark"]{
+    --c-gold:109 94 246; --c-goldd:87 66 224; --c-golddd:69 51 194;
+    --gold:#6D5EF6; --goldd:#5742E0;
+  }
+  [data-mode="spark"] .btn-gold{ background:linear-gradient(180deg,#7C6BFF,#5742E0); color:#fff; box-shadow:0 6px 20px rgba(109,94,246,.35); }
+  [data-mode="spark"] .btn-gold:hover{ box-shadow:0 12px 32px rgba(109,94,246,.45); }
+  [data-mode="spark"] .gold-text{ background:linear-gradient(100deg,#5742E0,#9C7BFF,#16C49A); background-size:200% auto; -webkit-background-clip:text; background-clip:text; color:transparent; }
+  [data-mode="spark"] .btn-primary{ background:linear-gradient(180deg,#7C6BFF,#5742E0); }
+  [data-mode="spark"] input[type=range].lux{ background:linear-gradient(90deg,#6D5EF6 var(--p,40%), #e7ded0 var(--p,40%)); }
+  [data-mode="spark"] input[type=range].lux::-webkit-slider-thumb{ background:radial-gradient(circle at 35% 30%, #fff, #b9aeffee 40%, #6D5EF6 100%); box-shadow:0 3px 10px rgba(87,66,224,.45), 0 0 0 1px rgba(87,66,224,.25); }
+
+  /* Gamification widgets (shown only in Spark mode) */
+  .xpbar{ height:9px; border-radius:999px; background:rgba(124,108,255,.16); overflow:hidden; }
+  .xpbar>i{ display:block; height:100%; border-radius:999px; background:linear-gradient(90deg,#6D5EF6,#9C7BFF,#16C49A); background-size:200% 100%; animation:shimmer 3s linear infinite, barfill 1s cubic-bezier(.22,1,.36,1); }
+  @keyframes shimmer{ 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+  @keyframes barfill{ from{width:0} }
+  @keyframes confetti{ 0%{transform:translateY(0) rotate(0); opacity:1} 100%{transform:translateY(130px) rotate(380deg); opacity:0} }
+  .conf{ position:fixed; top:-12px; width:9px; height:14px; border-radius:2px; z-index:200; pointer-events:none; animation:confetti 1.05s ease-in forwards; }
+
   h1,h2,h3,.serif{ font-family:'Fraunces',Georgia,serif; font-optical-sizing:auto; }
   ::selection{ background:rgba(191,160,106,.28); color:#1c1813; }
 
@@ -1468,6 +1494,8 @@ function TopBar(){
         <Icon name="flame" size={15} className="text-clay"/><span className="text-sm font-semibold tnum">{app.profile.streak}</span><span className="text-xs text-muted">day streak</span><Icon name="info" size={11} className="text-faint"/></button></Hint>
       <button onClick={()=>app.nav('/dashboard')} className="hidden sm:flex items-center gap-2 rounded-full bg-charcoal text-cream px-3 py-1.5">
         <span className="text-xs text-gold">Score</span><span className="text-sm font-semibold tnum">{m.overall}</span></button>
+      {app.mode==='spark' && <Hint text="Your Spark level — earn XP by completing daily quests."><button onClick={()=>app.nav('/dashboard')} className="hidden sm:flex items-center gap-1.5 rounded-full bg-gold/15 px-3 py-1.5">
+        <span className="grid place-items-center h-5 w-5 rounded-full text-white text-[10px] font-bold tnum" style={{background:'linear-gradient(135deg,#7C6BFF,#5742E0)'}}>{levelFromXp(app.xp)}</span><span className="text-xs font-semibold text-goldd tnum">{app.xp} XP</span></button></Hint>}
       <CurrencySwitcher/><LanguageSwitcher compact/>
       <ThemeToggle/>
       <button onClick={()=>app.nav('/settings')} className="grid place-items-center h-10 w-10 rounded-full bg-gradient-to-br from-gold to-goldd text-cream font-serif">{app.profile.name[0]}</button>
@@ -2019,6 +2047,73 @@ function ScoreChip({ label, value }){
   </div>;
 }
 
+/* ============================================================
+   SPARK MODE · gamification layer (daily quests + XP + level)
+   Rendered only when app.mode === 'spark'. Reuses the real tools.
+   ============================================================ */
+const DEFAULT_QUESTS = [
+  { id:'q1', emoji:'👀', label:'Check your dashboard', hint:'A 5-second glance counts.', xp:10, done:false },
+  { id:'q2', emoji:'📺', label:'Review one subscription', hint:'Cancel one you forgot about.', xp:20, done:false, to:'/subscriptions' },
+  { id:'q3', emoji:'📚', label:'Finish a 2-minute lesson', hint:'Tiny lessons, real gains.', xp:25, done:false, to:'/learn' },
+];
+const levelFromXp = (xp)=> Math.floor(Math.sqrt((xp||0)/40))+1;
+const xpForLevel = (lvl)=> 40*Math.pow(lvl-1,2);
+function XPBurst({ fire }){
+  const [bits,setBits]=useState([]);
+  useEffect(()=>{ if(!fire) return; const cols=['#6D5EF6','#FF6B6B','#16C49A','#3BA8FF','#FFB23E'];
+    setBits(Array.from({length:24},(_,i)=>({id:i+'-'+fire,left:Math.random()*100,bg:cols[i%cols.length],delay:Math.random()*.2})));
+    const t=setTimeout(()=>setBits([]),1150); return ()=>clearTimeout(t);
+  },[fire]);
+  return bits.map(b=><span key={b.id} className="conf" style={{left:b.left+'vw',background:b.bg,animationDelay:b.delay+'s'}}/>);
+}
+function SparkBanner(){
+  const app=useApp(); const xp=app.xp||0; const lvl=levelFromXp(xp); const base=xpForLevel(lvl),next=xpForLevel(lvl+1);
+  const pct=Math.round(((xp-base)/((next-base)||1))*100);
+  const done=app.quests.filter(q=>q.done).length, total=app.quests.length, qpct=Math.round(done/total*100);
+  return <div className="grid lg:grid-cols-3 gap-4 mb-4">
+    <Card className="lg:col-span-1 relative overflow-hidden">
+      <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full blur-3xl opacity-30" style={{background:'#16C49A'}}/>
+      <div className="relative">
+        <Eyebrow className="mb-2">Your level</Eyebrow>
+        <div className="flex items-end gap-3"><span className="grid place-items-center h-14 w-14 rounded-2xl text-white font-serif text-2xl shadow-soft" style={{background:'linear-gradient(135deg,#7C6BFF,#5742E0)'}}>{lvl}</span>
+          <div><div className="font-serif text-2xl text-charcoal leading-none">Level {lvl}</div><div className="text-sm text-muted mt-1 tnum">{xp} XP</div></div></div>
+        <div className="mt-4 xpbar"><i style={{width:Math.max(6,pct)+'%'}}/></div>
+        <div className="text-xs text-muted mt-1.5">{next-xp} XP to level {lvl+1}</div>
+        <div className="flex flex-wrap gap-2 mt-4">
+          <Pill tone="clay">🔥 {app.profile.streak} day streak</Pill>
+          <Pill tone="gold">🏅 {Math.floor(xp/100)} badges</Pill>
+        </div>
+      </div>
+    </Card>
+    <div className="lg:col-span-2"><QuestsPanel/></div>
+  </div>;
+}
+function QuestsPanel(){
+  const app=useApp(); const done=app.quests.filter(q=>q.done).length, total=app.quests.length; const pct=Math.round(done/total*100);
+  return <Card className="overflow-hidden !p-0">
+    <div className="relative px-5 sm:px-6 pt-5 pb-4" style={{background:'linear-gradient(120deg, rgba(109,94,246,.12), rgba(22,196,154,.10) 60%, rgba(255,178,62,.10))'}}>
+      <div className="absolute -top-8 -right-8 h-28 w-28 rounded-full blur-2xl opacity-40" style={{background:'#6D5EF6'}}/>
+      <div className="relative flex items-center justify-between">
+        <div className="flex items-center gap-2"><span className="grid place-items-center h-9 w-9 rounded-xl bg-card text-goldd shadow-soft"><Icon name="spark" size={18}/></span>
+          <div><div className="font-serif text-lg text-charcoal leading-none">Today’s quests</div>
+            <div className="text-xs text-muted mt-0.5">{done} of {total} done · keep the streak alive 🔥</div></div></div>
+        <div className="font-serif text-2xl text-goldd tnum">{pct}%</div>
+      </div>
+      <div className="relative mt-3 xpbar"><i style={{width:Math.max(4,pct)+'%'}}/></div>
+    </div>
+    <div className="p-3 sm:p-4 space-y-2">
+      {app.quests.map(q=><div key={q.id} className={cx('w-full flex items-center gap-3 rounded-xl2 border p-3 transition', q.done?'border-sage/40 bg-sage/8':'border-line bg-card hover:border-gold/40')}>
+        <span className={cx('grid place-items-center h-9 w-9 rounded-xl text-lg shrink-0', q.done?'bg-sage text-white':'bg-sand')}>{q.done?<Icon name="check" size={18}/>:q.emoji}</span>
+        <span className="flex-1 min-w-0"><span className={cx('block text-sm font-medium', q.done?'line-through text-muted':'text-charcoal')}>{q.label}</span>
+          <span className="block text-xs text-faint">{q.hint}</span></span>
+        {q.done? <Pill tone="sage">+{q.xp} ✓</Pill>
+          : <button onClick={()=>{ app.completeQuest(q.id); if(q.to) setTimeout(()=>app.nav(q.to),250); }} className="btn btn-gold px-3 py-1.5 text-xs">+{q.xp} XP</button>}
+      </div>)}
+      {done===total && <div className="text-center text-sm text-saged font-semibold py-1 anim-pop">All done — see you tomorrow! 🎉</div>}
+    </div>
+  </Card>;
+}
+
 function Dashboard(){
   const app = useApp(); const fmt = app.fmt; const m = app.metrics; const ref = useReveal();
   const [tab,setTab]=useState('All'); const [showAll,setShowAll]=useState(false); const [after,setAfter]=useState(false);
@@ -2043,6 +2138,7 @@ function Dashboard(){
   const hh=new Date().getHours(); const greet=hh<12?'Good morning':hh<18?'Good afternoon':'Good evening';
   const focus=[['Review my finances','grid','/dashboard'],['Check my spending','wallet','/budget'],['Grow my investments','chart','/invest'],['Improve my credit score','gauge','/credit'],['Reduce waste','tv','/subscriptions'],['Continue learning','book','/learn'],['View news','globe','/news'],['Update my data','refresh','/review']];
   return <AppShell>
+    {app.mode==='spark' && <SparkBanner/>}
     {/* Personal butler greeting */}
     <div className="mb-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
@@ -3356,6 +3452,18 @@ function Settings(){
                 {app.theme===val&&<Icon name="check" size={14} className="text-goldd"/>}
               </button>)}
           </div>
+          <div className="mt-4 pt-4 border-t border-line">
+            <div className="text-sm font-medium text-charcoal mb-2">Experience</div>
+            <div className="grid grid-cols-2 gap-2.5">
+              {[['classic','Classic','The refined, calm Lumera.'],['spark','Spark','Younger look · daily quests · XP.']].map(([val,label,desc])=>
+                <button key={val} onClick={()=>app.setMode(val)}
+                  className={cx('text-left rounded-xl2 border px-4 py-3 transition', app.mode===val?'border-gold bg-gold/10':'border-line bg-cream hover:bg-sand')}>
+                  <div className="flex items-center gap-2"><span className="text-lg">{val==='spark'?'✦':'🪶'}</span><span className="text-sm font-semibold text-charcoal">{label}</span>{app.mode===val&&<Icon name="check" size={14} className="text-goldd ml-auto"/>}</div>
+                  <div className="text-[11px] text-muted mt-1 leading-relaxed">{desc}</div>
+                </button>)}
+            </div>
+            <p className="text-[11px] text-faint mt-2">Spark adds gamification and a violet palette on top of every tool — switch back anytime.</p>
+          </div>
         </Card>
 
         <Card><Eyebrow className="mb-4">{t('langName')} · multilingual</Eyebrow>
@@ -4197,6 +4305,11 @@ function App(){
   const [balances,setBalances] = useState(persisted.balances||DEFAULT_BALANCES);
   const [lang,setLang] = useState(persisted.lang||'en');
   const [theme,setThemeState] = useState(()=>{ try{ return localStorage.getItem('lumera_theme')||'light'; }catch(e){ return 'light'; } });
+  const [mode,setModeState] = useState(()=>{ try{ return localStorage.getItem('lumera_mode')||'classic'; }catch(e){ return 'classic'; } });
+  // Spark-mode gamification (only surfaced when mode==='spark'; harmless otherwise)
+  const [xp,setXp] = useState(()=>{ try{ return JSON.parse(localStorage.getItem('lumera_spark_xp'))||0; }catch(e){ return 0; } });
+  const [quests,setQuests] = useState(()=>{ try{ const s=JSON.parse(localStorage.getItem('lumera_spark_quests'))||{}; const today=new Date().toISOString().slice(0,10); return (s.day===today&&s.list)?s.list:DEFAULT_QUESTS; }catch(e){ return DEFAULT_QUESTS; } });
+  const [questBurst,setQuestBurst] = useState(0);
   const [mobileMenu,setMobileMenu] = useState(false);
   const [showLogout,setShowLogout] = useState(false);
   const [showWelcome,setShowWelcome] = useState(false);
@@ -4242,6 +4355,12 @@ function App(){
     apply();
     if(theme==='system'){ const mq=matchMedia('(prefers-color-scheme: dark)'); mq.addEventListener('change',apply); return ()=>mq.removeEventListener('change',apply); }
   },[theme]);
+  // Spark mode: 'classic' | 'spark'. Re-themes accents (via CSS) and surfaces the gamification layer.
+  const setMode = useCallback((m)=>{ setModeState(m); try{ localStorage.setItem('lumera_mode', m); }catch(e){} },[]);
+  useEffect(()=>{ document.documentElement.setAttribute('data-mode', mode==='spark'?'spark':'classic'); },[mode]);
+  const awardXp = useCallback((n)=>{ setXp(x=>{ const v=x+(n||0); try{ localStorage.setItem('lumera_spark_xp', JSON.stringify(v)); }catch(e){} return v; }); setQuestBurst(b=>b+1); },[]);
+  const completeQuest = useCallback((id)=>{ setQuests(qs=>{ const next=qs.map(q=>{ if(q.id===id&&!q.done){ awardXp(q.xp); return {...q,done:true}; } return q; });
+    try{ localStorage.setItem('lumera_spark_quests', JSON.stringify({day:new Date().toISOString().slice(0,10), list:next})); }catch(e){} return next; }); },[awardXp]);
   useEffect(()=>{ LA.start({ lang, cur:profile.currency, user:user?user.email:'guest' }); },[]);
   useEffect(()=>{ LA.event('view',{ path:route.split('?')[0], user:user?user.email:'guest' }); },[route]);
   useEffect(()=>{ LA.event('lang',{ lang }); },[lang]);
@@ -4264,10 +4383,12 @@ function App(){
 
   const value = { route, nav, user, signup, login, loginProvider, demo, logout:askLogout, askLogout, completeOnboarding, checkIn, onboarded,
     profile, updateProfile, setProfile, expenses, setExpenses, balances, setBalances,
-    lang, setLang, theme, setTheme, setRegion, resetAll, fmt, metrics, mobileMenu, setMobileMenu, t: tfn(lang) };
+    lang, setLang, theme, setTheme, mode, setMode, xp, quests, awardXp, completeQuest,
+    setRegion, resetAll, fmt, metrics, mobileMenu, setMobileMenu, t: tfn(lang) };
 
   const Page = redirect ? (()=> null) : (ROUTES[path]||Landing);
   return <AppCtx.Provider value={value}>
+    {mode==='spark' && <XPBurst fire={questBurst}/>}
     <div key={redirect||path} className="anim-fadeIn"><Page/></div>
     {showLogout && <div className="fixed inset-0 z-[150] grid place-items-center p-4">
       <div className="absolute inset-0 bg-charcoal/45" onClick={()=>setShowLogout(false)}/>
