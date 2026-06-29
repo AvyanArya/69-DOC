@@ -136,24 +136,12 @@
   [data-theme="dark"] .skeleton{ background:linear-gradient(90deg,#241e17 25%,#2c261d 37%,#241e17 63%); background-size:200% 100%; }
   [data-theme="dark"] img:not([src*=".svg"]){ filter:brightness(.92); }
 
-  /* ===== SPARK MODE — gamified accent overlay (works on light OR dark base) =====
-     Remaps the gold accent family to grape/violet, so every *-gold / *-goldd
-     utility across all existing tools re-themes at once. Placed after the theme
-     blocks so it wins on the accent channels regardless of light/dark. */
-  [data-mode="spark"]{
-    --c-gold:109 94 246; --c-goldd:87 66 224; --c-golddd:69 51 194;
-    --gold:#6D5EF6; --goldd:#5742E0;
-  }
-  [data-mode="spark"] .btn-gold{ background:linear-gradient(180deg,#7C6BFF,#5742E0); color:#fff; box-shadow:0 6px 20px rgba(109,94,246,.35); }
-  [data-mode="spark"] .btn-gold:hover{ box-shadow:0 12px 32px rgba(109,94,246,.45); }
-  [data-mode="spark"] .gold-text{ background:linear-gradient(100deg,#5742E0,#9C7BFF,#16C49A); background-size:200% auto; -webkit-background-clip:text; background-clip:text; color:transparent; }
-  [data-mode="spark"] .btn-primary{ background:linear-gradient(180deg,#7C6BFF,#5742E0); }
-  [data-mode="spark"] input[type=range].lux{ background:linear-gradient(90deg,#6D5EF6 var(--p,40%), #e7ded0 var(--p,40%)); }
-  [data-mode="spark"] input[type=range].lux::-webkit-slider-thumb{ background:radial-gradient(circle at 35% 30%, #fff, #b9aeffee 40%, #6D5EF6 100%); box-shadow:0 3px 10px rgba(87,66,224,.45), 0 0 0 1px rgba(87,66,224,.25); }
+  /* ===== SPARK MODE — keeps the refined gold palette; adds gamification + the
+     product hub. (No app-wide colour swap — the original look is preserved.) ===== */
 
   /* Gamification widgets (shown only in Spark mode) */
-  .xpbar{ height:9px; border-radius:999px; background:rgba(124,108,255,.16); overflow:hidden; }
-  .xpbar>i{ display:block; height:100%; border-radius:999px; background:linear-gradient(90deg,#6D5EF6,#9C7BFF,#16C49A); background-size:200% 100%; animation:shimmer 3s linear infinite, barfill 1s cubic-bezier(.22,1,.36,1); }
+  .xpbar{ height:9px; border-radius:999px; background:rgba(191,160,106,.16); overflow:hidden; }
+  .xpbar>i{ display:block; height:100%; border-radius:999px; background:linear-gradient(90deg,#caa971,#9E7E45,#caa971); background-size:200% 100%; animation:shimmer 3s linear infinite, barfill 1s cubic-bezier(.22,1,.36,1); }
   @keyframes shimmer{ 0%{background-position:-200% 0} 100%{background-position:200% 0} }
   @keyframes barfill{ from{width:0} }
   @keyframes confetti{ 0%{transform:translateY(0) rotate(0); opacity:1} 100%{transform:translateY(130px) rotate(380deg); opacity:0} }
@@ -1089,11 +1077,7 @@ const BUDGET_TEMPLATES = [
 /* ============================================================
    REUSABLE COMPONENTS + CHARTS
    ============================================================ */
-// gold/goldd are getters so JS-driven chart & ring colours follow Spark mode's
-// violet accent (read live from <html data-mode>); every other token is fixed.
-const _spark = ()=> typeof document!=='undefined' && document.documentElement.getAttribute('data-mode')==='spark';
-const COLORS = { get gold(){ return _spark()?'#6D5EF6':'#BFA06A'; }, get goldd(){ return _spark()?'#5742E0':'#9E7E45'; },
-  sage:'#6E8B6A', saged:'#4C6447', clay:'#C0714F', berry:'#A6534A', charcoal:'#272320', ink:'#16130F', sky:'#6E86A0', stone:'#D9CFBE', taupe:'#CFC4B1', muted:'#9C9387', line:'#E9E2D5' };
+const COLORS = { gold:'#BFA06A', goldd:'#9E7E45', sage:'#6E8B6A', saged:'#4C6447', clay:'#C0714F', berry:'#A6534A', charcoal:'#272320', ink:'#16130F', sky:'#6E86A0', stone:'#D9CFBE', taupe:'#CFC4B1', muted:'#9C9387', line:'#E9E2D5' };
 
 /* ---- Icon set (stroke, currentColor) ---- */
 const P = {
@@ -1531,7 +1515,7 @@ function TopBar(){
       <button onClick={()=>app.nav('/dashboard')} className="hidden sm:flex items-center gap-2 rounded-full bg-charcoal text-cream px-3 py-1.5">
         <span className="text-xs text-gold">Score</span><span className="text-sm font-semibold tnum">{m.overall}</span></button>
       {app.mode==='spark' && <Hint text="Your Spark level — earn XP by completing daily quests."><button onClick={()=>app.nav('/dashboard')} className="hidden sm:flex items-center gap-1.5 rounded-full bg-gold/15 px-3 py-1.5">
-        <span className="grid place-items-center h-5 w-5 rounded-full text-white text-[10px] font-bold tnum" style={{background:'linear-gradient(135deg,#7C6BFF,#5742E0)'}}>{levelFromXp(app.xp)}</span><span className="text-xs font-semibold text-goldd tnum">{app.xp} XP</span></button></Hint>}
+        <span className="grid place-items-center h-5 w-5 rounded-full text-white text-[10px] font-bold tnum" style={{background:'linear-gradient(135deg,#caa971,#b0894f)'}}>{levelFromXp(app.xp)}</span><span className="text-xs font-semibold text-goldd tnum">{app.xp} XP</span></button></Hint>}
       <CurrencySwitcher/><LanguageSwitcher compact/>
       <ThemeToggle/>
       <button onClick={()=>app.nav('/settings')} className="grid place-items-center h-10 w-10 rounded-full bg-gradient-to-br from-gold to-goldd text-cream font-serif">{app.profile.name[0]}</button>
@@ -2096,7 +2080,7 @@ const levelFromXp = (xp)=> Math.floor(Math.sqrt((xp||0)/40))+1;
 const xpForLevel = (lvl)=> 40*Math.pow(lvl-1,2);
 function XPBurst({ fire }){
   const [bits,setBits]=useState([]);
-  useEffect(()=>{ if(!fire) return; const cols=['#6D5EF6','#FF6B6B','#16C49A','#3BA8FF','#FFB23E'];
+  useEffect(()=>{ if(!fire) return; const cols=['#BFA06A','#6E8B6A','#C0714F','#9E7E45','#6E86A0'];
     setBits(Array.from({length:24},(_,i)=>({id:i+'-'+fire,left:Math.random()*100,bg:cols[i%cols.length],delay:Math.random()*.2})));
     const t=setTimeout(()=>setBits([]),1150); return ()=>clearTimeout(t);
   },[fire]);
@@ -2108,10 +2092,10 @@ function SparkBanner(){
   const done=app.quests.filter(q=>q.done).length, total=app.quests.length, qpct=Math.round(done/total*100);
   return <div className="grid lg:grid-cols-3 gap-4 mb-4">
     <Card className="lg:col-span-1 relative overflow-hidden">
-      <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full blur-3xl opacity-30" style={{background:'#16C49A'}}/>
+      <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full blur-3xl opacity-30" style={{background:'#BFA06A'}}/>
       <div className="relative">
         <Eyebrow className="mb-2">Your level</Eyebrow>
-        <div className="flex items-end gap-3"><span className="grid place-items-center h-14 w-14 rounded-2xl text-white font-serif text-2xl shadow-soft" style={{background:'linear-gradient(135deg,#7C6BFF,#5742E0)'}}>{lvl}</span>
+        <div className="flex items-end gap-3"><span className="grid place-items-center h-14 w-14 rounded-2xl text-white font-serif text-2xl shadow-soft" style={{background:'linear-gradient(135deg,#caa971,#b0894f)'}}>{lvl}</span>
           <div><div className="font-serif text-2xl text-charcoal leading-none">Level {lvl}</div><div className="text-sm text-muted mt-1 tnum">{xp} XP</div></div></div>
         <div className="mt-4 xpbar"><i style={{width:Math.max(6,pct)+'%'}}/></div>
         <div className="text-xs text-muted mt-1.5">{next-xp} XP to level {lvl+1}</div>
@@ -2127,8 +2111,8 @@ function SparkBanner(){
 function QuestsPanel(){
   const app=useApp(); const done=app.quests.filter(q=>q.done).length, total=app.quests.length; const pct=Math.round(done/total*100);
   return <Card className="overflow-hidden !p-0">
-    <div className="relative px-5 sm:px-6 pt-5 pb-4" style={{background:'linear-gradient(120deg, rgba(109,94,246,.12), rgba(22,196,154,.10) 60%, rgba(255,178,62,.10))'}}>
-      <div className="absolute -top-8 -right-8 h-28 w-28 rounded-full blur-2xl opacity-40" style={{background:'#6D5EF6'}}/>
+    <div className="relative px-5 sm:px-6 pt-5 pb-4" style={{background:'linear-gradient(120deg, rgba(191,160,106,.14), rgba(110,139,106,.10) 60%, rgba(192,113,79,.08))'}}>
+      <div className="absolute -top-8 -right-8 h-28 w-28 rounded-full blur-2xl opacity-40" style={{background:'#BFA06A'}}/>
       <div className="relative flex items-center justify-between">
         <div className="flex items-center gap-2"><span className="grid place-items-center h-9 w-9 rounded-xl bg-card text-goldd shadow-soft"><Icon name="spark" size={18}/></span>
           <div><div className="font-serif text-lg text-charcoal leading-none">Today’s quests</div>
@@ -2156,19 +2140,19 @@ function QuestsPanel(){
    from one place. Lumera is the parent; the rest are "by Lumera".
    ============================================================ */
 const SUBS = [
-  { key:'lumera', name:'Lumera', tag:'Core money', accent:'#6D5EF6', emoji:'💜', live:true,
+  { key:'lumera', name:'Lumera', tag:'Core money', accent:'#9E7E45', emoji:'🪙', live:true,
     blurb:'The parent. Your everyday money HQ — budgeting, goals, net worth and the wealth simulator.',
     routes:['/dashboard','/budget','/goals','/emergency','/subscriptions','/networth','/simulator','/twin'] },
-  { key:'leaf', name:'Leaf', tag:'Learn & grow', accent:'#16C49A', emoji:'🌿', live:true,
+  { key:'leaf', name:'Leaf', tag:'Learn & grow', accent:'#6E8B6A', emoji:'🌿', live:true,
     blurb:'Money education that doesn’t bore you — bite-size lessons, a knowledge hub and badges for every win.',
     routes:['/learn','/resources','/badges','/updates'] },
-  { key:'atlas', name:'Atlas', tag:'Markets & investing', accent:'#3BA8FF', emoji:'🛰️', live:true,
+  { key:'atlas', name:'Atlas', tag:'Markets & investing', accent:'#6E86A0', emoji:'🛰️', live:true,
     blurb:'Markets explained for humans — stocks, indices, a globe of exchanges and plain-English news.',
     routes:['/invest','/market','/globe','/world','/news'] },
-  { key:'shield', name:'Shield', tag:'Protect & plan', accent:'#9277FF', emoji:'🛡️', live:true,
+  { key:'shield', name:'Shield', tag:'Protect & plan', accent:'#9C5638', emoji:'🛡️', live:true,
     blurb:'The grown-up stuff on your terms — credit building, insurance, debt payoff and long-term planning.',
     routes:['/credit','/debt','/insurance','/retirement'] },
-  { key:'forge', name:'Forge', tag:'Career & income', accent:'#FFB23E', emoji:'🔥', live:false,
+  { key:'forge', name:'Forge', tag:'Career & income', accent:'#C0714F', emoji:'🔥', live:false,
     blurb:'Grow what you earn, not just what you save — side-income ideas, salary benchmarks and career moves.',
     routes:[] },
 ];
@@ -3538,14 +3522,14 @@ function Settings(){
           <div className="mt-4 pt-4 border-t border-line">
             <div className="text-sm font-medium text-charcoal mb-2">Experience</div>
             <div className="grid grid-cols-2 gap-2.5">
-              {[['classic','Classic','The refined, calm Lumera.'],['spark','Spark','Younger look · daily quests · XP.']].map(([val,label,desc])=>
+              {[['classic','Classic','The original — no gamification.'],['spark','Spark','Daily quests, XP & the product hub.']].map(([val,label,desc])=>
                 <button key={val} onClick={()=>app.setMode(val)}
                   className={cx('text-left rounded-xl2 border px-4 py-3 transition', app.mode===val?'border-gold bg-gold/10':'border-line bg-cream hover:bg-sand')}>
                   <div className="flex items-center gap-2"><span className="text-lg">{val==='spark'?'✦':'🪶'}</span><span className="text-sm font-semibold text-charcoal">{label}</span>{app.mode===val&&<Icon name="check" size={14} className="text-goldd ml-auto"/>}</div>
                   <div className="text-[11px] text-muted mt-1 leading-relaxed">{desc}</div>
                 </button>)}
             </div>
-            <p className="text-[11px] text-faint mt-2">Spark adds gamification and a violet palette on top of every tool — switch back anytime.</p>
+            <p className="text-[11px] text-faint mt-2">Spark keeps the same look and adds daily quests, XP and the Lumera Group product hub — switch back anytime.</p>
           </div>
         </Card>
 
