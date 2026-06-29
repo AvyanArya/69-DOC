@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+<meta name="theme-color" content="#0E0B16" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self'; img-src 'self' data: blob: https:;" />
+<title>Lumera Spark — money that levels up with you</title>
+<meta name="description" content="Lumera Spark is the gamified, Gen-Z edition of Lumera. Build money habits, earn XP, keep streaks, and explore the Lumera family of products — Leaf, Atlas and Shield." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Tailwind (Play CDN) -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          serif: ['Fraunces','Georgia','serif'],
+          display: ['"Space Grotesk"','Inter','sans-serif'],
+          sans: ['Inter','system-ui','sans-serif'],
+        },
+        colors: {
+          ink:'#0E0B16', night:'#15101F', slate:'#1E1830', mist:'#2A2240',
+          ivory:'#F6F2EB', cloud:'#F2EEF9',
+          grape:'#7C5CFF', graped:'#5B3DE0',
+          punch:'#FF5C8A', sun:'#FFC24B', mint:'#34E0A1', sky:'#46C7FF',
+          leaf:'#34D399', atlas:'#46C7FF', shield:'#A78BFA', forge:'#FB923C',
+          muted:'#9A93AE', faint:'#6E6786',
+        },
+        boxShadow: {
+          glow:'0 0 0 1px rgba(124,92,255,.25), 0 12px 40px rgba(124,92,255,.30)',
+          card:'0 1px 2px rgba(8,5,18,.30), 0 14px 40px rgba(8,5,18,.40)',
+        },
+        borderRadius: { 'xl2':'1.25rem','xl3':'1.75rem','xl4':'2.25rem' },
+      }
+    }
+  }
+</script>
+
+<!-- React + Babel (pinned + SRI) -->
+<script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"
+  integrity="sha384-DGyLxAyjq0f9SPpVevD6IgztCFlnMF6oW/XQGmfe+IsZ8TqEiDrcHkMLKI6fiB/Z" crossorigin="anonymous"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"
+  integrity="sha384-gTGxhz21lVGYNMcdJOyq01Edg0jhn/c22nsx0kyqP0TxaV5WVdsSH1fSDUf5YJj1" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"
+  integrity="sha384-AISI5AuDG6E8DeEiFMVB3rGQxhZt24OU0avMp+GMV64+tpnA3+Z6F5MT0f96iPva" crossorigin="anonymous"></script>
+
+<style>
+  *{ -webkit-tap-highlight-color:transparent; }
+  html{ scroll-behavior:smooth; }
+  body{
+    margin:0; font-family:'Inter',system-ui,sans-serif; color:var(--cloud,#F2EEF9); background:#0E0B16;
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(900px 500px at 110% -10%, rgba(124,92,255,.22), transparent 60%),
+      radial-gradient(800px 480px at -10% 10%, rgba(255,92,138,.14), transparent 55%),
+      radial-gradient(700px 500px at 50% 120%, rgba(52,224,161,.10), transparent 60%);
+    background-attachment:fixed; min-height:100vh;
+  }
+  h1,h2,h3,.serif{ font-family:'Fraunces',Georgia,serif; }
+  .display{ font-family:'Space Grotesk',Inter,sans-serif; }
+  ::selection{ background:rgba(124,92,255,.4); }
+  ::-webkit-scrollbar{ width:10px;height:10px; }
+  ::-webkit-scrollbar-thumb{ background:#2A2240; border-radius:20px; border:2px solid #0E0B16; }
+
+  @keyframes fadeUp{ from{opacity:0; transform:translateY(16px)} to{opacity:1; transform:none} }
+  @keyframes pop{ 0%{opacity:0; transform:scale(.85)} 60%{transform:scale(1.05)} 100%{opacity:1; transform:scale(1)} }
+  @keyframes floaty{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+  @keyframes shimmer{ 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+  @keyframes barfill{ from{width:0} }
+  @keyframes confetti{ 0%{transform:translateY(0) rotate(0); opacity:1} 100%{transform:translateY(120px) rotate(360deg); opacity:0} }
+  .fadeUp{ animation:fadeUp .6s cubic-bezier(.22,1,.36,1) both; }
+  .pop{ animation:pop .5s cubic-bezier(.22,1,.36,1) both; }
+  .floaty{ animation:floaty 6s ease-in-out infinite; }
+  .stagger>*{ animation:fadeUp .55s cubic-bezier(.22,1,.36,1) both; }
+  .stagger>*:nth-child(1){animation-delay:.05s}.stagger>*:nth-child(2){animation-delay:.11s}
+  .stagger>*:nth-child(3){animation-delay:.17s}.stagger>*:nth-child(4){animation-delay:.23s}
+  .stagger>*:nth-child(5){animation-delay:.29s}.stagger>*:nth-child(6){animation-delay:.35s}
+
+  .glass{ background:rgba(30,24,48,.55); backdrop-filter:blur(16px) saturate(140%); -webkit-backdrop-filter:blur(16px) saturate(140%); border:1px solid rgba(255,255,255,.07); }
+  .card{ background:linear-gradient(180deg, rgba(42,34,64,.65), rgba(21,16,31,.65)); border:1px solid rgba(255,255,255,.08); border-radius:1.25rem; box-shadow:0 1px 2px rgba(8,5,18,.3), 0 14px 40px rgba(8,5,18,.35); }
+  .lift{ transition:transform .4s cubic-bezier(.22,1,.36,1), box-shadow .4s, border-color .4s; }
+  .lift:hover{ transform:translateY(-4px); border-color:rgba(124,92,255,.4); box-shadow:0 0 0 1px rgba(124,92,255,.25), 0 18px 50px rgba(124,92,255,.25); }
+  .grad-text{ background:linear-gradient(100deg,#FF5C8A,#7C5CFF 45%,#46C7FF); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .btn{ display:inline-flex; align-items:center; justify-content:center; gap:.5rem; font-weight:600; border-radius:999px; cursor:pointer; border:1px solid transparent; transition:all .3s cubic-bezier(.22,1,.36,1); white-space:nowrap; font-family:'Space Grotesk',sans-serif; }
+  .btn:active{ transform:translateY(1px) scale(.99); }
+  .btn-grape{ background:linear-gradient(180deg,#8B6BFF,#5B3DE0); color:#fff; box-shadow:0 8px 24px rgba(124,92,255,.4); }
+  .btn-grape:hover{ transform:translateY(-2px); box-shadow:0 14px 36px rgba(124,92,255,.55); }
+  .btn-ghost{ background:rgba(255,255,255,.05); border-color:rgba(255,255,255,.12); color:#F2EEF9; }
+  .btn-ghost:hover{ background:rgba(255,255,255,.10); transform:translateY(-2px); }
+  .pill{ display:inline-flex; align-items:center; gap:.4rem; border-radius:999px; padding:.25rem .7rem; font-size:12px; font-weight:600; font-family:'Space Grotesk',sans-serif; }
+  .xpbar{ height:10px; border-radius:999px; background:rgba(255,255,255,.08); overflow:hidden; }
+  .xpbar>i{ display:block; height:100%; border-radius:999px; background:linear-gradient(90deg,#FF5C8A,#7C5CFF,#46C7FF); background-size:200% 100%; animation:shimmer 3s linear infinite, barfill 1s cubic-bezier(.22,1,.36,1); }
+  .tnum{ font-variant-numeric:tabular-nums; }
+  .chip{ border:1px solid rgba(255,255,255,.12); border-radius:999px; padding:.5rem .9rem; font-size:13px; font-weight:600; cursor:pointer; transition:all .25s; background:rgba(255,255,255,.03); }
+  .chip:hover{ border-color:rgba(124,92,255,.5); background:rgba(124,92,255,.10); }
+  .chip.on{ border-color:#7C5CFF; background:rgba(124,92,255,.20); color:#fff; }
+  .conf{ position:fixed; top:-10px; width:9px; height:14px; border-radius:2px; z-index:200; pointer-events:none; animation:confetti 1s ease-in forwards; }
+  @media (prefers-reduced-motion: reduce){ *{ animation-duration:.01ms !important; } }
+</style>
+</head>
+<body>
+  <div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useRef, useMemo, useCallback, createContext, useContext } = React;
+const cx = (...a)=>a.filter(Boolean).join(' ');
+
+/* ============================================================
+   ERROR BOUNDARY — runtime crashes show a recovery screen, not a blank page
+   ============================================================ */
+class ErrorBoundary extends React.Component {
+  constructor(p){ super(p); this.state={err:null}; }
+  static getDerivedStateFromError(e){ return {err:e}; }
+  componentDidCatch(e,i){ console.error('Spark caught:',e,i); }
+  render(){
+    if(this.state.err) return (
+      <div style={{minHeight:'100vh',display:'grid',placeItems:'center',padding:'24px'}}>
+        <div style={{maxWidth:'380px',textAlign:'center'}}>
+          <div style={{fontSize:'34px'}}>😵‍💫</div>
+          <h2 style={{fontFamily:'Fraunces,serif',fontSize:'22px',margin:'8px 0'}}>That glitched.</h2>
+          <p style={{color:'#9A93AE',fontSize:'14px',marginBottom:'18px'}}>Your progress is saved. Give it another go.</p>
+          <button className="btn btn-grape" style={{padding:'10px 24px'}} onClick={()=>this.setState({err:null})}>Retry</button>
+        </div>
+      </div>
+    );
+    return this.props.children;
+  }
+}
+
+/* ============================================================
+   STORAGE
+   ============================================================ */
+const STORE='lumera_spark';
+const load=()=>{ try{ return JSON.parse(localStorage.getItem(STORE))||{}; }catch(e){ return {}; } };
+const save=(d)=>{ try{ localStorage.setItem(STORE, JSON.stringify(d)); }catch(e){} };
+
+/* ============================================================
+   SUBSIDIARIES — the Lumera family of products
+   Each is its own branded "site" you enter from the Lumera hub.
+   ============================================================ */
+const SUBS = {
+  lumera: { key:'lumera', name:'Lumera', tag:'Core money',  accent:'#7C5CFF', emoji:'💜',
+    blurb:'The parent company. Your everyday money HQ — budgeting, goals, net worth and the wealth simulator.',
+    live:true },
+  leaf:   { key:'leaf', name:'Leaf', tag:'Learn & grow', accent:'#34D399', emoji:'🌿',
+    blurb:'Money education that doesn’t put you to sleep. Bite-size lessons, a knowledge hub and badges for every win.',
+    live:true },
+  atlas:  { key:'atlas', name:'Atlas', tag:'Markets & investing', accent:'#46C7FF', emoji:'🛰️',
+    blurb:'Markets explained for humans. Stocks, indices, a spinning globe of exchanges and plain-English news.',
+    live:true },
+  shield: { key:'shield', name:'Shield', tag:'Protect & plan', accent:'#A78BFA', emoji:'🛡️',
+    blurb:'The grown-up stuff, on your terms. Credit building, insurance, debt payoff and long-term planning.',
+    live:true },
+  forge:  { key:'forge', name:'Forge', tag:'Career & income', accent:'#FB923C', emoji:'🔥',
+    blurb:'Grow what you earn, not just what you save. Side-income ideas, salary benchmarks and career moves.',
+    live:false },
+};
+
+/* ============================================================
+   TOOL CATALOG — every Lumera tool, tagged by subsidiary + which
+   age bands it's *featured* for. Tools not featured for your band
+   still exist — they live under "More tools" so the app stays uncluttered.
+   bands: teen(<18) · young(18–25) · mid(26–40) · established(40+)
+   ============================================================ */
+const TOOLS = [
+  // Lumera core
+  { id:'dashboard', sub:'lumera', name:'Dashboard',       emoji:'🏠', desc:'Your money at a glance — score, streaks and what to do next.', bands:['teen','young','mid','established'] },
+  { id:'budget',    sub:'lumera', name:'Budget',          emoji:'🧾', desc:'See where it actually goes. Benchmarked against real people.',     bands:['teen','young','mid','established'] },
+  { id:'goals',     sub:'lumera', name:'Goals',           emoji:'🎯', desc:'Save for the thing. Track it, smash it, celebrate it.',           bands:['teen','young','mid','established'] },
+  { id:'subs',      sub:'lumera', name:'Subscriptions',   emoji:'📺', desc:'Find the £5-here, £12-there leaks draining your account.',        bands:['teen','young','mid'] },
+  { id:'emergency', sub:'lumera', name:'Emergency Fund',  emoji:'🛟', desc:'Build the buffer that turns a crisis into an inconvenience.',      bands:['young','mid','established'] },
+  { id:'networth',  sub:'lumera', name:'Net Worth',       emoji:'📈', desc:'One honest number that grows with you over time.',                 bands:['mid','established'] },
+  { id:'simulator', sub:'lumera', name:'Wealth Simulator',emoji:'🪄', desc:'Drag a slider, watch decades of compounding play out.',           bands:['teen','young','mid','established'] },
+  { id:'twin',      sub:'lumera', name:'Financial Twin',  emoji:'🧬', desc:'A version of you that made the smarter call. Catch up to them.',   bands:['young','mid','established'] },
+  // Leaf
+  { id:'learn',     sub:'leaf', name:'Learn',             emoji:'📚', desc:'2-minute lessons on money things school skipped.',                bands:['teen','young','mid'] },
+  { id:'resources', sub:'leaf', name:'Knowledge Hub',     emoji:'🧠', desc:'Deep dives, glossaries and guides when you want more.',           bands:['teen','young','mid','established'] },
+  { id:'badges',    sub:'leaf', name:'Badges',            emoji:'🏅', desc:'Proof you’re leveling up. Collect them all.',                     bands:['teen','young','mid'] },
+  { id:'updates',   sub:'leaf', name:'What’s New',        emoji:'✨', desc:'Fresh drops and features as they ship.',                          bands:['teen','young','mid','established'] },
+  // Atlas
+  { id:'invest',    sub:'atlas', name:'Investing',        emoji:'🌱', desc:'Start small, start scared, start anyway. We’ll explain it.',      bands:['young','mid','established'] },
+  { id:'market',    sub:'atlas', name:'Stock Market',     emoji:'📊', desc:'Live-style tickers with a “why it matters” on every line.',       bands:['young','mid','established'] },
+  { id:'globe',     sub:'atlas', name:'Global Markets',   emoji:'🌍', desc:'Spin a globe of the world’s exchanges.',                          bands:['young','mid','established'] },
+  { id:'world',     sub:'atlas', name:'World Monitor',    emoji:'🛰️', desc:'The big economic picture, zoomed out.',                           bands:['mid','established'] },
+  { id:'news',      sub:'atlas', name:'News',             emoji:'📰', desc:'Headlines in plain English, linked to the source.',               bands:['teen','young','mid','established'] },
+  // Shield
+  { id:'credit',    sub:'shield', name:'Credit Builder',  emoji:'💳', desc:'Build a score future-you will thank you for.',                    bands:['young','mid','established'] },
+  { id:'debt',      sub:'shield', name:'Debt Payoff',     emoji:'⛓️', desc:'A clear plan to clear what you owe, fastest.',                    bands:['mid','established'] },
+  { id:'insurance', sub:'shield', name:'Insurance',       emoji:'☂️', desc:'Cover the stuff that would actually hurt to lose.',               bands:['mid','established'] },
+  { id:'retirement',sub:'shield', name:'Retirement',      emoji:'🌅', desc:'Yes, already. Tiny amounts now = huge amounts later.',            bands:['established'] },
+];
+
+const BANDS = [
+  { id:'teen',        label:'Under 18',  emoji:'🎒', sub:'Pocket money, first job, big dreams' },
+  { id:'young',       label:'18–25',     emoji:'🚀', sub:'Studying, first salary, figuring it out' },
+  { id:'mid',         label:'26–40',     emoji:'🏗️', sub:'Building — career, maybe family, real goals' },
+  { id:'established',  label:'40+',       emoji:'🧭', sub:'Planning ahead and protecting what you’ve built' },
+];
+
+/* ============================================================
+   ROUTER
+   ============================================================ */
+function useHashRoute(){
+  const [route,setRoute]=useState(()=> location.hash.replace('#','')||'/');
+  useEffect(()=>{
+    const on=()=>{ setRoute(location.hash.replace('#','')||'/'); window.scrollTo({top:0,behavior:'instant'}); };
+    window.addEventListener('hashchange',on); return ()=>window.removeEventListener('hashchange',on);
+  },[]);
+  const nav=useCallback((to)=>{ location.hash=to; },[]);
+  return [route,nav];
+}
+
+/* ============================================================
+   APP CONTEXT  (XP / level / streak / band / unlocked subs)
+   ============================================================ */
+const Ctx = createContext(null);
+const useApp = ()=> useContext(Ctx);
+const levelFromXp = (xp)=> Math.floor(Math.sqrt(xp/40))+1;
+const xpForLevel = (lvl)=> 40*Math.pow(lvl-1,2);
+
+/* ============================================================
+   SMALL UI PRIMITIVES
+   ============================================================ */
+const Card = ({className='',children,onClick,hover=true,style})=>
+  <div onClick={onClick} style={style} className={cx('card p-5 sm:p-6', hover&&'lift', onClick&&'cursor-pointer', className)}>{children}</div>;
+const Pill = ({children,style,className=''})=> <span className={cx('pill', className)} style={style}>{children}</span>;
+
+function XPBurst({fire}){
+  const [bits,setBits]=useState([]);
+  useEffect(()=>{ if(!fire) return; const cols=['#FF5C8A','#7C5CFF','#46C7FF','#34E0A1','#FFC24B'];
+    const arr=Array.from({length:26},(_,i)=>({id:i+fire, left:Math.random()*100, bg:cols[i%cols.length], delay:Math.random()*.2}));
+    setBits(arr); const t=setTimeout(()=>setBits([]),1100); return ()=>clearTimeout(t);
+  },[fire]);
+  return bits.map(b=> <span key={b.id} className="conf" style={{left:b.left+'vw', background:b.bg, animationDelay:b.delay+'s'}}/>);
+}
+
+/* ============================================================
+   TOP BAR — level, XP, streak (the gamified HUD)
+   ============================================================ */
+function HUD(){
+  const app=useApp(); if(!app.user) return null;
+  const lvl=levelFromXp(app.xp); const base=xpForLevel(lvl), next=xpForLevel(lvl+1);
+  const pct=Math.round(((app.xp-base)/(next-base))*100);
+  return <header className="sticky top-0 z-40 glass">
+    <div className="max-w-[1180px] mx-auto flex items-center gap-3 px-4 sm:px-6 h-16">
+      <button onClick={()=>app.nav('/hub')} className="flex items-center gap-2">
+        <span className="grid place-items-center h-9 w-9 rounded-xl bg-gradient-to-br from-grape to-graped text-white font-display font-bold">L</span>
+        <span className="font-display font-semibold tracking-wide hidden sm:block">Spark</span>
+      </button>
+      <div className="flex-1"/>
+      <div className="hidden sm:flex items-center gap-2">
+        <Pill style={{background:'rgba(255,194,75,.15)', color:'#FFC24B'}}>🔥 {app.streak} day streak</Pill>
+      </div>
+      <button onClick={()=>app.nav('/profile')} className="flex items-center gap-2 rounded-full bg-white/5 border border-white/10 pl-2 pr-3 py-1.5">
+        <span className="grid place-items-center h-7 w-7 rounded-full bg-gradient-to-br from-punch to-grape text-white text-xs font-bold">{lvl}</span>
+        <span className="w-16 sm:w-24"><span className="xpbar"><i style={{width:Math.max(6,pct)+'%'}}/></span></span>
+        <span className="text-xs text-muted tnum hidden sm:inline">{app.xp} XP</span>
+      </button>
+    </div>
+  </header>;
+}
+
+/* ============================================================
+   LANDING
+   ============================================================ */
+function Landing(){
+  const app=useApp();
+  return <div>
+    <div className="max-w-[1180px] mx-auto px-4 sm:px-6">
+      <nav className="flex items-center justify-between py-5">
+        <div className="flex items-center gap-2">
+          <span className="grid place-items-center h-9 w-9 rounded-xl bg-gradient-to-br from-grape to-graped text-white font-display font-bold">L</span>
+          <span className="font-display font-semibold tracking-wide">Lumera <span className="text-grape">Spark</span></span>
+        </div>
+        <button onClick={()=>app.nav('/onboard')} className="btn btn-ghost px-4 py-2 text-sm">Log in</button>
+      </nav>
+
+      <section className="pt-10 sm:pt-16 pb-20 text-center max-w-3xl mx-auto">
+        <div className="pop"><Pill className="mb-5" style={{background:'rgba(124,92,255,.16)',color:'#B9A6FF'}}>✦ The Gen-Z edition of Lumera</Pill></div>
+        <h1 className="font-serif text-4xl sm:text-6xl leading-[1.05] fadeUp">Money that <span className="grad-text">levels up</span> with you.</h1>
+        <p className="text-muted text-lg mt-5 leading-relaxed fadeUp" style={{animationDelay:'.1s'}}>
+          Build real money habits like a game — earn XP, keep streaks, complete quests. Same trusted Lumera brain, way more fun. Educational guidance, privacy-first.
+        </p>
+        <div className="flex flex-wrap items-center justify-center gap-3 mt-8 fadeUp" style={{animationDelay:'.18s'}}>
+          <button onClick={()=>app.nav('/onboard')} className="btn btn-grape px-7 py-3.5">Start free →</button>
+          <button onClick={()=>{ app.startDemo(); }} className="btn btn-ghost px-7 py-3.5">Try the demo</button>
+        </div>
+        <div className="text-xs text-faint mt-4">No bank login. No card. Cancel the streak guilt anytime.</div>
+      </section>
+
+      <section className="pb-16">
+        <div className="text-center mb-8">
+          <Pill style={{background:'rgba(255,255,255,.05)',color:'#9A93AE'}}>One family. Pick your world.</Pill>
+          <h2 className="font-serif text-3xl sm:text-4xl mt-3">The Lumera family of products</h2>
+          <p className="text-muted mt-2 max-w-xl mx-auto">Lumera is the parent. Each product below is its own focused world — log into any of them from one place.</p>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
+          {Object.values(SUBS).map(s=>
+            <Card key={s.key} className="relative overflow-hidden" hover={s.live} onClick={s.live?()=>app.nav('/onboard'):undefined}>
+              <div className="absolute -top-8 -right-8 h-28 w-28 rounded-full blur-2xl opacity-40" style={{background:s.accent}}/>
+              <div className="relative">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">{s.emoji}</span>
+                  <div><div className="font-display font-bold text-lg leading-none">{s.name}</div>
+                    <div className="text-xs" style={{color:s.accent}}>{s.tag} · by Lumera</div></div>
+                </div>
+                <p className="text-sm text-muted mt-3 leading-relaxed">{s.blurb}</p>
+                <div className="mt-4">{s.live
+                  ? <span className="text-xs font-semibold" style={{color:s.accent}}>Enter {s.name} →</span>
+                  : <Pill style={{background:'rgba(255,255,255,.06)',color:'#9A93AE'}}>Coming soon</Pill>}</div>
+              </div>
+            </Card>
+          )}
+        </div>
+      </section>
+
+      <footer className="border-t border-white/8 py-8 text-center text-xs text-faint">
+        Lumera Spark is a prototype. Educational guidance only — not licensed financial advice. Market data is illustrative.
+        <div className="mt-2">This is the gamified edition — the classic Lumera lives in <code>Lumera.html</code>.</div>
+      </footer>
+    </div>
+  </div>;
+}
+
+/* ============================================================
+   ONBOARDING — expense-prep intro · skip · age band · quick quiz
+   This same flow runs for real sign-ups AND the demo.
+   ============================================================ */
+const PREP_ITEMS = [
+  { emoji:'💸', t:'What you spend on', d:'Rent, food, transport, fun, subscriptions — rough monthly amounts are fine.' },
+  { emoji:'💰', t:'What you make', d:'Your monthly take-home income (after tax). A guess is OK to start.' },
+  { emoji:'🔁', t:'Recurring stuff', d:'Subscriptions and regular bills — the ones that auto-renew.' },
+  { emoji:'🏦', t:'What you’ve got & owe', d:'Savings, and any debts like a loan, card or BNPL balance.' },
+];
+
+function Onboarding(){
+  const app=useApp();
+  const [step,setStep]=useState(0);            // 0 prep, 1 age, 2 vibe, 3 goal, 4 done
+  const [band,setBand]=useState(app.band||'young');
+  const [vibe,setVibe]=useState(app.profile.vibe||'');
+  const [goal,setGoal]=useState(app.profile.goal||'');
+  const total=4;
+
+  const finish=()=>{ app.completeOnboard({band, vibe, goal}); app.nav('/dashboard'); };
+  const skip=()=>{ // "I've already done this" — keep existing data, jump in
+    app.completeOnboard({band:app.band||band, vibe:app.profile.vibe||vibe, goal:app.profile.goal||goal}); app.nav('/dashboard'); };
+
+  return <div className="min-h-screen grid place-items-center px-4 py-10">
+    <div className="w-full max-w-lg">
+      <div className="flex items-center justify-between mb-5">
+        <button onClick={()=> step>0? setStep(step-1) : app.nav('/')} className="text-sm text-muted hover:text-cloud">← Back</button>
+        <div className="flex gap-1.5">{Array.from({length:total}).map((_,i)=>
+          <span key={i} className={cx('h-1.5 rounded-full transition-all', i<=step?'w-7 bg-grape':'w-3 bg-white/12')}/>)}</div>
+        <button onClick={skip} className="text-sm text-muted hover:text-cloud">Skip</button>
+      </div>
+
+      {step===0 && <Card className="fadeUp">
+        <div className="text-3xl floaty">🧰</div>
+        <h2 className="font-serif text-2xl mt-3">First — let’s grab your stuff.</h2>
+        <p className="text-muted text-sm mt-2 leading-relaxed">Lumera works off one month of real numbers. You don’t need them to the penny, but it helps to have a rough idea of these. Not sure yet? You can fill them in as you go.</p>
+        <div className="grid gap-2.5 mt-4">
+          {PREP_ITEMS.map(p=><div key={p.t} className="flex gap-3 items-start rounded-xl2 border border-white/8 bg-white/3 p-3">
+            <span className="text-xl">{p.emoji}</span>
+            <div><div className="font-semibold text-sm">{p.t}</div><div className="text-xs text-muted leading-relaxed">{p.d}</div></div>
+          </div>)}
+        </div>
+        <div className="flex gap-2 mt-5">
+          <button onClick={()=>setStep(1)} className="btn btn-grape flex-1 py-3">Got it, let’s go</button>
+        </div>
+        <button onClick={skip} className="w-full text-center text-sm text-muted hover:text-cloud mt-3">I’ve already set this up — skip to my dashboard</button>
+      </Card>}
+
+      {step===1 && <Card className="fadeUp">
+        <h2 className="font-serif text-2xl">How old are you, roughly?</h2>
+        <p className="text-muted text-sm mt-1.5">This tunes Lumera to what matters for you now. You can always see every tool — we just lead with the useful ones.</p>
+        <div className="grid grid-cols-2 gap-2.5 mt-4">
+          {BANDS.map(b=><button key={b.id} onClick={()=>{setBand(b.id); setStep(2);}}
+            className={cx('text-left rounded-xl2 border p-3.5 transition', band===b.id?'border-grape bg-grape/15':'border-white/10 bg-white/3 hover:border-grape/50')}>
+            <div className="text-2xl">{b.emoji}</div>
+            <div className="font-display font-semibold mt-1">{b.label}</div>
+            <div className="text-[11px] text-muted leading-snug mt-0.5">{b.sub}</div>
+          </button>)}
+        </div>
+      </Card>}
+
+      {step===2 && <Card className="fadeUp">
+        <h2 className="font-serif text-2xl">What’s your money vibe right now?</h2>
+        <p className="text-muted text-sm mt-1.5">No wrong answer — it just sets your starting quests.</p>
+        <div className="flex flex-wrap gap-2 mt-4">
+          {['Just surviving','Saving up','Ready to invest','Killing some debt','Just curious'].map(v=>
+            <button key={v} onClick={()=>setVibe(v)} className={cx('chip', vibe===v&&'on')}>{v}</button>)}
+        </div>
+        <button disabled={!vibe} onClick={()=>setStep(3)} className={cx('btn w-full py-3 mt-6', vibe?'btn-grape':'btn-ghost opacity-50')}>Next</button>
+      </Card>}
+
+      {step===3 && <Card className="fadeUp">
+        <h2 className="font-serif text-2xl">Pick your first quest.</h2>
+        <p className="text-muted text-sm mt-1.5">We’ll build your dashboard around it (and hand you some XP).</p>
+        <div className="grid gap-2.5 mt-4">
+          {[['Build a £/$ buffer','🛟'],['Cut subscription waste','📺'],['Start investing','🌱'],['Learn the basics','📚'],['Crush a goal','🎯']].map(([g,e])=>
+            <button key={g} onClick={()=>setGoal(g)} className={cx('flex items-center gap-3 rounded-xl2 border p-3 transition text-left', goal===g?'border-grape bg-grape/15':'border-white/10 bg-white/3 hover:border-grape/50')}>
+              <span className="text-xl">{e}</span><span className="font-semibold text-sm">{g}</span></button>)}
+        </div>
+        <button disabled={!goal} onClick={finish} className={cx('btn w-full py-3 mt-6', goal?'btn-grape':'btn-ghost opacity-50')}>Enter Lumera →</button>
+      </Card>}
+    </div>
+  </div>;
+}
+
+/* ============================================================
+   PRODUCT HUB — log into any subsidiary from one Lumera page
+   ============================================================ */
+function Hub(){
+  const app=useApp();
+  return <Shell>
+    <div className="mb-6">
+      <Pill style={{background:'rgba(124,92,255,.16)',color:'#B9A6FF'}}>Lumera Group</Pill>
+      <h1 className="font-serif text-3xl sm:text-4xl mt-3">Your products</h1>
+      <p className="text-muted mt-2 max-w-xl">Lumera is the parent. Tap any product to enter its world — your XP and streak follow you everywhere.</p>
+    </div>
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
+      {Object.values(SUBS).map(s=>{
+        const tools=TOOLS.filter(t=>t.sub===s.key);
+        return <Card key={s.key} hover={s.live} onClick={s.live?()=>app.nav('/sub/'+s.key):undefined} className="relative overflow-hidden">
+          <div className="absolute -top-10 -right-10 h-32 w-32 rounded-full blur-2xl opacity-40" style={{background:s.accent}}/>
+          <div className="relative">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">{s.emoji}</span>
+              <div><div className="font-display font-bold text-lg leading-none">{s.name}</div>
+                <div className="text-xs" style={{color:s.accent}}>{s.tag} · by Lumera</div></div>
+            </div>
+            <p className="text-sm text-muted mt-3 leading-relaxed">{s.blurb}</p>
+            {s.live
+              ? <div className="flex flex-wrap gap-1.5 mt-4">{tools.slice(0,4).map(t=><span key={t.id} className="text-[11px] rounded-full bg-white/5 border border-white/10 px-2 py-0.5">{t.emoji} {t.name}</span>)}{tools.length>4&&<span className="text-[11px] text-faint px-1 py-0.5">+{tools.length-4}</span>}</div>
+              : <Pill className="mt-4" style={{background:'rgba(255,255,255,.06)',color:'#9A93AE'}}>Coming soon</Pill>}
+          </div>
+        </Card>;
+      })}
+    </div>
+  </Shell>;
+}
+
+/* ============================================================
+   SUBSIDIARY PAGE — its tools, age-filtered (rest under "More tools")
+   ============================================================ */
+function SubPage({subKey}){
+  const app=useApp(); const s=SUBS[subKey]; const [showAll,setShowAll]=useState(false);
+  if(!s) return <Shell><Empty msg="Unknown product."/></Shell>;
+  const all=TOOLS.filter(t=>t.sub===subKey);
+  const featured=all.filter(t=>t.bands.includes(app.band));
+  const more=all.filter(t=>!t.bands.includes(app.band));
+  return <Shell>
+    <button onClick={()=>app.nav('/hub')} className="text-sm text-muted hover:text-cloud">← All products</button>
+    <div className="mt-4 mb-6 flex items-center gap-3">
+      <span className="grid place-items-center h-14 w-14 rounded-2xl text-2xl" style={{background:s.accent+'22', boxShadow:'0 0 0 1px '+s.accent+'44'}}>{s.emoji}</span>
+      <div><h1 className="font-serif text-3xl">{s.name} <span className="text-base font-sans text-muted">by Lumera</span></h1>
+        <div className="text-sm" style={{color:s.accent}}>{s.tag}</div></div>
+    </div>
+    <p className="text-muted max-w-xl mb-6">{s.blurb}</p>
+
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
+      {featured.map(t=><ToolCard key={t.id} t={t} accent={s.accent}/>)}
+    </div>
+
+    {more.length>0 && <div className="mt-6">
+      <button onClick={()=>setShowAll(v=>!v)} className="btn btn-ghost px-4 py-2 text-sm">
+        {showAll?'Hide':'Show'} more tools ({more.length}) {showAll?'▲':'▼'}</button>
+      <p className="text-xs text-faint mt-2">These are here whenever you need them — just less relevant for your stage right now.</p>
+      {showAll && <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 stagger">
+        {more.map(t=><ToolCard key={t.id} t={t} accent={s.accent} dim/>)}
+      </div>}
+    </div>}
+  </Shell>;
+}
+
+function ToolCard({t,accent,dim}){
+  const app=useApp();
+  return <Card onClick={()=>app.nav('/tool/'+t.id)} className={cx('relative', dim&&'opacity-70')}>
+    <div className="flex items-start gap-3">
+      <span className="grid place-items-center h-11 w-11 rounded-xl text-xl shrink-0" style={{background:accent+'1F'}}>{t.emoji}</span>
+      <div><div className="font-display font-semibold">{t.name}</div>
+        <p className="text-sm text-muted mt-1 leading-relaxed">{t.desc}</p></div>
+    </div>
+    <div className="mt-3 text-xs font-semibold" style={{color:accent}}>Open →</div>
+  </Card>;
+}
+
+/* ============================================================
+   TOOL PAGE — placeholder that keeps the content/promise, links to
+   the full classic build. (Deep tool UIs live in Lumera.html.)
+   ============================================================ */
+function ToolPage({toolId}){
+  const app=useApp(); const t=TOOLS.find(x=>x.id===toolId); const s=t&&SUBS[t.sub];
+  if(!t) return <Shell><Empty msg="Tool not found."/></Shell>;
+  return <Shell>
+    <button onClick={()=>app.nav('/sub/'+t.sub)} className="text-sm text-muted hover:text-cloud">← {s.name}</button>
+    <Card className="mt-4 text-center max-w-lg mx-auto">
+      <div className="text-4xl floaty">{t.emoji}</div>
+      <h1 className="font-serif text-3xl mt-3">{t.name}</h1>
+      <p className="text-muted mt-2">{t.desc}</p>
+      <div className="rounded-xl2 border border-white/8 bg-white/3 p-4 mt-5 text-sm text-muted text-left">
+        <b className="text-cloud">In this Spark preview</b> the full interactive {t.name.toLowerCase()} screen isn’t wired up yet — it lives in the classic build. The gamified shell, products and onboarding are fully working here.
+      </div>
+      <button onClick={()=>app.award(15)} className="btn btn-grape px-6 py-3 mt-5">Mark as explored · +15 XP</button>
+    </Card>
+  </Shell>;
+}
+
+/* ============================================================
+   DASHBOARD — gamified home: level, quests, streak, your products
+   ============================================================ */
+function Dashboard(){
+  const app=useApp();
+  const lvl=levelFromXp(app.xp); const base=xpForLevel(lvl), next=xpForLevel(lvl+1);
+  const pct=Math.round(((app.xp-base)/(next-base))*100);
+  const featuredTools=TOOLS.filter(t=>t.bands.includes(app.band)).slice(0,6);
+  const bandLabel=(BANDS.find(b=>b.id===app.band)||{}).label||'';
+  return <Shell>
+    <div className="grid lg:grid-cols-3 gap-4 mb-4">
+      <Card className="lg:col-span-2 relative overflow-hidden">
+        <div className="absolute -top-12 -right-12 h-40 w-40 rounded-full blur-3xl opacity-40 bg-grape"/>
+        <div className="relative">
+          <div className="text-sm text-muted">Welcome back{app.profile.goal?` — chasing: ${app.profile.goal}`:''} {app.demo&&<span className="pill ml-1" style={{background:'rgba(255,194,75,.15)',color:'#FFC24B'}}>Demo</span>}</div>
+          <h1 className="font-serif text-3xl mt-1">Level {lvl} · {app.xp} XP</h1>
+          <div className="mt-3 max-w-md"><span className="xpbar"><i style={{width:Math.max(6,pct)+'%'}}/></span>
+            <div className="text-xs text-muted mt-1">{next-app.xp} XP to level {lvl+1}</div></div>
+          <div className="flex flex-wrap gap-2 mt-4">
+            <Pill style={{background:'rgba(255,194,75,.15)',color:'#FFC24B'}}>🔥 {app.streak} day streak</Pill>
+            <Pill style={{background:'rgba(52,224,161,.15)',color:'#34E0A1'}}>🎚️ {bandLabel} mode</Pill>
+            <Pill style={{background:'rgba(124,92,255,.15)',color:'#B9A6FF'}}>🏅 {app.badges} badges</Pill>
+          </div>
+        </div>
+      </Card>
+      <Card>
+        <div className="font-display font-semibold mb-3">Daily quests</div>
+        <div className="space-y-2.5">
+          {app.quests.map(q=><button key={q.id} onClick={()=>app.completeQuest(q.id)} disabled={q.done}
+            className={cx('w-full flex items-center gap-3 rounded-xl2 border p-3 text-left transition', q.done?'border-mint/40 bg-mint/10':'border-white/10 bg-white/3 hover:border-grape/50')}>
+            <span className={cx('grid place-items-center h-7 w-7 rounded-full text-sm', q.done?'bg-mint text-ink':'bg-white/10')}>{q.done?'✓':q.emoji}</span>
+            <span className={cx('flex-1 text-sm', q.done&&'line-through text-muted')}>{q.label}</span>
+            <span className="text-xs font-semibold text-grape">+{q.xp}</span>
+          </button>)}
+        </div>
+      </Card>
+    </div>
+
+    <div className="flex items-center justify-between mb-3 mt-6">
+      <h2 className="font-serif text-2xl">Made for you</h2>
+      <button onClick={()=>app.nav('/hub')} className="text-sm text-grape">All products →</button>
+    </div>
+    <p className="text-sm text-muted mb-4 -mt-2">Leading with what matters at {bandLabel}. Everything else is one tap away in each product.</p>
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
+      {featuredTools.map(t=><ToolCard key={t.id} t={t} accent={SUBS[t.sub].accent}/>)}
+    </div>
+  </Shell>;
+}
+
+/* ============================================================
+   PROFILE
+   ============================================================ */
+function Profile(){
+  const app=useApp(); const lvl=levelFromXp(app.xp);
+  return <Shell>
+    <Card className="max-w-lg">
+      <div className="flex items-center gap-3">
+        <span className="grid place-items-center h-14 w-14 rounded-2xl bg-gradient-to-br from-punch to-grape text-white text-xl font-display font-bold">{lvl}</span>
+        <div><h1 className="font-serif text-2xl">{app.profile.name||'You'}</h1>
+          <div className="text-sm text-muted">Level {lvl} · {app.xp} XP · 🔥 {app.streak} day streak</div></div>
+      </div>
+      <div className="grid grid-cols-2 gap-3 mt-5">
+        <div className="rounded-xl2 border border-white/8 bg-white/3 p-3"><div className="text-xs text-muted">Age mode</div><div className="font-display font-semibold">{(BANDS.find(b=>b.id===app.band)||{}).label}</div></div>
+        <div className="rounded-xl2 border border-white/8 bg-white/3 p-3"><div className="text-xs text-muted">Badges</div><div className="font-display font-semibold">{app.badges}</div></div>
+      </div>
+      <div className="mt-5">
+        <div className="text-xs text-muted mb-2">Change age mode (re-tunes what’s featured)</div>
+        <div className="flex flex-wrap gap-2">
+          {BANDS.map(b=><button key={b.id} onClick={()=>app.setBand(b.id)} className={cx('chip', app.band===b.id&&'on')}>{b.emoji} {b.label}</button>)}
+        </div>
+      </div>
+      <div className="flex gap-2 mt-6">
+        <button onClick={()=>app.nav('/onboard')} className="btn btn-ghost flex-1 py-2.5 text-sm">Redo setup</button>
+        <button onClick={app.logout} className="btn btn-ghost flex-1 py-2.5 text-sm">Log out</button>
+      </div>
+    </Card>
+  </Shell>;
+}
+
+/* ============================================================
+   SHELL + helpers
+   ============================================================ */
+function Shell({children}){
+  return <div><HUD/>
+    <main className="max-w-[1180px] mx-auto px-4 sm:px-6 py-6 pb-24">{children}</main>
+    <BottomNav/>
+  </div>;
+}
+function BottomNav(){
+  const app=useApp(); const [route]=[app.route];
+  const items=[['/dashboard','🏠','Home'],['/hub','🧭','Products'],['/sub/leaf','🌿','Learn'],['/profile','😎','You']];
+  return <nav className="fixed bottom-0 inset-x-0 z-40 glass">
+    <div className="max-w-[1180px] mx-auto flex items-center justify-around px-2 py-2 pb-[max(8px,env(safe-area-inset-bottom))]">
+      {items.map(([to,e,l])=>{ const a=route===to; return <button key={to} onClick={()=>app.nav(to)}
+        className={cx('flex flex-col items-center gap-0.5 px-4 py-1 rounded-xl', a?'text-cloud':'text-faint')}>
+        <span className={cx('text-lg transition', a&&'scale-110')}>{e}</span><span className="text-[10px] font-medium">{l}</span></button>; })}
+    </div>
+  </nav>;
+}
+const Empty=({msg})=> <div className="text-center text-muted py-20">{msg}</div>;
+
+/* ============================================================
+   APP ROOT
+   ============================================================ */
+const todayStr=()=> new Date().toISOString().slice(0,10);
+const DEFAULT_QUESTS=[
+  { id:'q1', emoji:'👀', label:'Check your dashboard', xp:10, done:false },
+  { id:'q2', emoji:'📺', label:'Review one subscription', xp:20, done:false },
+  { id:'q3', emoji:'📚', label:'Finish a 2-min lesson', xp:25, done:false },
+];
+
+function App(){
+  const [route,nav]=useHashRoute();
+  const persisted=load();
+  const [user,setUser]=useState(persisted.user||null);
+  const [demo,setDemo]=useState(persisted.demo||false);
+  const [onboarded,setOnboarded]=useState(persisted.onboarded||false);
+  const [band,setBandState]=useState(persisted.band||'young');
+  const [profile,setProfile]=useState(persisted.profile||{name:'',vibe:'',goal:''});
+  const [xp,setXp]=useState(persisted.xp||0);
+  const [streak,setStreak]=useState(persisted.streak||1);
+  const [badges,setBadges]=useState(persisted.badges||0);
+  const [quests,setQuests]=useState(persisted.questDay===todayStr()? (persisted.quests||DEFAULT_QUESTS): DEFAULT_QUESTS);
+  const [burst,setBurst]=useState(0);
+
+  // streak bump on first load each day
+  useEffect(()=>{ const p=load(); const last=p.lastDay; const today=todayStr();
+    if(last && last!==today){ const y=new Date(Date.now()-864e5).toISOString().slice(0,10);
+      setStreak(s=> last===y ? (s+1) : 1); }
+  },[]);
+
+  // persist
+  useEffect(()=>{ save({user,demo,onboarded,band,profile,xp,streak,badges,quests,questDay:todayStr(),lastDay:todayStr()}); },
+    [user,demo,onboarded,band,profile,xp,streak,badges,quests]);
+
+  const award=useCallback((n)=>{ setXp(x=>x+n); setBurst(b=>b+1); },[]);
+  const completeQuest=useCallback((id)=>{ setQuests(qs=>qs.map(q=>{ if(q.id===id&&!q.done){ award(q.xp); return {...q,done:true}; } return q; })); },[award]);
+  const completeOnboard=useCallback(({band,vibe,goal})=>{ setBandState(band); setProfile(p=>({...p,vibe,goal})); setOnboarded(true);
+    if(!onboarded){ award(50); setBadges(b=>b+1); } },[onboarded,award]);
+  const startDemo=useCallback(()=>{ setUser({name:'Demo'}); setDemo(true); setProfile({name:'Demo',vibe:'Just curious',goal:'Learn the basics'}); setBandState('young'); setOnboarded(false); nav('/onboard'); },[nav]);
+  const logout=useCallback(()=>{ setUser(null); setDemo(false); setOnboarded(false); setXp(0); setStreak(1); setBadges(0); setQuests(DEFAULT_QUESTS); nav('/'); },[nav]);
+
+  // ensure a user exists once onboarding starts
+  useEffect(()=>{ if((route==='/onboard') && !user) setUser({name:''}); },[route,user]);
+
+  const value={ route, nav, user, demo, onboarded, band, setBand:setBandState, profile, setProfile,
+    xp, streak, badges, quests, award, completeQuest, completeOnboard, startDemo, logout,
+    setOnboarded };
+
+  // route guards (synchronous — no blank-frame flash)
+  let view=null;
+  const seg=route.split('/').filter(Boolean);
+  if(route==='/' ) view=<Landing/>;
+  else if(route==='/onboard') view=<Onboarding/>;
+  else if(!user){ if(route!=='/'){ location.hash='/'; } view=<Landing/>; }
+  else if(!onboarded && route!=='/onboard'){ location.hash='/onboard'; view=<Onboarding/>; }
+  else if(route==='/dashboard') view=<Dashboard/>;
+  else if(route==='/hub') view=<Hub/>;
+  else if(route==='/profile') view=<Profile/>;
+  else if(seg[0]==='sub') view=<SubPage subKey={seg[1]}/>;
+  else if(seg[0]==='tool') view=<ToolPage toolId={seg[1]}/>;
+  else view=<Dashboard/>;
+
+  return <Ctx.Provider value={value}>
+    <XPBurst fire={burst}/>
+    {view}
+  </Ctx.Provider>;
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<ErrorBoundary><App/></ErrorBoundary>);
+</script>
+</body>
+</html>
