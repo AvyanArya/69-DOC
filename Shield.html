@@ -65,7 +65,7 @@
   // Apply saved theme before paint to avoid a flash. 'system' follows the OS setting.
   (function(){
     try{
-      var saved = localStorage.getItem('lumera_theme') || 'dark';
+      var saved = localStorage.getItem('lumera_theme') || 'light';
       var dark = saved==='dark' || (saved==='system' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
       document.documentElement.setAttribute('data-theme', dark?'dark':'light');
       document.documentElement.setAttribute('data-theme-pref', saved);
@@ -2280,6 +2280,14 @@ const SUB_TOOL_DESC = {
 };
 // Each sub-product gets its own branded "site": a bold accent hero + its real
 // tools. Reached from the sidebar or the hub; opens the real Lumera tools.
+// Bold, saturated hero gradients per product — vibrant + white text = high contrast.
+const HERO_GRAD = {
+  lumera:'linear-gradient(135deg,#7C3AED 0%,#6D28D9 45%,#4F46E5 100%)',
+  leaf:  'linear-gradient(135deg,#15A34A 0%,#22C55E 45%,#0D9488 100%)',
+  atlas: 'linear-gradient(135deg,#2563EB 0%,#3B82F6 45%,#06B6D4 100%)',
+  shield:'linear-gradient(135deg,#334155 0%,#475569 45%,#1E293B 100%)',
+  forge: 'linear-gradient(135deg,#DC2626 0%,#EF4444 45%,#F97316 100%)',
+};
 const FORGE_FEATURES = [
   ['Side-income ideas','💡','Curated ways to earn more, matched to your skills and time.'],
   ['Salary benchmarks','📊','See what your role really pays — by city, level and industry.'],
@@ -2292,22 +2300,29 @@ function ProductPage({ k }){
   const tools=sub.routes.map(r=>NAV_BY_ROUTE[r]).filter(Boolean); const a=sub.accent;
   const lvl=levelFromXp(app.xp); const base=xpForLevel(lvl),next=xpForLevel(lvl+1);
   const pct=Math.round(((app.xp-base)/((next-base)||1))*100); const badges=Math.floor(app.xp/100);
-  const stat=(l,v)=><div className="rounded-xl2 p-3.5" style={{background:'rgba(255,255,255,.07)', border:'1px solid rgba(255,255,255,.10)'}}>
-    <div className="text-[11px] uppercase tracking-wider text-cream/55">{l}</div><div className="font-serif text-2xl text-cream tnum mt-0.5">{v}</div></div>;
+  const stat=(l,v)=><div className="rounded-xl2 p-3.5 backdrop-blur-sm" style={{background:'rgba(255,255,255,.16)', border:'1px solid rgba(255,255,255,.22)'}}>
+    <div className="text-[11px] uppercase tracking-wider" style={{color:'rgba(255,255,255,.8)'}}>{l}</div><div className="font-serif text-2xl tnum mt-0.5" style={{color:'#fff'}}>{v}</div></div>;
+  const goFirst=()=> tools.length? app.nav(tools[0].to) : (app.awardXp&&app.awardXp(10));
   return <AppShell>
-    {/* ===== GRAND HERO ===== */}
-    <div className="relative overflow-hidden rounded-xl3 mb-5 p-8 sm:p-12"
-      style={{background:`radial-gradient(900px 400px at 80% -20%, ${a}3A, transparent 60%), linear-gradient(135deg, ${a}24, rgba(8,8,16,.7) 60%), #111120`, boxShadow:`0 0 0 1px ${a}40, 0 30px 80px rgba(0,0,0,.4)`}}>
-      <div className="absolute -top-20 -right-16 h-64 w-64 rounded-full blur-3xl opacity-50" style={{background:a}}/>
-      <div className="absolute -bottom-24 -left-10 h-56 w-56 rounded-full blur-3xl opacity-30" style={{background:a}}/>
+    {/* ===== GRAND VIBRANT HERO ===== */}
+    <div className="relative overflow-hidden rounded-xl3 mb-5 p-8 sm:p-14" style={{background:HERO_GRAD[k]||HERO_GRAD.lumera, color:'#fff', boxShadow:`0 24px 70px ${a}66`}}>
+      {/* decorative layers */}
+      <div className="absolute inset-0 opacity-[.14] pointer-events-none" style={{backgroundImage:'radial-gradient(circle at center, #fff 1.4px, transparent 1.5px)', backgroundSize:'24px 24px'}}/>
+      <div className="absolute -top-24 -right-16 h-72 w-72 rounded-full bg-white/25 blur-3xl floaty pointer-events-none"/>
+      <div className="absolute -bottom-28 -left-12 h-64 w-64 rounded-full bg-black/15 blur-3xl pointer-events-none"/>
+      <div className="absolute top-8 right-10 text-[120px] leading-none opacity-15 select-none pointer-events-none floaty hidden sm:block">{sub.emoji}</div>
       <div className="relative">
-        <button onClick={backToLumera} className="inline-flex items-center gap-1.5 text-xs font-semibold mb-5 px-3 py-1.5 rounded-full" style={{color:'#fff', background:'rgba(255,255,255,.10)'}}><Icon name="chevron" size={13} className="rotate-180"/>Lumera</button>
-        <div className="text-[11px] font-bold uppercase tracking-[.28em]" style={{color:a}}>{sub.key!=='lumera'?'A Lumera company':'The parent company'}</div>
-        <div className="flex items-center gap-4 mt-3"><span className="text-5xl sm:text-6xl drop-shadow">{sub.emoji}</span>
-          <div><h1 className="font-serif text-5xl sm:text-6xl text-cream leading-none">{sub.name}</h1>
-            <div className="text-sm font-semibold mt-1.5" style={{color:a}}>{sub.tag}</div></div></div>
-        <p className="text-cream/75 mt-4 max-w-2xl text-lg leading-relaxed">{sub.blurb}</p>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-7 max-w-2xl">
+        <button onClick={backToLumera} className="inline-flex items-center gap-1.5 text-xs font-semibold mb-6 px-3 py-1.5 rounded-full text-white hover:bg-white/25 transition" style={{background:'rgba(255,255,255,.18)'}}><Icon name="chevron" size={13} className="rotate-180"/>Lumera</button>
+        <div className="text-[11px] font-bold uppercase tracking-[.3em]" style={{color:'rgba(255,255,255,.85)'}}>{sub.key!=='lumera'?'A Lumera company':'The parent company'}</div>
+        <div className="flex items-center gap-4 mt-3"><span className="text-5xl sm:text-7xl" style={{filter:'drop-shadow(0 4px 10px rgba(0,0,0,.25))'}}>{sub.emoji}</span>
+          <div><h1 className="font-serif text-5xl sm:text-7xl leading-none" style={{color:'#fff', textShadow:'0 2px 20px rgba(0,0,0,.2)'}}>{sub.name}</h1>
+            <div className="text-sm font-bold uppercase tracking-[.18em] mt-2" style={{color:'rgba(255,255,255,.9)'}}>{sub.tag}</div></div></div>
+        <p className="mt-5 max-w-2xl text-lg sm:text-xl leading-relaxed" style={{color:'rgba(255,255,255,.92)'}}>{sub.blurb}</p>
+        <div className="flex flex-wrap items-center gap-3 mt-6">
+          <button onClick={goFirst} className="btn px-6 py-3 text-sm font-bold" style={{background:'#fff', color:a, boxShadow:'0 8px 24px rgba(0,0,0,.18)'}}>{tools.length?`Explore ${sub.name}`:'Join the waitlist'} <Icon name="arrowR" size={15}/></button>
+          <div className="text-sm" style={{color:'rgba(255,255,255,.8)'}}>{tools.length? `${tools.length} tools · powered by Lumera` : 'Launching soon'}</div>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8 max-w-2xl">
           {stat('Level', lvl)}{stat('Total XP', app.xp)}{stat('Day streak', app.profile.streak)}{stat('Badges', badges)}
         </div>
       </div>
@@ -4574,7 +4589,7 @@ function App(){
   const [expenses,setExpenses] = useState(persisted.expenses||DEFAULT_EXPENSES);
   const [balances,setBalances] = useState(persisted.balances||DEFAULT_BALANCES);
   const [lang,setLang] = useState(persisted.lang||'en');
-  const [theme,setThemeState] = useState(()=>{ try{ return localStorage.getItem('lumera_theme')||'dark'; }catch(e){ return 'dark'; } });
+  const [theme,setThemeState] = useState(()=>{ try{ return localStorage.getItem('lumera_theme')||'light'; }catch(e){ return 'light'; } });
   const [mode,setModeState] = useState(()=>{ try{ return localStorage.getItem('lumera_mode')||'spark'; }catch(e){ return 'spark'; } });
   // Spark-mode gamification (only surfaced when mode==='spark'; harmless otherwise)
   const [xp,setXp] = useState(()=>{ try{ return JSON.parse(localStorage.getItem('lumera_spark_xp'))||0; }catch(e){ return 0; } });
