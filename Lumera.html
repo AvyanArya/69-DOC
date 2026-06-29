@@ -23,28 +23,30 @@
           serif: ['Fraunces', 'Georgia', 'serif'],
           sans: ['Inter', 'system-ui', 'sans-serif'],
         },
+        // Colors reference CSS variables (R G B channels) so light/dark is a
+        // single variable flip and Tailwind opacity modifiers (e.g. bg-gold/15) still work.
         colors: {
-          ivory:   '#F6F2EB',
-          canvas:  '#F3EEE5',
-          cream:   '#FCFAF6',
-          card:    '#FFFDFA',
-          sand:    '#EFE8DC',
-          stone:   '#E4DBCC',
-          taupe:   '#CFC4B1',
-          line:    '#E9E2D5',
-          charcoal:'#272320',
-          ink:     '#16130F',
-          muted:   '#7C7264',
-          faint:   '#9C9387',
-          gold:    '#BFA06A',
-          goldd:   '#9E7E45',
-          golddd:  '#7E632F',
-          sage:    '#6E8B6A',
-          saged:   '#4C6447',
-          clay:    '#C0714F',
-          clayd:   '#9C5638',
-          berry:   '#A6534A',
-          sky:     '#6E86A0',
+          ivory:   'rgb(var(--c-ivory) / <alpha-value>)',
+          canvas:  'rgb(var(--c-canvas) / <alpha-value>)',
+          cream:   'rgb(var(--c-cream) / <alpha-value>)',
+          card:    'rgb(var(--c-card) / <alpha-value>)',
+          sand:    'rgb(var(--c-sand) / <alpha-value>)',
+          stone:   'rgb(var(--c-stone) / <alpha-value>)',
+          taupe:   'rgb(var(--c-taupe) / <alpha-value>)',
+          line:    'rgb(var(--c-line) / <alpha-value>)',
+          charcoal:'rgb(var(--c-charcoal) / <alpha-value>)',
+          ink:     'rgb(var(--c-ink) / <alpha-value>)',
+          muted:   'rgb(var(--c-muted) / <alpha-value>)',
+          faint:   'rgb(var(--c-faint) / <alpha-value>)',
+          gold:    'rgb(var(--c-gold) / <alpha-value>)',
+          goldd:   'rgb(var(--c-goldd) / <alpha-value>)',
+          golddd:  'rgb(var(--c-golddd) / <alpha-value>)',
+          sage:    'rgb(var(--c-sage) / <alpha-value>)',
+          saged:   'rgb(var(--c-saged) / <alpha-value>)',
+          clay:    'rgb(var(--c-clay) / <alpha-value>)',
+          clayd:   'rgb(var(--c-clayd) / <alpha-value>)',
+          berry:   'rgb(var(--c-berry) / <alpha-value>)',
+          sky:     'rgb(var(--c-sky) / <alpha-value>)',
         },
         boxShadow: {
           'soft':   '0 1px 2px rgba(39,35,32,.04), 0 6px 16px rgba(39,35,32,.05)',
@@ -58,6 +60,17 @@
     }
   }
 </script>
+<script>
+  // Apply saved theme before paint to avoid a flash. 'system' follows the OS setting.
+  (function(){
+    try{
+      var saved = localStorage.getItem('lumera_theme') || 'light';
+      var dark = saved==='dark' || (saved==='system' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+      document.documentElement.setAttribute('data-theme', dark?'dark':'light');
+      document.documentElement.setAttribute('data-theme-pref', saved);
+    }catch(e){ document.documentElement.setAttribute('data-theme','light'); }
+  })();
+</script>
 
 <!-- React + Babel — pinned versions with SRI to guard against CDN supply-chain attacks -->
 <script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"
@@ -68,20 +81,58 @@
   integrity="sha384-AISI5AuDG6E8DeEiFMVB3rGQxhZt24OU0avMp+GMV64+tpnA3+Z6F5MT0f96iPva" crossorigin="anonymous"></script>
 
 <style>
-  :root{
+  /* ===== THEME TOKENS =====
+     R G B channels consumed by the Tailwind config above (rgb(var(--c-x)/<alpha>)).
+     Light is the default; [data-theme="dark"] flips the surfaces and text. */
+  :root, [data-theme="light"]{
+    --c-ivory:246 242 235; --c-canvas:243 238 229; --c-cream:252 250 246; --c-card:255 253 250;
+    --c-sand:239 232 220; --c-stone:228 219 204; --c-taupe:207 196 177; --c-line:233 226 213;
+    --c-charcoal:39 35 32; --c-ink:22 19 15; --c-muted:124 114 100; --c-faint:156 147 135;
+    --c-gold:191 160 106; --c-goldd:158 126 69; --c-golddd:126 99 47;
+    --c-sage:110 139 106; --c-saged:76 100 71; --c-clay:192 113 79; --c-clayd:156 86 56;
+    --c-berry:166 83 74; --c-sky:110 134 160;
+    /* legacy named vars used by hand-written CSS + inline styles */
     --ivory:#F6F2EB; --cream:#FCFAF6; --card:#FFFDFA; --line:#E9E2D5;
     --charcoal:#272320; --muted:#7C7264; --gold:#BFA06A; --goldd:#9E7E45; --sage:#6E8B6A; --clay:#C0714F;
+    --page-grad-a:rgba(191,160,106,.10); --page-grad-b:rgba(110,139,106,.08);
+  }
+  [data-theme="dark"]{
+    /* warm near-black surfaces, ascending in lightness; text tokens become light */
+    --c-ivory:20 17 13; --c-canvas:25 21 16; --c-cream:30 26 20; --c-card:37 32 25;
+    --c-sand:48 41 31; --c-stone:62 53 40; --c-taupe:86 75 57; --c-line:58 50 39;
+    --c-charcoal:237 231 220; --c-ink:248 244 236; --c-muted:166 157 142; --c-faint:138 129 116;
+    --c-gold:208 178 122; --c-goldd:198 166 110; --c-golddd:180 148 96;
+    --c-sage:130 168 124; --c-saged:150 186 142; --c-clay:214 134 99; --c-clayd:224 150 116;
+    --c-berry:208 120 110; --c-sky:138 168 198;
+    --ivory:#14110D; --cream:#1E1A14; --card:#251F19; --line:#3A3227;
+    --charcoal:#EDE7DC; --muted:#A69D8E; --gold:#D0B27A; --goldd:#C6A66E; --sage:#82A87C; --clay:#D68663;
+    --page-grad-a:rgba(191,160,106,.14); --page-grad-b:rgba(110,139,106,.10);
+    color-scheme:dark;
   }
   *{ -webkit-tap-highlight-color: transparent; }
   html{ scroll-behavior:smooth; }
   body{
     font-family:'Inter',system-ui,sans-serif; color:var(--charcoal); background:var(--ivory);
     -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; margin:0;
+    transition:background-color .4s ease, color .4s ease;
     background-image:
-      radial-gradient(1200px 600px at 100% -10%, rgba(191,160,106,.10), transparent 60%),
-      radial-gradient(900px 500px at -10% 110%, rgba(110,139,106,.08), transparent 55%);
+      radial-gradient(1200px 600px at 100% -10%, var(--page-grad-a), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, var(--page-grad-b), transparent 55%);
     background-attachment:fixed;
   }
+  /* ===== Dark-mode fixes for tokens that double as "dark surface + light text" ===== */
+  /* These surfaces must stay dark even though their text token flips light. */
+  [data-theme="dark"] .bg-charcoal{ background-color:#0F0C08 !important; }
+  [data-theme="dark"] .bg-ink{ background-color:#0A0805 !important; }
+  /* Light-on-dark text utilities must stay light. */
+  [data-theme="dark"] .text-cream{ color:#F3ECDD !important; }
+  [data-theme="dark"] .text-ivory{ color:#F3ECDD !important; }
+  /* Glass panels: darken the translucent white so they read on a dark page. */
+  [data-theme="dark"] .glass{ background:rgba(20,17,13,.72) !important; }
+  [data-theme="dark"] .bg-white{ background-color:#251F19 !important; }
+  [data-theme="dark"] .lux-card{ background:linear-gradient(180deg,#241E18,#1B1610); }
+  [data-theme="dark"] .skeleton{ background:linear-gradient(90deg,#241e17 25%,#2c261d 37%,#241e17 63%); background-size:200% 100%; }
+  [data-theme="dark"] img:not([src*=".svg"]){ filter:brightness(.92); }
   h1,h2,h3,.serif{ font-family:'Fraunces',Georgia,serif; font-optical-sizing:auto; }
   ::selection{ background:rgba(191,160,106,.28); color:#1c1813; }
 
@@ -1016,6 +1067,8 @@ const COLORS = { gold:'#BFA06A', goldd:'#9E7E45', sage:'#6E8B6A', saged:'#4C6447
 
 /* ---- Icon set (stroke, currentColor) ---- */
 const P = {
+  sun:'M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6L17 7M7 17l-1.4 1.4M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z',
+  moon:'M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z',
   wallet:'M3 7h15a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7zm0 0V6a2 2 0 0 1 2-2h11M17 12h.01',
   plus:'M12 5v14M5 12h14', x:'M6 6l12 12M18 6L6 18', check:'M5 12l5 5L20 6', minus:'M5 12h14',
   spark:'M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z', sparkles:'M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5zM18 14l.8 2.2L21 17l-2.2.8L18 20l-.8-2.2L15 17l2.2-.8z',
@@ -1391,6 +1444,15 @@ function Sidebar(){
   </aside>;
 }
 
+function ThemeToggle(){
+  const app = useApp();
+  // One-tap light/dark flip from the header; full Light/Dark/System control lives in Settings.
+  const isDark = app.theme==='dark' || (app.theme==='system' && typeof matchMedia!=='undefined' && matchMedia('(prefers-color-scheme: dark)').matches);
+  return <button onClick={()=>app.setTheme(isDark?'light':'dark')} title={isDark?'Switch to light':'Switch to dark'} aria-label="Toggle theme"
+    className="grid place-items-center h-10 w-10 rounded-full hover:bg-sand text-charcoal/80 transition">
+    <Icon name={isDark?'sun':'moon'} size={18}/>
+  </button>;
+}
 function TopBar(){
   const app = useApp(); const { t } = app; const m = app.metrics;
   return <header className="sticky top-0 z-20 glass border-b border-line">
@@ -1407,6 +1469,7 @@ function TopBar(){
       <button onClick={()=>app.nav('/dashboard')} className="hidden sm:flex items-center gap-2 rounded-full bg-charcoal text-cream px-3 py-1.5">
         <span className="text-xs text-gold">Score</span><span className="text-sm font-semibold tnum">{m.overall}</span></button>
       <CurrencySwitcher/><LanguageSwitcher compact/>
+      <ThemeToggle/>
       <button onClick={()=>app.nav('/settings')} className="grid place-items-center h-10 w-10 rounded-full bg-gradient-to-br from-gold to-goldd text-cream font-serif">{app.profile.name[0]}</button>
     </div>
   </header>;
@@ -3282,6 +3345,19 @@ function Settings(){
           </div>
         </Card>
 
+        <Card><Eyebrow className="mb-4">Appearance</Eyebrow>
+          <p className="text-sm text-muted mb-3">Switch between light and dark, or follow your device automatically.</p>
+          <div className="grid grid-cols-3 gap-2.5">
+            {[['light','Light','sun'],['dark','Dark','moon'],['system','System','gauge']].map(([val,label,icon])=>
+              <button key={val} onClick={()=>app.setTheme(val)}
+                className={cx('flex flex-col items-center gap-2 rounded-xl2 border px-3 py-4 transition', app.theme===val?'border-gold bg-gold/10':'border-line bg-cream hover:bg-sand')}>
+                <span className={cx('grid place-items-center h-9 w-9 rounded-xl', app.theme===val?'bg-charcoal text-gold':'bg-sand text-goldd')}><Icon name={icon} size={18}/></span>
+                <span className="text-sm font-medium text-charcoal">{label}</span>
+                {app.theme===val&&<Icon name="check" size={14} className="text-goldd"/>}
+              </button>)}
+          </div>
+        </Card>
+
         <Card><Eyebrow className="mb-4">{t('langName')} · multilingual</Eyebrow>
           <p className="text-sm text-muted mb-3">Lumera is built for a global audience. Choose your language — Arabic switches the entire interface to right-to-left.</p>
           <div className="grid sm:grid-cols-2 gap-2.5">
@@ -4120,6 +4196,7 @@ function App(){
   const [expenses,setExpenses] = useState(persisted.expenses||DEFAULT_EXPENSES);
   const [balances,setBalances] = useState(persisted.balances||DEFAULT_BALANCES);
   const [lang,setLang] = useState(persisted.lang||'en');
+  const [theme,setThemeState] = useState(()=>{ try{ return localStorage.getItem('lumera_theme')||'light'; }catch(e){ return 'light'; } });
   const [mobileMenu,setMobileMenu] = useState(false);
   const [showLogout,setShowLogout] = useState(false);
   const [showWelcome,setShowWelcome] = useState(false);
@@ -4155,6 +4232,16 @@ function App(){
   const checkIn=()=>{ setProfile(p=>{ const today=new Date().toISOString().slice(0,10); if(p.lastCheckin===today) return p; const y=new Date(Date.now()-864e5).toISOString().slice(0,10); const ns=(p.lastCheckin===y)?(p.streak||0)+1:1; return {...p, streak:ns, lastCheckin:today, streakBest:Math.max(p.streakBest||0,ns)}; }); };
 
   useEffect(()=>{ const L=LANGS.find(l=>l.code===lang)||LANGS[0]; document.documentElement.dir=L.dir; document.documentElement.lang=lang; },[lang]);
+  // Theme: 'light' | 'dark' | 'system'. Apply to <html>, persist, and react to OS changes when on 'system'.
+  const setTheme = useCallback((pref)=>{ setThemeState(pref); try{ localStorage.setItem('lumera_theme', pref); }catch(e){} },[]);
+  useEffect(()=>{
+    const apply=()=>{ const dark = theme==='dark' || (theme==='system' && matchMedia('(prefers-color-scheme: dark)').matches);
+      document.documentElement.setAttribute('data-theme', dark?'dark':'light');
+      document.documentElement.setAttribute('data-theme-pref', theme);
+      const tc=document.querySelector('meta[name="theme-color"]'); if(tc) tc.setAttribute('content', dark?'#14110D':'#F6F2EB'); };
+    apply();
+    if(theme==='system'){ const mq=matchMedia('(prefers-color-scheme: dark)'); mq.addEventListener('change',apply); return ()=>mq.removeEventListener('change',apply); }
+  },[theme]);
   useEffect(()=>{ LA.start({ lang, cur:profile.currency, user:user?user.email:'guest' }); },[]);
   useEffect(()=>{ LA.event('view',{ path:route.split('?')[0], user:user?user.email:'guest' }); },[route]);
   useEffect(()=>{ LA.event('lang',{ lang }); },[lang]);
@@ -4177,7 +4264,7 @@ function App(){
 
   const value = { route, nav, user, signup, login, loginProvider, demo, logout:askLogout, askLogout, completeOnboarding, checkIn, onboarded,
     profile, updateProfile, setProfile, expenses, setExpenses, balances, setBalances,
-    lang, setLang, setRegion, resetAll, fmt, metrics, mobileMenu, setMobileMenu, t: tfn(lang) };
+    lang, setLang, theme, setTheme, setRegion, resetAll, fmt, metrics, mobileMenu, setMobileMenu, t: tfn(lang) };
 
   const Page = redirect ? (()=> null) : (ROUTES[path]||Landing);
   return <AppCtx.Provider value={value}>
