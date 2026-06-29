@@ -1445,22 +1445,54 @@ const NAV = [
   ]},
 ];
 
+/* Age-targeting (Spark mode): map the profile age bracket to a life-stage band,
+   then feature the tools that matter at that stage. Everything else still
+   exists — it just moves under a "More tools" reveal so the app feels calmer. */
+const bandFromAge = (ab)=>{ const n=Number((ab||'').match(/\d+/)?.[0]||30);
+  return n<=27?'young' : n<=44?'mid' : 'established'; };
+const ROUTE_BANDS = {
+  '/dashboard':['young','mid','established'], '/twin':['young','mid','established'], '/simulator':['young','mid','established'],
+  '/budget':['young','mid','established'], '/goals':['young','mid','established'], '/emergency':['young','mid','established'],
+  '/subscriptions':['young','mid'], '/debt':['mid','established'], '/networth':['mid','established'], '/retirement':['established'],
+  '/insurance':['mid','established'], '/credit':['young','mid','established'],
+  '/invest':['young','mid','established'], '/market':['young','mid','established'], '/globe':['young','mid','established'],
+  '/world':['mid','established'], '/news':['young','mid','established'],
+  '/learn':['young','mid'], '/resources':['young','mid','established'], '/badges':['young','mid'],
+  '/updates':['young','mid','established'], '/pricing':['young','mid','established'], '/privacy':['young','mid','established'],
+};
+const isFeatured = (to, band)=>{ const b=ROUTE_BANDS[to]; return !b || b.includes(band); };
+
 let _sbScroll=0;
 function Sidebar(){
   const app = useApp(); const { t, route } = app; const navRef=useRef(null);
+  const [showMore,setShowMore]=useState(false);
+  const spark = app.mode==='spark'; const band = bandFromAge(app.profile.ageBracket);
   useEffect(()=>{ if(navRef.current) navRef.current.scrollTop=_sbScroll; },[]);
   return <aside className="hidden lg:flex flex-col w-64 shrink-0 h-screen sticky top-0 border-r border-line bg-cream/60 glass">
     <div className="px-5 py-5"><button onClick={()=>app.nav(app.user?'/dashboard':'/')}><Logo size={20} sub/></button></div>
     <nav ref={navRef} onScroll={e=>{_sbScroll=e.target.scrollTop;}} className="flex-1 overflow-y-auto no-scrollbar px-3 pb-4">
-      {NAV.map(grp=><div key={grp.section} className="mb-4">
-        <div className="px-3 mb-1.5 text-[10px] tracking-[.22em] uppercase text-faint">{grp.section}</div>
-        {grp.items.map(it=>{ const active=route===it.to;
+      {spark && <button onClick={()=>app.nav('/hub')} className={cx('w-full flex items-center gap-3 rounded-xl px-3 py-2.5 mb-3 text-sm transition-all duration-300', route==='/hub'?'bg-charcoal text-cream shadow-soft':'text-charcoal/80 hover:bg-sand')}>
+        <Icon name="grid" size={18} className={route==='/hub'?'text-gold':'text-muted'}/>All products</button>}
+      {(()=>{ const navBtn=(it)=>{ const active=route===it.to;
           return <button key={it.to} onClick={()=>app.nav(it.to)}
             className={cx('w-full flex items-center gap-3 rounded-xl px-3 py-2.5 mb-0.5 text-sm transition-all duration-300',
               active?'bg-charcoal text-cream shadow-soft':'text-charcoal/80 hover:bg-sand')}>
-            <Icon name={it.icon} size={18} className={active?'text-gold':'text-muted'}/>{t(it.k)}
-          </button>; })}
-      </div>)}
+            <Icon name={it.icon} size={18} className={active?'text-gold':'text-muted'}/>{t(it.k)}</button>; };
+        if(!spark) return NAV.map(grp=><div key={grp.section} className="mb-4">
+          <div className="px-3 mb-1.5 text-[10px] tracking-[.22em] uppercase text-faint">{grp.section}</div>
+          {grp.items.map(navBtn)}</div>);
+        // Spark mode: feature age-relevant tools; tuck the rest under "More tools".
+        const hidden=[];
+        const groups=NAV.map(grp=>{ const feat=grp.items.filter(it=>isFeatured(it.to,band)); grp.items.forEach(it=>{ if(!isFeatured(it.to,band)) hidden.push(it); });
+          return feat.length? <div key={grp.section} className="mb-4">
+            <div className="px-3 mb-1.5 text-[10px] tracking-[.22em] uppercase text-faint">{grp.section}</div>{feat.map(navBtn)}</div> : null; });
+        return <>{groups}
+          {hidden.length>0 && <div className="mb-4">
+            <button onClick={()=>setShowMore(s=>!s)} className="w-full flex items-center justify-between px-3 py-2 text-[10px] tracking-[.22em] uppercase text-faint hover:text-muted">
+              <span>More tools</span><Icon name="chevron" size={13} className={showMore?'-rotate-90':'rotate-90'}/></button>
+            {showMore && <div className="anim-fadeIn">{hidden.map(navBtn)}</div>}
+          </div>}</>;
+      })()}
     </nav>
     <div className="p-3 space-y-2">
       <button onClick={()=>app.nav('/assistant')} className="w-full btn btn-gold px-4 py-3 text-sm"><Icon name="spark" size={16}/>{t('nav_assistant')}</button>
@@ -2112,6 +2144,53 @@ function QuestsPanel(){
       {done===total && <div className="text-center text-sm text-saged font-semibold py-1 anim-pop">All done — see you tomorrow! 🎉</div>}
     </div>
   </Card>;
+}
+
+/* ============================================================
+   LUMERA GROUP · product hub (Spark mode)
+   Reframes the existing tools as branded sub-products you enter
+   from one place. Lumera is the parent; the rest are "by Lumera".
+   ============================================================ */
+const SUBS = [
+  { key:'lumera', name:'Lumera', tag:'Core money', accent:'#6D5EF6', emoji:'💜', live:true,
+    blurb:'The parent. Your everyday money HQ — budgeting, goals, net worth and the wealth simulator.',
+    routes:['/dashboard','/budget','/goals','/emergency','/subscriptions','/networth','/simulator','/twin'] },
+  { key:'leaf', name:'Leaf', tag:'Learn & grow', accent:'#16C49A', emoji:'🌿', live:true,
+    blurb:'Money education that doesn’t bore you — bite-size lessons, a knowledge hub and badges for every win.',
+    routes:['/learn','/resources','/badges','/updates'] },
+  { key:'atlas', name:'Atlas', tag:'Markets & investing', accent:'#3BA8FF', emoji:'🛰️', live:true,
+    blurb:'Markets explained for humans — stocks, indices, a globe of exchanges and plain-English news.',
+    routes:['/invest','/market','/globe','/world','/news'] },
+  { key:'shield', name:'Shield', tag:'Protect & plan', accent:'#9277FF', emoji:'🛡️', live:true,
+    blurb:'The grown-up stuff on your terms — credit building, insurance, debt payoff and long-term planning.',
+    routes:['/credit','/debt','/insurance','/retirement'] },
+  { key:'forge', name:'Forge', tag:'Career & income', accent:'#FFB23E', emoji:'🔥', live:false,
+    blurb:'Grow what you earn, not just what you save — side-income ideas, salary benchmarks and career moves.',
+    routes:[] },
+];
+const NAV_BY_ROUTE = {}; NAV.forEach(g=>g.items.forEach(it=>{ NAV_BY_ROUTE[it.to]=it; }));
+function ProductHub(){
+  const app=useApp(); const { t } = app; const band=bandFromAge(app.profile.ageBracket);
+  return <AppShell>
+    <PageHead eyebrow="Lumera Group" title="Your products."
+      desc="Lumera is the parent company. Each product below is its own focused world — enter any of them from one place." />
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
+      {SUBS.map(s=>{ const tools=s.routes.map(r=>NAV_BY_ROUTE[r]).filter(Boolean);
+        const enter=()=>{ if(!s.live) return; const first=s.routes.find(r=>isFeatured(r,band))||s.routes[0]; if(first) app.nav(first); };
+        return <Card key={s.key} hover={s.live} onClick={s.live?enter:undefined} className="relative overflow-hidden sweep-wrap">
+          <div className="absolute -top-10 -right-10 h-28 w-28 rounded-full blur-2xl opacity-30" style={{background:s.accent}}/>
+          <div className="relative">
+            <div className="flex items-center gap-2"><span className="text-2xl">{s.emoji}</span>
+              <div><div className="font-serif text-lg text-charcoal leading-none">{s.name}</div>
+                <div className="text-xs font-semibold" style={{color:s.accent}}>{s.tag}{s.key!=='lumera'?' · by Lumera':''}</div></div></div>
+            <p className="text-sm text-muted mt-3 leading-relaxed">{s.blurb}</p>
+            {s.live
+              ? <div className="flex flex-wrap gap-1.5 mt-4">{tools.slice(0,5).map(it=><span key={it.to} className="text-[11px] rounded-full bg-sand px-2 py-0.5 text-muted">{t(it.k)}</span>)}{tools.length>5&&<span className="text-[11px] text-faint px-1 py-0.5">+{tools.length-5}</span>}</div>
+              : <Pill className="mt-4">Coming soon</Pill>}
+          </div>
+        </Card>; })}
+    </div>
+  </AppShell>;
 }
 
 function Dashboard(){
@@ -4287,7 +4366,7 @@ const ROUTES = {
   '/simulator':WealthSimulator, '/invest':Investment, '/market':Market, '/news':News, '/assistant':AIAssistant,
   '/budget':Budget, '/goals':Goals, '/emergency':Emergency, '/subscriptions':Subscriptions, '/debt':Debt,
   '/networth':NetWorth, '/learn':Learn, '/resources':KnowledgeHub, '/updates':Updates, '/pricing':Pricing, '/privacy':Privacy, '/settings':Settings,
-  '/retirement':Retirement, '/globe':GlobalMarkets, '/world':WorldMonitor,
+  '/retirement':Retirement, '/globe':GlobalMarkets, '/world':WorldMonitor, '/hub':ProductHub,
 };
 
 const STORE='lumera_v2';
