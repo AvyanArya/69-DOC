@@ -136,36 +136,47 @@
   [data-theme="dark"] .skeleton{ background:linear-gradient(90deg,#241e17 25%,#2c261d 37%,#241e17 63%); background-size:200% 100%; }
   [data-theme="dark"] img:not([src*=".svg"]){ filter:brightness(.92); }
 
-  /* ===== SPARK MODE — "Deep Ocean" theme: crisp white/navy with blue accents.
-     Same layout & components as the original; only the palette changes. Remaps
-     every neutral + accent channel, so all existing tools restyle at once. ===== */
+  /* ===== SPARK MODE — "Nebula": dark, gamified. Purple + blue accents on a
+     black/grey base. Same layout & components; only the palette changes.
+     Self-contained (works regardless of the light/dark theme toggle). ===== */
   [data-mode="spark"]{
-    --c-ivory:245 247 250; --c-canvas:238 242 247; --c-cream:250 252 254; --c-card:255 255 255;
-    --c-sand:232 237 243; --c-stone:214 223 234; --c-taupe:184 196 210; --c-line:226 232 240;
-    --c-charcoal:15 32 48; --c-ink:11 26 42; --c-muted:86 103 122; --c-faint:134 150 166;
-    --c-gold:37 99 235; --c-goldd:29 79 208; --c-golddd:26 63 160;
-    --ivory:#F5F7FA; --cream:#FFFFFF; --card:#FFFFFF; --line:#E2E8F0; --charcoal:#0F2030; --muted:#56677A; --gold:#2563EB; --goldd:#1D4FD0;
+    --c-ivory:14 14 22; --c-canvas:18 18 28; --c-cream:24 24 38; --c-card:26 26 42;
+    --c-sand:36 36 58; --c-stone:48 48 74; --c-taupe:64 64 96; --c-line:42 42 66;
+    --c-charcoal:233 233 245; --c-ink:244 244 252; --c-muted:156 156 184; --c-faint:112 112 142;
+    --c-gold:139 92 246; --c-goldd:124 110 240; --c-golddd:99 102 241;
+    --ivory:#0E0E16; --cream:#181826; --card:#1A1A2A; --line:#2A2A42; --charcoal:#E9E9F5; --muted:#9C9CB8; --gold:#8B5CF6; --goldd:#7C6EF0;
   }
-  [data-mode="spark"] body{ background:#F5F7FA;
-    background-image:radial-gradient(1100px 600px at 100% -10%, rgba(37,99,235,.12), transparent 60%),
-      radial-gradient(900px 500px at -10% 110%, rgba(11,36,71,.08), transparent 55%); }
-  [data-mode="spark"] .lux-card{ background:linear-gradient(180deg,#ffffff,#f7fafd); }
-  [data-mode="spark"] .lift:hover{ border-color:#c2d2e8; }
-  [data-mode="spark"] .glass{ background:rgba(248,250,253,.75) !important; }
-  [data-mode="spark"] .btn-gold{ background:linear-gradient(180deg,#3B82F6,#2563EB); color:#fff; box-shadow:0 6px 20px rgba(37,99,235,.30); }
-  [data-mode="spark"] .btn-gold:hover{ box-shadow:0 12px 32px rgba(37,99,235,.42); }
-  [data-mode="spark"] .btn-primary{ background:linear-gradient(180deg,#13283C,#0B1A2A); color:#eef4fb; }
-  [data-mode="spark"] .gold-text{ background:linear-gradient(100deg,#1D4FD0,#3B82F6,#0B2447); background-size:200% auto; -webkit-background-clip:text; background-clip:text; color:transparent; }
-  [data-mode="spark"] input[type=range].lux{ background:linear-gradient(90deg,#2563EB var(--p,40%), #dbe3ee var(--p,40%)); }
-  [data-mode="spark"] input[type=range].lux::-webkit-slider-thumb{ background:radial-gradient(circle at 35% 30%, #fff, #93b4f7 40%, #2563EB 100%); box-shadow:0 3px 10px rgba(29,79,208,.45), 0 0 0 1px rgba(29,79,208,.25); }
-  [data-mode="spark"] #loader{ background:#F5F7FA; }
-  [data-mode="spark"] #loader .mark{ color:#0F2030; }
-  [data-mode="spark"] #loader .bar>i{ background:linear-gradient(90deg,#3B82F6,#1D4FD0); }
-  [data-mode="spark"] ::selection{ background:rgba(37,99,235,.22); color:#0B1A2A; }
+  [data-mode="spark"] body{ background:#0E0E16;
+    background-image:radial-gradient(1000px 560px at 100% -10%, rgba(139,92,246,.24), transparent 60%),
+      radial-gradient(820px 480px at -10% 110%, rgba(59,130,246,.16), transparent 55%),
+      radial-gradient(620px 520px at 50% 120%, rgba(99,102,241,.12), transparent 60%); }
+  /* dark-surface + light-text plumbing (charcoal/cream are overloaded) */
+  [data-mode="spark"] .bg-charcoal{ background-color:#15152A !important; }
+  [data-mode="spark"] .bg-ink{ background-color:#0A0A14 !important; }
+  [data-mode="spark"] .text-cream,[data-mode="spark"] .text-ivory{ color:#ECECF6 !important; }
+  [data-mode="spark"] .glass{ background:rgba(16,16,28,.80) !important; }
+  [data-mode="spark"] .bg-white{ background-color:#1B1B2B !important; }
+  [data-mode="spark"] .lux-card{ background:linear-gradient(180deg,#1B1B2C,#15151F); }
+  [data-mode="spark"] .lift:hover{ border-color:#3a2f6a; box-shadow:0 0 0 1px rgba(139,92,246,.30), 0 18px 50px rgba(99,102,241,.22); }
+  [data-mode="spark"] .skeleton{ background:linear-gradient(90deg,#1c1c2c 25%,#262640 37%,#1c1c2c 63%); background-size:200% 100%; }
+  [data-mode="spark"] img:not([src*=".svg"]){ filter:brightness(.88); }
+  [data-mode="spark"] .btn-gold{ background:linear-gradient(180deg,#9B6CFF,#6D4FE6); color:#fff; box-shadow:0 6px 22px rgba(139,92,246,.45); }
+  [data-mode="spark"] .btn-gold:hover{ box-shadow:0 12px 34px rgba(139,92,246,.55); }
+  [data-mode="spark"] .btn-primary{ background:linear-gradient(180deg,#2B2B4C,#1A1A2E); color:#ECECF6; }
+  [data-mode="spark"] .btn-ghost{ background:rgba(255,255,255,.04); border-color:#2A2A42; color:#E9E9F5; }
+  [data-mode="spark"] .btn-ghost:hover{ background:rgba(255,255,255,.08); border-color:#4a3f7a; }
+  [data-mode="spark"] .gold-text{ background:linear-gradient(100deg,#A78BFA,#7C6EF0,#3B82F6); background-size:200% auto; -webkit-background-clip:text; background-clip:text; color:transparent; }
+  [data-mode="spark"] input[type=range].lux{ background:linear-gradient(90deg,#8B5CF6 var(--p,40%), #2A2A42 var(--p,40%)); }
+  [data-mode="spark"] input[type=range].lux::-webkit-slider-thumb{ background:radial-gradient(circle at 35% 30%, #fff, #b9a6f7 40%, #8B5CF6 100%); box-shadow:0 3px 10px rgba(124,110,240,.5), 0 0 0 1px rgba(124,110,240,.3); }
+  [data-mode="spark"] #loader{ background:#0E0E16; }
+  [data-mode="spark"] #loader .mark{ color:#ECECF6; }
+  [data-mode="spark"] #loader .bar{ background:#26263e; }
+  [data-mode="spark"] #loader .bar>i{ background:linear-gradient(90deg,#9B6CFF,#3B82F6); }
+  [data-mode="spark"] ::selection{ background:rgba(139,92,246,.34); color:#fff; }
 
   /* Gamification widgets (shown only in Spark mode) */
-  .xpbar{ height:9px; border-radius:999px; background:rgba(37,99,235,.14); overflow:hidden; }
-  .xpbar>i{ display:block; height:100%; border-radius:999px; background:linear-gradient(90deg,#3B82F6,#1D4FD0,#3B82F6); background-size:200% 100%; animation:shimmer 3s linear infinite, barfill 1s cubic-bezier(.22,1,.36,1); }
+  .xpbar{ height:9px; border-radius:999px; background:rgba(139,92,246,.16); overflow:hidden; }
+  .xpbar>i{ display:block; height:100%; border-radius:999px; background:linear-gradient(90deg,#8B5CF6,#3B82F6,#8B5CF6); background-size:200% 100%; animation:shimmer 3s linear infinite, barfill 1s cubic-bezier(.22,1,.36,1); }
   @keyframes shimmer{ 0%{background-position:-200% 0} 100%{background-position:200% 0} }
   @keyframes barfill{ from{width:0} }
   @keyframes confetti{ 0%{transform:translateY(0) rotate(0); opacity:1} 100%{transform:translateY(130px) rotate(380deg); opacity:0} }
@@ -1105,9 +1116,11 @@ const BUDGET_TEMPLATES = [
 // active mode (Deep Ocean blue + navy in Spark; original gold otherwise).
 const _spark = ()=> typeof document!=='undefined' && document.documentElement.getAttribute('data-mode')==='spark';
 const COLORS = {
-  get gold(){ return _spark()?'#2563EB':'#BFA06A'; }, get goldd(){ return _spark()?'#1D4FD0':'#9E7E45'; },
-  get charcoal(){ return _spark()?'#0F2030':'#272320'; }, get ink(){ return _spark()?'#0B1A2A':'#16130F'; },
-  sage:'#6E8B6A', saged:'#4C6447', clay:'#C0714F', berry:'#A6534A', sky:'#6E86A0', stone:'#D9CFBE', taupe:'#CFC4B1', muted:'#9C9387', line:'#E9E2D5' };
+  // Nebula (Spark) = purple/blue accents + light chart strokes on the dark base.
+  get gold(){ return _spark()?'#8B5CF6':'#BFA06A'; }, get goldd(){ return _spark()?'#6366F1':'#9E7E45'; },
+  get charcoal(){ return _spark()?'#C4C4DC':'#272320'; }, get ink(){ return _spark()?'#E9E9F5':'#16130F'; },
+  get sky(){ return _spark()?'#3B82F6':'#6E86A0'; }, get stone(){ return _spark()?'#3A3A56':'#D9CFBE'; },
+  sage:'#6E8B6A', saged:'#4C6447', clay:'#C0714F', berry:'#A6534A', taupe:'#CFC4B1', muted:'#9C9387', line:'#E9E2D5' };
 
 /* ---- Icon set (stroke, currentColor) ---- */
 const P = {
@@ -1499,17 +1512,27 @@ function Sidebar(){
         if(!spark) return NAV.map(grp=><div key={grp.section} className="mb-4">
           <div className="px-3 mb-1.5 text-[10px] tracking-[.22em] uppercase text-faint">{grp.section}</div>
           {grp.items.map(navBtn)}</div>);
-        // Spark mode: feature age-relevant tools; tuck the rest under "More tools".
-        const hidden=[];
-        const groups=NAV.map(grp=>{ const feat=grp.items.filter(it=>isFeatured(it.to,band)); grp.items.forEach(it=>{ if(!isFeatured(it.to,band)) hidden.push(it); });
-          return feat.length? <div key={grp.section} className="mb-4">
-            <div className="px-3 mb-1.5 text-[10px] tracking-[.22em] uppercase text-faint">{grp.section}</div>{feat.map(navBtn)}</div> : null; });
-        return <>{groups}
-          {hidden.length>0 && <div className="mb-4">
-            <button onClick={()=>setShowMore(s=>!s)} className="w-full flex items-center justify-between px-3 py-2 text-[10px] tracking-[.22em] uppercase text-faint hover:text-muted">
-              <span>More tools</span><Icon name="chevron" size={13} className={showMore?'-rotate-90':'rotate-90'}/></button>
-            {showMore && <div className="anim-fadeIn">{hidden.map(navBtn)}</div>}
-          </div>}</>;
+        // Spark mode: Lumera's own core tools, then one link per sub-product
+        // (Leaf / Atlas / Shield / Forge) — each opens its own branded site.
+        const lumeraSub=SUBS.find(s=>s.key==='lumera');
+        const core=lumeraSub.routes.filter(r=>isFeatured(r,band)).map(r=>NAV_BY_ROUTE[r]).filter(Boolean);
+        const products=SUBS.filter(s=>s.key!=='lumera');
+        return <>
+          <div className="mb-4">
+            <div className="px-3 mb-1.5 text-[10px] tracking-[.22em] uppercase text-faint">Lumera</div>
+            {core.map(navBtn)}
+          </div>
+          <div className="mb-4">
+            <div className="px-3 mb-1.5 text-[10px] tracking-[.22em] uppercase text-faint">The Lumera family</div>
+            {products.map(s=>{ const to='/'+s.key; const active=route===to;
+              return <button key={s.key} onClick={()=>s.live&&app.nav(to)} disabled={!s.live}
+                className={cx('w-full flex items-center gap-3 rounded-xl px-3 py-2.5 mb-0.5 text-sm transition-all duration-300',
+                  active?'bg-charcoal text-cream shadow-soft':'text-charcoal/80 hover:bg-sand', !s.live&&'opacity-50 cursor-default')}>
+                <span className="w-[18px] text-center text-base">{s.emoji}</span>
+                <span className="flex-1 text-left leading-tight">{s.name}<span className="block text-[10px] text-faint">{s.tag}</span></span>
+                {!s.live&&<span className="text-[9px] text-faint uppercase tracking-wider">soon</span>}</button>; })}
+          </div>
+        </>;
       })()}
     </nav>
     <div className="p-3 space-y-2">
@@ -1545,7 +1568,7 @@ function TopBar(){
       <button onClick={()=>app.nav('/dashboard')} className="hidden sm:flex items-center gap-2 rounded-full bg-charcoal text-cream px-3 py-1.5">
         <span className="text-xs text-gold">Score</span><span className="text-sm font-semibold tnum">{m.overall}</span></button>
       {app.mode==='spark' && <Hint text="Your Spark level — earn XP by completing daily quests."><button onClick={()=>app.nav('/dashboard')} className="hidden sm:flex items-center gap-1.5 rounded-full bg-gold/15 px-3 py-1.5">
-        <span className="grid place-items-center h-5 w-5 rounded-full text-white text-[10px] font-bold tnum" style={{background:'linear-gradient(135deg,#3B82F6,#1D4FD0)'}}>{levelFromXp(app.xp)}</span><span className="text-xs font-semibold text-goldd tnum">{app.xp} XP</span></button></Hint>}
+        <span className="grid place-items-center h-5 w-5 rounded-full text-white text-[10px] font-bold tnum" style={{background:'linear-gradient(135deg,#9B6CFF,#6366F1)'}}>{levelFromXp(app.xp)}</span><span className="text-xs font-semibold text-goldd tnum">{app.xp} XP</span></button></Hint>}
       <CurrencySwitcher/><LanguageSwitcher compact/>
       <ThemeToggle/>
       <button onClick={()=>app.nav('/settings')} className="grid place-items-center h-10 w-10 rounded-full bg-gradient-to-br from-gold to-goldd text-cream font-serif">{app.profile.name[0]}</button>
@@ -2110,7 +2133,7 @@ const levelFromXp = (xp)=> Math.floor(Math.sqrt((xp||0)/40))+1;
 const xpForLevel = (lvl)=> 40*Math.pow(lvl-1,2);
 function XPBurst({ fire }){
   const [bits,setBits]=useState([]);
-  useEffect(()=>{ if(!fire) return; const cols=['#2563EB','#0EA5E9','#16A34A','#F59E0B','#475569'];
+  useEffect(()=>{ if(!fire) return; const cols=['#8B5CF6','#3B82F6','#A78BFA','#6366F1','#22D3EE'];
     setBits(Array.from({length:24},(_,i)=>({id:i+'-'+fire,left:Math.random()*100,bg:cols[i%cols.length],delay:Math.random()*.2})));
     const t=setTimeout(()=>setBits([]),1150); return ()=>clearTimeout(t);
   },[fire]);
@@ -2122,10 +2145,10 @@ function SparkBanner(){
   const done=app.quests.filter(q=>q.done).length, total=app.quests.length, qpct=Math.round(done/total*100);
   return <div className="grid lg:grid-cols-3 gap-4 mb-4">
     <Card className="lg:col-span-1 relative overflow-hidden">
-      <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full blur-3xl opacity-30" style={{background:'#2563EB'}}/>
+      <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full blur-3xl opacity-30" style={{background:'#8B5CF6'}}/>
       <div className="relative">
         <Eyebrow className="mb-2">Your level</Eyebrow>
-        <div className="flex items-end gap-3"><span className="grid place-items-center h-14 w-14 rounded-2xl text-white font-serif text-2xl shadow-soft" style={{background:'linear-gradient(135deg,#3B82F6,#1D4FD0)'}}>{lvl}</span>
+        <div className="flex items-end gap-3"><span className="grid place-items-center h-14 w-14 rounded-2xl text-white font-serif text-2xl shadow-soft" style={{background:'linear-gradient(135deg,#9B6CFF,#6366F1)'}}>{lvl}</span>
           <div><div className="font-serif text-2xl text-charcoal leading-none">Level {lvl}</div><div className="text-sm text-muted mt-1 tnum">{xp} XP</div></div></div>
         <div className="mt-4 xpbar"><i style={{width:Math.max(6,pct)+'%'}}/></div>
         <div className="text-xs text-muted mt-1.5">{next-xp} XP to level {lvl+1}</div>
@@ -2141,8 +2164,8 @@ function SparkBanner(){
 function QuestsPanel(){
   const app=useApp(); const done=app.quests.filter(q=>q.done).length, total=app.quests.length; const pct=Math.round(done/total*100);
   return <Card className="overflow-hidden !p-0">
-    <div className="relative px-5 sm:px-6 pt-5 pb-4" style={{background:'linear-gradient(120deg, rgba(37,99,235,.14), rgba(14,165,233,.10) 60%, rgba(71,85,105,.06))'}}>
-      <div className="absolute -top-8 -right-8 h-28 w-28 rounded-full blur-2xl opacity-40" style={{background:'#2563EB'}}/>
+    <div className="relative px-5 sm:px-6 pt-5 pb-4" style={{background:'linear-gradient(120deg, rgba(139,92,246,.18), rgba(59,130,246,.12) 60%, rgba(99,102,241,.10))'}}>
+      <div className="absolute -top-8 -right-8 h-28 w-28 rounded-full blur-2xl opacity-40" style={{background:'#8B5CF6'}}/>
       <div className="relative flex items-center justify-between">
         <div className="flex items-center gap-2"><span className="grid place-items-center h-9 w-9 rounded-xl bg-card text-goldd shadow-soft"><Icon name="spark" size={18}/></span>
           <div><div className="font-serif text-lg text-charcoal leading-none">Today’s quests</div>
@@ -2195,34 +2218,43 @@ const SUB_TOOL_DESC = {
   '/invest':'Start investing, explained simply.', '/market':'Live-style markets with the “why”.', '/globe':'Spin the world’s exchanges.', '/world':'The big economic picture.', '/news':'Headlines in plain English.',
   '/credit':'Build a score you’re proud of.', '/debt':'A clear plan to clear what you owe.', '/insurance':'Cover what would actually hurt to lose.', '/retirement':'Tiny amounts now, huge later.',
 };
-function ProductHub(){
-  const app=useApp(); const { t } = app; const [sel,setSel]=useState(null);
-  const sub = sel && SUBS.find(s=>s.key===sel);
-  if(sub){ const tools=sub.routes.map(r=>NAV_BY_ROUTE[r]).filter(Boolean);
-    return <AppShell>
-      <button onClick={()=>setSel(null)} className="text-sm text-muted hover:text-charcoal flex items-center gap-1"><Icon name="chevron" size={14} className="rotate-180"/>All products</button>
-      <div className="mt-4 mb-5 flex items-center gap-3">
-        <span className="grid place-items-center h-14 w-14 rounded-2xl text-2xl" style={{background:sub.accent+'1A', boxShadow:'0 0 0 1px '+sub.accent+'33'}}>{sub.emoji}</span>
-        <div><h1 className="font-serif text-3xl text-charcoal leading-tight">{sub.name} <span className="text-base font-sans text-muted">{sub.key!=='lumera'?'· by Lumera':''}</span></h1>
-          <div className="text-sm font-semibold" style={{color:sub.accent}}>{sub.tag}</div></div>
-      </div>
-      <p className="text-muted max-w-xl mb-6">{sub.blurb}</p>
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
-        {tools.map(it=><Card key={it.to} onClick={()=>app.nav(it.to)} className="group">
-          <div className="flex items-start gap-3"><span className="grid place-items-center h-11 w-11 rounded-xl shrink-0 group-hover:scale-110 transition" style={{background:sub.accent+'18', color:sub.accent}}><Icon name={it.icon} size={20}/></span>
-            <div><div className="font-serif text-lg text-charcoal">{t(it.k)}</div><p className="text-sm text-muted mt-1 leading-relaxed">{SUB_TOOL_DESC[it.to]||''}</p></div></div>
-          <div className="mt-3 text-xs font-semibold flex items-center gap-1 opacity-0 group-hover:opacity-100 transition" style={{color:sub.accent}}>Open <Icon name="arrowR" size={13}/></div>
-        </Card>)}
-      </div>
-    </AppShell>;
-  }
+// Each sub-product gets its own branded "site": a bold accent hero + its real
+// tools. Reached from the sidebar or the hub; opens the real Lumera tools.
+function ProductPage({ k }){
+  const app=useApp(); const { t }=app; const sub=SUBS.find(s=>s.key===k);
+  if(!sub) return <AppShell><div className="text-center text-muted py-20">Unknown product.</div></AppShell>;
+  const tools=sub.routes.map(r=>NAV_BY_ROUTE[r]).filter(Boolean); const a=sub.accent;
   return <AppShell>
-    <PageHead eyebrow="Lumera Group" title="Your products."
-      desc="Lumera is the parent company. Each product is its own focused world — open one to see its tools." />
+    <button onClick={()=>app.nav('/hub')} className="text-sm text-muted hover:text-charcoal flex items-center gap-1"><Icon name="chevron" size={14} className="rotate-180"/>All products</button>
+    <div className="relative overflow-hidden rounded-xl3 mt-3 mb-6 p-7 sm:p-9"
+      style={{background:`linear-gradient(135deg, ${a}2E, ${a}0F 55%, rgba(10,10,20,.6)), #14142A`, boxShadow:`0 0 0 1px ${a}40`}}>
+      <div className="absolute -top-16 -right-10 h-52 w-52 rounded-full blur-3xl opacity-50" style={{background:a}}/>
+      <div className="relative">
+        <div className="text-[11px] font-semibold uppercase tracking-[.24em]" style={{color:a}}>{sub.key!=='lumera'?'A Lumera company':'Lumera'}</div>
+        <div className="flex items-center gap-3 mt-2"><span className="text-4xl">{sub.emoji}</span>
+          <h1 className="font-serif text-4xl sm:text-5xl text-cream leading-none">{sub.name}</h1></div>
+        <p className="text-cream/70 mt-3 max-w-xl leading-relaxed">{sub.blurb}</p>
+        <div className="mt-4 inline-flex items-center gap-2 text-xs text-cream/60"><span className="h-1.5 w-1.5 rounded-full" style={{background:a}}/>{tools.length} tool{tools.length!==1?'s':''} · powered by Lumera</div>
+      </div>
+    </div>
+    {tools.length? <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
+      {tools.map(it=><Card key={it.to} onClick={()=>app.nav(it.to)} className="group">
+        <div className="flex items-start gap-3"><span className="grid place-items-center h-11 w-11 rounded-xl shrink-0 group-hover:scale-110 transition" style={{background:a+'22', color:a}}><Icon name={it.icon} size={20}/></span>
+          <div><div className="font-serif text-lg text-charcoal">{t(it.k)}</div><p className="text-sm text-muted mt-1 leading-relaxed">{SUB_TOOL_DESC[it.to]||''}</p></div></div>
+        <div className="mt-3 text-xs font-semibold flex items-center gap-1 opacity-0 group-hover:opacity-100 transition" style={{color:a}}>Open <Icon name="arrowR" size={13}/></div>
+      </Card>)}
+    </div> : <div className="text-center text-muted py-12">This product is launching soon.</div>}
+  </AppShell>;
+}
+function ProductHub(){
+  const app=useApp(); const { t } = app;
+  return <AppShell>
+    <PageHead eyebrow="Lumera Group" title="The Lumera family."
+      desc="Lumera is the parent company. Each product is its own focused world — open one to enter its site and tools." />
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
       {SUBS.map(s=>{ const tools=s.routes.map(r=>NAV_BY_ROUTE[r]).filter(Boolean);
-        return <Card key={s.key} hover={s.live} onClick={s.live?()=>setSel(s.key):undefined} className="relative overflow-hidden sweep-wrap">
-          <div className="absolute -top-10 -right-10 h-28 w-28 rounded-full blur-2xl opacity-30" style={{background:s.accent}}/>
+        return <Card key={s.key} hover={s.live} onClick={s.live?()=>app.nav('/'+s.key):undefined} className="relative overflow-hidden sweep-wrap">
+          <div className="absolute -top-10 -right-10 h-28 w-28 rounded-full blur-2xl opacity-40" style={{background:s.accent}}/>
           <div className="relative">
             <div className="flex items-center gap-2"><span className="text-2xl">{s.emoji}</span>
               <div><div className="font-serif text-lg text-charcoal leading-none">{s.name}</div>
@@ -3578,14 +3610,14 @@ function Settings(){
           <div className="mt-4 pt-4 border-t border-line">
             <div className="text-sm font-medium text-charcoal mb-2">Experience</div>
             <div className="grid grid-cols-2 gap-2.5">
-              {[['classic','Classic','The original — no gamification.'],['spark','Spark','Daily quests, XP & the product hub.']].map(([val,label,desc])=>
+              {[['classic','Classic','The original light look.'],['spark','Spark','Dark “Nebula” theme + gamification.']].map(([val,label,desc])=>
                 <button key={val} onClick={()=>app.setMode(val)}
                   className={cx('text-left rounded-xl2 border px-4 py-3 transition', app.mode===val?'border-gold bg-gold/10':'border-line bg-cream hover:bg-sand')}>
                   <div className="flex items-center gap-2"><span className="text-lg">{val==='spark'?'✦':'🪶'}</span><span className="text-sm font-semibold text-charcoal">{label}</span>{app.mode===val&&<Icon name="check" size={14} className="text-goldd ml-auto"/>}</div>
                   <div className="text-[11px] text-muted mt-1 leading-relaxed">{desc}</div>
                 </button>)}
             </div>
-            <p className="text-[11px] text-faint mt-2">Spark keeps the same look and adds daily quests, XP and the Lumera Group product hub — switch back anytime.</p>
+            <p className="text-[11px] text-faint mt-2">Spark is a dark purple/blue theme with daily quests, XP and the Lumera Group product family — same tools and layout. Switch back anytime.</p>
           </div>
         </Card>
 
@@ -4411,6 +4443,8 @@ const ROUTES = {
   '/budget':Budget, '/goals':Goals, '/emergency':Emergency, '/subscriptions':Subscriptions, '/debt':Debt,
   '/networth':NetWorth, '/learn':Learn, '/resources':KnowledgeHub, '/updates':Updates, '/pricing':Pricing, '/privacy':Privacy, '/settings':Settings,
   '/retirement':Retirement, '/globe':GlobalMarkets, '/world':WorldMonitor, '/hub':ProductHub,
+  '/lumera':()=><ProductPage k="lumera"/>, '/leaf':()=><ProductPage k="leaf"/>, '/atlas':()=><ProductPage k="atlas"/>,
+  '/shield':()=><ProductPage k="shield"/>, '/forge':()=><ProductPage k="forge"/>,
 };
 
 const STORE='lumera_v2';
