@@ -210,6 +210,14 @@
   @keyframes confetti{ 0%{transform:translateY(0) rotate(0); opacity:1} 100%{transform:translateY(130px) rotate(380deg); opacity:0} }
   .conf{ position:fixed; top:-12px; width:9px; height:14px; border-radius:2px; z-index:200; pointer-events:none; animation:confetti 1.05s ease-in forwards; }
 
+  /* Mascot guide character */
+  .mascot{ animation:floaty 4s ease-in-out infinite; }
+  .mascot-eye{ width:9px; height:9px; border-radius:50%; background:#fff; position:relative; transform-origin:center; animation:blink 4.5s infinite; }
+  .mascot-eye::after{ content:''; position:absolute; width:4px; height:4px; border-radius:50%; background:#16131f; left:2.5px; top:3px; }
+  @keyframes blink{ 0%,90%,100%{ transform:scaleY(1) } 95%{ transform:scaleY(.12) } }
+  @keyframes wobble{ 0%,100%{ transform:rotate(-4deg) } 50%{ transform:rotate(4deg) } }
+  .mascot-wave{ animation:wobble 1.2s ease-in-out infinite; transform-origin:70% 70%; }
+
   h1,h2,h3,.serif{ font-family:'Fraunces',Georgia,serif; font-optical-sizing:auto; }
   ::selection{ background:rgba(191,160,106,.28); color:#1c1813; }
 
@@ -1660,7 +1668,7 @@ function AppShell({ children }){
       <TopBar/>
       <main ref={ref} className="flex-1 px-4 sm:px-6 lg:px-8 py-6 pb-28 lg:pb-10 max-w-[1180px] w-full mx-auto">{children}</main>
     </div>
-    <MobileNav/><MobileMenu/>
+    <MobileNav/><MobileMenu/><Guide/>
   </div>;
 }
 
@@ -2270,15 +2278,11 @@ const NAV_BY_ROUTE = {}; NAV.forEach(g=>g.items.forEach(it=>{ NAV_BY_ROUTE[it.to
 const ROUTE_PRODUCT = { '/lumera':'lumera','/leaf':'leaf','/atlas':'atlas','/shield':'shield','/forge':'forge' };
 SUBS.forEach(s=>s.routes.forEach(r=>{ if(s.key!=='lumera') ROUTE_PRODUCT[r]=s.key; }));
 const productOf = (path)=> ROUTE_PRODUCT[path] || 'lumera';
-// Each product is its own *website* (separate file/URL). This file is whichever
-// product set window.__LUMERA_SITE (default 'lumera' = the parent site).
 const SITE = (typeof window!=='undefined' && window.__LUMERA_SITE) || 'lumera';
 const SITE_FILE = { lumera:'Lumera.html', leaf:'Leaf.html', atlas:'Atlas.html', shield:'Shield.html', forge:'Forge.html' };
-// Open a product: same product = navigate in-app; different product = open its site in a new tab.
-function openProduct(app, key){
-  if(key===SITE){ app.nav('/'+key); }
-  else { try{ window.open(SITE_FILE[key]||'Lumera.html', '_blank', 'noopener'); }catch(e){ location.href=SITE_FILE[key]||'Lumera.html'; } }
-}
+// Enter a product's world IN-APP (always the current build — never a stale file).
+// Each product still gets its own URL/theme/shell, so it feels like a separate site.
+function openProduct(app, key){ app.nav('/'+key); }
 const backToLumera = ()=>{ if(SITE==='lumera'){ location.hash='/dashboard'; } else { location.href='Lumera.html'; } };
 const SUB_TOOL_DESC = {
   '/dashboard':'Your money at a glance.', '/budget':'See where every dirham goes.', '/goals':'Save for the things that matter.',
@@ -2310,6 +2314,67 @@ const TOOL_EMOJI = { '/dashboard':'🏠','/budget':'🧾','/goals':'🎯','/emer
 const PRODUCT_CHALLENGE = { leaf:['Finish a 2-minute lesson','📚',25], atlas:['Spot one market mover today','📊',20],
   shield:['Review one credit factor','💳',20], forge:['Set an income goal','🔥',15], lumera:['Log today’s spending','🧾',15] };
 const PRODUCT_PARTICLES = { leaf:['🌿','🍃','✨'], atlas:['🛰️','✨','💫'], shield:['🛡️','✨','⭐'], forge:['🔥','⚡','✨'], lumera:['✨','💫','⭐'] };
+
+// ===== Animated mascot guide — one character per product, gives a tutorial =====
+const GUIDE = {
+  lumera:{ name:'Lumi', tip:'your money guide', emoji:'🦉', lines:[
+    'Hi! I’m Lumi 🦉 — welcome to Lumera, your money HQ.',
+    'Up top is your Level, XP bar and daily quests. Complete quests to level up!',
+    'Below are your money tools — tap any card to dive in.',
+    'On the left is the Lumera family: Leaf, Atlas, Shield & Forge. Each is its own world. Let’s grow! 🌱'] },
+  leaf:{ name:'Sprout', tip:'your learning buddy', emoji:'🌱', lines:[
+    'Hey! I’m Sprout 🌱 — welcome to Leaf, where money finally makes sense.',
+    'Follow the green path below — each numbered node is a lesson or tool. Tap one to start.',
+    'Smash the Daily Challenge for bonus XP every single day.',
+    'Keep your streak alive and you’ll be a money pro in no time! 🍃'] },
+  atlas:{ name:'Nova', tip:'your markets co-pilot', emoji:'🛰️', lines:[
+    'I’m Nova 🛰️ — welcome to Atlas, your window on the markets.',
+    'The blue path takes you through investing, live-style markets and world news.',
+    'New to investing? Start at step 1 and work your way down.',
+    'Do the Daily Challenge to sharpen your market eye. 📈'] },
+  shield:{ name:'Sentinel', tip:'your protection guide', emoji:'🛡️', lines:[
+    'I’m Sentinel 🛡️ — welcome to Shield, where you protect what matters.',
+    'Walk the path to build credit, plan ahead and clear debt — step by step.',
+    'Every node you finish strengthens your financial defences.',
+    'Complete challenges to level up your protection. ⚔️'] },
+  forge:{ name:'Blaze', tip:'your income coach', emoji:'🔥', lines:[
+    'I’m Blaze 🔥 — welcome to Forge, where you grow what you earn.',
+    'Forge is firing up — preview what’s coming just below.',
+    'Join the waitlist to be first in line (and grab some XP).',
+    'Let’s turn up the heat on your income! ⚡'] },
+};
+function Mascot({ color='#8B5CF6', emoji='🦉', size=58 }){
+  return <span className="mascot relative grid place-items-center" style={{width:size, height:size,
+    background:`radial-gradient(circle at 35% 28%, ${color}, ${color}cc 70%, ${color}aa)`,
+    borderRadius:'46% 54% 50% 50% / 56% 56% 44% 44%', boxShadow:`0 10px 24px ${color}66, inset 0 -6px 10px rgba(0,0,0,.12)`}}>
+    <span className="flex gap-1.5 -mt-0.5"><span className="mascot-eye"/><span className="mascot-eye" style={{animationDelay:'.08s'}}/></span>
+    <span className="absolute bottom-1 h-1 w-3 rounded-b-full" style={{background:'rgba(0,0,0,.22)'}}/>
+    <span className="absolute -bottom-1.5 -right-1.5 text-lg mascot-wave select-none">{emoji}</span>
+  </span>;
+}
+function Guide(){
+  const app=useApp(); const p=app.product||'lumera'; const g=GUIDE[p]||GUIDE.lumera;
+  const a=(SUBS.find(s=>s.key===p)||{}).accent||'#8B5CF6'; const sk='lumera_guide_'+p;
+  const [open,setOpen]=useState(false); const [i,setI]=useState(0);
+  useEffect(()=>{ setI(0); let seen=false; try{ seen=localStorage.getItem(sk); }catch(e){} setOpen(!seen); },[p]);
+  if(app.mode!=='spark') return null;
+  const close=()=>{ setOpen(false); try{ localStorage.setItem(sk,'1'); }catch(e){} };
+  const next=()=>{ if(i<g.lines.length-1) setI(i+1); else close(); };
+  return <div className="fixed z-[120] right-3 sm:right-5 bottom-20 lg:bottom-6 flex items-end gap-2 max-w-[min(92vw,340px)]">
+    {open && <div className="lux-card p-3.5 shadow-lift anim-pop relative flex-1 mb-1" style={{borderColor:a+'55'}}>
+      <button onClick={close} className="absolute top-2 right-2 text-faint hover:text-charcoal" aria-label="Close"><Icon name="x" size={14}/></button>
+      <div className="text-[11px] font-bold uppercase tracking-wider" style={{color:a}}>{g.name} · {g.tip}</div>
+      <p className="text-sm text-charcoal mt-1.5 leading-relaxed pr-4">{g.lines[i]}</p>
+      <div className="flex items-center justify-between mt-3">
+        <div className="flex gap-1 items-center">{g.lines.map((_,j)=><span key={j} className="h-1.5 rounded-full transition-all" style={{width:j===i?16:6, background:j<=i?a:a+'40'}}/>)}</div>
+        <button onClick={next} className="btn btn-gold px-4 py-1.5 text-xs">{i<g.lines.length-1?'Next':'Got it!'}</button>
+      </div>
+    </div>}
+    <button onClick={()=>setOpen(o=>!o)} title={`Ask ${g.name}`} className="shrink-0 hover:scale-105 transition" aria-label="Open guide">
+      <Mascot color={a} emoji={g.emoji}/>
+    </button>
+  </div>;
+}
 function ProductPage({ k }){
   const app=useApp(); const { t }=app; const sub=SUBS.find(s=>s.key===k);
   const [done,setDone]=useState(false);
