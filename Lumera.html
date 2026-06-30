@@ -2309,9 +2309,16 @@ const SUBS = [
     routes:['/credit','/debt','/insurance','/retirement'] },
   { key:'forge', name:'Forge', tag:'Career & income', accent:'#EF4444', emoji:'🔥', live:true,
     blurb:'Grow what you earn, not just what you save — side-income ideas, salary benchmarks and career moves.',
-    routes:[] },
+    routes:['/cv','/university','/career','/sideincome','/salary'] },
 ];
 const NAV_BY_ROUTE = {}; NAV.forEach(g=>g.items.forEach(it=>{ NAV_BY_ROUTE[it.to]=it; }));
+Object.assign(NAV_BY_ROUTE, {
+  '/cv':{ to:'/cv', k:'CV Builder', icon:'user' },
+  '/university':{ to:'/university', k:'University', icon:'book' },
+  '/career':{ to:'/career', k:'Career Moves', icon:'trend' },
+  '/sideincome':{ to:'/sideincome', k:'Side Income', icon:'wallet' },
+  '/salary':{ to:'/salary', k:'Salary Check', icon:'chart' },
+});
 // Which sub-product "world" a route belongs to (drives the per-product theme + shell).
 const ROUTE_PRODUCT = { '/lumera':'lumera','/leaf':'leaf','/atlas':'atlas','/shield':'shield','/forge':'forge' };
 SUBS.forEach(s=>s.routes.forEach(r=>{ if(s.key!=='lumera') ROUTE_PRODUCT[r]=s.key; }));
@@ -2329,6 +2336,7 @@ const SUB_TOOL_DESC = {
   '/learn':'Two-minute lessons on money basics.', '/resources':'Deep dives, guides and a glossary.', '/badges':'Track your wins and streaks.', '/updates':'What’s new in Lumera.',
   '/invest':'Start investing, explained simply.', '/market':'Live-style markets with the “why”.', '/globe':'Spin the world’s exchanges.', '/world':'The big economic picture.', '/news':'Headlines in plain English.',
   '/credit':'Build a score you’re proud of.', '/debt':'A clear plan to clear what you owe.', '/insurance':'Cover what would actually hurt to lose.', '/retirement':'Tiny amounts now, huge later.',
+  '/cv':'Build a CV that gets callbacks.', '/university':'Weigh the real cost of a degree.', '/career':'Plan your next move and pay rise.', '/sideincome':'Earn more on the side.', '/salary':'Know what your role really pays.',
 };
 // Each sub-product gets its own branded "site": a bold accent hero + its real
 // tools. Reached from the sidebar or the hub; opens the real Lumera tools.
@@ -2348,10 +2356,11 @@ const FORGE_FEATURES = [
 ];
 const TOOL_EMOJI = { '/dashboard':'🏠','/budget':'🧾','/goals':'🎯','/emergency':'🛟','/subscriptions':'📺','/networth':'📈','/simulator':'🪄','/twin':'🧬',
   '/learn':'📚','/resources':'🧠','/badges':'🏅','/updates':'✨','/invest':'🌱','/market':'📊','/globe':'🌍','/world':'🛰️','/news':'📰',
-  '/credit':'💳','/debt':'⛓️','/insurance':'☂️','/retirement':'🌅' };
+  '/credit':'💳','/debt':'⛓️','/insurance':'☂️','/retirement':'🌅',
+  '/cv':'📄','/university':'🎓','/career':'🧭','/sideincome':'💡','/salary':'📊' };
 // [label, emoji, xp, verifyRoute] — challenge completes only when you visit the route.
 const PRODUCT_CHALLENGE = { leaf:['Finish a 2-minute lesson','📚',25,'/learn'], atlas:['Spot one market mover today','📊',20,'/market'],
-  shield:['Review one credit factor','💳',20,'/credit'], forge:['Set an income goal','🔥',15,null], lumera:['Log today’s spending','🧾',15,'/budget'] };
+  shield:['Review one credit factor','💳',20,'/credit'], forge:['Polish your CV','📄',20,'/cv'], lumera:['Log today’s spending','🧾',15,'/budget'] };
 const todayKey = ()=> new Date().toISOString().slice(0,10);
 const PRODUCT_PARTICLES = { leaf:['🌿','🍃','✨'], atlas:['🛰️','✨','💫'], shield:['🛡️','✨','⭐'], forge:['🔥','⚡','✨'], lumera:['✨','💫','⭐'] };
 
@@ -2379,9 +2388,9 @@ const GUIDE = {
     'Complete challenges to level up your protection. ⚔️'] },
   forge:{ name:'Blaze', tip:'your income coach', emoji:'🔥', lines:[
     'I’m Blaze 🔥 — welcome to Forge, where you grow what you earn.',
-    'Forge is firing up — preview what’s coming just below.',
-    'Join the waitlist to be first in line (and grab some XP).',
-    'Let’s turn up the heat on your income! ⚡'] },
+    'Follow the red path: polish your CV, weigh university, plan your career.',
+    'Hunt down side-income ideas and check what your role really pays.',
+    'Do the Daily Challenge and let’s turn up the heat on your income! ⚡'] },
 };
 // Individualised caped-superhero SVG — each product has a distinct head/silhouette.
 function Mascot({ kind='lumera', color='#8B5CF6', emoji='🦉', size=58 }){
@@ -4777,6 +4786,136 @@ function WorldMonitor(){
 }
 
 /* ============================================================
+   FORGE · Career & income tools (a real Lumera sub-product)
+   ============================================================ */
+function ForgeCV(){
+  const items=[
+    ['contact','Clear contact details + LinkedIn','Recruiters need an easy way to reach you.'],
+    ['summary','A punchy 2-line headline summary','Lead with who you are and your biggest strength.'],
+    ['quant','Quantified achievements (with numbers)','“Cut costs 18%” beats “responsible for costs”.'],
+    ['keywords','Keywords lifted from the job advert','Mirror the role’s language so ATS scanners pass you.'],
+    ['verbs','Strong action verbs','Built, led, launched, grew — not “helped with”.'],
+    ['tailored','Tailored to this specific role','Generic CVs get filtered; tailored ones get read.'],
+    ['format','One page, clean layout, zero typos','You get ~7 seconds — make it skimmable.'],
+    ['skills','A focused skills section','List the exact tools/skills the role asks for.'],
+  ];
+  const [done,setDone]=useState({}); const n=Object.values(done).filter(Boolean).length;
+  const score=Math.round(n/items.length*100);
+  return <AppShell>
+    <PageHead eyebrow="Forge · CV builder" title="Build a CV that gets the interview."
+      desc="Tick each element as your CV nails it — your strength score updates live, with a fix for anything still missing." />
+    <div className="grid lg:grid-cols-3 gap-4">
+      <Card className="flex items-center gap-4"><ScoreRing value={score} size={118} stroke={11} label="strength" color="#EF4444"/>
+        <div><Eyebrow className="mb-1">CV strength</Eyebrow><div className="font-serif text-2xl text-charcoal">{score>=80?'Interview-ready':score>=50?'Getting there':'Needs work'}</div><div className="text-sm text-muted mt-1">{n} of {items.length} nailed</div></div></Card>
+      <Card className="lg:col-span-2"><Eyebrow className="mb-3">Your checklist</Eyebrow>
+        <div className="space-y-2">{items.map(([k,t,tip])=>{ const on=!!done[k];
+          return <button key={k} onClick={()=>setDone(d=>({...d,[k]:!d[k]}))} className={cx('w-full flex items-start gap-3 rounded-xl2 border p-3 text-left transition', on?'border-sage/40 bg-sage/8':'border-line hover:border-gold/40')}>
+            <span className={cx('grid place-items-center h-7 w-7 rounded-lg shrink-0 mt-0.5', on?'bg-sage text-white':'bg-sand')}>{on?<Icon name="check" size={15}/>:<span className="text-faint text-xs">+</span>}</span>
+            <span><span className={cx('block text-sm font-medium', on?'text-muted line-through':'text-charcoal')}>{t}</span>{!on&&<span className="block text-xs text-faint mt-0.5">{tip}</span>}</span>
+          </button>; })}</div>
+        {score===100 && <div className="text-center text-sm text-saged font-semibold mt-3 anim-pop">🎉 Looking sharp — go apply!</div>}
+      </Card>
+    </div>
+    <div className="mt-3"><Disclaimer compact/></div>
+  </AppShell>;
+}
+function ForgeUniversity(){
+  const app=useApp(); const fmt=app.fmt;
+  const [years,setYears]=useState(3),[tuition,setTuition]=useState(9250),[living,setLiving]=useState(12000),[scholar,setScholar]=useState(0);
+  const total=(tuition+living)*years; const borrow=Math.max(0,total-scholar*years);
+  const r=0.06/12, m=20*12; const monthly=borrow>0?(borrow*r)/(1-Math.pow(1+r,-m)):0;
+  const Num=(label,val,set)=><div><label className="text-sm text-charcoal/85 mb-1.5 block">{label}</label>
+    <input type="number" value={val} onChange={e=>set(Math.max(0,+e.target.value||0))} className="w-full rounded-xl border border-line bg-cream px-3 py-2.5 focus:border-gold focus:outline-none"/></div>;
+  return <AppShell>
+    <PageHead eyebrow="Forge · University planner" title="Know the real cost — before you sign." desc="Estimate total cost of study, what you’d borrow, and a rough monthly repayment. Educational only — real loan terms vary by country." />
+    <div className="grid lg:grid-cols-2 gap-4">
+      <Card><Eyebrow className="mb-4">Your plan</Eyebrow><div className="space-y-3">
+        <div><label className="text-sm text-charcoal/85 mb-1.5 block">Years of study</label>
+          <div className="flex gap-2">{[1,2,3,4,5].map(y=><button key={y} onClick={()=>setYears(y)} className={cx('chip flex-1', years===y&&'on')}>{y}</button>)}</div></div>
+        {Num('Tuition per year',tuition,setTuition)}{Num('Living costs per year',living,setLiving)}{Num('Scholarships / grants per year',scholar,setScholar)}
+      </div></Card>
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-3">
+          <Card hover={false} className="!p-4"><div className="text-xs text-muted">Total cost</div><div className="font-serif text-2xl text-charcoal tnum">{fmt.money(total)}</div></Card>
+          <Card hover={false} className="!p-4"><div className="text-xs text-muted">You’d borrow</div><div className="font-serif text-2xl tnum" style={{color:'#EF4444'}}>{fmt.money(borrow)}</div></Card>
+        </div>
+        <Card><div className="text-sm text-muted">Est. repayment</div><div className="font-serif text-3xl text-charcoal tnum">{fmt.money(monthly)}<span className="text-base text-muted">/mo</span></div>
+          <div className="text-xs text-faint mt-1">Over ~20 years at 6%. Many countries have income-contingent loans that work very differently — check official sources.</div>
+          <div className="grid gap-2 mt-3">
+            <a href="https://www.google.com/search?q=official+student+loan+repayment+calculator" target="_blank" rel="noopener noreferrer" className="btn btn-ghost py-2 text-xs justify-between">Official repayment calculators <Icon name="arrowR" size={11} className="-rotate-45"/></a>
+            <a href="https://www.google.com/search?q=university+scholarships+for+my+course" target="_blank" rel="noopener noreferrer" className="btn btn-ghost py-2 text-xs justify-between">Find scholarships <Icon name="arrowR" size={11} className="-rotate-45"/></a>
+          </div></Card>
+      </div>
+    </div>
+  </AppShell>;
+}
+function ForgeCareer(){
+  const app=useApp(); const fmt=app.fmt; const [salary,setSalary]=useState(45000),[uplift,setUplift]=useState(12);
+  const target=Math.round(salary*(1+uplift/100));
+  const roadmaps=[
+    ['Get promoted','📈',['Ask your manager what “the next level” looks like — in writing.','Keep a “brag doc” of wins, each with a number.','Volunteer for one visible, cross-team project.','Have the conversation before review season, not during it.']],
+    ['Switch jobs well','🔀',['Apply broadly — interviewing is a skill you improve with reps.','Always negotiate the first offer, politely, once.','Get the new offer in writing before you resign.']],
+    ['Ask for a raise','💬',['Benchmark your role first (see Salary benchmarks).','Lead with impact + market rate, not personal need.','Name a specific number near the top of the range.']],
+  ];
+  return <AppShell>
+    <PageHead eyebrow="Forge · Career coach" title="Grow what you earn." desc="Roadmaps and scripts to level up your career — plus a quick raise calculator." />
+    <Card className="mb-4"><Eyebrow className="mb-3">Raise calculator</Eyebrow>
+      <div className="grid sm:grid-cols-3 gap-4 items-end">
+        <div><label className="text-sm text-charcoal/85 mb-1.5 block">Current salary</label><input type="number" value={salary} onChange={e=>setSalary(Math.max(0,+e.target.value||0))} className="w-full rounded-xl border border-line bg-cream px-3 py-2.5 focus:border-gold focus:outline-none"/></div>
+        <div><label className="text-sm text-charcoal/85 mb-1.5 block">Target uplift: <b style={{color:'#EF4444'}}>{uplift}%</b></label><input type="range" min="0" max="40" value={uplift} onChange={e=>setUplift(+e.target.value)} className="lux w-full" style={{'--p':(uplift/40*100)+'%'}}/></div>
+        <Card hover={false} className="!p-4"><div className="text-xs text-muted">Target salary</div><div className="font-serif text-2xl tnum" style={{color:'#EF4444'}}>{fmt.money(target)}</div><div className="text-xs text-faint">+{fmt.money(target-salary)}/yr</div></Card>
+      </div>
+    </Card>
+    <div className="grid lg:grid-cols-3 gap-3 stagger">{roadmaps.map(([t,e,steps])=>
+      <Card key={t}><div className="text-2xl">{e}</div><div className="font-serif text-lg text-charcoal mt-1">{t}</div>
+        <ul className="mt-2 space-y-1.5">{steps.map((s,j)=><li key={j} className="text-sm text-muted flex gap-2"><span className="font-semibold shrink-0" style={{color:'#EF4444'}}>{j+1}.</span>{s}</li>)}</ul></Card>)}</div>
+  </AppShell>;
+}
+function ForgeSideIncome(){
+  const [time,setTime]=useState('Any');
+  const ideas=[
+    ['Freelance your skill','💻','£200–2k/mo','5–15h/wk','Design, writing, code, tutoring — sell what you already do.'],
+    ['Tutoring','📚','£20–40/hr','3–10h/wk','Teach a subject you know to students online.'],
+    ['Sell digital products','🧩','£0–1k/mo','Flexible','Templates, presets, guides — make once, sell many.'],
+    ['Local services','🔧','£100–600/mo','Weekends','Pet-sitting, cleaning, handyman, gardening.'],
+    ['Content / creator','🎬','£0–∞','Flexible','Slow to start, but compounding upside.'],
+    ['Reselling / flipping','📦','£100–800/mo','Flexible','Buy underpriced, sell at market.'],
+  ];
+  const times=['Any','Weekends','5–15h/wk','Flexible'];
+  const shown=time==='Any'?ideas:ideas.filter(i=>i[3]===time||i[3]==='Flexible');
+  return <AppShell>
+    <PageHead eyebrow="Forge · Side income" title="Grow income on the side." desc="Realistic ways to earn more, matched to the time you’ve got. Ranges are illustrative." />
+    <div className="flex gap-2 mb-4 flex-wrap">{times.map(tm=><button key={tm} onClick={()=>setTime(tm)} className={cx('chip', time===tm&&'on')}>{tm}</button>)}</div>
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">{shown.map(([t,e,pay,tm,d])=>
+      <Card key={t}><div className="flex items-center justify-between"><span className="text-3xl">{e}</span><Pill tone="gold">{pay}</Pill></div>
+        <div className="font-serif text-lg text-charcoal mt-2">{t}</div><p className="text-sm text-muted mt-1 leading-relaxed">{d}</p>
+        <div className="mt-3 text-[11px] text-faint">⏱ {tm}</div></Card>)}</div>
+  </AppShell>;
+}
+function ForgeSalary(){
+  const app=useApp(); const fmt=app.fmt;
+  const roles=['Software Engineer','Data Analyst','Product Manager','Designer','Marketing','Accountant','Nurse','Teacher','Sales','Operations'];
+  const levels=['Entry','Mid','Senior']; const [role,setRole]=useState(roles[0]),[level,setLevel]=useState('Mid');
+  const base=28000+(hashStr(role)%42000); const mult={Entry:0.8,Mid:1.15,Senior:1.65}[level];
+  const mid=Math.round(base*mult/1000)*1000, lo=Math.round(mid*0.82/1000)*1000, hi=Math.round(mid*1.28/1000)*1000;
+  return <AppShell>
+    <PageHead eyebrow="Forge · Salary benchmarks" title="Know your number before you negotiate." desc="An illustrative benchmark range by role and level. Always cross-check with live sources for your country." />
+    <Card className="mb-4"><div className="grid sm:grid-cols-2 gap-4">
+      <div><label className="text-sm text-charcoal/85 mb-1.5 block">Role</label><select value={role} onChange={e=>setRole(e.target.value)} className="w-full rounded-xl border border-line bg-cream px-3 py-2.5 focus:border-gold focus:outline-none">{roles.map(r=><option key={r}>{r}</option>)}</select></div>
+      <div><label className="text-sm text-charcoal/85 mb-1.5 block">Level</label><div className="flex gap-2">{levels.map(l=><button key={l} onClick={()=>setLevel(l)} className={cx('chip flex-1', level===l&&'on')}>{l}</button>)}</div></div>
+    </div></Card>
+    <Card hover={false}><Eyebrow className="mb-3">Benchmark · {role} · {level}</Eyebrow>
+      <div className="flex items-end justify-between gap-2"><div className="text-sm text-muted">Low<div className="font-serif text-xl text-charcoal">{fmt.money(lo)}</div></div>
+        <div className="text-center"><div className="text-xs text-faint uppercase tracking-wider">Typical</div><div className="font-serif text-4xl" style={{color:'#EF4444'}}>{fmt.money(mid)}</div></div>
+        <div className="text-sm text-muted text-right">High<div className="font-serif text-xl text-charcoal">{fmt.money(hi)}</div></div></div>
+      <div className="h-2.5 rounded-full bg-sand mt-4 relative overflow-visible"><div className="absolute h-2.5 rounded-full" style={{left:'12%',right:'12%',background:'#EF4444',opacity:.45}}/><div className="absolute h-5 w-1.5 rounded -top-1.5" style={{left:'calc(50% - 3px)',background:'#EF4444'}}/></div>
+      <p className="text-xs text-faint mt-4">Illustrative only. Check Glassdoor, Levels.fyi, LinkedIn Salary or your national statistics office for live figures.</p>
+      <a href={`https://www.google.com/search?q=${encodeURIComponent(role+' '+level+' salary')}`} target="_blank" rel="noopener noreferrer" className="btn btn-ghost mt-3 text-sm">See live salary data <Icon name="arrowR" size={12} className="-rotate-45"/></a>
+    </Card>
+  </AppShell>;
+}
+
+/* ============================================================
    STREAK REWARDS
    ============================================================ */
 const STREAK_REWARDS=[
@@ -4821,6 +4960,7 @@ const ROUTES = {
   '/retirement':Retirement, '/globe':GlobalMarkets, '/world':WorldMonitor, '/hub':ProductHub,
   '/lumera':()=><ProductPage k="lumera"/>, '/leaf':()=><ProductPage k="leaf"/>, '/atlas':()=><ProductPage k="atlas"/>,
   '/shield':()=><ProductPage k="shield"/>, '/forge':()=><ProductPage k="forge"/>,
+  '/cv':ForgeCV, '/university':ForgeUniversity, '/career':ForgeCareer, '/sideincome':ForgeSideIncome, '/salary':ForgeSalary,
 };
 
 const STORE='lumera_v2';
