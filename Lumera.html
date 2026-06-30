@@ -210,13 +210,12 @@
   @keyframes confetti{ 0%{transform:translateY(0) rotate(0); opacity:1} 100%{transform:translateY(130px) rotate(380deg); opacity:0} }
   .conf{ position:fixed; top:-12px; width:9px; height:14px; border-radius:2px; z-index:200; pointer-events:none; animation:confetti 1.05s ease-in forwards; }
 
-  /* Mascot guide character */
-  .mascot{ animation:floaty 4s ease-in-out infinite; }
-  .mascot-eye{ width:9px; height:9px; border-radius:50%; background:#fff; position:relative; transform-origin:center; animation:blink 4.5s infinite; }
-  .mascot-eye::after{ content:''; position:absolute; width:4px; height:4px; border-radius:50%; background:#16131f; left:2.5px; top:3px; }
+  /* Mascot superhero character */
+  .mascot{ display:inline-block; animation:floaty 4s ease-in-out infinite; }
+  .mascot-blink{ transform-box:fill-box; transform-origin:center; animation:blink 4.6s infinite; }
+  .mascot-cape{ transform-box:fill-box; transform-origin:50% 18%; animation:capesway 3.4s ease-in-out infinite; }
   @keyframes blink{ 0%,90%,100%{ transform:scaleY(1) } 95%{ transform:scaleY(.12) } }
-  @keyframes wobble{ 0%,100%{ transform:rotate(-4deg) } 50%{ transform:rotate(4deg) } }
-  .mascot-wave{ animation:wobble 1.2s ease-in-out infinite; transform-origin:70% 70%; }
+  @keyframes capesway{ 0%,100%{ transform:rotate(-3deg) } 50%{ transform:rotate(3deg) } }
 
   h1,h2,h3,.serif{ font-family:'Fraunces',Georgia,serif; font-optical-sizing:auto; }
   ::selection{ background:rgba(191,160,106,.28); color:#1c1813; }
@@ -2178,9 +2177,9 @@ function ScoreChip({ label, value }){
    Rendered only when app.mode === 'spark'. Reuses the real tools.
    ============================================================ */
 const DEFAULT_QUESTS = [
-  { id:'q1', emoji:'👀', label:'Check your dashboard', hint:'A 5-second glance counts.', xp:10, done:false },
-  { id:'q2', emoji:'📺', label:'Review one subscription', hint:'Cancel one you forgot about.', xp:20, done:false, to:'/subscriptions' },
-  { id:'q3', emoji:'📚', label:'Finish a 2-minute lesson', hint:'Tiny lessons, real gains.', xp:25, done:false, to:'/learn' },
+  { id:'q1', emoji:'🧾', label:'Open your Budget', hint:'See where your money goes.', xp:10, done:false, to:'/budget' },
+  { id:'q2', emoji:'📺', label:'Review your subscriptions', hint:'Spot a leak to cancel.', xp:20, done:false, to:'/subscriptions' },
+  { id:'q3', emoji:'📚', label:'Open a 2-minute lesson', hint:'Learn one money idea.', xp:25, done:false, to:'/learn' },
 ];
 const levelFromXp = (xp)=> Math.floor(Math.sqrt((xp||0)/40))+1;
 const xpForLevel = (lvl)=> 40*Math.pow(lvl-1,2);
@@ -2244,9 +2243,9 @@ function QuestsPanel(){
         <span className="flex-1 min-w-0"><span className={cx('block text-sm font-medium', q.done?'line-through text-muted':'text-charcoal')}>{q.label}</span>
           <span className="block text-xs text-faint">{q.hint}</span></span>
         {q.done? <Pill tone="sage">+{q.xp} ✓</Pill>
-          : <button onClick={()=>{ app.completeQuest(q.id); if(q.to) setTimeout(()=>app.nav(q.to),250); }} className="btn btn-gold px-3 py-1.5 text-xs">+{q.xp} XP</button>}
+          : <button onClick={()=>q.to&&app.nav(q.to)} className="btn btn-gold px-3 py-1.5 text-xs">Go →</button>}
       </div>)}
-      {done===total && <div className="text-center text-sm text-saged font-semibold py-1 anim-pop">All done — see you tomorrow! 🎉</div>}
+      <div className="text-[11px] text-faint text-center pt-1">{done===total? '✅ All done — see you tomorrow! 🎉' : 'Quests complete automatically once you actually visit the tool.'}</div>
     </div>
   </Card>;
 }
@@ -2311,8 +2310,10 @@ const FORGE_FEATURES = [
 const TOOL_EMOJI = { '/dashboard':'🏠','/budget':'🧾','/goals':'🎯','/emergency':'🛟','/subscriptions':'📺','/networth':'📈','/simulator':'🪄','/twin':'🧬',
   '/learn':'📚','/resources':'🧠','/badges':'🏅','/updates':'✨','/invest':'🌱','/market':'📊','/globe':'🌍','/world':'🛰️','/news':'📰',
   '/credit':'💳','/debt':'⛓️','/insurance':'☂️','/retirement':'🌅' };
-const PRODUCT_CHALLENGE = { leaf:['Finish a 2-minute lesson','📚',25], atlas:['Spot one market mover today','📊',20],
-  shield:['Review one credit factor','💳',20], forge:['Set an income goal','🔥',15], lumera:['Log today’s spending','🧾',15] };
+// [label, emoji, xp, verifyRoute] — challenge completes only when you visit the route.
+const PRODUCT_CHALLENGE = { leaf:['Finish a 2-minute lesson','📚',25,'/learn'], atlas:['Spot one market mover today','📊',20,'/market'],
+  shield:['Review one credit factor','💳',20,'/credit'], forge:['Set an income goal','🔥',15,null], lumera:['Log today’s spending','🧾',15,'/budget'] };
+const todayKey = ()=> new Date().toISOString().slice(0,10);
 const PRODUCT_PARTICLES = { leaf:['🌿','🍃','✨'], atlas:['🛰️','✨','💫'], shield:['🛡️','✨','⭐'], forge:['🔥','⚡','✨'], lumera:['✨','💫','⭐'] };
 
 // ===== Animated mascot guide — one character per product, gives a tutorial =====
@@ -2343,46 +2344,74 @@ const GUIDE = {
     'Join the waitlist to be first in line (and grab some XP).',
     'Let’s turn up the heat on your income! ⚡'] },
 };
+// Stylized caped-superhero SVG, tinted to the product colour, with a chest emblem.
 function Mascot({ color='#8B5CF6', emoji='🦉', size=58 }){
-  return <span className="mascot relative grid place-items-center" style={{width:size, height:size,
-    background:`radial-gradient(circle at 35% 28%, ${color}, ${color}cc 70%, ${color}aa)`,
-    borderRadius:'46% 54% 50% 50% / 56% 56% 44% 44%', boxShadow:`0 10px 24px ${color}66, inset 0 -6px 10px rgba(0,0,0,.12)`}}>
-    <span className="flex gap-1.5 -mt-0.5"><span className="mascot-eye"/><span className="mascot-eye" style={{animationDelay:'.08s'}}/></span>
-    <span className="absolute bottom-1 h-1 w-3 rounded-b-full" style={{background:'rgba(0,0,0,.22)'}}/>
-    <span className="absolute -bottom-1.5 -right-1.5 text-lg mascot-wave select-none">{emoji}</span>
+  const gid='mg'+color.replace('#','');
+  return <span className="mascot inline-block" style={{width:size, height:size, filter:`drop-shadow(0 8px 16px ${color}66)`}}>
+    <svg viewBox="0 0 72 84" width={size} height={size*84/72} aria-hidden="true">
+      <defs><linearGradient id={gid} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#ffffff" stopOpacity=".35"/><stop offset=".25" stopColor={color}/><stop offset="1" stopColor={color}/></linearGradient></defs>
+      <path className="mascot-cape" d="M16 38 Q2 64 18 80 L36 68 L54 80 Q70 64 56 38 Z" fill={color}/>
+      <path className="mascot-cape" d="M16 38 Q2 64 18 80 L36 68 L54 80 Q70 64 56 38 Z" fill="#000" opacity=".22"/>
+      <path d="M14 82 Q14 56 36 56 Q58 56 58 82 Z" fill={`url(#${gid})`}/>
+      <circle cx="36" cy="71" r="8" fill="#fff" opacity=".95"/>
+      <text x="36" y="74.5" fontSize="9.5" textAnchor="middle">{emoji}</text>
+      <circle cx="36" cy="30" r="18" fill={`url(#${gid})`}/>
+      <ellipse cx="30" cy="24" rx="6" ry="3.4" fill="#fff" opacity=".22"/>
+      <path d="M17 28 Q36 19 55 28 L55 35 Q36 28 17 35 Z" fill="#0b0b16" opacity=".82"/>
+      <ellipse className="mascot-blink" cx="29" cy="31" rx="3.4" ry="3.8" fill="#fff"/>
+      <ellipse className="mascot-blink" cx="43" cy="31" rx="3.4" ry="3.8" fill="#fff"/>
+      <path d="M30 41 Q36 46 42 41" stroke="#0b0b16" strokeWidth="2" fill="none" strokeLinecap="round" opacity=".6"/>
+    </svg>
   </span>;
 }
+// Tap the hero to chat — themed personality, answered by the in-app assistant engine.
 function Guide(){
   const app=useApp(); const p=app.product||'lumera'; const g=GUIDE[p]||GUIDE.lumera;
   const a=(SUBS.find(s=>s.key===p)||{}).accent||'#8B5CF6'; const sk='lumera_guide_'+p;
-  const [open,setOpen]=useState(false); const [i,setI]=useState(0);
-  useEffect(()=>{ setI(0); let seen=false; try{ seen=localStorage.getItem(sk); }catch(e){} setOpen(!seen); },[p]);
+  const [open,setOpen]=useState(false); const [msgs,setMsgs]=useState([]); const [typing,setTyping]=useState(false); const [txt,setTxt]=useState('');
+  const scroller=useRef(null);
+  useEffect(()=>{ setMsgs(g.lines.map(t=>({role:'bot',text:t}))); let seen=false; try{ seen=localStorage.getItem(sk); }catch(e){} setOpen(!seen); },[p]);
+  useEffect(()=>{ if(scroller.current) scroller.current.scrollTop=scroller.current.scrollHeight; },[msgs,typing,open]);
   if(app.mode!=='spark') return null;
   const close=()=>{ setOpen(false); try{ localStorage.setItem(sk,'1'); }catch(e){} };
-  const next=()=>{ if(i<g.lines.length-1) setI(i+1); else close(); };
-  return <div className="fixed z-[120] right-3 sm:right-5 bottom-20 lg:bottom-6 flex items-end gap-2 max-w-[min(92vw,340px)]">
-    {open && <div className="lux-card p-3.5 shadow-lift anim-pop relative flex-1 mb-1" style={{borderColor:a+'55'}}>
-      <button onClick={close} className="absolute top-2 right-2 text-faint hover:text-charcoal" aria-label="Close"><Icon name="x" size={14}/></button>
-      <div className="text-[11px] font-bold uppercase tracking-wider" style={{color:a}}>{g.name} · {g.tip}</div>
-      <p className="text-sm text-charcoal mt-1.5 leading-relaxed pr-4">{g.lines[i]}</p>
-      <div className="flex items-center justify-between mt-3">
-        <div className="flex gap-1 items-center">{g.lines.map((_,j)=><span key={j} className="h-1.5 rounded-full transition-all" style={{width:j===i?16:6, background:j<=i?a:a+'40'}}/>)}</div>
-        <button onClick={next} className="btn btn-gold px-4 py-1.5 text-xs">{i<g.lines.length-1?'Next':'Got it!'}</button>
+  const send=(t)=>{ t=(t||txt).trim(); if(!t) return; setTxt(''); setMsgs(m=>[...m,{role:'me',text:t}]); setTyping(true);
+    setTimeout(()=>{ let r; try{ r=botReply(t, app.metrics, app.fmt, app); }catch(e){ r=null; }
+      const reply=(r&&r.text)|| `Great question! ${g.name} here — try exploring the path below, and I’ll guide you as you go. You can ask me about saving, budgeting, investing or how XP works.`;
+      setTyping(false); setMsgs(m=>[...m,{role:'bot',text:reply}]); }, 650+Math.random()*500); };
+  const chips=['How do I earn XP?','What can I do here?','Give me a money tip'];
+  return <div className="fixed z-[120] right-3 sm:right-5 bottom-20 lg:bottom-6 flex flex-col items-end gap-2">
+    {open && <div className="lux-card !p-0 shadow-lift anim-pop w-[min(92vw,340px)] flex flex-col overflow-hidden" style={{borderColor:a+'66', maxHeight:'min(72vh,520px)'}}>
+      <div className="flex items-center gap-2.5 p-3" style={{background:`linear-gradient(120deg, ${a}, ${a}cc)`}}>
+        <Mascot color={a} emoji={g.emoji} size={36}/>
+        <div className="flex-1 leading-tight"><div className="font-serif text-white text-lg">{g.name}</div><div className="text-[11px]" style={{color:'rgba(255,255,255,.85)'}}>{g.tip} · online</div></div>
+        <button onClick={close} className="text-white/80 hover:text-white" aria-label="Close"><Icon name="x" size={16}/></button>
+      </div>
+      <div ref={scroller} className="flex-1 overflow-y-auto p-3 space-y-2.5 no-scrollbar" style={{minHeight:140}}>
+        {msgs.map((m,i)=>m.role==='bot'
+          ? <div key={i} className="flex gap-2 items-end"><span className="text-lg shrink-0 mb-0.5">{g.emoji}</span><div className="rounded-2xl rounded-bl-sm bg-sand px-3 py-2 text-sm text-charcoal max-w-[82%] whitespace-pre-wrap leading-relaxed">{m.text}</div></div>
+          : <div key={i} className="flex justify-end"><div className="rounded-2xl rounded-br-sm px-3 py-2 text-sm text-white max-w-[82%]" style={{background:a}}>{m.text}</div></div>)}
+        {typing && <div className="flex gap-2 items-center"><span className="text-lg">{g.emoji}</span><span className="rounded-2xl bg-sand px-3 py-2.5 inline-flex gap-1"><span className="dot"/><span className="dot"/><span className="dot"/></span></div>}
+      </div>
+      <div className="flex gap-1.5 px-3 pb-2 flex-wrap">{chips.map(c=><button key={c} onClick={()=>send(c)} className="text-[11px] rounded-full border border-line px-2.5 py-1 hover:bg-sand text-muted">{c}</button>)}</div>
+      <div className="flex items-center gap-2 p-2.5 border-t border-line">
+        <input value={txt} onChange={e=>setTxt(e.target.value)} onKeyDown={e=>e.key==='Enter'&&send()} placeholder={`Ask ${g.name}…`} className="flex-1 rounded-full border border-line bg-cream px-3.5 py-2 text-sm focus:outline-none focus:border-gold"/>
+        <button onClick={()=>send()} className="btn btn-gold h-9 w-9 !px-0 rounded-full grid place-items-center shrink-0"><Icon name="arrowR" size={16}/></button>
       </div>
     </div>}
-    <button onClick={()=>setOpen(o=>!o)} title={`Ask ${g.name}`} className="shrink-0 hover:scale-105 transition" aria-label="Open guide">
+    <button onClick={()=>setOpen(o=>!o)} title={`Talk to ${g.name}`} className="hover:scale-110 transition-transform" aria-label="Open guide">
       <Mascot color={a} emoji={g.emoji}/>
     </button>
   </div>;
 }
 function ProductPage({ k }){
   const app=useApp(); const { t }=app; const sub=SUBS.find(s=>s.key===k);
-  const [done,setDone]=useState(false);
+  const chal=PRODUCT_CHALLENGE[k]; const chalKey = chal? ('lumera_chal_'+k+'_'+todayKey()) : null;
+  const [done,setDone]=useState(()=>{ try{ return chalKey? !!localStorage.getItem(chalKey) : false; }catch(e){ return false; } });
   if(!sub) return <AppShell><div className="text-center text-muted py-20">Unknown product.</div></AppShell>;
   const tools=sub.routes.map(r=>NAV_BY_ROUTE[r]).filter(Boolean); const a=sub.accent;
   const lvl=levelFromXp(app.xp); const base=xpForLevel(lvl),next=xpForLevel(lvl+1);
   const pct=Math.round(((app.xp-base)/((next-base)||1))*100); const badges=Math.floor(app.xp/100);
-  const parts=PRODUCT_PARTICLES[k]||PRODUCT_PARTICLES.lumera; const chal=PRODUCT_CHALLENGE[k];
+  const parts=PRODUCT_PARTICLES[k]||PRODUCT_PARTICLES.lumera;
   const goFirst=()=> tools.length? app.nav(tools[0].to) : (app.awardXp&&app.awardXp(10));
   const stat=(l,v)=><div className="rounded-xl2 px-4 py-3 backdrop-blur-sm" style={{background:'rgba(255,255,255,.16)', border:'1px solid rgba(255,255,255,.22)'}}>
     <div className="text-[10px] uppercase tracking-wider whitespace-nowrap" style={{color:'rgba(255,255,255,.82)'}}>{l}</div><div className="font-serif text-2xl tnum" style={{color:'#fff'}}>{v}</div></div>;
@@ -2428,8 +2457,8 @@ function ProductPage({ k }){
           <span className="grid place-items-center h-16 w-16 rounded-2xl text-3xl shrink-0" style={{background:a+'1F'}}>{chal?chal[1]:'🎯'}</span>
           <div className="flex-1"><div className="flex items-center gap-2"><Pill tone="gold">Daily challenge</Pill><span className="text-xs text-muted">+{chal?chal[2]:15} XP</span></div>
             <div className="font-serif text-xl text-charcoal mt-1.5">{chal?chal[0]:'Take one small step today'}</div></div>
-          <button disabled={done} onClick={()=>{ setDone(true); app.awardXp&&app.awardXp(chal?chal[2]:15); }}
-            className={cx('btn px-5 py-2.5 text-sm font-semibold shrink-0', done?'btn-ghost':'btn-gold')}>{done?'Done ✓':'Complete'}</button>
+          <button onClick={()=>{ if(done) return; if(chal&&chal[3]){ app.nav(chal[3]); } else { setDone(true); app.awardXp&&app.awardXp(chal?chal[2]:15); } }}
+            className={cx('btn px-5 py-2.5 text-sm font-semibold shrink-0', done?'btn-ghost':'btn-gold')}>{done?'Done ✓':(chal&&chal[3]?'Start →':'Complete')}</button>
         </div>
       </Card>
     </div>
@@ -4754,6 +4783,8 @@ function App(){
   const awardXp = useCallback((n)=>{ setXp(x=>{ const v=x+(n||0); try{ localStorage.setItem('lumera_spark_xp', JSON.stringify(v)); }catch(e){} return v; }); setQuestBurst(b=>b+1); },[]);
   const completeQuest = useCallback((id)=>{ setQuests(qs=>{ const next=qs.map(q=>{ if(q.id===id&&!q.done){ awardXp(q.xp); return {...q,done:true}; } return q; });
     try{ localStorage.setItem('lumera_spark_quests', JSON.stringify({day:new Date().toISOString().slice(0,10), list:next})); }catch(e){} return next; }); },[awardXp]);
+  // Quest VERIFICATION: a quest only completes when you actually visit its tool — no free check-offs.
+  useEffect(()=>{ const path=route.split('?')[0]; const q=quests.find(x=>!x.done && x.to===path); if(q) completeQuest(q.id); },[route, quests, completeQuest]);
   useEffect(()=>{ LA.start({ lang, cur:profile.currency, user:user?user.email:'guest' }); },[]);
   useEffect(()=>{ LA.event('view',{ path:route.split('?')[0], user:user?user.email:'guest' }); },[route]);
   useEffect(()=>{ LA.event('lang',{ lang }); },[lang]);
@@ -4778,6 +4809,11 @@ function App(){
   // In a sub-product site, every page (incl. the AI Assistant) stays in that world.
   const product = mode==='spark' ? (SITE!=='lumera' ? SITE : productOf(path)) : 'lumera';
   useEffect(()=>{ document.documentElement.setAttribute('data-product', product); },[product]);
+  // Daily-challenge VERIFICATION: completes (once/day) only when you visit its tool.
+  useEffect(()=>{ const path=route.split('?')[0]; const ch=PRODUCT_CHALLENGE[product];
+    if(ch && ch[3]===path){ const key='lumera_chal_'+product+'_'+todayKey();
+      try{ if(!localStorage.getItem(key)){ localStorage.setItem(key,'1'); awardXp(ch[2]); } }catch(e){} }
+  },[route, product]);
 
   const value = { route, nav, user, signup, login, loginProvider, demo, logout:askLogout, askLogout, completeOnboarding, checkIn, onboarded,
     profile, updateProfile, setProfile, expenses, setExpenses, balances, setBalances,
