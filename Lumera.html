@@ -1147,15 +1147,10 @@ const BUDGET_TEMPLATES = [
 /* ============================================================
    REUSABLE COMPONENTS + CHARTS
    ============================================================ */
-// gold/goldd/charcoal are getters so JS-driven chart & ring colours follow the
-// active mode (Deep Ocean blue + navy in Spark; original gold otherwise).
-const _spark = ()=> typeof document!=='undefined' && document.documentElement.getAttribute('data-mode')==='spark';
-const COLORS = {
-  // Nebula (Spark) = purple/blue accents + light chart strokes on the dark base.
-  get gold(){ return _spark()?'#8B5CF6':'#BFA06A'; }, get goldd(){ return _spark()?'#6366F1':'#9E7E45'; },
-  get charcoal(){ return _spark()?'#C4C4DC':'#272320'; }, get ink(){ return _spark()?'#E9E9F5':'#16130F'; },
-  get sky(){ return _spark()?'#3B82F6':'#6E86A0'; }, get stone(){ return _spark()?'#3A3A56':'#D9CFBE'; },
-  sage:'#6E8B6A', saged:'#4C6447', clay:'#C0714F', berry:'#A6534A', taupe:'#CFC4B1', muted:'#9C9387', line:'#E9E2D5' };
+// Fixed chart/data palette — preserved exactly as the original so every metric,
+// allocation chart and score ring reads the way it always did. (UI accent colour
+// is themed separately via CSS variables, not this object.)
+const COLORS = { gold:'#BFA06A', goldd:'#9E7E45', sage:'#6E8B6A', saged:'#4C6447', clay:'#C0714F', berry:'#A6534A', charcoal:'#272320', ink:'#16130F', sky:'#6E86A0', stone:'#D9CFBE', taupe:'#CFC4B1', muted:'#9C9387', line:'#E9E2D5' };
 
 /* ---- Icon set (stroke, currentColor) ---- */
 const P = {
@@ -2249,6 +2244,34 @@ function QuestsPanel(){
     </div>
   </Card>;
 }
+// Achievements + What's New — visual, shown app-wide (not just on Learn).
+function AchievementsStrip(){
+  const app=useApp(); const xp=app.xp||0; const lvl=levelFromXp(xp); const streak=app.profile.streak||0;
+  const ach=[ {n:'First Steps', e:'👣', got:xp>0}, {n:'Level 2', e:'🚀', got:lvl>=2}, {n:'Level 5', e:'⭐', got:lvl>=5},
+    {n:'3-day streak', e:'🔥', got:streak>=3}, {n:'7-day streak', e:'💪', got:streak>=7},
+    {n:'100 XP', e:'💯', got:xp>=100}, {n:'500 XP', e:'🏆', got:xp>=500} ];
+  const earned=ach.filter(x=>x.got).length;
+  return <div className="grid lg:grid-cols-3 gap-4 mb-5">
+    <Card className="lg:col-span-2">
+      <div className="flex items-center justify-between mb-3"><Eyebrow>Achievements</Eyebrow>
+        <button onClick={()=>app.nav('/badges')} className="text-xs font-semibold text-goldd">View all →</button></div>
+      <div className="flex gap-2.5 overflow-x-auto no-scrollbar pb-1">
+        {ach.map(x=><div key={x.n} className={cx('shrink-0 text-center rounded-xl2 border p-3 w-[78px]', x.got?'border-gold/40 bg-gold/8':'border-line bg-card')}>
+          <div className="text-2xl" style={{filter:x.got?'none':'grayscale(1)', opacity:x.got?1:.4}}>{x.e}</div>
+          <div className="text-[10px] mt-1 leading-tight text-charcoal/80">{x.n}</div></div>)}
+      </div>
+      <div className="text-xs text-muted mt-2.5">{earned} of {ach.length} unlocked · keep going to earn more</div>
+    </Card>
+    <Card onClick={()=>app.nav('/updates')} className="group relative overflow-hidden">
+      <div className="absolute -top-8 -right-8 h-20 w-20 rounded-full blur-2xl opacity-20 bg-gold"/>
+      <div className="relative">
+        <div className="flex items-center justify-between mb-2"><Eyebrow>What’s new</Eyebrow><Icon name="arrowR" size={14} className="text-faint group-hover:translate-x-1 transition"/></div>
+        <div className="flex items-center gap-3"><span className="grid place-items-center h-11 w-11 rounded-xl bg-gold/12 text-goldd"><Icon name="spark" size={20}/></span>
+          <div><div className="text-sm font-semibold text-charcoal">Fresh features & drops</div><div className="text-xs text-muted">See the latest across Lumera</div></div></div>
+      </div>
+    </Card>
+  </div>;
+}
 
 /* ============================================================
    LUMERA GROUP · product hub (Spark mode)
@@ -2368,18 +2391,43 @@ function Mascot({ color='#8B5CF6', emoji='🦉', size=58 }){
 function Guide(){
   const app=useApp(); const p=app.product||'lumera'; const g=GUIDE[p]||GUIDE.lumera;
   const a=(SUBS.find(s=>s.key===p)||{}).accent||'#8B5CF6'; const sk='lumera_guide_'+p;
+  const [showTut,setShowTut]=useState(false); const [ti,setTi]=useState(0);
   const [open,setOpen]=useState(false); const [msgs,setMsgs]=useState([]); const [typing,setTyping]=useState(false); const [txt,setTxt]=useState('');
   const scroller=useRef(null);
-  useEffect(()=>{ setMsgs(g.lines.map(t=>({role:'bot',text:t}))); let seen=false; try{ seen=localStorage.getItem(sk); }catch(e){} setOpen(!seen); },[p]);
+  useEffect(()=>{ setTi(0); let seen=false; try{ seen=localStorage.getItem(sk); }catch(e){} setShowTut(!seen); setOpen(false);
+    setMsgs([{role:'bot',text:g.lines[0]},{role:'bot',text:`Ask me anything — money, this world, or how XP works. I’m ${g.name}. 💬`}]); },[p]);
   useEffect(()=>{ if(scroller.current) scroller.current.scrollTop=scroller.current.scrollHeight; },[msgs,typing,open]);
   if(app.mode!=='spark') return null;
+  const finishTut=()=>{ setShowTut(false); try{ localStorage.setItem(sk,'1'); }catch(e){} };
+  const tutNext=()=>{ if(ti<g.lines.length-1) setTi(ti+1); else finishTut(); };
   const close=()=>{ setOpen(false); try{ localStorage.setItem(sk,'1'); }catch(e){} };
   const send=(t)=>{ t=(t||txt).trim(); if(!t) return; setTxt(''); setMsgs(m=>[...m,{role:'me',text:t}]); setTyping(true);
     setTimeout(()=>{ let r; try{ r=botReply(t, app.metrics, app.fmt, app); }catch(e){ r=null; }
       const reply=(r&&r.text)|| `Great question! ${g.name} here — try exploring the path below, and I’ll guide you as you go. You can ask me about saving, budgeting, investing or how XP works.`;
       setTyping(false); setMsgs(m=>[...m,{role:'bot',text:reply}]); }, 650+Math.random()*500); };
   const chips=['How do I earn XP?','What can I do here?','Give me a money tip'];
-  return <div className="fixed z-[120] right-3 sm:right-5 bottom-20 lg:bottom-6 flex flex-col items-end gap-2">
+  return <>
+    {/* FORCED first-time tutorial — blocks the screen until you walk through it */}
+    {showTut && <div className="fixed inset-0 z-[200] grid place-items-center p-4" style={{background:'rgba(8,8,16,.74)', backdropFilter:'blur(6px)'}}>
+      <div className="lux-card !p-0 w-full max-w-md overflow-hidden anim-scaleIn" style={{borderColor:a+'66'}}>
+        <div className="p-6 pb-5 text-center relative overflow-hidden" style={{background:`linear-gradient(160deg, ${a}, ${a}cc)`}}>
+          <div className="absolute inset-0 opacity-[.14]" style={{backgroundImage:'radial-gradient(circle, #fff 1.4px, transparent 1.5px)', backgroundSize:'22px 22px'}}/>
+          <div className="relative"><div className="mx-auto inline-block"><Mascot color={a} emoji={g.emoji} size={92}/></div>
+            <div className="font-serif text-2xl text-white mt-1">{g.name}</div>
+            <div className="text-xs font-semibold uppercase tracking-wider" style={{color:'rgba(255,255,255,.85)'}}>{g.tip}</div></div>
+        </div>
+        <div className="p-6">
+          <div className="text-[11px] uppercase tracking-[.2em] text-faint">Step {ti+1} of {g.lines.length}</div>
+          <p className="text-charcoal text-[15px] leading-relaxed mt-2 min-h-[78px]">{g.lines[ti]}</p>
+          <div className="flex items-center justify-between mt-5">
+            <div className="flex gap-1.5 items-center">{g.lines.map((_,j)=><span key={j} className="h-2 rounded-full transition-all" style={{width:j===ti?22:8, background:j<=ti?a:a+'33'}}/>)}</div>
+            <div className="flex gap-2">{ti>0&&<button onClick={()=>setTi(ti-1)} className="btn btn-ghost px-3 py-2.5 text-sm">Back</button>}
+              <button onClick={tutNext} className="btn btn-gold px-5 py-2.5 text-sm">{ti<g.lines.length-1?'Next →':'Let’s go! 🚀'}</button></div>
+          </div>
+        </div>
+      </div>
+    </div>}
+    <div className="fixed z-[120] right-3 sm:right-5 bottom-20 lg:bottom-6 flex flex-col items-end gap-2">
     {open && <div className="lux-card !p-0 shadow-lift anim-pop w-[min(92vw,340px)] flex flex-col overflow-hidden" style={{borderColor:a+'66', maxHeight:'min(72vh,520px)'}}>
       <div className="flex items-center gap-2.5 p-3" style={{background:`linear-gradient(120deg, ${a}, ${a}cc)`}}>
         <Mascot color={a} emoji={g.emoji} size={36}/>
@@ -2401,7 +2449,8 @@ function Guide(){
     <button onClick={()=>setOpen(o=>!o)} title={`Talk to ${g.name}`} className="hover:scale-110 transition-transform" aria-label="Open guide">
       <Mascot color={a} emoji={g.emoji}/>
     </button>
-  </div>;
+    </div>
+  </>;
 }
 function ProductPage({ k }){
   const app=useApp(); const { t }=app; const sub=SUBS.find(s=>s.key===k);
@@ -2547,6 +2596,7 @@ function Dashboard(){
   const focus=[['Review my finances','grid','/dashboard'],['Check my spending','wallet','/budget'],['Grow my investments','chart','/invest'],['Improve my credit score','gauge','/credit'],['Reduce waste','tv','/subscriptions'],['Continue learning','book','/learn'],['View news','globe','/news'],['Update my data','refresh','/review']];
   return <AppShell>
     {app.mode==='spark' && <SparkBanner/>}
+    {app.mode==='spark' && <AchievementsStrip/>}
     {/* Personal butler greeting */}
     <div className="mb-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
