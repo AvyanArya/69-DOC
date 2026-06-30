@@ -64,7 +64,7 @@
   // Apply saved theme before paint to avoid a flash. 'system' follows the OS setting.
   (function(){
     try{
-      var saved = localStorage.getItem('lumera_theme') || 'light';
+      var saved = localStorage.getItem('lumera_theme') || 'dark';
       var dark = saved==='dark' || (saved==='system' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
       document.documentElement.setAttribute('data-theme', dark?'dark':'light');
       document.documentElement.setAttribute('data-theme-pref', saved);
@@ -2186,24 +2186,35 @@ function XPBurst({ fire }){
 }
 function SparkBanner(){
   const app=useApp(); const xp=app.xp||0; const lvl=levelFromXp(xp); const base=xpForLevel(lvl),next=xpForLevel(lvl+1);
-  const pct=Math.round(((xp-base)/((next-base)||1))*100);
-  const done=app.quests.filter(q=>q.done).length, total=app.quests.length, qpct=Math.round(done/total*100);
-  return <div className="grid lg:grid-cols-3 gap-4 mb-4">
-    <Card className="lg:col-span-1 relative overflow-hidden">
-      <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full blur-3xl opacity-30" style={{background:'#8B5CF6'}}/>
-      <div className="relative">
-        <Eyebrow className="mb-2">Your level</Eyebrow>
-        <div className="flex items-end gap-3"><span className="grid place-items-center h-14 w-14 rounded-2xl text-white font-serif text-2xl shadow-soft" style={{background:'linear-gradient(135deg,#9B6CFF,#6366F1)'}}>{lvl}</span>
-          <div><div className="font-serif text-2xl text-charcoal leading-none">Level {lvl}</div><div className="text-sm text-muted mt-1 tnum">{xp} XP</div></div></div>
-        <div className="mt-4 xpbar"><i style={{width:Math.max(6,pct)+'%'}}/></div>
-        <div className="text-xs text-muted mt-1.5">{next-xp} XP to level {lvl+1}</div>
-        <div className="flex flex-wrap gap-2 mt-4">
-          <Pill tone="clay">🔥 {app.profile.streak} day streak</Pill>
-          <Pill tone="gold">🏅 {Math.floor(xp/100)} badges</Pill>
+  const pct=Math.round(((xp-base)/((next-base)||1))*100); const badges=Math.floor(xp/100);
+  const done=app.quests.filter(q=>q.done).length, total=app.quests.length;
+  const hh=new Date().getHours(); const greet=hh<12?'Good morning':hh<18?'Good afternoon':'Good evening';
+  const stat=(l,v)=><div className="rounded-xl2 px-3.5 py-3 backdrop-blur-sm text-center sm:text-left" style={{background:'rgba(255,255,255,.16)', border:'1px solid rgba(255,255,255,.22)'}}>
+    <div className="text-[10px] uppercase tracking-wider whitespace-nowrap" style={{color:'rgba(255,255,255,.82)'}}>{l}</div><div className="font-serif text-2xl tnum" style={{color:'#fff'}}>{v}</div></div>;
+  return <div className="mb-5">
+    <div className="relative overflow-hidden rounded-xl3 p-7 sm:p-9" style={{background:HERO_GRAD.lumera, color:'#fff', boxShadow:'0 24px 70px rgba(124,58,237,.42)'}}>
+      <div className="absolute inset-0 opacity-[.14] pointer-events-none" style={{backgroundImage:'radial-gradient(circle, #fff 1.4px, transparent 1.5px)', backgroundSize:'24px 24px'}}/>
+      <div className="absolute -top-24 -right-16 h-72 w-72 rounded-full bg-white/25 blur-3xl floaty pointer-events-none"/>
+      <div className="absolute -bottom-24 -left-10 h-56 w-56 rounded-full bg-black/15 blur-3xl pointer-events-none"/>
+      <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div className="min-w-0">
+          <div className="text-[11px] font-bold uppercase tracking-[.28em]" style={{color:'rgba(255,255,255,.85)'}}>{greet} {app.demo&&<span className="ml-1 px-2 py-0.5 rounded-full" style={{background:'rgba(255,255,255,.2)'}}>Demo</span>}</div>
+          <h1 className="font-serif text-4xl sm:text-5xl mt-1.5 leading-none" style={{color:'#fff', textShadow:'0 2px 20px rgba(0,0,0,.2)'}}>{app.profile.name||'there'}</h1>
+          <div className="flex items-center gap-3 mt-4">
+            <span className="grid place-items-center h-14 w-14 rounded-2xl font-serif text-2xl shrink-0" style={{background:'rgba(255,255,255,.22)', color:'#fff', boxShadow:'inset 0 0 0 1px rgba(255,255,255,.3)'}}>{lvl}</span>
+            <div className="flex-1 min-w-[200px] max-w-sm">
+              <div className="flex justify-between text-xs mb-1" style={{color:'rgba(255,255,255,.9)'}}><span className="font-semibold">Level {lvl}</span><span className="tnum">{xp} XP</span></div>
+              <div className="h-2.5 rounded-full overflow-hidden" style={{background:'rgba(255,255,255,.22)'}}><div className="h-full rounded-full transition-all duration-700" style={{width:Math.max(6,pct)+'%', background:'#fff', boxShadow:'0 0 14px rgba(255,255,255,.6)'}}/></div>
+              <div className="text-[11px] mt-1" style={{color:'rgba(255,255,255,.72)'}}>{next-xp} XP to level {lvl+1}</div>
+            </div>
+          </div>
+        </div>
+        <div className="grid grid-cols-3 gap-2.5 shrink-0">
+          {stat('🔥 Streak', app.profile.streak)}{stat('🏅 Badges', badges)}{stat('✅ Today', done+'/'+total)}
         </div>
       </div>
-    </Card>
-    <div className="lg:col-span-2"><QuestsPanel/></div>
+    </div>
+    <div className="mt-4"><QuestsPanel/></div>
   </div>;
 }
 function QuestsPanel(){
@@ -4588,7 +4599,7 @@ function App(){
   const [expenses,setExpenses] = useState(persisted.expenses||DEFAULT_EXPENSES);
   const [balances,setBalances] = useState(persisted.balances||DEFAULT_BALANCES);
   const [lang,setLang] = useState(persisted.lang||'en');
-  const [theme,setThemeState] = useState(()=>{ try{ return localStorage.getItem('lumera_theme')||'light'; }catch(e){ return 'light'; } });
+  const [theme,setThemeState] = useState(()=>{ try{ return localStorage.getItem('lumera_theme')||'dark'; }catch(e){ return 'dark'; } });
   const [mode,setModeState] = useState(()=>{ try{ return localStorage.getItem('lumera_mode')||'spark'; }catch(e){ return 'spark'; } });
   // Spark-mode gamification (only surfaced when mode==='spark'; harmless otherwise)
   const [xp,setXp] = useState(()=>{ try{ return JSON.parse(localStorage.getItem('lumera_spark_xp'))||0; }catch(e){ return 0; } });
@@ -4621,8 +4632,13 @@ function App(){
     else { const u={name:email.split('@')[0], email, isAdmin:/admin/i.test(email)}; setUser(u); setOnboarded(false); setProfile({...DEFAULT_PROFILE,name:u.name}); setExpenses({...BLANK_EXP}); setBalances({...BLANK_BAL}); nav('/onboarding'); } };
   const loginProvider=(p)=> setPendingProvider(p);
   const completeProvider=()=>{ const p=pendingProvider; setPendingProvider(null); if(p) login(`${p}.user@lumera.app`); };
-  const demo=()=>{ const accts=loadAccounts(); const e='demo@lumera.app';
-    if(accts[e]){ login(e); } else { setUser({name:'Avyan', email:e, isAdmin:false}); setOnboarded(true); setProfile(DEFAULT_PROFILE); setExpenses(DEFAULT_EXPENSES); setBalances(DEFAULT_BALANCES); nav('/dashboard'); } };
+  // "Try demo" walks the real sign-up survey (profile → financials), pre-filled with
+  // example numbers so a viewer sees the full input flow, then lands on a populated dashboard.
+  const demo=()=>{ setUser({name:'Avyan', email:'demo@lumera.app', isAdmin:false}); setOnboarded(false);
+    setProfile({...DEFAULT_PROFILE}); setExpenses({...DEFAULT_EXPENSES}); setBalances({...DEFAULT_BALANCES}); nav('/onboarding'); };
+  // Silent demo: skips the survey (used when a sub-product site auto-enters a demo).
+  const demoSilent=()=>{ setUser({name:'Avyan', email:'demo@lumera.app', isAdmin:false}); setOnboarded(true);
+    setProfile({...DEFAULT_PROFILE}); setExpenses({...DEFAULT_EXPENSES}); setBalances({...DEFAULT_BALANCES}); };
   const askLogout=()=> setShowLogout(true);
   const doLogout=()=>{ setShowLogout(false); setUser(null); setOnboarded(false); nav('/'); };
   const completeOnboarding=()=>{ setOnboarded(true); setLastUpdated(Date.now()); setLastPrompt(Date.now()); };
@@ -4646,7 +4662,7 @@ function App(){
   // entering a demo if not already signed in (file:// storage isn't shared across files).
   useEffect(()=>{ if(SITE==='lumera') return;
     if(mode!=='spark') setMode('spark');
-    if(!user) demo();
+    if(!user) demoSilent();
     const h=location.hash.replace('#',''); if(!h||h==='/'||h==='/dashboard') location.hash='/'+SITE;
   },[]);
   const awardXp = useCallback((n)=>{ setXp(x=>{ const v=x+(n||0); try{ localStorage.setItem('lumera_spark_xp', JSON.stringify(v)); }catch(e){} return v; }); setQuestBurst(b=>b+1); },[]);
@@ -4673,7 +4689,8 @@ function App(){
   if(redirect && redirect!==route){ location.hash=redirect; }
 
   // Which sub-product "world" we're in — recolours the whole shell in Spark mode.
-  const product = mode==='spark' ? productOf(path) : 'lumera';
+  // In a sub-product site, every page (incl. the AI Assistant) stays in that world.
+  const product = mode==='spark' ? (SITE!=='lumera' ? SITE : productOf(path)) : 'lumera';
   useEffect(()=>{ document.documentElement.setAttribute('data-product', product); },[product]);
 
   const value = { route, nav, user, signup, login, loginProvider, demo, logout:askLogout, askLogout, completeOnboarding, checkIn, onboarded,
