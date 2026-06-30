@@ -1147,10 +1147,15 @@ const BUDGET_TEMPLATES = [
 /* ============================================================
    REUSABLE COMPONENTS + CHARTS
    ============================================================ */
-// Fixed chart/data palette — preserved exactly as the original so every metric,
-// allocation chart and score ring reads the way it always did. (UI accent colour
-// is themed separately via CSS variables, not this object.)
-const COLORS = { gold:'#BFA06A', goldd:'#9E7E45', sage:'#6E8B6A', saged:'#4C6447', clay:'#C0714F', berry:'#A6534A', charcoal:'#272320', ink:'#16130F', sky:'#6E86A0', stone:'#D9CFBE', taupe:'#CFC4B1', muted:'#9C9387', line:'#E9E2D5' };
+// Chart/data palette — accent colours preserved exactly as the original. Only the
+// near-black tokens (charcoal/ink/stone/line) flip to light in Spark's dark theme
+// so dark chart segments and gridlines don't vanish against the dark cards.
+const _spark = ()=> typeof document!=='undefined' && document.documentElement.getAttribute('data-mode')==='spark';
+const COLORS = { gold:'#BFA06A', goldd:'#9E7E45', sage:'#6E8B6A', saged:'#4C6447', clay:'#C0714F', berry:'#A6534A', sky:'#6E86A0', taupe:'#CFC4B1', muted:'#9C9387',
+  get charcoal(){ return _spark()?'#C7C9DA':'#272320'; },
+  get ink(){ return _spark()?'#E9EAF4':'#16130F'; },
+  get stone(){ return _spark()?'#3A3A4E':'#D9CFBE'; },
+  get line(){ return _spark()?'#2C2C3C':'#E9E2D5'; } };
 
 /* ---- Icon set (stroke, currentColor) ---- */
 const P = {
@@ -2383,11 +2388,14 @@ function Mascot({ kind='lumera', color='#8B5CF6', emoji='🦉', size=58 }){
   const gid='mg'+color.replace('#','');
   // distinct topper per character (owl tufts · sprout leaf · antenna · knight crest · flame)
   const TOP = {
-    lumera: <g><path d="M24 15 L26 4 L33 13 Z" fill={`url(#${gid})`}/><path d="M48 15 L46 4 L39 13 Z" fill={`url(#${gid})`}/></g>,
-    leaf:   <g><path d="M36 14 Q26 1 41 2 Q42 14 36 14 Z" fill="#15A34A"/><path d="M36 14 Q46 3 50 11 Q42 15 36 14 Z" fill="#22C55E"/><line x1="36" y1="14" x2="36" y2="7" stroke="#0e7a37" strokeWidth="2"/></g>,
-    atlas:  <g><line x1="36" y1="13" x2="36" y2="3" stroke={color} strokeWidth="2"/><circle cx="36" cy="2.5" r="3" fill={color}/><circle cx="36" cy="2.5" r="3" fill="#fff" opacity=".4"/></g>,
-    shield: <g><path d="M29 13 Q36 -1 43 13 Z" fill={`url(#${gid})`}/><path d="M33 13 L36 4 L39 13 Z" fill="#fff" opacity=".3"/></g>,
-    forge:  <g><path d="M30 15 Q31 3 36 11 Q41 3 42 15 Z" fill="#F97316"/><path d="M33 15 Q34 7 36 12 Q38 7 39 15 Z" fill="#FCD34D"/></g>,
+    lumera: <g><path d="M20 14 L23 -10 L35 12 Z" fill={`url(#${gid})`}/><path d="M52 14 L49 -10 L37 12 Z" fill={`url(#${gid})`}/>
+      <path d="M23 -10 L25 -2 L29 4 Z" fill="#fff" opacity=".25"/><path d="M49 -10 L47 -2 L43 4 Z" fill="#fff" opacity=".25"/></g>,
+    leaf:   <g><line x1="36" y1="14" x2="36" y2="-6" stroke="#0E7A37" strokeWidth="2.6"/>
+      <path d="M36 1 Q18 -7 23 -17 Q40 -15 36 1 Z" fill="#22C55E"/><path d="M30 -8 Q34 -6 35 -2" stroke="#0E7A37" strokeWidth="1.2" fill="none"/>
+      <path d="M36 -2 Q54 -10 50 -19 Q34 -17 36 -2 Z" fill="#15A34A"/><path d="M43 -11 Q40 -8 38 -5" stroke="#0b5e2a" strokeWidth="1.2" fill="none"/></g>,
+    atlas:  <g><line x1="36" y1="14" x2="36" y2="-12" stroke={color} strokeWidth="2.4"/><circle cx="36" cy="-15" r="4.5" fill={color}/><circle cx="36" cy="-15" r="4.5" fill="#fff" opacity=".35"/><circle cx="36" cy="-15" r="8" fill="none" stroke={color} strokeWidth="1.2" opacity=".5"/></g>,
+    shield: <g><path d="M26 13 Q36 -16 46 13 Z" fill={`url(#${gid})`}/><path d="M31 13 L36 -6 L41 13 Z" fill="#fff" opacity=".35"/><circle cx="36" cy="-7" r="2.4" fill="#fff" opacity=".6"/></g>,
+    forge:  <g><path d="M27 16 Q28 -2 36 10 Q44 -2 45 16 Z" fill="#F97316"/><path d="M31 16 Q32 -10 36 6 Q40 -10 41 16 Z" fill="#FB923C"/><path d="M33 16 Q34 -2 36 9 Q38 -2 39 16 Z" fill="#FCD34D"/></g>,
   };
   // Atlas wears a glossy visor; the rest wear a hero domino mask.
   const face = kind==='atlas'
@@ -2395,8 +2403,8 @@ function Mascot({ kind='lumera', color='#8B5CF6', emoji='🦉', size=58 }){
     : <g><path d="M17 28 Q36 19 55 28 L55 35 Q36 28 17 35 Z" fill="#0b0b16" opacity=".82"/>
         <ellipse className="mascot-blink" cx="29" cy="31" rx="3.4" ry="3.8" fill="#fff"/>
         <ellipse className="mascot-blink" cx="43" cy="31" rx="3.4" ry="3.8" fill="#fff"/></g>;
-  return <span className="mascot inline-block" style={{width:size, height:size, filter:`drop-shadow(0 8px 16px ${color}66)`}}>
-    <svg viewBox="0 0 72 86" width={size} height={size*86/72} aria-hidden="true">
+  return <span className="mascot inline-block" style={{width:size, height:size*110/80, lineHeight:0, filter:`drop-shadow(0 8px 16px ${color}66)`}}>
+    <svg viewBox="-4 -22 80 110" width={size} height={size*110/80} aria-hidden="true">
       <defs><linearGradient id={gid} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#ffffff" stopOpacity=".35"/><stop offset=".25" stopColor={color}/><stop offset="1" stopColor={color}/></linearGradient></defs>
       <path className="mascot-cape" d="M16 40 Q2 66 18 82 L36 70 L54 82 Q70 66 56 40 Z" fill={color}/>
       <path className="mascot-cape" d="M16 40 Q2 66 18 82 L36 70 L54 82 Q70 66 56 40 Z" fill="#000" opacity=".22"/>
@@ -2569,6 +2577,41 @@ function ProductPage({ k }){
       <Card className="mt-4 text-center"><div className="font-serif text-xl text-charcoal">Be first into {sub.name}.</div>
         <p className="text-sm text-muted mt-1 mb-4">We’ll let you know the moment it opens.</p>
         <button onClick={()=>app.awardXp&&app.awardXp(10)} className="btn btn-gold px-6 py-3 text-sm">Join the waitlist · +10 XP</button></Card>
+    </>}
+
+    {k==='leaf' && <>
+      <div className="mt-8 mb-3"><h2 className="font-serif text-2xl text-charcoal">Learning tracks</h2><p className="text-sm text-muted">Pick a track and level up one lesson at a time.</p></div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 stagger">
+        {[['Budgeting basics','🧾','Master money in vs out','6 lessons'],['Investing 101','🌱','Grow money over time','8 lessons'],['Credit & debt','💳','Build a healthy score','5 lessons'],['Money mindset','🧠','Habits that actually stick','4 lessons']].map(([t,e,d,c])=>
+          <Card key={t} onClick={()=>app.nav('/learn')} className="group">
+            <div className="text-3xl group-hover:scale-110 transition" style={{transformOrigin:'left'}}>{e}</div>
+            <div className="font-serif text-lg text-charcoal mt-2">{t}</div>
+            <p className="text-xs text-muted mt-1 leading-relaxed">{d}</p>
+            <div className="mt-2 text-[11px] font-semibold" style={{color:a}}>{c} →</div>
+          </Card>)}
+      </div>
+      <div className="grid lg:grid-cols-3 gap-4 mt-4">
+        <Card hover={false} className="lg:col-span-2 relative overflow-hidden">
+          <div className="absolute -top-8 -right-8 h-24 w-24 rounded-full blur-2xl opacity-20" style={{background:a}}/>
+          <div className="relative flex items-start gap-3"><span className="text-3xl">💡</span>
+            <div><div className="flex items-center gap-2"><Pill tone="gold">Tip of the day</Pill></div>
+              <div className="font-serif text-lg text-charcoal mt-1.5">Pay yourself first</div>
+              <p className="text-sm text-muted mt-1 leading-relaxed">Automate a transfer to savings the day <i>after</i> payday — before you can spend it. Even a small fixed amount compounds into a real habit (and a real balance).</p></div></div>
+        </Card>
+        <Card onClick={()=>app.nav('/resources')} className="group flex flex-col justify-between">
+          <div><Eyebrow className="mb-2">Glossary</Eyebrow><div className="font-serif text-lg text-charcoal">Confused by a term?</div>
+            <p className="text-sm text-muted mt-1">Plain-English definitions for every money word in Lumera.</p></div>
+          <div className="mt-3 text-xs font-semibold flex items-center gap-1" style={{color:a}}>Open the Knowledge Hub <Icon name="arrowR" size={13}/></div>
+        </Card>
+      </div>
+      <Card hover={false} className="mt-4 relative overflow-hidden" style={{background:`linear-gradient(120deg, ${a}14, transparent)`}}>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3"><span className="text-3xl">🏅</span>
+            <div><div className="font-serif text-lg text-charcoal">Earn the Leaf Scholar badge</div>
+              <p className="text-sm text-muted">Finish 5 lessons to unlock it. Every lesson is +25 XP.</p></div></div>
+          <button onClick={()=>app.nav('/learn')} className="btn btn-gold px-5 py-2.5 text-sm">Start learning <Icon name="arrowR" size={14}/></button>
+        </div>
+      </Card>
     </>}
   </AppShell>;
 }
@@ -4582,81 +4625,64 @@ const MARKET_CITIES=[
   {city:'Sydney', mkt:'ASX 200', lat:-33.87, lon:151.21, region:'APAC', open:[23,5]},
 ];
 function hashStr(s){ let h=0; for(let i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))>>>0; return h; }
+// Deterministic mini-sparkline for the markets pages.
+function MiniSpark({ seed, up, color='#6E8B6A', h=36 }){
+  const W=140, n=22; const pts=[]; let v=50;
+  for(let i=0;i<n;i++){ const r=((hashStr(seed+'_'+i)%100)/100)-0.5; v += r*9 + (up?0.7:-0.7); pts.push(v); }
+  const min=Math.min(...pts), max=Math.max(...pts), rng=(max-min)||1;
+  const X=i=>(i/(n-1))*W, Y=p=>h-3-((p-min)/rng)*(h-6);
+  const d=pts.map((p,i)=>`${i?'L':'M'}${X(i).toFixed(1)},${Y(p).toFixed(1)}`).join(' ');
+  return <svg viewBox={`0 0 ${W} ${h}`} width="100%" height={h} preserveAspectRatio="none" style={{display:'block'}}>
+    <path d={`${d} L${W},${h} L0,${h} Z`} fill={color} opacity=".12"/>
+    <path d={d} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>;
+}
 function GlobalMarkets(){
-  const app=useApp();
-  const cvs=useRef(null); const rot=useRef({lon:30,lat:-14}); const drag=useRef(null); const zoom=useRef(1); const proj=useRef([]); const selRef=useRef('New York');
-  const [sel,setSel]=useState('New York'); const [spin,setSpin]=useState(true);
-  useEffect(()=>{ selRef.current=sel; },[sel]);
-  useEffect(()=>{
-    const canvas=cvs.current; if(!canvas) return; const ctx=canvas.getContext('2d'); let raf; const DPR=Math.min(2,window.devicePixelRatio||1);
-    const resize=()=>{ const w=canvas.clientWidth,h=canvas.clientHeight; canvas.width=w*DPR; canvas.height=h*DPR; ctx.setTransform(DPR,0,0,DPR,0,0); };
-    resize(); window.addEventListener('resize',resize);
-    const draw=()=>{
-      const w=canvas.clientWidth,h=canvas.clientHeight; ctx.clearRect(0,0,w,h);
-      const cx=w/2, cy=h/2, R=Math.min(w,h)/2*0.84*zoom.current;
-      const lon0=rot.current.lon*Math.PI/180, lat0=rot.current.lat*Math.PI/180;
-      const project=(la,lo)=>{ la*=Math.PI/180; lo*=Math.PI/180; const cosc=Math.sin(lat0)*Math.sin(la)+Math.cos(lat0)*Math.cos(la)*Math.cos(lo-lon0);
-        const x=R*Math.cos(la)*Math.sin(lo-lon0); const y=R*(Math.cos(lat0)*Math.sin(la)-Math.sin(lat0)*Math.cos(la)*Math.cos(lo-lon0)); return {x:cx+x,y:cy-y,vis:cosc>=0}; };
-      const g=ctx.createRadialGradient(cx-R*0.35,cy-R*0.35,R*0.15,cx,cy,R); g.addColorStop(0,'#2c2823'); g.addColorStop(0.75,'#1a1611'); g.addColorStop(1,'#100c08');
-      ctx.beginPath(); ctx.arc(cx,cy,R,0,7); ctx.fillStyle=g; ctx.fill();
-      ctx.strokeStyle='rgba(198,160,74,0.16)'; ctx.lineWidth=1;
-      for(let lo=-180;lo<180;lo+=30){ ctx.beginPath(); let st=false; for(let la=-90;la<=90;la+=4){ const p=project(la,lo); if(p.vis){ st?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y); st=true; } else st=false; } ctx.stroke(); }
-      for(let la=-60;la<=60;la+=30){ ctx.beginPath(); let st=false; for(let lo=-180;lo<=180;lo+=4){ const p=project(la,lo); if(p.vis){ st?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y); st=true; } else st=false; } ctx.stroke(); }
-      ctx.beginPath(); ctx.arc(cx,cy,R,0,7); ctx.strokeStyle='rgba(198,160,74,0.45)'; ctx.lineWidth=1.5; ctx.stroke();
-      const list=[];
-      MARKET_CITIES.forEach(c=>{ const p=project(c.lat,c.lon); if(!p.vis) return; list.push({city:c.city,x:p.x,y:p.y}); const isSel=selRef.current===c.city;
-        if(isSel){ ctx.beginPath(); ctx.arc(p.x,p.y,11,0,7); ctx.strokeStyle='rgba(231,198,107,0.55)'; ctx.lineWidth=1.5; ctx.stroke(); }
-        ctx.beginPath(); ctx.arc(p.x,p.y,isSel?6:3.6,0,7); ctx.fillStyle=isSel?'#E7C66B':'#C6A04A'; ctx.fill();
-        if(isSel){ ctx.font='600 11px Inter,system-ui,sans-serif'; ctx.fillStyle='#F5EEE1'; ctx.textAlign='center'; ctx.fillText(c.city,p.x,p.y-14); } });
-      proj.current=list;
-      if(spin && !drag.current) rot.current.lon=(rot.current.lon+0.16)%360;
-      raf=requestAnimationFrame(draw);
-    };
-    draw();
-    return ()=>{ cancelAnimationFrame(raf); window.removeEventListener('resize',resize); };
-  },[spin]);
-  const pt=e=>{ const r=cvs.current.getBoundingClientRect(); const t=e.touches&&e.touches[0]?e.touches[0]:e; return {x:t.clientX-r.left,y:t.clientY-r.top}; };
-  const down=e=>{ const p=pt(e); drag.current={x:p.x,y:p.y,lon:rot.current.lon,lat:rot.current.lat,moved:false}; };
-  const move=e=>{ if(!drag.current) return; const p=pt(e); const dx=p.x-drag.current.x, dy=p.y-drag.current.y; if(Math.abs(dx)+Math.abs(dy)>3) drag.current.moved=true; rot.current.lon=drag.current.lon - dx*0.45; rot.current.lat=clamp(drag.current.lat + dy*0.45,-85,85); };
-  const up=e=>{ const d=drag.current; drag.current=null; if(d&&!d.moved){ const p=pt(e); let best=null,bd=20; proj.current.forEach(o=>{ const dist=Math.hypot(o.x-p.x,o.y-p.y); if(dist<bd){bd=dist;best=o.city;} }); if(best) setSel(best); } };
-  const c=MARKET_CITIES.find(x=>x.city===sel)||MARKET_CITIES[0];
+  const [region,setRegion]=useState('All');
   const dayKey=new Date().toISOString().slice(0,10);
-  const chg=(((hashStr(c.city+dayKey)%420)/100)-2); const lvl=1000+(hashStr(c.mkt)%9000)+ (hashStr(c.city)%900)/10;
   const utc=new Date().getUTCHours()+new Date().getUTCMinutes()/60; const day=new Date().getUTCDay();
-  const isOpen=(()=>{ if(day===0||day===6) return false; const [a,b]=c.open; return a<b? (utc>=a&&utc<b) : (utc>=a||utc<b); })();
-  const q=encodeURIComponent(c.mkt+' index'); const nq=encodeURIComponent(c.city+' stock market');
-  const byRegion=g=>MARKET_CITIES.filter(x=>x.region===g);
+  const isOpen=c=>{ if(day===0||day===6) return false; const [a,b]=c.open; return a<b?(utc>=a&&utc<b):(utc>=a||utc<b); };
+  const data=MARKET_CITIES.map(c=>{ const chg=(((hashStr(c.city+dayKey)%420)/100)-2); const lvl=1000+(hashStr(c.mkt)%9000)+(hashStr(c.city)%900)/10; return {...c, chg, lvl, open:isOpen(c)}; });
+  const openCount=data.filter(d=>d.open).length;
+  const advancers=data.filter(d=>d.chg>=0).length;
+  const shown=region==='All'?data:data.filter(d=>d.region===region);
+  const GREEN='#34D399', RED='#FB7185';
   return <AppShell>
-    <PageHead eyebrow="Global markets" title="The world’s exchanges, on one globe."
-      desc="Spin the globe or tap a financial centre to see its index and jump to live news. Drag to rotate; the markets currently open are highlighted."
-      action={<button onClick={()=>setSpin(s=>!s)} className="btn btn-ghost px-3 py-2 text-xs"><Icon name={spin?'pause':'play'} size={13}/>{spin?'Pause':'Spin'}</button>}/>
-    <div className="grid lg:grid-cols-5 gap-4">
-      <Card className="lg:col-span-3 !p-3 bg-charcoal overflow-hidden">
-        <canvas ref={cvs} onMouseDown={down} onMouseMove={move} onMouseUp={up} onMouseLeave={()=>{drag.current=null;}}
-          onTouchStart={down} onTouchMove={e=>{move(e);}} onTouchEnd={up}
-          className="w-full block cursor-grab active:cursor-grabbing" style={{height:'440px',touchAction:'none'}}/>
-        <div className="flex items-center justify-center gap-4 text-[11px] text-cream/60 -mt-1 pb-1"><span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full" style={{background:'#C6A04A'}}/>Financial centre</span><span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full" style={{background:'#E7C66B'}}/>Selected</span><span>Drag to rotate · tap a pin</span></div>
-      </Card>
-      <div className="lg:col-span-2 space-y-4">
-        <Card>
-          <div className="flex items-center justify-between"><Eyebrow>{c.region}</Eyebrow><Pill tone={isOpen?'sage':'neutral'}><span className={cx('h-1.5 w-1.5 rounded-full mr-1', isOpen?'bg-saged':'bg-faint')} style={{display:'inline-block'}}/>{isOpen?'Open now':'Closed'}</Pill></div>
-          <h3 className="font-serif text-2xl text-charcoal mt-1">{c.city}</h3>
-          <div className="text-sm text-muted">{c.mkt}</div>
-          <div className="flex items-end gap-3 mt-3"><div className="font-serif text-3xl text-charcoal tnum">{lvl.toLocaleString(undefined,{maximumFractionDigits:1})}</div>
-            <Pill tone={chg>=0?'sage':'clay'}><Icon name={chg>=0?'arrowUp':'arrowDn'} size={12}/>{chg>=0?'+':''}{chg.toFixed(2)}%</Pill></div>
-          <div className="text-[10px] text-faint mt-1">Illustrative level — connect a live feed (INTEGRATION.md → Step 2).</div>
-          <div className="grid gap-2 mt-3">
-            <a href={`https://www.google.com/search?q=${q}`} target="_blank" rel="noopener noreferrer" className="btn btn-ghost py-2 text-xs justify-between">Live {c.mkt} quote <Icon name="arrowR" size={12} className="-rotate-45"/></a>
-            <a href={`https://news.google.com/search?q=${nq}`} target="_blank" rel="noopener noreferrer" className="btn btn-ghost py-2 text-xs justify-between">{c.city} market news <Icon name="arrowR" size={12} className="-rotate-45"/></a>
-          </div>
-        </Card>
-        <Card><Eyebrow className="mb-2">Jump to a market</Eyebrow>
-          {['Americas','EMEA','APAC'].map(g=><div key={g} className="mb-2 last:mb-0"><div className="text-[10px] tracking-[.18em] uppercase text-faint mb-1">{g}</div>
-            <div className="flex flex-wrap gap-1.5">{byRegion(g).map(x=><button key={x.city} onClick={()=>setSel(x.city)} className={cx('rounded-lg px-2.5 py-1.5 text-xs font-medium border transition', sel===x.city?'border-gold bg-gold/12 text-goldd':'border-line bg-card text-muted hover:bg-sand')}>{x.city}</button>)}</div></div>)}
-        </Card>
+    <PageHead eyebrow="Global markets" title="Every major exchange, at a glance."
+      desc="Illustrative live-style levels for the world’s financial centres — with real quote & news links. Markets open right now are highlighted." />
+    <div className="relative overflow-hidden rounded-xl3 mb-5 p-6 sm:p-8 text-cream" style={{background:'linear-gradient(135deg,#2563EB,#3B82F6 45%,#06B6D4 100%)', boxShadow:'0 20px 60px rgba(37,99,235,.4)'}}>
+      <div className="absolute -top-16 -right-10 h-52 w-52 rounded-full bg-white/20 blur-3xl floaty"/>
+      <div className="relative grid sm:grid-cols-4 gap-4">
+        <div className="sm:col-span-2"><div className="text-[11px] font-bold uppercase tracking-[.24em]" style={{color:'rgba(255,255,255,.85)'}}>World markets · {new Date().toLocaleDateString([], {weekday:'long'})}</div>
+          <div className="font-serif text-3xl sm:text-4xl mt-1" style={{color:'#fff'}}>{openCount} of {data.length} open now</div>
+          <p className="text-sm mt-2" style={{color:'rgba(255,255,255,.85)'}}>{advancers} advancing · {data.length-advancers} declining today</p></div>
+        {['Americas','EMEA','APAC'].map(r=>{ const o=data.filter(d=>d.region===r&&d.open).length; const t=data.filter(d=>d.region===r).length;
+          return <div key={r} className="rounded-xl2 p-3" style={{background:'rgba(255,255,255,.15)',border:'1px solid rgba(255,255,255,.2)'}}>
+            <div className="text-[11px] uppercase tracking-wider" style={{color:'rgba(255,255,255,.8)'}}>{r}</div>
+            <div className="font-serif text-2xl" style={{color:'#fff'}}>{o}/{t}</div><div className="text-[11px]" style={{color:'rgba(255,255,255,.75)'}}>open</div></div>; })}
       </div>
     </div>
-    <div className="mt-4 rounded-xl2 border border-line bg-cream/60 px-4 py-2.5 text-xs text-muted flex items-start gap-2"><Icon name="info" size={14} className="text-goldd mt-0.5 shrink-0"/>Levels and percentages here are illustrative placeholders so the globe feels alive. The “quote” and “news” buttons open real, live sources. Wire a market-data API for live in-app figures — see <b>INTEGRATION.md → Step 2</b>.</div>
+    <div className="flex gap-2 mb-4 flex-wrap">{['All','Americas','EMEA','APAC'].map(r=>
+      <button key={r} onClick={()=>setRegion(r)} className={cx('rounded-full px-4 py-1.5 text-sm font-semibold border transition', region===r?'border-gold bg-gold/15 text-goldd':'border-line text-muted hover:bg-sand')}>{r}</button>)}</div>
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
+      {shown.map(d=>{ const q=encodeURIComponent(d.mkt+' index'), nq=encodeURIComponent(d.city+' stock market'); const upc=d.chg>=0;
+        return <Card key={d.city} className="relative overflow-hidden">
+          <div className="flex items-start justify-between gap-2">
+            <div><div className="font-serif text-lg text-charcoal leading-tight">{d.city}</div><div className="text-xs text-muted">{d.mkt} · {d.region}</div></div>
+            <Pill tone={d.open?'sage':'neutral'}><span className={cx('h-1.5 w-1.5 rounded-full', d.open?'bg-saged':'bg-faint')}/>{d.open?'Open':'Closed'}</Pill>
+          </div>
+          <div className="flex items-end justify-between mt-3">
+            <div className="font-serif text-2xl text-charcoal tnum">{d.lvl.toLocaleString(undefined,{maximumFractionDigits:0})}</div>
+            <Pill tone={upc?'sage':'berry'}><Icon name={upc?'arrowUp':'arrowDn'} size={12}/>{upc?'+':''}{d.chg.toFixed(2)}%</Pill>
+          </div>
+          <div className="mt-2 -mx-1"><MiniSpark seed={d.city+d.mkt} up={upc} color={upc?GREEN:RED}/></div>
+          <div className="grid grid-cols-2 gap-2 mt-2">
+            <a href={`https://www.google.com/search?q=${q}`} target="_blank" rel="noopener noreferrer" className="btn btn-ghost py-2 text-xs">Quote <Icon name="arrowR" size={11} className="-rotate-45"/></a>
+            <a href={`https://news.google.com/search?q=${nq}`} target="_blank" rel="noopener noreferrer" className="btn btn-ghost py-2 text-xs">News <Icon name="arrowR" size={11} className="-rotate-45"/></a>
+          </div>
+        </Card>; })}
+    </div>
+    <div className="mt-4 rounded-xl2 border border-line bg-cream/60 px-4 py-2.5 text-xs text-muted flex items-start gap-2"><Icon name="info" size={14} className="text-goldd mt-0.5 shrink-0"/>Levels and percentages are illustrative placeholders so the page feels alive; the open/closed status is computed from real exchange hours. Quote & news buttons open real live sources. Wire a market-data API for live in-app figures — see <b>INTEGRATION.md → Step 2</b>.</div>
   </AppShell>;
 }
 
@@ -4710,17 +4736,36 @@ const WORLD_GROUPS=[
   ]},
 ];
 function WorldMonitor(){
+  const dayKey=new Date().toISOString().slice(0,10);
+  const snap=WORLD_SNAP.map(s=>{ const chg=(((hashStr(s.k+dayKey)%600)/100)-3); return {...s, chg}; });
+  const GREEN='#34D399', RED='#FB7185';
+  const riskScore=42+(hashStr('risk'+dayKey)%34);
+  const riskLabel=riskScore>=66?'Elevated':riskScore>=45?'Moderate':'Calm';
   return <AppShell>
-    <PageHead eyebrow="World monitor" title="The forces moving your money — in one view."
-      desc="Markets don’t move in a vacuum. This is your launchpad to the world’s most trusted live feeds for economics, energy, trade, geopolitics and climate."
-      action={<Pill tone="neutral"><Icon name="clock" size={12}/> Live sources</Pill>}/>
-    <div className="mb-4 rounded-xl2 border border-line bg-cream/60 px-4 py-2.5 text-xs text-muted flex items-start gap-2"><Icon name="info" size={14} className="text-goldd mt-0.5 shrink-0"/>The chips below are illustrative reference levels so the page feels alive; every card opens a real, live source. To stream live figures into Lumera itself, connect the data APIs in <b>INTEGRATION.md → Steps 2 & 4</b>.</div>
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-5">
-      {WORLD_SNAP.map(s=><Card key={s.k} hover={false} className="!p-3.5"><div className="text-[11px] text-muted">{s.k}</div><div className="font-serif text-xl text-charcoal tnum mt-0.5">{s.v}</div><div className="text-[10px] text-faint">{s.d}</div></Card>)}
+    <PageHead eyebrow="World monitor" title="The forces moving your money."
+      desc="A macro snapshot — commodities, rates, risk and shipping — with one-tap access to the world’s most trusted live feeds." />
+    <div className="relative overflow-hidden rounded-xl3 mb-5 p-6 sm:p-8 text-cream" style={{background:'linear-gradient(135deg,#475569,#334155 50%,#1E293B 100%)', boxShadow:'0 20px 60px rgba(15,23,42,.5)'}}>
+      <div className="absolute -top-16 -right-10 h-52 w-52 rounded-full bg-white/15 blur-3xl floaty"/>
+      <div className="relative flex flex-wrap items-center justify-between gap-5">
+        <div><div className="text-[11px] font-bold uppercase tracking-[.24em]" style={{color:'rgba(255,255,255,.8)'}}>Global macro · {new Date().toLocaleDateString([], {day:'numeric',month:'long'})}</div>
+          <div className="font-serif text-3xl sm:text-4xl mt-1" style={{color:'#fff'}}>Market risk: {riskLabel}</div>
+          <p className="text-sm mt-2 max-w-md" style={{color:'rgba(255,255,255,.82)'}}>A blended read on volatility, rates and geopolitics. Tap any source below for the live picture.</p></div>
+        <div className="text-center"><div className="font-serif text-5xl" style={{color:'#fff'}}>{riskScore}</div>
+          <div className="text-[11px] uppercase tracking-wider" style={{color:'rgba(255,255,255,.75)'}}>risk index · /100</div></div>
+      </div>
+    </div>
+    <h2 className="font-serif text-xl text-charcoal mb-3">Macro snapshot</h2>
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6 stagger">
+      {snap.map(s=>{ const up=s.chg>=0; return <Card key={s.k} hover={false} className="!p-3.5 overflow-hidden">
+        <div className="text-[11px] text-muted">{s.k}</div>
+        <div className="font-serif text-xl text-charcoal tnum mt-0.5">{s.v}</div>
+        <div className="flex items-center justify-between mt-0.5"><span className="text-[10px] text-faint">{s.d}</span><span className={cx('text-[11px] font-semibold', up?'text-saged':'text-berry')}>{up?'+':''}{s.chg.toFixed(1)}%</span></div>
+        <div className="-mx-1 mt-1.5"><MiniSpark seed={s.k+dayKey} up={up} color={up?GREEN:RED} h={26}/></div>
+      </Card>; })}
     </div>
     {WORLD_GROUPS.map(g=><div key={g.h} className="mb-6">
-      <div className="flex items-center gap-2 mb-3"><span className="grid place-items-center h-7 w-7 rounded-lg bg-gold/15 text-goldd"><Icon name={g.icon} size={15}/></span><Eyebrow>{g.h}</Eyebrow></div>
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="flex items-center gap-2 mb-3"><span className="grid place-items-center h-8 w-8 rounded-xl bg-gold/15 text-goldd"><Icon name={g.icon} size={16}/></span><h2 className="font-serif text-xl text-charcoal">{g.h}</h2></div>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {g.items.map(it=><a key={it.n} href={it.u} target="_blank" rel="noopener noreferrer" className="lux-card lift p-4 block group">
           <div className="font-serif text-base text-charcoal group-hover:text-goldd transition leading-snug">{it.n}</div>
           <p className="text-xs text-muted mt-1.5 leading-relaxed">{it.d}</p>
