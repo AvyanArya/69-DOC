@@ -2305,78 +2305,99 @@ const FORGE_FEATURES = [
   ['Raise & negotiation','🤝','Scripts and data to ask for (and get) more.'],
   ['Career roadmaps','🧭','Step-by-step moves to your next role.'],
 ];
+const TOOL_EMOJI = { '/dashboard':'🏠','/budget':'🧾','/goals':'🎯','/emergency':'🛟','/subscriptions':'📺','/networth':'📈','/simulator':'🪄','/twin':'🧬',
+  '/learn':'📚','/resources':'🧠','/badges':'🏅','/updates':'✨','/invest':'🌱','/market':'📊','/globe':'🌍','/world':'🛰️','/news':'📰',
+  '/credit':'💳','/debt':'⛓️','/insurance':'☂️','/retirement':'🌅' };
+const PRODUCT_CHALLENGE = { leaf:['Finish a 2-minute lesson','📚',25], atlas:['Spot one market mover today','📊',20],
+  shield:['Review one credit factor','💳',20], forge:['Set an income goal','🔥',15], lumera:['Log today’s spending','🧾',15] };
+const PRODUCT_PARTICLES = { leaf:['🌿','🍃','✨'], atlas:['🛰️','✨','💫'], shield:['🛡️','✨','⭐'], forge:['🔥','⚡','✨'], lumera:['✨','💫','⭐'] };
 function ProductPage({ k }){
   const app=useApp(); const { t }=app; const sub=SUBS.find(s=>s.key===k);
+  const [done,setDone]=useState(false);
   if(!sub) return <AppShell><div className="text-center text-muted py-20">Unknown product.</div></AppShell>;
   const tools=sub.routes.map(r=>NAV_BY_ROUTE[r]).filter(Boolean); const a=sub.accent;
   const lvl=levelFromXp(app.xp); const base=xpForLevel(lvl),next=xpForLevel(lvl+1);
   const pct=Math.round(((app.xp-base)/((next-base)||1))*100); const badges=Math.floor(app.xp/100);
-  const stat=(l,v)=><div className="rounded-xl2 p-3.5 backdrop-blur-sm" style={{background:'rgba(255,255,255,.16)', border:'1px solid rgba(255,255,255,.22)'}}>
-    <div className="text-[11px] uppercase tracking-wider" style={{color:'rgba(255,255,255,.8)'}}>{l}</div><div className="font-serif text-2xl tnum mt-0.5" style={{color:'#fff'}}>{v}</div></div>;
+  const parts=PRODUCT_PARTICLES[k]||PRODUCT_PARTICLES.lumera; const chal=PRODUCT_CHALLENGE[k];
   const goFirst=()=> tools.length? app.nav(tools[0].to) : (app.awardXp&&app.awardXp(10));
+  const stat=(l,v)=><div className="rounded-xl2 px-4 py-3 backdrop-blur-sm" style={{background:'rgba(255,255,255,.16)', border:'1px solid rgba(255,255,255,.22)'}}>
+    <div className="text-[10px] uppercase tracking-wider whitespace-nowrap" style={{color:'rgba(255,255,255,.82)'}}>{l}</div><div className="font-serif text-2xl tnum" style={{color:'#fff'}}>{v}</div></div>;
   return <AppShell>
-    {/* ===== GRAND VIBRANT HERO ===== */}
-    <div className="relative overflow-hidden rounded-xl3 mb-5 p-8 sm:p-14" style={{background:HERO_GRAD[k]||HERO_GRAD.lumera, color:'#fff', boxShadow:`0 24px 70px ${a}66`}}>
-      {/* decorative layers */}
+    {/* ===== ANIMATED VIBRANT HERO ===== */}
+    <div className="relative overflow-hidden rounded-xl3 mb-5 p-8 sm:p-14" style={{background:HERO_GRAD[k]||HERO_GRAD.lumera, backgroundSize:'180% 180%', animation:'gpan 14s ease infinite', color:'#fff', boxShadow:`0 24px 70px ${a}66`}}>
       <div className="absolute inset-0 opacity-[.14] pointer-events-none" style={{backgroundImage:'radial-gradient(circle at center, #fff 1.4px, transparent 1.5px)', backgroundSize:'24px 24px'}}/>
       <div className="absolute -top-24 -right-16 h-72 w-72 rounded-full bg-white/25 blur-3xl floaty pointer-events-none"/>
       <div className="absolute -bottom-28 -left-12 h-64 w-64 rounded-full bg-black/15 blur-3xl pointer-events-none"/>
-      <div className="absolute top-8 right-10 text-[120px] leading-none opacity-15 select-none pointer-events-none floaty hidden sm:block">{sub.emoji}</div>
+      <div className="absolute top-6 right-8 text-[130px] leading-none opacity-[.13] select-none pointer-events-none floaty hidden sm:block">{sub.emoji}</div>
+      {parts.map((e,i)=><span key={i} className="absolute floaty select-none pointer-events-none hidden sm:block" style={{left:`${18+i*26}%`, top:`${22+(i%2)*42}%`, fontSize:'24px', opacity:.55, animationDelay:`${i*0.8}s`, animationDuration:`${5+i}s`}}>{e}</span>)}
       <div className="relative">
         <button onClick={backToLumera} className="inline-flex items-center gap-1.5 text-xs font-semibold mb-6 px-3 py-1.5 rounded-full text-white hover:bg-white/25 transition" style={{background:'rgba(255,255,255,.18)'}}><Icon name="chevron" size={13} className="rotate-180"/>Lumera</button>
         <div className="text-[11px] font-bold uppercase tracking-[.3em]" style={{color:'rgba(255,255,255,.85)'}}>{sub.key!=='lumera'?'A Lumera company':'The parent company'}</div>
-        <div className="flex items-center gap-4 mt-3"><span className="text-5xl sm:text-7xl" style={{filter:'drop-shadow(0 4px 10px rgba(0,0,0,.25))'}}>{sub.emoji}</span>
+        <div className="flex items-center gap-4 mt-3"><span className="text-5xl sm:text-7xl floaty" style={{filter:'drop-shadow(0 4px 10px rgba(0,0,0,.25))'}}>{sub.emoji}</span>
           <div><h1 className="font-serif text-5xl sm:text-7xl leading-none" style={{color:'#fff', textShadow:'0 2px 20px rgba(0,0,0,.2)'}}>{sub.name}</h1>
             <div className="text-sm font-bold uppercase tracking-[.18em] mt-2" style={{color:'rgba(255,255,255,.9)'}}>{sub.tag}</div></div></div>
         <p className="mt-5 max-w-2xl text-lg sm:text-xl leading-relaxed" style={{color:'rgba(255,255,255,.92)'}}>{sub.blurb}</p>
         <div className="flex flex-wrap items-center gap-3 mt-6">
-          <button onClick={goFirst} className="btn px-6 py-3 text-sm font-bold" style={{background:'#fff', color:a, boxShadow:'0 8px 24px rgba(0,0,0,.18)'}}>{tools.length?`Explore ${sub.name}`:'Join the waitlist'} <Icon name="arrowR" size={15}/></button>
+          <button onClick={goFirst} className="btn px-6 py-3 text-sm font-bold hover:scale-105 transition" style={{background:'#fff', color:a, boxShadow:'0 8px 24px rgba(0,0,0,.18)'}}>{tools.length?`Explore ${sub.name}`:'Join the waitlist'} <Icon name="arrowR" size={15}/></button>
           <div className="text-sm" style={{color:'rgba(255,255,255,.8)'}}>{tools.length? `${tools.length} tools · powered by Lumera` : 'Launching soon'}</div>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8 max-w-2xl">
-          {stat('Level', lvl)}{stat('Total XP', app.xp)}{stat('Day streak', app.profile.streak)}{stat('Badges', badges)}
+        <div className="flex flex-wrap gap-2.5 mt-8">
+          {stat('⭐ Level', lvl)}{stat('⚡ XP', app.xp)}{stat('🔥 Streak', app.profile.streak)}{stat('🏅 Badges', badges)}
         </div>
       </div>
     </div>
 
-    {/* ===== PROGRESS DASHBOARD ===== */}
-    <Card className="mb-5 relative overflow-hidden">
-      <div className="absolute -top-10 -right-10 h-28 w-28 rounded-full blur-2xl opacity-20" style={{background:a}}/>
-      <div className="relative">
-        <div className="flex items-center justify-between"><Eyebrow>Your {sub.name} journey</Eyebrow><Pill tone="gold">Level {lvl}</Pill></div>
-        <div className="flex items-end justify-between mt-3 mb-2 flex-wrap gap-2">
-          <div className="font-serif text-4xl text-charcoal leading-none">{pct}<span className="text-2xl">%</span> <span className="text-base font-sans text-muted">to level {lvl+1}</span></div>
-          <div className="text-sm text-muted tnum">{app.xp} / {next} XP</div>
+    {/* ===== PROGRESS RING + DAILY CHALLENGE ===== */}
+    <div className="grid lg:grid-cols-3 gap-4 mb-5">
+      <Card className="flex items-center gap-4 relative overflow-hidden">
+        <div className="absolute -bottom-10 -left-10 h-28 w-28 rounded-full blur-2xl opacity-20" style={{background:a}}/>
+        <ScoreRing value={pct} size={104} stroke={10} label="to next" sub={`Lv ${lvl}`} color={a}/>
+        <div className="relative"><Eyebrow className="mb-1.5">Your journey</Eyebrow>
+          <div className="font-serif text-2xl text-charcoal leading-none">Level {lvl}</div>
+          <div className="text-sm text-muted mt-1 tnum">{app.xp} XP · {next-app.xp} to go</div>
+          <div className="flex gap-1.5 mt-2">{Array.from({length:5}).map((_,i)=><span key={i} className="h-2 w-2 rounded-full" style={{background:i<badges?a:a+'33'}}/>)}</div>
         </div>
-        <div className="h-3.5 rounded-full overflow-hidden" style={{background:a+'22'}}>
-          <div className="h-full rounded-full transition-all duration-700" style={{width:Math.max(5,pct)+'%', background:`linear-gradient(90deg, ${a}, ${a}bb)`, boxShadow:`0 0 18px ${a}88`}}/>
+      </Card>
+      <Card className="lg:col-span-2 relative overflow-hidden" hover={false}>
+        <div className="absolute -top-10 -right-10 h-32 w-32 rounded-full blur-3xl opacity-25" style={{background:a}}/>
+        <div className="relative flex items-center gap-4">
+          <span className="grid place-items-center h-16 w-16 rounded-2xl text-3xl shrink-0" style={{background:a+'1F'}}>{chal?chal[1]:'🎯'}</span>
+          <div className="flex-1"><div className="flex items-center gap-2"><Pill tone="gold">Daily challenge</Pill><span className="text-xs text-muted">+{chal?chal[2]:15} XP</span></div>
+            <div className="font-serif text-xl text-charcoal mt-1.5">{chal?chal[0]:'Take one small step today'}</div></div>
+          <button disabled={done} onClick={()=>{ setDone(true); app.awardXp&&app.awardXp(chal?chal[2]:15); }}
+            className={cx('btn px-5 py-2.5 text-sm font-semibold shrink-0', done?'btn-ghost':'btn-gold')}>{done?'Done ✓':'Complete'}</button>
         </div>
-        <div className="flex items-center gap-2 mt-4">
-          {Array.from({length:6}).map((_,i)=>{ const got=i<badges;
-            return <div key={i} className="grid place-items-center h-9 w-9 rounded-full text-sm shrink-0"
-              style={{background:got?a:'transparent', color:got?'#fff':a, border:`1.5px solid ${got?a:a+'55'}`}}>{got?'★':i+1}</div>; })}
-          <span className="text-xs text-muted ml-1">Earn 100 XP per milestone</span>
-        </div>
-      </div>
-    </Card>
+      </Card>
+    </div>
 
-    {/* ===== FEATURES ===== */}
+    {/* ===== INTERACTIVE JOURNEY PATH ===== */}
     {tools.length? <>
-      <div className="flex items-center justify-between mb-3"><h2 className="font-serif text-2xl text-charcoal">Everything in {sub.name}</h2><span className="text-sm text-muted">{tools.length} features</span></div>
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
-        {tools.map(it=><Card key={it.to} onClick={()=>app.nav(it.to)} className="group relative overflow-hidden">
-          <div className="absolute -top-8 -right-8 h-20 w-20 rounded-full blur-2xl opacity-0 group-hover:opacity-40 transition" style={{background:a}}/>
-          <div className="relative">
-            <div className="flex items-start gap-3"><span className="grid place-items-center h-12 w-12 rounded-xl2 shrink-0 group-hover:scale-110 transition" style={{background:a+'22', color:a}}><Icon name={it.icon} size={22}/></span>
-              <div><div className="font-serif text-lg text-charcoal">{t(it.k)}</div><p className="text-sm text-muted mt-1 leading-relaxed">{SUB_TOOL_DESC[it.to]||''}</p></div></div>
-            <div className="mt-4 flex items-center gap-1 text-xs font-semibold" style={{color:a}}>Open <Icon name="arrowR" size={13} className="group-hover:translate-x-1 transition-transform"/></div>
-          </div>
-        </Card>)}
+      <div className="flex items-center justify-between mb-4"><h2 className="font-serif text-2xl text-charcoal">Your {sub.name} path</h2><span className="text-sm text-muted">{tools.length} steps</span></div>
+      <div className="relative pb-2">
+        <div className="absolute left-[31px] top-6 bottom-6 w-1 rounded-full" style={{background:`linear-gradient(${a}, ${a}22)`}}/>
+        <div className="space-y-3">
+          {tools.map((it,i)=><button key={it.to} onClick={()=>app.nav(it.to)} className="group relative flex items-center gap-4 w-full text-left">
+            <span className="relative z-10 grid place-items-center h-16 w-16 rounded-2xl shrink-0 text-2xl transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6"
+              style={{background:`linear-gradient(135deg, ${a}, ${a}bb)`, color:'#fff', boxShadow:`0 8px 22px ${a}55`}}>{TOOL_EMOJI[it.to]||'•'}
+              <span className="absolute -top-1.5 -left-1.5 grid place-items-center h-6 w-6 rounded-full text-[11px] font-bold shadow" style={{background:'#fff', color:a}}>{i+1}</span></span>
+            <span className="flex-1 lux-card lift p-4 flex items-center justify-between gap-3">
+              <span className="min-w-0"><span className="block font-serif text-lg text-charcoal">{t(it.k)}</span><span className="block text-sm text-muted leading-snug">{SUB_TOOL_DESC[it.to]||''}</span></span>
+              <span className="grid place-items-center h-9 w-9 rounded-full shrink-0 transition-transform group-hover:translate-x-1" style={{background:a+'18', color:a}}><Icon name="arrowR" size={16}/></span>
+            </span>
+          </button>)}
+        </div>
       </div>
+      <Card className="mt-5 text-center relative overflow-hidden" hover={false}>
+        <div className="absolute inset-0 opacity-10" style={{background:HERO_GRAD[k]}}/>
+        <div className="relative"><div className="text-3xl mb-1">{sub.emoji}</div>
+          <div className="font-serif text-xl text-charcoal">Keep your {sub.name} streak alive</div>
+          <p className="text-sm text-muted mt-1 mb-4 max-w-md mx-auto">Every step earns XP and moves you up a level. Come back daily to keep the momentum.</p>
+          <button onClick={goFirst} className="btn btn-gold px-6 py-3 text-sm">Continue your path <Icon name="arrowR" size={14}/></button></div>
+      </Card>
     </> : <>
       <div className="flex items-center justify-between mb-3"><h2 className="font-serif text-2xl text-charcoal">Coming to {sub.name}</h2><Pill tone="gold">Launching soon</Pill></div>
       <div className="grid sm:grid-cols-2 gap-4 stagger">
-        {FORGE_FEATURES.map(([n,e,d])=><Card key={n} hover={false}><div className="flex items-start gap-3"><span className="grid place-items-center h-12 w-12 rounded-xl2 text-xl shrink-0" style={{background:a+'1A'}}>{e}</span>
+        {FORGE_FEATURES.map(([n,e,d])=><Card key={n}><div className="flex items-start gap-3"><span className="grid place-items-center h-12 w-12 rounded-xl2 text-xl shrink-0" style={{background:a+'1A'}}>{e}</span>
           <div><div className="font-serif text-lg text-charcoal">{n}</div><p className="text-sm text-muted mt-1 leading-relaxed">{d}</p></div></div></Card>)}
       </div>
       <Card className="mt-4 text-center"><div className="font-serif text-xl text-charcoal">Be first into {sub.name}.</div>
