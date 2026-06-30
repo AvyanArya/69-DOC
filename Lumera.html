@@ -2061,6 +2061,17 @@ function Review(){
         <div className="flex items-center gap-2 mb-6 overflow-x-auto no-scrollbar pb-1">
           {stepDefs.map((s,i)=><div key={i} className={cx('h-1.5 rounded-full transition-all', i<=step?'bg-goldd':'bg-sand', i===step?'w-8':'w-4')}/>)}
         </div>
+        {step===0 && <Card className="mb-6 anim-fadeUp bg-gradient-to-br from-gold/8 to-transparent">
+          <div className="flex items-start gap-3"><span className="grid place-items-center h-10 w-10 rounded-xl bg-gold/15 text-goldd shrink-0"><Icon name="info" size={18}/></span>
+            <div><div className="font-serif text-lg text-charcoal">What to have ready</div>
+              <p className="text-sm text-muted mt-1 leading-relaxed">Not sure what to track? Grab a rough monthly figure for each of these — estimates are totally fine, you can refine later:</p>
+              <div className="grid sm:grid-cols-2 gap-1.5 mt-3 text-sm text-charcoal/85">
+                {[['💰','Income — your take-home pay (after tax)'],['🏠','Housing — rent or mortgage'],['🛒','Food — groceries & eating out'],['🚇','Transport — fuel, transit, car costs'],['🔁','Bills & subscriptions — the auto-renewing ones'],['🛍️','Lifestyle — shopping, fun, travel'],['💳','Debt — card, loan or BNPL payments'],['🐖','Saving & investing — what you set aside']].map(([e,txt])=>
+                  <div key={txt} className="flex items-start gap-2"><span>{e}</span><span>{txt}</span></div>)}
+              </div>
+              <p className="text-[11px] text-faint mt-3">Tip: check last month’s bank or card statement — it’s the fastest way to see where money actually went.</p>
+            </div></div>
+        </Card>}
         <div key={step} className="anim-fadeUp">
           {cur.type==='group' && <>
             <Eyebrow className="mb-2">Step {step+1} of {total}</Eyebrow>
@@ -2281,10 +2292,10 @@ function AchievementsStrip(){
 const SUBS = [
   { key:'lumera', name:'Lumera', tag:'Core money', accent:'#8B5CF6', emoji:'🪙', live:true,
     blurb:'The parent. Your everyday money HQ — budgeting, goals, net worth and the wealth simulator.',
-    routes:['/dashboard','/budget','/goals','/emergency','/subscriptions','/networth','/simulator','/twin'] },
+    routes:['/dashboard','/budget','/goals','/emergency','/subscriptions','/networth','/simulator','/twin','/badges','/updates'] },
   { key:'leaf', name:'Leaf', tag:'Learn & grow', accent:'#22C55E', emoji:'🌿', live:true,
-    blurb:'Money education that doesn’t bore you — bite-size lessons, a knowledge hub and badges for every win.',
-    routes:['/learn','/resources','/badges','/updates'] },
+    blurb:'Money education that doesn’t bore you — bite-size lessons and a deep knowledge hub.',
+    routes:['/learn','/resources'] },
   { key:'atlas', name:'Atlas', tag:'Markets & investing', accent:'#3B82F6', emoji:'🛰️', live:true,
     blurb:'Markets explained for humans — stocks, indices, a globe of exchanges and plain-English news.',
     routes:['/invest','/market','/globe','/world','/news'] },
@@ -2367,23 +2378,36 @@ const GUIDE = {
     'Join the waitlist to be first in line (and grab some XP).',
     'Let’s turn up the heat on your income! ⚡'] },
 };
-// Stylized caped-superhero SVG, tinted to the product colour, with a chest emblem.
-function Mascot({ color='#8B5CF6', emoji='🦉', size=58 }){
+// Individualised caped-superhero SVG — each product has a distinct head/silhouette.
+function Mascot({ kind='lumera', color='#8B5CF6', emoji='🦉', size=58 }){
   const gid='mg'+color.replace('#','');
+  // distinct topper per character (owl tufts · sprout leaf · antenna · knight crest · flame)
+  const TOP = {
+    lumera: <g><path d="M24 15 L26 4 L33 13 Z" fill={`url(#${gid})`}/><path d="M48 15 L46 4 L39 13 Z" fill={`url(#${gid})`}/></g>,
+    leaf:   <g><path d="M36 14 Q26 1 41 2 Q42 14 36 14 Z" fill="#15A34A"/><path d="M36 14 Q46 3 50 11 Q42 15 36 14 Z" fill="#22C55E"/><line x1="36" y1="14" x2="36" y2="7" stroke="#0e7a37" strokeWidth="2"/></g>,
+    atlas:  <g><line x1="36" y1="13" x2="36" y2="3" stroke={color} strokeWidth="2"/><circle cx="36" cy="2.5" r="3" fill={color}/><circle cx="36" cy="2.5" r="3" fill="#fff" opacity=".4"/></g>,
+    shield: <g><path d="M29 13 Q36 -1 43 13 Z" fill={`url(#${gid})`}/><path d="M33 13 L36 4 L39 13 Z" fill="#fff" opacity=".3"/></g>,
+    forge:  <g><path d="M30 15 Q31 3 36 11 Q41 3 42 15 Z" fill="#F97316"/><path d="M33 15 Q34 7 36 12 Q38 7 39 15 Z" fill="#FCD34D"/></g>,
+  };
+  // Atlas wears a glossy visor; the rest wear a hero domino mask.
+  const face = kind==='atlas'
+    ? <g><path d="M19 27 Q36 22 53 27 L52 34 Q36 30 20 34 Z" fill="#0b1220" opacity=".9"/><path d="M22 28 Q36 25 50 28 L49 30 Q36 27.5 23 30 Z" fill="#7dd3fc" opacity=".7"/></g>
+    : <g><path d="M17 28 Q36 19 55 28 L55 35 Q36 28 17 35 Z" fill="#0b0b16" opacity=".82"/>
+        <ellipse className="mascot-blink" cx="29" cy="31" rx="3.4" ry="3.8" fill="#fff"/>
+        <ellipse className="mascot-blink" cx="43" cy="31" rx="3.4" ry="3.8" fill="#fff"/></g>;
   return <span className="mascot inline-block" style={{width:size, height:size, filter:`drop-shadow(0 8px 16px ${color}66)`}}>
-    <svg viewBox="0 0 72 84" width={size} height={size*84/72} aria-hidden="true">
+    <svg viewBox="0 0 72 86" width={size} height={size*86/72} aria-hidden="true">
       <defs><linearGradient id={gid} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#ffffff" stopOpacity=".35"/><stop offset=".25" stopColor={color}/><stop offset="1" stopColor={color}/></linearGradient></defs>
-      <path className="mascot-cape" d="M16 38 Q2 64 18 80 L36 68 L54 80 Q70 64 56 38 Z" fill={color}/>
-      <path className="mascot-cape" d="M16 38 Q2 64 18 80 L36 68 L54 80 Q70 64 56 38 Z" fill="#000" opacity=".22"/>
-      <path d="M14 82 Q14 56 36 56 Q58 56 58 82 Z" fill={`url(#${gid})`}/>
-      <circle cx="36" cy="71" r="8" fill="#fff" opacity=".95"/>
-      <text x="36" y="74.5" fontSize="9.5" textAnchor="middle">{emoji}</text>
+      <path className="mascot-cape" d="M16 40 Q2 66 18 82 L36 70 L54 82 Q70 66 56 40 Z" fill={color}/>
+      <path className="mascot-cape" d="M16 40 Q2 66 18 82 L36 70 L54 82 Q70 66 56 40 Z" fill="#000" opacity=".22"/>
+      <path d="M14 84 Q14 58 36 58 Q58 58 58 84 Z" fill={`url(#${gid})`}/>
+      <circle cx="36" cy="73" r="8" fill="#fff" opacity=".95"/>
+      <text x="36" y="76.5" fontSize="9.5" textAnchor="middle">{emoji}</text>
+      {TOP[kind]||TOP.lumera}
       <circle cx="36" cy="30" r="18" fill={`url(#${gid})`}/>
       <ellipse cx="30" cy="24" rx="6" ry="3.4" fill="#fff" opacity=".22"/>
-      <path d="M17 28 Q36 19 55 28 L55 35 Q36 28 17 35 Z" fill="#0b0b16" opacity=".82"/>
-      <ellipse className="mascot-blink" cx="29" cy="31" rx="3.4" ry="3.8" fill="#fff"/>
-      <ellipse className="mascot-blink" cx="43" cy="31" rx="3.4" ry="3.8" fill="#fff"/>
-      <path d="M30 41 Q36 46 42 41" stroke="#0b0b16" strokeWidth="2" fill="none" strokeLinecap="round" opacity=".6"/>
+      {face}
+      <path d="M30 42 Q36 47 42 42" stroke="#0b0b16" strokeWidth="2" fill="none" strokeLinecap="round" opacity=".55"/>
     </svg>
   </span>;
 }
@@ -2412,7 +2436,7 @@ function Guide(){
       <div className="lux-card !p-0 w-full max-w-md overflow-hidden anim-scaleIn" style={{borderColor:a+'66'}}>
         <div className="p-6 pb-5 text-center relative overflow-hidden" style={{background:`linear-gradient(160deg, ${a}, ${a}cc)`}}>
           <div className="absolute inset-0 opacity-[.14]" style={{backgroundImage:'radial-gradient(circle, #fff 1.4px, transparent 1.5px)', backgroundSize:'22px 22px'}}/>
-          <div className="relative"><div className="mx-auto inline-block"><Mascot color={a} emoji={g.emoji} size={92}/></div>
+          <div className="relative"><div className="mx-auto inline-block"><Mascot kind={p} color={a} emoji={g.emoji} size={92}/></div>
             <div className="font-serif text-2xl text-white mt-1">{g.name}</div>
             <div className="text-xs font-semibold uppercase tracking-wider" style={{color:'rgba(255,255,255,.85)'}}>{g.tip}</div></div>
         </div>
@@ -2430,7 +2454,7 @@ function Guide(){
     <div className="fixed z-[120] right-3 sm:right-5 bottom-20 lg:bottom-6 flex flex-col items-end gap-2">
     {open && <div className="lux-card !p-0 shadow-lift anim-pop w-[min(92vw,340px)] flex flex-col overflow-hidden" style={{borderColor:a+'66', maxHeight:'min(72vh,520px)'}}>
       <div className="flex items-center gap-2.5 p-3" style={{background:`linear-gradient(120deg, ${a}, ${a}cc)`}}>
-        <Mascot color={a} emoji={g.emoji} size={36}/>
+        <Mascot kind={p} color={a} emoji={g.emoji} size={36}/>
         <div className="flex-1 leading-tight"><div className="font-serif text-white text-lg">{g.name}</div><div className="text-[11px]" style={{color:'rgba(255,255,255,.85)'}}>{g.tip} · online</div></div>
         <button onClick={close} className="text-white/80 hover:text-white" aria-label="Close"><Icon name="x" size={16}/></button>
       </div>
@@ -2447,7 +2471,7 @@ function Guide(){
       </div>
     </div>}
     <button onClick={()=>setOpen(o=>!o)} title={`Talk to ${g.name}`} className="hover:scale-110 transition-transform" aria-label="Open guide">
-      <Mascot color={a} emoji={g.emoji}/>
+      <Mascot kind={p} color={a} emoji={g.emoji}/>
     </button>
     </div>
   </>;
@@ -3282,6 +3306,10 @@ function botReply(text, m, fmt, app){
   if(/how am i doing|my (rate|score)|am i ok|financial health/.test(q)) return {
     text:`Snapshot, ${name}: you’re saving ${round(m.savingsRate*100)}% of income, your emergency fund covers ${m.efMonths.toFixed(1)} months, and your health score is ${m.overall}/100 — ${m.overall>=68?'a strong position.':'a solid base with clear room to grow.'} The single fastest win is the ${fmt.money(m.realistic)}/mo you’re above benchmark. Want a plan to capture it?`,
     reasoning:`Computed from your inputs. ${ref}`};
+  // Follow-up: a "yes"/affirmative (or asking for the plan) turns the previous offer into a real 4-week plan.
+  if(/^(yes|yep|yeah|yup|sure|ok|okay|please|go ahead|do it|sounds good|yes please|let'?s do it|absolutely)\b/.test(q.trim()) || /\b(4|four)[ -]?week|action plan|step[ -]?by[ -]?step|make .*plan|give me a plan|the plan\b/.test(q)) return {
+    text:`Love it, ${name} — here’s your 4-week action plan:\n\nWeek 1 · See it clearly\n• Pull last month’s statement and confirm your top categories over benchmark${leak?` (start with ${leak.label.toLowerCase()})`:''}.\n• Set a soft cap on each — together aim to free about ${fmt.money(m.realistic)}/mo.\n\nWeek 2 · Automate the win\n• The day after payday, auto-move ${fmt.money(Math.max(50,Math.round(m.realistic)))} into a separate savings account.\n• Cancel or downgrade one subscription you’d forgotten about.\n\nWeek 3 · Build the buffer\n• Top up your emergency fund — you’re at ${m.efMonths.toFixed(1)} months; aim for 3.\n• Carrying high-interest debt? Throw any spare at the smallest balance.\n\nWeek 4 · Grow it\n• With the buffer healthier, start or increase a small automatic investment.\n• Re-check your score — it should be climbing from ${m.overall}.\n\nWant me to go deeper on any single week?`,
+    reasoning:`You confirmed you wanted the plan, so I sequenced your ${fmt.money(m.realistic)}/mo savings opportunity and your ${m.efMonths.toFixed(1)}-month emergency fund into four weekly steps. ${ref}`};
   return {
     text:`Good question, ${name} — ask me anything in your own words and I’ll use your actual numbers. I can dig into spending, saving, debt, investing, credit, insurance, retirement, net worth or the markets.\n\nFor example: “Why is my score ${m.overall}?”, “Should I pay debt or invest?”, or “How do I save ${fmt.money(500)} a month?”`,
     reasoning:`No specific intent matched, so I invited a free-form question and gave tailored examples. ${ref}`};
