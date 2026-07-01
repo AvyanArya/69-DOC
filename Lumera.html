@@ -2340,7 +2340,7 @@ const SUBS = [
     routes:['/learn','/quiz','/glossary','/habits','/challenges','/resources'] },
   { key:'atlas', name:'Atlas', tag:'Markets & investing', accent:'#3B82F6', emoji:'🛰️', live:true,
     blurb:'Markets explained for humans — stocks, indices, a globe of exchanges and plain-English news.',
-    routes:['/invest','/market','/globe','/world','/news'] },
+    routes:['/invest','/market','/exchanges','/globe','/world','/news'] },
   { key:'shield', name:'Shield', tag:'Protect & plan', accent:'#64748B', emoji:'🛡️', live:true,
     blurb:'The grown-up stuff on your terms — credit building, insurance, debt payoff and long-term planning.',
     routes:['/credit','/debt','/insurance','/retirement'] },
@@ -2351,6 +2351,8 @@ const SUBS = [
 const NAV_BY_ROUTE = {}; NAV.forEach(g=>g.items.forEach(it=>{ NAV_BY_ROUTE[it.to]=it; }));
 Object.assign(NAV_BY_ROUTE, {
   '/community':{ to:'/community', k:'Community', icon:'user' },
+  '/exchanges':{ to:'/exchanges', k:'Stock Markets', icon:'book' },
+  '/about':{ to:'/about', k:'About Lumera', icon:'info' },
   '/quiz':{ to:'/quiz', k:'Money Quiz', icon:'trophy' },
   '/glossary':{ to:'/glossary', k:'Jargon Buster', icon:'book' },
   '/habits':{ to:'/habits', k:'Money Habits', icon:'check' },
@@ -2382,7 +2384,7 @@ const SUB_TOOL_DESC = {
   '/simulator':'Watch small changes compound.', '/twin':'Meet your what-if self.', '/community':'Connect with other Lumera members.',
   '/learn':'Two-minute lessons on money basics.', '/resources':'Deep dives, guides and a glossary.',
   '/quiz':'Test your money knowledge, earn XP.', '/glossary':'Every money word in plain English.', '/habits':'Build daily money habits and streaks.', '/challenges':'Gamified saving challenges to join.', '/badges':'Track your wins and streaks.', '/updates':'What’s new in Lumera.',
-  '/invest':'Start investing, explained simply.', '/market':'Live-style markets with the “why”.', '/globe':'Spin the world’s exchanges.', '/world':'The big economic picture.', '/news':'Headlines in plain English.',
+  '/invest':'Start investing, explained simply.', '/market':'Live-style markets with the “why”.', '/exchanges':'How the stock market really works.', '/about':'The mission behind Lumera.', '/globe':'Spin the world’s exchanges.', '/world':'The big economic picture.', '/news':'Headlines in plain English.',
   '/credit':'Build a score you’re proud of.', '/debt':'A clear plan to clear what you owe.', '/insurance':'Cover what would actually hurt to lose.', '/retirement':'Tiny amounts now, huge later.',
   '/careers':'14 finance paths, what they pay, how to get in.', '/firms':'Profiles of the firms that shape markets.', '/universities':'Ranked shortlist for finance recruiting.', '/subjects':'Pick subjects for your target career.', '/finance-vs-econ':'Which path is right for you.', '/prep':'Master the skills interviews test.', '/career-lab':'Build a CV recruiters notice.', '/opportunities':'Internships, comps and scholarships.', '/sideincome':'Earn more on the side.', '/salary':'Know what your role really pays.',
 };
@@ -2403,7 +2405,7 @@ const FORGE_FEATURES = [
   ['Career roadmaps','🧭','Step-by-step moves to your next role.'],
 ];
 const TOOL_EMOJI = { '/dashboard':'🏠','/budget':'🧾','/goals':'🎯','/emergency':'🛟','/subscriptions':'📺','/networth':'📈','/simulator':'🪄','/twin':'🧬','/community':'🤝',
-  '/learn':'📚','/resources':'🧠','/quiz':'🧩','/glossary':'📖','/habits':'🌱','/challenges':'🎯','/badges':'🏅','/updates':'✨','/invest':'🌱','/market':'📊','/globe':'🌍','/world':'🛰️','/news':'📰',
+  '/learn':'📚','/resources':'🧠','/quiz':'🧩','/glossary':'📖','/habits':'🌱','/challenges':'🎯','/badges':'🏅','/updates':'✨','/invest':'🌱','/market':'📊','/exchanges':'🏛️','/globe':'🌍','/world':'🛰️','/news':'📰','/about':'💡',
   '/credit':'💳','/debt':'⛓️','/insurance':'☂️','/retirement':'🌅',
   '/careers':'📈','/firms':'🏦','/universities':'🎓','/subjects':'📝','/finance-vs-econ':'⚖️','/prep':'🧭','/career-lab':'📄','/opportunities':'🚀','/sideincome':'💡','/salary':'📊' };
 // [label, emoji, xp, verifyRoute] — challenge completes only when you visit the route.
@@ -4776,6 +4778,103 @@ function MiniSpark({ seed, up, color='#6E8B6A', h=36 }){
     <path d={d} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>;
 }
+const COMMODITIES=[
+  {name:'Brent crude oil', unit:'/bbl', price:'$78.4', chg:0.62, icon:'🛢️', up:true,
+    story:'Gold and oil have rallied on central-bank buying (China, Russia, India) and persistent geopolitical risk. Real yields and the dollar are the dominant short-term drivers; longer-term, reserve diversification away from USD remains structural.',
+    risks:['Sharp rise in US real yields','Significantly stronger dollar','Reduced central-bank buying','Aggressive Fed hiking surprise'],
+    opps:['Geopolitical risk spikes','Fed rate-cut cycle','Continued reserve diversification','EM currency stress driving safe-haven demand'],
+    events:['Red Sea / Bab el-Mandeb disruption','Russia–Ukraine war','US rates & policy uncertainty']},
+  {name:'Gold', unit:'/oz', price:'$2,378', chg:0.18, icon:'🥇', up:true,
+    story:'Gold has rallied on central-bank buying (China, Russia, India) and persistent geopolitical risk. Real yields and the dollar are the dominant short-term drivers; longer-term, central-bank reserve diversification away from USD remains structural.',
+    risks:['Sharp rise in US real yields','Significantly stronger dollar','Reduced central-bank buying','Aggressive Fed hiking surprise'],
+    opps:['Geopolitical risk spikes','Fed rate-cut cycle','Continued central-bank buying','EM currency stress driving safe-haven demand'],
+    events:['Israel–Gaza conflict','Russia–Ukraine war','US rates & policy uncertainty']},
+  {name:'Silver', unit:'/oz', price:'$31.8', chg:0.35, icon:'🥈', up:true,
+    story:'Silver tracks gold as a monetary metal but has a large industrial demand component (solar, electronics), making it more volatile and cyclically sensitive.',
+    risks:['Industrial slowdown cuts demand','Stronger dollar','Solar-subsidy rollbacks'],
+    opps:['Green-energy build-out','Safe-haven demand alongside gold','Supply deficits'],
+    events:['China property deleveraging & deflation risk','US rates & policy uncertainty']},
+  {name:'Copper', unit:'/lb', price:'$4.62', chg:-0.38, icon:'🔴', up:false,
+    story:'Copper is the classic growth barometer — demand tracks construction, grids and EVs. China is the swing buyer, so its property cycle dominates the price.',
+    risks:['China property weakness','Global recession','New mine supply'],
+    opps:['Electrification & grid upgrades','EV demand','Supply disruptions in LatAm'],
+    events:['China property deleveraging & deflation risk','LatAm election cycle']},
+  {name:'Natural gas', unit:'/MMBtu', price:'$2.85', chg:-0.42, icon:'🔥', up:false,
+    story:'Natural gas is highly seasonal and regional. European prices remain sensitive to Russian supply and storage levels; US prices track weather and LNG export capacity.',
+    risks:['Mild winter cuts demand','Storage overhang','Demand destruction'],
+    opps:['Cold-weather spikes','LNG export growth','Supply disruption in Europe'],
+    events:['Russia–Ukraine war','Western Pacific typhoon season']},
+  {name:'Wheat', unit:'/bu', price:'$5.55', chg:0.24, icon:'🌾', up:true,
+    story:'Wheat prices swing on weather and the Black-Sea export corridor. Disruptions to Ukrainian and Russian supply ripple straight into global food prices.',
+    risks:['Bumper harvests','Corridor stability','Strong dollar'],
+    opps:['Black-Sea disruption','Drought in key exporters','Rising food-security stockpiling'],
+    events:['Russia–Ukraine war','Sahel political instability']},
+];
+function CommodityIntel(){
+  const [sel,setSel]=useState(null);
+  return <div className="mt-6">
+    <div className="mb-1 text-[11px] font-bold uppercase tracking-[.24em] text-goldd">Commodity intelligence</div>
+    <h2 className="font-serif text-2xl text-charcoal mb-1">The raw materials that move the world.</h2>
+    <p className="text-sm text-muted mb-4 max-w-2xl">Click any commodity to open its full intelligence brief — recent price action, the story behind it, key risks, opportunities, and the World Monitor events affecting it.</p>
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">{COMMODITIES.map(c=><Card key={c.name} onClick={()=>setSel(c)} className="cursor-pointer group">
+      <div className="flex items-start justify-between"><span className="text-2xl">{c.icon}</span><Pill tone={c.up?'sage':'berry'}><Icon name={c.up?'arrowUp':'arrowDn'} size={11}/>{c.up?'+':''}{c.chg}%</Pill></div>
+      <div className="font-serif text-lg text-charcoal mt-2">{c.name}</div>
+      <div className="flex items-end justify-between mt-1"><div className="font-serif text-xl text-charcoal tnum">{c.price}<span className="text-xs text-faint"> {c.unit}</span></div></div>
+      <div className="-mx-1 mt-2"><MiniSpark seed={c.name} up={c.up} color={c.up?'#34D399':'#FB7185'} h={34}/></div>
+      <div className="mt-2 flex items-center gap-1 text-xs font-semibold text-goldd">{c.events.length} related events · Open brief <Icon name="arrowR" size={12} className="group-hover:translate-x-1 transition"/></div>
+    </Card>)}</div>
+    {sel && <CareerModal eyebrow={`Commodity intelligence · ${sel.up?'+':''}${sel.chg}%`} title={sel.name} onClose={()=>setSel(null)}>
+      <div className="flex items-end justify-between"><div className="font-serif text-3xl text-charcoal tnum">{sel.price}<span className="text-sm text-faint"> {sel.unit}</span></div><Pill tone={sel.up?'sage':'berry'}>{sel.up?'▲':'▼'} {Math.abs(sel.chg)}%</Pill></div>
+      <div className="-mx-1"><MiniSpark seed={sel.name+'x'} up={sel.up} color={sel.up?'#34D399':'#FB7185'} h={54}/></div>
+      <MBlock title="The story behind the price"><p className="text-sm text-charcoal/85 leading-relaxed">{sel.story}</p></MBlock>
+      <div className="grid sm:grid-cols-2 gap-5">
+        <MBlock title="Key risks"><ul className="space-y-1.5">{sel.risks.map((r,i)=><li key={i} className="flex items-start gap-2 text-sm text-charcoal/85"><span className="text-clayd mt-0.5">▾</span>{r}</li>)}</ul></MBlock>
+        <MBlock title="Key opportunities"><Ticks items={sel.opps} color="#16A34A"/></MBlock>
+      </div>
+      <MBlock title="Related World Monitor events"><div className="flex flex-wrap gap-1.5">{sel.events.map(e=><span key={e} className="text-[11px] rounded-full bg-sand px-2.5 py-1 text-muted">{e}</span>)}</div></MBlock>
+    </CareerModal>}
+  </div>;
+}
+const FUNDAMENTALS=[
+  ['What is a stock?','◔','A stock (or share) is a unit of ownership in a company. Buying one share of Apple makes you one of millions of owners. You earn returns two ways: the share price rising over time, and dividends if the company pays them.'],
+  ['What is a stock exchange?','⇄','An exchange is a marketplace where buyers and sellers meet to trade shares. Modern exchanges (Nasdaq, LSE) are fully electronic — millions of orders match per second using order-book matching algorithms.'],
+  ['What is an index?','▦','An index tracks a basket of stocks to summarise a market. The S&P 500 = the 500 biggest US companies. When you hear “the market was up 1.2%”, that’s almost always a major index — not every stock.'],
+  ['Market capitalisation','⚖️','Market cap = share price × shares outstanding. It’s how investors size companies: Mega-cap > $200bn, Large-cap $10–200bn, Mid-cap $2–10bn, Small-cap under $2bn.'],
+  ['Trading volume','📊','Volume = how many shares change hands in a day. High volume means liquidity (you can buy/sell easily). Major US stocks trade tens of millions of shares daily; small companies might trade a few thousand.'],
+  ['Open vs close','🕒','Each exchange has fixed hours (e.g. NYSE 9:30am–4:00pm ET). The “opening auction” sets the day’s start price; the “closing auction” sets the official close. After-hours and pre-market trading are thinner and more volatile.'],
+  ['Primary vs secondary market','🔁','The primary market is when a company first sells shares (an IPO). The secondary market is where investors then trade those shares among themselves — that’s what “the stock market” usually means day to day.'],
+  ['Bull vs bear markets','🐂','A bull market is a sustained rise (optimism); a bear market is a sustained fall of ~20%+ (pessimism). Both are normal parts of the cycle — long-term investors ride through both.'],
+  ['Why prices move','⚡','Short term, prices move on news, rates, geopolitics and sentiment — often irrationally. Long term, they track a company’s earnings and cash flow. That’s why time in the market beats timing the market.'],
+];
+function StockMarketsEdu(){
+  return <AppShell>
+    <PageHead eyebrow="Markets education" title="How the stock market actually works." desc="The fundamentals of every major exchange — opening hours, the biggest companies, indices and why investors follow it. Plain English, no jargon."/>
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">{FUNDAMENTALS.map(([t,ic,d])=><Card key={t}><div className="text-2xl text-goldd">{ic}</div><div className="font-serif text-lg text-charcoal mt-1">{t}</div><p className="text-sm text-muted mt-1.5 leading-relaxed">{d}</p></Card>)}</div>
+    <Card className="mt-4 bg-gradient-to-br from-gold/8 to-transparent"><div className="flex items-start gap-3"><span className="grid place-items-center h-9 w-9 rounded-lg bg-charcoal text-gold shrink-0"><Icon name="spark" size={17}/></span>
+      <div><Eyebrow className="mb-1">Ready to go deeper?</Eyebrow><p className="text-sm text-charcoal/85">Head to <b>Investing</b> for a matched allocation, <b>Stock Market</b> for live-style prices with AI insight, or <b>Global Markets</b> to spin the globe of exchanges.</p></div></div></Card>
+  </AppShell>;
+}
+function AboutLumera(){
+  const gives=[
+    ['Benchmark clarity','🎯','See every spending category against realistic ranges for your income and region.'],
+    ['A learning engine','📚','Two-minute lessons, quizzes and a glossary that turn jargon into confidence.'],
+    ['Real tools','🛠️','Budget, goals, net worth, debt payoff, credit, investing and a wealth simulator.'],
+    ['Markets, decoded','📈','Live-style markets, a world monitor and plain-English news with the “why”.'],
+    ['A career head-start','🧭','Finance careers, universities, CV lab and interview prep for early-career users.'],
+    ['A community','🤝','Connect with others on the same path and share opportunities.'],
+  ];
+  return <AppShell>
+    <PageHead eyebrow="About Lumera" title="Built to make financial clarity accessible to everyone." desc="Lumera turns the financial intelligence once reserved for the wealthy into something anyone can use — clear, calm, and jargon-free."/>
+    <Card className="mb-4 bg-gradient-to-br from-gold/8 to-transparent"><div className="flex items-start gap-3"><span className="grid place-items-center h-10 w-10 rounded-xl bg-charcoal text-gold shrink-0"><Icon name="spark" size={18}/></span>
+      <div><Eyebrow className="mb-1">Our mission</Eyebrow><p className="text-charcoal/85 leading-relaxed">Lumera exists to give students and early-career professionals the financial intelligence that used to be reserved for the wealthy. No jargon, no complexity — just clarity.</p></div></div></Card>
+    <div className="grid sm:grid-cols-2 gap-4 mb-4">
+      <Card><Eyebrow className="mb-2">The problem we solve</Eyebrow><p className="text-sm text-charcoal/85 leading-relaxed">Most people don’t understand their money — not because they’re bad with it, but because no one ever taught them. Lumera closes that gap with tools that explain themselves.</p></Card>
+      <Card><Eyebrow className="mb-2">Who it’s for</Eyebrow><div className="space-y-2 mt-1">{[['🎓','Students','Build money habits early, while the stakes are low and the upside is decades long.'],['💼','Young professionals','Turn your first real income into a foundation for lasting wealth.'],['✨','Anyone starting out','It’s never too late to start your financial journey.']].map(([e,t,d])=><div key={t} className="flex gap-2.5"><span className="text-lg">{e}</span><div><div className="text-sm font-medium text-charcoal">{t}</div><div className="text-xs text-muted">{d}</div></div></div>)}</div></Card>
+    </div>
+    <Eyebrow className="mb-3">What Lumera gives you</Eyebrow>
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">{gives.map(([t,e,d])=><Card key={t}><div className="text-2xl">{e}</div><div className="font-serif text-lg text-charcoal mt-1">{t}</div><p className="text-sm text-muted mt-1 leading-relaxed">{d}</p></Card>)}</div>
+  </AppShell>;
+}
 // Spinnable orthographic globe with selectable financial centres (no external libs).
 function WorldGlobe({ cities, selected, onSelect, lit }){
   const R=150, cx=160, cy=160, tilt=18*Math.PI/180;
@@ -4869,6 +4968,7 @@ function GlobalMarkets(){
           </div>
         </Card>; })}
     </div>
+    <CommodityIntel/>
     <div className="mt-4 rounded-xl2 border border-line bg-cream/60 px-4 py-2.5 text-xs text-muted flex items-start gap-2"><Icon name="info" size={14} className="text-goldd mt-0.5 shrink-0"/>Levels and percentages are illustrative placeholders so the page feels alive; the open/closed status is computed from real exchange hours. Quote & news buttons open real live sources. Wire a market-data API for live in-app figures — see <b>INTEGRATION.md → Step 2</b>.</div>
   </AppShell>;
 }
@@ -5859,7 +5959,7 @@ const ROUTES = {
   '/careers':FinanceCareers, '/firms':TopFinanceFirms, '/universities':UniversitiesRank, '/subjects':SubjectSelection,
   '/finance-vs-econ':FinanceVsEcon, '/prep':CareerPrepHub, '/career-lab':CVLab, '/opportunities':Opportunities,
   '/quiz':LeafQuiz, '/glossary':LeafGlossary, '/habits':LeafHabits, '/challenges':LeafChallenges,
-  '/community':Community,
+  '/community':Community, '/exchanges':StockMarketsEdu, '/about':AboutLumera,
 };
 
 const STORE='lumera_v2';
