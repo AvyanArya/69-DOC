@@ -2300,7 +2300,7 @@ const SUBS = [
     routes:['/dashboard','/budget','/goals','/emergency','/subscriptions','/networth','/simulator','/twin','/badges','/updates'] },
   { key:'leaf', name:'Leaf', tag:'Learn & grow', accent:'#22C55E', emoji:'🌿', live:true,
     blurb:'Money education that doesn’t bore you — bite-size lessons and a deep knowledge hub.',
-    routes:['/learn','/resources'] },
+    routes:['/learn','/quiz','/glossary','/habits','/challenges','/resources'] },
   { key:'atlas', name:'Atlas', tag:'Markets & investing', accent:'#3B82F6', emoji:'🛰️', live:true,
     blurb:'Markets explained for humans — stocks, indices, a globe of exchanges and plain-English news.',
     routes:['/invest','/market','/globe','/world','/news'] },
@@ -2313,6 +2313,10 @@ const SUBS = [
 ];
 const NAV_BY_ROUTE = {}; NAV.forEach(g=>g.items.forEach(it=>{ NAV_BY_ROUTE[it.to]=it; }));
 Object.assign(NAV_BY_ROUTE, {
+  '/quiz':{ to:'/quiz', k:'Money Quiz', icon:'trophy' },
+  '/glossary':{ to:'/glossary', k:'Jargon Buster', icon:'book' },
+  '/habits':{ to:'/habits', k:'Money Habits', icon:'check' },
+  '/challenges':{ to:'/challenges', k:'Challenges', icon:'spark' },
   '/cv':{ to:'/cv', k:'CV Builder', icon:'user' },
   '/university':{ to:'/university', k:'University', icon:'book' },
   '/career':{ to:'/career', k:'Career Moves', icon:'trend' },
@@ -2333,7 +2337,8 @@ const SUB_TOOL_DESC = {
   '/dashboard':'Your money at a glance.', '/budget':'See where every dirham goes.', '/goals':'Save for the things that matter.',
   '/emergency':'Size your safety buffer.', '/subscriptions':'Catch the silent money leaks.', '/networth':'One honest number, tracked.',
   '/simulator':'Watch small changes compound.', '/twin':'Meet your what-if self.',
-  '/learn':'Two-minute lessons on money basics.', '/resources':'Deep dives, guides and a glossary.', '/badges':'Track your wins and streaks.', '/updates':'What’s new in Lumera.',
+  '/learn':'Two-minute lessons on money basics.', '/resources':'Deep dives, guides and a glossary.',
+  '/quiz':'Test your money knowledge, earn XP.', '/glossary':'Every money word in plain English.', '/habits':'Build daily money habits and streaks.', '/challenges':'Gamified saving challenges to join.', '/badges':'Track your wins and streaks.', '/updates':'What’s new in Lumera.',
   '/invest':'Start investing, explained simply.', '/market':'Live-style markets with the “why”.', '/globe':'Spin the world’s exchanges.', '/world':'The big economic picture.', '/news':'Headlines in plain English.',
   '/credit':'Build a score you’re proud of.', '/debt':'A clear plan to clear what you owe.', '/insurance':'Cover what would actually hurt to lose.', '/retirement':'Tiny amounts now, huge later.',
   '/cv':'Build a CV that gets callbacks.', '/university':'Weigh the real cost of a degree.', '/career':'Plan your next move and pay rise.', '/sideincome':'Earn more on the side.', '/salary':'Know what your role really pays.',
@@ -2355,7 +2360,7 @@ const FORGE_FEATURES = [
   ['Career roadmaps','🧭','Step-by-step moves to your next role.'],
 ];
 const TOOL_EMOJI = { '/dashboard':'🏠','/budget':'🧾','/goals':'🎯','/emergency':'🛟','/subscriptions':'📺','/networth':'📈','/simulator':'🪄','/twin':'🧬',
-  '/learn':'📚','/resources':'🧠','/badges':'🏅','/updates':'✨','/invest':'🌱','/market':'📊','/globe':'🌍','/world':'🛰️','/news':'📰',
+  '/learn':'📚','/resources':'🧠','/quiz':'🧩','/glossary':'📖','/habits':'🌱','/challenges':'🎯','/badges':'🏅','/updates':'✨','/invest':'🌱','/market':'📊','/globe':'🌍','/world':'🛰️','/news':'📰',
   '/credit':'💳','/debt':'⛓️','/insurance':'☂️','/retirement':'🌅',
   '/cv':'📄','/university':'🎓','/career':'🧭','/sideincome':'💡','/salary':'📊' };
 // [label, emoji, xp, verifyRoute] — challenge completes only when you visit the route.
@@ -4786,6 +4791,139 @@ function WorldMonitor(){
 }
 
 /* ============================================================
+   LEAF · Learn & grow tools (a real Lumera sub-product)
+   ============================================================ */
+const LEAF_G='#16A34A';
+function LeafQuiz(){
+  const app=useApp();
+  const bank=[
+    ['An emergency fund should ideally cover…',['1 week of pay','3–6 months of essentials','Your yearly rent','One big purchase'],1,'Aim for 3–6 months of essential costs — rent, food, bills — so a shock doesn’t become debt.'],
+    ['The 50/30/20 rule puts 20% toward…',['Wants','Needs','Savings & debt','Taxes'],2,'50% needs, 30% wants, 20% to savings and extra debt payments.'],
+    ['An ETF is best described as…',['A single company’s stock','A savings account','A basket of many investments in one fund','A type of loan'],2,'One ETF spreads your money across many holdings — instant diversification, low cost.'],
+    ['Compound interest means you earn returns on…',['Only your deposits','Your deposits AND past returns','Only the bank’s money','Nothing until you retire'],1,'Your gains start earning their own gains — the earlier you start, the bigger the snowball.'],
+    ['The debt “avalanche” method pays off first the balance with the…',['Smallest amount','Highest interest rate','Longest name','Nearest due date'],1,'Highest-interest debt costs you the most, so killing it first saves the most money.'],
+    ['Dollar-cost averaging means…',['Buying everything at once','Investing a fixed amount on a schedule','Only buying when prices drop','Timing the market perfectly'],1,'Investing a set amount regularly smooths out the highs and lows over time.'],
+    ['A good credit score mostly comes from…',['Never using credit','Paying on time + low usage','Having lots of cards','Earning a high salary'],1,'On-time payments and keeping balances low are the two biggest score drivers.'],
+    ['Inflation means that over time your cash…',['Buys more','Buys less','Stays the same','Disappears'],1,'Prices rise, so money left as idle cash slowly loses buying power — one reason to invest.'],
+  ];
+  const [i,setI]=useState(0),[pick,setPick]=useState(null),[score,setScore]=useState(0),[done,setDone]=useState(false);
+  const q=bank[i]; const answered=pick!==null;
+  const choose=(n)=>{ if(answered) return; setPick(n); if(n===q[2]) setScore(s=>s+1); };
+  const next=()=>{ if(i+1>=bank.length){ setDone(true); if(app.awardXp) app.awardXp(20); } else { setI(i+1); setPick(null); } };
+  const pct=Math.round(score/bank.length*100);
+  if(done) return <AppShell><PageHead eyebrow="Leaf · Money quiz" title="Quiz complete!" desc="Here’s how you did — retake any time to beat your score."/>
+    <Card className="flex flex-col items-center text-center py-8"><ScoreRing value={pct} size={150} label="score" color={LEAF_G}/>
+      <div className="font-serif text-2xl text-charcoal mt-4">{score} / {bank.length} correct</div>
+      <div className="text-sm text-muted mt-1">{pct>=80?'Money-smart! 🌟':pct>=50?'Solid — keep growing 🌱':'Great start — every pro began here.'}</div>
+      <button onClick={()=>{setI(0);setPick(null);setScore(0);setDone(false);}} className="btn btn-ghost mt-5">Retake quiz <Icon name="arrowR" size={14}/></button></Card></AppShell>;
+  return <AppShell>
+    <PageHead eyebrow="Leaf · Money quiz" title="Test what you know." desc="Eight quick questions. Instant explanations. +20 XP when you finish."/>
+    <Card>
+      <div className="flex items-center justify-between mb-3"><Eyebrow>Question {i+1} of {bank.length}</Eyebrow><span className="text-sm text-muted">Score {score}</span></div>
+      <div className="h-1.5 rounded-full bg-sand mb-5"><div className="h-1.5 rounded-full transition-all" style={{width:((i+(answered?1:0))/bank.length*100)+'%',background:LEAF_G}}/></div>
+      <div className="font-serif text-xl text-charcoal mb-4">{q[0]}</div>
+      <div className="grid sm:grid-cols-2 gap-2.5">{q[1].map((opt,n)=>{ const correct=n===q[2]; const chosen=n===pick;
+        const cls=!answered?'border-line hover:border-[color:var(--lg)]':correct?'border-sage bg-sage/10':chosen?'border-berry/50 bg-berry/8':'border-line opacity-60';
+        return <button key={n} onClick={()=>choose(n)} className={cx('rounded-xl2 border p-3 text-left text-sm transition flex items-center gap-2.5',cls)} style={{'--lg':LEAF_G}}>
+          <span className={cx('grid place-items-center h-6 w-6 rounded-lg shrink-0 text-xs font-semibold',answered&&correct?'bg-sage text-white':answered&&chosen?'bg-berry text-white':'bg-sand text-muted')}>{answered&&correct?'✓':answered&&chosen?'✕':String.fromCharCode(65+n)}</span>
+          <span className="text-charcoal">{opt}</span></button>; })}</div>
+      {answered && <div className="mt-4 rounded-xl2 bg-sage/8 border border-sage/25 p-3 text-sm text-charcoal/85 anim-pop"><b>{pick===q[2]?'Correct! ':'Not quite. '}</b>{q[3]}</div>}
+      {answered && <button onClick={next} className="btn w-full mt-4 py-2.5 text-white" style={{background:LEAF_G}}>{i+1>=bank.length?'See my score':'Next question'} <Icon name="arrowR" size={14}/></button>}
+    </Card></AppShell>;
+}
+function LeafGlossary(){
+  const [qy,setQy]=useState(''),[cat,setCat]=useState('All');
+  const terms=[
+    ['Budgeting','APR','The yearly cost of borrowing, including interest and fees — the higher, the pricier the debt.'],
+    ['Budgeting','Net worth','Everything you own minus everything you owe. One honest number for your finances.'],
+    ['Budgeting','Emergency fund','Cash set aside (3–6 months of costs) for life’s surprises, so you don’t reach for debt.'],
+    ['Budgeting','Fixed vs variable','Fixed costs stay the same (rent); variable ones move (groceries, fun). Cut variables first.'],
+    ['Investing','ETF','A fund holding many investments at once — cheap, simple diversification in one buy.'],
+    ['Investing','Index fund','A fund that mirrors a whole market (like the S&P 500) instead of picking winners.'],
+    ['Investing','Diversification','Spreading money across many assets so one bad bet can’t sink you.'],
+    ['Investing','Compound interest','Earning returns on your returns — the engine behind long-term wealth.'],
+    ['Investing','Dividend','A share of a company’s profit paid to shareholders, usually quarterly.'],
+    ['Investing','Bull / bear market','Bull = prices rising and optimistic; bear = falling and cautious.'],
+    ['Credit','Credit score','A number (roughly 300–850) lenders use to judge how reliably you repay.'],
+    ['Credit','Credit utilisation','How much of your available credit you’re using — keep it under ~30%.'],
+    ['Credit','Secured vs unsecured','Secured debt is backed by an asset (mortgage); unsecured isn’t (most cards).'],
+    ['Planning','Inflation','The gradual rise in prices that erodes the buying power of idle cash.'],
+    ['Planning','Compound growth','The same snowball as compound interest, applied to investments over years.'],
+    ['Planning','Liquidity','How quickly an asset turns into spendable cash without losing value.'],
+  ];
+  const cats=['All',...Array.from(new Set(terms.map(t=>t[0])))];
+  const shown=terms.filter(t=>(cat==='All'||t[0]===cat)&&(t[1].toLowerCase().includes(qy.toLowerCase())||t[2].toLowerCase().includes(qy.toLowerCase())));
+  return <AppShell>
+    <PageHead eyebrow="Leaf · Jargon buster" title="Every money word, in plain English." desc="Search or filter the glossary — no finance degree required."/>
+    <Card className="mb-4"><div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex-1 relative"><Icon name="search" size={15} className="absolute left-3 top-3 text-faint"/><input value={qy} onChange={e=>setQy(e.target.value)} placeholder="Search a term…" className="w-full rounded-xl border border-line bg-cream pl-9 pr-3 py-2.5 focus:outline-none" style={{borderColor:qy?LEAF_G:undefined}}/></div>
+    </div>
+    <div className="flex gap-2 mt-3 flex-wrap">{cats.map(c=><button key={c} onClick={()=>setCat(c)} className={cx('chip',cat===c&&'on')}>{c}</button>)}</div></Card>
+    <div className="grid sm:grid-cols-2 gap-3 stagger">{shown.map(([c,term,def])=>
+      <Card key={term}><div className="flex items-center justify-between"><span className="font-serif text-lg text-charcoal">{term}</span><Pill tone="neutral">{c}</Pill></div>
+        <p className="text-sm text-muted mt-1.5 leading-relaxed">{def}</p></Card>)}
+      {!shown.length && <div className="sm:col-span-2 text-center text-sm text-muted py-6">No terms match “{qy}”. Try another word.</div>}</div>
+  </AppShell>;
+}
+function LeafHabits(){
+  const KEY='lumera_leaf_habits';
+  const habits=[
+    ['track','📒','Log today’s spending','A 30-second habit that reveals where money really goes.'],
+    ['noimpulse','🛑','No impulse buys today','Add a 24-hour wait to anything unplanned over £30.'],
+    ['save','🪙','Move something to savings','Even £1 keeps the muscle strong.'],
+    ['learn','📚','Learn one money idea','A lesson, article or quiz counts.'],
+    ['cook','🍳','Eat in instead of out','Small swaps, big monthly difference.'],
+    ['check','👀','Check one subscription','Cancel anything you forgot you had.'],
+  ];
+  const today=new Date().toISOString().slice(0,10);
+  const [state,setState]=useState(()=>{ try{ const s=JSON.parse(localStorage.getItem(KEY))||{}; return s; }catch(e){ return {}; } });
+  const day=state[today]||{};
+  const toggle=(id)=>{ setState(s=>{ const d={...(s[today]||{})}; d[id]=!d[id]; const ns={...s,[today]:d}; try{localStorage.setItem(KEY,JSON.stringify(ns));}catch(e){} return ns; }); };
+  const doneN=habits.filter(h=>day[h[0]]).length;
+  // streak = consecutive days (up to 14) with at least one habit done
+  let streak=0; for(let k=0;k<60;k++){ const d=new Date(Date.now()-k*864e5).toISOString().slice(0,10); const v=state[d]; if(v&&Object.values(v).some(Boolean)) streak++; else if(k>0) break; }
+  const week=Array.from({length:7},(_,k)=>{ const d=new Date(Date.now()-(6-k)*864e5).toISOString().slice(0,10); const v=state[d]; return {d,on:!!(v&&Object.values(v).some(Boolean))}; });
+  return <AppShell>
+    <PageHead eyebrow="Leaf · Money habits" title="Small habits, compounding results." desc="Tick off healthy money habits each day and grow your streak. Saved on this device."/>
+    <div className="grid lg:grid-cols-3 gap-4 mb-4">
+      <Card hover={false} className="flex items-center gap-4"><ScoreRing value={Math.round(doneN/habits.length*100)} size={96} stroke={9} label="today" color={LEAF_G}/>
+        <div><Eyebrow>Today</Eyebrow><div className="font-serif text-2xl text-charcoal">{doneN}/{habits.length}</div><div className="text-xs text-muted">habits done</div></div></Card>
+      <Card hover={false}><Eyebrow className="mb-1">Current streak</Eyebrow><div className="font-serif text-4xl" style={{color:LEAF_G}}>{streak}<span className="text-lg text-muted"> day{streak===1?'':'s'} 🔥</span></div>
+        <div className="text-xs text-faint mt-1">One habit a day keeps the streak alive.</div></Card>
+      <Card hover={false}><Eyebrow className="mb-2">Last 7 days</Eyebrow><div className="flex gap-1.5 items-end">{week.map((w,k)=><div key={k} className="flex-1 text-center"><div className="h-10 rounded-lg flex items-end justify-center" style={{background:w.on?LEAF_G:'var(--c-sand,#eee)',opacity:w.on?1:.4}}>{w.on&&<span className="text-white text-xs mb-1">✓</span>}</div><div className="text-[10px] text-faint mt-1">{['S','M','T','W','T','F','S'][new Date(w.d).getDay()]}</div></div>)}</div></Card>
+    </div>
+    <Card><Eyebrow className="mb-3">Today’s habits</Eyebrow><div className="grid sm:grid-cols-2 gap-2.5">{habits.map(([id,e,t,tip])=>{ const on=!!day[id];
+      return <button key={id} onClick={()=>toggle(id)} className={cx('flex items-start gap-3 rounded-xl2 border p-3 text-left transition',on?'border-sage/40 bg-sage/8':'border-line hover:border-[color:var(--lg)]')} style={{'--lg':LEAF_G}}>
+        <span className="text-2xl shrink-0">{e}</span><span className="min-w-0"><span className={cx('block text-sm font-medium',on?'text-muted line-through':'text-charcoal')}>{t}</span><span className="block text-xs text-faint mt-0.5">{tip}</span></span>
+        <span className={cx('ml-auto grid place-items-center h-6 w-6 rounded-lg shrink-0',on?'bg-sage text-white':'bg-sand text-faint')}>{on?'✓':'+'}</span></button>; })}</div></Card>
+  </AppShell>;
+}
+function LeafChallenges(){
+  const app=useApp(); const fmt=app.fmt;
+  const challenges=[
+    ['52-week save','🪜','Save £1 in week 1, £2 in week 2… up to £52. Painless start, £1,378 by year end.',1378,'52 weeks'],
+    ['No-spend week','🚫','Buy only essentials for 7 days. Notice every habit purchase you skip.',0,'7 days'],
+    ['Round-up jar','🫙','Round every purchase up to the nearest pound; stash the change.',300,'Ongoing'],
+    ['Pantry challenge','🥫','Cook only from what you already own for a week. Zero grocery spend.',60,'7 days'],
+    ['Subscription audit','📺','Cancel two subscriptions you forgot about this month.',180,'1 hour'],
+    ['£5 a day','🖐️','Tuck away £5 every day. Small, steady, and £150 richer each month.',150,'30 days'],
+  ];
+  const KEY='lumera_leaf_chal';
+  const [joined,setJoined]=useState(()=>{ try{ return JSON.parse(localStorage.getItem(KEY))||[]; }catch(e){ return []; } });
+  const toggle=(t)=>{ setJoined(j=>{ const nj=j.includes(t)?j.filter(x=>x!==t):[...j,t]; try{localStorage.setItem(KEY,JSON.stringify(nj));}catch(e){} return nj; }); };
+  return <AppShell>
+    <PageHead eyebrow="Leaf · Money challenges" title="Turn saving into a game." desc="Pick a challenge, commit, and watch small wins stack up. Track how many you’ve joined."/>
+    <Card className="mb-4 flex items-center gap-3"><span className="text-3xl">🎯</span><div><Eyebrow>Your challenges</Eyebrow><div className="font-serif text-xl text-charcoal">{joined.length} active</div></div>
+      {joined.length>0&&<span className="ml-auto text-sm" style={{color:LEAF_G}}>Potential saved: <b>{fmt.money(challenges.filter(c=>joined.includes(c[0])).reduce((a,c)=>a+c[3],0))}</b>/yr</span>}</Card>
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">{challenges.map(([t,e,d,save,dur])=>{ const on=joined.includes(t);
+      return <Card key={t} className={cx(on&&'ring-1 ring-sage/40')}><div className="flex items-center justify-between"><span className="text-3xl">{e}</span>{save>0&&<Pill tone="gold">~{fmt.money(save)}</Pill>}</div>
+        <div className="font-serif text-lg text-charcoal mt-2">{t}</div><p className="text-sm text-muted mt-1 leading-relaxed">{d}</p>
+        <div className="flex items-center justify-between mt-3 pt-3 border-t border-line"><span className="text-[11px] text-faint">⏳ {dur}</span>
+          <button onClick={()=>toggle(t)} className={cx('text-xs font-semibold rounded-lg px-3 py-1.5 transition',on?'bg-sage/12 text-saged':'text-white')} style={on?{}:{background:LEAF_G}}>{on?'✓ Joined':'Join'}</button></div></Card>; })}</div>
+  </AppShell>;
+}
+
+/* ============================================================
    FORGE · Career & income tools (a real Lumera sub-product)
    ============================================================ */
 function ForgeCV(){
@@ -4961,6 +5099,7 @@ const ROUTES = {
   '/lumera':()=><ProductPage k="lumera"/>, '/leaf':()=><ProductPage k="leaf"/>, '/atlas':()=><ProductPage k="atlas"/>,
   '/shield':()=><ProductPage k="shield"/>, '/forge':()=><ProductPage k="forge"/>,
   '/cv':ForgeCV, '/university':ForgeUniversity, '/career':ForgeCareer, '/sideincome':ForgeSideIncome, '/salary':ForgeSalary,
+  '/quiz':LeafQuiz, '/glossary':LeafGlossary, '/habits':LeafHabits, '/challenges':LeafChallenges,
 };
 
 const STORE='lumera_v2';
