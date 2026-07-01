@@ -2309,7 +2309,7 @@ const SUBS = [
     routes:['/credit','/debt','/insurance','/retirement'] },
   { key:'forge', name:'Forge', tag:'Career & income', accent:'#EF4444', emoji:'🔥', live:true,
     blurb:'Grow what you earn, not just what you save — side-income ideas, salary benchmarks and career moves.',
-    routes:['/cv','/university','/career','/sideincome','/salary'] },
+    routes:['/careers','/firms','/universities','/subjects','/finance-vs-econ','/prep','/career-lab','/opportunities','/sideincome','/salary'] },
 ];
 const NAV_BY_ROUTE = {}; NAV.forEach(g=>g.items.forEach(it=>{ NAV_BY_ROUTE[it.to]=it; }));
 Object.assign(NAV_BY_ROUTE, {
@@ -2317,9 +2317,14 @@ Object.assign(NAV_BY_ROUTE, {
   '/glossary':{ to:'/glossary', k:'Jargon Buster', icon:'book' },
   '/habits':{ to:'/habits', k:'Money Habits', icon:'check' },
   '/challenges':{ to:'/challenges', k:'Challenges', icon:'spark' },
-  '/cv':{ to:'/cv', k:'CV Builder', icon:'user' },
-  '/university':{ to:'/university', k:'University', icon:'book' },
-  '/career':{ to:'/career', k:'Career Moves', icon:'trend' },
+  '/careers':{ to:'/careers', k:'Finance Careers', icon:'trend' },
+  '/firms':{ to:'/firms', k:'Top Finance Firms', icon:'book' },
+  '/universities':{ to:'/universities', k:'Universities', icon:'cap' },
+  '/subjects':{ to:'/subjects', k:'Subject Selection', icon:'check' },
+  '/finance-vs-econ':{ to:'/finance-vs-econ', k:'Finance vs Economics', icon:'gauge' },
+  '/prep':{ to:'/prep', k:'Career Prep Hub', icon:'spark' },
+  '/career-lab':{ to:'/career-lab', k:'CV & LinkedIn Lab', icon:'user' },
+  '/opportunities':{ to:'/opportunities', k:'Opportunities', icon:'trophy' },
   '/sideincome':{ to:'/sideincome', k:'Side Income', icon:'wallet' },
   '/salary':{ to:'/salary', k:'Salary Check', icon:'chart' },
 });
@@ -2341,7 +2346,7 @@ const SUB_TOOL_DESC = {
   '/quiz':'Test your money knowledge, earn XP.', '/glossary':'Every money word in plain English.', '/habits':'Build daily money habits and streaks.', '/challenges':'Gamified saving challenges to join.', '/badges':'Track your wins and streaks.', '/updates':'What’s new in Lumera.',
   '/invest':'Start investing, explained simply.', '/market':'Live-style markets with the “why”.', '/globe':'Spin the world’s exchanges.', '/world':'The big economic picture.', '/news':'Headlines in plain English.',
   '/credit':'Build a score you’re proud of.', '/debt':'A clear plan to clear what you owe.', '/insurance':'Cover what would actually hurt to lose.', '/retirement':'Tiny amounts now, huge later.',
-  '/cv':'Build a CV that gets callbacks.', '/university':'Weigh the real cost of a degree.', '/career':'Plan your next move and pay rise.', '/sideincome':'Earn more on the side.', '/salary':'Know what your role really pays.',
+  '/careers':'14 finance paths, what they pay, how to get in.', '/firms':'Profiles of the firms that shape markets.', '/universities':'Ranked shortlist for finance recruiting.', '/subjects':'Pick subjects for your target career.', '/finance-vs-econ':'Which path is right for you.', '/prep':'Master the skills interviews test.', '/career-lab':'Build a CV recruiters notice.', '/opportunities':'Internships, comps and scholarships.', '/sideincome':'Earn more on the side.', '/salary':'Know what your role really pays.',
 };
 // Each sub-product gets its own branded "site": a bold accent hero + its real
 // tools. Reached from the sidebar or the hub; opens the real Lumera tools.
@@ -2362,10 +2367,10 @@ const FORGE_FEATURES = [
 const TOOL_EMOJI = { '/dashboard':'🏠','/budget':'🧾','/goals':'🎯','/emergency':'🛟','/subscriptions':'📺','/networth':'📈','/simulator':'🪄','/twin':'🧬',
   '/learn':'📚','/resources':'🧠','/quiz':'🧩','/glossary':'📖','/habits':'🌱','/challenges':'🎯','/badges':'🏅','/updates':'✨','/invest':'🌱','/market':'📊','/globe':'🌍','/world':'🛰️','/news':'📰',
   '/credit':'💳','/debt':'⛓️','/insurance':'☂️','/retirement':'🌅',
-  '/cv':'📄','/university':'🎓','/career':'🧭','/sideincome':'💡','/salary':'📊' };
+  '/careers':'📈','/firms':'🏦','/universities':'🎓','/subjects':'📝','/finance-vs-econ':'⚖️','/prep':'🧭','/career-lab':'📄','/opportunities':'🚀','/sideincome':'💡','/salary':'📊' };
 // [label, emoji, xp, verifyRoute] — challenge completes only when you visit the route.
 const PRODUCT_CHALLENGE = { leaf:['Finish a 2-minute lesson','📚',25,'/learn'], atlas:['Spot one market mover today','📊',20,'/market'],
-  shield:['Review one credit factor','💳',20,'/credit'], forge:['Polish your CV','📄',20,'/cv'], lumera:['Log today’s spending','🧾',15,'/budget'] };
+  shield:['Review one credit factor','💳',20,'/credit'], forge:['Explore a finance career','📈',20,'/careers'], lumera:['Log today’s spending','🧾',15,'/budget'] };
 const todayKey = ()=> new Date().toISOString().slice(0,10);
 const PRODUCT_PARTICLES = { leaf:['🌿','🍃','✨'], atlas:['🛰️','✨','💫'], shield:['🛡️','✨','⭐'], forge:['🔥','⚡','✨'], lumera:['✨','💫','⭐'] };
 
@@ -2392,10 +2397,10 @@ const GUIDE = {
     'Every node you finish strengthens your financial defences.',
     'Complete challenges to level up your protection. ⚔️'] },
   forge:{ name:'Blaze', tip:'your income coach', emoji:'🔥', lines:[
-    'I’m Blaze 🔥 — welcome to Forge, where you grow what you earn.',
-    'Follow the red path: polish your CV, weigh university, plan your career.',
-    'Hunt down side-income ideas and check what your role really pays.',
-    'Do the Daily Challenge and let’s turn up the heat on your income! ⚡'] },
+    'I’m Blaze 🔥 — welcome to Forge, where you build your career and income.',
+    'Explore finance careers, top firms and universities — then plan the subjects and skills to get there.',
+    'Polish your CV in the Lab, hunt down opportunities, and check what roles really pay.',
+    'Do the Daily Challenge and let’s turn up the heat on your future! ⚡'] },
 };
 // Individualised caped-superhero SVG — each product has a distinct head/silhouette.
 function Mascot({ kind='lumera', color='#8B5CF6', emoji='🦉', size=58 }){
@@ -4924,6 +4929,393 @@ function LeafChallenges(){
 }
 
 /* ============================================================
+   FORGE · Career suite (faithful rebuild of the original Lumera)
+   ============================================================ */
+const FORGE_R='#EF4444';
+// Shared detail modal for the career pages.
+function CareerModal({ eyebrow, title, onClose, children, footer }){
+  return <div className="fixed inset-0 z-50 grid place-items-center p-4">
+    <div className="absolute inset-0 bg-charcoal/45" onClick={onClose}/>
+    <div className="relative w-full max-w-2xl lux-card !p-6 max-h-[86vh] overflow-y-auto anim-scaleIn">
+      <div className="flex items-start justify-between gap-4"><div>{eyebrow&&<div className="text-[11px] tracking-[.16em] uppercase text-faint">{eyebrow}</div>}<h3 className="font-serif text-2xl text-charcoal mt-1">{title}</h3></div>
+        <button onClick={onClose} className="grid place-items-center h-8 w-8 rounded-lg hover:bg-sand shrink-0"><Icon name="x"/></button></div>
+      <div className="mt-4 space-y-5">{children}</div>
+      {footer && <div className="mt-5 pt-4 border-t border-line">{footer}</div>}
+    </div></div>;
+}
+function MBlock({ title, children }){ return <div><div className="text-[11px] tracking-[.16em] uppercase text-faint mb-2">{title}</div>{children}</div>; }
+const Ticks=({items,color=FORGE_R})=><ul className="grid sm:grid-cols-2 gap-x-5 gap-y-1.5">{items.map((t,i)=><li key={i} className="flex items-start gap-2 text-sm text-charcoal/85"><Icon name="check" size={14} className="mt-0.5 shrink-0" style={{color}}/>{t}</li>)}</ul>;
+const LinkRow=({items})=><div className="grid sm:grid-cols-2 gap-2">{items.map(([label,url])=><a key={label} href={url} target="_blank" rel="noopener noreferrer" className="btn btn-ghost py-2 text-xs justify-between">{label} <Icon name="arrowR" size={11} className="-rotate-45"/></a>)}</div>;
+
+const CAREERS=[
+  { name:'Investment Banking', tag:'High & opaque', icon:'📈', blurb:'Advising companies and governments on raising capital and on mergers & acquisitions. High-prestige, brutal hours.',
+    day:['Build financial models (LBO, DCF, M&A, comps)','Draft pitch books and client materials','Coordinate with lawyers, accountants and senior bankers','Manage live transactions through closing'],
+    skills:['Financial modelling (LBO, DCF, M&A, comps)','Accounting & three-statement fluency','Attention to detail under deadline pressure','Stamina, client communication, Excel + PowerPoint mastery'],
+    salary:[['Junior','$110–170k base + 40–100% bonus (analyst, NYC/London)'],['Mid','$200–400k all-in (associate)'],['Senior','$500k–$2m+ (VP → MD)']],
+    progression:'Analyst (2–3y) → Associate (3y) → VP (3y) → Director → MD',
+    unis:'Top targets: Wharton, Harvard, Princeton, Stanford, NYU Stern (US); LSE, Oxbridge, Imperial, Warwick (UK); INSEAD/HEC at MBA level',
+    subjects:'A-Level Maths essential; Economics, Further Maths, Physics highly valued',
+    degrees:'Finance, Economics, Mathematics, Engineering — also accepted from STEM/Humanities with strong quantitative coursework; strong GPA (3.7+ US / first-class UK)',
+    routes:['Spring Insight Week (year 1) → Summer Internship (penultimate year) → Full-time offer','Off-cycle internships at boutiques as a fallback','Lateral from Big 4 audit/transactions or corporate banking'],
+    interns:['Spring Weeks: Goldman Sachs, Morgan Stanley, JP Morgan, Citi, Barclays, Bank of America','Summer Analyst: all bulge brackets + elite boutiques (Evercore, Lazard, Centerview, Moelis, PJT)'],
+    resources:[['Wall Street Oasis — IB Forum','https://www.wallstreetoasis.com/'],['Mergers & Inquisitions','https://mergersandinquisitions.com/'],['Wall Street Prep — free guides','https://www.wallstreetprep.com/knowledge/']] },
+  { name:'Private Equity', tag:'Extreme', icon:'🏛️', blurb:'Buying companies — usually with debt — improving them over 3–7 years, then selling at a profit. The most coveted post-IB exit.',
+    day:['Screen and diligence acquisition targets','Build LBO models and investment memos','Work with portfolio-company management','Support deal execution and exits'],
+    skills:['Advanced LBO modelling','Commercial judgement','Diligence and deal structuring','Relationship management'],
+    salary:[['Junior','$150–300k (associate, post-IB)'],['Mid','$300–600k (senior associate / VP)'],['Senior','$1m+ with carry (Principal → Partner)']],
+    progression:'Associate (2–3y) → Senior Associate → VP → Principal → Partner',
+    unis:'Same elite targets as IB; almost always recruited from top-bank analyst pools',
+    subjects:'As IB — Maths A* essential; Economics strong',
+    degrees:'Finance/Economics/Engineering; near-universally 2+ years of IB or consulting first',
+    routes:['2 years IB analyst → PE associate recruiting ("on-cycle")','Consulting → operationally-focused PE funds','Growth equity as a slightly broader entry'],
+    interns:['On-cycle PE recruiting (headhunters: Henkel, CPI, SG Partners)','Growth funds and search funds for earlier entry'],
+    resources:[['Wall Street Oasis — PE Forum','https://www.wallstreetoasis.com/forum/private-equity'],['Breaking Into Wall Street','https://breakingintowallstreet.com/']] },
+  { name:'Venture Capital', tag:'High & opaque', icon:'🚀', blurb:'Investing equity in early-stage, high-growth private companies. Smaller cheques, longer hold periods, more network-driven.',
+    day:['Source and meet founders','Assess markets, teams and traction','Support portfolio companies','Manage LP relationships (senior)'],
+    skills:['Market and product intuition','Networking and founder empathy','Comfort with ambiguity and risk','Storytelling and conviction'],
+    salary:[['Junior','$100–180k (analyst/associate)'],['Mid','$180–350k'],['Senior','$500k+ plus carry (Partner)']],
+    progression:'Analyst → Associate → Principal → Partner → GP',
+    unis:'Less rigid; strong founders, operators and top-school networks all break in',
+    subjects:'Broad; STEM + business awareness helps',
+    degrees:'Any, though CS/engineering and startup experience are prized',
+    routes:['Startup operating role → VC','Top-school network + scout programs','Analyst programs at larger funds (a16z, Sequoia)'],
+    interns:['Scout programs','Accelerator internships (YC-adjacent)','Platform/ops roles at funds'],
+    resources:[['a16z — content library','https://a16z.com/'],['Paul Graham essays','https://www.paulgraham.com/articles.html']] },
+  { name:'Hedge Funds', tag:'Extreme', icon:'📊', blurb:'Active investment funds employing leverage, derivatives and short-selling. Strategies span equities, macro, credit and quant.',
+    day:['Research trade ideas and theses','Build models and monitor positions','Manage risk in real time','Present ideas to PMs'],
+    skills:['Deep sector or quant specialism','Independent, high-conviction thinking','Risk management','Statistics and programming (quant)'],
+    salary:[['Junior','$150–250k (analyst)'],['Mid','$300–700k'],['Senior','$1m–$10m+ in strong PM roles']],
+    progression:'Analyst → Senior Analyst → Portfolio Manager',
+    unis:'Top quantitative schools; MIT, Princeton, Cambridge, Oxford for quant',
+    subjects:'Maths A*, Further Maths, Physics/CS for quant funds',
+    degrees:'Maths, Physics, CS, Engineering (quant); Finance/Econ (fundamental)',
+    routes:['IB/ER analyst → fundamental HF','PhD/Olympiad → quant fund (Jane Street, Citadel, Two Sigma)','Prop trading → macro'],
+    interns:['Jane Street, Citadel, Two Sigma, HRT quant internships','SIG, Optiver trading internships'],
+    resources:[['Jane Street — puzzles','https://www.janestreet.com/puzzles/'],['Wall Street Oasis — HF Forum','https://www.wallstreetoasis.com/forum/hedge-fund']] },
+  { name:'Asset Management', tag:'High', icon:'🗂️', blurb:'Managing diversified portfolios for institutions (pensions, endowments, sovereigns) and retail investors. Longer horizons, better balance.',
+    day:['Research securities and sectors','Construct and rebalance portfolios','Meet clients and report performance','Monitor macro and risk'],
+    skills:['Valuation and research','Portfolio construction','Clear written and verbal communication','Client management'],
+    salary:[['Junior','$70–120k'],['Mid','$150–300k'],['Senior','$400k+ (senior PM)']],
+    progression:'Analyst → Associate PM → Portfolio Manager → CIO',
+    unis:'Broad range of good universities; CFA valued',
+    subjects:'Maths and Economics helpful',
+    degrees:'Finance, Economics, Business; CFA charter common',
+    routes:['Graduate schemes at BlackRock, Fidelity, Capital Group','ER/IB → buy-side research','CFA + networking'],
+    interns:['BlackRock, Fidelity, Vanguard, Capital Group summer programs'],
+    resources:[['CFA Institute','https://www.cfainstitute.org/'],['Morningstar','https://www.morningstar.com/']] },
+  { name:'Equity Research', tag:'High', icon:'🔎', blurb:'Writing buy/sell/hold ratings and price targets on listed companies. Deep sector specialism; writing-heavy.',
+    day:['Model companies and forecast earnings','Publish notes and ratings','Speak to management and clients','Track sector news'],
+    skills:['Financial modelling','Sector expertise','Concise writing','Communication with clients'],
+    salary:[['Junior','$90–140k'],['Mid','$180–350k'],['Senior','$500k+ (II-ranked analyst)']],
+    progression:'Associate → Analyst → Senior/II-ranked Analyst',
+    unis:'Broad targets; sector-relevant degrees help (e.g. biology for biotech)',
+    subjects:'Maths + a sector interest',
+    degrees:'Finance/Econ or a science relevant to a coverage sector',
+    routes:['Graduate ER programs at banks','Move from IB or industry','CFA support'],
+    interns:['Sell-side ER summer analyst programs at bulge brackets'],
+    resources:[['Aswath Damodaran — valuation','https://pages.stern.nyu.edu/~adamodar/'],['CFA Institute','https://www.cfainstitute.org/']] },
+  { name:'Sales & Trading', tag:'High', icon:'💹', blurb:'Market-making and risk-taking on a bank trading floor — pricing and executing trades across asset classes.',
+    day:['Quote prices and execute client trades','Manage a risk book','Read flow and market signals','Build client relationships (sales)'],
+    skills:['Fast mental maths','Composure under pressure','Market intuition','Communication'],
+    salary:[['Junior','$100–160k'],['Mid','$250–500k'],['Senior','$700k–$2m+']],
+    progression:'Analyst → Associate → VP → Desk Head → MD',
+    unis:'Quant-leaning targets; STEM valued',
+    subjects:'Maths A*, Further Maths',
+    degrees:'Maths, Physics, Economics, Engineering',
+    routes:['Bank S&T summer internships','Prop shops and market makers','Quant developer crossover'],
+    interns:['S&T summer analyst at bulge brackets','SIG/Optiver/IMC trading internships'],
+    resources:[['Optiver — trading basics','https://optiver.com/'],['Wall Street Oasis — S&T','https://www.wallstreetoasis.com/forum/trading-and-sales']] },
+  { name:'Corporate Finance', tag:'Moderate', icon:'🏢', blurb:'In-house finance at a company — budgeting, capital allocation, treasury and strategy. Saner hours, solid pay.',
+    day:['Build budgets and forecasts','Analyse capital projects','Manage cash and funding','Support strategic decisions'],
+    skills:['Financial planning & analysis','Business partnering','Excel and reporting','Commercial judgement'],
+    salary:[['Junior','$60–90k'],['Mid','$100–180k'],['Senior','$250k+ (Finance Director / CFO track)']],
+    progression:'Analyst → Manager → FD → CFO',
+    unis:'Wide range; accounting qualifications valued',
+    subjects:'Maths and Economics',
+    degrees:'Finance, Accounting, Economics, Business',
+    routes:['Corporate graduate schemes','ACCA/CIMA/ACA qualification','Move from Big 4 audit'],
+    interns:['FTSE/Fortune corporate finance grad schemes'],
+    resources:[['CIMA','https://www.cimaglobal.com/'],['ACCA','https://www.accaglobal.com/']] },
+  { name:'Commercial Banking', tag:'Moderate', icon:'🏦', blurb:'Lending to and serving mid-sized corporates — credit underwriting, relationship management, trade finance.',
+    day:['Assess borrower creditworthiness','Structure loans and facilities','Manage client relationships','Monitor portfolios'],
+    skills:['Credit analysis','Relationship management','Financial statement fluency','Risk assessment'],
+    salary:[['Junior','$55–80k'],['Mid','$90–160k'],['Senior','$200k+ (relationship director)']],
+    progression:'Analyst → RM → Senior RM → Regional Head',
+    unis:'Broad range of universities',
+    subjects:'Maths and Economics helpful',
+    degrees:'Finance, Economics, Business',
+    routes:['Bank commercial grad schemes','Credit analyst → RM','Retail → commercial move'],
+    interns:['Commercial/corporate banking grad programs'],
+    resources:[['Corporate Finance Institute','https://corporatefinanceinstitute.com/']] },
+];
+const CAREER_TABS=['All','Investment Banking','Private Equity','Venture Capital','Hedge Funds','Asset Management'];
+function FinanceCareers(){
+  const [q,setQ]=useState(''),[sel,setSel]=useState(null);
+  const shown=CAREERS.filter(c=>c.name.toLowerCase().includes(q.toLowerCase())||c.blurb.toLowerCase().includes(q.toLowerCase()));
+  return <AppShell>
+    <PageHead eyebrow="Career" title="Where finance can take you." desc="Fourteen of the most common finance career paths — what people actually do day-to-day, what they earn, how to get in, and where to learn more. Use this to decide before you spec your degree, not after."/>
+    <div className="flex justify-end mb-4"><div className="relative w-full sm:w-72"><Icon name="search" size={15} className="absolute left-3 top-3 text-faint"/><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Search careers…" className="w-full rounded-xl border border-line bg-cream pl-9 pr-3 py-2.5 focus:outline-none"/></div></div>
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">{shown.map(c=>
+      <Card key={c.name} className="flex flex-col"><div className="flex items-start justify-between"><span className="text-3xl">{c.icon}</span><Pill tone="neutral">{c.tag}</Pill></div>
+        <div className="font-serif text-xl text-charcoal mt-2">{c.name}</div><p className="text-sm text-muted mt-1 leading-relaxed flex-1">{c.blurb}</p>
+        <button onClick={()=>setSel(c)} className="btn btn-ghost mt-3 py-2 text-sm justify-between">Explore <Icon name="arrowR" size={13}/></button></Card>)}</div>
+    {sel && <CareerModal eyebrow={`Finance career · ${sel.tag}`} title={sel.name} onClose={()=>setSel(null)}
+      footer={<a href="https://www.wallstreetoasis.com/" target="_blank" rel="noopener noreferrer" className="btn btn-gold text-sm">Explore the forums <Icon name="arrowR" size={13} className="-rotate-45"/></a>}>
+      <p className="text-sm text-charcoal/85 leading-relaxed">{sel.blurb}</p>
+      <MBlock title="A day in the role"><Ticks items={sel.day}/></MBlock>
+      <MBlock title="Required skills"><Ticks items={sel.skills}/></MBlock>
+      <MBlock title="Salary ranges"><div className="grid sm:grid-cols-3 gap-3">{sel.salary.map(([lvl,v])=><div key={lvl} className="rounded-xl border border-line bg-cream/60 p-3"><div className="text-[10px] uppercase tracking-wider text-faint">{lvl}</div><div className="text-sm text-charcoal mt-1">{v}</div></div>)}</div><div className="text-xs text-faint mt-2">Ranges reflect US/UK financial centres in 2025/26 — meaningfully lower in smaller markets. Bonuses are highly variable.</div></MBlock>
+      <MBlock title="Career progression"><div className="text-sm text-charcoal/85">{sel.progression}</div></MBlock>
+      <div className="grid sm:grid-cols-2 gap-5">
+        <MBlock title="University targets"><div className="text-sm text-charcoal/85">{sel.unis}</div></MBlock>
+        <MBlock title="Subject requirements"><div className="text-sm text-charcoal/85">{sel.subjects}</div></MBlock>
+      </div>
+      <MBlock title="Degree recommendations"><div className="text-sm text-charcoal/85">{sel.degrees}</div></MBlock>
+      <MBlock title="Entry routes"><Ticks items={sel.routes}/></MBlock>
+      <MBlock title="Internships to target"><Ticks items={sel.interns}/></MBlock>
+      <MBlock title="Resources"><LinkRow items={sel.resources}/></MBlock>
+    </CareerModal>}
+  </AppShell>;
+}
+
+const FIRMS=[
+  ['Goldman Sachs','Bulge bracket','Investment Banking','The most prestigious global investment bank; market-maker across M&A, S&T, equity research, and asset management. The most-recognised name on the Street.','Top-of-class academics, leadership signals, commercial awareness, polish under pressure. Strong preference for quantitative undergrad backgrounds and structured extracurriculars.',['Financial modelling (LBO, DCF, comps, M&A)','Accounting & valuation fluency','Excel + PowerPoint mastery','Composure under deadline pressure','Clear written and verbal communication'],'Strong Maths and Economics; Finance, Engineering, Physics and Computer Science highly valued. Top class typically required.','Analyst (3y) → Associate (3y) → VP (3y) → Director → MD; total partner-track ~13–15 years.','https://www.goldmansachs.com/careers/'],
+  ['Morgan Stanley','Bulge bracket','Investment Banking','Bulge-bracket investment bank with deep wealth management and trading franchises. TMT IB practice is the strongest on the Street.','Intellectual curiosity, teamwork, and client focus. Values strong technical grounding plus communication.',['Financial modelling','Valuation','Client communication','Attention to detail'],'Finance, Economics, Engineering; strong quantitative grounding.','Analyst → Associate → VP → ED → MD.','https://www.morganstanley.com/careers'],
+  ['JPMorgan Chase','Bulge bracket','Investment Banking','Largest US bank by assets; full-service global IB, asset management, consumer banking and treasury. Massive internship class.','Breadth of interest, resilience and analytical rigour. One of the largest and most structured grad intakes.',['Modelling & analysis','Commercial awareness','Communication','Ownership'],'Finance, Economics, STEM; strong academics.','Analyst → Associate → VP → ED → MD.','https://careers.jpmorgan.com/'],
+  ['Bank of America','Bulge bracket','Investment Banking','Top-3 US universal bank; BofA Securities has top-tier ECM and DCM franchises; Merrill is a giant in wealth.','Team players with strong academics and genuine market interest.',['Modelling','Accounting','Communication'],'Finance, Economics, Business, STEM.','Analyst → Associate → VP → Director → MD.','https://careers.bankofamerica.com/'],
+  ['Evercore','Elite boutique','Investment Banking','Top elite-boutique advisory firm; pure-play M&A and restructuring. Highest analyst pay on the Street; smallest class sizes.','Exceptional academics, maturity and modelling ability. Very selective, small classes.',['Advanced modelling','Restructuring analysis','Client-ready output','Precision'],'Top targets only; Finance/Econ/Engineering with elite GPA.','Analyst (2–3y) → Associate → VP → SMD.','https://www.evercore.com/careers/'],
+  ['Lazard','Elite boutique','Investment Banking','Oldest M&A advisory house; 150+-year-old advisory house; particularly strong in cross-border M&A, sovereign advisory and European mid-cap.','Global outlook, languages a plus, top academics and polish.',['M&A modelling','Cross-border deal work','Communication'],'Finance/Economics; languages valued.','Analyst → Associate → VP → MD.','https://www.lazard.com/careers/'],
+  ['Blackstone','Elite / PE','Private Equity','The world’s largest alternative asset manager — private equity, real estate, credit and hedge-fund solutions.','Elite academics, prior IB experience, commercial judgement.',['LBO modelling','Diligence','Investment judgement'],'Top targets; usually post-IB.','Associate → VP → Principal → MD.','https://www.blackstone.com/careers/'],
+  ['McKinsey & Company','MBB','Consulting','The most prestigious management consultancy; advises the world’s largest companies and governments on strategy.','Structured problem-solving, leadership, and communication. Case-interview driven.',['Structured problem-solving','Communication','Analytics','Client presence'],'Any degree with top academics; case prep essential.','Business Analyst → Associate → EM → Partner.','https://www.mckinsey.com/careers'],
+  ['Citadel','Elite / HF','Hedge Funds','One of the world’s top hedge funds and market makers; multi-strategy, quant-heavy, exceptional pay.','Olympiad-level quantitative talent, programming, and independent thinking.',['Statistics & probability','Programming','Modelling','Risk'],'Maths, Physics, CS from top quant schools.','Analyst → PM track / Quant Researcher.','https://www.citadel.com/careers/'],
+];
+const FIRM_TABS=['All firms','Investment Banking','Private Equity','Hedge Funds','Consulting'];
+function TopFinanceFirms(){
+  const [tab,setTab]=useState('All firms'),[q,setQ]=useState(''),[sel,setSel]=useState(null);
+  const shown=FIRMS.filter(f=>(tab==='All firms'||f[2]===tab)&&(f[0].toLowerCase().includes(q.toLowerCase())));
+  return <AppShell>
+    <PageHead eyebrow="Career" title="Where finance gets done." desc="The firms that shape global capital markets. Every profile shows what they actually look for, how to get in, and what the interview process looks like — so you can target your prep with conviction."/>
+    <Card className="mb-4"><div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+      <div className="flex gap-2 flex-wrap flex-1">{FIRM_TABS.map(t=><button key={t} onClick={()=>setTab(t)} className={cx('chip',tab===t&&'on')}>{t}</button>)}</div>
+      <div className="relative sm:w-56"><Icon name="search" size={15} className="absolute left-3 top-3 text-faint"/><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Search firms…" className="w-full rounded-xl border border-line bg-cream pl-9 pr-3 py-2.5 focus:outline-none"/></div>
+    </div></Card>
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">{shown.map(f=>
+      <Card key={f[0]} className="flex flex-col"><div className="flex items-start justify-between"><span className="grid place-items-center h-9 w-9 rounded-lg bg-sand text-goldd"><Icon name="book" size={16}/></span><Pill tone="gold">{f[1]}</Pill></div>
+        <div className="font-serif text-lg text-charcoal mt-2">{f[0]}</div><p className="text-sm text-muted mt-1 leading-relaxed flex-1">{f[3]}</p>
+        <div className="flex items-center justify-between mt-3 pt-3 border-t border-line"><span className="text-[11px] text-faint">{f[2]}</span><button onClick={()=>setSel(f)} className="text-xs font-semibold flex items-center gap-1" style={{color:FORGE_R}}>Explore <Icon name="arrowR" size={12}/></button></div></Card>)}</div>
+    {sel && <CareerModal eyebrow={`${sel[2]} · ${sel[1]}`} title={sel[0]} onClose={()=>setSel(null)}
+      footer={<a href={sel[8]} target="_blank" rel="noopener noreferrer" className="btn btn-gold text-sm">Careers site <Icon name="arrowR" size={13} className="-rotate-45"/></a>}>
+      <p className="text-sm text-charcoal/85 leading-relaxed">{sel[3]}</p>
+      <MBlock title="What they look for"><p className="text-sm text-charcoal/85 leading-relaxed">{sel[4]}</p></MBlock>
+      <MBlock title="Skills they value"><Ticks items={sel[5]}/></MBlock>
+      <div className="grid sm:grid-cols-2 gap-5">
+        <MBlock title="Subject preferences"><p className="text-sm text-charcoal/85">{sel[6]}</p></MBlock>
+        <MBlock title="Career progression"><p className="text-sm text-charcoal/85">{sel[7]}</p></MBlock>
+      </div>
+    </CareerModal>}
+  </AppShell>;
+}
+
+const UNIS=[
+  ['London School of Economics','LSE','London','UK','Tier 1',96,[95,96,94,95],'World-leading social sciences university with arguably the strongest UK finance-feeder reputation in Europe.','LSE Test (online assessment) + transcripts'],
+  ['University of Oxford','Oxford','Oxford','UK','Tier 1',99,[98,98,97,97],'Ancient collegiate university with the strongest UK PPE and Economics & Management reputation.','A-levels + interview'],
+  ['University of Cambridge','Cambridge','Cambridge','UK','Tier 1',99,[98,97,98,97],'Global powerhouse; Economics and Maths are exceptional finance and quant feeders.','A-levels + admissions test + interview'],
+  ['Imperial College London','Imperial','London','UK','Tier 1',94,[93,94,90,92],'STEM and business powerhouse; strong quant-finance and MSc pipelines into the City.','A-levels (Maths essential)'],
+  ['Bocconi University','Bocconi','Milan','Europe','Tier 2',91,[94,95,90,93],'Italy’s leading business and economics university; consistently produces the largest cohort of Italian IB analysts in London.','Bocconi Test (online assessment) + transcripts'],
+  ['HEC Paris','HEC','Jouy-en-Josas','Europe','Tier 2',93,[94,94,92,93],'France’s top grande école; Bachelor + MiM ladder produces top continental European hires for IB and consulting.','Bachelor: SAT/IB/A-levels + interview'],
+  ['ETH Zurich','ETH','Zurich','Europe','Tier 1',96,[88,90,87,86],'Switzerland’s top STEM university; produces quant talent for Swiss private banks and global trading firms.','Maths/IB / Abitur (direct)'],
+  ['Wharton (UPenn)','Wharton','Philadelphia','US','Tier 1',99,[99,99,96,98],'The most storied undergraduate business school on earth; unmatched Wall Street placement.','SAT/ACT + holistic admissions'],
+  ['Harvard University','Harvard','Cambridge, MA','US','Tier 1',99,[98,99,97,98],'Global brand with elite placement into finance, consulting and tech.','SAT/ACT + holistic admissions'],
+  ['NYU Stern','Stern','New York','US','Tier 1',95,[97,96,92,95],'Located in the heart of NYC; outstanding IB and S&T placement thanks to proximity and alumni.','SAT/ACT + holistic admissions'],
+];
+const UNI_SCORE_LABELS=['Finance rep','Employability','Teaching','Outcomes'];
+const UNI_REGIONS=['UK','US','Europe','Middle East','Asia'];
+const UNI_SUBJECTS=['Overall','Finance','Economics','Accounting','Computer Science','Mathematics','Engineering','Medicine','Law','Business / MBA'];
+const SHORTLIST_TAGS=['Reach','Target','Match','Safety'];
+function UniversitiesRank(){
+  const [region,setRegion]=useState(null),[subject,setSubject]=useState('Overall'),[q,setQ]=useState('');
+  const [list,setList]=useState({}); // name -> tag
+  const shown=UNIS.filter(u=>(!region||u[3]===region)&&(u[0].toLowerCase().includes(q.toLowerCase())));
+  const cycle=(name)=>setList(l=>{ const cur=l[name]; const idx=cur?SHORTLIST_TAGS.indexOf(cur):-1; const next=SHORTLIST_TAGS[(idx+1)%(SHORTLIST_TAGS.length+1)]||null; const nl={...l}; if(next) nl[name]=next; else delete nl[name]; return nl; });
+  const top5=[...UNIS].sort((a,b)=>b[5]-a[5]).slice(0,5);
+  return <AppShell>
+    <PageHead eyebrow="University centre" title="Choose where to study — strategically." desc="A curated shortlist of universities with the strongest finance recruiting pipelines, with the data you actually need: entry requirements, real tuition costs, scholarships, and graduate outcomes."/>
+    <Card className="mb-4"><div className="flex flex-col lg:flex-row gap-3 lg:items-center">
+      <div className="flex gap-2 flex-wrap flex-1"><button onClick={()=>setRegion(null)} className={cx('chip',!region&&'on')}>All</button>{UNI_REGIONS.map(r=><button key={r} onClick={()=>setRegion(r)} className={cx('chip',region===r&&'on')}>{r}</button>)}</div>
+      <div className="relative lg:w-60"><Icon name="search" size={15} className="absolute left-3 top-3 text-faint"/><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Search universities…" className="w-full rounded-xl border border-line bg-cream pl-9 pr-3 py-2.5 focus:outline-none"/></div>
+    </div>
+    <div className="mt-3"><div className="text-[10px] uppercase tracking-wider text-faint mb-1.5">Rank by subject (best-fit recommendations)</div><div className="flex gap-2 flex-wrap">{UNI_SUBJECTS.map(s=><button key={s} onClick={()=>setSubject(s)} className={cx('chip',subject===s&&'on')}>{s}</button>)}</div></div></Card>
+    <div className="grid lg:grid-cols-3 gap-4">
+      <div className="lg:col-span-2 grid sm:grid-cols-2 gap-4 stagger">{shown.map(u=>{ const tag=list[u[0]];
+        return <Card key={u[0]}><div className="flex items-start justify-between"><div><div className="flex items-center gap-2"><Pill tone="neutral">{u[4]}</Pill>{tag&&<Pill tone="gold">{tag}</Pill>}</div><div className="font-serif text-lg text-charcoal mt-1.5">{u[0]}</div><div className="text-xs text-faint">{u[2]}</div></div>
+          <div className="text-right"><div className="text-[10px] uppercase tracking-wider text-faint">Overall</div><div className="font-serif text-2xl" style={{color:FORGE_R}}>{u[5]}</div></div></div>
+          <p className="text-sm text-muted mt-2 leading-relaxed">{u[8]}</p>
+          <div className="mt-3 space-y-1.5">{UNI_SCORE_LABELS.map((lab,i)=><div key={lab} className="flex items-center gap-2"><span className="text-[11px] text-faint w-24 shrink-0">{lab}</span><div className="h-1.5 rounded-full bg-sand flex-1"><div className="h-1.5 rounded-full" style={{width:u[6][i]+'%',background:LEAF_G}}/></div><span className="text-[11px] text-muted w-6 text-right">{u[6][i]}</span></div>)}</div>
+          <div className="flex items-center justify-between mt-3 pt-3 border-t border-line"><span className="text-[11px] text-faint">{u[9]}</span>
+            <button onClick={()=>cycle(u[0])} className="text-xs font-semibold" style={{color:FORGE_R}}>{tag?`My list: ${tag}`:'+ Add to shortlist'}</button></div></Card>; })}</div>
+      <div className="space-y-4">
+        <Card hover={false}><Eyebrow className="mb-2">★ My shortlist</Eyebrow>{Object.keys(list).length===0? <p className="text-sm text-muted">Tap “Add to shortlist” on any university to tag it Reach / Target / Match / Safety and build your list here.</p>
+          : <div className="space-y-1.5">{SHORTLIST_TAGS.map(t=>{ const items=Object.entries(list).filter(([,v])=>v===t).map(([n])=>n); if(!items.length) return null; return <div key={t}><div className="text-[10px] uppercase tracking-wider text-faint">{t}</div>{items.map(n=><div key={n} className="text-sm text-charcoal flex items-center gap-1.5"><span style={{color:FORGE_R}}>•</span>{n}</div>)}</div>; })}</div>}</Card>
+        <Card hover={false}><Eyebrow className="mb-2">▲ Top 5 by score</Eyebrow><ol className="space-y-1.5">{top5.map((u,i)=><li key={u[0]} className="flex items-center gap-2 text-sm text-charcoal/85"><span className="font-serif text-goldd w-4">{i+1}</span>{u[0]}<span className="ml-auto text-xs text-faint">{u[5]}</span></li>)}</ol></Card>
+        <Card hover={false}><Eyebrow className="mb-2">What the scores mean</Eyebrow><div className="text-xs text-muted space-y-1.5"><div><b className="text-charcoal">Overall</b> — composite across all metrics, anchored to QS/THE/US-News plus finance recruiting strength.</div><div><b className="text-charcoal">Finance rep</b> — how aggressively top IB/PE/HF/consulting firms recruit on campus.</div><div><b className="text-charcoal">Employability</b> — graduate hire rate within 6 months and starting salary.</div><div><b className="text-charcoal">Teaching &amp; Outcomes</b> — course quality and long-run graduate success.</div></div></Card>
+      </div>
+    </div>
+    <div className="mt-3"><Disclaimer compact/></div>
+  </AppShell>;
+}
+
+const CV_TEMPLATES=[
+  ['Banking & Consulting (1-page)','The standard finance CV: Education → Experience → Leadership & Interests. Reverse-chronological, achievements quantified, one page only.'],
+  ['Software Engineering / Fintech','Projects-led CV emphasising tech stack, GitHub links and measurable impact. Two pages acceptable.'],
+  ['Graduate scheme (no experience)','Lead with leadership, sport, society roles and academic prizes when professional experience is thin.'],
+  ['Quant trading (STEM-heavy)','Lead with maths/CS coursework, competitions (IMO, Putnam, ACM), and personal modelling projects.'],
+];
+const CV_BEST=[
+  ['One page only for finance','A 2-page CV signals you cannot edit. The exception is 5+ years of full-time experience.'],
+  ['Quantify every bullet','“Built model that saved $X” beats “Built model”. Numbers prove impact; adjectives don’t.'],
+  ['Reverse chronological','Most recent role first. Recruiters scan in 6–8 seconds — put the strongest signal at the top.'],
+  ['Action verb → result → method','Led / Built / Modelled / Analysed / Negotiated / Pitched. End each bullet with what it produced.'],
+  ['Tailor for every application','Same template, different content. Mirror keywords from the job description.'],
+  ['No photo, no DOB, no marital status','For US/UK/Canada/Australia applications. Some EU countries differ; check.'],
+  ['No “References available on request”','Wastes space and is assumed; only include references if requested.'],
+  ['Use a clean serif (or sans) font','Garamond, Georgia, Lato, Calibri at 10–11pt. Margins ≥ 0.5”.'],
+];
+const CV_LINKEDIN=[
+  ['Headline that states value','Not “Student at X” — try “Aspiring IB Analyst · Finance @ LSE · Modelling & Valuation”.'],
+  ['Professional photo + banner','A clean headshot and a simple banner lift profile views dramatically.'],
+  ['“About” in first person','3–4 short lines: who you are, what you’re targeting, one proof point, a call to connect.'],
+  ['Feature your best work','Pin a project, competition result or article to the Featured section.'],
+  ['Connect with intent','Personalise every request. Alumni from your target firms reply far more often.'],
+  ['Post to be seen','One thoughtful post a month on something you learned keeps you in recruiters’ feeds.'],
+];
+const CV_COURSES=[
+  ['Certification','CFA Level I Curriculum','The gold-standard finance qualification; free curriculum overview; exam ~$1,500/sitting.','https://www.cfainstitute.org/programs/cfa'],
+  ['Certification','Bloomberg Market Concepts','4-module, ~8-hour intro to the Bloomberg terminal — free at most university libraries.','https://portal.bloombergforeducation.com/bmc'],
+  ['Course','CFI — Financial Modelling (FMVA)','Free intro courses; paid certification on financial modelling and valuation.','https://corporatefinanceinstitute.com/'],
+  ['Free','Wall Street Prep (free)','Free Excel crash course; paid IB and M&A bootcamps.','https://www.wallstreetprep.com/'],
+  ['Free','Khan Academy — Macroeconomics','Free, structured macro fundamentals with practice problems.','https://www.khanacademy.org/economics-finance-domain/macroeconomics'],
+  ['Free','edX — Intro to Corporate Finance (Wharton)','Wharton’s free intro — strong if you want to stretch Wharton-style material.','https://www.edx.org/'],
+  ['Free','Coursera — Yale: Financial Markets','Robert Shiller’s legendary undergraduate course, free to audit.','https://www.coursera.org/learn/financial-markets-global'],
+];
+function CVLab(){
+  const [tab,setTab]=useState('CV Building');
+  return <AppShell>
+    <PageHead eyebrow="CV & LinkedIn lab" title="Tools to make recruiters notice." desc="Templates, hand-picked tips and the best free resources to build a finance-ready CV, optimise your LinkedIn, and keep learning between applications."/>
+    <Card className="mb-4"><div className="flex gap-2 flex-wrap">{['CV Building','LinkedIn Optimisation','Opportunities'].map(t=><button key={t} onClick={()=>setTab(t)} className={cx('chip',tab===t&&'on')}>{t}</button>)}</div></Card>
+    {tab==='CV Building' && <Fragment>
+      <Eyebrow className="mb-3">Templates</Eyebrow>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 stagger">{CV_TEMPLATES.map(([t,d])=><Card key={t}><Pill tone="neutral">Template</Pill><div className="font-serif text-base text-charcoal mt-2 leading-snug">{t}</div><p className="text-xs text-muted mt-1.5 leading-relaxed">{d}</p><a href="https://www.overleaf.com/gallery/tagged/cv" target="_blank" rel="noopener noreferrer" className="text-xs mt-2 inline-flex items-center gap-1" style={{color:FORGE_R}}>Open template <Icon name="arrowR" size={11} className="-rotate-45"/></a></Card>)}</div>
+      <Eyebrow className="mb-3">Best practices</Eyebrow>
+      <div className="grid sm:grid-cols-2 gap-3">{CV_BEST.map(([t,d])=><Card key={t} className="flex gap-3"><Icon name="check" size={16} className="mt-0.5 shrink-0" style={{color:LEAF_G}}/><div><div className="text-sm font-medium text-charcoal">{t}</div><div className="text-xs text-muted mt-0.5 leading-relaxed">{d}</div></div></Card>)}</div>
+    </Fragment>}
+    {tab==='LinkedIn Optimisation' && <div className="grid sm:grid-cols-2 gap-3 stagger">{CV_LINKEDIN.map(([t,d])=><Card key={t}><div className="flex items-center gap-2"><span className="grid place-items-center h-8 w-8 rounded-lg bg-sky/15 text-sky"><Icon name="user" size={15}/></span><div className="text-sm font-medium text-charcoal">{t}</div></div><p className="text-sm text-muted mt-2 leading-relaxed">{d}</p></Card>)}</div>}
+    {tab==='Opportunities' && <Fragment><Eyebrow className="mb-3">Free online courses & certifications</Eyebrow>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">{CV_COURSES.map(([tag,t,d,url])=><Card key={t} className="flex flex-col"><Pill tone={tag==='Free'?'gold':'neutral'}>{tag}</Pill><a href={url} target="_blank" rel="noopener noreferrer" className="font-serif text-base text-charcoal mt-2 leading-snug hover:underline">{t}</a><p className="text-xs text-muted mt-1.5 leading-relaxed flex-1">{d}</p><a href={url} target="_blank" rel="noopener noreferrer" className="text-xs mt-2 inline-flex items-center gap-1" style={{color:FORGE_R}}>Open <Icon name="arrowR" size={11} className="-rotate-45"/></a></Card>)}</div></Fragment>}
+  </AppShell>;
+}
+
+const SUBJECT_SYSTEMS=['A-Level / IGCSE (UK)','IB Diploma','AP / US High School','GCSE (UK/IGCSE Year 11)'];
+const SUBJECT_CAREERS=[
+  ['Investment Banking','📈',{'A-Level / IGCSE (UK)':[['Mathematics (A*)','Further Maths or Economics'],['Physics or Chemistry','EPQ on a finance topic']],'IB Diploma':[['Maths AA HL','Economics HL'],['A science or Business HL','English SL/HL']],'AP / US High School':[['AP Calculus BC','AP Economics (Micro + Macro)'],['AP Statistics','Strong GPA + SAT/ACT']],'GCSE (UK/IGCSE Year 11)':[['Maths (grade 8–9)','Triple Science'],['Economics/Business if offered','Strong English']]},'IB analysts spend their day in Excel and PowerPoint modelling deals. Quantitative rigour is the single biggest signal.'],
+  ['Private Equity','🏛️',{'A-Level / IGCSE (UK)':[['Same as IB (Maths A* essential)','Economics A*']],'IB Diploma':[['Maths AA HL','Economics HL']],'AP / US High School':[['AP Calculus BC','AP Economics']],'GCSE (UK/IGCSE Year 11)':[['Maths (8–9)','Triple Science']]},'PE is recruited from IB analyst classes — so the prep is identical. Add a finance internship or modelling competition.'],
+  ['Hedge Funds (Quant)','📊',{'A-Level / IGCSE (UK)':[['Mathematics (A*)','Further Maths (A*)'],['Physics or Computer Science (A)','EPQ on probability or ML']],'IB Diploma':[['Maths AA HL (7)','Physics HL'],['Computer Science HL','']],'AP / US High School':[['AP Calculus BC','AP Physics C'],['AP Computer Science A','Olympiad participation']],'GCSE (UK/IGCSE Year 11)':[['Maths (grade 9)','Triple Science']]},'Quant funds (Jane Street, Citadel, Two Sigma) screen for olympiad-level mathematical aptitude. Top of class only.'],
+  ['Consulting','🧭',{'A-Level / IGCSE (UK)':[['Any strong A-levels','Maths recommended'],['A humanity for essay skills','']],'IB Diploma':[['Balanced HL mix','English HL']],'AP / US High School':[['Broad APs','Strong writing']],'GCSE (UK/IGCSE Year 11)':[['Broad strong grades','Maths + English 7+']]},'Consulting values structured thinking and communication over pure maths — but keep quantitative options open.'],
+];
+function SubjectSelection(){
+  const [sys,setSys]=useState(SUBJECT_SYSTEMS[0]);
+  return <AppShell>
+    <PageHead eyebrow="Subject selection guide" title="Pick subjects with your future career in mind." desc="Which A-Levels, IB courses, APs and GCSEs each finance career actually values. The fewer surprises later, the better."/>
+    <Card className="mb-4"><div className="flex gap-2 flex-wrap">{SUBJECT_SYSTEMS.map(s=><button key={s} onClick={()=>setSys(s)} className={cx('chip',sys===s&&'on')}>{s}</button>)}</div></Card>
+    <div className="space-y-3">{SUBJECT_CAREERS.map(([name,icon,map,tip])=>{ const rows=map[sys]||[];
+      return <Card key={name}><div className="flex items-start gap-3"><span className="text-2xl shrink-0">{icon}</span>
+        <div className="flex-1"><div className="flex items-baseline gap-2 flex-wrap"><span className="font-serif text-lg text-charcoal">{name}</span><span className="text-[11px] text-faint">{sys}</span></div>
+          <div className="text-[10px] uppercase tracking-wider text-faint mt-2 mb-1.5">Recommended subjects</div>
+          <div className="grid sm:grid-cols-2 gap-x-6 gap-y-1.5">{rows.flat().filter(Boolean).map((s,i)=><div key={i} className="flex items-center gap-2 text-sm text-charcoal/85"><Icon name="check" size={13} style={{color:LEAF_G}}/>{s}</div>)}</div>
+          <div className="mt-3 rounded-xl bg-sand/60 px-3 py-2 text-xs text-muted flex gap-2"><Icon name="spark" size={13} className="mt-0.5 shrink-0 text-goldd"/>{tip}</div>
+        </div></div></Card>; })}</div>
+  </AppShell>;
+}
+
+function FinanceVsEcon(){
+  const F={title:'Finance',icon:'📈',sub:'The study of how money flows through capital markets, corporations and individuals.',desc:'Practical, applied, market-facing. Asks “how do we deploy capital efficiently?” Looks at corporate financial statements, asset prices, capital, M&A, portfolio construction.',careers:['Investment banking','Private equity','Hedge funds','Asset management','Corporate finance','Wealth management','Fintech'],skills:['Modelling (LBO, DCF, comps)','Accounting fluency','Excel + PowerPoint','Sector specialism','Client communication'],salary:'Junior $80–170k base + 30–100% bonus (NYC/London). Senior $500k–$10m+ in deal-driven roles.',unis:'Wharton, LSE, Oxbridge, Bocconi, Stern, MIT Sloan, IIM-A',fit:'Students who like markets, deals, structured thinking, working in teams, fast feedback loops.'};
+  const E={title:'Economics',icon:'📊',sub:'The study of how societies allocate scarce resources — at the household, firm, government and global level.',desc:'Theoretical and empirical. Asks “why do prices move? what causes inflation? how does policy affect outcomes?” Looks at supply/demand, GDP, employment, monetary and fiscal policy, behavioural patterns.',careers:['Central banks (Fed, BoE, ECB, BoJ)','Government policy (Treasury, IMF, World Bank)','Economic consulting (Brattle, NERA)','Sell-side research','Buy-side macro funds','Academia','Tech economics teams (Amazon, Google, Uber)'],skills:['Econometrics + statistics','Calculus + linear algebra','Programming (R, Stata, Python)','Reading academic literature','Writing policy memos'],salary:'Junior $60–140k (public sector & think tanks); $90–200k (private consulting + tech). PhD economists at tech: $300k–$1m+.',unis:'Harvard, MIT, LSE, Cambridge, Oxford, Princeton, Chicago, Stanford, TSE',fit:'Students who like ideas, data, policy, research, and understanding the “why” behind the world.'};
+  const Side=({d})=><Card className="flex-1"><div className="flex items-center gap-2"><span className="text-2xl">{d.icon}</span><span className="font-serif text-2xl text-charcoal">{d.title}</span></div>
+    <p className="text-sm text-muted mt-1 leading-relaxed">{d.sub}</p>
+    <p className="text-sm text-charcoal/85 mt-3 leading-relaxed">{d.desc}</p>
+    <MBlock title="Common careers"><div className="flex flex-wrap gap-1.5">{d.careers.map(c=><span key={c} className="text-[11px] rounded-full bg-sand px-2.5 py-1 text-muted">{c}</span>)}</div></MBlock>
+    <div className="mt-4"><MBlock title="Key skills"><Ticks items={d.skills} color={LEAF_G}/></MBlock></div>
+    <div className="mt-4 rounded-xl border border-line bg-cream/60 p-3"><div className="text-[10px] uppercase tracking-wider text-faint">Typical salary</div><div className="text-sm text-charcoal/85 mt-1">{d.salary}</div></div>
+    <div className="mt-2 rounded-xl border border-line bg-cream/60 p-3"><div className="text-[10px] uppercase tracking-wider text-faint">University strength</div><div className="text-sm text-charcoal/85 mt-1">{d.unis}</div></div>
+    <div className="mt-2 rounded-xl px-3 py-3" style={{background:'rgba(239,68,68,.06)'}}><div className="text-[10px] uppercase tracking-wider text-faint">Best fit if you…</div><div className="text-sm text-charcoal/85 mt-1">{d.fit}</div></div></Card>;
+  return <AppShell>
+    <PageHead eyebrow="Compare" title="Finance vs Economics." desc="They sound similar and overlap in places — but they lead to different degrees, skills and careers. Here’s a side-by-side comparison."/>
+    <div className="flex flex-col lg:flex-row gap-4 items-stretch"><Side d={F}/><Side d={E}/></div>
+  </AppShell>;
+}
+
+const PREP_SKILLS=[
+  ['Excel mastery','▦','The single most-used tool in finance. Modelling, valuation and analysis all happen in Excel.',
+    [['Foundational',['Navigation & shortcuts','Formulas: SUM, IF, VLOOKUP','Formatting & tables','Basic charts'],[['Excel Exposure (free)','https://excelexposure.com/']]],
+     ['Intermediate',['XLOOKUP, FILTER, dynamic arrays','Conditional formatting','Data validation','Power Query basics','Sensitivity tables (Data → What-If)'],[['Wall Street Prep Excel Crash Course','https://www.wallstreetprep.com/'],['Corporate Finance Institute','https://corporatefinanceinstitute.com/']]],
+     ['Advanced',['VBA macros + UDFs','Complex financial modelling (LBO, DCF, M&A)','Monte Carlo simulation','Pivot tables + Power Pivot','Real estate / project finance modelling'],[['Breaking Into Wall Street','https://breakingintowallstreet.com/'],['Macabacus add-in','https://macabacus.com/']]]]],
+  ['Valuation & financial modelling','▤','Discounted cash flow, comparables, precedent transactions — the core building blocks of every investment thesis.',
+    [['Foundational',['Three-statement linkage','Time value of money','Reading 10-Ks & annual reports'],[['Damodaran — free lectures','https://pages.stern.nyu.edu/~adamodar/']]],
+     ['Intermediate',['DCF from scratch','Trading & transaction comps','WACC and cost of capital'],[['Wall Street Prep','https://www.wallstreetprep.com/']]],
+     ['Advanced',['LBO modelling','Merger models (accretion/dilution)','Sum-of-the-parts, sensitivity'],[['Breaking Into Wall Street','https://breakingintowallstreet.com/']]]]],
+  ['PowerPoint for finance','▭','How findings are presented matters as much as the numbers themselves. Junior bankers spend ~30% of their day in PowerPoint.',
+    [['Foundational',['Slide structure & hierarchy','Alignment and consistency','Charts that read instantly'],[['Think-Cell basics','https://www.think-cell.com/']]],
+     ['Intermediate',['Pitch-book formatting','Waterfall & football-field charts','Executive summaries'],[['Corporate Finance Institute','https://corporatefinanceinstitute.com/']]],
+     ['Advanced',['Full pitch decks','Data-dense one-pagers','Speed formatting with add-ins'],[['Macabacus','https://macabacus.com/']]]]],
+  ['Investment analysis & research','◎','Equity research, asset management and hedge-fund analysts spend their days writing investment theses. The skill is structured thinking + clear writing.',
+    [['Foundational',['Reading financial news critically','Understanding business models','Basic ratio analysis'],[['Investopedia','https://www.investopedia.com/']]],
+     ['Intermediate',['Building an investment thesis','Industry analysis (Porter’s five forces)','Catalysts and risks'],[['CFA curriculum','https://www.cfainstitute.org/']]],
+     ['Advanced',['Full research report','Variant perception','Position sizing & risk'],[['Aswath Damodaran','https://pages.stern.nyu.edu/~adamodar/']]]]],
+  ['Consulting case interview prep','◍','MBB and Big 4 strategy firms test structured problem-solving via case interviews. Practice is the only path to consistent performance.',
+    [['Foundational',['Case structure & frameworks','Mental maths drills','Reading the interviewer'],[['Case in Point (book)','https://www.google.com/search?q=case+in+point']]],
+     ['Intermediate',['Market sizing','Profitability & M&A cases','Hypothesis-driven approach'],[['PrepLounge','https://www.preplounge.com/']]],
+     ['Advanced',['Live case partners','Firm-specific formats','Behavioural / fit prep'],[['Management Consulted','https://managementconsulted.com/']]]]],
+];
+function CareerPrepHub(){
+  const [sel,setSel]=useState(null);
+  return <AppShell>
+    <PageHead eyebrow="Career prep hub" title="The skills finance interviews actually test." desc="Structured progression in the five highest-leverage skills for finance and consulting careers. Free resources where they exist; paid only where they materially outclass the free alternatives."/>
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">{PREP_SKILLS.map(s=>
+      <Card key={s[0]}><div className="text-2xl text-goldd">{s[1]}</div><div className="font-serif text-lg text-charcoal mt-1">{s[0]}</div><p className="text-sm text-muted mt-1 leading-relaxed">{s[2]}</p>
+        <div className="flex items-center justify-between mt-3 pt-3 border-t border-line"><span className="text-[11px] text-faint">3-tier progression</span><button onClick={()=>setSel(s)} className="text-xs font-semibold flex items-center gap-1" style={{color:FORGE_R}}>Open roadmap <Icon name="arrowR" size={12}/></button></div></Card>)}</div>
+    {sel && <CareerModal eyebrow="Skill roadmap" title={sel[0]} onClose={()=>setSel(null)}>
+      {sel[3].map(([tier,items,res],i)=><div key={tier}><div className="flex items-center gap-2 mb-2"><span className="grid place-items-center h-6 w-6 rounded-lg text-white text-xs font-semibold" style={{background:i===0?LEAF_G:i===1?'#D4A24E':FORGE_R}}>{i+1}</span><span className="text-sm font-semibold text-charcoal">{tier}</span></div>
+        <Ticks items={items} color={LEAF_G}/>
+        <div className="mt-2 mb-4"><div className="text-[10px] uppercase tracking-wider text-faint mb-1.5">Free resources</div><LinkRow items={res}/></div></div>)}
+    </CareerModal>}
+  </AppShell>;
+}
+
+const OPPS=[
+  ['Internship','Spring Insight Weeks','Bulge-bracket banks · Year 1','Paid week-long insight programs — the earliest foot in the door for IB. Apply in autumn of first year.','https://www.jpmorgan.com/careers'],
+  ['Internship','Summer Analyst Programs','IB / S&T / AM · Penultimate year','10-week paid internships that convert to full-time offers. The main graduate pipeline.','https://www.goldmansachs.com/careers/'],
+  ['Competition','Investment Banking Case Comps','Global · University','Team competitions run by banks and societies; great CV signal and networking.','https://www.wallstreetoasis.com/'],
+  ['Competition','Trading & Quant Challenges','Jane Street, Citadel, Optiver','Estimathons, puzzles and trading games — a direct route into quant recruiting.','https://www.janestreet.com/puzzles/'],
+  ['Program','Diversity & Access Schemes','SEO, 10000 Black Interns, Sponsors for Ed. Opportunity','Structured mentoring and fast-tracked internships for underrepresented students.','https://www.seo-london.org/'],
+  ['Program','University Finance Societies','Your campus','Join (and lead) the finance/investment society — deal flow, alumni and mentoring.','https://www.google.com/search?q=university+finance+society'],
+  ['Scholarship','Firm Scholarships & Bursaries','Banks & asset managers','Many firms fund scholarships tied to internships — search each firm’s early-careers page.','https://www.google.com/search?q=investment+bank+scholarship+students'],
+  ['Networking','Coffee Chats & Alumni','LinkedIn','Reach out to alumni at target firms; a 15-minute chat often beats 50 applications.','https://www.linkedin.com/'],
+];
+const OPP_TABS=['All','Internship','Competition','Program','Scholarship','Networking'];
+function Opportunities(){
+  const [tab,setTab]=useState('All');
+  const shown=OPPS.filter(o=>tab==='All'||o[0]===tab);
+  return <AppShell>
+    <PageHead eyebrow="Opportunities" title="Ways to get your foot in the door." desc="Internships, competitions, access programs and scholarships that actually move the needle for finance careers — with where to apply."/>
+    <Card className="mb-4"><div className="flex gap-2 flex-wrap">{OPP_TABS.map(t=><button key={t} onClick={()=>setTab(t)} className={cx('chip',tab===t&&'on')}>{t}</button>)}</div></Card>
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">{shown.map(o=>
+      <Card key={o[1]} className="flex flex-col"><div className="flex items-center justify-between"><Pill tone="gold">{o[0]}</Pill></div>
+        <div className="font-serif text-lg text-charcoal mt-2">{o[1]}</div><div className="text-[11px] text-faint mt-0.5">{o[2]}</div>
+        <p className="text-sm text-muted mt-2 leading-relaxed flex-1">{o[3]}</p>
+        <a href={o[4]} target="_blank" rel="noopener noreferrer" className="btn btn-ghost mt-3 py-2 text-xs justify-between">Learn more <Icon name="arrowR" size={11} className="-rotate-45"/></a></Card>)}</div>
+  </AppShell>;
+}
+
+/* ============================================================
    FORGE · Career & income tools (a real Lumera sub-product)
    ============================================================ */
 function ForgeCV(){
@@ -5099,6 +5491,8 @@ const ROUTES = {
   '/lumera':()=><ProductPage k="lumera"/>, '/leaf':()=><ProductPage k="leaf"/>, '/atlas':()=><ProductPage k="atlas"/>,
   '/shield':()=><ProductPage k="shield"/>, '/forge':()=><ProductPage k="forge"/>,
   '/cv':ForgeCV, '/university':ForgeUniversity, '/career':ForgeCareer, '/sideincome':ForgeSideIncome, '/salary':ForgeSalary,
+  '/careers':FinanceCareers, '/firms':TopFinanceFirms, '/universities':UniversitiesRank, '/subjects':SubjectSelection,
+  '/finance-vs-econ':FinanceVsEcon, '/prep':CareerPrepHub, '/career-lab':CVLab, '/opportunities':Opportunities,
   '/quiz':LeafQuiz, '/glossary':LeafGlossary, '/habits':LeafHabits, '/challenges':LeafChallenges,
 };
 
