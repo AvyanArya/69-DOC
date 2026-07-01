@@ -250,6 +250,8 @@
   .anim-fadeUp{ animation:fadeUp .7s cubic-bezier(.22,1,.36,1) both; }
   .anim-fadeIn{ animation:fadeIn .8s ease both; }
   .anim-scaleIn{ animation:scaleIn .6s cubic-bezier(.22,1,.36,1) both; }
+  @keyframes slideIn{ from{opacity:0; transform:translateX(28px)} to{opacity:1; transform:translateX(0)} }
+  .anim-slideIn{ animation:slideIn .34s cubic-bezier(.22,1,.36,1) both; }
   .anim-pop{ animation:popIn .5s cubic-bezier(.22,1,.36,1) both; }
   .floaty{ animation:floaty 6s ease-in-out infinite; }
 
@@ -1047,6 +1049,41 @@ const STOCKS = [
   {ticker:'VOO', company:'Vanguard S&P 500 ETF', sector:'Index Fund', price:516.8, chg:0.6, risk:'Lower', sentiment:'Diversified', summary:'Holds 500 large US companies in one low-cost fund. The classic beginner diversification tool.', why:'The single best example of broad diversification in one ticker.'},
   {ticker:'EMAAR', company:'Emaar Properties', sector:'Real Estate', price:8.21, chg:0.9, risk:'Moderate', sentiment:'Positive', summary:'Dubai real-estate developer; tied to the regional property cycle and tourism.', why:'A regional name for users in the Gulf to recognise.'},
 ];
+// Full educational "AI insight" per stock — powers the click-through detail panel.
+const STOCK_DETAIL = {
+  AAPL:{ perf:'Shares are broadly steady, trading in line with a constructive medium-term trend. Momentum is calm; single sessions are noise for long-term investors.',
+    drivers:['Services revenue growing faster than hardware','Enormous, loyal installed base','Strong pricing power and margins'],
+    risks:['Slowing iPhone upgrade cycles','Regulatory scrutiny of the App Store','China exposure and supply chain'],
+    analyst:'Educational analyst-style view: a mature, cash-generative large-cap. Quality is high; the debate is growth pace, not survival.' },
+  MSFT:{ perf:'Shares are up modestly today, in line with a positive medium-term trend. Momentum is constructive, but single sessions are noise for long-term investors.',
+    drivers:['Structural demand for software, cloud and AI','High margins fund continued reinvestment','Global reach and pricing power'],
+    risks:['Moves broadly with the wider market','Sector-specific shocks can hit earnings','Some sensitivity to interest rates and the economic cycle'],
+    analyst:'Educational view: an analyst-style Strong Buy with high confidence — diversified revenue lowers single-product risk. Not financial advice.' },
+  NVDA:{ perf:'Shares are volatile, with large swings around AI-demand headlines. Priced for high growth — expect big moves in both directions.',
+    drivers:['Dominant position in AI accelerator chips','Explosive data-centre demand','Deep software/CUDA moat'],
+    risks:['Valuation priced for perfection','Customer concentration in hyperscalers','Cyclical semiconductor demand'],
+    analyst:'Educational view: a textbook high-growth, high-volatility name. Powerful story, but position sizing and risk matter most here.' },
+  JNJ:{ perf:'Shares move less than the market, typical of a defensive name. Low volatility, steady dividend history.',
+    drivers:['Diversified healthcare franchises','Long, reliable dividend track record','Defensive demand through cycles'],
+    risks:['Litigation and legal provisions','Patent cliffs on key drugs','Slower growth than tech peers'],
+    analyst:'Educational view: a lower-volatility, defensive holding — useful for understanding how stability trades versus growth.' },
+  JPM:{ perf:'Shares track interest rates and the economic cycle; performance is tied to the health of the broader economy.',
+    drivers:['Largest US bank by assets; scale advantages','Earnings benefit from higher rates','Diversified across consumer and IB'],
+    risks:['Credit losses rise in a downturn','Heavy regulation and capital rules','Cyclical, economy-sensitive earnings'],
+    analyst:'Educational view: a bellwether for how banks respond to rates and the cycle. Quality franchise, cyclically exposed.' },
+  XOM:{ perf:'Shares swing with energy prices — a cyclical, commodity-linked pattern. Often pays a meaningful dividend.',
+    drivers:['Integrated scale across the oil value chain','Cash flow strong when energy prices are high','Meaningful dividend'],
+    risks:['Profits fall sharply if oil prices drop','Energy-transition and policy risk','Commodity-price cyclicality'],
+    analyst:'Educational view: a classic cyclical, commodity-linked business — a good lens on how energy prices drive earnings.' },
+  VOO:{ perf:'Tracks 500 large US companies, so it moves with the broad market — smoother than any single stock.',
+    drivers:['Instant diversification across 500 firms','Very low fees','Simple, hands-off long-term vehicle'],
+    risks:['Falls with the overall market','US-concentrated (no global tilt)','No downside protection in a crash'],
+    analyst:'Educational view: the classic broad-market building block — the single best example of diversification in one ticker.' },
+  EMAAR:{ perf:'Shares track the regional property cycle and tourism trends in the Gulf.',
+    drivers:['Leading Dubai developer with landmark assets','Benefits from tourism and population growth','Recurring income from malls and hospitality'],
+    risks:['Tied to the regional property cycle','Sensitive to interest rates','Regional/geopolitical factors'],
+    analyst:'Educational view: a regional name that illustrates how local property and tourism cycles drive a developer’s earnings.' },
+};
 const IPOS = [
   {company:'Aurora Compute', date:'Expected Q3 2026', sector:'AI Infrastructure', note:'High-growth, unproven profitability — speculative.'},
   {company:'Verdant Energy', date:'Expected Q4 2026', sector:'Clean Energy', note:'Policy-sensitive; long payback horizon.'},
@@ -3211,6 +3248,7 @@ function Spark({ seed, up }){
 function Market(){
   const app = useApp();
   const [watch,setWatch]=useState(['AAPL','VOO','NVDA']);
+  const [openStock,setOpenStock]=useState(null);
   const [query,setQuery]=useState(''); const [newsCat,setNewsCat]=useState('All');
   const toggle=t=>setWatch(w=>w.includes(t)?w.filter(x=>x!==t):[...w,t]);
   const found = query? STOCKS.filter(s=> (s.ticker+' '+s.company).toLowerCase().includes(query.toLowerCase())) : [];
@@ -3282,11 +3320,11 @@ function Market(){
     {/* Stock cards */}
     <div className="flex items-center justify-between mb-3 flex-wrap gap-2"><Eyebrow>Stock insights</Eyebrow><span className="text-[11px] text-faint flex items-center gap-1"><Icon name="info" size={11}/>Ratings are educational, not financial advice</span></div>
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-      {STOCKS.map(st=>{ const rt=RATINGS[st.ticker]||['Hold','Medium']; return <Card key={st.ticker} className="!p-5">
+      {STOCKS.map(st=>{ const rt=RATINGS[st.ticker]||['Hold','Medium']; return <Card key={st.ticker} onClick={()=>setOpenStock(st.ticker)} className="!p-5 cursor-pointer group">
         <div className="flex items-start justify-between">
           <div><div className="flex items-center gap-2"><span className="font-mono font-bold text-charcoal">{st.ticker}</span><Pill tone={st.risk==='High'?'clay':st.risk==='Low'||st.risk==='Lower'?'sage':'neutral'}>{st.risk} risk</Pill></div>
             <div className="text-sm text-muted">{st.company}</div></div>
-          <button onClick={()=>toggle(st.ticker)} className={cx('grid place-items-center h-8 w-8 rounded-lg transition', watch.includes(st.ticker)?'text-gold bg-gold/12':'text-faint hover:bg-sand')}><Icon name="star" size={16}/></button>
+          <button onClick={(e)=>{e.stopPropagation();toggle(st.ticker);}} className={cx('grid place-items-center h-8 w-8 rounded-lg transition', watch.includes(st.ticker)?'text-gold bg-gold/12':'text-faint hover:bg-sand')}><Icon name="star" size={16}/></button>
         </div>
         <div className="flex items-end justify-between mt-3"><div className="font-serif text-2xl text-charcoal tnum">{st.price}</div><span className={cx('text-sm tnum', st.chg>=0?'text-saged':'text-clayd')}>{st.chg>=0?'▲':'▼'} {Math.abs(st.chg)}%</span></div>
         <Spark seed={st.price*100} up={st.chg>=0}/>
@@ -3295,9 +3333,39 @@ function Market(){
           <Hint text={`Educational analyst-style view · confidence: ${rt[1]}. Not financial advice.`}><span className={cx('inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold cursor-help', ratingTone(rt[0])==='sage'?'bg-sage/15 text-saged':ratingTone(rt[0])==='clay'?'bg-clay/15 text-clayd':'bg-sand text-muted')}><Icon name="gauge" size={12}/>{rt[0]}</span></Hint>
         </div>
         <p className="text-sm text-charcoal/80 leading-relaxed mt-2">{st.summary}</p>
-        <div className="mt-2 rounded-lg bg-sand/70 text-xs text-muted px-3 py-2 flex items-start gap-1.5"><Icon name="bulb" size={13} className="text-goldd mt-0.5"/><span><b className="text-charcoal/80">Why it matters:</b> {st.why}</span></div>
+        <div className="mt-3 flex items-center gap-1 text-xs font-semibold text-goldd">Full AI insight <Icon name="arrowR" size={13} className="group-hover:translate-x-1 transition"/></div>
       </Card>; })}
     </div>
+
+    {/* Full AI insight slide-in panel */}
+    {(()=>{ const st=STOCKS.find(x=>x.ticker===openStock); if(!st) return null; const d=STOCK_DETAIL[st.ticker]||{}; const rt=RATINGS[st.ticker]||['Hold','Medium']; const onW=watch.includes(st.ticker);
+      const cell=(label,val,tone)=><div className="rounded-xl border border-line bg-cream/60 p-3"><div className="text-[10px] uppercase tracking-wider text-faint">{label}</div><div className={cx('text-sm font-semibold mt-0.5',tone||'text-charcoal')}>{val}</div></div>;
+      return <div className="fixed inset-0 z-[120]"><div className="absolute inset-0 bg-charcoal/45" onClick={()=>setOpenStock(null)}/>
+        <div className="absolute right-0 top-0 h-full w-full max-w-md bg-card shadow-2xl overflow-y-auto anim-slideIn border-l border-line">
+          <div className="sticky top-0 z-10 bg-card/95 backdrop-blur border-b border-line px-5 py-4 flex items-start justify-between">
+            <div><div className="flex items-center gap-2"><span className="font-mono font-bold text-lg text-charcoal">{st.ticker}</span><span className={cx('text-xs tnum',st.chg>=0?'text-saged':'text-clayd')}>{st.chg>=0?'▲':'▼'} {Math.abs(st.chg)}%</span></div><div className="text-sm text-muted">{st.company} · {st.sector}</div></div>
+            <button onClick={()=>setOpenStock(null)} className="grid place-items-center h-8 w-8 rounded-lg hover:bg-sand"><Icon name="x"/></button></div>
+          <div className="p-5 space-y-5">
+            <div className="flex items-end justify-between"><div className="font-serif text-4xl text-charcoal tnum">{st.price}</div><span className="grid place-items-center h-8 px-3 rounded-full text-xs font-semibold bg-charcoal text-gold"><Icon name="spark" size={12} className="mr-1"/>AI insight</span></div>
+            <Spark seed={st.price*100} up={st.chg>=0}/>
+            <div className="grid grid-cols-2 gap-3">
+              {cell('Risk',st.risk,st.risk==='High'?'text-clayd':st.risk==='Low'||st.risk==='Lower'?'text-saged':'text-charcoal')}
+              {cell('Sentiment',st.sentiment)}
+              {cell('Sector',st.sector)}
+              {cell('Rating',rt[0],ratingTone(rt[0])==='sage'?'text-saged':ratingTone(rt[0])==='clay'?'text-clayd':'text-charcoal')}
+            </div>
+            <MBlock title="Performance summary"><p className="text-sm text-charcoal/85 leading-relaxed">{d.perf||st.summary}</p></MBlock>
+            {d.drivers&&<MBlock title="Growth drivers"><Ticks items={d.drivers} color="#16A34A"/></MBlock>}
+            {d.risks&&<MBlock title="Risk factors"><ul className="space-y-1.5">{d.risks.map((r,i)=><li key={i} className="flex items-start gap-2 text-sm text-charcoal/85"><span className="text-clayd mt-0.5 shrink-0">•</span>{r}</li>)}</ul></MBlock>}
+            <MBlock title="Analyst summary"><div className="rounded-xl bg-gold/8 border border-gold/20 p-3 text-sm text-charcoal/85 leading-relaxed">{d.analyst||`Educational analyst-style view · confidence ${rt[1]}.`}</div></MBlock>
+            <div className="rounded-lg bg-sand/70 text-xs text-muted px-3 py-2 flex items-start gap-1.5"><Icon name="bulb" size={13} className="text-goldd mt-0.5"/><span><b className="text-charcoal/80">Why it matters:</b> {st.why}</span></div>
+            <div className="flex gap-2">
+              <button onClick={()=>toggle(st.ticker)} className={cx('btn flex-1 text-sm',onW?'btn-ghost':'btn-primary')}><Icon name="star" size={14}/>{onW?'In watchlist':'Add to watchlist'}</button>
+              <a href={`https://news.google.com/search?q=${encodeURIComponent(st.company+' stock')}`} target="_blank" rel="noopener noreferrer" className="btn btn-ghost text-sm px-3"><Icon name="arrowR" size={14} className="-rotate-45"/></a>
+            </div>
+            <p className="text-[11px] text-faint">Educational, analyst-style insight on simulated data — not financial advice.</p>
+          </div>
+        </div></div>; })()}
 
     {/* News */}
     <div className="flex items-center justify-between mb-3 flex-wrap gap-2"><Eyebrow>News, in plain English</Eyebrow>
@@ -4708,8 +4776,41 @@ function MiniSpark({ seed, up, color='#6E8B6A', h=36 }){
     <path d={d} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>;
 }
+// Spinnable orthographic globe with selectable financial centres (no external libs).
+function WorldGlobe({ cities, selected, onSelect, lit }){
+  const R=150, cx=160, cy=160, tilt=18*Math.PI/180;
+  const [rot,setRot]=useState(70);
+  const drag=useRef(null); const auto=useRef(true); const raf=useRef(0);
+  useEffect(()=>{ const step=()=>{ if(auto.current) setRot(r=>(r+0.18)%360); raf.current=requestAnimationFrame(step); }; raf.current=requestAnimationFrame(step); return ()=>cancelAnimationFrame(raf.current); },[]);
+  const project=(lat,lon)=>{ const l=(lon-rot)*Math.PI/180, p=lat*Math.PI/180;
+    const cosc=Math.sin(tilt)*Math.sin(p)+Math.cos(tilt)*Math.cos(p)*Math.cos(l);
+    const x=Math.cos(p)*Math.sin(l); const y=Math.cos(tilt)*Math.sin(p)-Math.sin(tilt)*Math.cos(p)*Math.cos(l);
+    return { x:cx+R*x, y:cy-R*y, vis:cosc>0 }; };
+  // graticule
+  const grat=[]; for(let lon=-180;lon<180;lon+=30){ let seg=[]; for(let lat=-90;lat<=90;lat+=6){ const q=project(lat,lon); if(q.vis) seg.push(`${q.x.toFixed(1)},${q.y.toFixed(1)}`); else { if(seg.length>1) grat.push(seg.join(' ')); seg=[]; } } if(seg.length>1) grat.push(seg.join(' ')); }
+  for(let lat=-60;lat<=60;lat+=30){ let seg=[]; for(let lon=-180;lon<=180;lon+=6){ const q=project(lat,lon); if(q.vis) seg.push(`${q.x.toFixed(1)},${q.y.toFixed(1)}`); else { if(seg.length>1) grat.push(seg.join(' ')); seg=[]; } } if(seg.length>1) grat.push(seg.join(' ')); }
+  const down=(e)=>{ auto.current=false; drag.current={x:e.clientX??e.touches?.[0]?.clientX, r:rot}; };
+  const move=(e)=>{ if(!drag.current) return; const cxp=e.clientX??e.touches?.[0]?.clientX; setRot((drag.current.r-(cxp-drag.current.x)*0.5+360)%360); };
+  const up=()=>{ drag.current=null; };
+  useEffect(()=>{ window.addEventListener('mousemove',move); window.addEventListener('mouseup',up); window.addEventListener('touchmove',move); window.addEventListener('touchend',up); return ()=>{ window.removeEventListener('mousemove',move); window.removeEventListener('mouseup',up); window.removeEventListener('touchmove',move); window.removeEventListener('touchend',up); }; });
+  return <div className="relative select-none" style={{touchAction:'none'}}>
+    <svg viewBox="0 0 320 320" width="100%" style={{maxWidth:380,margin:'0 auto',display:'block',cursor:'grab'}} onMouseDown={down} onTouchStart={down}>
+      <defs><radialGradient id="ocean" cx="38%" cy="34%" r="75%"><stop offset="0%" stopColor="#3b82f6"/><stop offset="55%" stopColor="#1d4ed8"/><stop offset="100%" stopColor="#0b1e46"/></radialGradient></defs>
+      <circle cx={cx} cy={cy} r={R} fill="url(#ocean)"/>
+      <circle cx={cx} cy={cy} r={R} fill="none" stroke="#93c5fd" strokeWidth="1" opacity=".35"/>
+      {grat.map((d,i)=><polyline key={i} points={d} fill="none" stroke="#93c5fd" strokeWidth=".7" opacity=".28"/>)}
+      {cities.map(c=>{ const q=project(c.lat,c.lon); if(!q.vis) return null; const on=selected===c.city; const openNow=lit&&lit[c.city];
+        return <g key={c.city} onClick={()=>onSelect(c.city)} style={{cursor:'pointer'}}>
+          <circle cx={q.x} cy={q.y} r={on?7:openNow?5:4} fill={openNow?'#34D399':'#FBBF24'} stroke="#fff" strokeWidth={on?2:1}/>
+          {on && <circle cx={q.x} cy={q.y} r={11} fill="none" stroke="#fff" strokeWidth="1.5" opacity=".7"/>}
+        </g>; })}
+    </svg>
+    <div className="text-center text-[11px] text-faint mt-1">Drag to spin · tap a city to select</div>
+  </div>;
+}
 function GlobalMarkets(){
   const [region,setRegion]=useState('All');
+  const [selCity,setSelCity]=useState('New York');
   const dayKey=new Date().toISOString().slice(0,10);
   const utc=new Date().getUTCHours()+new Date().getUTCMinutes()/60; const day=new Date().getUTCDay();
   const isOpen=c=>{ if(day===0||day===6) return false; const [a,b]=c.open; return a<b?(utc>=a&&utc<b):(utc>=a||utc<b); };
@@ -4733,6 +4834,21 @@ function GlobalMarkets(){
             <div className="font-serif text-2xl" style={{color:'#fff'}}>{o}/{t}</div><div className="text-[11px]" style={{color:'rgba(255,255,255,.75)'}}>open</div></div>; })}
       </div>
     </div>
+    {/* Spinnable globe + selected centre */}
+    {(()=>{ const lit={}; data.forEach(d=>lit[d.city]=d.open); const sc=data.find(d=>d.city===selCity)||data[0]; const upc=sc.chg>=0;
+      const q=encodeURIComponent(sc.mkt+' index'), nq=encodeURIComponent(sc.city+' stock market');
+      return <div className="grid lg:grid-cols-2 gap-4 mb-5 items-center">
+        <Card hover={false} className="!p-4" style={{background:'linear-gradient(135deg,#0b1e46,#0b1020)'}}><WorldGlobe cities={MARKET_CITIES} selected={selCity} onSelect={setSelCity} lit={lit}/></Card>
+        <Card hover={false}><div className="flex items-center justify-between"><Eyebrow>{sc.region} · financial centre</Eyebrow><Pill tone={sc.open?'sage':'neutral'}><span className={cx('h-1.5 w-1.5 rounded-full',sc.open?'bg-saged':'bg-faint')}/>{sc.open?'Open now':'Closed'}</Pill></div>
+          <div className="font-serif text-3xl text-charcoal mt-1">{sc.city}</div><div className="text-sm text-muted">{sc.mkt}</div>
+          <div className="flex items-end justify-between mt-3"><div className="font-serif text-3xl text-charcoal tnum">{sc.lvl.toLocaleString(undefined,{maximumFractionDigits:0})}</div>
+            <Pill tone={upc?'sage':'berry'}><Icon name={upc?'arrowUp':'arrowDn'} size={12}/>{upc?'+':''}{sc.chg.toFixed(2)}%</Pill></div>
+          <div className="-mx-1 mt-2"><MiniSpark seed={sc.city+sc.mkt} up={upc} color={upc?GREEN:RED} h={40}/></div>
+          <div className="grid grid-cols-2 gap-2 mt-3">
+            <a href={`https://www.google.com/search?q=${q}`} target="_blank" rel="noopener noreferrer" className="btn btn-ghost py-2 text-xs">Live quote <Icon name="arrowR" size={11} className="-rotate-45"/></a>
+            <a href={`https://news.google.com/search?q=${nq}`} target="_blank" rel="noopener noreferrer" className="btn btn-ghost py-2 text-xs">Market news <Icon name="arrowR" size={11} className="-rotate-45"/></a>
+          </div></Card>
+      </div>; })()}
     <div className="flex gap-2 mb-4 flex-wrap">{['All','Americas','EMEA','APAC'].map(r=>
       <button key={r} onClick={()=>setRegion(r)} className={cx('rounded-full px-4 py-1.5 text-sm font-semibold border transition', region===r?'border-gold bg-gold/15 text-goldd':'border-line text-muted hover:bg-sand')}>{r}</button>)}</div>
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
@@ -4806,12 +4922,70 @@ const WORLD_GROUPS=[
     {n:'ReliefWeb', d:'UN humanitarian alerts and disaster updates.', u:'https://reliefweb.int/'},
   ]},
 ];
+const WORLD_CATS=[
+  {key:'Conflicts & wars', color:'#DC2626', icon:'🔥'},
+  {key:'Political instability', color:'#D97706', icon:'⚡'},
+  {key:'Disease outbreaks', color:'#7C3AED', icon:'🧬'},
+  {key:'Climate & weather', color:'#0EA5E9', icon:'🌊'},
+  {key:'Trade & shipping', color:'#0D9488', icon:'🚢'},
+  {key:'Economic alerts', color:'#CA8A04', icon:'📉'},
+];
+const WORLD_EVENTS=[
+  {id:'ukr', cat:'Conflicts & wars', sev:'Critical', title:'Russia–Ukraine war', place:'Ukraine · ongoing since Feb 2022', lat:49, lng:32,
+    what:'Active land war across Eastern Ukraine and the Black Sea region; periodic strikes on energy and grain infrastructure.',
+    impact:['European natural-gas prices remain elevated','Black-Sea grain shipping insurance up sharply','Defence equities outperform'],
+    sectors:['Energy','Defence','Agriculture','Insurance'],
+    timeline:['Feb 2022 — full-scale invasion begins','2023 — grain-corridor disruptions','2024–25 — energy-infrastructure strikes continue']},
+  {id:'redsea', cat:'Trade & shipping', sev:'Critical', title:'Red Sea / Bab el-Mandeb disruption', place:'Red Sea · active', lat:13, lng:43,
+    what:'Attacks have rerouted ~80% of Asia–Europe container traffic around the Cape of Good Hope, adding 10–14 days transit.',
+    impact:['Container freight rates 2–4× pre-crisis levels','Consumer-goods cost-push inflation','Oil-tanker rates elevated; Suez revenues down ~50%'],
+    sectors:['Shipping','Container freight','Oil','Retail','Insurance'],
+    timeline:['Late 2023 — attacks begin','2024 — sustained rerouting via Cape','2025 — freight rates stay volatile']},
+  {id:'gaza', cat:'Conflicts & wars', sev:'High', title:'Israel–Gaza conflict', place:'Israel / Gaza · active', lat:31.5, lng:34.5,
+    what:'Regional conflict with periodic escalation risk drawing in neighbouring actors and shipping lanes.',
+    impact:['Oil risk premium on escalation fears','Regional equity volatility','Safe-haven demand for gold'],
+    sectors:['Energy','Equities','Gold'],
+    timeline:['Oct 2023 — conflict begins','2024 — regional spillover risk','2025 — intermittent ceasefires']},
+  {id:'china', cat:'Economic alerts', sev:'High', title:'China property deleveraging & deflation risk', place:'China · Asia', lat:35, lng:110,
+    what:'Property-developer defaults continue; consumer prices flirting with deflation; policy easing accelerating.',
+    impact:['Iron ore and copper demand softer','Luxury exporters under pressure','CNY weakness reshapes Asia FX'],
+    sectors:['Metals','Luxury','FX','Construction'],
+    timeline:['2021 — Evergrande crisis','2023 — developer defaults spread','2024–25 — deflation & stimulus']},
+  {id:'ustaper', cat:'Economic alerts', sev:'Medium', title:'US rates & policy uncertainty', place:'United States', lat:38, lng:-97,
+    what:'Markets weigh the pace of Fed rate cuts against sticky services inflation and a resilient labour market.',
+    impact:['Rate-sensitive tech swings on data','Mortgage rates stay elevated','Dollar strength pressures EM'],
+    sectors:['Tech','Housing','FX','Bonds'],
+    timeline:['2022–23 — aggressive hikes','2024 — pause','2025 — gradual easing debated']},
+  {id:'typhoon', cat:'Climate & weather', sev:'Medium', title:'Western Pacific typhoon season', place:'East & SE Asia', lat:18, lng:125,
+    what:'Seasonal storms disrupt manufacturing hubs, ports and semiconductor supply chains across the region.',
+    impact:['Port closures delay electronics shipments','Insurance loss estimates rise','Local agriculture damage'],
+    sectors:['Semiconductors','Insurance','Agriculture','Shipping'],
+    timeline:['Jun–Nov — active season','Peak Aug–Oct','Recurring supply-chain hits']},
+  {id:'sahel', cat:'Political instability', sev:'High', title:'Sahel political instability', place:'West Africa', lat:15, lng:0,
+    what:'A run of coups and shifting alliances raises risk around uranium, gold and regional trade routes.',
+    impact:['Uranium supply concerns for nuclear fuel','Gold-mining disruption risk','Regional trade friction'],
+    sectors:['Uranium','Gold','Trade'],
+    timeline:['2020–23 — successive coups','2024 — realignments','2025 — ongoing uncertainty']},
+  {id:'latam', cat:'Political instability', sev:'Medium', title:'LatAm election cycle', place:'South America', lat:-15, lng:-60,
+    what:'A dense election calendar shifts policy on mining, energy and fiscal spending across major economies.',
+    impact:['Copper & lithium policy in focus','Currency volatility around votes','Commodity-linked equities swing'],
+    sectors:['Copper','Lithium','FX'],
+    timeline:['2024–25 — multiple national elections','Policy shifts on resources']},
+];
 function WorldMonitor(){
   const dayKey=new Date().toISOString().slice(0,10);
   const snap=WORLD_SNAP.map(s=>{ const chg=(((hashStr(s.k+dayKey)%600)/100)-3); return {...s, chg}; });
   const GREEN='#34D399', RED='#FB7185';
   const riskScore=42+(hashStr('risk'+dayKey)%34);
   const riskLabel=riskScore>=66?'Elevated':riskScore>=45?'Moderate':'Calm';
+  const [active,setActive]=useState(WORLD_CATS.map(c=>c.key));
+  const [sel,setSel]=useState('ukr');
+  const [q,setQ]=useState('');
+  const catOf=k=>WORLD_CATS.find(c=>c.key===k)||WORLD_CATS[0];
+  const evShown=WORLD_EVENTS.filter(e=>active.includes(e.cat)&&(e.title.toLowerCase().includes(q.toLowerCase())||e.place.toLowerCase().includes(q.toLowerCase())));
+  const selEv=WORLD_EVENTS.find(e=>e.id===sel)||evShown[0];
+  const proj=(lat,lng)=>({ left:((lng+180)/360*100)+'%', top:((90-lat)/180*100)+'%' });
+  const toggleCat=k=>setActive(a=>a.includes(k)?a.filter(x=>x!==k):[...a,k]);
   return <AppShell>
     <PageHead eyebrow="World monitor" title="The forces moving your money."
       desc="A macro snapshot — commodities, rates, risk and shipping — with one-tap access to the world’s most trusted live feeds." />
@@ -4825,6 +4999,33 @@ function WorldMonitor(){
           <div className="text-[11px] uppercase tracking-wider" style={{color:'rgba(255,255,255,.75)'}}>risk index · /100</div></div>
       </div>
     </div>
+
+    {/* Interactive world map */}
+    <div className="mb-3"><div className="relative"><Icon name="search" size={15} className="absolute left-3 top-3 text-faint"/><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Search by country, region or event…" className="w-full sm:w-96 rounded-xl border border-line bg-cream pl-9 pr-3 py-2.5 text-sm focus:outline-none"/></div></div>
+    <div className="flex gap-2 mb-3 flex-wrap">{WORLD_CATS.map(c=>{ const on=active.includes(c.key);
+      return <button key={c.key} onClick={()=>toggleCat(c.key)} className="text-xs font-semibold rounded-full px-3 py-1.5 border transition flex items-center gap-1.5" style={on?{background:c.color+'18',borderColor:c.color,color:c.color}:{borderColor:'var(--c-line,#e5e5e5)',color:'var(--c-muted,#888)'}}><span>{c.icon}</span>{c.key}</button>; })}</div>
+    <div className="grid lg:grid-cols-3 gap-4 mb-6">
+      <div className="lg:col-span-2 relative rounded-xl2 overflow-hidden border border-line" style={{background:'#0b1020',aspectRatio:'2/1'}}>
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Equirectangular_projection_SW.jpg/1280px-Equirectangular_projection_SW.jpg" alt="World map" className="absolute inset-0 w-full h-full object-cover opacity-80" style={{filter:'saturate(.7) brightness(.85)'}} onError={e=>{e.target.style.display='none';}}/>
+        <div className="absolute inset-0" style={{background:'radial-gradient(circle at 50% 40%, transparent 40%, rgba(8,10,22,.35))'}}/>
+        {evShown.map(e=>{ const c=catOf(e.cat); const p=proj(e.lat,e.lng); const on=e.id===sel;
+          return <button key={e.id} onClick={()=>setSel(e.id)} className="absolute -translate-x-1/2 -translate-y-1/2 group" style={{left:p.left,top:p.top}} title={e.title}>
+            <span className="block rounded-full" style={{width:on?18:13,height:on?18:13,background:c.color,boxShadow:`0 0 0 ${on?6:3}px ${c.color}44`,animation:'pulse 2s infinite'}}/>
+            <span className="absolute left-1/2 -translate-x-1/2 -bottom-6 whitespace-nowrap text-[10px] font-semibold px-1.5 py-0.5 rounded bg-charcoal text-cream opacity-0 group-hover:opacity-100 transition pointer-events-none">{e.title}</span>
+          </button>; })}
+        <div className="absolute bottom-2 left-2 flex flex-wrap gap-1.5">{WORLD_CATS.filter(c=>active.includes(c.key)).map(c=><span key={c.key} className="text-[9px] px-1.5 py-0.5 rounded-full text-white flex items-center gap-1" style={{background:c.color+'CC'}}><span className="h-1.5 w-1.5 rounded-full bg-white"/>{c.key}</span>)}</div>
+        <div className="absolute top-2 right-2 text-[10px] text-white/60">{evShown.length} events · tap a pin</div>
+      </div>
+      {selEv && (()=>{ const c=catOf(selEv.cat); return <div className="rounded-xl2 border border-line bg-card p-4 overflow-y-auto" style={{maxHeight:520}}>
+        <div className="flex items-center gap-2"><span className="text-[11px] font-semibold rounded-full px-2 py-0.5 text-white" style={{background:c.color}}>{selEv.sev}</span><span className="text-xs text-faint">{c.icon} {selEv.cat}</span></div>
+        <h3 className="font-serif text-xl text-charcoal mt-2">{selEv.title}</h3><div className="text-xs text-faint">{selEv.place}</div>
+        <div className="mt-3"><div className="text-[10px] uppercase tracking-wider text-faint mb-1">What’s happening</div><p className="text-sm text-charcoal/85 leading-relaxed">{selEv.what}</p></div>
+        <div className="mt-3"><div className="text-[10px] uppercase tracking-wider text-faint mb-1.5">Market implications</div><ul className="space-y-1">{selEv.impact.map((x,i)=><li key={i} className="flex items-start gap-2 text-sm text-charcoal/85"><span style={{color:c.color}} className="mt-0.5 shrink-0">▸</span>{x}</li>)}</ul></div>
+        <div className="mt-3"><div className="text-[10px] uppercase tracking-wider text-faint mb-1.5">Affected sectors</div><div className="flex flex-wrap gap-1.5">{selEv.sectors.map(s=><span key={s} className="text-[11px] rounded-full bg-sand px-2 py-0.5 text-muted">{s}</span>)}</div></div>
+        <div className="mt-3"><div className="text-[10px] uppercase tracking-wider text-faint mb-1.5">Timeline</div><div className="space-y-1.5">{selEv.timeline.map((t,i)=><div key={i} className="flex gap-2 text-sm text-charcoal/85"><span className="h-1.5 w-1.5 rounded-full mt-1.5 shrink-0" style={{background:c.color}}/>{t}</div>)}</div></div>
+      </div>; })()}
+    </div>
+
     <h2 className="font-serif text-xl text-charcoal mb-3">Macro snapshot</h2>
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6 stagger">
       {snap.map(s=>{ const up=s.chg>=0; return <Card key={s.k} hover={false} className="!p-3.5 overflow-hidden">
