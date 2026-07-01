@@ -1185,14 +1185,14 @@ const BUDGET_TEMPLATES = [
    REUSABLE COMPONENTS + CHARTS
    ============================================================ */
 // Chart/data palette — accent colours preserved exactly as the original. Only the
-// near-black tokens (charcoal/ink/stone/line) flip to light in Spark's dark theme
-// so dark chart segments and gridlines don't vanish against the dark cards.
-const _spark = ()=> typeof document!=='undefined' && document.documentElement.getAttribute('data-mode')==='spark';
+// near-black tokens (charcoal/ink/stone/line) flip to light in ANY dark theme
+// so dark text, chart segments and gridlines don't vanish against dark cards.
+const _dark = ()=> typeof document!=='undefined' && document.documentElement.getAttribute('data-theme')==='dark';
 const COLORS = { gold:'#BFA06A', goldd:'#9E7E45', sage:'#6E8B6A', saged:'#4C6447', clay:'#C0714F', berry:'#A6534A', sky:'#6E86A0', taupe:'#CFC4B1', muted:'#9C9387',
-  get charcoal(){ return _spark()?'#C7C9DA':'#272320'; },
-  get ink(){ return _spark()?'#E9EAF4':'#16130F'; },
-  get stone(){ return _spark()?'#3A3A4E':'#D9CFBE'; },
-  get line(){ return _spark()?'#2C2C3C':'#E9E2D5'; } };
+  get charcoal(){ return _dark()?'#C7C9DA':'#272320'; },
+  get ink(){ return _dark()?'#E9EAF4':'#16130F'; },
+  get stone(){ return _dark()?'#3A3A4E':'#D9CFBE'; },
+  get line(){ return _dark()?'#2C2C3C':'#E9E2D5'; } };
 
 /* ---- Icon set (stroke, currentColor) ---- */
 const P = {
@@ -3953,7 +3953,7 @@ function Learn(){
           <div className="space-y-2">{steps.map((t,i)=>{ const k=activePath.level+t; const d=done[k];
             return <div key={t} className="flex items-center gap-2.5 rounded-xl border border-line bg-cream/60 p-3">
               <button onClick={()=>setDone(s=>({...s,[k]:!s[k]}))} className={cx('grid place-items-center h-7 w-7 rounded-full border shrink-0', d?'bg-saged border-saged text-cream':'border-taupe text-muted')}>{d?<Icon name="check" size={15}/>:<span className="text-xs">{i+1}</span>}</button>
-              <div className="flex-1 text-sm font-medium" style={{textDecoration:d?'line-through':'none', color:d?'#9C9387':'#272320'}}>{t}</div>
+              <div className={cx('flex-1 text-sm font-medium', d?'text-muted':'text-charcoal')} style={{textDecoration:d?'line-through':'none'}}>{t}</div>
               <a href={vidUrl(topicKey(t)||'invest', app.lang)} target="_blank" rel="noopener noreferrer" className="text-xs text-goldd flex items-center gap-1"><Icon name="play" size={12}/>Watch</a>
               <a href={`https://www.investopedia.com/search?q=${encodeURIComponent(t)}`} target="_blank" rel="noopener noreferrer" className="text-xs text-sky flex items-center gap-1"><Icon name="book" size={12}/>Read</a>
             </div>; })}</div>
