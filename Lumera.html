@@ -2979,10 +2979,58 @@ function FinancialTwin(){
             <div className="flex items-end justify-between"><span className="font-serif text-2xl text-saged tnum">{fmt.money(target)}</span><span className="text-xs text-faint">reclaimed / month</span></div>
             <ProgressBar value={42} tone="sage" className="mt-2"/></Card>
         </div>
+
+        <TwinFutures app={app} fmt={fmt} m={m}/>
         <Disclaimer/>
       </div>
     )}
   </AppShell>;
+}
+
+// Deeper Financial Twin: three futures, an interactive "future self", and trait meters.
+function TwinFutures({ app, fmt, m }){
+  const [yrs,setYrs]=useState(10);
+  const rate=0.06; const start=app.balances.investmentsBal||0;
+  const base=Math.max(0,m.savingsTotal);
+  const drift=Math.max(0, base - m.realistic*0.6);
+  const optimise=base + Math.max(m.realistic,300);
+  const fv=(monthly)=> fvYearly(monthly, yrs, rate, start)[yrs];
+  const futures=[
+    {key:'Drift', tone:'#C0714F', emoji:'😴', monthly:drift, sub:'If discipline slips and lifestyle creeps up', val:fv(drift)},
+    {key:'Current path', tone:'#BFA06A', emoji:'🚶', monthly:base, sub:'Your habits exactly as they are today', val:fv(base)},
+    {key:'Optimised', tone:'#6E8B6A', emoji:'🚀', monthly:optimise, sub:'If you capture your reclaimable savings', val:fv(optimise)},
+  ];
+  const maxV=Math.max(...futures.map(f=>f.val),1);
+  // trait meters (0-100) derived from behaviour
+  const traits=[
+    ['Saver', Math.round(clamp(m.savingsRate/0.3,0,1)*100), '#6E8B6A'],
+    ['Spender', Math.round(clamp((m.topLeaks.length?sum(m.topLeaks.map(l=>l.over))/m.income:0)/0.3,0,1)*100), '#C0714F'],
+    ['Planner', Math.round(clamp(m.efMonths/6,0,1)*100), '#6E86A0'],
+    ['Investor', Math.round(clamp(start/(m.income*12||1),0,1)*100), '#BFA06A'],
+  ];
+  return <div className="mb-4">
+    <div className="mb-3"><Eyebrow>Meet your future self</Eyebrow><h3 className="font-serif text-2xl text-charcoal mt-1">Three futures, one decision away.</h3>
+      <p className="text-sm text-muted">Drag the years to see how today’s habits compound. Same you — very different outcomes.</p></div>
+    <Card hover={false} className="mb-4">
+      <div className="flex items-center justify-between mb-2"><span className="text-sm text-charcoal/85">Project forward</span><span className="font-serif text-xl" style={{color:'#9E7E45'}}>{yrs} years</span></div>
+      <input type="range" min="1" max="30" value={yrs} onChange={e=>setYrs(+e.target.value)} className="lux w-full" style={{'--p':((yrs-1)/29*100)+'%'}}/>
+      <div className="grid sm:grid-cols-3 gap-3 mt-4">{futures.map(f=><div key={f.key} className="rounded-xl2 border border-line p-4" style={{borderTopWidth:3,borderTopColor:f.tone}}>
+        <div className="flex items-center justify-between"><span className="text-2xl">{f.emoji}</span><span className="text-[11px] font-semibold rounded-full px-2 py-0.5" style={{background:f.tone+'1A',color:f.tone}}>{fmt.money(f.monthly)}/mo</span></div>
+        <div className="font-serif text-lg text-charcoal mt-2">{f.key}</div>
+        <div className="text-xs text-muted leading-snug mt-0.5">{f.sub}</div>
+        <div className="font-serif text-2xl tnum mt-2" style={{color:f.tone}}>{fmt.money(Math.round(f.val))}</div>
+        <div className="h-1.5 rounded-full bg-sand mt-2 overflow-hidden"><div className="h-1.5 rounded-full transition-all duration-500" style={{width:(f.val/maxV*100)+'%',background:f.tone}}/></div>
+      </div>)}</div>
+      <div className="mt-3 rounded-xl bg-sage/8 border border-sage/20 px-3 py-2.5 text-sm text-charcoal/85"><b>The gap:</b> choosing the optimised path over drifting is worth about <b className="text-saged">{fmt.money(Math.round(fv(optimise)-fv(drift)))}</b> over {yrs} years — from decisions you make once and automate.</div>
+    </Card>
+    <Card hover={false}><Eyebrow className="mb-3">Your behaviour profile</Eyebrow>
+      <div className="grid sm:grid-cols-2 gap-x-6 gap-y-3">{traits.map(([name,val,color])=><div key={name}>
+        <div className="flex items-center justify-between text-sm mb-1"><span className="text-charcoal/85">{name}</span><span className="tnum text-muted">{val}</span></div>
+        <div className="h-2 rounded-full bg-sand overflow-hidden"><div className="h-2 rounded-full transition-all duration-700" style={{width:val+'%',background:color}}/></div>
+      </div>)}</div>
+      <p className="text-xs text-faint mt-3">Traits are inferred from your entered behaviour — they shift as your habits do.</p>
+    </Card>
+  </div>;
 }
 
 /* ============================================================
@@ -4907,6 +4955,53 @@ function WorldGlobe({ cities, selected, onSelect, lit }){
     <div className="text-center text-[11px] text-faint mt-1">Drag to spin · tap a city to select</div>
   </div>;
 }
+// Photoreal 3D earth via globe.gl (lazy-loaded); falls back to the vector globe if unavailable.
+let _globeLibState='idle'; // idle | loading | ready | failed
+function loadGlobeLib(){
+  if(_globeLibState==='ready'||_globeLibState==='failed') return Promise.resolve(_globeLibState);
+  return new Promise(res=>{
+    if(typeof window!=='undefined' && window.Globe){ _globeLibState='ready'; return res('ready'); }
+    _globeLibState='loading';
+    const s=document.createElement('script'); s.src='https://unpkg.com/globe.gl@2.32.0/dist/globe.gl.min.js';
+    const done=(ok)=>{ _globeLibState=ok?'ready':'failed'; res(_globeLibState); };
+    s.onload=()=>done(!!window.Globe); s.onerror=()=>done(false);
+    // safety timeout so we never hang on the loader
+    setTimeout(()=>{ if(_globeLibState==='loading') done(!!window.Globe); }, 6000);
+    document.head.appendChild(s);
+  });
+}
+function PhotoGlobe({ cities, selected, onSelect, lit }){
+  const ref=useRef(null); const worldRef=useRef(null); const [status,setStatus]=useState('loading');
+  useEffect(()=>{ let alive=true;
+    loadGlobeLib().then(state=>{ if(!alive) return; if(state!=='ready'||!ref.current||!window.Globe){ setStatus('fallback'); return; }
+      try{
+        const w=ref.current.clientWidth||360;
+        const world=window.Globe()(ref.current)
+          .globeImageUrl('https://unpkg.com/three-globe@2.31.0/example/img/earth-blue-marble.jpg')
+          .bumpImageUrl('https://unpkg.com/three-globe@2.31.0/example/img/earth-topology.png')
+          .backgroundColor('rgba(0,0,0,0)')
+          .width(w).height(360)
+          .pointsData(cities.map(c=>({lat:c.lat,lng:c.lon,city:c.city})))
+          .pointLat('lat').pointLng('lng').pointAltitude(0.03).pointRadius(0.55)
+          .pointColor(p=> (lit&&lit[p.city])?'#34D399':'#FBBF24')
+          .labelsData(cities.map(c=>({lat:c.lat,lng:c.lon,city:c.city})))
+          .labelLat('lat').labelLng('lng').labelText('city').labelSize(1.1).labelColor(()=> 'rgba(255,255,255,.75)').labelResolution(2)
+          .onPointClick(p=> onSelect(p.city))
+          .onLabelClick(p=> onSelect(p.city));
+        world.controls().autoRotate=true; world.controls().autoRotateSpeed=0.55; world.controls().enableZoom=false;
+        worldRef.current=world; setStatus('ready');
+      }catch(e){ setStatus('fallback'); }
+    });
+    return ()=>{ alive=false; try{ if(worldRef.current&&worldRef.current._destructor) worldRef.current._destructor(); }catch(e){} if(ref.current) ref.current.innerHTML=''; };
+  },[]);
+  if(status==='fallback') return <WorldGlobe cities={cities} selected={selected} onSelect={onSelect} lit={lit}/>;
+  return <div>
+    <div ref={ref} style={{height:360,minHeight:360,cursor:'grab'}} className="grid place-items-center">
+      {status==='loading' && <div className="text-center text-white/70"><div className="flex items-center justify-center gap-1.5 mb-2"><span className="dot"/><span className="dot"/><span className="dot"/></div><div className="text-xs">Loading 3D globe…</div></div>}
+    </div>
+    <div className="text-center text-[11px] text-faint mt-1">Drag to spin · tap a city to select</div>
+  </div>;
+}
 function GlobalMarkets(){
   const [region,setRegion]=useState('All');
   const [selCity,setSelCity]=useState('New York');
@@ -4937,7 +5032,7 @@ function GlobalMarkets(){
     {(()=>{ const lit={}; data.forEach(d=>lit[d.city]=d.open); const sc=data.find(d=>d.city===selCity)||data[0]; const upc=sc.chg>=0;
       const q=encodeURIComponent(sc.mkt+' index'), nq=encodeURIComponent(sc.city+' stock market');
       return <div className="grid lg:grid-cols-2 gap-4 mb-5 items-center">
-        <Card hover={false} className="!p-4" style={{background:'linear-gradient(135deg,#0b1e46,#0b1020)'}}><WorldGlobe cities={MARKET_CITIES} selected={selCity} onSelect={setSelCity} lit={lit}/></Card>
+        <Card hover={false} className="!p-4" style={{background:'linear-gradient(135deg,#0b1e46,#0b1020)'}}><PhotoGlobe cities={MARKET_CITIES} selected={selCity} onSelect={setSelCity} lit={lit}/></Card>
         <Card hover={false}><div className="flex items-center justify-between"><Eyebrow>{sc.region} · financial centre</Eyebrow><Pill tone={sc.open?'sage':'neutral'}><span className={cx('h-1.5 w-1.5 rounded-full',sc.open?'bg-saged':'bg-faint')}/>{sc.open?'Open now':'Closed'}</Pill></div>
           <div className="font-serif text-3xl text-charcoal mt-1">{sc.city}</div><div className="text-sm text-muted">{sc.mkt}</div>
           <div className="flex items-end justify-between mt-3"><div className="font-serif text-3xl text-charcoal tnum">{sc.lvl.toLocaleString(undefined,{maximumFractionDigits:0})}</div>
