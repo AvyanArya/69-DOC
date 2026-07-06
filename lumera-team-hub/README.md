@@ -10,6 +10,26 @@ role-based access enforced **in the database** via Supabase Row Level Security.
 
 ---
 
+## 👀 Just want to see it? Open `preview.html`
+
+**[`preview.html`](preview.html)** is a single, self-contained file — **double-click it and it
+opens in your browser.** No install, no terminal, no Supabase, no internet required (React is
+inlined). It runs the full UI on realistic dummy Lumera data so you can click through every
+screen immediately.
+
+- Pick any teammate on the login screen to see **their** personalised dashboard, role and permissions.
+- Switch accounts anytime from the avatar menu (top-right) — compare an **admin** (Avyan, can post
+  announcements, sees the Admin panel and Legal/Finance folders) with a **member** (e.g. Nora, who
+  can't). The difference is obvious.
+- Everything is clickable: send messages, drag kanban cards, vote in polls (live bars), react to
+  announcements, browse the team.
+
+> `preview.html` is a **design/UX preview only** — it uses in-memory dummy data and resets on
+> refresh. The real product is the React + Supabase app below, where data persists and access
+> rules are enforced by the database. Build order in the app is unchanged.
+
+---
+
 ## 1. Manual Supabase setup (do this once, ~10 minutes)
 
 ### 1.1 Create the project
