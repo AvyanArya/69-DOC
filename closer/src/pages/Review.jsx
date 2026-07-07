@@ -8,7 +8,7 @@ import { voiceProfile } from '../lib/scoring.js'
 import { getCharacter } from '../data/characters.js'
 import { getChallenge } from '../data/challenges.js'
 import { fmtDuration, fmtDateTime, scoreLabel, scoreClass } from '../lib/format.js'
-import { speak, stopSpeaking, pickVoice } from '../lib/speech.js'
+import { speak, stopSpeaking, resolveCharacterVoice } from '../lib/speech.js'
 
 const SKILL_LABELS = {
   confidence: 'Confidence', tonality: 'Tonality', pacing: 'Pacing', energy: 'Energy',
@@ -74,7 +74,8 @@ export default function Review() {
     const handle = speak(line.text, {
       rate: isAi ? character.speakingSpeed : 1,
       pitch: isAi ? character.voice.pitch : 1,
-      voice: isAi ? pickVoice({ gender: character.voice.gender, accent: character.voice.accent }) : null,
+      voice: isAi ? resolveCharacterVoice(character) : null,
+      humanize: isAi,
     })
     handle.promise.then(() => {
       replayTimer.current = setTimeout(() => playLine(i + 1), 350)

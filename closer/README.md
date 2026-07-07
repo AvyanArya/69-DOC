@@ -9,36 +9,75 @@ persuasion, and business communication — the "Duolingo of cold calling".
 Built with React + Vite, no backend required: voice runs on the browser's
 Web Speech API and all progress persists locally.
 
-## Run it
+## ⚡ Instant preview — no setup at all
 
-```bash
-cd closer
-npm install
-npm run dev        # → http://localhost:5173
-npm run build      # production build → dist/
-```
+`preview.html` is the entire app compiled into a single file:
 
-**Voice support:** live speech input uses the Web Speech API (best in Chrome/Edge,
-mic permission required). Where recognition is unavailable, the phone automatically
-falls back to a type-to-speak bar (⌨️ keypad button toggles it any time). AI voices
-use the browser's speech synthesis with per-character gender/accent/speed.
+1. Download or clone this repo (green **Code** button → *Download ZIP* on GitHub).
+2. Find `closer/preview.html`.
+3. **Double-click it.** It opens in your browser — done. No install, no terminal.
+
+> Tip: use **Chrome or Edge** and allow microphone access to talk to the AI with
+> your voice. Browsers block the mic on files opened from disk, so from
+> `preview.html` you'll use the ⌨️ type-to-speak bar during calls — run the dev
+> server (below) or deploy to get full voice input.
+
+To regenerate it after changing code: `npm run build:preview`.
+
+## Run it properly (full voice support)
+
+Step by step from zero:
+
+1. **Install Node.js** ≥ 18 from [nodejs.org](https://nodejs.org) (LTS is fine).
+2. **Open a terminal in this folder:**
+   ```bash
+   cd closer
+   ```
+3. **Install dependencies** (one time, ~30 seconds):
+   ```bash
+   npm install
+   ```
+4. **Start the dev server:**
+   ```bash
+   npm run dev
+   ```
+5. **Open the printed URL** — usually [http://localhost:5173](http://localhost:5173).
+6. Click **Start Training** → unlock the phone → open **Prospects** → pick a
+   character → talk. Allow the microphone when the browser asks.
+
+Production build: `npm run build` → static site in `dist/` (deployable to
+Vercel/Netlify/GitHub Pages as-is; `vercel.json` included).
+
+**Voice support:** live speech input uses the Web Speech API — best in
+**Chrome or Edge on `localhost` or HTTPS** with mic permission granted. Where
+recognition is unavailable (Firefox, file://, mic denied), the phone
+automatically falls back to a type-to-speak bar (the ⌨️ button toggles it any
+time). AI voices use your browser's speech synthesis: one consistent voice is
+pinned per character (gender/accent/speed matched), preferring the
+higher-quality Google/Natural voices when your browser has them. Voice realism
+is capped by what your browser ships — Chrome sounds dramatically better than
+a bare Linux/Firefox voice set.
 
 ## What's inside
 
 ### 📞 AI Phone Simulator (the centerpiece)
-A realistic smartphone: lock screen + unlock animation, home screen, contacts,
-dial pad, recents, incoming & outgoing call UI, active call screen with timer,
-mute/speaker controls, live captions, dynamic waveform, and an optional
-**whisper coach** feeding live tips ("Mirror their last sentence", "They're
-losing interest") during the call.
+A realistic smartphone: lock screen + unlock animation, home screen, a
+Prospects app (every call starts from a visible contact), recents, incoming &
+outgoing call UI, active call screen with timer, mute/speaker controls, live
+captions, dynamic waveform, and an optional **whisper coach** feeding live tips
+("Mirror their last sentence", "They're losing interest") during the call.
 
-### 🎭 21 AI characters
+### 🎭 21 AI characters with contextual conversations
 Jordan Belfort, Grant Cardone, Steve Jobs, Elon Musk, Warren Buffett, Mark Cuban,
 Barbara Corcoran, plus buyer archetypes (Angry Prospect, Cold CFO, Busy CEO,
 Procurement Manager, …). Each has difficulty, personality, speaking speed,
-interruptiveness, objection style, industry, and sales style — driving a
-conversation engine with interest/patience state, phase progression
-(opening → discovery → objection → closing), hangups, and closes.
+interruptiveness, objection style, industry, and sales style. The conversation
+engine responds to **what you actually said**: it extracts the topic, claims and
+numbers from your words and answers them in the character's own voice — ask
+Belfort how he's doing and he tells you he's RICH; quote "40 percent" at the
+Cold CFO and he demands the cohort data behind *that* number. Interest/patience
+state, phase progression (opening → discovery → objection → closing), hangups,
+and closes drive the outcome.
 
 ### 🏁 21 challenge modes · 🧪 Scenario Lab
 Selling a Pen, Cold Call, Discovery, Objection Handling, Closing, Negotiation,

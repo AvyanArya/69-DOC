@@ -21,31 +21,84 @@ if (speechSupport.synthesis) {
   window.speechSynthesis.onvoiceschanged = loadVoices
 }
 
+/** Voices load asynchronously in Chrome — wait (briefly) before the first line
+ *  so the opener doesn't play on the default voice and then switch mid-call. */
+export function voicesReady(timeoutMs = 1500) {
+  if (!speechSupport.synthesis) return Promise.resolve([])
+  if (voicesCache.length) return Promise.resolve(voicesCache)
+  return new Promise((resolve) => {
+    const t0 = Date.now()
+    const poll = () => {
+      loadVoices()
+      if (voicesCache.length || Date.now() - t0 > timeoutMs) resolve(voicesCache)
+      else setTimeout(poll, 100)
+    }
+    poll()
+  })
+}
+
 const ACCENT_LANGS = {
   us: ['en-US'], uk: ['en-GB'], au: ['en-AU'], in: ['en-IN'], neutral: ['en-US', 'en-GB', 'en'],
+}
+
+const FEMALE_RX = /female|samantha|victoria|karen|moira|tessa|fiona|zira|susan|hazel|veena|serena|kate|allison|ava|joanna|salli|aria|jenny|michelle|sonia|libby|natasha|neerja|catherine|emma|amy/i
+const MALE_RX = /(?<!fe)male|daniel|alex\b|fred|tom\b|oliver|david|mark|james|rishi|lee\b|gordon|guy|ryan|brandon|eric|christopher|matthew|prabhat|william|liam|george/i
+
+/** Rank voices by quality + fit. Higher is better. */
+function scoreVoice(v, { gender, accent }) {
+  let s = 0
+  const langs = ACCENT_LANGS[accent] || ACCENT_LANGS.us
+  if (langs.some((l) => v.lang === l || v.lang.startsWith(l))) s += 6
+  else if (v.lang.startsWith('en')) s += 2
+  else return -100
+  // Quality tiers: cloud/neural voices sound far less robotic
+  if (/natural|neural/i.test(v.name)) s += 6
+  if (/google/i.test(v.name)) s += 5
+  if (/online/i.test(v.name)) s += 2
+  if (/microsoft/i.test(v.name)) s += 1
+  if (/espeak|robosoft|festival/i.test(v.name)) s -= 8 // classic robot voices
+  if (gender === 'female') {
+    if (FEMALE_RX.test(v.name)) s += 8
+    else if (MALE_RX.test(v.name)) s -= 6
+  } else if (gender === 'male') {
+    if (MALE_RX.test(v.name)) s += 8
+    else if (FEMALE_RX.test(v.name)) s -= 6
+  }
+  if (v.localService) s += 0.5 // tie-break: no network hiccups
+  return s
 }
 
 export function pickVoice({ gender = 'any', accent = 'us' } = {}) {
   const voices = voicesCache.length ? voicesCache : loadVoices()
   if (!voices.length) return null
-  const langs = ACCENT_LANGS[accent] || ACCENT_LANGS.us
-  const pool = voices.filter((v) => langs.some((l) => v.lang.startsWith(l)))
-  const list = pool.length ? pool : voices.filter((v) => v.lang.startsWith('en'))
-  if (gender !== 'any') {
-    const female = /female|samantha|victoria|karen|moira|tessa|fiona|zira|susan|hazel|veena|serena/i
-    const male = /male|daniel|alex|fred|tom|oliver|david|mark|james|rishi|lee|gordon/i
-    const rx = gender === 'female' ? female : male
-    const hit = list.find((v) => rx.test(v.name))
-    if (hit) return hit
+  let best = null
+  let bestScore = -Infinity
+  for (const v of voices) {
+    const s = scoreVoice(v, { gender, accent })
+    if (s > bestScore) { bestScore = s; best = v }
   }
-  return list[0] || voices[0]
+  return best
+}
+
+// One pinned voice per character for the whole session — prevents the
+// "Barbara starts female then switches to a man" glitch when the voice list
+// finishes loading mid-call.
+const characterVoices = new Map()
+export function resolveCharacterVoice(character) {
+  if (!character) return null
+  const key = character.id
+  if (characterVoices.has(key)) return characterVoices.get(key)
+  const v = pickVoice({ gender: character.voice?.gender || 'any', accent: character.voice?.accent || 'us' })
+  if (v) characterVoices.set(key, v) // only pin once we actually found one
+  return v
 }
 
 /**
  * Speak a line. Returns a handle: { promise, cancel }.
- * onBoundary fires per word so the UI can animate a waveform in sync.
+ * `humanize` adds a tiny per-utterance rate/pitch drift so repeated lines
+ * don't sound like the exact same sample.
  */
-export function speak(text, { rate = 1, pitch = 1, voice = null, onBoundary } = {}) {
+export function speak(text, { rate = 1, pitch = 1, voice = null, humanize = false } = {}) {
   if (!speechSupport.synthesis) {
     // Fallback: resolve on an estimated reading time so the flow still works.
     let t
@@ -53,10 +106,10 @@ export function speak(text, { rate = 1, pitch = 1, voice = null, onBoundary } = 
     return { promise, cancel: () => clearTimeout(t) }
   }
   const u = new SpeechSynthesisUtterance(text)
-  u.rate = rate
-  u.pitch = pitch
-  if (voice) u.voice = voice
-  if (onBoundary) u.onboundary = onBoundary
+  const drift = humanize ? (Math.random() - 0.5) * 0.06 : 0
+  u.rate = Math.max(0.6, Math.min(1.6, rate + drift))
+  u.pitch = Math.max(0.5, Math.min(1.8, pitch + drift * 0.5))
+  if (voice) { u.voice = voice; u.lang = voice.lang }
   let cancelled = false
   const promise = new Promise((res) => {
     u.onend = () => res()

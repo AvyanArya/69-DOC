@@ -74,6 +74,35 @@ export const CHARACTERS = [
       ],
       win: ["Boom. THAT'S how you close. You just sold the Wolf — take the win."],
       hangup: ["You lost me at hello, kid. Study the tape and call me back."],
+      ctx: {
+        question: {
+          cold: ["My {echo}? Kid, I don't answer questions from people who haven't sold me anything yet. Sell first.", "You're asking about my {echo} like you've earned it. You haven't. Certainty first, questions second."],
+          warm: ["My {echo}? Honestly? It bleeds money and everyone's too scared to tell me. You saw it — good. Now what?"],
+        },
+        value: {
+          cold: ["'{echo}' — you said it like you were apologizing for it. Say {echo} like it's the best thing that ever happened to me.", "Every schmuck on the phone promises {echo}. The tonality is what sells it, and yours is FLAT."],
+          warm: ["NOW you sound like you believe {echo} yourself. That's the straight line. Stay on it."],
+        },
+        number: {
+          cold: ["{echo}? You threw that number out there with zero conviction. Numbers are only real if YOU'RE real.", "{echo} — whose number is that? Say it again like you'd bet your house on it."],
+          warm: ["{echo}. Good. Specific. Now attach it to MY life — what does {echo} buy ME?"],
+        },
+        price: {
+          cold: ["You flinched on the money. NEVER flinch on the money. The moment you flinch, I own you."],
+          warm: ["Say the number like it's a bargain, one time, then shut your mouth. Go."],
+        },
+        greeting: {
+          cold: ["Hi hi, hello hello — that's four words of my ten seconds gone. GO.", "Pleasantries? The Wolf doesn't do pleasantries. Reason for the call. Now."],
+          warm: ["Smooth opener. Confident. Okay kid, you bought yourself a minute."],
+        },
+        howAreYou: {
+          cold: ["'How am I'? I'm RICH, that's how I am. And you're on the clock. Sell."],
+          warm: ["Ha! I'm fantastic, I'm always fantastic. Now show me you deserve this phone call."],
+        },
+        vague: {
+          cold: ["Mumbling is for people who don't believe their own pitch. Full sentence, full certainty.", "That was word soup. Straight line, kid — where are you taking me?"],
+        },
+      },
     }),
   },
   {
@@ -98,6 +127,35 @@ export const CHARACTERS = [
       ],
       win: ["Done deal. You showed up 10X — that's the only way I buy."],
       hangup: ["Little thinking, little results. Call me when you're serious."],
+      ctx: {
+        question: {
+          cold: ["Why are you asking about my {echo}?? YOU called ME. Obsessed people don't ask permission — they bring VALUE.", "My {echo} is 10X better than whatever you're about to pitch. Prove me wrong."],
+          warm: ["My {echo}? It's good. But good is the enemy of GREAT, so if you can 10X it, TALK."],
+        },
+        value: {
+          cold: ["'{echo}'? That's a 1X promise, my man. I don't get out of bed for 1X.", "You're underselling {echo}! If you believed it you'd be SHOUTING it!"],
+          warm: ["{echo} at SCALE? Now you're speaking my language. Show me massive."],
+        },
+        number: {
+          cold: ["{echo}? Add a zero and maybe I care. Small numbers are for small thinkers.", "{echo} — is that all?? Think BIGGER."],
+          warm: ["{echo}. Okay okay okay. Multiply that across a year and say it again. FEEL it."],
+        },
+        price: {
+          cold: ["Price is a MYTH! You're talking cost when you should be talking money it MAKES me!"],
+          warm: ["Don't discount it. Ever. Underpriced means under-believed. What's the number?"],
+        },
+        greeting: {
+          cold: ["Great, hello, hi, love it — you've burned three seconds being polite. Are you obsessed or not?!"],
+          warm: ["THERE'S some energy! Okay, you got my attention — don't waste it."],
+        },
+        howAreYou: {
+          cold: ["How am I? I'm CRUSHING it, like every day. The question is what are YOU doing on this call?"],
+          warm: ["10X, baby, always 10X. Now bring me something worth my next ten seconds."],
+        },
+        vague: {
+          cold: ["Weak! Say it with your CHEST!", "That's a whisper in a hurricane, my man. LOUDER, CLEARER, BIGGER."],
+        },
+      },
     }),
   },
   {
@@ -126,6 +184,35 @@ export const CHARACTERS = [
       ],
       win: ["Okay. This is insanely great. Let's talk — my people will set it up."],
       hangup: ["This is a C-minus conversation and I don't do C-minus. Goodbye."],
+      ctx: {
+        question: {
+          cold: ["My {echo} is not the interesting question. The interesting question is why {echo} exists at all.", "You're asking about {echo}. Wrong altitude. Ask what it MEANS."],
+          warm: ["Our {echo}? It's a committee-designed mess, like most things. What would you delete from it?"],
+        },
+        value: {
+          cold: ["'{echo}' is a feature. Features bore me. What's the product?", "A thousand companies promise {echo}. Why will yours be the one that matters?"],
+          warm: ["{echo}, stated simply. Good. Simple is harder than complex — don't ruin it now."],
+        },
+        number: {
+          cold: ["{echo}. Numbers without taste are just noise. What does the customer FEEL?"],
+          warm: ["{echo} — fine, the math works. But does it make someone's day better? That's the bar."],
+        },
+        price: {
+          cold: ["Price is what mediocre people negotiate. Make something worth anything and the price is a detail."],
+          warm: ["Charge more. If it's great, charge more and say it without apology."],
+        },
+        greeting: {
+          cold: ["Hello. You have one question's worth of my patience. Make it the right question."],
+          warm: ["Good, no fluff. Continue."],
+        },
+        howAreYou: {
+          cold: ["That's a wasted sentence. You get very few. What do you actually want?"],
+          warm: ["Focused, thanks. Which is what this call needs to be."],
+        },
+        vague: {
+          cold: ["That was noise. Say it in one sentence — if you can't, you don't understand it yet.", "Simplify. Then simplify again. Then call me back — no wait, you're here. Try now."],
+        },
+      },
     }),
   },
   {
@@ -154,6 +241,35 @@ export const CHARACTERS = [
       ],
       win: ["Alright, this is one of the more sane pitches this month. Email my chief of staff — I'll take the meeting."],
       hangup: ["Yeah, I have a rocket thing. Good luck with… whatever this was."],
+      ctx: {
+        question: {
+          cold: ["Um, my {echo}? That's… not a first-principles question. Ask about the physics of the problem.", "Sorry, was half-reading a text. Why does my {echo} matter to your pitch?"],
+          warm: ["Our {echo} is objectively suboptimal, yeah. The failure mode is obvious if you look. Do you see it?"],
+        },
+        value: {
+          cold: ["'{echo}' is a marketing phrase. Break {echo} down to first principles or it's just… words.", "The claim of {echo} violates no laws of physics, so, possible. Probable is a different question."],
+          warm: ["Hm. {echo}, if the unit economics hold, is actually non-trivial. What's the limiting constraint?"],
+        },
+        number: {
+          cold: ["{echo} — is that measured or extrapolated? Extrapolations are usually wrong in the boring direction.", "You should know the error bars on {echo} instantly. Do you?"],
+          warm: ["{echo}. Okay, if that's real, what happens at 10x volume? Marginal cost curve, go."],
+        },
+        price: {
+          cold: ["Price before physics? The cost structure is the interesting part. What's it made of?"],
+          warm: ["Just tell me the marginal cost and the margin. Two numbers. Fast."],
+        },
+        greeting: {
+          cold: ["Uh, hi. I have about ninety seconds between things. Compress accordingly."],
+          warm: ["Hi. Okay. You sound like you've actually thought about this. Proceed."],
+        },
+        howAreYou: {
+          cold: ["Existentially? Complicated. Practically? Busy. Skip ahead."],
+          warm: ["Optimizing, as usual. Alright, what've you got?"],
+        },
+        vague: {
+          cold: ["That was a word cloud, not a sentence. What's the actual thing?", "Buzzword density too high. Recompile and resend."],
+        },
+      },
     }),
   },
   {
@@ -181,6 +297,35 @@ export const CHARACTERS = [
       ],
       win: ["Well, you've made an old man curious, and that's not easy. Let's continue this over lunch."],
       hangup: ["I'll pass, friend. Rule number one is never lose money — and rule two is never forget rule one."],
+      ctx: {
+        question: {
+          cold: ["Heh, my {echo}? I've had the same {echo} for fifty years, friend. It compounds — that's the whole trick.", "Now why would a fella want to know about my {echo}? Tell me what you're really fishing for."],
+          warm: ["Our {echo}? Truthfully it's like an old tractor — runs fine until the day it doesn't. What are you seeing?"],
+        },
+        value: {
+          cold: ["'{echo}' — you know, in Omaha we'd call that a lot of hat and no cattle. Where's the cattle?", "Everybody promises {echo} in a bull market. What happens to {echo} in a bad year?"],
+          warm: ["Now {echo}, if it's durable, that's a moat. And I do love a moat. Tell me why it lasts."],
+        },
+        number: {
+          cold: ["{echo}, you say. I've seen prettier numbers turn ugly by Tuesday. What's behind it?", "A number like {echo} is a story wearing a suit. Tell me the story instead."],
+          warm: ["{echo} — well now, that's a wonderful little figure. Is it repeatable, or did lightning strike once?"],
+        },
+        price: {
+          cold: ["Price is what I pay, value is what I get. So far you've only told me the first part."],
+          warm: ["Alright, name the price plainly. I've bought companies quicker than some folks buy shoes."],
+        },
+        greeting: {
+          cold: ["Well hello there. I've got a cherry Coke and mild curiosity — one of them runs out fast."],
+          warm: ["Hello, hello. You sound like someone with a story. I like stories. Go on."],
+        },
+        howAreYou: {
+          cold: ["Oh, can't complain — nobody listens anyway, heh. What's on your mind, friend?"],
+          warm: ["Happier than a mosquito at a nudist colony. Now what can I do for you?"],
+        },
+        vague: {
+          cold: ["Friend, I don't invest in what I don't understand — and I didn't understand a word of that.", "Try that again in plain English. The simpler you say it, the smarter you'll sound."],
+        },
+      },
     }),
   },
   {
@@ -205,6 +350,35 @@ export const CHARACTERS = [
       ],
       win: ["Alright, I'm in. But I want weekly numbers in my inbox. Deal."],
       hangup: ["And for that reason, I'm out."],
+      ctx: {
+        question: {
+          cold: ["My {echo}? You didn't do your homework — that's strike one. I talk about it in like nine interviews.", "Why does my {echo} matter? Sales fix everything, and you haven't shown me sales."],
+          warm: ["Our {echo} could be better, not gonna lie. What do you got — and keep it real."],
+        },
+        value: {
+          cold: ["'{echo}' — everybody pitches me {echo}. Margins. Show me the margins.", "That's a hobby claim, not a business claim. {echo} means nothing without CAC."],
+          warm: ["Okay, {echo} with decent unit economics? Keep talking. What's the acquisition cost?"],
+        },
+        number: {
+          cold: ["{echo}? Don't guess with me. Is that gross or net? Trailing or projected?", "I've heard {echo}-type numbers from a hundred founders. Ninety-nine were wrong."],
+          warm: ["{echo}. If that's net and repeatable, those margins don't suck. What's churn?"],
+        },
+        price: {
+          cold: ["You're leading with price? Money's a commodity. Value isn't. Which one are you selling?"],
+          warm: ["Fine — what's it cost, what's it return, and how fast? Three numbers, go."],
+        },
+        greeting: {
+          cold: ["Yeah, hey. Sixty seconds. Numbers first, story later."],
+          warm: ["Hey — okay, you came ready. Respect. What's the pitch?"],
+        },
+        howAreYou: {
+          cold: ["Save the small talk for your barber. What are we doing here?"],
+          warm: ["Living the dream. Alright, whatcha got?"],
+        },
+        vague: {
+          cold: ["That answer had no numbers in it. Try again with numbers.", "Fluff. I hear fluff, I reach for the door."],
+        },
+      },
     }),
   },
   {
@@ -228,6 +402,35 @@ export const CHARACTERS = [
       ],
       win: ["You know what? I trust my gut, and my gut says yes. Let's do it."],
       hangup: ["I'm going to save us both time — it's a no. Toughen up and try again."],
+      ctx: {
+        question: {
+          cold: ["My {echo}? Honey, I built my {echo} from a thousand-dollar loan. What did YOU build?", "You're asking about my {echo} — cute. I ask the questions until you've earned a turn."],
+          warm: ["Our {echo}? Between us, it needs work — and I only admit that to people I like. Careful, you're becoming one."],
+        },
+        value: {
+          cold: ["Sweetheart, '{echo}' is what everyone says right before they disappoint me.", "I don't buy {echo}. I buy the PERSON selling {echo}. And I'm still reading you."],
+          warm: ["Now {echo} — say it again with your spine straight, because that one I believe."],
+        },
+        number: {
+          cold: ["{echo}? Numbers don't impress me, honey. Grit impresses me. Where's yours from?"],
+          warm: ["{echo} — okay, that's a real number said like a real person. Who'd you learn that from?"],
+        },
+        price: {
+          cold: ["Talking money before charming me? In New York we call that amateur hour."],
+          warm: ["Give me the price straight, no wincing. Winners don't wince."],
+        },
+        greeting: {
+          cold: ["Hi honey. I've got five minutes between showings and four of them are spoken for."],
+          warm: ["Well hello! Good energy. Don't waste it — what've you got?"],
+        },
+        howAreYou: {
+          cold: ["Fabulous, always fabulous. You won't distract me with manners though — pitch."],
+          warm: ["I'm terrific, sweetheart. And you sound nervous-excited, which I love. Go."],
+        },
+        vague: {
+          cold: ["You're reading a script, I can hear the paper. Throw it out and talk to me.", "That was mush. Tell me something TRUE."],
+        },
+      },
     }),
   },
   // ── Buyer archetypes ────────────────────────────────────

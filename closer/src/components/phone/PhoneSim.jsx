@@ -1,10 +1,10 @@
-// The AI phone simulator — lock screen → home → contacts/dialer → live call.
+// The AI phone simulator — lock screen → home → prospects list → live call.
 // Voice in/out runs on the Web Speech API with a type-to-speak fallback.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { CHARACTERS, DIFFICULTY_LABELS, getCharacter } from '../../data/characters.js'
 import { createConversation } from '../../lib/conversation.js'
 import { scoreCall } from '../../lib/scoring.js'
-import { speechSupport, speak, stopSpeaking, listenOnce, pickVoice } from '../../lib/speech.js'
+import { speechSupport, speak, stopSpeaking, listenOnce, resolveCharacterVoice, voicesReady } from '../../lib/speech.js'
 import { getProfile } from '../../lib/storage.js'
 import { fmtDuration } from '../../lib/format.js'
 import { Difficulty } from '../ui.jsx'
@@ -87,9 +87,10 @@ function LockScreen({ onUnlock }) {
 
 /* ── Home screen ──────────────────────────────────────────── */
 function HomeScreen({ onOpen }) {
+  // The green Phone app opens your prospect list — every call starts from a
+  // contact you can see, never a number you're expected to know.
   const apps = [
-    { id: 'contacts', name: 'Contacts', ic: '👥', tint: '' },
-    { id: 'dialer', name: 'Phone', ic: '📞', tint: 'green' },
+    { id: 'contacts', name: 'Prospects', ic: '📞', tint: 'green' },
     { id: 'recents', name: 'Recents', ic: '🕘', tint: '' },
     { id: 'coach', name: 'Coach', ic: '🎯', tint: 'gold' },
     { name: 'Messages', ic: '💬' }, { name: 'Mail', ic: '✉️' },
@@ -108,7 +109,7 @@ function HomeScreen({ onOpen }) {
         ))}
       </div>
       <div className="home-dock">
-        {[{ id: 'dialer', ic: '📞', tint: 'green' }, { id: 'contacts', ic: '👥' }, { id: 'coach', ic: '🎯', tint: 'gold' }, { id: 'recents', ic: '🕘' }].map((a) => (
+        {[{ id: 'contacts', ic: '📞', tint: 'green' }, { id: 'recents', ic: '🕘' }, { id: 'coach', ic: '🎯', tint: 'gold' }].map((a) => (
           <button key={a.id} className="home-app" onClick={() => onOpen(a.id)} aria-label={a.id}>
             <span className={`ic ${a.tint || ''}`}>{a.ic}</span>
           </button>
@@ -171,40 +172,6 @@ function RecentsScreen({ onBack, onCall }) {
   )
 }
 
-/* ── Dial pad ─────────────────────────────────────────────── */
-const KEYS = [
-  ['1', ''], ['2', 'ABC'], ['3', 'DEF'], ['4', 'GHI'], ['5', 'JKL'],
-  ['6', 'MNO'], ['7', 'PQRS'], ['8', 'TUV'], ['9', 'WXYZ'], ['*', ''], ['0', '+'], ['#', ''],
-]
-function DialerScreen({ onBack, onCall }) {
-  const [num, setNum] = useState('')
-  const dial = () => {
-    // Any number reaches a random prospect — the fun of cold calling.
-    const c = CHARACTERS[num.split('').reduce((s, ch) => s + ch.charCodeAt(0), 0) % CHARACTERS.length]
-    onCall(c)
-  }
-  return (
-    <div className="pscreen dialer-screen">
-      <div className="papp-header" style={{ border: 'none', paddingLeft: 0 }}>
-        <button className="papp-back" onClick={onBack}>‹ Home</button>
-      </div>
-      <div className="dial-display mono">{num || <span style={{ color: 'rgba(255,255,255,.25)', fontSize: 15 }}>Dial any number…</span>}</div>
-      <div className="dial-grid">
-        {KEYS.map(([k, sub]) => (
-          <button key={k} className="dial-key" onClick={() => setNum((n) => (n.length < 12 ? n + k : n))}>
-            {k}{sub && <small>{sub}</small>}
-          </button>
-        ))}
-      </div>
-      <div className="dial-actions">
-        <span style={{ width: 44 }} />
-        <button className="dial-call" onClick={dial} disabled={!num} aria-label="Call" style={!num ? { opacity: 0.4 } : undefined}>📞</button>
-        <button className="dial-del" onClick={() => setNum((n) => n.slice(0, -1))} aria-label="Delete digit">⌫</button>
-      </div>
-    </div>
-  )
-}
-
 /* ── Active call ──────────────────────────────────────────── */
 const EMOTION_LABEL = {
   neutral: 'listening', curious: 'curious', warm: 'warming up', skeptical: 'skeptical',
@@ -235,10 +202,6 @@ function CallScreen({ character, challenge, scenario, incoming, whisperEnabled, 
   mutedRef.current = muted
 
   const settings = getProfile().settings
-  const voice = useMemo(
-    () => pickVoice({ gender: character.voice.gender, accent: settings.accent === 'auto' ? character.voice.accent : character.voice.accent }),
-    [character], // eslint-disable-line react-hooks/exhaustive-deps
-  )
 
   // timer
   useEffect(() => {
@@ -274,9 +237,12 @@ function CallScreen({ character, challenge, scenario, incoming, whisperEnabled, 
     setCaption({ speaker: character.name, text })
     transcriptRef.current.push({ speaker: 'ai', text, t: startRef.current ? (Date.now() - startRef.current) / 1000 : 0 })
     const rate = character.speakingSpeed * (settings.voiceRate || 1)
-    speakingRef.current = speak(text, { rate, pitch: character.voice.pitch, voice })
+    // Resolve fresh each line but pinned per character — one voice for the
+    // whole call even if the browser's voice list loaded late.
+    const voice = resolveCharacterVoice(character)
+    speakingRef.current = speak(text, { rate, pitch: character.voice.pitch, voice, humanize: true })
     await speakingRef.current.promise
-  }, [character, voice, settings.voiceRate])
+  }, [character, settings.voiceRate])
 
   const userTurn = useCallback(async () => {
     if (doneRef.current) return
@@ -330,7 +296,9 @@ function CallScreen({ character, challenge, scenario, incoming, whisperEnabled, 
     startRef.current = Date.now()
     convRef.current = createConversation({ character, challenge, scenario })
     const open = convRef.current.opener()
-    await new Promise((r) => setTimeout(r, 600))
+    // Let the browser's voice list finish loading so the character keeps
+    // one consistent voice from the very first word.
+    await Promise.all([voicesReady(), new Promise((r) => setTimeout(r, 600))])
     await aiSay(open.text, open.emotion)
     userTurn()
   }, [aiSay, character, challenge, scenario, userTurn])
@@ -491,7 +459,6 @@ export default function PhoneSim({ startCharacter, challenge, scenario, incoming
       }} />}
       {screen === 'contacts' && <ContactsScreen onBack={() => setScreen('home')} onCall={startCall} />}
       {screen === 'recents' && <RecentsScreen onBack={() => setScreen('home')} onCall={startCall} />}
-      {screen === 'dialer' && <DialerScreen onBack={() => setScreen('home')} onCall={startCall} />}
       {screen === 'call' && callTarget && (
         <CallScreen
           character={callTarget}
