@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self';" />
+<title>Lumera — Admin Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Dark "Nebula" palette — matches the live Lumera site (black/grey + purple). */
+  :root{
+    --ivory:#0E0E13; --cream:#17171F; --card:#1B1B25; --sand:#262635; --line:#2C2C3C;
+    --charcoal:#E9EAF4; --ink:#F5F5FB; --muted:#9EA0B6; --faint:#6E6F88;
+    --gold:#8B5CF6; --goldd:#A78BFA; --golddd:#6D4FE6;
+    --sage:#34D399; --saged:#34D399; --clay:#FBBF24; --clayd:#FCD34D; --berry:#FB7185; --sky:#60A5FA;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  body{ margin:0; font-family:'Inter',system-ui,sans-serif; color:var(--charcoal); background:var(--ivory);
+    background-image:radial-gradient(1100px 560px at 100% -10%, rgba(139,92,246,.22), transparent 60%),
+                     radial-gradient(820px 500px at -10% 110%, rgba(59,130,246,.12), transparent 55%);
+    background-attachment:fixed; min-height:100vh; -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.serif{ font-family:'Fraunces',Georgia,serif; font-optical-sizing:auto; letter-spacing:-.01em; }
+  ::selection{ background:rgba(139,92,246,.34); color:#fff; }
+  ::-webkit-scrollbar{ width:10px; height:10px; }
+  ::-webkit-scrollbar-thumb{ background:#33334a; border-radius:20px; border:2px solid var(--ivory); }
+  .app{ display:grid; grid-template-columns:248px 1fr; min-height:100vh; }
+  .sidebar{ background:var(--cream); border-right:1px solid var(--line); padding:18px 14px 24px; position:sticky; top:0; height:100vh; overflow-y:auto; }
+  .brand{ display:flex; flex-direction:column; align-items:flex-start; gap:8px; padding:6px 8px 18px; }
+  .brand .mark{ font-family:'Fraunces',serif; letter-spacing:.18em; font-size:18px; white-space:nowrap; }
+  .role-chip{ display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:99px; background:var(--sand); color:var(--muted); font-size:10.5px; font-weight:600; white-space:nowrap; max-width:100%; overflow:hidden; text-overflow:ellipsis; }
+  .navg{ display:block; padding:0 6px; margin-bottom:14px; }
+  .navg .label{ font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--faint); padding:0 6px 6px; font-weight:600; }
+  .navi{ display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:10px; font-size:13px; color:var(--charcoal); cursor:pointer; border:none; background:none; width:100%; text-align:left; transition:all .2s; }
+  .navi:hover:not(:disabled){ background:var(--sand); }
+  .navi.active{ background:linear-gradient(180deg,#8B5CF6,#6D4FE6); color:#fff; }
+  .navi.disabled{ color:var(--faint); cursor:not-allowed; opacity:.5; }
+  .main{ padding:28px 32px 60px; max-width:1160px; }
+  .top{ display:flex; align-items:center; gap:10px; margin-bottom:18px; flex-wrap:wrap; }
+  .live-dot{ width:7px; height:7px; border-radius:50%; background:var(--sage); display:inline-block; animation:pulse 1.8s infinite; margin-right:5px; }
+  @keyframes pulse{ 0%{box-shadow:0 0 0 0 rgba(110,139,106,.4)} 70%{box-shadow:0 0 0 9px rgba(110,139,106,0)} 100%{box-shadow:0 0 0 0 rgba(110,139,106,0)} }
+  h1.page{ font-size:28px; margin:0 0 4px; }
+  .page-desc{ color:var(--muted); margin:0 0 20px; max-width:680px; font-size:14px; line-height:1.55; }
+  .card{ background:linear-gradient(180deg,#1D1D28,#16161F); border:1px solid var(--line); border-radius:16px; padding:18px; box-shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35); }
+  .card + .card{ margin-top:14px; }
+  .row{ display:grid; gap:14px; margin-bottom:14px; }
+  .row.cols-2{ grid-template-columns:1fr 1fr; }
+  .row.cols-3{ grid-template-columns:repeat(3,1fr); }
+  .row.cols-4{ grid-template-columns:repeat(4,1fr); }
+  @media (max-width:820px){
+    .app{ grid-template-columns:1fr; }
+    .sidebar{ position:relative; height:auto; }
+    .main{ padding:16px; }
+    .row.cols-2, .row.cols-3, .row.cols-4{ grid-template-columns:1fr 1fr; }
+  }
+  @media (max-width:520px){ .row.cols-2,.row.cols-3,.row.cols-4{ grid-template-columns:1fr; } }
+  .eyebrow{ font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--goldd); font-weight:600; margin-bottom:8px; }
+  .kpi{ position:relative; overflow:hidden; }
+  .kpi .v{ font-family:'Fraunces',serif; font-size:30px; line-height:1.05; }
+  .kpi .l{ font-size:12px; color:var(--muted); margin-top:2px; }
+  .kpi .delta{ font-size:11px; font-weight:600; margin-top:6px; }
+  .kpi .delta.up{ color:var(--saged); } .kpi .delta.down{ color:var(--clayd); }
+  .bar{ display:flex; align-items:center; gap:10px; margin:7px 0; font-size:13px; }
+  .bar .lab{ width:170px; color:var(--charcoal); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .bar .track{ flex:1; height:8px; border-radius:99px; background:var(--sand); overflow:hidden; }
+  .bar .fill{ height:100%; border-radius:99px; background:linear-gradient(90deg,#8B5CF6,#6D4FE6); transition:width .6s cubic-bezier(.22,1,.36,1); }
+  .bar .val{ width:54px; text-align:right; color:var(--muted); font-variant-numeric:tabular-nums; }
+  .btn{ border:1px solid var(--line); background:var(--card); border-radius:99px; padding:8px 14px; font-size:12.5px; font-weight:600; cursor:pointer; color:var(--charcoal); transition:all .2s; display:inline-flex; align-items:center; gap:6px; }
+  .btn:hover:not(:disabled){ border-color:#3a3a54; }
+  .btn:disabled{ opacity:.4; cursor:not-allowed; }
+  .btn.gold{ background:linear-gradient(180deg,#9B6CFF,#6D4FE6); color:#fff; border:none; }
+  .btn.gold:hover{ background:linear-gradient(180deg,#a87dff,#7c5bf0); }
+  .btn.danger{ background:transparent; color:var(--berry); border-color:rgba(166,83,74,.3); }
+  .btn.danger:hover{ background:rgba(166,83,74,.06); }
+  .btn.ghost{ background:transparent; border-color:var(--line); }
+  .btn.sm{ padding:5px 10px; font-size:11px; }
+  input,textarea,select{ font-family:inherit; font-size:14px; border:1px solid var(--line); border-radius:10px; padding:9px 12px; width:100%; background:var(--cream); color:var(--charcoal); }
+  input:focus,textarea:focus,select:focus{ outline:none; border-color:var(--gold); box-shadow:0 0 0 4px rgba(139,92,246,.18); }
+  label.fl{ display:block; font-size:12px; color:var(--muted); margin-bottom:5px; font-weight:500; }
+  .pill{ display:inline-flex; align-items:center; gap:6px; padding:3px 9px; border-radius:99px; font-size:11px; font-weight:600; background:var(--sand); color:var(--muted); }
+  .pill.draft{ background:rgba(124,114,100,.12); color:var(--muted); }
+  .pill.live{ background:rgba(110,139,106,.15); color:var(--saged); }
+  .pill.unp{ background:rgba(192,113,79,.12); color:var(--clayd); }
+  .pill.gold{ background:rgba(139,92,246,.20); color:var(--goldd); }
+  .muted{ color:var(--muted); } .faint{ color:var(--faint); } .tnum{ font-variant-numeric:tabular-nums; }
+  .upd{ display:flex; gap:14px; padding:14px; border:1px solid var(--line); border-radius:14px; margin-bottom:10px; background:var(--card); transition:border-color .2s; }
+  .upd:hover{ border-color:#3a3a54; }
+  .upd .ic{ width:40px; height:40px; border-radius:12px; background:rgba(139,92,246,.16); color:var(--goldd); display:grid; place-items:center; flex-shrink:0; font-size:18px; }
+  .upd .body{ flex:1; min-width:0; }
+  .upd .ttl{ font-weight:600; font-size:14px; margin:0 0 4px; }
+  .upd .meta{ font-size:11px; color:var(--faint); display:flex; gap:10px; align-items:center; margin-bottom:6px; flex-wrap:wrap; }
+  .upd .desc{ font-size:13px; color:var(--muted); margin:0; line-height:1.5; }
+  .upd .acts{ display:flex; gap:6px; align-items:flex-start; flex-shrink:0; flex-wrap:wrap; }
+  .modal-bg{ position:fixed; inset:0; background:rgba(39,35,32,.5); backdrop-filter:blur(2px); display:grid; place-items:center; padding:20px; z-index:99; animation:fadeIn .2s; }
+  @keyframes fadeIn{ from{opacity:0} to{opacity:1} }
+  .modal{ background:var(--card); border:1px solid var(--line); border-radius:18px; padding:22px; max-width:520px; width:100%; box-shadow:0 25px 60px rgba(39,35,32,.25); max-height:90vh; overflow-y:auto; }
+  .modal h3{ font-size:20px; margin:0 0 6px; }
+  .modal .acts{ display:flex; justify-content:flex-end; gap:8px; margin-top:18px; }
+  .gate{ min-height:100vh; display:grid; place-items:center; padding:24px; }
+  .gate .card{ max-width:380px; text-align:center; padding:28px; }
+  .gate .lock{ margin:0 auto 14px; width:50px; height:50px; border-radius:16px; background:linear-gradient(135deg,#8B5CF6,#6D4FE6); color:#fff; display:grid; place-items:center; font-size:22px; }
+  .role-founder{ background:rgba(139,92,246,.20); color:var(--goldd); }
+  .role-ops{ background:rgba(110,134,160,.18); color:var(--sky); }
+  .role-product{ background:rgba(110,139,106,.18); color:var(--saged); }
+  .role-research{ background:rgba(192,113,79,.18); color:var(--clayd); }
+  .role-beta{ background:rgba(124,114,100,.12); color:var(--muted); }
+  .empty{ text-align:center; padding:36px 16px; color:var(--muted); font-size:13px; }
+  code{ background:var(--cream); padding:1px 5px; border-radius:4px; font-size:.9em; }
+  table{ width:100%; border-collapse:collapse; font-size:13px; }
+  table th{ text-align:left; padding:10px 8px; font-weight:600; border-bottom:2px solid var(--line); }
+  table td{ padding:8px; border-bottom:1px solid var(--line); }
+  .seg{ display:flex; gap:0; border:1px solid var(--line); border-radius:99px; padding:3px; background:var(--cream); }
+  .seg button{ border:none; background:none; border-radius:99px; padding:5px 12px; font-size:12px; font-weight:600; color:var(--muted); cursor:pointer; }
+  .seg button.on{ background:var(--card); color:var(--charcoal); box-shadow:0 1px 3px rgba(39,35,32,.1); }
+  .donut-wrap{ display:flex; align-items:center; gap:18px; }
+  .legend{ font-size:12.5px; }
+  .legend .li{ display:flex; align-items:center; gap:7px; margin:4px 0; }
+  .legend .sw{ width:11px; height:11px; border-radius:3px; }
+  .heat{ display:grid; grid-template-columns:repeat(24,1fr); gap:3px; }
+  .heat .h{ aspect-ratio:1; border-radius:3px; background:var(--sand); }
+</style>
+</head>
+<body>
+
+<div id="gate" class="gate">
+  <div class="card">
+    <div class="lock">🔒</div>
+    <h1 style="font-size:22px; margin:0 0 4px;">Lumera Admin Portal</h1>
+    <p class="muted" style="font-size:13px; margin:0 0 16px;">Role-based access — enter your team key.</p>
+    <input id="key" type="password" placeholder="Access key" style="text-align:center;"/>
+    <div id="gerr" style="color:var(--clay); font-size:12px; margin-top:8px; display:none;">Incorrect key.</div>
+    <button class="btn gold" style="width:100%; margin-top:12px; justify-content:center;" onclick="tryUnlock()">Unlock portal</button>
+    <p class="faint" style="font-size:10.5px; margin-top:16px; line-height:1.6; text-align:left;">
+      Keys are verified by SHA-256 hash (no plaintext in this file). Default keys:<br>
+      <code>lumera-admin-2026</code> · Founder<br>
+      <code>lumera-ops-2026</code> · Operations<br>
+      <code>lumera-product-2026</code> · Product Dev<br>
+      <code>lumera-research-2026</code> · Innovation &amp; Research<br>
+      <span class="muted">To change a key, replace its hash in <code>ROLE_KEY_HASHES</code>.</span>
+    </p>
+  </div>
+</div>
+
+<div id="app" class="app" style="display:none;">
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="mark">L U M E R A</span>
+      <span class="role-chip" id="roleChip">Role</span>
+    </div>
+    <div class="navg">
+      <div class="label">Overview</div>
+      <button class="navi" data-tab="dashboard">📊 Dashboard</button>
+    </div>
+    <div class="navg">
+      <div class="label">Analytics</div>
+      <button class="navi" data-tab="insights">🧮 User insights</button>
+      <button class="navi" data-tab="usage">📈 Usage reports</button>
+    </div>
+    <div class="navg">
+      <div class="label">Content</div>
+      <button class="navi" data-tab="updates">📝 Product updates</button>
+      <button class="navi" data-tab="news">📰 News feed</button>
+      <button class="navi" data-tab="offers">🎁 Discounts &amp; offers</button>
+    </div>
+    <div class="navg">
+      <div class="label">Product</div>
+      <button class="navi" data-tab="feedback">💬 User feedback</button>
+      <button class="navi" data-tab="features">🧰 Feature flags</button>
+    </div>
+    <div class="navg">
+      <div class="label">Research</div>
+      <button class="navi" data-tab="trends">🔍 Trend monitor</button>
+      <button class="navi" data-tab="market">🌐 Market tracker</button>
+    </div>
+    <div class="navg">
+      <div class="label">Account</div>
+      <button class="navi" data-tab="permissions">🔐 Permissions</button>
+      <button class="navi" onclick="lock()">⏻ Lock portal</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="top">
+      <span class="pill live"><span class="live-dot"></span> Live · refreshing 3s</span>
+      <span class="faint" id="updatedAt" style="font-size:12px;"></span>
+      <span style="flex:1"></span>
+      <button class="btn ghost" onclick="exportData()">Export JSON</button>
+      <button class="btn ghost" onclick="seedDemo()">Seed demo data</button>
+      <button class="btn ghost" onclick="clearData()">Clear local</button>
+    </div>
+    <div id="content"></div>
+  </main>
+</div>
+
+<script>
+/* ============================================================
+   Roles & access — keys verified by SHA-256 hash (no plaintext)
+   ============================================================ */
+const ROLE_KEY_HASHES = {
+  '6amaKQQaPKpH7vitzjbX5v/iI6FYoKB7qEjyi/fXDrM=' : 'founder',
+  'Fum6ZqB3N6zT0RAUd3eoLuHjONjBwfdERpOd90JOuh0=' : 'ops',
+  'TfoTznSBnrVDPrbNFclvwLA0rpkdL1lsNqshSLr/WZs=' : 'product',
+  'Wuiq/AJhUQYduNVdeCjW7Y6bnIQJm+MmdQl4ZF1AkVg=' : 'research',
+};
+const ROLES = {
+  founder:  { label:'Founder',                badge:'role-founder',  scope:['*'] },
+  ops:      { label:'Operations Associate',   badge:'role-ops',      scope:['dashboard','insights','usage','updates','news','permissions'] },
+  product:  { label:'Product Dev Associate',  badge:'role-product',  scope:['dashboard','feedback','features','updates','permissions'] },
+  research: { label:'Innovation & Research',  badge:'role-research', scope:['dashboard','trends','market','news','offers','permissions'] },
+  beta:     { label:'Beta Tester',            badge:'role-beta',     scope:[] },
+};
+let CURRENT_ROLE = null;
+
+async function sha256b64(str){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return btoa(String.fromCharCode(...new Uint8Array(buf)));
+}
+function hasAccess(tab){
+  if(!CURRENT_ROLE) return false;
+  const scope = ROLES[CURRENT_ROLE].scope;
+  if(scope.includes('*')) return true;
+  return scope.includes(tab);
+}
+async function tryUnlock(){
+  const k = document.getElementById('key').value.trim();
+  let role=null;
+  try{ role = ROLE_KEY_HASHES[await sha256b64(k)]; }catch(e){}
+  if(!role){ document.getElementById('gerr').style.display='block'; return; }
+  CURRENT_ROLE = role;
+  try{ sessionStorage.setItem('lumera_admin_role', role); }catch(e){}
+  showApp();
+}
+function lock(){
+  CURRENT_ROLE = null;
+  try{ sessionStorage.removeItem('lumera_admin_role'); }catch(e){}
+  document.getElementById('app').style.display='none';
+  document.getElementById('gate').style.display='grid';
+  document.getElementById('key').value='';
+}
+function showApp(){
+  document.getElementById('gate').style.display='none';
+  document.getElementById('app').style.display='grid';
+  const cfg = ROLES[CURRENT_ROLE];
+  const chip = document.getElementById('roleChip');
+  chip.textContent = cfg.label;
+  chip.className = 'role-chip ' + cfg.badge;
+  document.querySelectorAll('.navi').forEach(b=>{
+    const tab = b.getAttribute('data-tab');
+    if(!tab){ return; }
+    if(!hasAccess(tab)){ b.classList.add('disabled'); b.disabled = true; }
+    else { b.classList.remove('disabled'); b.disabled = false; }
+    b.onclick = ()=>switchTab(tab);
+  });
+  const firstTab = (cfg.scope.includes('*') ? 'dashboard' : (cfg.scope[0]||'dashboard'));
+  switchTab(firstTab);
+}
+(function autoUnlock(){
+  try{ const r = sessionStorage.getItem('lumera_admin_role'); if(r && ROLES[r]){ CURRENT_ROLE = r; showApp(); } }catch(e){}
+})();
+document.getElementById('key').addEventListener('keydown', e=>{ if(e.key==='Enter') tryUnlock(); });
+
+let ACTIVE_TAB = null, DASH_TIMER = null;
+function switchTab(tab){
+  clearInterval(DASH_TIMER); DASH_TIMER = null;
+  if(!hasAccess(tab)){
+    document.getElementById('content').innerHTML = `<div class="card empty">
+      <div style="font-size:30px; margin-bottom:8px;">🔒</div>
+      <p><strong>${ROLES[CURRENT_ROLE].label}</strong> doesn&apos;t have access to this section.</p>
+      <p class="faint" style="margin-top:6px;">Ask the Founder to grant access via the Permissions panel.</p></div>`;
+    return;
+  }
+  ACTIVE_TAB = tab;
+  document.querySelectorAll('.navi').forEach(b=>{ b.classList.toggle('active', b.getAttribute('data-tab')===tab); });
+  render();
+  // Live auto-refresh for the analytics views
+  if(['dashboard','insights','usage'].includes(tab)) DASH_TIMER = setInterval(()=>{ if(ACTIVE_TAB===tab) render(); }, 3000);
+}
+
+/* ============================================================
+   Storage + analytics helpers (reads what the Lumera app records)
+   ============================================================ */
+const ACCT='lumera_accounts', ANALYTICS='lumera_analytics', UPDATES='lumera_updates', NEWS='lumera_news', OFFERS='lumera_offers', FEEDBACK='lumera_feedback', FEATURES='lumera_features';
+const loadJSON = (k, def)=>{ try{ const v=JSON.parse(localStorage.getItem(k)); return (v==null)?def:v; }catch(e){ return def; } };
+const saveJSON = (k, v)=>{ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} };
+const DAY=864e5;
+const LABELS={'/dashboard':'Dashboard','/budget':'Budget','/goals':'Goals','/emergency':'Emergency Fund','/subscriptions':'Subscriptions','/networth':'Net Worth','/simulator':'Wealth Simulator','/twin':'Financial Twin','/invest':'Investing','/market':'Stock Market','/globe':'Global Markets','/world':'World Monitor','/news':'News','/learn':'Learn','/resources':'Knowledge Hub','/badges':'Badges','/updates':"What's New",'/credit':'Credit','/debt':'Debt','/insurance':'Insurance','/retirement':'Retirement','/assistant':'AI Assistant','/hub':'Products','/leaf':'Leaf','/atlas':'Atlas','/shield':'Shield','/forge':'Forge','/':'Landing','/login':'Login','/signup':'Sign up','/onboarding':'Onboarding','/review':'Review','/settings':'Settings'};
+const labelOf=p=>LABELS[p]||p||'—';
+const langName=c=>({en:'English',ar:'Arabic',ur:'Urdu',hi:'Hindi',fr:'French',es:'Spanish',de:'German'}[c]||c||'—');
+const fmtDur=ms=>{ const s=Math.round(ms/1000); if(s<60) return s+'s'; const m=Math.floor(s/60); return m+'m '+(s%60)+'s'; };
+
+function computeAnalytics(){
+  const an = loadJSON(ANALYTICS, {sessions:[],events:[]});
+  const sessions = an.sessions||[], events = an.events||[];
+  const accts = loadJSON(ACCT, {});
+  // distinct users = registered accounts ∪ named (non-guest) session users
+  const userSet = new Set(Object.keys(accts));
+  sessions.forEach(s=>{ if(s.user && s.user!=='guest') userSet.add(s.user); });
+  const distinctUsers = userSet.size;
+  const logons = sessions.length;                 // each app session = one logon/visit
+  const guestSessions = sessions.filter(s=>!s.user || s.user==='guest').length;
+  const avgLogons = distinctUsers ? logons/distinctUsers : 0;
+  // per-user session counts → new vs returning
+  const byUser = {}; sessions.forEach(s=>{ const u=s.user||'guest'; if(u==='guest') return; byUser[u]=(byUser[u]||0)+1; });
+  const returningUsers = Object.values(byUser).filter(n=>n>1).length;
+  const retentionPct = distinctUsers ? Math.round(returningUsers/distinctUsers*100) : 0;
+  // time windows
+  const start0=new Date(); start0.setHours(0,0,0,0); const todayMs=start0.getTime();
+  const activeToday = sessions.filter(s=>(s.start||0)>=todayMs).length;
+  const active7 = new Set(); sessions.forEach(s=>{ if((s.start||0)>=Date.now()-7*DAY && s.user && s.user!=='guest') active7.add(s.user); });
+  // duration
+  const durs = sessions.map(s=>Math.max(0,(s.end||s.start||0)-(s.start||0)));
+  const avgDur = durs.length ? durs.reduce((a,b)=>a+b,0)/durs.length : 0;
+  // views
+  const views = events.filter(e=>e.type==='view');
+  const viewsPerSession = sessions.length ? views.length/sessions.length : 0;
+  // sessions over last 14 days
+  const days=[]; for(let i=13;i>=0;i--){ const d=new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()-i); const a=d.getTime(); days.push({t:a, n:sessions.filter(s=>(s.start||0)>=a && (s.start||0)<a+DAY).length}); }
+  // peak hours
+  const hours=new Array(24).fill(0); sessions.forEach(s=>{ if(s.start) hours[new Date(s.start).getHours()]++; });
+  // feature usage (views by route)
+  const feat={}; views.forEach(v=>{ const k=labelOf(v.path); feat[k]=(feat[k]||0)+1; });
+  // breakdowns
+  const langs={}, currs={}; sessions.forEach(s=>{ const l=s.lang||'en', c=s.cur||'—'; langs[l]=(langs[l]||0)+1; currs[c]=(currs[c]||0)+1; });
+  return { sessions, events, accts, distinctUsers, logons, guestSessions, avgLogons, returningUsers, retentionPct,
+    activeToday, active7:active7.size, avgDur, views, viewsPerSession, days, hours, feat, langs, currs };
+}
+
+const C = document.getElementById('content');
+function escapeHtml(s){ return String(s==null?'':s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function pageHead(title, desc){ return `<h1 class="page">${title}</h1><p class="page-desc">${desc}</p>`; }
+function kpi(eyebrow, value, label, delta){ return `<div class="card kpi"><div class="eyebrow">${eyebrow}</div><div class="v tnum">${value}</div><div class="l">${label||''}</div>${delta||''}</div>`; }
+function barRows(obj, fmt){ const ent=Object.entries(obj).sort((a,b)=>b[1]-a[1]); const max=Math.max(1,...ent.map(e=>e[1]));
+  return ent.length? ent.map(([k,v])=>`<div class="bar"><div class="lab">${escapeHtml(k)}</div><div class="track"><div class="fill" style="width:${Math.round(v/max*100)}%"></div></div><div class="val tnum">${fmt?fmt(v):v}</div></div>`).join('') : '<p class="empty">No data yet.</p>'; }
+
+function sparkline(days){
+  const vals=days.map(d=>d.n); const max=Math.max(1,...vals); const w=620,h=150,pl=8,pr=8,pt=18,pb=26,n=vals.length;
+  const X=i=>pl+(i/((n-1)||1))*(w-pl-pr);
+  const Y=v=>h-pb-(v/max)*(h-pb-pt);
+  const line=vals.map((v,i)=>`${i?'L':'M'}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+  const area=`M${X(0)},${h-pb} `+vals.map((v,i)=>`L${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ')+` L${X(n-1)},${h-pb} Z`;
+  const labs=days.map((d,i)=> (i%2===0)? `<text x="${X(i)}" y="${h-8}" text-anchor="middle" font-size="9" fill="#9EA0B6">${new Date(d.t).toLocaleDateString([], {day:'numeric',month:'short'})}</text>`:'').join('');
+  const dots=vals.map((v,i)=>`<circle cx="${X(i)}" cy="${Y(v)}" r="3" fill="#8B5CF6"/>`).join('');
+  const nums=vals.map((v,i)=> v? `<text x="${X(i)}" y="${Y(v)-7}" text-anchor="middle" font-size="9.5" font-weight="700" fill="#E9EAF4">${v}</text>`:'').join('');
+  return `<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto" font-family="inherit">
+    <path d="${area}" fill="rgba(139,92,246,.14)"/>
+    <path d="${line}" fill="none" stroke="#A78BFA" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    ${dots}${nums}${labs}</svg>`;
+}
+function donut(obj, colors){
+  const ent=Object.entries(obj).sort((a,b)=>b[1]-a[1]).slice(0,6); const total=Math.max(1,ent.reduce((a,e)=>a+e[1],0));
+  let acc=0; const R=52, Cx=60, Cy=60, SW=18;
+  const segs=ent.map(([k,v],i)=>{ const frac=v/total; const a0=acc*2*Math.PI-Math.PI/2; acc+=frac; const a1=acc*2*Math.PI-Math.PI/2;
+    const x0=Cx+R*Math.cos(a0), y0=Cy+R*Math.sin(a0), x1=Cx+R*Math.cos(a1), y1=Cy+R*Math.sin(a1); const large=frac>.5?1:0;
+    return `<path d="M${x0.toFixed(1)},${y0.toFixed(1)} A${R},${R} 0 ${large} 1 ${x1.toFixed(1)},${y1.toFixed(1)}" fill="none" stroke="${colors[i%colors.length]}" stroke-width="${SW}"/>`;
+  }).join('');
+  const legend=ent.map(([k,v],i)=>`<div class="li"><span class="sw" style="background:${colors[i%colors.length]}"></span>${escapeHtml(k)} <span class="faint tnum" style="margin-left:auto">${Math.round(v/total*100)}%</span></div>`).join('');
+  return `<div class="donut-wrap"><svg width="120" height="120" viewBox="0 0 120 120">${segs}<circle cx="60" cy="60" r="${R-SW/2}" fill="none"/></svg><div class="legend" style="flex:1">${legend||'<span class="faint">No data.</span>'}</div></div>`;
+}
+
+/* ============================================================
+   Render router
+   ============================================================ */
+function render(){
+  if(!ACTIVE_TAB) return;
+  ({ dashboard:renderDashboard, insights:renderInsights, usage:renderUsage, updates:renderUpdates, news:renderNews,
+     offers:renderOffers, feedback:renderFeedback, features:renderFeatures, trends:renderTrends, market:renderMarket,
+     permissions:renderPermissions }[ACTIVE_TAB] || renderDashboard)();
+  document.getElementById('updatedAt').textContent = `Updated ${new Date().toLocaleTimeString()}`;
+}
+
+function renderDashboard(){
+  const A=computeAnalytics();
+  const updates = loadJSON(UPDATES, []);
+  const published = updates.filter(u=>u.status==='published').length;
+  const drafts = updates.filter(u=>u.status==='draft').length;
+  C.innerHTML = `
+    ${pageHead('Admin overview', `Welcome back, ${ROLES[CURRENT_ROLE].label}. Live snapshot — refreshes every 3 seconds.`)}
+    <div class="row cols-4">
+      ${kpi('Distinct users', A.distinctUsers, 'Unique people')}
+      ${kpi('Total logons', A.logons, 'Sessions / visits')}
+      ${kpi('Avg logons / user', A.avgLogons.toFixed(1), 'Visits per person')}
+      ${kpi('Active today', A.activeToday, 'Sessions since midnight')}
+    </div>
+    <div class="row cols-4">
+      ${kpi('Returning users', A.returningUsers, A.retentionPct+'% of users return')}
+      ${kpi('Page views', A.views.length, A.viewsPerSession.toFixed(1)+' per session')}
+      ${kpi('Avg session', fmtDur(A.avgDur), 'Time on site')}
+      ${kpi('Active · 7 days', A.active7, 'Weekly active users')}
+    </div>
+    <div class="card">
+      <div class="eyebrow">Sessions · last 14 days</div>
+      ${A.logons? sparkline(A.days) : '<p class="empty">No sessions captured yet. Use Lumera in this browser/origin to populate live data — or click “Seed demo data”.</p>'}
+    </div>
+    <div class="row cols-2">
+      <div class="card"><div class="eyebrow">Most-used features</div>${barRows(A.feat)}</div>
+      <div class="card"><div class="eyebrow">Recent updates</div>
+        ${updates.slice(0,3).map(u=>`<div class="upd"><div class="ic">📝</div><div class="body">
+          <h3 class="ttl">${escapeHtml(u.title)}</h3>
+          <div class="meta"><span class="pill ${u.status==='published'?'live':'draft'}">${u.status}</span><span>${escapeHtml(u.date)}</span></div>
+          <p class="desc">${escapeHtml((u.body||'').slice(0,120))}${(u.body||'').length>120?'…':''}</p></div></div>`).join('') || '<p class="empty">No updates yet.</p>'}
+      </div>
+    </div>
+    <div class="card"><div class="eyebrow">Quick actions</div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:6px;">
+        ${hasAccess('insights') ? `<button class="btn gold" onclick="switchTab('insights')">Open user insights</button>`:''}
+        ${hasAccess('updates') ? '<button class="btn" onclick="newUpdate()">+ New update</button>' : ''}
+        ${hasAccess('news')    ? '<button class="btn" onclick="newNews()">+ News headline</button>' : ''}
+      </div>
+    </div>`;
+}
+
+function renderInsights(){
+  const A=computeAnalytics();
+  const recent = A.sessions.slice(-14).reverse();
+  const peakMax=Math.max(1,...A.hours);
+  const goldRamp=['#8B5CF6','#A78BFA','#60A5FA','#34D399','#FBBF24','#FB7185'];
+  C.innerHTML = `
+    ${pageHead('User insights', 'Who is using Lumera, how often, and how deeply — computed live from real sessions on this origin.')}
+    <div class="row cols-4">
+      ${kpi('Distinct users', A.distinctUsers, 'Unique people')}
+      ${kpi('Total logons', A.logons, 'All sessions')}
+      ${kpi('Avg logons / user', A.avgLogons.toFixed(1), 'Loyalty')}
+      ${kpi('Return rate', A.retentionPct+'%', A.returningUsers+' came back')}
+    </div>
+    <div class="row cols-4">
+      ${kpi('Active today', A.activeToday, 'Sessions')}
+      ${kpi('Weekly active', A.active7, 'Users · 7 days')}
+      ${kpi('Avg session', fmtDur(A.avgDur), A.viewsPerSession.toFixed(1)+' views/session')}
+      ${kpi('Guest visits', A.guestSessions, 'Not signed in')}
+    </div>
+    <div class="card"><div class="eyebrow">Sessions · last 14 days</div>${A.logons? sparkline(A.days):'<p class="empty">No sessions yet.</p>'}</div>
+    <div class="row cols-2">
+      <div class="card"><div class="eyebrow">By language</div>${donut(A.langs, goldRamp)}</div>
+      <div class="card"><div class="eyebrow">By currency</div>${donut(A.currs, goldRamp)}</div>
+    </div>
+    <div class="card"><div class="eyebrow">Active hours (sessions by hour of day)</div>
+      <div class="heat" style="margin-top:8px">${A.hours.map(v=>`<div class="h" title="${v} sessions" style="background:rgba(139,92,246,${(v/peakMax*0.85+0.06).toFixed(2)})"></div>`).join('')}</div>
+      <div style="display:flex;justify-content:space-between;font-size:9.5px;color:var(--faint);margin-top:4px"><span>12am</span><span>6am</span><span>12pm</span><span>6pm</span><span>11pm</span></div>
+    </div>
+    <div class="card"><div class="eyebrow">Recent sessions</div>
+      ${recent.length? `<table><thead><tr><th>When</th><th>User</th><th>Views</th><th>Duration</th><th>Lang · Cur</th></tr></thead><tbody>
+        ${recent.map(s=>`<tr><td class="faint">${new Date(s.start||Date.now()).toLocaleString()}</td>
+          <td>${escapeHtml(s.user||'guest')}</td><td class="tnum">${s.views||0}</td>
+          <td class="tnum">${fmtDur(Math.max(0,(s.end||s.start||0)-(s.start||0)))}</td>
+          <td class="faint">${langName(s.lang)} · ${escapeHtml(s.cur||'—')}</td></tr>`).join('')}</tbody></table>`
+        : '<p class="empty">No sessions yet.</p>'}
+    </div>`;
+}
+
+function renderUsage(){
+  const A=computeAnalytics();
+  const routeViews={}; A.views.forEach(v=>{ const k=labelOf(v.path); routeViews[k]=(routeViews[k]||0)+1; });
+  const sorted=Object.entries(routeViews).sort((a,b)=>b[1]-a[1]);
+  C.innerHTML = `
+    ${pageHead('Usage reports', 'Page-by-page activity across this origin, refreshing live.')}
+    <div class="row cols-3">
+      ${kpi('Total sessions', A.logons)}
+      ${kpi('Total page views', A.views.length)}
+      ${kpi('Distinct routes', sorted.length)}
+    </div>
+    <div class="card"><div class="eyebrow">Top pages</div>
+      ${sorted.length? barRows(routeViews) : '<p class="empty">No view events yet. Use Lumera in the same browser to populate these (or click “Seed demo data”).</p>'}
+    </div>`;
+}
+
+/* ===== Content management (updates / news / offers / feedback / flags) ===== */
+const UPDATES_SEED = [
+  { id:'u1', date:'May 2026', tag:'Live now', status:'published', title:'Live currency conversion + 27 currencies', body:'Switch display currency and every value recalculates at live exchange rates, with country flags.', published_at: Date.now()-30*DAY },
+  { id:'u2', date:'Jun 2026', tag:'Live now', status:'published', title:'Gamified Spark mode + product worlds', body:'A dark, gamified experience with XP, levels, daily quests and the Lumera family of product worlds (Leaf, Atlas, Shield, Forge).', published_at: Date.now()-5*DAY },
+  { id:'u3', date:'Jul 2026', tag:'Coming', status:'draft', title:'Live market data + headlines', body:'Real-time prices and news via a market-data provider — being wired in.', published_at: 0 },
+];
+(function migrateUpdates(){ let arr=loadJSON(UPDATES,null); if(!Array.isArray(arr)||arr.length===0){ saveJSON(UPDATES, UPDATES_SEED); } })();
+
+function renderUpdates(){
+  const list = loadJSON(UPDATES, []);
+  const groups={ draft:[], published:[], archived:[] }; list.forEach(u=>(groups[u.status]||groups.published).push(u));
+  C.innerHTML = `
+    ${pageHead('Product updates', 'Edit, publish or archive changelog entries. Published items appear on /updates in Lumera; publishing asks for confirmation.')}
+    <div class="card"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+      <div><div class="eyebrow">Update library</div><span class="faint" style="font-size:12px;">${groups.published.length} published · ${groups.draft.length} draft · ${groups.archived.length} archived</span></div>
+      <button class="btn gold" onclick="newUpdate()">+ New update</button></div></div>
+    <div class="card"><div class="eyebrow">Drafts (${groups.draft.length})</div>${groups.draft.map(updateRow).join('')||'<p class="empty">No drafts.</p>'}</div>
+    <div class="card"><div class="eyebrow">Published (${groups.published.length})</div>${groups.published.map(updateRow).join('')||'<p class="empty">No published updates yet.</p>'}</div>
+    ${groups.archived.length?`<div class="card"><div class="eyebrow">Archived (${groups.archived.length})</div>${groups.archived.map(updateRow).join('')}</div>`:''}`;
+}
+function updateRow(u){
+  const pill=u.status==='published'?'<span class="pill live">Published</span>':u.status==='draft'?'<span class="pill draft">Draft</span>':'<span class="pill unp">Archived</span>';
+  return `<div class="upd"><div class="ic">📝</div><div class="body">
+    <h3 class="ttl">${escapeHtml(u.title)||'<span class="faint">(untitled)</span>'}</h3>
+    <div class="meta">${pill}<span>${escapeHtml(u.date)}</span>${u.published_at?`<span class="faint">${new Date(u.published_at).toLocaleDateString()}</span>`:''}</div>
+    <p class="desc">${escapeHtml((u.body||'').slice(0,200))}${(u.body||'').length>200?'…':''}</p></div>
+    <div class="acts"><button class="btn sm" onclick="editUpdate('${u.id}')">Edit</button>
+      ${u.status!=='published'?`<button class="btn sm gold" onclick="askPublish('${u.id}')">Publish</button>`:''}
+      ${u.status==='published'?`<button class="btn sm ghost" onclick="setStatus('${u.id}','draft')">Unpublish</button>`:''}
+      <button class="btn sm danger" onclick="deleteUpdate('${u.id}')">Delete</button></div></div>`;
+}
+function newUpdate(){ const list=loadJSON(UPDATES,[]); const u={id:'u'+Math.random().toString(36).slice(2,8), date:new Date().toLocaleDateString('en-GB',{month:'short',year:'numeric'}), tag:'Coming', status:'draft', title:'', body:'', published_at:0}; list.unshift(u); saveJSON(UPDATES,list); switchTab('updates'); editUpdate(u.id); }
+function editUpdate(id){ const u=loadJSON(UPDATES,[]).find(x=>x.id===id); if(!u) return;
+  document.body.appendChild(mkModal(`<h3>${u.title?'Edit update':'New update'}</h3>
+    <p class="muted" style="font-size:13px;margin:0 0 14px;">Saves to draft. Publish from the row when ready.</p>
+    <label class="fl">Title</label><input id="md_title" value="${escapeHtml(u.title)}"/>
+    <div style="height:10px"></div><label class="fl">Date label</label><input id="md_date" value="${escapeHtml(u.date)}"/>
+    <div style="height:10px"></div><label class="fl">Tag</label><select id="md_tag">${['Live now','Coming','Shipped'].map(t=>`<option ${u.tag===t?'selected':''}>${t}</option>`).join('')}</select>
+    <div style="height:10px"></div><label class="fl">Body</label><textarea id="md_body" rows="5">${escapeHtml(u.body)}</textarea>
+    <div class="acts"><button class="btn ghost" onclick="closeModal()">Close</button><button class="btn gold" onclick="saveEdit('${u.id}')">Save</button></div>`));
+  setTimeout(()=>{ const t=document.getElementById('md_title'); if(t) t.focus(); },50); }
+function saveEdit(id){ const list=loadJSON(UPDATES,[]); const i=list.findIndex(x=>x.id===id); if(i<0) return;
+  list[i].title=document.getElementById('md_title').value.trim(); list[i].date=document.getElementById('md_date').value.trim();
+  list[i].tag=document.getElementById('md_tag').value; list[i].body=document.getElementById('md_body').value.trim();
+  saveJSON(UPDATES,list); broadcast('lumera_updates'); closeModal(); render(); }
+function askPublish(id){ const u=loadJSON(UPDATES,[]).find(x=>x.id===id); if(!u) return; if(!u.title){ alert('Add a title before publishing.'); editUpdate(id); return; }
+  document.body.appendChild(mkModal(`<h3>Publish this update?</h3>
+    <p class="muted" style="font-size:13.5px;margin:0 0 6px;">Makes it visible to all Lumera users on <code>/updates</code> immediately.</p>
+    <div style="background:var(--cream);border:1px solid var(--line);border-radius:10px;padding:12px;margin:14px 0;">
+      <div style="font-weight:600">${escapeHtml(u.title)}</div><div class="faint" style="font-size:11px;margin-top:3px">${escapeHtml(u.date)} · ${escapeHtml(u.tag)}</div></div>
+    <div class="acts"><button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn gold" onclick="doPublish('${u.id}')">Confirm &amp; publish</button></div>`)); }
+function doPublish(id){ setStatus(id,'published',Date.now()); closeModal(); }
+function setStatus(id,status,ts){ const list=loadJSON(UPDATES,[]); const i=list.findIndex(x=>x.id===id); if(i<0) return; list[i].status=status; if(status==='published') list[i].published_at=ts||Date.now(); saveJSON(UPDATES,list); broadcast('lumera_updates'); render(); }
+function deleteUpdate(id){ if(!confirm('Permanently delete this update?')) return; saveJSON(UPDATES, loadJSON(UPDATES,[]).filter(x=>x.id!==id)); broadcast('lumera_updates'); render(); }
+
+function renderNews(){ const list=loadJSON(NEWS,[]);
+  C.innerHTML=`${pageHead('News feed','Headlines that appear in Lumera under /news. Custom rows surface above the seeded feed.')}
+    <div class="card"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+      <div class="eyebrow">Custom headlines (${list.length})</div><button class="btn gold" onclick="newNews()">+ Add headline</button></div></div>
+    <div class="card">${list.length===0?'<p class="empty">No custom headlines yet — Lumera uses the seeded feed.</p>':list.map((n,i)=>`
+      <div class="upd"><div class="ic">📰</div><div class="body"><h3 class="ttl">${escapeHtml(n.title)}</h3>
+        <div class="meta"><span class="pill gold">${escapeHtml(n.cat||'Markets')}</span><span>${escapeHtml(n.source||'Lumera')}</span><span class="faint">${escapeHtml(n.date||'')}</span></div>
+        <p class="desc">${escapeHtml(n.body||n.summary||'')}</p></div>
+      <div class="acts"><button class="btn sm" onclick="editNews(${i})">Edit</button><button class="btn sm danger" onclick="delNews(${i})">Delete</button></div></div>`).join('')}</div>`; }
+function newNews(){ const list=loadJSON(NEWS,[]); list.unshift({title:'',body:'',cat:'Markets',source:'Lumera',date:new Date().toLocaleDateString('en-GB',{month:'short',year:'numeric'}),url:''}); saveJSON(NEWS,list); switchTab('news'); editNews(0); }
+function editNews(i){ const list=loadJSON(NEWS,[]); const n=list[i]; if(!n) return;
+  document.body.appendChild(mkModal(`<h3>Edit news headline</h3>
+    <label class="fl">Title</label><input id="n_title" value="${escapeHtml(n.title)}"/><div style="height:8px"></div>
+    <label class="fl">Category</label><select id="n_cat">${['Markets','Economy','Rates','Saving'].map(c=>`<option ${n.cat===c?'selected':''}>${c}</option>`).join('')}</select><div style="height:8px"></div>
+    <label class="fl">Source</label><input id="n_source" value="${escapeHtml(n.source||'')}"/><div style="height:8px"></div>
+    <label class="fl">Date label</label><input id="n_date" value="${escapeHtml(n.date||'')}"/><div style="height:8px"></div>
+    <label class="fl">URL</label><input id="n_url" value="${escapeHtml(n.url||'')}"/><div style="height:8px"></div>
+    <label class="fl">Body</label><textarea id="n_body" rows="4">${escapeHtml(n.body||n.summary||'')}</textarea>
+    <div class="acts"><button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn gold" onclick="saveNews(${i})">Save</button></div>`)); }
+function saveNews(i){ const list=loadJSON(NEWS,[]); const n=list[i]; if(!n) return;
+  n.title=document.getElementById('n_title').value.trim(); n.cat=document.getElementById('n_cat').value; n.source=document.getElementById('n_source').value.trim();
+  n.date=document.getElementById('n_date').value.trim(); n.url=document.getElementById('n_url').value.trim(); n.body=document.getElementById('n_body').value.trim();
+  saveJSON(NEWS,list); broadcast('lumera_news'); closeModal(); render(); }
+function delNews(i){ if(!confirm('Delete this headline?')) return; const list=loadJSON(NEWS,[]); list.splice(i,1); saveJSON(NEWS,list); broadcast('lumera_news'); render(); }
+
+function renderOffers(){ const list=loadJSON(OFFERS,[]);
+  C.innerHTML=`${pageHead('Discounts & offers','Curated offers shown on Lumera /discounts.')}
+    <div class="card">${list.length===0?'<p class="empty">No custom offers — Lumera is using the seeded list.</p>':list.map((o,i)=>`
+      <div class="upd"><div class="ic">🎁</div><div class="body"><h3 class="ttl">${escapeHtml(o.title||'(untitled)')}</h3>
+        <div class="meta"><span class="pill gold">${escapeHtml(o.category||'—')}</span><span>${escapeHtml(o.provider||'')}</span><span class="faint">${escapeHtml(o.country||'')} · expires ${escapeHtml(o.expires||'')}</span></div>
+        <p class="desc">${escapeHtml(o.desc||'')}</p></div><div class="acts"><button class="btn sm danger" onclick="delOffer(${i})">Delete</button></div></div>`).join('')}</div>
+    <div class="card"><div class="eyebrow">Add offers via console</div><p class="muted" style="font-size:13px;">In the Lumera console: <code>localStorage.setItem('lumera_offers', JSON.stringify([...]))</code> then reload /discounts.</p></div>`; }
+function delOffer(i){ if(!confirm('Delete this offer?')) return; const list=loadJSON(OFFERS,[]); list.splice(i,1); saveJSON(OFFERS,list); broadcast('lumera_offers'); render(); }
+
+function renderFeedback(){ const list=loadJSON(FEEDBACK,[]);
+  C.innerHTML=`${pageHead('User feedback','Feedback submitted in-app surfaces here in real time.')}
+    <div class="card">${list.length===0?'<p class="empty">No feedback yet. Wire an in-app feedback button to push to <code>localStorage[\'lumera_feedback\']</code>.</p>':list.slice().reverse().map(f=>`
+      <div class="upd"><div class="ic">💬</div><div class="body"><h3 class="ttl">${escapeHtml(f.subject||'Feedback')}</h3>
+        <div class="meta"><span>${escapeHtml(f.email||'anonymous')}</span><span class="faint">${new Date(f.at||Date.now()).toLocaleString()}</span></div>
+        <p class="desc">${escapeHtml(f.body||'')}</p></div></div>`).join('')}</div>`; }
+
+function renderFeatures(){ const flags=loadJSON(FEATURES,{ai_assistant:true, world_monitor:true, spark_mode:true, product_worlds:true, mascot_guides:true, gamified_quests:true});
+  C.innerHTML=`${pageHead('Feature flags','Toggle major features on/off across all Lumera users on this origin.')}
+    <div class="card">${Object.entries(flags).map(([k,v])=>`<label style="display:flex;align-items:center;gap:12px;padding:10px 4px;border-bottom:1px solid var(--line);cursor:pointer;">
+      <input type="checkbox" ${v?'checked':''} onchange="toggleFlag('${k}',this.checked)" style="width:auto;"/>
+      <span style="font-size:14px;">${k.replace(/_/g,' ')}</span><span class="faint" style="margin-left:auto;font-size:11px;">${v?'enabled':'disabled'}</span></label>`).join('')}</div>`; }
+function toggleFlag(k,v){ const flags=loadJSON(FEATURES,{}); flags[k]=v; saveJSON(FEATURES,flags); broadcast('lumera_features'); render(); }
+
+function renderTrends(){ const news=loadJSON(NEWS,[]),updates=loadJSON(UPDATES,[]);
+  const text=[...news.map(n=>n.title+' '+(n.body||n.summary||'')),...updates.map(u=>u.title+' '+u.body)].join(' ').toLowerCase();
+  const stop=new Set('a an the and or but for of to in on at by with from as is are was were be been being have has had do does did will would can could should may might must this that these those it its we our you your i my they their lumera live new now'.split(' '));
+  const words=(text.match(/[a-z]{4,}/g)||[]).filter(w=>!stop.has(w)); const freq={}; words.forEach(w=>freq[w]=(freq[w]||0)+1);
+  const top=Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,25);
+  C.innerHTML=`${pageHead('Trend monitor','Top concepts emerging across published content, news and updates.')}
+    <div class="card"><div class="eyebrow">Term frequency</div>${top.length===0?'<p class="empty">Not enough content to compute trends yet.</p>':top.map(([w,n])=>{const pct=Math.round(n/top[0][1]*100);return `<div class="bar"><div class="lab">${w}</div><div class="track"><div class="fill" style="width:${pct}%"></div></div><div class="val tnum">${n}</div></div>`;}).join('')}</div>`; }
+
+function renderMarket(){
+  C.innerHTML=`${pageHead('Market tracker','Quick-links into the live external dashboards Lumera surfaces.')}
+    <div class="row cols-2">${[['Reuters Markets','https://www.reuters.com/markets/'],['Bloomberg Markets','https://www.bloomberg.com/markets'],['FRED','https://fred.stlouisfed.org/'],['Trading Economics','https://tradingeconomics.com/'],['CFR Conflict Tracker','https://www.cfr.org/global-conflict-tracker'],['Freightos FBX','https://fbx.freightos.com/'],['MarineTraffic','https://www.marinetraffic.com/'],['Zoom Earth','https://zoom.earth/']].map(([n,u])=>`<div class="card"><div class="eyebrow">${escapeHtml(n)}</div><a class="btn" href="${u}" target="_blank" rel="noopener noreferrer">Open ↗</a></div>`).join('')}</div>`; }
+
+function renderPermissions(){ const tabs=['dashboard','insights','usage','updates','news','offers','feedback','features','trends','market','permissions'];
+  C.innerHTML=`${pageHead('Permissions','Matrix of which role can access which section. Founder-only edits.')}
+    <div class="card" style="overflow-x:auto;"><table><thead><tr><th>Section</th>${Object.values(ROLES).map(r=>`<th style="text-align:center;">${r.label}</th>`).join('')}</tr></thead>
+      <tbody>${tabs.map(tab=>`<tr><td style="font-weight:500;">${tab}</td>${Object.values(ROLES).map(r=>{const has=r.scope.includes('*')||r.scope.includes(tab);return `<td style="text-align:center;">${has?'<span style="color:var(--saged);font-size:18px;">✓</span>':'<span style="color:var(--faint);">·</span>'}</td>`;}).join('')}</tr>`).join('')}</tbody></table></div>
+    <div class="card"><div class="eyebrow">Role keys</div><p class="muted" style="font-size:13px;margin:0;">Each role unlocks with a distinct key (verified by SHA-256 hash). Replace a hash in <code>ROLE_KEY_HASHES</code> to change a key. <strong>Beta Testers</strong> have no access; that role exists for scope completeness only.</p></div>`; }
+
+/* ============================================================
+   Modals + utilities
+   ============================================================ */
+function mkModal(html){ closeModal(); const wrap=document.createElement('div'); wrap.className='modal-bg'; wrap.id='modal'; wrap.onclick=e=>{ if(e.target===wrap) closeModal(); }; wrap.innerHTML=`<div class="modal">${html}</div>`; return wrap; }
+function closeModal(){ const m=document.getElementById('modal'); if(m) m.remove(); }
+function broadcast(ch){ try{ const bc=new BroadcastChannel(ch); bc.postMessage({}); bc.close(); }catch(e){} }
+// Live sync: when Lumera writes analytics, refresh the open analytics view.
+try{ const bc=new BroadcastChannel('lumera_analytics'); bc.onmessage=()=>{ if(['dashboard','insights','usage'].includes(ACTIVE_TAB)) render(); }; }catch(e){}
+
+function exportData(){
+  const A=computeAnalytics();
+  const data={ role:CURRENT_ROLE, generated:new Date().toISOString(),
+    summary:{ distinctUsers:A.distinctUsers, totalLogons:A.logons, avgLogonsPerUser:+A.avgLogons.toFixed(2), returnRatePct:A.retentionPct, activeToday:A.activeToday, weeklyActive:A.active7, avgSessionMs:Math.round(A.avgDur), pageViews:A.views.length },
+    analytics:loadJSON(ANALYTICS,{}), accounts:Object.keys(loadJSON(ACCT,{})), updates:loadJSON(UPDATES,[]), news:loadJSON(NEWS,[]), offers:loadJSON(OFFERS,[]), feedback:loadJSON(FEEDBACK,[]), features:loadJSON(FEATURES,{}) };
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=`lumera-admin-${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(url);
+}
+function clearData(){ if(!confirm('Clear all locally-stored analytics, news, offers, updates, feedback, features? Cannot be undone.')) return;
+  [ANALYTICS,NEWS,OFFERS,FEEDBACK,FEATURES].forEach(k=>localStorage.removeItem(k)); saveJSON(UPDATES,UPDATES_SEED);
+  broadcast('lumera_updates'); broadcast('lumera_news'); broadcast('lumera_offers'); render(); }
+
+// Generate realistic demo analytics so the dashboard is populated for a walkthrough.
+function seedDemo(){
+  if(!confirm('Add ~40 demo sessions/users to local analytics so you can see the dashboard populated? (Does not affect real data shape.)')) return;
+  const an=loadJSON(ANALYTICS,{sessions:[],events:[]});
+  const langs=['en','en','en','ar','fr','es','hi'], curs=['USD','AED','GBP','EUR','INR'];
+  const routes=['/dashboard','/budget','/invest','/market','/learn','/goals','/subscriptions','/leaf','/atlas','/news','/credit','/simulator'];
+  const users=[]; for(let i=0;i<18;i++) users.push('user'+(i+1)+'@demo.app');
+  for(let s=0;s<42;s++){
+    const start=Date.now()-Math.floor(Math.random()*13)*DAY-Math.floor(Math.random()*86400000);
+    const dur=60000+Math.floor(Math.random()*900000);
+    const user=Math.random()<0.78? users[Math.floor(Math.random()*users.length)] : 'guest';
+    const lang=langs[Math.floor(Math.random()*langs.length)], cur=curs[Math.floor(Math.random()*curs.length)];
+    const id='s'+start.toString(36)+s; const nViews=2+Math.floor(Math.random()*6);
+    an.sessions.push({ id, start, end:start+dur, views:nViews, lang, cur, user });
+    for(let v=0; v<nViews; v++){ an.events.push({ ts:start+v*30000, type:'view', path:routes[Math.floor(Math.random()*routes.length)], user }); }
+  }
+  an.sessions=an.sessions.slice(-2000); an.events=an.events.slice(-4000);
+  saveJSON(ANALYTICS,an);
+  const accts=loadJSON(ACCT,{}); users.forEach(u=>{ if(!accts[u]) accts[u]={name:u.split('@')[0], onboarded:Math.random()<0.7}; }); saveJSON(ACCT,accts);
+  render();
+}
+</script>
+</body>
+</html>
