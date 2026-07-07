@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth, useToast } from '../context/AuthContext';
-import { Avatar, EmptyState, Modal, RoleBadge, Spinner } from '../components/ui';
+import { Avatar, Modal, RoleBadge, Spinner } from '../components/ui';
 import { IcPlus } from '../components/Icons';
-import { timeAgo, ROLE_LABEL } from '../lib/util';
+import { timeAgo, ROLE_LABEL, ROLE_TITLES } from '../lib/util';
 
 export default function Admin() {
   const { profile, team, refreshTeam } = useAuth();
@@ -25,6 +25,8 @@ export default function Admin() {
   async function revoke(inv) {
     const { error } = await supabase.from('invites').delete().eq('id', inv.id);
     if (error) return toast(error.message, 'error');
+    const paths = [inv.nda_path, inv.ip_path, inv.contract_path].filter(Boolean);
+    if (paths.length) await supabase.storage.from('contracts').remove(paths);
     setInvites((l) => l.filter((x) => x.id !== inv.id));
     toast(`Invite for ${inv.email} revoked`);
   }
@@ -36,6 +38,12 @@ export default function Admin() {
     toast(`${p.name} is now ${ROLE_LABEL[role]}`);
   }
 
+  async function openContract(path) {
+    const { data, error } = await supabase.storage.from('contracts').createSignedUrl(path, 120);
+    if (error) return toast(error.message, 'error');
+    window.open(data.signedUrl, '_blank');
+  }
+
   const pending = (invites || []).filter((i) => !i.accepted_at);
   const accepted = (invites || []).filter((i) => i.accepted_at);
 
@@ -44,7 +52,7 @@ export default function Admin() {
       <div className="page-header">
         <div>
           <h1>Admin</h1>
-          <div className="sub">Invite people and manage roles. Signups are blocked without an invite.</div>
+          <div className="sub">Invite people (with their contracts) and manage roles. Signups are blocked without an invite.</div>
         </div>
         <div className="actions">
           <button className="btn btn-primary" onClick={() => setShowInvite(true)}>
@@ -60,10 +68,17 @@ export default function Admin() {
         ) : (
           <div className="mini-list">
             {pending.map((inv) => (
-              <div key={inv.id} className="mini-item" style={{ cursor: 'default' }}>
+              <div key={inv.id} className="mini-item" style={{ cursor: 'default', flexWrap: 'wrap' }}>
                 <div className="mi-main">
                   <div className="mi-title">{inv.email}</div>
-                  <div className="mi-sub">{ROLE_LABEL[inv.role]} · {inv.department} · invited {timeAgo(inv.created_at)}</div>
+                  <div className="mi-sub">
+                    {inv.title || ROLE_LABEL[inv.role]} · {ROLE_LABEL[inv.role]} · {inv.department} · invited {timeAgo(inv.created_at)}
+                  </div>
+                  <div className="flex g8 mt-8 wrap">
+                    {inv.nda_path && <button className="btn btn-ghost btn-sm" onClick={() => openContract(inv.nda_path)}>NDA</button>}
+                    {inv.ip_path && <button className="btn btn-ghost btn-sm" onClick={() => openContract(inv.ip_path)}>IP Agreement</button>}
+                    {inv.contract_path && <button className="btn btn-ghost btn-sm" onClick={() => openContract(inv.contract_path)}>Role contract</button>}
+                  </div>
                 </div>
                 <button className="btn btn-danger btn-sm" onClick={() => revoke(inv)}>Revoke</button>
               </div>
@@ -83,7 +98,7 @@ export default function Admin() {
               <Avatar profile={p} size="md" />
               <div className="mi-main">
                 <div className="mi-title">{p.name}{p.id === profile.id && ' (you)'}</div>
-                <div className="mi-sub">{p.email} · {p.department}</div>
+                <div className="mi-sub">{p.title ? `${p.title} · ` : ''}{p.email} · {p.department}</div>
               </div>
               {p.id === profile.id ? <RoleBadge role={p.role} /> : (
                 <select className="select" style={{ width: 170 }} value={p.role}
@@ -111,34 +126,63 @@ function InviteModal({ onClose, onDone }) {
   const toast = useToast();
   const [email, setEmail] = useState('');
   const [role, setRole] = useState('member');
+  const [title, setTitle] = useState(ROLE_TITLES[0]);
+  const [customTitle, setCustomTitle] = useState('');
   const [department, setDepartment] = useState('General');
+  const [nda, setNda] = useState(null);
+  const [ip, setIp] = useState(null);
+  const [contract, setContract] = useState(null);
   const [busy, setBusy] = useState(false);
   const [created, setCreated] = useState(null);
 
+  const finalTitle = title === '__custom__' ? customTitle.trim() : title;
+
   async function submit(e) {
     e.preventDefault();
-    setBusy(true);
-    const { data, error } = await supabase.from('invites').insert({
-      email: email.trim().toLowerCase(), role, department: department.trim() || 'General',
-      invited_by: profile.id,
-    }).select().single();
-    setBusy(false);
-    if (error) {
-      return toast(error.code === '23505'
-        ? 'There’s already a pending invite for this email.' : error.message, 'error');
+    if (!nda || !ip || !contract) {
+      return toast('All three contracts are required: NDA, IP agreement, and the role-specific contract.', 'error');
     }
-    setCreated(data);
+    if (!finalTitle) return toast('Pick or type a role title.', 'error');
+    setBusy(true);
+
+    const em = email.trim().toLowerCase();
+    const up = async (file, label) => {
+      const path = `${em}/${label}-${Date.now()}-${file.name}`;
+      const { error } = await supabase.storage.from('contracts').upload(path, file);
+      if (error) throw new Error(`${label.toUpperCase()} upload failed: ${error.message}`);
+      return path;
+    };
+
+    try {
+      const [ndaPath, ipPath, contractPath] = [await up(nda, 'nda'), await up(ip, 'ip'), await up(contract, 'role')];
+      const { data, error } = await supabase.from('invites').insert({
+        email: em, role, department: department.trim() || 'General',
+        title: finalTitle, invited_by: profile.id,
+        nda_path: ndaPath, ip_path: ipPath, contract_path: contractPath,
+      }).select().single();
+      if (error) {
+        await supabase.storage.from('contracts').remove([ndaPath, ipPath, contractPath]);
+        throw new Error(error.code === '23505'
+          ? 'There’s already a pending invite for this email.' : error.message);
+      }
+      setCreated(data);
+    } catch (err) {
+      toast(err.message, 'error');
+    } finally {
+      setBusy(false);
+    }
   }
 
   if (created) {
     return (
       <Modal title="Invite created" onClose={() => onDone(created)}>
         <div className="alert alert-success">
-          <b>{created.email}</b> can now sign up.
+          <b>{created.email}</b> can now sign up as <b>{created.title}</b>.
         </div>
         <p className="text-2 small">
-          Send them the app link and tell them to use <b>Sign up</b> with this exact email address.
-          They’ll confirm their email and land in the workspace as {ROLE_LABEL[created.role]}.
+          Their NDA, IP agreement and role contract are stored with the invite — they can view
+          them from their own profile once they join. Send them the app link and tell them to
+          use <b>Sign up</b> with this exact email address.
         </p>
         <div className="modal-foot">
           <button className="btn btn-primary" onClick={() => onDone(created)}>Done</button>
@@ -147,8 +191,16 @@ function InviteModal({ onClose, onDone }) {
     );
   }
 
+  const FileField = ({ label, value, set }) => (
+    <div className="field">
+      <label>{label} {value ? '✓' : ''}</label>
+      <input className="input" type="file" required accept=".pdf,.doc,.docx"
+        onChange={(e) => set(e.target.files?.[0] || null)} />
+    </div>
+  );
+
   return (
-    <Modal title="Invite a team member" onClose={onClose}>
+    <Modal title="Invite a team member" onClose={onClose} wide>
       <form onSubmit={submit}>
         <div className="field">
           <label>Email</label>
@@ -157,7 +209,14 @@ function InviteModal({ onClose, onDone }) {
         </div>
         <div className="flex g12 wrap">
           <div className="field grow">
-            <label>Role</label>
+            <label>Role title</label>
+            <select className="select" value={title} onChange={(e) => setTitle(e.target.value)}>
+              {ROLE_TITLES.map((t) => <option key={t} value={t}>{t}</option>)}
+              <option value="__custom__">Custom…</option>
+            </select>
+          </div>
+          <div className="field grow">
+            <label>Access level</label>
             <select className="select" value={role} onChange={(e) => setRole(e.target.value)}>
               <option value="member">Member</option>
               <option value="lead">Team Lead</option>
@@ -170,9 +229,25 @@ function InviteModal({ onClose, onDone }) {
               placeholder="Engineering" maxLength={40} />
           </div>
         </div>
+        {title === '__custom__' && (
+          <div className="field">
+            <label>Custom title</label>
+            <input className="input" required value={customTitle} onChange={(e) => setCustomTitle(e.target.value)}
+              placeholder="e.g. Finance Associate" maxLength={60} />
+          </div>
+        )}
+        <div className="card card-pad mb-16" style={{ background: 'rgba(168,85,247,0.05)' }}>
+          <div className="card-title">Required contracts (PDF/DOC)</div>
+          <FileField label="1. Non-Disclosure Agreement (NDA)" value={nda} set={setNda} />
+          <FileField label="2. Intellectual Property Rights Agreement" value={ip} set={setIp} />
+          <FileField label="3. Role-specific contract" value={contract} set={setContract} />
+          <div className="text-3 small">The invite can’t be created until all three are attached.</div>
+        </div>
         <div className="modal-foot">
           <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
-          <button className="btn btn-primary" disabled={busy}>{busy ? 'Creating…' : 'Create invite'}</button>
+          <button className="btn btn-primary" disabled={busy || !nda || !ip || !contract}>
+            {busy ? 'Uploading & creating…' : 'Create invite'}
+          </button>
         </div>
       </form>
     </Modal>

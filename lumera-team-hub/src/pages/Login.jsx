@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import Logo from '../components/Logo';
 
 export function AuthShell({ sub, children }) {
   return (
     <div className="auth-wrap">
       <div className="card card-glow auth-card">
         <div className="auth-logo">
-          <div className="logo-orb" />
+          <Logo size={42} />
           <div className="an">Lumera<small>Team Hub</small></div>
         </div>
         <p className="auth-sub">{sub}</p>

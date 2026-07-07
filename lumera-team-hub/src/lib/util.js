@@ -67,6 +67,23 @@ export function dueState(due, status) {
 
 export const ROLE_LABEL = { admin: 'Founder / Admin', lead: 'Team Lead', member: 'Member' };
 
+// Job titles (display roles). Access is still governed by ROLE_LABEL roles.
+export const ROLE_TITLES = [
+  'UI/UX Design Associate',
+  'Product Developer Associate',
+  'Outreach & Marketing Associate',
+  'Market Research Associate',
+  'Growth & Strategy Associate',
+  'Operations & Executive Associate',
+];
+
+export function weekStartOf(d = new Date()) {
+  const x = new Date(d);
+  const day = (x.getDay() + 6) % 7; // Monday = 0
+  x.setDate(x.getDate() - day);
+  return x.toISOString().slice(0, 10);
+}
+
 export const FOLDERS = [
   { id: 'general',   label: 'General',   access: 'everyone' },
   { id: 'product',   label: 'Product',   access: 'everyone' },
