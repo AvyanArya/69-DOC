@@ -43,7 +43,7 @@ export default function Team() {
           <div key={p.id} className="card member-card" onClick={() => nav(`/team/${p.id}`)}>
             <Avatar profile={p} size="xl" />
             <div className="mc-name">{p.name}</div>
-            <div className="mc-dept">{p.department} · {p.email}</div>
+            <div className="mc-dept">{p.title ? `${p.title} · ` : ''}{p.department}</div>
             <RoleBadge role={p.role} />
             {p.current_focus && (
               <div className="text-3 small mt-8 ellipsis" style={{ maxWidth: '100%' }}>

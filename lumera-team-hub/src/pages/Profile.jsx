@@ -18,13 +18,27 @@ export default function ProfilePage() {
   const [busyAvatar, setBusyAvatar] = useState(false);
   const fileRef = useRef(null);
 
+  const [contracts, setContracts] = useState([]);
+  const canSeeContracts = isMe || me.role === 'admin';
+
   useEffect(() => {
     let alive = true;
     supabase.from('tasks').select('*').eq('assignee_id', id).neq('status', 'done')
       .order('due_date', { ascending: true, nullsFirst: false }).limit(10)
       .then(({ data }) => alive && setTasks(data || []));
+    if (canSeeContracts && person?.email) {
+      supabase.storage.from('contracts').list(person.email.toLowerCase())
+        .then(({ data }) => alive && setContracts(data || []));
+    }
     return () => { alive = false; };
-  }, [id]);
+  }, [id, canSeeContracts, person?.email]);
+
+  async function openContract(name) {
+    const { data, error } = await supabase.storage.from('contracts')
+      .createSignedUrl(`${person.email.toLowerCase()}/${name}`, 120);
+    if (error) return toast(error.message, 'error');
+    window.open(data.signedUrl, '_blank');
+  }
 
   if (!person) {
     return <div className="card"><EmptyState title="Member not found"
@@ -82,6 +96,7 @@ export default function ProfilePage() {
               <h1 style={{ fontSize: 22 }}>{person.name}</h1>
               <RoleBadge role={person.role} />
             </div>
+            {person.title && <div className="text-2 mt-8" style={{ fontWeight: 600 }}>{person.title}</div>}
             <div className="text-2 mt-8">{person.department} · <a href={`mailto:${person.email}`}>{person.email}</a></div>
             {person.current_focus && <div className="text-2 mt-8">🎯 <b>Currently:</b> {person.current_focus}</div>}
             {person.bio && <p className="text-2 mt-8" style={{ whiteSpace: 'pre-wrap' }}>{person.bio}</p>}
@@ -101,6 +116,19 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+
+      {canSeeContracts && contracts.length > 0 && (
+        <div className="card card-pad mb-16">
+          <div className="card-title">{isMe ? 'Your contracts' : 'Contracts'}</div>
+          <div className="flex g8 wrap">
+            {contracts.map((f) => (
+              <button key={f.name} className="btn btn-ghost btn-sm" onClick={() => openContract(f.name)}>
+                📄 {f.name.replace(/^(nda|ip|role)-\d+-/, (m) => m.split('-')[0].toUpperCase() + ': ')}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="card card-pad">
         <div className="card-title">{isMe ? 'Your open tasks' : `${person.name.split(' ')[0]}’s open tasks`}</div>

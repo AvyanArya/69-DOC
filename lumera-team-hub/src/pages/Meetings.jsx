@@ -126,28 +126,41 @@ function MeetingsTab() {
 }
 
 function MeetingNotes({ meetingId, onCount }) {
-  const { profile, teamById } = useAuth();
+  const { profile, team, teamById } = useAuth();
   const toast = useToast();
   const [notes, setNotes] = useState(null);
   const [text, setText] = useState('');
   const [busy, setBusy] = useState(false);
+  const [isPrivate, setIsPrivate] = useState(false);
+  const [viewers, setViewers] = useState(new Set());
 
   useEffect(() => {
     supabase.from('meeting_notes').select('*').eq('meeting_id', meetingId).order('created_at')
       .then(({ data }) => setNotes(data || []));
   }, [meetingId]);
 
+  function toggleViewer(id) {
+    setViewers((s) => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  }
+
   async function add(e) {
     e.preventDefault();
     if (!text.trim()) return;
     setBusy(true);
     const { data, error } = await supabase.from('meeting_notes').insert({
-      meeting_id: meetingId, author_id: profile.id, content: text.trim(),
+      meeting_id: meetingId, author_id: profile.id, content: text.trim(), is_private: isPrivate,
     }).select().single();
+    if (error) { setBusy(false); return toast(error.message, 'error'); }
+    if (isPrivate && viewers.size) {
+      const { error: e2 } = await supabase.from('meeting_note_access')
+        .insert([...viewers].map((uid) => ({ note_id: data.id, user_id: uid })));
+      if (e2) toast('Note saved but sharing failed: ' + e2.message, 'error');
+    }
     setBusy(false);
-    if (error) return toast(error.message, 'error');
     setNotes((l) => [...l, data]);
     setText('');
+    setIsPrivate(false);
+    setViewers(new Set());
     onCount?.();
   }
 
@@ -160,14 +173,33 @@ function MeetingNotes({ meetingId, onCount }) {
           <Avatar profile={teamById[n.author_id]} size="sm" />
           <div className="grow">
             <div className="fi-text"><b>{teamById[n.author_id]?.name}</b>
+              {n.is_private && <span className="badge" style={{ marginLeft: 8 }}>🔒 Private</span>}
               <span className="fi-time" style={{ marginLeft: 8 }}>{timeAgo(n.created_at)}</span></div>
             <div className="text-2 small" style={{ whiteSpace: 'pre-wrap' }}>{n.content}</div>
           </div>
         </div>
       ))}
-      <form onSubmit={add} className="flex g8 mt-8">
-        <input className="input" placeholder="Add a note / minute…" value={text} onChange={(e) => setText(e.target.value)} />
-        <button className="btn btn-primary btn-sm" disabled={busy || !text.trim()}>Add</button>
+      <form onSubmit={add} className="mt-8">
+        <div className="flex g8">
+          <input className="input" placeholder="Add a note / minute…" value={text} onChange={(e) => setText(e.target.value)} />
+          <button className="btn btn-primary btn-sm" disabled={busy || !text.trim()}>Add</button>
+        </div>
+        <label className="flex aic g8 clickable mt-8" style={{ fontSize: 12.5, color: 'var(--text-2)' }}>
+          <input type="checkbox" checked={isPrivate} onChange={(e) => setIsPrivate(e.target.checked)} />
+          🔒 Private note — only visible to me and the people I pick
+        </label>
+        {isPrivate && (
+          <div className="flex g8 wrap mt-8">
+            {team.filter((p) => p.id !== profile.id).map((p) => (
+              <button type="button" key={p.id}
+                className={`folder-chip ${viewers.has(p.id) ? 'active' : ''}`}
+                style={{ padding: '4px 10px', fontSize: 12 }}
+                onClick={() => toggleViewer(p.id)}>
+                <Avatar profile={p} size="sm" /> {p.name.split(' ')[0]}
+              </button>
+            ))}
+          </div>
+        )}
       </form>
     </div>
   );

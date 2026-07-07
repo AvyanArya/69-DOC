@@ -40,6 +40,11 @@ screen immediately.
 ### 1.2 Run the schema
 1. In the Supabase dashboard, open **SQL Editor** → **New query**.
 2. Paste the entire contents of [`supabase/schema.sql`](supabase/schema.sql) and click **Run**.
+3. Then, in a new query, paste and run [`supabase/migrations/002_features.sql`](supabase/migrations/002_features.sql)
+   — it adds group chats, message reply/forward/attachments, read receipts, job titles,
+   contract-gated invites, private meeting notes, next steps, weekly reports, and the
+   master document. (Projects that ran `schema.sql` before this migration existed just
+   run `002_features.sql` on top — it's additive and safe with existing data.)
 3. You should see “Success”. This single script creates:
    - all 19 tables with relations and indexes,
    - every RLS policy (roles: `admin` / `lead` / `member`),

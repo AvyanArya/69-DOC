@@ -6,8 +6,9 @@ import { timeAgo, ROLE_LABEL } from '../lib/util';
 import { Avatar, EmptyState } from './ui';
 import {
   IcHome, IcChat, IcDoc, IcBoard, IcCal, IcMegaphone, IcTeam, IcShield,
-  IcBell, IcSearch, IcMenu, IcLogout, IcUser, IcX,
+  IcBell, IcSearch, IcMenu, IcLogout, IcUser, IcCheck, IcChart, IcLock,
 } from './Icons';
+import Logo from './Logo';
 
 const NAV = [
   { to: '/', label: 'Dashboard', ico: IcHome, end: true },
@@ -15,6 +16,9 @@ const NAV = [
   { to: '/documents', label: 'Documents', ico: IcDoc },
   { to: '/tasks', label: 'Tasks', ico: IcBoard },
   { to: '/meetings', label: 'Meetings & Polls', ico: IcCal },
+  { to: '/next-steps', label: 'Next Steps', ico: IcCheck },
+  { to: '/reports', label: 'Weekly Reports', ico: IcChart },
+  { to: '/master-doc', label: 'Master Doc', ico: IcLock },
   { to: '/announcements', label: 'Announcements', ico: IcMegaphone },
   { to: '/team', label: 'Team', ico: IcTeam },
 ];
@@ -41,6 +45,15 @@ export default function Layout({ children }) {
   const [dmUnread, setDmUnread] = useState(0);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState(null);
+  const [notifPerm, setNotifPerm] = useState(
+    typeof Notification !== 'undefined' ? Notification.permission : 'unsupported');
+
+  const desktopNotify = useCallback((title, body) => {
+    if (typeof Notification === 'undefined') return;
+    if (Notification.permission === 'granted' && document.hidden) {
+      try { new Notification(title, { body }); } catch { /* mobile browsers may throw */ }
+    }
+  }, []);
 
   const notifRef = useRef(null);
   const menuRef = useRef(null);
@@ -79,10 +92,18 @@ export default function Layout({ children }) {
           setNotifs((n) => [payload.new, ...n].slice(0, 30));
           const actor = teamById[payload.new.actor_id];
           toast(`${actor?.name || 'Someone'} ${payload.new.body}`);
+          desktopNotify(`${actor?.name || 'Lumera'} — Lumera Team Hub`, payload.new.body);
         })
       .on('postgres_changes',
         { event: '*', schema: 'public', table: 'direct_messages' },
-        () => loadDmUnread())
+        (payload) => {
+          loadDmUnread();
+          if (payload.eventType === 'INSERT' && payload.new.recipient_id === profile.id) {
+            const sender = teamById[payload.new.sender_id];
+            desktopNotify(`${sender?.name || 'New message'} — Lumera Team Hub`,
+              payload.new.content || 'Sent a file');
+          }
+        })
       .subscribe();
 
     return () => { supabase.removeChannel(ch); };
@@ -133,8 +154,9 @@ export default function Layout({ children }) {
       {sideOpen && <div className="sidebar-backdrop" onClick={() => setSideOpen(false)} />}
 
       <aside className={`sidebar ${sideOpen ? 'open' : ''}`}>
-        <div className="sidebar-logo">
-          <div className="logo-orb" />
+        <div className="sidebar-logo clickable" onClick={() => { nav('/'); setSideOpen(false); }}
+          title="Back to Dashboard" role="link">
+          <Logo size={30} />
           <div>Lumera<small>Team Hub</small></div>
         </div>
         <nav className="sidebar-nav">
@@ -159,7 +181,7 @@ export default function Layout({ children }) {
           <Avatar profile={profile} size="md" />
           <div className="who">
             <div className="nm">{profile.name}</div>
-            <div className="rl">{ROLE_LABEL[profile.role]}</div>
+            <div className="rl">{profile.title || ROLE_LABEL[profile.role]}</div>
           </div>
         </div>
       </aside>
@@ -206,6 +228,14 @@ export default function Layout({ children }) {
                     <button className="btn btn-ghost btn-sm" onClick={markAllRead}>Mark all read</button>
                   )}
                 </div>
+                {notifPerm === 'default' && (
+                  <div style={{ padding: '0 14px 10px' }}>
+                    <button className="btn btn-ghost btn-sm" style={{ width: '100%' }}
+                      onClick={async () => setNotifPerm(await Notification.requestPermission())}>
+                      🔔 Enable desktop notifications
+                    </button>
+                  </div>
+                )}
                 <div className="notif-list">
                   {notifs.length === 0 && (
                     <EmptyState title="All clear" sub="Mentions, task assignments and announcements land here." />
