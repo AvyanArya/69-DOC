@@ -61,7 +61,7 @@ export default function Auth() {
             </div>
           )}
           <button type="submit" className="btn btn-gold btn-block" disabled={loading || sent}>
-            {sent ? '✓ Magic link sent — signing you in…' : loading ? 'Entering…' : mode === 'magic' ? 'Send magic link' : 'Sign in'}
+            {sent ? '✓ Magic link sent, signing you in…' : loading ? 'Entering…' : mode === 'magic' ? 'Send magic link' : 'Sign in'}
           </button>
         </form>
 
@@ -73,7 +73,7 @@ export default function Auth() {
         </button>
 
         <p className="muted" style={{ fontSize: 11.5, marginTop: 18, textAlign: 'center' }}>
-          Demo build — any option drops you straight into the app.
+          Demo build, any option drops you straight into the app.
         </p>
       </div>
     </div>

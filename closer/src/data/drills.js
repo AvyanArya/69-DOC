@@ -1,4 +1,4 @@
-// Daily practice drills — 5-minute exercises rotated daily.
+// Daily practice drills, 5-minute exercises rotated daily.
 
 export const DAILY_DRILLS = [
   {

@@ -1,15 +1,15 @@
 // Persona tuning: what makes each legend SOUND like themselves.
 // - tics: signature verbal mannerisms woven into every line (they also shape
-//   TTS prosody — synthesis pauses on ellipses and hits caps harder)
+//   TTS prosody, synthesis pauses on ellipses and hits caps harder)
 // - eleven: per-character ElevenLabs voice_settings (expressiveness/pace)
 // - browser: pitch/rate shaping for the built-in browser voices
 // For maximum fidelity, a properly licensed cloned voice ID can be placed in
-// the character's voice.eleven field in data/characters.js — the pipeline
+// the character's voice.eleven field in data/characters.js, the pipeline
 // uses it automatically.
 
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)]
 
-// Never play the same tic twice in a row — repetition is what reads as "bot".
+// Never play the same tic twice in a row, repetition is what reads as "bot".
 const lastTic = new Map()
 function pickFresh(arr, key) {
   const avoid = lastTic.get(key)
@@ -22,7 +22,7 @@ function pickFresh(arr, key) {
 export const PERSONAS = {
   'jordan-belfort': {
     tics: {
-      openers: ['Listen —', 'Look, kid —', 'Let me tell you something —'], openerChance: 0.35,
+      openers: ['Listen,', 'Look, kid,', 'Let me tell you something,'], openerChance: 0.35,
       closers: ['You following me?', 'Okay?'], closerChance: 0.3,
       pause: 0.3,
     },
@@ -31,7 +31,7 @@ export const PERSONAS = {
   },
   'grant-cardone': {
     tics: {
-      openers: ['Look —', 'LISTEN —'], openerChance: 0.3,
+      openers: ['Look,', 'LISTEN,'], openerChance: 0.3,
       closers: ['Get it?', 'COME ON!'], closerChance: 0.3,
       emphasis: /\b(massive|money|great|now|obsessed|bigger|energy|scale|10x)\b/gi,
     },
@@ -67,7 +67,7 @@ export const PERSONAS = {
   },
   'mark-cuban': {
     tics: {
-      openers: ['Look —', 'Here’s the deal —'], openerChance: 0.35,
+      openers: ['Look,', 'Here’s the deal,'], openerChance: 0.35,
       closers: ['Period.', 'That simple.'], closerChance: 0.3,
     },
     eleven: { stability: 0.35, style: 0.55, speed: 1.1 },
@@ -75,7 +75,7 @@ export const PERSONAS = {
   },
   'barbara-corcoran': {
     tics: {
-      openers: ['Oh, honey —', 'Listen, sweetheart —'], openerChance: 0.25,
+      openers: ['Oh, honey,', 'Listen, sweetheart,'], openerChance: 0.25,
       closers: ['Trust me on that one.', 'I’ve seen it a thousand times.'], closerChance: 0.3,
     },
     eleven: { stability: 0.45, style: 0.5, speed: 1.05 },
@@ -98,7 +98,7 @@ export const PERSONAS = {
     eleven: { stability: 0.4, style: 0.4, speed: 1.18 },
   },
   'restaurant-owner': {
-    tics: { openers: ['Ey —', 'Listen, friend —'], openerChance: 0.25 },
+    tics: { openers: ['Ey,', 'Listen, friend,'], openerChance: 0.25 },
     eleven: { stability: 0.35, style: 0.5, speed: 1.1 },
   },
 }
@@ -114,7 +114,7 @@ export function mannerize(text, characterId) {
   if (tics.openers && Math.random() < (tics.openerChance ?? 0.3)) {
     const op = pickFresh(tics.openers, characterId + ':open')
     const opWord = op.replace(/[^a-zA-Z’' ]/g, '').trim().split(' ')[0]?.toLowerCase()
-    // Don't stack "Look — Look," or prefix a line that already opens with the tic
+    // Don't stack "Look, Look," or prefix a line that already opens with the tic
     if (opWord && !out.slice(0, 26).toLowerCase().includes(opWord)) {
       out = `${op} ${out}`
       touches += 1

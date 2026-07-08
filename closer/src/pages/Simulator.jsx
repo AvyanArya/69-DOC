@@ -7,14 +7,14 @@ import { CHARACTERS, getCharacter } from '../data/characters.js'
 import { CHALLENGES, getChallenge } from '../data/challenges.js'
 import { recordCall, getProfile, updateProfile } from '../lib/storage.js'
 import { xpForCall } from '../lib/xp.js'
-import { speechSupport, voiceTier, voicesReady } from '../lib/speech.js'
+import { speechSupport, voiceTier, voicesReady, probeTtsProxy } from '../lib/speech.js'
 
 function VoiceQualityCard() {
   const [tier, setTier] = useState(null)
   const [key, setKey] = useState('')
   useEffect(() => {
     let alive = true
-    voicesReady().then(() => { if (alive) setTier(voiceTier(getProfile().settings)) })
+    Promise.all([voicesReady(), probeTtsProxy()]).then(() => { if (alive) setTier(voiceTier(getProfile().settings)) })
     return () => { alive = false }
   }, [])
   if (!tier) return null
@@ -28,7 +28,7 @@ function VoiceQualityCard() {
     return (
       <Card className="pad" style={{ borderColor: 'rgba(12,163,12,.35)' }}>
         <h3 style={{ fontSize: 14, marginBottom: 6 }}>🎙️ Studio voices active</h3>
-        <p className="muted" style={{ fontSize: 12.5 }}>Characters speak with ElevenLabs voices, persona-tuned. This is as human as it gets.</p>
+        <p className="muted" style={{ fontSize: 12.5 }}>{tier.label === 'Studio voices (site-wide)' ? 'This deployment ships studio voices to every visitor, on any browser. Nothing to configure.' : 'Characters speak with ElevenLabs voices, persona-tuned. This is as human as it gets.'}</p>
       </Card>
     )
   }
@@ -37,7 +37,7 @@ function VoiceQualityCard() {
       <Card className="pad">
         <h3 style={{ fontSize: 14, marginBottom: 6 }}>🎙️ Neural browser voice</h3>
         <p className="muted" style={{ fontSize: 12.5 }}>
-          Using <b>{tier.label}</b> — one of your browser's better voices. For truly
+          Using <b>{tier.label}</b>, one of your browser's better voices. For truly
           studio-grade audio, add an ElevenLabs key in Settings.
         </p>
       </Card>
@@ -48,12 +48,12 @@ function VoiceQualityCard() {
       <h3 style={{ fontSize: 14, marginBottom: 6 }}>⚠️ Your browser's voices sound robotic</h3>
       <p className="muted" style={{ fontSize: 12.5, marginBottom: 10 }}>
         {tier.tier === 'good'
-          ? <>You're on <b>{tier.label}</b> — passable, but not human. Two ways to fix that:</>
+          ? <>You're on <b>{tier.label}</b>, passable, but not human. Two ways to fix that:</>
           : <>This browser only ships basic system voices ({tier.label}). Two ways to get genuinely human voices:</>}
       </p>
       <ol style={{ fontSize: 12.5, color: 'var(--ink-1)', paddingLeft: 18, marginBottom: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
-        <li><b>Free:</b> open Closer in <b>Microsoft Edge</b> — its built-in "Natural" voices are neural and sound like real people. Closer picks them up automatically.</li>
-        <li><b>Best:</b> paste an <a href="https://elevenlabs.io" target="_blank" rel="noreferrer" style={{ textDecoration: 'underline' }}>ElevenLabs</a> API key (free tier available) — every character gets a distinct studio voice:</li>
+        <li><b>Free:</b> open Closer in <b>Microsoft Edge</b>, its built-in "Natural" voices are neural and sound like real people. Closer picks them up automatically.</li>
+        <li><b>Best:</b> paste an <a href="https://elevenlabs.io" target="_blank" rel="noreferrer" style={{ textDecoration: 'underline' }}>ElevenLabs</a> API key (free tier available), every character gets a distinct studio voice:</li>
       </ol>
       <div className="row" style={{ gap: 8 }}>
         <input
@@ -121,7 +121,7 @@ export default function Simulator() {
     <div className="page-enter">
       <div className="main-header">
         <h1>Phone Simulator</h1>
-        <p>Unlock the phone, pick a contact, and take the call. {speechSupport.recognition ? 'Speak naturally — the AI hears you.' : 'Voice input unavailable in this browser — use the keypad ⌨️ to type your lines.'}</p>
+        <p>Unlock the phone, pick a contact, and take the call. {speechSupport.recognition ? 'Speak naturally, the AI hears you.' : 'Voice input unavailable in this browser, use the keypad ⌨️ to type your lines.'}</p>
       </div>
 
       <div className="sim-layout">
@@ -145,7 +145,7 @@ export default function Simulator() {
                 <select id="sim-char" className="select" value={characterId} onChange={(e) => { setCharacterId(e.target.value); setSessionKey((k) => k + 1) }}>
                   <option value="">Pick from phone contacts…</option>
                   {CHARACTERS.map((c) => (
-                    <option key={c.id} value={c.id}>{c.emoji} {c.name} — {['', 'Warm-up', 'Easy', 'Medium', 'Hard', 'Brutal'][c.difficulty]}</option>
+                    <option key={c.id} value={c.id}>{c.emoji} {c.name}, {['', 'Warm-up', 'Easy', 'Medium', 'Hard', 'Brutal'][c.difficulty]}</option>
                   ))}
                 </select>
               </div>
@@ -207,8 +207,8 @@ export default function Simulator() {
             <h3 style={{ fontSize: 14, marginBottom: 8 }}>🎧 Whisper coach</h3>
             <p className="muted" style={{ fontSize: 12.5 }}>
               {whisper
-                ? 'ON — live tips will appear at the top of the phone during the call. Toggle in Settings.'
-                : 'OFF — the coach stays silent and saves everything for the debrief. Toggle in Settings.'}
+                ? 'ON, live tips will appear at the top of the phone during the call. Toggle in Settings.'
+                : 'OFF, the coach stays silent and saves everything for the debrief. Toggle in Settings.'}
             </p>
           </Card>
         </div>

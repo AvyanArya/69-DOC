@@ -25,14 +25,14 @@ export default function Toolkit() {
 
   const emailPractice = {
     subject: 'Quick question about {company}\'s Q3 pipeline',
-    body: 'Hi {name},\n\nNoticed {trigger event}. Most {role}s I talk to are fighting {pain} right now.\n\nWe helped {peer company} get {result} in {timeframe}. Worth 15 minutes to see if it maps to you?\n\nEither way — {genuine compliment}.\n\n{your name}',
+    body: 'Hi {name},\n\nNoticed {trigger event}. Most {role}s I talk to are fighting {pain} right now.\n\nWe helped {peer company} get {result} in {timeframe}. Worth 15 minutes to see if it maps to you?\n\nEither way, {genuine compliment}.\n\n{your name}',
   }
 
   return (
     <div className="page-enter">
       <div className="main-header">
         <h1>Toolkit 🧰</h1>
-        <p>Beyond cold calls — every high-stakes conversation, plus the assets that support them.</p>
+        <p>Beyond cold calls, every high-stakes conversation, plus the assets that support them.</p>
       </div>
 
       <h3 style={{ fontSize: 15.5, margin: '4px 0 12px' }}>Conversation simulators</h3>
@@ -57,7 +57,7 @@ export default function Toolkit() {
         </Card>
         <Card className="pad">
           <h3 style={{ fontSize: 15.5, marginBottom: 6 }}>📜 Performance certificate</h3>
-          <p className="muted" style={{ fontSize: 13, marginBottom: 14 }}>Certify your current rank — share it with recruiters and managers.</p>
+          <p className="muted" style={{ fontSize: 13, marginBottom: 14 }}>Certify your current rank, share it with recruiters and managers.</p>
           <button className="btn btn-ghost btn-sm" onClick={() => setCertOpen(true)}>Preview certificate</button>
         </Card>
       </div>
@@ -80,7 +80,7 @@ export default function Toolkit() {
       <div className="grid grid-2" style={{ marginBottom: 26 }}>
         <Card className="pad">
           <span className="chip blue" style={{ marginBottom: 10 }}>📧 Cold email practice</span>
-          <p className="muted" style={{ fontSize: 12.5, marginBottom: 10 }}>The template elite SDRs iterate from — fill the brackets, cut 30%, send.</p>
+          <p className="muted" style={{ fontSize: 12.5, marginBottom: 10 }}>The template elite SDRs iterate from, fill the brackets, cut 30%, send.</p>
           <div style={{ fontSize: 13, background: 'var(--bg-2)', borderRadius: 12, padding: 14, whiteSpace: 'pre-wrap', fontFamily: 'var(--font-mono)', lineHeight: 1.6 }}>
             <b style={{ color: 'var(--gold-bright)' }}>Subject: {emailPractice.subject}</b>{'\n\n'}{emailPractice.body}
           </div>
@@ -89,9 +89,9 @@ export default function Toolkit() {
           <span className="chip blue" style={{ marginBottom: 10 }}>💼 LinkedIn outreach practice</span>
           <p className="muted" style={{ fontSize: 12.5, marginBottom: 10 }}>Connection → value → soft ask. Never pitch in the connection request.</p>
           <div className="col" style={{ gap: 10, fontSize: 13 }}>
-            <div style={{ background: 'var(--bg-2)', borderRadius: 12, padding: 12 }}><b style={{ fontSize: 11, color: 'var(--gold)' }}>STEP 1 · CONNECT</b><p style={{ marginTop: 4 }}>"Loved your post on {'{topic}'} — the point about {'{detail}'} matched what I'm seeing with clients. Would be glad to connect."</p></div>
-            <div style={{ background: 'var(--bg-2)', borderRadius: 12, padding: 12 }}><b style={{ fontSize: 11, color: 'var(--gold)' }}>STEP 2 · VALUE</b><p style={{ marginTop: 4 }}>"That thing you posted about {'{pain}'} — we built a 2-page benchmark on exactly that. Want it? No strings."</p></div>
-            <div style={{ background: 'var(--bg-2)', borderRadius: 12, padding: 12 }}><b style={{ fontSize: 11, color: 'var(--gold)' }}>STEP 3 · ASK</b><p style={{ marginTop: 4 }}>"If the benchmark was useful — 15 minutes Thursday to walk through how {'{peer}'} applied it?"</p></div>
+            <div style={{ background: 'var(--bg-2)', borderRadius: 12, padding: 12 }}><b style={{ fontSize: 11, color: 'var(--gold)' }}>STEP 1 · CONNECT</b><p style={{ marginTop: 4 }}>"Loved your post on {'{topic}'}, the point about {'{detail}'} matched what I'm seeing with clients. Would be glad to connect."</p></div>
+            <div style={{ background: 'var(--bg-2)', borderRadius: 12, padding: 12 }}><b style={{ fontSize: 11, color: 'var(--gold)' }}>STEP 2 · VALUE</b><p style={{ marginTop: 4 }}>"That thing you posted about {'{pain}'}, we built a 2-page benchmark on exactly that. Want it? No strings."</p></div>
+            <div style={{ background: 'var(--bg-2)', borderRadius: 12, padding: 12 }}><b style={{ fontSize: 11, color: 'var(--gold)' }}>STEP 3 · ASK</b><p style={{ marginTop: 4 }}>"If the benchmark was useful, 15 minutes Thursday to walk through how {'{peer}'} applied it?"</p></div>
           </div>
         </Card>
       </div>
@@ -130,9 +130,9 @@ export default function Toolkit() {
             <div className="field">
               <label>Tone</label>
               <select className="select" value={scriptForm.tone} onChange={(e) => setScriptForm({ ...scriptForm, tone: e.target.value })}>
-                <option value="consultative">Consultative — calm expert</option>
-                <option value="direct">Direct — brisk and outcome-first</option>
-                <option value="warm">Warm — friendly and curious</option>
+                <option value="consultative">Consultative, calm expert</option>
+                <option value="direct">Direct, brisk and outcome-first</option>
+                <option value="warm">Warm, friendly and curious</option>
               </select>
             </div>
             <button className="btn btn-gold btn-block" type="submit">⚡ Generate script</button>

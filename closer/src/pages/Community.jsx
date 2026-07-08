@@ -21,7 +21,7 @@ export default function Community() {
     <div className="page-enter">
       <div className="main-header">
         <h1>Community</h1>
-        <p>Iron sharpens iron. See where you stand — then climb.</p>
+        <p>Iron sharpens iron. See where you stand, then climb.</p>
       </div>
 
       <div className="grid grid-2" style={{ marginBottom: 16 }}>

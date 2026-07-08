@@ -54,6 +54,33 @@ recognition is unavailable (Firefox, file://, mic denied), the phone
 automatically falls back to a type-to-speak bar (the ⌨️ button toggles it any
 time).
 
+## 🌍 Give EVERY visitor studio voices (recommended for sharing)
+
+If you want other people to use Closer on their own browsers and OSs with
+great voices, without each of them configuring anything, deploy with a
+server-side voice key. The included `api/tts.js` serverless function keeps
+your ElevenLabs key on the server (visitors never see it) and streams studio
+audio to every browser: Chrome, Safari, Firefox, mobile.
+
+```bash
+npm i -g vercel
+cd closer
+vercel                                # first deploy (creates the project)
+vercel env add ELEVENLABS_API_KEY     # paste your key when prompted
+vercel --prod                         # redeploy with the key active
+```
+
+That's it. The app probes `/api/tts` on load: if the key is configured, every
+visitor automatically gets premium voices (the simulator shows "Studio voices
+active, site-wide"); if not, it falls back to each visitor's browser voices.
+The endpoint is protected with per-IP rate limiting, a 400-character text cap,
+and tuning-value clamps. Watch your ElevenLabs usage dashboard if you share
+the link widely, TTS characters are what you pay for.
+
+Everything else already works cross-browser: speech input falls back to
+type-to-speak where recognition is unavailable (Firefox, iOS Safari), and the
+UI is responsive down to phones.
+
 ## 🎙️ Making the voices sound genuinely human
 
 Browser text-to-speech has a hard quality ceiling — a basic system voice will

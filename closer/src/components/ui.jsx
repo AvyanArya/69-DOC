@@ -1,5 +1,6 @@
 // Shared UI primitives.
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 export function Card({ children, className = '', hover = false, pad = true, ...rest }) {
   return (
@@ -87,12 +88,16 @@ export function Modal({ open, onClose, children, width }) {
     return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = '' }
   }, [open, onClose])
   if (!open) return null
-  return (
+  // Portal to <body>: keeps the dialog viewport-centered no matter where in
+  // the page tree it was opened from (transformed/animated ancestors would
+  // otherwise anchor position:fixed and cut it off).
+  return createPortal(
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal" style={width ? { maxWidth: width } : undefined} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
 

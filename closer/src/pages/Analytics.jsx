@@ -67,13 +67,13 @@ export default function Analytics() {
       <div className="grid grid-4" style={{ marginBottom: 16 }}>
         <Stat label="Calls analyzed" value={calls.length} icon="📼" />
         <Stat label="Hours on the phone" value={fmtHours(calls.reduce((s, c) => s + c.durationSec, 0)) + 'h'} icon="⏱️" />
-        <Stat label="Weakest skill" value={weakness?.label ?? '—'} sub={`avg ${weakness?.now ?? '—'} · train it this week`} icon="🎯" />
+        <Stat label="Weakest skill" value={weakness?.label ?? ', '} sub={`avg ${weakness?.now ?? ', '} · train it this week`} icon="🎯" />
         <Stat label="Projected score" value={prediction} sub="in ~4 more calls at current pace" icon="🔮" accent />
       </div>
 
       <div className="grid grid-2" style={{ marginBottom: 16 }}>
         <Card className="pad">
-          <h3 style={{ fontSize: 15.5, marginBottom: 12 }}>Overall score — last {trend.length} calls</h3>
+          <h3 style={{ fontSize: 15.5, marginBottom: 12 }}>Overall score, last {trend.length} calls</h3>
           <TrendChart series={[{ name: 'Overall score', data: trend }]} height={210} />
         </Card>
         <Card className="pad">
@@ -85,7 +85,7 @@ export default function Analytics() {
       <div className="grid" style={{ gridTemplateColumns: '1.3fr 1fr', marginBottom: 16 }}>
         <Card className="pad">
           <h3 style={{ fontSize: 15.5, marginBottom: 4 }}>Skill progression</h3>
-          <p className="muted" style={{ fontSize: 12, marginBottom: 14 }}>Recent average vs your first calls — Δ shows growth</p>
+          <p className="muted" style={{ fontSize: 12, marginBottom: 14 }}>Recent average vs your first calls, Δ shows growth</p>
           <div className="col" style={{ gap: 10 }}>
             {skillAvgs.map((s) => (
               <div key={s.label} className="bar-row">
@@ -116,7 +116,7 @@ export default function Analytics() {
         </Card>
         <Card className="pad">
           <h3 style={{ fontSize: 15.5, marginBottom: 4 }}>Average score by opponent</h3>
-          <p className="muted" style={{ fontSize: 12, marginBottom: 14 }}>Who you handle — and who still owns you</p>
+          <p className="muted" style={{ fontSize: 12, marginBottom: 14 }}>Who you handle, and who still owns you</p>
           <BarRows items={byCharacter} />
         </Card>
       </div>

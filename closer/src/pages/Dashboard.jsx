@@ -58,7 +58,7 @@ export default function Dashboard() {
       <div className="main-header row between wrap">
         <div>
           <h1>Welcome back, {profile.user.name.split(' ')[0]}.</h1>
-          <p>{trainedToday ? 'Session logged today — keep the streak alive tomorrow.' : 'Your streak is on the line. One call keeps it alive.'}</p>
+          <p>{trainedToday ? 'Session logged today, keep the streak alive tomorrow.' : 'Your streak is on the line. One call keeps it alive.'}</p>
         </div>
         <Link to="/app/simulator" className="btn btn-gold">📞 Start a Call</Link>
       </div>
@@ -73,7 +73,7 @@ export default function Dashboard() {
       <div className="grid" style={{ gridTemplateColumns: '2fr 1fr', marginBottom: 16 }}>
         <Card className="pad">
           <div className="row between" style={{ marginBottom: 14 }}>
-            <h3 style={{ fontSize: 15.5 }}>Score trend — last {trendData.length} calls</h3>
+            <h3 style={{ fontSize: 15.5 }}>Score trend, last {trendData.length} calls</h3>
             <Link to="/app/analytics" className="btn btn-ghost btn-sm">Full analytics →</Link>
           </div>
           <TrendChart series={[{ name: 'Overall score', data: trendData }]} height={210} />
@@ -112,7 +112,7 @@ export default function Dashboard() {
           </Card>
           <div className="grid grid-3">
             <Stat label="Longest call" value={fmtDuration(longest)} icon="🗣️" />
-            <Stat label="Toughest win" value={hardestBeaten ? hardestBeaten.emoji : '—'} sub={hardestBeaten ? hardestBeaten.name : 'No wins yet'} icon="⚔️" />
+            <Stat label="Toughest win" value={hardestBeaten ? hardestBeaten.emoji : ', '} sub={hardestBeaten ? hardestBeaten.name : 'No wins yet'} icon="⚔️" />
             <Stat label="Fastest gain" value="Objections" sub="+11 in 2 weeks" icon="🚀" />
           </div>
         </div>
@@ -171,7 +171,7 @@ export default function Dashboard() {
               <Link to="/app/simulator" className="btn btn-dark btn-block btn-sm">Rematch {getCharacter(lastCall.characterId).name} →</Link>
             </div>
           ) : (
-            <p className="muted">No calls yet — hit the simulator.</p>
+            <p className="muted">No calls yet, hit the simulator.</p>
           )}
         </Card>
       </div>

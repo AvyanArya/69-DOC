@@ -7,17 +7,17 @@ import { SectionTitle } from '../components/ui.jsx'
 import { PricingCards } from './Pricing.jsx'
 
 const FEATURES = [
-  { ic: '📞', title: 'AI Phone Simulator', desc: 'A real phone, a real conversation. Dial AI prospects who interrupt, push back, and hang up — just like the street.' },
-  { ic: '🧠', title: 'Instant Call Coaching', desc: 'Every call is scored across 15+ dimensions — confidence, tonality, objection handling — with a full mistake timeline.' },
+  { ic: '📞', title: 'AI Phone Simulator', desc: 'A real phone, a real conversation. Dial AI prospects who interrupt, push back, and hang up, just like the street.' },
+  { ic: '🧠', title: 'Instant Call Coaching', desc: 'Every call is scored across 15+ dimensions, confidence, tonality, objection handling, with a full mistake timeline.' },
   { ic: '🎭', title: 'Legendary Opponents', desc: 'Train against the Wolf, a 10X titan, a visionary CEO, sharks, cold CFOs, and 20+ ruthless buyer archetypes.' },
-  { ic: '🧪', title: 'Infinite Scenarios', desc: '"Sell accounting software to a dentist." Type it — the Scenario Lab builds the roleplay instantly.' },
+  { ic: '🧪', title: 'Infinite Scenarios', desc: '"Sell accounting software to a dentist." Type it, the Scenario Lab builds the roleplay instantly.' },
   { ic: '🎧', title: 'Whisper Mode', desc: 'A coach in your ear during live calls: "Mirror their last sentence." "They\'re losing interest." "Slow down."' },
   { ic: '🏆', title: 'Ranked Progression', desc: 'XP, streaks, leaderboards and seven ranks from Beginner to Legend. Training you\'ll actually come back for.' },
 ]
 
 const STEPS = [
   { title: 'Pick your opponent', desc: 'Choose a legendary closer, a hostile prospect, or generate a custom scenario for your exact industry.' },
-  { title: 'Take the call', desc: 'Speak naturally. The AI responds in real time with emotion, objections, interruptions — and zero mercy.' },
+  { title: 'Take the call', desc: 'Speak naturally. The AI responds in real time with emotion, objections, interruptions, and zero mercy.' },
   { title: 'Read the tape', desc: 'Get your score, mistake timeline, better lines you could have said, and a training plan that adapts to you.' },
 ]
 
@@ -108,7 +108,7 @@ export default function Landing() {
         <SectionTitle
           center eyebrow="The Platform"
           title={<>Everything between you and <span className="gold-text">elite</span>.</>}
-          sub="Not a course. A training ground — live reps, brutal feedback, measurable improvement."
+          sub="Not a course. A training ground, live reps, brutal feedback, measurable improvement."
         />
         <div className="feature-grid">
           {FEATURES.map((f, i) => (

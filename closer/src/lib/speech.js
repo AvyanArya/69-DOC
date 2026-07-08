@@ -22,7 +22,7 @@ if (speechSupport.synthesis) {
   window.speechSynthesis.onvoiceschanged = loadVoices
 }
 
-/** Voices load asynchronously in Chrome — wait (briefly) before the first line
+/** Voices load asynchronously in Chrome, wait (briefly) before the first line
  *  so the opener doesn't play on the default voice and then switch mid-call. */
 export function voicesReady(timeoutMs = 1500) {
   if (!speechSupport.synthesis) return Promise.resolve([])
@@ -81,7 +81,7 @@ export function pickVoice({ gender = 'any', accent = 'us' } = {}) {
   return best
 }
 
-// One pinned voice per character for the whole session — prevents the
+// One pinned voice per character for the whole session, prevents the
 // "Barbara starts female then switches to a man" glitch when the voice list
 // finishes loading mid-call. Characters are SPREAD across the top-ranked
 // voices (not all given the single best one) so Belfort ≠ Cuban ≠ the CEO
@@ -122,9 +122,58 @@ export function resolveCharacterVoice(character) {
 /* ── Premium voices (optional ElevenLabs integration) ─────────
    With an API key in Settings, each character speaks with a distinct
    human-sounding voice from ElevenLabs' premade voice library (matched
-   to the character's vibe — NOT clones of the real people). Any failure
+   to the character's vibe, NOT clones of the real people). Any failure
    falls back silently to the browser voice. */
 let elevenActive = null // cancel handle for the currently playing clip
+
+async function playAudioResponse(res) {
+  const url = URL.createObjectURL(await res.blob())
+  const audio = new Audio(url)
+  const promise = new Promise((resolve) => {
+    audio.onended = resolve
+    audio.onerror = resolve
+  }).finally(() => URL.revokeObjectURL(url))
+  const cancel = () => { try { audio.pause() } catch { /* already stopped */ } }
+  elevenActive = cancel
+  await audio.play()
+  return { promise, cancel }
+}
+
+/* Site-wide studio voices: when the app is deployed with an
+   ELEVENLABS_API_KEY env var, /api/tts serves premium audio to EVERY
+   visitor on any browser, no per-user setup. Probed once, cached. */
+let proxyConfigured = null // null = unknown, then boolean
+let proxyProbe = null
+export function probeTtsProxy() {
+  if (proxyProbe) return proxyProbe
+  proxyProbe = fetch('/api/tts', { method: 'GET' })
+    .then((r) => (r.ok ? r.json() : { configured: false }))
+    .then((j) => { proxyConfigured = Boolean(j.configured); return proxyConfigured })
+    .catch(() => { proxyConfigured = false; return false })
+  return proxyProbe
+}
+
+async function proxySpeak(text, character, settings) {
+  if (proxyConfigured === null) await probeTtsProxy()
+  if (!proxyConfigured) throw new Error('no-proxy')
+  const tuning = personaVoiceTuning(character.id).eleven || {}
+  const res = await fetch('/api/tts', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      text,
+      voiceId: character.voice?.eleven || 'pNInz6obpgDQGcFmaJgB',
+      voiceSettings: {
+        stability: tuning.stability ?? 0.45,
+        style: tuning.style ?? 0.3,
+        similarity_boost: 0.85,
+        speed: Math.max(0.8, Math.min(1.2, (tuning.speed ?? character.speakingSpeed ?? 1) * (settings.voiceRate || 1))),
+      },
+    }),
+  })
+  if (!res.ok) throw new Error(`proxy-${res.status}`)
+  return playAudioResponse(res)
+}
 
 async function elevenSpeak(text, character, settings) {
   const voiceId = character.voice?.eleven || 'pNInz6obpgDQGcFmaJgB'
@@ -147,7 +196,7 @@ async function elevenSpeak(text, character, settings) {
     body: JSON.stringify(body),
   })
   if (res.status === 422) {
-    // Older accounts/models reject speed/style — retry with the basics.
+    // Older accounts/models reject speed/style, retry with the basics.
     delete body.voice_settings.speed
     delete body.voice_settings.style
     res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_22050_32`, {
@@ -157,16 +206,7 @@ async function elevenSpeak(text, character, settings) {
     })
   }
   if (!res.ok) throw new Error(`elevenlabs-${res.status}`)
-  const url = URL.createObjectURL(await res.blob())
-  const audio = new Audio(url)
-  const promise = new Promise((resolve) => {
-    audio.onended = resolve
-    audio.onerror = resolve
-  }).finally(() => URL.revokeObjectURL(url))
-  const cancel = () => { try { audio.pause() } catch { /* already stopped */ } }
-  elevenActive = cancel
-  await audio.play()
-  return { promise, cancel }
+  return playAudioResponse(res)
 }
 
 /**
@@ -177,9 +217,18 @@ export function speakAs(text, character, settings = {}) {
   let cancelled = false
   let inner = null
   const promise = (async () => {
+    // Ladder: user's own key → site-wide /api/tts proxy → browser voice.
     if (settings.elevenLabsKey) {
       try {
         inner = await elevenSpeak(text, character, settings)
+        if (cancelled) { inner.cancel(); return }
+        await inner.promise
+        return
+      } catch { /* fall through */ }
+    }
+    if (!cancelled && proxyConfigured !== false) {
+      try {
+        inner = await proxySpeak(text, character, settings)
         if (cancelled) { inner.cancel(); return }
         await inner.promise
         return
@@ -187,7 +236,7 @@ export function speakAs(text, character, settings = {}) {
     }
     if (cancelled) return
     const browserTuning = personaVoiceTuning(character.id).browser || {}
-    // Keep persona shaping subtle on system voices — big pitch shifts make
+    // Keep persona shaping subtle on system voices, big pitch shifts make
     // them sound warped, which reads as MORE robotic, not less.
     const rate = Math.max(0.85, Math.min(1.18, browserTuning.rate ?? character.speakingSpeed ?? 1)) * (settings.voiceRate || 1)
     const pitch = Math.max(0.9, Math.min(1.12, browserTuning.pitch ?? character.voice?.pitch ?? 1))
@@ -202,7 +251,7 @@ export function speakAs(text, character, settings = {}) {
 function sanitizeForSpeech(text) {
   return text
     .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, '')
-    .replace(/\s*—\s*/g, ', ')
+    .replace(/\s*, \s*/g, ', ')
     .replace(/…/g, '... ')
     .replace(/\s{2,}/g, ' ')
     .trim()
@@ -223,7 +272,7 @@ function splitSentences(text) {
 
 /**
  * Speak a line. Returns a handle: { promise, cancel }.
- * Long lines are spoken sentence-by-sentence with a natural beat between —
+ * Long lines are spoken sentence-by-sentence with a natural beat between,
  * consistent rate/pitch throughout (per-line jitter sounded broken, removed).
  */
 export function speak(text, { rate = 1, pitch = 1, voice = null } = {}) {
@@ -240,6 +289,9 @@ export function speak(text, { rate = 1, pitch = 1, voice = null } = {}) {
   const keepAlive = setInterval(() => {
     try { if (window.speechSynthesis.paused) window.speechSynthesis.resume() } catch { /* noop */ }
   }, 4000)
+  // Chrome clips the first words when speak() follows cancel() immediately,
+  // give the engine a beat to reset so sentences start from word one.
+  const settleDelay = new Promise((r) => setTimeout(r, 150))
 
   const speakChunk = (chunk) => new Promise((res) => {
     if (cancelled) return res()
@@ -254,6 +306,7 @@ export function speak(text, { rate = 1, pitch = 1, voice = null } = {}) {
   })
 
   const promise = (async () => {
+    await settleDelay
     for (const chunk of chunks) {
       if (cancelled) break
       await speakChunk(chunk)
@@ -267,9 +320,11 @@ export function speak(text, { rate = 1, pitch = 1, voice = null } = {}) {
   }
 }
 
-/** What quality of voice will actually play right now — drives in-app guidance. */
+/** What quality of voice will actually play right now, drives in-app guidance.
+ *  Call probeTtsProxy() first so the site-wide tier is known. */
 export function voiceTier(settings, character = null) {
   if (settings?.elevenLabsKey) return { tier: 'premium', label: 'ElevenLabs studio voices' }
+  if (proxyConfigured) return { tier: 'premium', label: 'Studio voices (site-wide)' }
   if (!speechSupport.synthesis) return { tier: 'none', label: 'No speech synthesis in this browser' }
   const v = character ? resolveCharacterVoice(character) : pickVoice({})
   if (!v) return { tier: 'basic', label: 'Default system voice' }

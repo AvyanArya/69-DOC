@@ -26,7 +26,7 @@ export default function Characters() {
     nav('/app/simulator', { state: { characterId: archetype, scenario: {
       title: `Custom: ${custom.name || 'Unnamed prospect'}`,
       topic: `selling to a ${custom.style} ${custom.industry} buyer`,
-      openingContext: `You built this prospect: ${custom.name || 'Unnamed'} — a ${custom.style} buyer in ${custom.industry}, difficulty ${custom.difficulty}/5.`,
+      openingContext: `You built this prospect: ${custom.name || 'Unnamed'}, a ${custom.style} buyer in ${custom.industry}, difficulty ${custom.difficulty}/5.`,
     } } })
   }
 
@@ -91,10 +91,10 @@ export default function Characters() {
           <div className="field">
             <label>Temperament</label>
             <select className="select" value={custom.style} onChange={(e) => setCustom({ ...custom, style: e.target.value })}>
-              <option value="skeptical">Skeptical — demands proof</option>
-              <option value="aggressive">Aggressive — hostile from hello</option>
-              <option value="analytical">Analytical — only numbers matter</option>
-              <option value="warm">Warm — friendly but price-sensitive</option>
+              <option value="skeptical">Skeptical, demands proof</option>
+              <option value="aggressive">Aggressive, hostile from hello</option>
+              <option value="analytical">Analytical, only numbers matter</option>
+              <option value="warm">Warm, friendly but price-sensitive</option>
             </select>
           </div>
           <div className="field">

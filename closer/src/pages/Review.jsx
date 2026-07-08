@@ -19,8 +19,8 @@ const SKILL_LABELS = {
 }
 
 const BETTER_LINES = [
-  'Try: "Totally fair — most of my best clients said exactly that on the first call. Can I ask what you\'re using today?"',
-  'Try: "Before we talk price — if this solved [their pain], what would that be worth to you per month?"',
+  'Try: "Totally fair, most of my best clients said exactly that on the first call. Can I ask what you\'re using today?"',
+  'Try: "Before we talk price, if this solved [their pain], what would that be worth to you per month?"',
   'Try: "It sounds like timing is the real issue, not the product. What would need to be true for this to be a priority?"',
   'Try: "Let me ask you one question, and if it doesn\'t land, I\'ll let you go: what\'s your plan for [problem] this quarter?"',
 ]
@@ -119,7 +119,7 @@ export default function Review() {
             aria-label="Pick a call to review"
           >
             {otherCalls.map((c) => (
-              <option key={c.id} value={c.id}>{getCharacter(c.characterId).name} — {c.overall} ({fmtDateTime(c.ts)})</option>
+              <option key={c.id} value={c.id}>{getCharacter(c.characterId).name}, {c.overall} ({fmtDateTime(c.ts)})</option>
             ))}
           </select>
           <button className="btn btn-ghost btn-sm" onClick={exportReport}>⬇ Export</button>
@@ -136,8 +136,9 @@ export default function Review() {
               <span className="chip">{character.emoji} {character.name}</span>
             </div>
             <h2 style={{ fontSize: 20, marginBottom: 6 }} className="display">
-              {call.overall >= 80 ? 'Elite work. That was a professional call.'
-                : call.overall >= 60 ? 'Solid foundation — a few fixable leaks.'
+              {report?.insufficient ? 'The mic never heard you, so there\'s nothing to grade.'
+                : call.overall >= 80 ? 'Elite work. That was a professional call.'
+                : call.overall >= 60 ? 'Solid foundation, a few fixable leaks.'
                 : call.outcome === 'hangup' ? 'They hung up. Let\'s find the exact moment it died.'
                 : 'Rough one. The tape below shows exactly why.'}
             </h2>
@@ -197,7 +198,7 @@ export default function Review() {
                   <div key={i} className="timeline-item good"><b>Turn {g.turn}:</b> {g.text}</div>
                 ))}
               </div>
-            ) : <p className="muted" style={{ fontSize: 13 }}>Nothing landed this call — the drills below will fix that.</p>}
+            ) : <p className="muted" style={{ fontSize: 13 }}>Nothing landed this call, the drills below will fix that.</p>}
           </Card>
           <Card className="pad">
             <h3 style={{ fontSize: 15.5, marginBottom: 16 }}>⚠️ Mistakes & missed opportunities</h3>
@@ -210,7 +211,7 @@ export default function Review() {
                   </div>
                 ))}
               </div>
-            ) : <p className="muted" style={{ fontSize: 13 }}>Clean call — no logged mistakes.</p>}
+            ) : <p className="muted" style={{ fontSize: 13 }}>Clean call, no logged mistakes.</p>}
           </Card>
         </div>
       ) : null}

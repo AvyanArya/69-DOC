@@ -41,11 +41,11 @@ export default function Daily() {
   const allDone = doneToday.length >= drills.length
 
   return (
-    <div className="page-enter" style={{ maxWidth: 900 }}>
+    <div className="page-enter" style={{ maxWidth: 900, margin: '0 auto' }}>
       <div className="main-header row between wrap">
         <div>
           <h1>Daily Practice ⚡</h1>
-          <p>Five minutes a day keeps the streak — and the skills — alive.</p>
+          <p>Five minutes a day keeps the streak, and the skills, alive.</p>
         </div>
         <span className="chip gold">🔥 {profile.streak.current}-day streak · {doneToday.length}/{drills.length} today</span>
       </div>
@@ -56,7 +56,7 @@ export default function Daily() {
             <span style={{ fontSize: 32 }}>🏆</span>
             <div>
               <b>All drills complete.</b>
-              <p className="muted" style={{ fontSize: 13 }}>Cap the day with a real call — the simulator remembers everything you practiced.</p>
+              <p className="muted" style={{ fontSize: 13 }}>Cap the day with a real call, the simulator remembers everything you practiced.</p>
             </div>
             <span className="spacer" />
             <button className="btn btn-gold btn-sm" onClick={() => nav('/app/simulator')}>📞 Take a call</button>
@@ -95,8 +95,8 @@ export default function Daily() {
             <div className="mono" style={{ fontSize: 40, fontWeight: 700, color: timeLeft < 20 ? 'var(--serious)' : 'var(--gold-bright)' }}>
               {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')}
             </div>
-            <p className="muted" style={{ fontSize: 12.5 }}>Say it out loud. Nobody's listening — that's the point of practice.</p>
-            <button className="btn btn-gold btn-block" onClick={completeDrill}>✓ Done — bank +25 XP</button>
+            <p className="muted" style={{ fontSize: 12.5 }}>Say it out loud. Nobody's listening, that's the point of practice.</p>
+            <button className="btn btn-gold btn-block" onClick={completeDrill}>✓ Done, bank +25 XP</button>
           </div>
         )}
       </Modal>

@@ -8,7 +8,7 @@ const SERIES = ['#c98500', '#3987e5', '#199e70', '#e66767']
 
 /* ── TrendChart: line/area with crosshair + tooltip ───────── */
 export function TrendChart({
-  series,            // [{ name, data: [{x,label,y}] }] — 1..2 series
+  series,            // [{ name, data: [{x,label,y}] }], 1..2 series
   height = 200, yMax = 100, yMin = 0, unit = '',
 }) {
   const ref = useRef(null)
@@ -102,7 +102,7 @@ export function TrendChart({
 
 /* ── RadarChart: single-polygon skill radar ───────────────── */
 export function RadarChart({ axes, size = 300 }) {
-  // axes: [{ label, value }] 0..100 — single series, gold
+  // axes: [{ label, value }] 0..100, single series, gold
   const [hover, setHover] = useState(null)
   const cx = size / 2
   const cy = size / 2
@@ -228,7 +228,7 @@ export function TalkRatio({ ratio }) {
         <div style={{ width: `${100 - you}%`, background: SERIES[1] }} />
       </div>
       <p className="muted" style={{ fontSize: 12, marginTop: 8 }}>
-        {you > 60 ? 'You dominated the airtime — aim closer to 45%.' : you < 35 ? 'You gave up too much control — steer with questions.' : 'Healthy balance. Elite closers sit near 45%.'}
+        {you > 60 ? 'You dominated the airtime, aim closer to 45%.' : you < 35 ? 'You gave up too much control, steer with questions.' : 'Healthy balance. Elite closers sit near 45%.'}
       </p>
     </div>
   )

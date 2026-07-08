@@ -1,4 +1,4 @@
-// Challenge modes — each maps to a suggested character + objective brief.
+// Challenge modes, each maps to a suggested character + objective brief.
 
 export const CHALLENGES = [
   { id: 'sell-pen', name: 'Selling a Pen', emoji: '🖊️', difficulty: 2, minutes: 5,
@@ -26,7 +26,7 @@ export const CHALLENGES = [
     objective: 'Ask for the business directly. Handle the final stall.',
     characterId: 'grant-cardone', category: 'Core Skills' },
   { id: 'negotiation', name: 'Negotiation', emoji: '⚖️', difficulty: 4, minutes: 8,
-    brief: 'Everything is negotiable — except your margin.',
+    brief: 'Everything is negotiable, except your margin.',
     objective: 'Close without giving more than one concession.',
     characterId: 'mark-cuban', category: 'Core Skills' },
   { id: 'price-increase', name: 'Price Increase Call', emoji: '📈', difficulty: 5, minutes: 6,
@@ -42,7 +42,7 @@ export const CHALLENGES = [
     objective: 'Upgrade them by anchoring on unrealized value.',
     characterId: 'budget-buyer', category: 'Core Skills' },
   { id: 'cross-sell', name: 'Cross-sell', emoji: '↔️', difficulty: 3, minutes: 5,
-    brief: 'They bought product A. Product B is a natural fit — prove it.',
+    brief: 'They bought product A. Product B is a natural fit, prove it.',
     objective: 'Connect a second product to a pain they already voiced.',
     characterId: 'gym-owner', category: 'Core Skills' },
   { id: 'fundraising', name: 'Fundraising Pitch', emoji: '💰', difficulty: 5, minutes: 8,
@@ -63,7 +63,7 @@ export const CHALLENGES = [
     characterId: 'real-estate-seller', category: 'Industry' },
   { id: 'luxury', name: 'Luxury Sales', emoji: '💎', difficulty: 3, minutes: 7,
     brief: 'Sell a six-figure product where pushiness is fatal.',
-    objective: 'Close on exclusivity and craft — never on discount.',
+    objective: 'Close on exclusivity and craft, never on discount.',
     characterId: 'luxury-client', category: 'Industry' },
   { id: 'b2b-saas', name: 'B2B SaaS', emoji: '☁️', difficulty: 4, minutes: 8,
     brief: 'Multi-stakeholder deal. The CFO is your final boss.',
@@ -79,7 +79,7 @@ export const CHALLENGES = [
     characterId: 'insurance-prospect', category: 'Industry' },
   { id: 'insurance', name: 'Insurance Sales', emoji: '☂️', difficulty: 3, minutes: 6,
     brief: 'Sell protection to someone who thinks they\'re invincible.',
-    objective: 'Make the invisible risk feel real — without fear-mongering.',
+    objective: 'Make the invisible risk feel real, without fear-mongering.',
     characterId: 'insurance-prospect', category: 'Industry' },
   { id: 'car-sales', name: 'Car Sales', emoji: '🚗', difficulty: 3, minutes: 7,
     brief: 'The internet told them your invoice price. Sell value anyway.',

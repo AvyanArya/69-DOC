@@ -1,4 +1,4 @@
-// The AI phone simulator — lock screen → home → prospects list → live call.
+// The AI phone simulator, lock screen → home → prospects list → live call.
 // Voice in/out runs on the Web Speech API with a type-to-speak fallback.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { CHARACTERS, DIFFICULTY_LABELS, getCharacter } from '../../data/characters.js'
@@ -87,7 +87,7 @@ function LockScreen({ onUnlock }) {
 
 /* ── Home screen ──────────────────────────────────────────── */
 function HomeScreen({ onOpen }) {
-  // The green Phone app opens your prospect list — every call starts from a
+  // The green Phone app opens your prospect list, every call starts from a
   // contact you can see, never a number you're expected to know.
   const apps = [
     { id: 'contacts', name: 'Prospects', ic: '📞', tint: 'green' },
@@ -199,7 +199,11 @@ function CallScreen({ character, challenge, scenario, incoming, whisperEnabled, 
   const listenRef = useRef(null)
   const mutedRef = useRef(false)
   const doneRef = useRef(false)
+  const micRef = useRef('unknown')     // unknown | granted | denied
+  const micStreamRef = useRef(null)    // held open all call: permission asked ONCE
+  const typingRef = useRef(!speechSupport.recognition)
   mutedRef.current = muted
+  typingRef.current = needsTyping
 
   const settings = getProfile().settings
 
@@ -216,6 +220,7 @@ function CallScreen({ character, challenge, scenario, incoming, whisperEnabled, 
     stopSpeaking()
     listenRef.current?.stop()
     speakingRef.current?.cancel()
+    micStreamRef.current?.getTracks().forEach((t) => t.stop())
     const conv = convRef.current
     if (conv && !conv.state.outcome) conv.endedByUser()
     const durationSec = startRef.current ? Math.round((Date.now() - startRef.current) / 1000) : 0
@@ -237,7 +242,7 @@ function CallScreen({ character, challenge, scenario, incoming, whisperEnabled, 
     setCaption({ speaker: character.name, text })
     transcriptRef.current.push({ speaker: 'ai', text, t: startRef.current ? (Date.now() - startRef.current) / 1000 : 0 })
     // speakAs: premium ElevenLabs voice when a key is configured, otherwise a
-    // pinned browser voice — either way persona-tuned per character.
+    // pinned browser voice, either way persona-tuned per character.
     speakingRef.current = speakAs(text, character, settings)
     await speakingRef.current.promise
   }, [character, settings])
@@ -245,29 +250,40 @@ function CallScreen({ character, challenge, scenario, incoming, whisperEnabled, 
   const userTurn = useCallback(async () => {
     if (doneRef.current) return
     setTurn('user')
-    setMicState(speechSupport.recognition ? 'Listening… speak now' : 'Type your response below')
-    let text = null
-    if (speechSupport.recognition && !needsTyping) {
+    if (!speechSupport.recognition || typingRef.current || micRef.current === 'denied') {
+      setNeedsTyping(true)
+      setMicState(micRef.current === 'denied' ? 'Mic blocked by the browser, type your reply below' : 'Type your reply below')
+      return // wait for typed submit
+    }
+    // Keep listening through silences: only a real mic problem drops us to
+    // typing. "no-speech" just means the user is thinking.
+    for (let attempt = 0; attempt < 8; attempt++) {
+      if (doneRef.current || typingRef.current) return
+      setMicState(attempt === 0 ? 'Listening, speak now' : 'Still listening…')
       try {
         listenRef.current = listenOnce({ onInterim: (t) => setCaption({ speaker: 'You', text: t, user: true }) })
         const res = await listenRef.current.promise
-        text = res.text
-      } catch {
-        // Mic denied or no speech — fall back to typing, stay in user turn.
-        setNeedsTyping(true)
-        setMicState('Mic unavailable — type your response')
-        return
+        if (res.text) return handleUserText(res.text)
+      } catch (err) {
+        const code = err?.message || ''
+        if (code === 'no-speech' || code === 'aborted') continue
+        if (code === 'not-allowed' || code === 'service-not-allowed' || code === 'audio-capture') {
+          micRef.current = 'denied'
+          setNeedsTyping(true)
+          setMicState('Mic blocked by the browser, type your reply below')
+          return
+        }
+        await new Promise((r) => setTimeout(r, 400)) // network hiccup: retry
       }
-    } else {
-      return // wait for typed submit
     }
-    if (text) handleUserText(text)
-  }, [needsTyping]) // eslint-disable-line react-hooks/exhaustive-deps
+    setNeedsTyping(true)
+    setMicState('Could not hear you, type your reply below')
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleUserText = useCallback(async (text) => {
     if (doneRef.current || !text.trim()) return
     if (mutedRef.current) {
-      setMicState('You are muted — unmute to speak')
+      setMicState('You are muted, unmute to speak')
       return
     }
     setMicState('')
@@ -294,6 +310,17 @@ function CallScreen({ character, challenge, scenario, incoming, whisperEnabled, 
     startRef.current = Date.now()
     convRef.current = createConversation({ character, challenge, scenario })
     const open = convRef.current.opener()
+    // Grab the mic ONCE up front and hold the stream for the whole call,
+    // otherwise some browsers re-prompt for permission on every turn.
+    if (speechSupport.recognition && micRef.current === 'unknown' && navigator.mediaDevices?.getUserMedia) {
+      try {
+        micStreamRef.current = await navigator.mediaDevices.getUserMedia({ audio: true })
+        micRef.current = 'granted'
+      } catch {
+        micRef.current = 'denied'
+        setNeedsTyping(true)
+      }
+    }
     // Let the browser's voice list finish loading so the character keeps
     // one consistent voice from the very first word.
     await Promise.all([voicesReady(), new Promise((r) => setTimeout(r, 600))])
@@ -313,6 +340,7 @@ function CallScreen({ character, challenge, scenario, incoming, whisperEnabled, 
     doneRef.current = true
     stopSpeaking()
     listenRef.current?.stop()
+    micStreamRef.current?.getTracks().forEach((t) => t.stop())
   }, [])
 
   const submitTyped = (e) => {

@@ -9,7 +9,7 @@ const base = {
     "I've heard enough. Take me off your list.",
   ],
   win: [
-    "Alright, you know what — you've earned fifteen minutes. Send the invite.",
+    "Alright, you know what, you've earned fifteen minutes. Send the invite.",
     "Fine. Thursday, 10am. Don't make me regret this.",
     "Okay, I'm in. Send me the details and let's move.",
   ],
@@ -72,27 +72,27 @@ export const CHARACTERS = [
         "Why you? Why your company? Why now? Answer all three or hang up.",
         "I like the idea, I just don't trust YOU yet. Fix that.",
       ],
-      win: ["Boom. THAT'S how you close. You just sold the Wolf — take the win."],
+      win: ["Boom. THAT'S how you close. You just sold the Wolf, take the win."],
       hangup: ["You lost me at hello, kid. Study the tape and call me back."],
       ctx: {
         question: {
           cold: ["My {echo}? Kid, I don't answer questions from people who haven't sold me anything yet. Sell first.", "You're asking about my {echo} like you've earned it. You haven't. Certainty first, questions second."],
-          warm: ["My {echo}? Honestly? It bleeds money and everyone's too scared to tell me. You saw it — good. Now what?"],
+          warm: ["My {echo}? Honestly? It bleeds money and everyone's too scared to tell me. You saw it, good. Now what?"],
         },
         value: {
-          cold: ["'{echo}' — you said it like you were apologizing for it. Say {echo} like it's the best thing that ever happened to me.", "Every schmuck on the phone promises {echo}. The tonality is what sells it, and yours is FLAT."],
+          cold: ["'{echo}', you said it like you were apologizing for it. Say {echo} like it's the best thing that ever happened to me.", "Every schmuck on the phone promises {echo}. The tonality is what sells it, and yours is FLAT."],
           warm: ["NOW you sound like you believe {echo} yourself. That's the straight line. Stay on it."],
         },
         number: {
-          cold: ["{echo}? You threw that number out there with zero conviction. Numbers are only real if YOU'RE real.", "{echo} — whose number is that? Say it again like you'd bet your house on it."],
-          warm: ["{echo}. Good. Specific. Now attach it to MY life — what does {echo} buy ME?"],
+          cold: ["{echo}? You threw that number out there with zero conviction. Numbers are only real if YOU'RE real.", "{echo}, whose number is that? Say it again like you'd bet your house on it."],
+          warm: ["{echo}. Good. Specific. Now attach it to MY life, what does {echo} buy ME?"],
         },
         price: {
           cold: ["You flinched on the money. NEVER flinch on the money. The moment you flinch, I own you."],
           warm: ["Say the number like it's a bargain, one time, then shut your mouth. Go."],
         },
         greeting: {
-          cold: ["Hi hi, hello hello — that's four words of my ten seconds gone. GO.", "Pleasantries? The Wolf doesn't do pleasantries. Reason for the call. Now."],
+          cold: ["Hi hi, hello hello, that's four words of my ten seconds gone. GO.", "Pleasantries? The Wolf doesn't do pleasantries. Reason for the call. Now."],
           warm: ["Smooth opener. Confident. Okay kid, you bought yourself a minute."],
         },
         howAreYou: {
@@ -100,7 +100,7 @@ export const CHARACTERS = [
           warm: ["Ha! I'm fantastic, I'm always fantastic. Now show me you deserve this phone call."],
         },
         vague: {
-          cold: ["Mumbling is for people who don't believe their own pitch. Full sentence, full certainty.", "That was word soup. Straight line, kid — where are you taking me?"],
+          cold: ["Mumbling is for people who don't believe their own pitch. Full sentence, full certainty.", "That was word soup. Straight line, kid, where are you taking me?"],
         },
       },
     }),
@@ -125,11 +125,11 @@ export const CHARACTERS = [
         "I don't buy from people who follow up 'when it's convenient'. Are you obsessed or not?",
         "You want my time? My time is ten grand an hour. Earn it.",
       ],
-      win: ["Done deal. You showed up 10X — that's the only way I buy."],
+      win: ["Done deal. You showed up 10X, that's the only way I buy."],
       hangup: ["Little thinking, little results. Call me when you're serious."],
       ctx: {
         question: {
-          cold: ["Why are you asking about my {echo}?? YOU called ME. Obsessed people don't ask permission — they bring VALUE.", "My {echo} is 10X better than whatever you're about to pitch. Prove me wrong."],
+          cold: ["Why are you asking about my {echo}?? YOU called ME. Obsessed people don't ask permission, they bring VALUE.", "My {echo} is 10X better than whatever you're about to pitch. Prove me wrong."],
           warm: ["My {echo}? It's good. But good is the enemy of GREAT, so if you can 10X it, TALK."],
         },
         value: {
@@ -137,7 +137,7 @@ export const CHARACTERS = [
           warm: ["{echo} at SCALE? Now you're speaking my language. Show me massive."],
         },
         number: {
-          cold: ["{echo}? Add a zero and maybe I care. Small numbers are for small thinkers.", "{echo} — is that all?? Think BIGGER."],
+          cold: ["{echo}? Add a zero and maybe I care. Small numbers are for small thinkers.", "{echo}, is that all?? Think BIGGER."],
           warm: ["{echo}. Okay okay okay. Multiply that across a year and say it again. FEEL it."],
         },
         price: {
@@ -145,8 +145,8 @@ export const CHARACTERS = [
           warm: ["Don't discount it. Ever. Underpriced means under-believed. What's the number?"],
         },
         greeting: {
-          cold: ["Great, hello, hi, love it — you've burned three seconds being polite. Are you obsessed or not?!"],
-          warm: ["THERE'S some energy! Okay, you got my attention — don't waste it."],
+          cold: ["Great, hello, hi, love it, you've burned three seconds being polite. Are you obsessed or not?!"],
+          warm: ["THERE'S some energy! Okay, you got my attention, don't waste it."],
         },
         howAreYou: {
           cold: ["How am I? I'm CRUSHING it, like every day. The question is what are YOU doing on this call?"],
@@ -182,7 +182,7 @@ export const CHARACTERS = [
         "If I gave you one sentence on a billboard, what does it say?",
         "A thousand companies do this. Why will yours be the one that matters?",
       ],
-      win: ["Okay. This is insanely great. Let's talk — my people will set it up."],
+      win: ["Okay. This is insanely great. Let's talk, my people will set it up."],
       hangup: ["This is a C-minus conversation and I don't do C-minus. Goodbye."],
       ctx: {
         question: {
@@ -191,11 +191,11 @@ export const CHARACTERS = [
         },
         value: {
           cold: ["'{echo}' is a feature. Features bore me. What's the product?", "A thousand companies promise {echo}. Why will yours be the one that matters?"],
-          warm: ["{echo}, stated simply. Good. Simple is harder than complex — don't ruin it now."],
+          warm: ["{echo}, stated simply. Good. Simple is harder than complex, don't ruin it now."],
         },
         number: {
           cold: ["{echo}. Numbers without taste are just noise. What does the customer FEEL?"],
-          warm: ["{echo} — fine, the math works. But does it make someone's day better? That's the bar."],
+          warm: ["{echo}, fine, the math works. But does it make someone's day better? That's the bar."],
         },
         price: {
           cold: ["Price is what mediocre people negotiate. Make something worth anything and the price is a detail."],
@@ -210,7 +210,7 @@ export const CHARACTERS = [
           warm: ["Focused, thanks. Which is what this call needs to be."],
         },
         vague: {
-          cold: ["That was noise. Say it in one sentence — if you can't, you don't understand it yet.", "Simplify. Then simplify again. Then call me back — no wait, you're here. Try now."],
+          cold: ["That was noise. Say it in one sentence, if you can't, you don't understand it yet.", "Simplify. Then simplify again. Then call me back, no wait, you're here. Try now."],
         },
       },
     }),
@@ -235,11 +235,11 @@ export const CHARACTERS = [
         "Hm. If that scales, it's interesting. What's the limiting constraint?",
       ],
       objections: [
-        "Why hasn't physics — or the market — already solved this?",
+        "Why hasn't physics, or the market, already solved this?",
         "What's your marginal cost at 10x volume? You should know this instantly.",
         "This feels like a vitamin, not a painkiller. Convince me otherwise.",
       ],
-      win: ["Alright, this is one of the more sane pitches this month. Email my chief of staff — I'll take the meeting."],
+      win: ["Alright, this is one of the more sane pitches this month. Email my chief of staff, I'll take the meeting."],
       hangup: ["Yeah, I have a rocket thing. Good luck with… whatever this was."],
       ctx: {
         question: {
@@ -251,7 +251,7 @@ export const CHARACTERS = [
           warm: ["Hm. {echo}, if the unit economics hold, is actually non-trivial. What's the limiting constraint?"],
         },
         number: {
-          cold: ["{echo} — is that measured or extrapolated? Extrapolations are usually wrong in the boring direction.", "You should know the error bars on {echo} instantly. Do you?"],
+          cold: ["{echo}, is that measured or extrapolated? Extrapolations are usually wrong in the boring direction.", "You should know the error bars on {echo} instantly. Do you?"],
           warm: ["{echo}. Okay, if that's real, what happens at 10x volume? Marginal cost curve, go."],
         },
         price: {
@@ -281,13 +281,13 @@ export const CHARACTERS = [
     temperament: { patience: 70, objectionCount: 3, style: 'patient' },
     locked: false,
     lines: pack({
-      openers: ["Well hello there. I've got a cherry Coke and a few minutes — what's on your mind?"],
+      openers: ["Well hello there. I've got a cherry Coke and a few minutes, what's on your mind?"],
       cold: [
         "That's fine and dandy, but I don't invest in what I don't understand. Simplify it for me.",
         "You know, in Omaha we'd call that a lot of hat and no cattle.",
       ],
       hooked: [
-        "Now that's the kind of business I like — tell me about the moat.",
+        "Now that's the kind of business I like, tell me about the moat.",
         "Heh, that's a wonderful little detail. Go on.",
       ],
       objections: [
@@ -296,34 +296,34 @@ export const CHARACTERS = [
         "Price is what I pay, value is what I get. So what am I getting?",
       ],
       win: ["Well, you've made an old man curious, and that's not easy. Let's continue this over lunch."],
-      hangup: ["I'll pass, friend. Rule number one is never lose money — and rule two is never forget rule one."],
+      hangup: ["I'll pass, friend. Rule number one is never lose money, and rule two is never forget rule one."],
       ctx: {
         question: {
-          cold: ["Heh, my {echo}? I've had the same {echo} for fifty years, friend. It compounds — that's the whole trick.", "Now why would a fella want to know about my {echo}? Tell me what you're really fishing for."],
-          warm: ["Our {echo}? Truthfully it's like an old tractor — runs fine until the day it doesn't. What are you seeing?"],
+          cold: ["Heh, my {echo}? I've had the same {echo} for fifty years, friend. It compounds, that's the whole trick.", "Now why would a fella want to know about my {echo}? Tell me what you're really fishing for."],
+          warm: ["Our {echo}? Truthfully it's like an old tractor, runs fine until the day it doesn't. What are you seeing?"],
         },
         value: {
-          cold: ["'{echo}' — you know, in Omaha we'd call that a lot of hat and no cattle. Where's the cattle?", "Everybody promises {echo} in a bull market. What happens to {echo} in a bad year?"],
+          cold: ["'{echo}', you know, in Omaha we'd call that a lot of hat and no cattle. Where's the cattle?", "Everybody promises {echo} in a bull market. What happens to {echo} in a bad year?"],
           warm: ["Now {echo}, if it's durable, that's a moat. And I do love a moat. Tell me why it lasts."],
         },
         number: {
           cold: ["{echo}, you say. I've seen prettier numbers turn ugly by Tuesday. What's behind it?", "A number like {echo} is a story wearing a suit. Tell me the story instead."],
-          warm: ["{echo} — well now, that's a wonderful little figure. Is it repeatable, or did lightning strike once?"],
+          warm: ["{echo}, well now, that's a wonderful little figure. Is it repeatable, or did lightning strike once?"],
         },
         price: {
           cold: ["Price is what I pay, value is what I get. So far you've only told me the first part."],
           warm: ["Alright, name the price plainly. I've bought companies quicker than some folks buy shoes."],
         },
         greeting: {
-          cold: ["Well hello there. I've got a cherry Coke and mild curiosity — one of them runs out fast."],
+          cold: ["Well hello there. I've got a cherry Coke and mild curiosity, one of them runs out fast."],
           warm: ["Hello, hello. You sound like someone with a story. I like stories. Go on."],
         },
         howAreYou: {
-          cold: ["Oh, can't complain — nobody listens anyway, heh. What's on your mind, friend?"],
+          cold: ["Oh, can't complain, nobody listens anyway, heh. What's on your mind, friend?"],
           warm: ["Happier than a mosquito at a nudist colony. Now what can I do for you?"],
         },
         vague: {
-          cold: ["Friend, I don't invest in what I don't understand — and I didn't understand a word of that.", "Try that again in plain English. The simpler you say it, the smarter you'll sound."],
+          cold: ["Friend, I don't invest in what I don't understand, and I didn't understand a word of that.", "Try that again in plain English. The simpler you say it, the smarter you'll sound."],
         },
       },
     }),
@@ -352,11 +352,11 @@ export const CHARACTERS = [
       hangup: ["And for that reason, I'm out."],
       ctx: {
         question: {
-          cold: ["My {echo}? You didn't do your homework — that's strike one. I talk about it in like nine interviews.", "Why does my {echo} matter? Sales fix everything, and you haven't shown me sales."],
-          warm: ["Our {echo} could be better, not gonna lie. What do you got — and keep it real."],
+          cold: ["My {echo}? You didn't do your homework, that's strike one. I talk about it in like nine interviews.", "Why does my {echo} matter? Sales fix everything, and you haven't shown me sales."],
+          warm: ["Our {echo} could be better, not gonna lie. What do you got, and keep it real."],
         },
         value: {
-          cold: ["'{echo}' — everybody pitches me {echo}. Margins. Show me the margins.", "That's a hobby claim, not a business claim. {echo} means nothing without CAC."],
+          cold: ["'{echo}', everybody pitches me {echo}. Margins. Show me the margins.", "That's a hobby claim, not a business claim. {echo} means nothing without CAC."],
           warm: ["Okay, {echo} with decent unit economics? Keep talking. What's the acquisition cost?"],
         },
         number: {
@@ -365,11 +365,11 @@ export const CHARACTERS = [
         },
         price: {
           cold: ["You're leading with price? Money's a commodity. Value isn't. Which one are you selling?"],
-          warm: ["Fine — what's it cost, what's it return, and how fast? Three numbers, go."],
+          warm: ["Fine, what's it cost, what's it return, and how fast? Three numbers, go."],
         },
         greeting: {
           cold: ["Yeah, hey. Sixty seconds. Numbers first, story later."],
-          warm: ["Hey — okay, you came ready. Respect. What's the pitch?"],
+          warm: ["Hey, okay, you came ready. Respect. What's the pitch?"],
         },
         howAreYou: {
           cold: ["Save the small talk for your barber. What are we doing here?"],
@@ -401,19 +401,19 @@ export const CHARACTERS = [
         "If a bigger competitor called my clients tomorrow, why do they stay with you?",
       ],
       win: ["You know what? I trust my gut, and my gut says yes. Let's do it."],
-      hangup: ["I'm going to save us both time — it's a no. Toughen up and try again."],
+      hangup: ["I'm going to save us both time, it's a no. Toughen up and try again."],
       ctx: {
         question: {
-          cold: ["My {echo}? Honey, I built my {echo} from a thousand-dollar loan. What did YOU build?", "You're asking about my {echo} — cute. I ask the questions until you've earned a turn."],
-          warm: ["Our {echo}? Between us, it needs work — and I only admit that to people I like. Careful, you're becoming one."],
+          cold: ["My {echo}? Honey, I built my {echo} from a thousand-dollar loan. What did YOU build?", "You're asking about my {echo}, cute. I ask the questions until you've earned a turn."],
+          warm: ["Our {echo}? Between us, it needs work, and I only admit that to people I like. Careful, you're becoming one."],
         },
         value: {
           cold: ["Sweetheart, '{echo}' is what everyone says right before they disappoint me.", "I don't buy {echo}. I buy the PERSON selling {echo}. And I'm still reading you."],
-          warm: ["Now {echo} — say it again with your spine straight, because that one I believe."],
+          warm: ["Now {echo}, say it again with your spine straight, because that one I believe."],
         },
         number: {
           cold: ["{echo}? Numbers don't impress me, honey. Grit impresses me. Where's yours from?"],
-          warm: ["{echo} — okay, that's a real number said like a real person. Who'd you learn that from?"],
+          warm: ["{echo}, okay, that's a real number said like a real person. Who'd you learn that from?"],
         },
         price: {
           cold: ["Talking money before charming me? In New York we call that amateur hour."],
@@ -421,10 +421,10 @@ export const CHARACTERS = [
         },
         greeting: {
           cold: ["Hi honey. I've got five minutes between showings and four of them are spoken for."],
-          warm: ["Well hello! Good energy. Don't waste it — what've you got?"],
+          warm: ["Well hello! Good energy. Don't waste it, what've you got?"],
         },
         howAreYou: {
-          cold: ["Fabulous, always fabulous. You won't distract me with manners though — pitch."],
+          cold: ["Fabulous, always fabulous. You won't distract me with manners though, pitch."],
           warm: ["I'm terrific, sweetheart. And you sound nervous-excited, which I love. Go."],
         },
         vague: {
@@ -449,7 +449,7 @@ export const CHARACTERS = [
         "What stops me from funding your competitor tomorrow?",
         "You're pre-revenue and asking for THAT? Walk me through your delusion.",
       ],
-      win: ["Congratulations — you've got a deal. Don't make me look stupid."],
+      win: ["Congratulations, you've got a deal. Don't make me look stupid."],
     }),
   },
   {
@@ -463,12 +463,12 @@ export const CHARACTERS = [
     lines: pack({
       openers: ["Good afternoon. I do hope this is worth interrupting my afternoon for."],
       cold: ["How very… enthusiastic. Do compose yourself.", "One does not simply 'discount' excellence. You cheapen the conversation."],
-      hooked: ["Mm. Provenance and craftsmanship — now you're speaking properly."],
+      hooked: ["Mm. Provenance and craftsmanship, now you're speaking properly."],
       objections: [
         "Everyone claims exclusivity, darling. Who else owns one?",
         "I don't discuss price. I discuss worth. Are they the same here?",
       ],
-      win: ["Very well. You have taste and patience — a rare pairing. I'll proceed."],
+      win: ["Very well. You have taste and patience, a rare pairing. I'll proceed."],
       hangup: ["This has become rather tiresome. Good day."],
     }),
   },
@@ -483,7 +483,7 @@ export const CHARACTERS = [
     lines: pack({
       openers: ["You have 30 seconds and I'm walking into a board meeting. Go."],
       cold: ["Bottom line it. Now.", "You're describing features. I buy outcomes. Which one do you sell?"],
-      hooked: ["Okay — that's a real number. Where's it come from?"],
+      hooked: ["Okay, that's a real number. Where's it come from?"],
       objections: [
         "My team already evaluated this category and passed. Why re-open it?",
         "Every vendor promises 30% improvement. Nobody delivers. Why will you?",
@@ -511,7 +511,7 @@ export const CHARACTERS = [
         "The last company that promised that took my money and vanished. Why are you different?",
         "You've got one minute to prove you're not wasting my life.",
       ],
-      win: ["Huh. You kept your cool and you actually made sense. Alright — send it over."],
+      win: ["Huh. You kept your cool and you actually made sense. Alright, send it over."],
       hangup: ["THAT'S IT. Lose this number!"],
     }),
   },
@@ -526,14 +526,14 @@ export const CHARACTERS = [
     lines: pack({
       openers: ["Speaking. You have my attention until it stops being financially relevant."],
       cold: ["That is not a number.", "Adjectives are free. Show me the model."],
-      hooked: ["Payback under two quarters. Continue — carefully."],
+      hooked: ["Payback under two quarters. Continue, carefully."],
       objections: [
         "What is the fully loaded cost including implementation and churn risk?",
         "Your case study is n=1. Do you have cohort data?",
-        "If this fails, who absorbs the write-off — you or me?",
+        "If this fails, who absorbs the write-off, you or me?",
         "We can build this internally for less. Convince me we can't.",
       ],
-      win: ["The numbers survive scrutiny. Send the proposal — copy procurement."],
+      win: ["The numbers survive scrutiny. Send the proposal, copy procurement."],
       hangup: ["This meeting has negative ROI. Goodbye."],
     }),
   },
@@ -546,7 +546,7 @@ export const CHARACTERS = [
     temperament: { patience: 55, objectionCount: 3, style: 'emotional' },
     locked: false,
     lines: pack({
-      openers: ["If you're another agent calling about the house — I'm selling it myself, thanks."],
+      openers: ["If you're another agent calling about the house, I'm selling it myself, thanks."],
       cold: ["You agents all say the same thing.", "My neighbor sold without an agent just fine."],
       hooked: ["Well… nobody explained it like that before. What would you do differently?"],
       objections: [
@@ -575,7 +575,7 @@ export const CHARACTERS = [
         "Last time I switched jobs it was a disaster. Why is this different?",
         "Just send the job description. I might look at it eventually.",
       ],
-      win: ["Alright, you clearly did your homework. I'll take an intro call — Wednesday evening."],
+      win: ["Alright, you clearly did your homework. I'll take an intro call, Wednesday evening."],
       hangup: ["Please remove me from your list."],
     }),
   },
@@ -588,14 +588,14 @@ export const CHARACTERS = [
     temperament: { patience: 48, objectionCount: 2, style: 'energetic' },
     locked: false,
     lines: pack({
-      openers: ["Hey hey — you've caught me between standups. What's up?"],
+      openers: ["Hey hey, you've caught me between standups. What's up?"],
       cold: ["Is there a self-serve tier? I don't do sales calls usually.", "We duct-taped a solution already."],
       hooked: ["Oh nice, that would kill two tickets in my backlog. How fast is setup?"],
       objections: [
         "Can I integrate it this weekend? If not, it doesn't exist for me.",
-        "We're pre-Series A — pricing needs to not be enterprise nonsense.",
+        "We're pre-Series A, pricing needs to not be enterprise nonsense.",
       ],
-      win: ["Sold. Send the sandbox link — I'll have it wired up by Monday."],
+      win: ["Sold. Send the sandbox link, I'll have it wired up by Monday."],
       hangup: ["Gotta jump, standup's starting. Ping me never."],
     }),
   },
@@ -608,7 +608,7 @@ export const CHARACTERS = [
     temperament: { patience: 45, objectionCount: 2, style: 'emotional' },
     locked: false,
     lines: pack({
-      openers: ["Hello? — MARCO, TABLE SIX! — sorry, yeah, hi, who's this? We're slammed."],
+      openers: ["Hello?, MARCO, TABLE SIX!, sorry, yeah, hi, who's this? We're slammed."],
       cold: ["Look, dinner rush starts in an hour.", "Margins are paper thin, friend. Paper. Thin."],
       hooked: ["Wait, it fills the Tuesday dead hours? Okay, talk while I chop."],
       objections: [
@@ -616,7 +616,7 @@ export const CHARACTERS = [
         "My cousin set up our website. Why do I need more?",
       ],
       win: ["Alright, alright. Come by Monday before prep, we'll set it up. You eat free."],
-      hangup: ["I gotta go, the fryer's — yeah. Bye."],
+      hangup: ["I gotta go, the fryer's, yeah. Bye."],
     }),
   },
   {
@@ -628,14 +628,14 @@ export const CHARACTERS = [
     temperament: { patience: 50, objectionCount: 2, style: 'direct' },
     locked: false,
     lines: pack({
-      openers: ["Yeah, this is Sam — quick, I've got a class in ten."],
+      openers: ["Yeah, this is Sam, quick, I've got a class in ten."],
       cold: ["Mate, every software rep promises me 'more members'.", "I run on referrals. Always have."],
       hooked: ["Hm. January retention IS my problem. What do you know about it?"],
       objections: [
         "The last platform locked me into a year and did nothing. No contracts.",
         "My members are 40+. They won't use an app.",
       ],
-      win: ["Alright, you get it. Demo Friday, 2pm, bring shoes — you're doing the class first."],
+      win: ["Alright, you get it. Demo Friday, 2pm, bring shoes, you're doing the class first."],
       hangup: ["Class time. Don't call back."],
     }),
   },
@@ -677,7 +677,7 @@ export const CHARACTERS = [
         "If it's so good, why the aggressive outbound calls?",
         "What EXACTLY happens when I want to cancel?",
       ],
-      win: ["Fine. You survived the interrogation. I'll try the trial — one month."],
+      win: ["Fine. You survived the interrogation. I'll try the trial, one month."],
       hangup: ["Caught you exaggerating. Done here."],
     }),
   },
@@ -692,7 +692,7 @@ export const CHARACTERS = [
     lines: pack({
       openers: ["Hi there! Always happy to hear a pitch. Can't promise we can afford it, ha!"],
       cold: ["Ooh, that sounds pricey already.", "Is there a free version? We love free."],
-      hooked: ["Okay that's genuinely useful. Now the big question — what's the damage?"],
+      hooked: ["Okay that's genuinely useful. Now the big question, what's the damage?"],
       objections: [
         "Your competitor quoted us 30% less. Match it?",
         "What if we pay annually, refer a friend, AND skip support?",
@@ -713,14 +713,14 @@ export const CHARACTERS = [
     lines: pack({
       openers: ["This is procurement. Before anything else: are you an approved vendor?"],
       cold: ["That's outside our current RFP cycle.", "Urgency is a sales tactic. We don't respond to tactics."],
-      hooked: ["Interesting — that compliance certification is actually rare. Noted."],
+      hooked: ["Interesting, that compliance certification is actually rare. Noted."],
       objections: [
         "We require three competing bids. Who are your competitors? Be honest.",
-        "Your SLA terms — 99.9 or 99.99? The difference matters legally.",
+        "Your SLA terms, 99.9 or 99.99? The difference matters legally.",
         "Net-90 payment terms, penalty clauses, and a security audit. Still interested?",
         "This needs sign-off from four departments. What's your onboarding timeline?",
       ],
-      win: ["Very well. I'm adding you to the shortlist — the REAL one. Expect our questionnaire."],
+      win: ["Very well. I'm adding you to the shortlist, the REAL one. Expect our questionnaire."],
       hangup: ["Submit through the vendor portal like everyone else. Goodbye."],
     }),
   },

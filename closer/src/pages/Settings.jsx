@@ -49,7 +49,7 @@ export default function Settings() {
   }
 
   return (
-    <div className="page-enter" style={{ maxWidth: 760 }}>
+    <div className="page-enter" style={{ maxWidth: 760, margin: '0 auto' }}>
       <div className="main-header">
         <h1>Settings</h1>
         <p>Tune the training experience to your voice and rhythm.</p>
@@ -82,11 +82,11 @@ export default function Settings() {
             <b>Microphone calibration</b>
             <small>
               {micLevel === 'requesting' ? 'Speak normally for 2 seconds…'
-                : micLevel === 'good' ? '✓ Strong signal — you\'re call-ready'
-                : micLevel === 'low' ? '⚠ Weak signal — move closer to the mic'
-                : micLevel === 'silent' ? '⚠ No signal detected — check input device'
-                : micLevel === 'denied' ? '✕ Mic access denied — allow it in browser settings'
-                : speechSupport.recognition ? 'Speech recognition available' : 'Speech recognition unsupported — type-to-talk will be used'}
+                : micLevel === 'good' ? '✓ Strong signal, you\'re call-ready'
+                : micLevel === 'low' ? '⚠ Weak signal, move closer to the mic'
+                : micLevel === 'silent' ? '⚠ No signal detected, check input device'
+                : micLevel === 'denied' ? '✕ Mic access denied, allow it in browser settings'
+                : speechSupport.recognition ? 'Speech recognition available' : 'Speech recognition unsupported, type-to-talk will be used'}
             </small>
           </div>
           <button className="btn btn-ghost btn-sm" onClick={calibrateMic} disabled={micLevel === 'requesting'}>🎚 Calibrate</button>
@@ -118,7 +118,7 @@ export default function Settings() {
               onClick={() => {
                 setTesting(true)
                 speakAs(
-                  'Listen — this is what your training calls sound like from now on. You following me?',
+                  'Listen, this is what your training calls sound like from now on. You following me?',
                   { id: 'jordan-belfort', speakingSpeed: 1.1, voice: { eleven: 'pNInz6obpgDQGcFmaJgB', gender: 'male', accent: 'us', pitch: 1.05 } },
                   s,
                 ).promise.finally(() => setTesting(false))
@@ -131,7 +131,7 @@ export default function Settings() {
       <Card className="pad" style={{ marginBottom: 16 }}>
         <h3 style={{ fontSize: 15.5, marginBottom: 4 }}>🎧 Coaching</h3>
         <div className="settings-row">
-          <div><b>Whisper coach</b><small>Live suggestions during calls — quietly, in the pauses</small></div>
+          <div><b>Whisper coach</b><small>Live suggestions during calls, quietly, in the pauses</small></div>
           <Toggle checked={s.whisperCoach} onChange={(v) => set('whisperCoach', v)} label="Whisper coach" />
         </div>
         <div className="settings-row" style={{ borderBottom: 'none' }}>
@@ -155,7 +155,7 @@ export default function Settings() {
           </select>
         </div>
         <div className="settings-row" style={{ borderBottom: 'none' }}>
-          <div><b>Theme</b><small>Closer is built dark-first — light theme is on the roadmap</small></div>
+          <div><b>Theme</b><small>Closer is built dark-first, light theme is on the roadmap</small></div>
           <span className="chip gold">🌙 Premium dark</span>
         </div>
       </Card>
@@ -167,7 +167,7 @@ export default function Settings() {
           <input className="input" style={{ width: 220 }} value={profile.user.name} onChange={(e) => updateProfile((p) => { p.user.name = e.target.value })} />
         </div>
         <div className="settings-row">
-          <div><b>Plan</b><small>Premium — unlimited calls & full analytics</small></div>
+          <div><b>Plan</b><small>Premium, unlimited calls & full analytics</small></div>
           <span className="chip gold">★ Premium</span>
         </div>
         <div className="settings-row" style={{ borderBottom: 'none' }}>

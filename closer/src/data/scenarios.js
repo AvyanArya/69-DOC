@@ -60,7 +60,7 @@ export function generateScenario(promptText) {
     `Open strong enough to earn 60 seconds with ${character.name}.`,
     `Surface at least two pain points relevant to ${topic}.`,
     'Handle the money objection without discounting.',
-    'Close on a concrete next step — a booked time, not a "maybe".',
+    'Close on a concrete next step, a booked time, not a "maybe".',
   ]
 
   return {
@@ -73,7 +73,7 @@ export function generateScenario(promptText) {
     characterId: character.id,
     difficulty,
     objectives,
-    openingContext: `You are calling ${character.name} — ${ind?.persona || character.personality.toLowerCase()}. Your goal: ${topic}. They did not ask for this call.`,
+    openingContext: `You are calling ${character.name}, ${ind?.persona || character.personality.toLowerCase()}. Your goal: ${topic}. They did not ask for this call.`,
   }
 }
 
@@ -116,9 +116,9 @@ export function generateScript({ product, audience, tone }) {
     warm: 'friendly, curious, unhurried',
   }[tone] || 'confident, natural'
   return [
-    { section: 'Opener', text: `"Hi, this is [YOUR NAME] with [COMPANY] — I know I'm calling out of the blue. I work with ${audience || 'teams like yours'}, and I had a specific reason for calling you. Do you have 30 seconds so I can tell you what it is?"` },
-    { section: 'Reason + Hook', text: `"We help ${audience || 'people in your position'} fix [TOP PAIN] with ${product || 'our solution'} — most see [CONCRETE RESULT] inside [TIMEFRAME]. The reason I called YOU specifically: [PERSONALIZED TRIGGER]."` },
-    { section: 'Discovery Bridge', text: `"Before I say anything else — how are you handling [PROBLEM AREA] today? …And what does that cost you when it goes wrong?"` },
+    { section: 'Opener', text: `"Hi, this is [YOUR NAME] with [COMPANY], I know I'm calling out of the blue. I work with ${audience || 'teams like yours'}, and I had a specific reason for calling you. Do you have 30 seconds so I can tell you what it is?"` },
+    { section: 'Reason + Hook', text: `"We help ${audience || 'people in your position'} fix [TOP PAIN] with ${product || 'our solution'}, most see [CONCRETE RESULT] inside [TIMEFRAME]. The reason I called YOU specifically: [PERSONALIZED TRIGGER]."` },
+    { section: 'Discovery Bridge', text: `"Before I say anything else, how are you handling [PROBLEM AREA] today? …And what does that cost you when it goes wrong?"` },
     { section: 'Objection Pre-empt', text: `"You're probably thinking you've heard this pitch before. Fair. Here's what's different: [ONE SHARP DIFFERENTIATOR]. ${tone === 'direct' ? 'I can prove it in one meeting.' : 'I\'d rather show you than tell you.'}"` },
     { section: 'Close', text: `"Here's what I suggest: [DAY] at [TIME], 20 minutes, I'll bring [SPECIFIC VALUE ITEM]. If it's not useful, you'll never hear from me again. Fair enough?"` },
     { section: 'Delivery notes', text: `Keep it ${toneLine}. Pause after the price. Mirror their objections before answering. Talk less than 50% of the time.` },

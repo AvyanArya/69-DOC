@@ -68,7 +68,7 @@ export default function AcademyModule() {
   const resetQuiz = () => { setQIdx(0); setPicked(null); setCorrect(0); setQuizDone(false) }
 
   return (
-    <div className="page-enter" style={{ maxWidth: 860 }}>
+    <div className="page-enter" style={{ maxWidth: 860, margin: '0 auto' }}>
       <Link to="/app/academy" className="btn btn-ghost btn-sm" style={{ marginBottom: 18 }}>← Academy</Link>
       <div className="main-header">
         <div className="row" style={{ gap: 14, marginBottom: 8 }}>
@@ -127,7 +127,7 @@ export default function AcademyModule() {
         </Card>
         <Card className="pad">
           <h3 style={{ fontSize: 15.5, marginBottom: 8 }}>📞 AI practice</h3>
-          <p className="sub" style={{ fontSize: 13.5, marginBottom: 14 }}>Apply {mod.name.toLowerCase()} in a live call — the coach will score it.</p>
+          <p className="sub" style={{ fontSize: 13.5, marginBottom: 14 }}>Apply {mod.name.toLowerCase()} in a live call, the coach will score it.</p>
           <button className="btn btn-gold btn-sm" onClick={() => nav('/app/simulator', { state: { characterId: mod.category === 'Executive' ? 'busy-ceo' : mod.category === 'Persuasion' ? 'skeptical-customer' : 'budget-buyer' } })}>
             Start practice call →
           </button>
@@ -148,7 +148,7 @@ export default function AcademyModule() {
           <div className="anim-scale col" style={{ alignItems: 'flex-start', gap: 10 }}>
             <div style={{ fontSize: 34 }}>{correct === mod.quiz.length ? '🏆' : correct >= mod.quiz.length / 2 ? '💪' : '📚'}</div>
             <h4 style={{ fontSize: 17 }}>You scored {Math.round((correct / mod.quiz.length) * 100)}%</h4>
-            <p className="muted" style={{ fontSize: 13 }}>{correct}/{mod.quiz.length} correct{correct === mod.quiz.length ? ' — perfect recall.' : '. Review the lessons and go again.'}</p>
+            <p className="muted" style={{ fontSize: 13 }}>{correct}/{mod.quiz.length} correct{correct === mod.quiz.length ? ', perfect recall.' : '. Review the lessons and go again.'}</p>
             <div className="row" style={{ gap: 8 }}>
               <button className="btn btn-ghost btn-sm" onClick={resetQuiz}>↻ Retake</button>
               <Link to="/app/academy" className="btn btn-dark btn-sm">Next module →</Link>

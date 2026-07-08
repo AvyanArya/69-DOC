@@ -1,7 +1,7 @@
 // Conversation engine: a stateful roleplay opponent.
 // Replies are CONTEXTUAL: the engine extracts what the user actually said
 // (topics, claims, numbers, questions) and answers it in the character's
-// voice, echoing their words back — falling back to temperament line pools
+// voice, echoing their words back, falling back to temperament line pools
 // only when nothing specific was detected. Every outgoing line is passed
 // through the character's verbal mannerisms (personas.js) so the rhythm
 // matches how that person actually talks.
@@ -34,7 +34,7 @@ const STOP = new Set(['the', 'a', 'an', 'and', 'that', 'this', 'with', 'your', '
 export function extractEcho(text) {
   const t = text.trim().replace(/\s+/g, ' ')
   const clean = (s) => s.trim().replace(/\s+(and|but|so|for|to|that)$/i, '').trim()
-  // "your X" — they asked about the prospect's world
+  // "your X", they asked about the prospect's world
   let m = t.match(/\b(?:your|you guys'?|the team'?s?|the company'?s?) ([a-z][a-z\s-]{2,38}?)(?=[?.,!;]|$| and | but | so | right)/i)
   if (m) return clean(m[1])
   // "we sell/offer/help with X"
@@ -91,20 +91,20 @@ const STYLE_FAMILY = {
 const CTX = {
   sharp: {
     question: {
-      cold: ["Why do you care about my {echo}? You called ME — get to the point.", "My {echo} is none of your business yet. Earn the answer.", "You're asking questions like we're friends. Pitch first, interrogate later."],
-      warm: ["My {echo}? A mess, if I'm honest — nobody's fixed it yet. What have you got?", "Fine — {echo} is the thing that keeps blowing up my week. Why do you ask?", "Good question, actually. It's broken. Impress me with the fix."],
+      cold: ["Why do you care about my {echo}? You called ME, get to the point.", "My {echo} is none of your business yet. Earn the answer.", "You're asking questions like we're friends. Pitch first, interrogate later."],
+      warm: ["My {echo}? A mess, if I'm honest, nobody's fixed it yet. What have you got?", "Fine, {echo} is the thing that keeps blowing up my week. Why do you ask?", "Good question, actually. It's broken. Impress me with the fix."],
     },
     value: {
-      cold: ["'{echo}' — every caller this week promised me {echo}. Prove it or hang up.", "Talk is free. {echo} sounds like talk.", "Big claim. I eat big claims for breakfast. Back it up."],
-      warm: ["If you can actually deliver {echo}, keep talking.", "Okay — {echo} would matter to me. HOW, specifically?", "Now {echo} is a real promise. Show me the mechanism, not the adjectives."],
+      cold: ["'{echo}', every caller this week promised me {echo}. Prove it or hang up.", "Talk is free. {echo} sounds like talk.", "Big claim. I eat big claims for breakfast. Back it up."],
+      warm: ["If you can actually deliver {echo}, keep talking.", "Okay, {echo} would matter to me. HOW, specifically?", "Now {echo} is a real promise. Show me the mechanism, not the adjectives."],
     },
     number: {
-      cold: ["{echo} — says who? Whose data? Don't quote me marketing.", "You just threw out {echo} like I wouldn't check. I will.", "{echo}? Round numbers make me suspicious."],
+      cold: ["{echo}, says who? Whose data? Don't quote me marketing.", "You just threw out {echo} like I wouldn't check. I will.", "{echo}? Round numbers make me suspicious."],
       warm: ["{echo}. Okay. If that number's real, this conversation changes. Source?", "I like {echo}. Now defend it."],
     },
     price: {
       cold: ["You're talking money before you've told me why I should care. Bold strategy.", "Price already? Slow down, we just met."],
-      warm: ["Don't dance around the number. Say it straight, and say it once.", "Money talk — good, I respect direct. What's the figure?"],
+      warm: ["Don't dance around the number. Say it straight, and say it once.", "Money talk, good, I respect direct. What's the figure?"],
     },
     competitor: {
       cold: ["You don't know a thing about who I use now, so drop the trash talk.", "Everyone says they beat the other guy. The other guy says it too."],
@@ -116,15 +116,15 @@ const CTX = {
     },
     close: {
       cold: ["A meeting? You haven't earned a second QUESTION yet.", "You're closing on nothing. Where's the value that buys you my calendar?"],
-      warm: ["Look at you, asking for the business. Almost there — give me one more reason."],
+      warm: ["Look at you, asking for the business. Almost there, give me one more reason."],
     },
     greeting: {
-      cold: ["Yeah, hi, hello, wonderful. Clock's running — why are you calling?", "Skip the pleasantries. What do you want?"],
+      cold: ["Yeah, hi, hello, wonderful. Clock's running, why are you calling?", "Skip the pleasantries. What do you want?"],
       warm: ["Alright, polite AND confident. You've got one minute."],
     },
     howAreYou: {
-      cold: ["I'm busy. That's how I am. You've got 20 seconds of my not-busy.", "Don't 'how are you' me — nobody who cold calls cares how I am. What do you want?"],
-      warm: ["Winning, as always. Now — what've you got for me?"],
+      cold: ["I'm busy. That's how I am. You've got 20 seconds of my not-busy.", "Don't 'how are you' me, nobody who cold calls cares how I am. What do you want?"],
+      warm: ["Winning, as always. Now, what've you got for me?"],
     },
     vague: {
       cold: ["That's it? Come at me with a full sentence.", "I've heard stronger pitches from a fax machine. Try again."],
@@ -141,16 +141,16 @@ const CTX = {
       warm: ["The claim about {echo} is testable. Walk me through the math.", "If {echo} holds at our scale, that's material. What's the limiting constraint?"],
     },
     number: {
-      cold: ["{echo} — n of what? Self-reported? Survivorship bias?", "That {echo} figure needs a source or it needs to leave the conversation."],
+      cold: ["{echo}, n of what? Self-reported? Survivorship bias?", "That {echo} figure needs a source or it needs to leave the conversation."],
       warm: ["{echo} would clear our threshold. Send the cohort data with the proposal."],
     },
     price: {
       cold: ["Cost discussion is premature. Value first, then price against it.", "You mentioned money before establishing ROI. That ordering concerns me."],
-      warm: ["Fine — fully loaded cost, including implementation and switching risk. Go."],
+      warm: ["Fine, fully loaded cost, including implementation and switching risk. Go."],
     },
     competitor: {
       cold: ["Our current vendor's flaws are documented. Yours are simply unknown yet.", "Comparative claims require a comparison table. Do you have one?"],
-      warm: ["What's your genuine differentiator — not marketing, mechanism?"],
+      warm: ["What's your genuine differentiator, not marketing, mechanism?"],
     },
     urgency: {
       cold: ["Urgency is a sales tactic. We don't respond to tactics.", "A real deadline has a reason attached. State the reason."],
@@ -158,36 +158,36 @@ const CTX = {
     },
     close: {
       cold: ["A meeting requires an agenda and an expected outcome. You've offered neither.", "No. Not yet. Two more of my questions first."],
-      warm: ["Acceptable. Send an agenda beforehand — thirty minutes, no slides."],
+      warm: ["Acceptable. Send an agenda beforehand, thirty minutes, no slides."],
     },
     greeting: {
       cold: ["Yes, speaking. You have my attention until it stops being relevant.", "Noted. Purpose of the call?"],
       warm: ["Good. You sound prepared. Continue."],
     },
     howAreYou: {
-      cold: ["Irrelevant. Purpose of the call, please.", "Functional. Skip the small talk — it depreciates my time."],
+      cold: ["Irrelevant. Purpose of the call, please.", "Functional. Skip the small talk, it depreciates my time."],
       warm: ["Efficient so far, which I appreciate. Proceed."],
     },
     vague: {
       cold: ["That statement contains no information. Restate it with specifics.", "Ambiguity is expensive. Be precise."],
-      warm: ["I follow the direction — now anchor it with one concrete example."],
+      warm: ["I follow the direction, now anchor it with one concrete example."],
     },
   },
   folksy: {
     question: {
-      cold: ["Well now, our {echo}'s been the same for twenty years — and I'm not sure I want a stranger poking at it. Why do you ask?", "Our {echo}? That's a bit personal for a first call, don't you think, hon?"],
-      warm: ["Oh, our {echo}? Between you and me, it's a headache. What made you ask about that, of all things?", "Funny you ask about {echo} — my nephew said the same thing last week. Go on."],
+      cold: ["Well now, our {echo}'s been the same for twenty years, and I'm not sure I want a stranger poking at it. Why do you ask?", "Our {echo}? That's a bit personal for a first call, don't you think, hon?"],
+      warm: ["Oh, our {echo}? Between you and me, it's a headache. What made you ask about that, of all things?", "Funny you ask about {echo}, my nephew said the same thing last week. Go on."],
     },
     value: {
       cold: ["Sweetheart, everyone who calls promises {echo}. The last one cost me a fortune.", "That's a lovely promise about {echo}. I've got a drawer full of lovely promises."],
-      warm: ["Now {echo} — that would genuinely help us. Tell me how it actually works.", "If {echo} is true, you've got my attention. Tell me about someone real it worked for."],
+      warm: ["Now {echo}, that would genuinely help us. Tell me how it actually works.", "If {echo} is true, you've got my attention. Tell me about someone real it worked for."],
     },
     number: {
       cold: ["{echo}, you say. Numbers dance funny when salespeople hold the music.", "That {echo} sounds rehearsed. Tell me the story behind it instead."],
-      warm: ["{echo} — well, that's not nothing. Who exactly got that result?"],
+      warm: ["{echo}, well, that's not nothing. Who exactly got that result?"],
     },
     price: {
-      cold: ["Talking money already? We haven't even gotten acquainted.", "The price isn't my worry, dear — being fooled is."],
+      cold: ["Talking money already? We haven't even gotten acquainted.", "The price isn't my worry, dear, being fooled is."],
       warm: ["Alright, let's talk turkey. What's it cost, all-in, no surprises?"],
     },
     competitor: {
@@ -199,12 +199,12 @@ const CTX = {
       warm: ["If time matters, tell me plainly why. I can move fast for a good reason."],
     },
     close: {
-      cold: ["A meeting? Honey, I don't even know your last name yet.", "Not so fast. Charm me a little first — what else you got?"],
+      cold: ["A meeting? Honey, I don't even know your last name yet.", "Not so fast. Charm me a little first, what else you got?"],
       warm: ["You know what? Fine. But come prepared, because I ask a LOT of questions."],
     },
     greeting: {
-      cold: ["Well hello to you too. I hope this is worth interrupting my coffee.", "Hi there. Fair warning — I've hung up on nicer voices than yours."],
-      warm: ["Now that's a pleasant opening. You've got a few minutes — use them well."],
+      cold: ["Well hello to you too. I hope this is worth interrupting my coffee.", "Hi there. Fair warning, I've hung up on nicer voices than yours."],
+      warm: ["Now that's a pleasant opening. You've got a few minutes, use them well."],
     },
     howAreYou: {
       cold: ["Oh, I'm fine, thank you for pretending to care. What are you selling?", "Busy day, hon. Say what you called to say."],
@@ -212,24 +212,24 @@ const CTX = {
     },
     vague: {
       cold: ["That was a lot of words and not much said, dear.", "Hmm. Try that again like you mean it."],
-      warm: ["I think there's a good idea in there — dig it out for me."],
+      warm: ["I think there's a good idea in there, dig it out for me."],
     },
   },
   busy: {
     question: {
       cold: ["Our {echo}? Why, you writing a report? I've got maybe two minutes.", "The {echo} is fine-ish. Is this going somewhere?"],
-      warm: ["Ha — our {echo} is duct tape and a spreadsheet named FINAL_v7. You got something better?", "{echo}'s honestly my biggest headache this month. What do you know?"],
+      warm: ["Ha, our {echo} is duct tape and a spreadsheet named FINAL_v7. You got something better?", "{echo}'s honestly my biggest headache this month. What do you know?"],
     },
     value: {
       cold: ["'{echo}', sure, sure. Everyone says {echo}. What's the catch?", "Sounds expensive. {echo} always sounds expensive."],
-      warm: ["Wait — actual {echo}? Like, this quarter? How fast can I test it?", "Okay {echo} would save my Mondays. Keep going, but fast."],
+      warm: ["Wait, actual {echo}? Like, this quarter? How fast can I test it?", "Okay {echo} would save my Mondays. Keep going, but fast."],
     },
     number: {
       cold: ["{echo}? That a real number or a brochure number?", "People quote me {echo}-type numbers all day. Nobody delivers."],
       warm: ["{echo}, huh. If that's real I want it in writing."],
     },
     price: {
-      cold: ["Whoa, money talk already? What's it cost, ballpark — actually wait, don't tell me.", "If the next word is a price I'm hanging up. ...Okay, what is it though?"],
+      cold: ["Whoa, money talk already? What's it cost, ballpark, actually wait, don't tell me.", "If the next word is a price I'm hanging up. ...Okay, what is it though?"],
       warm: ["Just give me the number straight. No 'starting at'. The real one."],
     },
     competitor: {
@@ -238,22 +238,22 @@ const CTX = {
     },
     urgency: {
       cold: ["Deadlines from strangers aren't deadlines, buddy.", "Everything's urgent with you people."],
-      warm: ["If it's really time-boxed, fine — what do I need to do TODAY?"],
+      warm: ["If it's really time-boxed, fine, what do I need to do TODAY?"],
     },
     close: {
       cold: ["A meeting?? I don't have time for the meetings I already have.", "Send me something first. Something SHORT."],
-      warm: ["Fine, fine — but make it 15 minutes and bring the demo ready to click."],
+      warm: ["Fine, fine, but make it 15 minutes and bring the demo ready to click."],
     },
     greeting: {
-      cold: ["Hey hey — quick, I've got a thing in five.", "Hi. Talking fast is a feature today, not a flaw."],
+      cold: ["Hey hey, quick, I've got a thing in five.", "Hi. Talking fast is a feature today, not a flaw."],
       warm: ["Hey! Good timing actually. What's up?"],
     },
     howAreYou: {
       cold: ["Slammed. Whatever you're asking, the answer is 'slammed'. Go.", "You already lost 5 seconds on that question. Speed up."],
-      warm: ["Surviving! Alright, hit me — what've you got?"],
+      warm: ["Surviving! Alright, hit me, what've you got?"],
     },
     vague: {
-      cold: ["I got nothing from that. One sentence — what do you do?", "Faster and clearer, my friend. Coffee's getting cold."],
+      cold: ["I got nothing from that. One sentence, what do you do?", "Faster and clearer, my friend. Coffee's getting cold."],
       warm: ["Right idea, wrong speed. Punch it up."],
     },
   },
@@ -263,36 +263,36 @@ const CTX = {
       warm: ["Our {echo}, since you ask so directly, has been quietly disappointing. Do continue.", "Hm. The {echo} could indeed be… improved. You have five minutes."],
     },
     value: {
-      cold: ["'{echo}' — how very enthusiastic. Everyone promises {echo}, darling.", "Claims of {echo} are terribly common. Distinction is not."],
-      warm: ["If {echo} can be delivered with discretion, I am listening.", "Now {echo} — properly done — would interest me. Craftsmanship, please, not slogans."],
+      cold: ["'{echo}', how very enthusiastic. Everyone promises {echo}, darling.", "Claims of {echo} are terribly common. Distinction is not."],
+      warm: ["If {echo} can be delivered with discretion, I am listening.", "Now {echo}, properly done, would interest me. Craftsmanship, please, not slogans."],
     },
     number: {
       cold: ["{echo}? Vulgar to lead with figures, don't you think?", "Numbers like {echo} belong in a dossier, not a greeting."],
       warm: ["{echo}. Well. Substantiate it in writing and we may proceed."],
     },
     price: {
-      cold: ["I don't discuss price. I discuss worth. They are rarely the same.", "Mentioning money this early — how dreadfully transactional."],
+      cold: ["I don't discuss price. I discuss worth. They are rarely the same.", "Mentioning money this early, how dreadfully transactional."],
       warm: ["Very well. The full figure, stated once, without theatre."],
     },
     competitor: {
-      cold: ["Our current arrangements are entirely satisfactory — and entirely private.", "Disparaging one's rivals is the mark of a merchant, not a partner."],
+      cold: ["Our current arrangements are entirely satisfactory, and entirely private.", "Disparaging one's rivals is the mark of a merchant, not a partner."],
       warm: ["And what, precisely, elevates you above the house we currently use?"],
     },
     urgency: {
       cold: ["Nothing worth having expires on a Friday.", "Scarcity theatre. How tiresome."],
-      warm: ["If the opportunity is genuinely finite, explain why — elegantly."],
+      warm: ["If the opportunity is genuinely finite, explain why, elegantly."],
     },
     close: {
       cold: ["An appointment? We've only just been introduced.", "Presumptuous. Charming, but presumptuous."],
-      warm: ["Very well — Thursday, eleven o'clock, and do be punctual."],
+      warm: ["Very well, Thursday, eleven o'clock, and do be punctual."],
     },
     greeting: {
       cold: ["Good afternoon. I do hope this interruption has a purpose.", "Yes, hello. Compose yourself and state your business."],
-      warm: ["A civilised opening — how refreshing. Proceed."],
+      warm: ["A civilised opening, how refreshing. Proceed."],
     },
     howAreYou: {
       cold: ["Quite well until the telephone rang. Your business?", "We needn't pretend to intimacy. What is it you want?"],
-      warm: ["Well enough, thank you. You have manners — rare in your trade. Go on."],
+      warm: ["Well enough, thank you. You have manners, rare in your trade. Go on."],
     },
     vague: {
       cold: ["How vague. Precision, please.", "That sentence wandered in without a purpose. Try another."],
@@ -349,14 +349,14 @@ export function createConversation({ character, challenge, scenario }) {
   }
 
   function coachTip(analysis) {
-    if (analysis.fillers >= 3) return 'Cut the filler words — pause instead.'
+    if (analysis.fillers >= 3) return 'Cut the filler words, pause instead.'
     if (analysis.words > 70) return 'You’re monologuing. Land the point, then ask.'
-    if (state.interest < 30 && state.turns > 2) return 'They’re losing interest — ask about THEIR problem.'
+    if (state.interest < 30 && state.turns > 2) return 'They’re losing interest, ask about THEIR problem.'
     if (!analysis.isQuestion && state.phase === 'discovery') return 'Ask an open-ended question.'
     if (state.phase === 'objection' && !analysis.intents.has('empathy')) return 'Acknowledge the objection before answering it.'
     if (analysis.intents.has('mirror')) return 'Nice mirror. Now go one level deeper.'
-    if (state.interest > 62 && state.phase !== 'closing') return 'They’re warm — ask for the meeting.'
-    if (analysis.words < 6) return 'Give them more — expand with a reason.'
+    if (state.interest > 62 && state.phase !== 'closing') return 'They’re warm, ask for the meeting.'
+    if (analysis.words < 6) return 'Give them more, expand with a reason.'
     return pickFrom(['Slow your pace.', 'Mirror their last sentence.', 'Label their emotion: "Sounds like…"', 'Lower your tone at the end of sentences.'])
   }
 
@@ -473,7 +473,7 @@ export function createConversation({ character, challenge, scenario }) {
 }
 
 function describeGood(a) {
-  if (a.openQuestion) return 'Open-ended question — pulled them into the conversation.'
+  if (a.openQuestion) return 'Open-ended question, pulled them into the conversation.'
   if (a.intents.has('mirror')) return 'Mirrored their language back. Instant rapport.'
   if (a.intents.has('empathy')) return 'Acknowledged their position before pushing forward.'
   if (a.intents.has('social')) return 'Used social proof at the right moment.'
@@ -483,11 +483,11 @@ function describeGood(a) {
 }
 
 function describeMistake(a, state) {
-  if (a.fillers >= 3) return `${a.fillers} filler words in one answer — kills authority.`
+  if (a.fillers >= 3) return `${a.fillers} filler words in one answer, kills authority.`
   if (a.words > 80) return 'Monologued for too long and lost their attention.'
   if (a.intents.has('price') && state.phase === 'opening') return 'Brought up price before establishing value.'
-  if (a.intents.has('urgency') && state.interest < 40) return 'Manufactured urgency before earning trust — it read as a tactic.'
+  if (a.intents.has('urgency') && state.interest < 40) return 'Manufactured urgency before earning trust, it read as a tactic.'
   if (a.intents.has('close') && state.interest < 45) return 'Went for the close before earning it.'
-  if (a.words < 4) return 'Answer was too thin — gave them nothing to engage with.'
-  return 'Passive response — surrendered control of the conversation.'
+  if (a.words < 4) return 'Answer was too thin, gave them nothing to engage with.'
+  return 'Passive response, surrendered control of the conversation.'
 }

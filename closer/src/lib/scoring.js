@@ -11,6 +11,32 @@ export function scoreCall({ transcript, engineState, durationSec, character, cha
   const aiWords = aiTurns.reduce((s, t) => s + t.text.split(/\s+/).filter(Boolean).length, 0)
   const allUserText = userTurns.map((t) => t.text).join(' ')
 
+  // No meaningful speech = no meaningful score. Anything else is lying.
+  if (userTurns.length === 0 || userWords < 5) {
+    const zeroScores = {}
+    for (const k of ['confidence', 'tonality', 'pacing', 'energy', 'empathy', 'listening', 'questionQuality', 'objectionHandling', 'closingAbility', 'productKnowledge', 'rapport', 'control', 'persuasiveness', 'authority', 'professionalism']) {
+      zeroScores[k] = 5
+    }
+    return {
+      overall: 5,
+      insufficient: true,
+      scores: zeroScores,
+      talkRatio: 0,
+      fillerWords: 0,
+      fillerBreakdown: [],
+      interruptions: 0,
+      questions: 0,
+      openQuestions: 0,
+      repeatedWords: [],
+      confidenceTrend: [],
+      goods: [],
+      mistakes: [{ turn: 1, text: 'No speech detected, the prospect was talking to dead air. Check your mic (or use the keypad) and take the call again.' }],
+      outcome: engineState.outcome || 'ended',
+      objections: { raised: engineState.objectionsRaised, survived: 0 },
+      wpm: 0,
+    }
+  }
+
   const fillerMatches = allUserText.match(FILLER_RX) || []
   const fillerWords = fillerMatches.length
   const questions = userTurns.filter((t) => analyzeUtterance(t.text).isQuestion).length
@@ -100,12 +126,19 @@ function countBy(arr) {
   return Object.entries(out).sort((a, b) => b[1] - a[1])
 }
 
-// Voice analysis (simulated from transcript dynamics — no raw audio processing)
+// Voice analysis (simulated from transcript dynamics, no raw audio processing)
 export function voiceProfile(report) {
   const s = report.scores
+  if (report.insufficient) {
+    return [
+      { k: 'Pitch variety', v: 5 }, { k: 'Tone', v: 5 }, { k: 'Energy', v: 5 },
+      { k: 'Monotony risk', v: 5 }, { k: 'Clarity', v: 5 }, { k: 'Speaking speed', v: 5 },
+      { k: 'Confidence', v: 5 }, { k: 'Cadence', v: 5 },
+    ].map((x) => ({ ...x, tip: 'Nothing to analyze, no speech was captured this call.' }))
+  }
   return [
     { k: 'Pitch variety', v: s.tonality, tip: 'End statements low, questions high. Record one line 3 ways.' },
-    { k: 'Tone', v: Math.round((s.tonality + s.empathy) / 2), tip: 'Smile on the opener — it is audible.' },
+    { k: 'Tone', v: Math.round((s.tonality + s.empathy) / 2), tip: 'Smile on the opener, it is audible.' },
     { k: 'Energy', v: s.energy, tip: 'Stand up for calls. Energy transfers before words do.' },
     { k: 'Monotony risk', v: 100 - s.tonality, tip: 'Vary pace every 2–3 sentences.', invert: true },
     { k: 'Clarity', v: Math.max(20, 95 - report.fillerWords * 4), tip: 'Replace fillers with silence.' },
