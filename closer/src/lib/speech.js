@@ -173,7 +173,7 @@ async function elevenSpeak(text, character, settings) {
  * Speak a line AS a character: premium ElevenLabs voice when a key is set,
  * otherwise the pinned browser voice. Single call site for calls + replay.
  */
-export function speakAs(text, character, settings = {}, { humanize = true } = {}) {
+export function speakAs(text, character, settings = {}) {
   let cancelled = false
   let inner = null
   const promise = (async () => {
@@ -187,47 +187,95 @@ export function speakAs(text, character, settings = {}, { humanize = true } = {}
     }
     if (cancelled) return
     const browserTuning = personaVoiceTuning(character.id).browser || {}
-    inner = speak(text, {
-      rate: (browserTuning.rate ?? character.speakingSpeed ?? 1) * (settings.voiceRate || 1),
-      pitch: browserTuning.pitch ?? character.voice?.pitch ?? 1,
-      voice: resolveCharacterVoice(character),
-      humanize,
-    })
+    // Keep persona shaping subtle on system voices — big pitch shifts make
+    // them sound warped, which reads as MORE robotic, not less.
+    const rate = Math.max(0.85, Math.min(1.18, browserTuning.rate ?? character.speakingSpeed ?? 1)) * (settings.voiceRate || 1)
+    const pitch = Math.max(0.9, Math.min(1.12, browserTuning.pitch ?? character.voice?.pitch ?? 1))
+    inner = speak(text, { rate, pitch, voice: resolveCharacterVoice(character) })
     await inner.promise
   })()
   return { promise, cancel: () => { cancelled = true; inner?.cancel?.() } }
 }
 
+/** Text prep for the synthesizer: strip what engines mangle (emoji, em-dashes
+ *  read as "dash", stacked punctuation) while keeping the caption untouched. */
+function sanitizeForSpeech(text) {
+  return text
+    .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, '')
+    .replace(/\s*—\s*/g, ', ')
+    .replace(/…/g, '... ')
+    .replace(/\s{2,}/g, ' ')
+    .trim()
+}
+
+/** Split into sentence-sized chunks. Two reasons: Chrome's remote voices cut
+ *  out mid-utterance after ~15s (the classic "broken TTS" bug), and short
+ *  utterances get natural inter-sentence breaths. */
+function splitSentences(text) {
+  const parts = text.match(/[^.!?]+[.!?]+["')\]]*|[^.!?]+$/g) || [text]
+  const out = []
+  for (const raw of parts.map((s) => s.trim()).filter(Boolean)) {
+    if (out.length && (out[out.length - 1].length < 30 || raw.length < 30)) out[out.length - 1] += ' ' + raw
+    else out.push(raw)
+  }
+  return out.length ? out : [text]
+}
+
 /**
  * Speak a line. Returns a handle: { promise, cancel }.
- * `humanize` adds a tiny per-utterance rate/pitch drift so repeated lines
- * don't sound like the exact same sample.
+ * Long lines are spoken sentence-by-sentence with a natural beat between —
+ * consistent rate/pitch throughout (per-line jitter sounded broken, removed).
  */
-export function speak(text, { rate = 1, pitch = 1, voice = null, humanize = false } = {}) {
+export function speak(text, { rate = 1, pitch = 1, voice = null } = {}) {
   if (!speechSupport.synthesis) {
     // Fallback: resolve on an estimated reading time so the flow still works.
     let t
     const promise = new Promise((res) => { t = setTimeout(res, Math.max(900, text.length * 55)) })
     return { promise, cancel: () => clearTimeout(t) }
   }
-  const u = new SpeechSynthesisUtterance(text)
-  const drift = humanize ? (Math.random() - 0.5) * 0.06 : 0
-  u.rate = Math.max(0.6, Math.min(1.6, rate + drift))
-  u.pitch = Math.max(0.5, Math.min(1.8, pitch + drift * 0.5))
-  if (voice) { u.voice = voice; u.lang = voice.lang }
+  const chunks = splitSentences(sanitizeForSpeech(text))
   let cancelled = false
-  const promise = new Promise((res) => {
+  window.speechSynthesis.cancel()
+  // Chrome pauses long/remote synthesis; nudging resume keeps it alive.
+  const keepAlive = setInterval(() => {
+    try { if (window.speechSynthesis.paused) window.speechSynthesis.resume() } catch { /* noop */ }
+  }, 4000)
+
+  const speakChunk = (chunk) => new Promise((res) => {
+    if (cancelled) return res()
+    const u = new SpeechSynthesisUtterance(chunk)
+    u.rate = Math.max(0.6, Math.min(1.6, rate))
+    u.pitch = Math.max(0.5, Math.min(1.8, pitch))
+    if (voice) { u.voice = voice; u.lang = voice.lang }
     u.onend = () => res()
     u.onerror = () => res()
-    // Safety net: some engines drop onend
-    setTimeout(() => { if (!cancelled) res() }, Math.max(2000, text.length * 110))
+    setTimeout(() => res(), Math.max(2500, chunk.length * 120)) // dropped-onend safety net
+    window.speechSynthesis.speak(u)
   })
-  window.speechSynthesis.cancel()
-  window.speechSynthesis.speak(u)
+
+  const promise = (async () => {
+    for (const chunk of chunks) {
+      if (cancelled) break
+      await speakChunk(chunk)
+      if (!cancelled && chunks.length > 1) await new Promise((r) => setTimeout(r, 130))
+    }
+  })().finally(() => clearInterval(keepAlive))
+
   return {
     promise,
-    cancel: () => { cancelled = true; window.speechSynthesis.cancel() },
+    cancel: () => { cancelled = true; clearInterval(keepAlive); window.speechSynthesis.cancel() },
   }
+}
+
+/** What quality of voice will actually play right now — drives in-app guidance. */
+export function voiceTier(settings, character = null) {
+  if (settings?.elevenLabsKey) return { tier: 'premium', label: 'ElevenLabs studio voices' }
+  if (!speechSupport.synthesis) return { tier: 'none', label: 'No speech synthesis in this browser' }
+  const v = character ? resolveCharacterVoice(character) : pickVoice({})
+  if (!v) return { tier: 'basic', label: 'Default system voice' }
+  if (/natural|neural/i.test(v.name)) return { tier: 'neural', label: v.name }
+  if (/google/i.test(v.name)) return { tier: 'good', label: v.name }
+  return { tier: 'basic', label: v.name }
 }
 
 export function stopSpeaking() {

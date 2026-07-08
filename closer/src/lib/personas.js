@@ -9,6 +9,16 @@
 
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)]
 
+// Never play the same tic twice in a row — repetition is what reads as "bot".
+const lastTic = new Map()
+function pickFresh(arr, key) {
+  const avoid = lastTic.get(key)
+  const pool = arr.length > 1 ? arr.filter((x) => x !== avoid) : arr
+  const chosen = pick(pool)
+  lastTic.set(key, chosen)
+  return chosen
+}
+
 export const PERSONAS = {
   'jordan-belfort': {
     tics: {
@@ -17,7 +27,7 @@ export const PERSONAS = {
       pause: 0.3,
     },
     eleven: { stability: 0.3, style: 0.65, speed: 1.12 },
-    browser: { pitch: 1.05, rate: 1.18 },
+    browser: { pitch: 1.04, rate: 1.12 },
   },
   'grant-cardone': {
     tics: {
@@ -26,7 +36,7 @@ export const PERSONAS = {
       emphasis: /\b(massive|money|great|now|obsessed|bigger|energy|scale|10x)\b/gi,
     },
     eleven: { stability: 0.22, style: 0.7, speed: 1.15 },
-    browser: { pitch: 0.9, rate: 1.24 },
+    browser: { pitch: 0.93, rate: 1.15 },
   },
   'steve-jobs': {
     tics: {
@@ -35,7 +45,7 @@ export const PERSONAS = {
       pause: 0.7,
     },
     eleven: { stability: 0.6, style: 0.35, speed: 0.95 },
-    browser: { pitch: 0.98, rate: 0.92 },
+    browser: { pitch: 0.97, rate: 0.93 },
   },
   'elon-musk': {
     tics: {
@@ -44,7 +54,7 @@ export const PERSONAS = {
       pause: 0.75,
     },
     eleven: { stability: 0.55, style: 0.2, speed: 0.9 },
-    browser: { pitch: 1.06, rate: 0.88 },
+    browser: { pitch: 1.04, rate: 0.9 },
   },
   'warren-buffett': {
     tics: {
@@ -53,7 +63,7 @@ export const PERSONAS = {
       pause: 0.5,
     },
     eleven: { stability: 0.75, style: 0.2, speed: 0.82 },
-    browser: { pitch: 0.84, rate: 0.78 },
+    browser: { pitch: 0.92, rate: 0.88 },
   },
   'mark-cuban': {
     tics: {
@@ -61,7 +71,7 @@ export const PERSONAS = {
       closers: ['Period.', 'That simple.'], closerChance: 0.3,
     },
     eleven: { stability: 0.35, style: 0.55, speed: 1.1 },
-    browser: { pitch: 0.95, rate: 1.15 },
+    browser: { pitch: 0.95, rate: 1.12 },
   },
   'barbara-corcoran': {
     tics: {
@@ -69,7 +79,7 @@ export const PERSONAS = {
       closers: ['Trust me on that one.', 'I’ve seen it a thousand times.'], closerChance: 0.3,
     },
     eleven: { stability: 0.45, style: 0.5, speed: 1.05 },
-    browser: { pitch: 1.12, rate: 1.06 },
+    browser: { pitch: 1.08, rate: 1.05 },
   },
   // Archetypes get lighter seasoning
   'angry-prospect': {
@@ -102,7 +112,7 @@ export function mannerize(text, characterId) {
   let out = text
   let touches = 0
   if (tics.openers && Math.random() < (tics.openerChance ?? 0.3)) {
-    const op = pick(tics.openers)
+    const op = pickFresh(tics.openers, characterId + ':open')
     const opWord = op.replace(/[^a-zA-Z’' ]/g, '').trim().split(' ')[0]?.toLowerCase()
     // Don't stack "Look — Look," or prefix a line that already opens with the tic
     if (opWord && !out.slice(0, 26).toLowerCase().includes(opWord)) {
@@ -119,7 +129,7 @@ export function mannerize(text, characterId) {
     if (replaced !== out) { out = replaced; touches += 1 }
   }
   if (tics.closers && touches < 2 && out.length < 150 && Math.random() < (tics.closerChance ?? 0.25)) {
-    out = `${out} ${pick(tics.closers)}`
+    out = `${out} ${pickFresh(tics.closers, characterId + ':close')}`
   }
   return out
 }

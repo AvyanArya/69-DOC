@@ -1,13 +1,70 @@
 // Phone simulator page: the phone + mission brief sidebar.
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import PhoneSim from '../components/phone/PhoneSim.jsx'
 import { Card, Difficulty } from '../components/ui.jsx'
 import { CHARACTERS, getCharacter } from '../data/characters.js'
 import { CHALLENGES, getChallenge } from '../data/challenges.js'
 import { recordCall, getProfile, updateProfile } from '../lib/storage.js'
 import { xpForCall } from '../lib/xp.js'
-import { speechSupport } from '../lib/speech.js'
+import { speechSupport, voiceTier, voicesReady } from '../lib/speech.js'
+
+function VoiceQualityCard() {
+  const [tier, setTier] = useState(null)
+  const [key, setKey] = useState('')
+  useEffect(() => {
+    let alive = true
+    voicesReady().then(() => { if (alive) setTier(voiceTier(getProfile().settings)) })
+    return () => { alive = false }
+  }, [])
+  if (!tier) return null
+
+  const saveKey = () => {
+    updateProfile((p) => { p.settings.elevenLabsKey = key.trim() })
+    setTier(voiceTier(getProfile().settings))
+  }
+
+  if (tier.tier === 'premium') {
+    return (
+      <Card className="pad" style={{ borderColor: 'rgba(12,163,12,.35)' }}>
+        <h3 style={{ fontSize: 14, marginBottom: 6 }}>🎙️ Studio voices active</h3>
+        <p className="muted" style={{ fontSize: 12.5 }}>Characters speak with ElevenLabs voices, persona-tuned. This is as human as it gets.</p>
+      </Card>
+    )
+  }
+  if (tier.tier === 'neural') {
+    return (
+      <Card className="pad">
+        <h3 style={{ fontSize: 14, marginBottom: 6 }}>🎙️ Neural browser voice</h3>
+        <p className="muted" style={{ fontSize: 12.5 }}>
+          Using <b>{tier.label}</b> — one of your browser's better voices. For truly
+          studio-grade audio, add an ElevenLabs key in Settings.
+        </p>
+      </Card>
+    )
+  }
+  return (
+    <Card className="pad" style={{ borderColor: 'rgba(250,178,25,.4)' }}>
+      <h3 style={{ fontSize: 14, marginBottom: 6 }}>⚠️ Your browser's voices sound robotic</h3>
+      <p className="muted" style={{ fontSize: 12.5, marginBottom: 10 }}>
+        {tier.tier === 'good'
+          ? <>You're on <b>{tier.label}</b> — passable, but not human. Two ways to fix that:</>
+          : <>This browser only ships basic system voices ({tier.label}). Two ways to get genuinely human voices:</>}
+      </p>
+      <ol style={{ fontSize: 12.5, color: 'var(--ink-1)', paddingLeft: 18, marginBottom: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <li><b>Free:</b> open Closer in <b>Microsoft Edge</b> — its built-in "Natural" voices are neural and sound like real people. Closer picks them up automatically.</li>
+        <li><b>Best:</b> paste an <a href="https://elevenlabs.io" target="_blank" rel="noreferrer" style={{ textDecoration: 'underline' }}>ElevenLabs</a> API key (free tier available) — every character gets a distinct studio voice:</li>
+      </ol>
+      <div className="row" style={{ gap: 8 }}>
+        <input
+          type="password" className="input" placeholder="xi-api-key…" style={{ fontSize: 12.5, padding: '8px 12px' }}
+          value={key} onChange={(e) => setKey(e.target.value)} aria-label="ElevenLabs API key"
+        />
+        <button className="btn btn-gold btn-sm" disabled={!key.trim()} onClick={saveKey}>Save</button>
+      </div>
+    </Card>
+  )
+}
 
 export default function Simulator() {
   const location = useLocation()
@@ -143,6 +200,8 @@ export default function Simulator() {
               <div style={{ fontSize: 12.5, color: 'var(--gold-bright)' }}>🎯 {challenge.objective}</div>
             </Card>
           )}
+
+          <VoiceQualityCard />
 
           <Card className="pad">
             <h3 style={{ fontSize: 14, marginBottom: 8 }}>🎧 Whisper coach</h3>

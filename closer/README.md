@@ -54,15 +54,30 @@ recognition is unavailable (Firefox, file://, mic denied), the phone
 automatically falls back to a type-to-speak bar (the ⌨️ button toggles it any
 time).
 
-## 🎙️ About the character voices
+## 🎙️ Making the voices sound genuinely human
 
-Three tiers of realism:
+Browser text-to-speech has a hard quality ceiling — a basic system voice will
+always sound robotic, no amount of tuning fixes that. Ranked options:
+
+1. **Best — ElevenLabs key** (Settings → Voice & audio, free tier available):
+   every character gets a distinct, genuinely human studio voice.
+2. **Free — use Microsoft Edge**: Edge ships neural "Natural" voices that
+   sound like real people, and Closer automatically prefers them.
+3. **Okay — Chrome**: the "Google …" voices are intelligible but clearly
+   synthetic.
+4. **Rough — Firefox / bare Linux**: only robotic system voices; expect
+   robot. Add an ElevenLabs key or switch browser.
+
+The simulator shows which tier you're currently on and how to upgrade.
+
+Tiers in detail:
 
 1. **Browser voices (default, free).** One consistent voice is pinned per
    character — spread across your browser's best voices so characters sound
-   different from each other — with persona-tuned pitch and pace (Buffett slow
-   and low, Cardone fast and hard). Quality is capped by what your browser
-   ships: Chrome/Edge sound far better than a bare Linux/Firefox voice set.
+   different from each other — with subtle persona-tuned pitch and pace
+   (Buffett slow and low, Cardone fast and hard). Long lines are spoken
+   sentence-by-sentence, which prevents Chrome's mid-sentence audio cutoff
+   and adds natural breaths.
 2. **Premium voices (optional).** Paste an [ElevenLabs](https://elevenlabs.io)
    API key in **Settings → Voice & audio** and every character speaks with a
    distinct, human-sounding studio voice from the ElevenLabs voice library,
