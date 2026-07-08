@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useProfile } from '../components/AppShell.jsx'
 import { Card, Toggle } from '../components/ui.jsx'
 import { updateProfile, resetProfile } from '../lib/storage.js'
-import { speechSupport, speak, pickVoice } from '../lib/speech.js'
+import { speechSupport, speak, pickVoice, speakAs } from '../lib/speech.js'
 
 export default function Settings() {
   const profile = useProfile()
@@ -95,6 +95,35 @@ export default function Settings() {
           <div><b>Speech sensitivity · {Math.round(s.speechSensitivity * 100)}%</b><small>How eagerly the AI treats a pause as end-of-turn</small></div>
           <div style={{ width: 180 }}>
             <input type="range" min="0.1" max="1" step="0.1" value={s.speechSensitivity} onChange={(e) => set('speechSensitivity', Number(e.target.value))} />
+          </div>
+        </div>
+        <div className="settings-row" style={{ borderBottom: 'none', alignItems: 'flex-start' }}>
+          <div style={{ maxWidth: 340 }}>
+            <b>Premium AI voices {s.elevenLabsKey ? <span className="chip good" style={{ marginLeft: 6 }}>active</span> : <span className="chip" style={{ marginLeft: 6 }}>optional</span>}</b>
+            <small>
+              Paste an <a href="https://elevenlabs.io" target="_blank" rel="noreferrer" style={{ textDecoration: 'underline' }}>ElevenLabs</a> API
+              key and every character speaks with a distinct, human-sounding studio voice tuned to their persona.
+              The key is stored only in this browser. Without it, Closer uses your browser's built-in voices.
+            </small>
+          </div>
+          <div className="col" style={{ gap: 8, width: 220 }}>
+            <input
+              type="password" className="input" placeholder="xi-api-key…"
+              value={s.elevenLabsKey || ''} onChange={(e) => set('elevenLabsKey', e.target.value.trim())}
+              aria-label="ElevenLabs API key"
+            />
+            <button
+              className="btn btn-ghost btn-sm"
+              disabled={!s.elevenLabsKey || testing}
+              onClick={() => {
+                setTesting(true)
+                speakAs(
+                  'Listen — this is what your training calls sound like from now on. You following me?',
+                  { id: 'jordan-belfort', speakingSpeed: 1.1, voice: { eleven: 'pNInz6obpgDQGcFmaJgB', gender: 'male', accent: 'us', pitch: 1.05 } },
+                  s,
+                ).promise.finally(() => setTesting(false))
+              }}
+            >{testing ? '🔊 Playing…' : '▶ Test premium voice'}</button>
           </div>
         </div>
       </Card>

@@ -2,7 +2,10 @@
 // Replies are CONTEXTUAL: the engine extracts what the user actually said
 // (topics, claims, numbers, questions) and answers it in the character's
 // voice, echoing their words back — falling back to temperament line pools
-// only when nothing specific was detected.
+// only when nothing specific was detected. Every outgoing line is passed
+// through the character's verbal mannerisms (personas.js) so the rhythm
+// matches how that person actually talks.
+import { mannerize } from './personas.js'
 
 function pickFrom(arr, avoid = [], rng = Math.random) {
   const pool = arr.filter((l) => !avoid.includes(l))
@@ -323,10 +326,12 @@ export function createConversation({ character, challenge, scenario }) {
   const family = CTX[STYLE_FAMILY[t.style] || 'busy']
 
   function remember(line) {
-    state.lastAiLine = line
+    const spoken = mannerize(line, character.id)
+    state.lastAiLine = spoken
+    // De-dupe against the underlying template, not the decorated variant
     state.recentLines.push(line)
     if (state.recentLines.length > 4) state.recentLines.shift()
-    return line
+    return spoken
   }
 
   /** Pick a contextual line for an intent, honoring per-character overrides. */

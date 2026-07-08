@@ -72,6 +72,7 @@ function defaults() {
       voice: 'auto', voiceRate: 1, accent: 'us',
       whisperCoach: true, notifications: true, dailyReminder: '08:30',
       micSensitivity: 0.6, speechSensitivity: 0.5, language: 'en',
+      elevenLabsKey: '',
     },
     dailyDone: {},        // dayKey -> [drillIds]
   }

@@ -53,7 +53,7 @@ export const CHARACTERS = [
     title: 'The Wolf', industry: 'Finance', salesStyle: 'Straight Line Persuasion',
     difficulty: 5, personality: 'Relentless, charismatic, smells weakness instantly',
     speakingSpeed: 1.18, interruptiveness: 0.85, objectionStyle: 'Rapid-fire pressure tests',
-    voice: { gender: 'male', accent: 'us', pitch: 1.02 },
+    voice: { eleven: 'pNInz6obpgDQGcFmaJgB', gender: 'male', accent: 'us', pitch: 1.02 },
     temperament: { patience: 34, objectionCount: 3, style: 'aggressive' },
     locked: false,
     lines: pack({
@@ -110,7 +110,7 @@ export const CHARACTERS = [
     title: '10X Mode', industry: 'Sales Training', salesStyle: 'Massive action, dominant frame',
     difficulty: 5, personality: 'Loud, demanding, zero tolerance for small thinking',
     speakingSpeed: 1.22, interruptiveness: 0.9, objectionStyle: 'Frame domination',
-    voice: { gender: 'male', accent: 'us', pitch: 0.95 },
+    voice: { eleven: 'VR6AewLTigWG4xSOukaG', gender: 'male', accent: 'us', pitch: 0.95 },
     temperament: { patience: 30, objectionCount: 3, style: 'aggressive' },
     locked: false,
     lines: pack({
@@ -163,7 +163,7 @@ export const CHARACTERS = [
     title: 'The Visionary', industry: 'Technology', salesStyle: 'Product zealotry, brutal simplicity',
     difficulty: 5, personality: 'Perfectionist, dismissive of mediocrity, moved only by insight',
     speakingSpeed: 0.94, interruptiveness: 0.7, objectionStyle: 'Existential product questions',
-    voice: { gender: 'male', accent: 'us', pitch: 1.0 },
+    voice: { eleven: 'TxGEqnHWrfWFTfGW9XjX', gender: 'male', accent: 'us', pitch: 1.0 },
     temperament: { patience: 38, objectionCount: 3, style: 'intense' },
     locked: false,
     lines: pack({
@@ -220,7 +220,7 @@ export const CHARACTERS = [
     title: 'First Principles', industry: 'Aerospace / EV', salesStyle: 'Physics-based interrogation',
     difficulty: 5, personality: 'Distracted genius, sudden deep dives, allergic to buzzwords',
     speakingSpeed: 0.9, interruptiveness: 0.6, objectionStyle: 'First-principles teardown',
-    voice: { gender: 'male', accent: 'neutral', pitch: 1.0 },
+    voice: { eleven: 'ErXwobaYiN019PkySvjV', gender: 'male', accent: 'neutral', pitch: 1.0 },
     temperament: { patience: 42, objectionCount: 3, style: 'analytical' },
     locked: false,
     lines: pack({
@@ -277,7 +277,7 @@ export const CHARACTERS = [
     title: 'The Oracle', industry: 'Investing', salesStyle: 'Folksy patience, lethal questions',
     difficulty: 4, personality: 'Warm, patient, disarms you and then asks the killer question',
     speakingSpeed: 0.82, interruptiveness: 0.2, objectionStyle: 'Value and moat scrutiny',
-    voice: { gender: 'male', accent: 'us', pitch: 0.92 },
+    voice: { eleven: 'pqHfZKP75CvOlQylNhV4', gender: 'male', accent: 'us', pitch: 0.92 },
     temperament: { patience: 70, objectionCount: 3, style: 'patient' },
     locked: false,
     lines: pack({
@@ -333,7 +333,7 @@ export const CHARACTERS = [
     title: 'The Shark', industry: 'Tech / Media', salesStyle: 'Numbers-first, BS detector',
     difficulty: 4, personality: 'Blunt, fast, respects hustle, destroys fluff',
     speakingSpeed: 1.15, interruptiveness: 0.75, objectionStyle: 'Margins and CAC interrogation',
-    voice: { gender: 'male', accent: 'us', pitch: 1.0 },
+    voice: { eleven: 'yoZ06aMxZJJ28mfd3POQ', gender: 'male', accent: 'us', pitch: 1.0 },
     temperament: { patience: 40, objectionCount: 3, style: 'aggressive' },
     locked: false,
     lines: pack({
@@ -386,7 +386,7 @@ export const CHARACTERS = [
     title: 'The Matriarch', industry: 'Real Estate', salesStyle: 'Gut instinct, people-reader',
     difficulty: 4, personality: 'Charming, sharp, bets on the person not the pitch',
     speakingSpeed: 1.05, interruptiveness: 0.5, objectionStyle: 'Character and grit tests',
-    voice: { gender: 'female', accent: 'us', pitch: 1.08 },
+    voice: { eleven: '21m00Tcm4TlvDq8ikWAM', gender: 'female', accent: 'us', pitch: 1.08 },
     temperament: { patience: 55, objectionCount: 2, style: 'warm' },
     locked: false,
     lines: pack({
@@ -439,7 +439,7 @@ export const CHARACTERS = [
     title: 'Deal Hunter', industry: 'Venture', salesStyle: 'Equity leverage',
     difficulty: 4, personality: 'Ruthless with valuations, theatrical, loves leverage',
     speakingSpeed: 1.1, interruptiveness: 0.7, objectionStyle: 'Valuation attacks',
-    voice: { gender: 'male', accent: 'us', pitch: 0.98 },
+    voice: { eleven: '2EiwWnXFnvU5JabPnv8n', gender: 'male', accent: 'us', pitch: 0.98 },
     temperament: { patience: 45, objectionCount: 3, style: 'aggressive' },
     locked: false,
     lines: pack({
@@ -457,7 +457,7 @@ export const CHARACTERS = [
     title: 'Old Money', industry: 'Luxury Retail', salesStyle: 'Discretion expected',
     difficulty: 3, personality: 'Refined, unhurried, offended by pushiness',
     speakingSpeed: 0.85, interruptiveness: 0.15, objectionStyle: 'Taste and exclusivity doubts',
-    voice: { gender: 'female', accent: 'uk', pitch: 1.05 },
+    voice: { eleven: 'ThT5KcBeYPX3keUQqHPh', gender: 'female', accent: 'uk', pitch: 1.05 },
     temperament: { patience: 65, objectionCount: 2, style: 'reserved' },
     locked: false,
     lines: pack({
@@ -477,7 +477,7 @@ export const CHARACTERS = [
     title: 'No Time', industry: 'Enterprise', salesStyle: 'Executive brevity',
     difficulty: 4, personality: 'Checks email while you talk, decides in 90 seconds',
     speakingSpeed: 1.2, interruptiveness: 0.8, objectionStyle: 'Time-cost dismissals',
-    voice: { gender: 'female', accent: 'us', pitch: 1.0 },
+    voice: { eleven: 'AZnzlk1XvdvUeBnXmlld', gender: 'female', accent: 'us', pitch: 1.0 },
     temperament: { patience: 32, objectionCount: 2, style: 'aggressive' },
     locked: false,
     lines: pack({
@@ -497,7 +497,7 @@ export const CHARACTERS = [
     title: 'Bad Day', industry: 'Small Business', salesStyle: 'Hostile until earned',
     difficulty: 4, personality: 'Furious at cold callers, tests your composure',
     speakingSpeed: 1.15, interruptiveness: 0.9, objectionStyle: 'Personal attacks, hostility',
-    voice: { gender: 'male', accent: 'us', pitch: 0.9 },
+    voice: { eleven: 'N2lVS1w4EtoT3dr4eOWO', gender: 'male', accent: 'us', pitch: 0.9 },
     temperament: { patience: 26, objectionCount: 2, style: 'aggressive' },
     locked: false,
     lines: pack({
@@ -520,7 +520,7 @@ export const CHARACTERS = [
     title: 'The Iceberg', industry: 'Finance', salesStyle: 'Spreadsheet skepticism',
     difficulty: 5, personality: 'Monotone, emotionless, only ROI moves the needle',
     speakingSpeed: 0.88, interruptiveness: 0.3, objectionStyle: 'ROI and risk interrogation',
-    voice: { gender: 'male', accent: 'uk', pitch: 0.9 },
+    voice: { eleven: 'onwK4e9ZLuTAKqWW03F9', gender: 'male', accent: 'uk', pitch: 0.9 },
     temperament: { patience: 50, objectionCount: 4, style: 'analytical' },
     locked: false,
     lines: pack({
@@ -542,7 +542,7 @@ export const CHARACTERS = [
     title: 'FSBO Holdout', industry: 'Real Estate', salesStyle: 'Emotional attachment',
     difficulty: 3, personality: 'Attached to the house, burned by agents before',
     speakingSpeed: 1.0, interruptiveness: 0.4, objectionStyle: 'Commission resistance',
-    voice: { gender: 'female', accent: 'us', pitch: 1.05 },
+    voice: { eleven: 'EXAVITQu4vr4xnSDxMaL', gender: 'female', accent: 'us', pitch: 1.05 },
     temperament: { patience: 55, objectionCount: 3, style: 'emotional' },
     locked: false,
     lines: pack({
@@ -563,7 +563,7 @@ export const CHARACTERS = [
     title: 'Happily Employed', industry: 'Recruiting', salesStyle: 'Career risk aversion',
     difficulty: 3, personality: 'Content senior engineer, suspicious of recruiters',
     speakingSpeed: 0.95, interruptiveness: 0.3, objectionStyle: 'Status-quo bias',
-    voice: { gender: 'male', accent: 'in', pitch: 1.0 },
+    voice: { eleven: 'iP95p4xoKVk53GoZ742B', gender: 'male', accent: 'in', pitch: 1.0 },
     temperament: { patience: 55, objectionCount: 3, style: 'reserved' },
     locked: false,
     lines: pack({
@@ -584,7 +584,7 @@ export const CHARACTERS = [
     title: 'Moves Fast', industry: 'SaaS', salesStyle: 'Speed and leverage',
     difficulty: 2, personality: 'Curious, impatient, decides fast, churns fast',
     speakingSpeed: 1.15, interruptiveness: 0.6, objectionStyle: 'Speed and integration doubts',
-    voice: { gender: 'male', accent: 'us', pitch: 1.05 },
+    voice: { eleven: 'SOYHLrjzK2X1ezoPC6cr', gender: 'male', accent: 'us', pitch: 1.05 },
     temperament: { patience: 48, objectionCount: 2, style: 'energetic' },
     locked: false,
     lines: pack({
@@ -604,7 +604,7 @@ export const CHARACTERS = [
     title: 'In the Weeds', industry: 'Hospitality', salesStyle: 'Cash-flow stress',
     difficulty: 2, personality: 'Warm but exhausted, interrupted by kitchen chaos',
     speakingSpeed: 1.05, interruptiveness: 0.55, objectionStyle: 'Margin and time pressure',
-    voice: { gender: 'male', accent: 'us', pitch: 0.98 },
+    voice: { eleven: 'TX3LPaxmHKxFdv7VOQHJ', gender: 'male', accent: 'us', pitch: 0.98 },
     temperament: { patience: 45, objectionCount: 2, style: 'emotional' },
     locked: false,
     lines: pack({
@@ -624,7 +624,7 @@ export const CHARACTERS = [
     title: 'No Nonsense', industry: 'Fitness', salesStyle: 'Results skepticism',
     difficulty: 2, personality: 'Direct, competitive, hates gimmicks',
     speakingSpeed: 1.1, interruptiveness: 0.5, objectionStyle: 'Show-me-proof',
-    voice: { gender: 'female', accent: 'au', pitch: 1.02 },
+    voice: { eleven: 'jsCqWAovK2LkecY7zXl4', gender: 'female', accent: 'au', pitch: 1.02 },
     temperament: { patience: 50, objectionCount: 2, style: 'direct' },
     locked: false,
     lines: pack({
@@ -644,7 +644,7 @@ export const CHARACTERS = [
     title: 'Invincible', industry: 'Insurance', salesStyle: 'Denial and delay',
     difficulty: 3, personality: 'Young, healthy, thinks insurance is a scam',
     speakingSpeed: 1.05, interruptiveness: 0.4, objectionStyle: 'It-won\'t-happen-to-me',
-    voice: { gender: 'male', accent: 'us', pitch: 1.08 },
+    voice: { eleven: 'IKne3meq5aSn9XLyUdCD', gender: 'male', accent: 'us', pitch: 1.08 },
     temperament: { patience: 48, objectionCount: 3, style: 'dismissive' },
     locked: false,
     lines: pack({
@@ -665,7 +665,7 @@ export const CHARACTERS = [
     title: 'Seen It All', industry: 'Retail', salesStyle: 'Trust deficit',
     difficulty: 3, personality: 'Burned before, fact-checks everything you say',
     speakingSpeed: 0.95, interruptiveness: 0.45, objectionStyle: 'Proof demands',
-    voice: { gender: 'female', accent: 'uk', pitch: 1.0 },
+    voice: { eleven: 'XB0fDUnXU5powFXDhCwa', gender: 'female', accent: 'uk', pitch: 1.0 },
     temperament: { patience: 52, objectionCount: 3, style: 'analytical' },
     locked: false,
     lines: pack({
@@ -686,7 +686,7 @@ export const CHARACTERS = [
     title: 'Penny Watcher', industry: 'SMB', salesStyle: 'Price anchoring',
     difficulty: 2, personality: 'Loves you until the price, then negotiates everything',
     speakingSpeed: 1.0, interruptiveness: 0.35, objectionStyle: 'Discount grinding',
-    voice: { gender: 'male', accent: 'us', pitch: 1.0 },
+    voice: { eleven: 'yoZ06aMxZJJ28mfd3POQ', gender: 'male', accent: 'us', pitch: 1.0 },
     temperament: { patience: 60, objectionCount: 3, style: 'haggler' },
     locked: false,
     lines: pack({
@@ -707,7 +707,7 @@ export const CHARACTERS = [
     title: 'The Process', industry: 'Enterprise', salesStyle: 'RFP bureaucracy',
     difficulty: 4, personality: 'Process-obsessed, allergic to urgency, compares everything',
     speakingSpeed: 0.9, interruptiveness: 0.25, objectionStyle: 'Vendor-neutral stonewalling',
-    voice: { gender: 'female', accent: 'us', pitch: 0.98 },
+    voice: { eleven: 'MF3mGyEYCl7XYWbV9V6O', gender: 'female', accent: 'us', pitch: 0.98 },
     temperament: { patience: 62, objectionCount: 4, style: 'analytical' },
     locked: false,
     lines: pack({

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { CHARACTERS, DIFFICULTY_LABELS, getCharacter } from '../../data/characters.js'
 import { createConversation } from '../../lib/conversation.js'
 import { scoreCall } from '../../lib/scoring.js'
-import { speechSupport, speak, stopSpeaking, listenOnce, resolveCharacterVoice, voicesReady } from '../../lib/speech.js'
+import { speechSupport, stopSpeaking, listenOnce, speakAs, voicesReady } from '../../lib/speech.js'
 import { getProfile } from '../../lib/storage.js'
 import { fmtDuration } from '../../lib/format.js'
 import { Difficulty } from '../ui.jsx'
@@ -236,13 +236,11 @@ function CallScreen({ character, challenge, scenario, incoming, whisperEnabled, 
     setEmotion(emo || 'neutral')
     setCaption({ speaker: character.name, text })
     transcriptRef.current.push({ speaker: 'ai', text, t: startRef.current ? (Date.now() - startRef.current) / 1000 : 0 })
-    const rate = character.speakingSpeed * (settings.voiceRate || 1)
-    // Resolve fresh each line but pinned per character — one voice for the
-    // whole call even if the browser's voice list loaded late.
-    const voice = resolveCharacterVoice(character)
-    speakingRef.current = speak(text, { rate, pitch: character.voice.pitch, voice, humanize: true })
+    // speakAs: premium ElevenLabs voice when a key is configured, otherwise a
+    // pinned browser voice — either way persona-tuned per character.
+    speakingRef.current = speakAs(text, character, settings)
     await speakingRef.current.promise
-  }, [character, settings.voiceRate])
+  }, [character, settings])
 
   const userTurn = useCallback(async () => {
     if (doneRef.current) return

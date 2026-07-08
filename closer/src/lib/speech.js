@@ -1,5 +1,6 @@
-// Web Speech wrappers: browser TTS + speech recognition with graceful fallback.
-// Everything runs locally in the browser — no keys, no server.
+// Web Speech wrappers: browser TTS + speech recognition with graceful fallback,
+// plus an optional ElevenLabs path for studio-quality character voices.
+import { personaVoiceTuning } from './personas.js'
 
 const SR = typeof window !== 'undefined'
   ? window.SpeechRecognition || window.webkitSpeechRecognition
@@ -82,15 +83,119 @@ export function pickVoice({ gender = 'any', accent = 'us' } = {}) {
 
 // One pinned voice per character for the whole session — prevents the
 // "Barbara starts female then switches to a man" glitch when the voice list
-// finishes loading mid-call.
+// finishes loading mid-call. Characters are SPREAD across the top-ranked
+// voices (not all given the single best one) so Belfort ≠ Cuban ≠ the CEO
+// even with stock browser voices.
 const characterVoices = new Map()
+
+function hashStr(s) {
+  let h = 0
+  for (const c of s) h = (h * 31 + c.charCodeAt(0)) | 0
+  return Math.abs(h)
+}
+
 export function resolveCharacterVoice(character) {
   if (!character) return null
   const key = character.id
   if (characterVoices.has(key)) return characterVoices.get(key)
-  const v = pickVoice({ gender: character.voice?.gender || 'any', accent: character.voice?.accent || 'us' })
-  if (v) characterVoices.set(key, v) // only pin once we actually found one
+  const voices = voicesCache.length ? voicesCache : loadVoices()
+  if (!voices.length) return null
+  const opts = { gender: character.voice?.gender || 'any', accent: character.voice?.accent || 'us' }
+  const ranked = voices
+    .map((v) => ({ v, s: scoreVoice(v, opts) }))
+    .filter((x) => x.s > 0)
+    .sort((a, b) => b.s - a.s)
+  if (!ranked.length) {
+    const fallback = pickVoice(opts)
+    if (fallback) characterVoices.set(key, fallback)
+    return fallback
+  }
+  // Take every voice within 5 points of the best, then hash-spread characters
+  // across them for variety without dropping to low-quality voices.
+  const best = ranked[0].s
+  const pool = ranked.filter((x) => x.s >= best - 5).map((x) => x.v)
+  const v = pool[hashStr(key) % pool.length]
+  characterVoices.set(key, v)
   return v
+}
+
+/* ── Premium voices (optional ElevenLabs integration) ─────────
+   With an API key in Settings, each character speaks with a distinct
+   human-sounding voice from ElevenLabs' premade voice library (matched
+   to the character's vibe — NOT clones of the real people). Any failure
+   falls back silently to the browser voice. */
+let elevenActive = null // cancel handle for the currently playing clip
+
+async function elevenSpeak(text, character, settings) {
+  const voiceId = character.voice?.eleven || 'pNInz6obpgDQGcFmaJgB'
+  const tuning = personaVoiceTuning(character.id).eleven || {}
+  const speed = Math.max(0.8, Math.min(1.2,
+    (tuning.speed ?? character.speakingSpeed ?? 1) * (settings.voiceRate || 1)))
+  const body = {
+    text,
+    model_id: 'eleven_turbo_v2_5',
+    voice_settings: {
+      stability: tuning.stability ?? 0.45,
+      similarity_boost: 0.85,
+      style: tuning.style ?? 0.3,
+      speed,
+    },
+  }
+  let res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_22050_32`, {
+    method: 'POST',
+    headers: { 'xi-api-key': settings.elevenLabsKey, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+  if (res.status === 422) {
+    // Older accounts/models reject speed/style — retry with the basics.
+    delete body.voice_settings.speed
+    delete body.voice_settings.style
+    res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_22050_32`, {
+      method: 'POST',
+      headers: { 'xi-api-key': settings.elevenLabsKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+  }
+  if (!res.ok) throw new Error(`elevenlabs-${res.status}`)
+  const url = URL.createObjectURL(await res.blob())
+  const audio = new Audio(url)
+  const promise = new Promise((resolve) => {
+    audio.onended = resolve
+    audio.onerror = resolve
+  }).finally(() => URL.revokeObjectURL(url))
+  const cancel = () => { try { audio.pause() } catch { /* already stopped */ } }
+  elevenActive = cancel
+  await audio.play()
+  return { promise, cancel }
+}
+
+/**
+ * Speak a line AS a character: premium ElevenLabs voice when a key is set,
+ * otherwise the pinned browser voice. Single call site for calls + replay.
+ */
+export function speakAs(text, character, settings = {}, { humanize = true } = {}) {
+  let cancelled = false
+  let inner = null
+  const promise = (async () => {
+    if (settings.elevenLabsKey) {
+      try {
+        inner = await elevenSpeak(text, character, settings)
+        if (cancelled) { inner.cancel(); return }
+        await inner.promise
+        return
+      } catch { /* fall through to browser voice */ }
+    }
+    if (cancelled) return
+    const browserTuning = personaVoiceTuning(character.id).browser || {}
+    inner = speak(text, {
+      rate: (browserTuning.rate ?? character.speakingSpeed ?? 1) * (settings.voiceRate || 1),
+      pitch: browserTuning.pitch ?? character.voice?.pitch ?? 1,
+      voice: resolveCharacterVoice(character),
+      humanize,
+    })
+    await inner.promise
+  })()
+  return { promise, cancel: () => { cancelled = true; inner?.cancel?.() } }
 }
 
 /**
@@ -127,6 +232,7 @@ export function speak(text, { rate = 1, pitch = 1, voice = null, humanize = fals
 
 export function stopSpeaking() {
   if (speechSupport.synthesis) window.speechSynthesis.cancel()
+  if (elevenActive) { elevenActive(); elevenActive = null }
 }
 
 /**

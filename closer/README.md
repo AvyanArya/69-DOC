@@ -52,11 +52,35 @@ Vercel/Netlify/GitHub Pages as-is; `vercel.json` included).
 **Chrome or Edge on `localhost` or HTTPS** with mic permission granted. Where
 recognition is unavailable (Firefox, file://, mic denied), the phone
 automatically falls back to a type-to-speak bar (the ⌨️ button toggles it any
-time). AI voices use your browser's speech synthesis: one consistent voice is
-pinned per character (gender/accent/speed matched), preferring the
-higher-quality Google/Natural voices when your browser has them. Voice realism
-is capped by what your browser ships — Chrome sounds dramatically better than
-a bare Linux/Firefox voice set.
+time).
+
+## 🎙️ About the character voices
+
+Three tiers of realism:
+
+1. **Browser voices (default, free).** One consistent voice is pinned per
+   character — spread across your browser's best voices so characters sound
+   different from each other — with persona-tuned pitch and pace (Buffett slow
+   and low, Cardone fast and hard). Quality is capped by what your browser
+   ships: Chrome/Edge sound far better than a bare Linux/Firefox voice set.
+2. **Premium voices (optional).** Paste an [ElevenLabs](https://elevenlabs.io)
+   API key in **Settings → Voice & audio** and every character speaks with a
+   distinct, human-sounding studio voice from the ElevenLabs voice library,
+   vibe-matched and delivery-tuned per persona (expressiveness, stability,
+   speed). The key stays in your browser's localStorage only.
+3. **Cloned voices (bring your own rights).** The pipeline reads each
+   character's `voice.eleven` ID from `src/data/characters.js` — if you hold a
+   properly licensed/consented cloned voice on your ElevenLabs account, paste
+   its voice ID there and the character uses it automatically. Closer ships
+   with library voices, not clones: replicating a real, identifiable person's
+   voice requires their documented consent (ElevenLabs' professional cloning
+   flow verifies this with the voice owner directly).
+
+On top of the voice itself, every line is written and decorated with the
+character's real verbal mannerisms — Musk's hesitations ("Um… I mean…"),
+Buffett's folksy asides ("Well… heh."), Cardone's shouted emphasis, Belfort's
+"kid" — which also shapes the TTS rhythm, since synthesis pauses on the
+punctuation.
 
 ## What's inside
 
