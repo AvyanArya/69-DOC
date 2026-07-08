@@ -45,13 +45,21 @@ const ACCENT_LANGS = {
 const FEMALE_RX = /female|samantha|victoria|karen|moira|tessa|fiona|zira|susan|hazel|veena|serena|kate|allison|ava|joanna|salli|aria|jenny|michelle|sonia|libby|natasha|neerja|catherine|emma|amy/i
 const MALE_RX = /(?<!fe)male|daniel|alex\b|fred|tom\b|oliver|david|mark|james|rishi|lee\b|gordon|guy|ryan|brandon|eric|christopher|matthew|prabhat|william|liam|george/i
 
+// macOS ships dozens of novelty/compact voices (Fred, Zarvox, Bubbles…) that
+// sound absurd or broken on a business call. Never pick them.
+const NOVELTY_RX = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|jester|hysterical|organ|superstar|trinoids|whisper|wobble|zarvox|fred|junior|ralph|kathy|grandma|grandpa|rocko|shelle|eddy|flo\b|reed|sandy/i
+
 /** Rank voices by quality + fit. Higher is better. */
 function scoreVoice(v, { gender, accent }) {
   let s = 0
   const langs = ACCENT_LANGS[accent] || ACCENT_LANGS.us
-  if (langs.some((l) => v.lang === l || v.lang.startsWith(l))) s += 6
-  else if (v.lang.startsWith('en')) s += 2
+  // Accent is a hard preference: a US character must not get an en-IN or
+  // en-GB voice just because it's male. Wrong-region English is a big penalty
+  // (still usable as last resort when the browser has nothing matching).
+  if (langs.some((l) => v.lang === l || v.lang.startsWith(l))) s += 10
+  else if (v.lang.startsWith('en')) s -= 6
   else return -100
+  if (NOVELTY_RX.test(v.name)) s -= 25
   // Quality tiers: cloud/neural voices sound far less robotic
   if (/natural|neural/i.test(v.name)) s += 6
   if (/google/i.test(v.name)) s += 5
@@ -110,10 +118,11 @@ export function resolveCharacterVoice(character) {
     if (fallback) characterVoices.set(key, fallback)
     return fallback
   }
-  // Take every voice within 5 points of the best, then hash-spread characters
-  // across them for variety without dropping to low-quality voices.
+  // Spread characters only across voices that are truly comparable to the
+  // best pick (same tier, right accent). A loose band here is how a US
+  // character ends up with an Indian-English or novelty voice on macOS.
   const best = ranked[0].s
-  const pool = ranked.filter((x) => x.s >= best - 5).map((x) => x.v)
+  const pool = ranked.filter((x) => x.s >= best - 2).map((x) => x.v)
   const v = pool[hashStr(key) % pool.length]
   characterVoices.set(key, v)
   return v

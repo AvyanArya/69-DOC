@@ -3,6 +3,7 @@ import { NavLink, Outlet, Link } from 'react-router-dom'
 import { useSyncExternalStore } from 'react'
 import { getProfile, subscribe } from '../lib/storage.js'
 import { levelFromXp, rankForLevel } from '../lib/xp.js'
+import { APP_VERSION } from '../lib/version.js'
 
 export function useProfile() {
   return useSyncExternalStore(subscribe, getProfile, getProfile)
@@ -68,12 +69,16 @@ export default function AppShell() {
             <small>{rank.icon} {rank.name} · Lv {level}</small>
           </div>
         </div>
+        <div style={{ textAlign: 'center', fontSize: 10.5, color: 'var(--ink-3)', paddingTop: 8 }}>
+          Closer v{APP_VERSION}
+        </div>
       </aside>
 
       <div className="mobile-topbar">
         <Link to="/" className="row" style={{ gap: 8 }}>
           <span className="logo-mark" style={{ width: 28, height: 28, fontSize: 14 }}>C</span>
           <b>Closer</b>
+          <span style={{ fontSize: 10, color: 'var(--ink-3)' }}>v{APP_VERSION}</span>
         </Link>
         <span className="chip gold">{rank.icon} Lv {level}</span>
       </div>
