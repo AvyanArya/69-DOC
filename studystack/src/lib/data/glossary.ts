@@ -1,0 +1,36 @@
+import type { GlossaryTerm } from "../types";
+
+export const GLOSSARY: GlossaryTerm[] = [
+  { id: "mitochondria", term: "Mitochondria", definition: "Organelles that generate most of a cell's chemical energy (ATP). Often called the powerhouse of the cell." },
+  { id: "neuron", term: "Neuron", definition: "An electrically excitable cell that transmits information through electrical and chemical signals in the nervous system." },
+  { id: "synapse", term: "Synapse", definition: "The junction between two neurons where a signal passes from one to the next using neurotransmitters." },
+  { id: "enzyme", term: "Enzyme", definition: "A protein that speeds up a specific biochemical reaction without being consumed by it." },
+  { id: "genome", term: "Genome", definition: "The complete set of genetic material (DNA) in an organism." },
+  { id: "allele", term: "Allele", definition: "One of two or more alternative versions of a gene found at the same position on a chromosome." },
+  { id: "antibody", term: "Antibody", definition: "A Y-shaped protein made by the immune system that recognises and binds to a specific foreign molecule." },
+  { id: "antigen", term: "Antigen", definition: "A molecule that triggers an immune response and is recognised by antibodies." },
+  { id: "placebo", term: "Placebo", definition: "An inactive treatment used as a control in trials to measure the true effect of an intervention." },
+  { id: "randomised-trial", term: "Randomised trial", definition: "A study that randomly assigns participants to groups to fairly compare treatments." },
+  { id: "incidence", term: "Incidence", definition: "The number of new cases of a condition in a population over a period of time." },
+  { id: "prevalence", term: "Prevalence", definition: "The proportion of a population that has a condition at a given time." },
+  { id: "receptor", term: "Receptor", definition: "A protein that detects a specific molecule and triggers a response inside the cell." },
+  { id: "neurotransmitter", term: "Neurotransmitter", definition: "A chemical messenger that carries signals across a synapse between neurons." },
+  { id: "plasticity", term: "Neuroplasticity", definition: "The brain's ability to reorganise itself by forming new neural connections." },
+  { id: "catalyst", term: "Catalyst", definition: "A substance that increases the rate of a reaction without being used up." },
+  { id: "isotope", term: "Isotope", definition: "Atoms of the same element with different numbers of neutrons." },
+  { id: "crispr", term: "CRISPR", definition: "A gene-editing tool that lets scientists make precise changes to DNA." },
+  { id: "microbiome", term: "Microbiome", definition: "The community of microbes (bacteria, viruses, fungi) living in and on the body." },
+  { id: "cortisol", term: "Cortisol", definition: "A hormone released in response to stress that affects metabolism and immune function." },
+  { id: "dopamine", term: "Dopamine", definition: "A neurotransmitter involved in reward, motivation and movement." },
+  { id: "serotonin", term: "Serotonin", definition: "A neurotransmitter that helps regulate mood, sleep and appetite." },
+  { id: "vaccine", term: "Vaccine", definition: "A preparation that trains the immune system to recognise a pathogen without causing disease." },
+  { id: "pathogen", term: "Pathogen", definition: "A microorganism such as a virus or bacterium that can cause disease." },
+  { id: "metabolism", term: "Metabolism", definition: "The set of chemical reactions that keep an organism alive, including building and breaking down molecules." },
+  { id: "hypothesis", term: "Hypothesis", definition: "A testable prediction that a scientific study is designed to support or refute." },
+  { id: "control-group", term: "Control group", definition: "The group in an experiment that does not receive the treatment, used for comparison." },
+  { id: "peer-review", term: "Peer review", definition: "Evaluation of research by independent experts before it is published." },
+  { id: "photosynthesis", term: "Photosynthesis", definition: "The process by which plants convert light energy into chemical energy stored as sugars." },
+  { id: "entropy", term: "Entropy", definition: "A measure of disorder in a system; it tends to increase over time." },
+];
+
+export const GLOSSARY_MAP = Object.fromEntries(GLOSSARY.map((g) => [g.id, g])) as Record<string, GlossaryTerm>;
