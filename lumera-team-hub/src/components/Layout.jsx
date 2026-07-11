@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth, useToast } from '../context/AuthContext';
-import { timeAgo, ROLE_LABEL } from '../lib/util';
+import { timeAgo, ROLE_LABEL, isAdminRole } from '../lib/util';
 import { Avatar, EmptyState } from './ui';
 import {
   IcHome, IcChat, IcDoc, IcBoard, IcCal, IcMegaphone, IcTeam, IcShield,
@@ -169,7 +169,7 @@ export default function Layout({ children }) {
               {to === '/messages' && dmUnread > 0 && <span className="count-badge">{dmUnread}</span>}
             </NavLink>
           ))}
-          {profile.role === 'admin' && (
+          {isAdminRole(profile.role) && (
             <NavLink to="/admin" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
               onClick={() => setSideOpen(false)}>
               <span className="nav-ico"><IcShield /></span>

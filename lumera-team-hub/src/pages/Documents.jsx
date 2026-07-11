@@ -87,7 +87,7 @@ export default function Documents() {
     toast(`${file.name} is now v${data.version}`);
   }
 
-  const canEdit = (d) => d.uploaded_by === profile.id || profile.role === 'admin';
+  const canEdit = (d) => d.uploaded_by === profile.id || isAdminRole(profile.role);
 
   return (
     <div>

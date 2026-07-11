@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth, useToast } from '../context/AuthContext';
 import { Avatar, Modal, RoleBadge, Spinner } from '../components/ui';
 import { IcPlus } from '../components/Icons';
-import { timeAgo, ROLE_LABEL, ROLE_TITLES } from '../lib/util';
+import { timeAgo, ROLE_LABEL, ROLE_TITLES, ROLE_OPTIONS, isAdminRole } from '../lib/util';
 
 export default function Admin() {
   const { profile, team, refreshTeam } = useAuth();
@@ -12,7 +12,7 @@ export default function Admin() {
   const [invites, setInvites] = useState(null);
   const [showInvite, setShowInvite] = useState(false);
 
-  const isAdmin = profile.role === 'admin';
+  const isAdmin = isAdminRole(profile.role);
 
   async function load() {
     const { data } = await supabase.from('invites').select('*').order('created_at', { ascending: false });
@@ -100,14 +100,15 @@ export default function Admin() {
                 <div className="mi-title">{p.name}{p.id === profile.id && ' (you)'}</div>
                 <div className="mi-sub">{p.title ? `${p.title} · ` : ''}{p.email} · {p.department}</div>
               </div>
-              {p.id === profile.id ? <RoleBadge role={p.role} /> : (
-                <select className="select" style={{ width: 170 }} value={p.role}
-                  onChange={(e) => changeRole(p, e.target.value)}>
-                  <option value="admin">Founder / Admin</option>
-                  <option value="lead">Team Lead</option>
-                  <option value="member">Member</option>
-                </select>
-              )}
+              {p.id === profile.id ? <RoleBadge role={p.role} /> :
+                (p.role === 'founder' && profile.role !== 'founder') ? (
+                  <RoleBadge role={p.role} />
+                ) : (
+                  <select className="select" style={{ width: 150 }} value={p.role}
+                    onChange={(e) => changeRole(p, e.target.value)}>
+                    {ROLE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  </select>
+                )}
             </div>
           ))}
         </div>
@@ -139,29 +140,31 @@ function InviteModal({ onClose, onDone }) {
 
   async function submit(e) {
     e.preventDefault();
-    if (!nda || !ip || !contract) {
-      return toast('All three contracts are required: NDA, IP agreement, and the role-specific contract.', 'error');
-    }
     if (!finalTitle) return toast('Pick or type a role title.', 'error');
     setBusy(true);
 
     const em = email.trim().toLowerCase();
+    const uploaded = [];
     const up = async (file, label) => {
+      if (!file) return null;
       const path = `${em}/${label}-${Date.now()}-${file.name}`;
       const { error } = await supabase.storage.from('contracts').upload(path, file);
       if (error) throw new Error(`${label.toUpperCase()} upload failed: ${error.message}`);
+      uploaded.push(path);
       return path;
     };
 
     try {
-      const [ndaPath, ipPath, contractPath] = [await up(nda, 'nda'), await up(ip, 'ip'), await up(contract, 'role')];
+      const ndaPath = await up(nda, 'nda');
+      const ipPath = await up(ip, 'ip');
+      const contractPath = await up(contract, 'role');
       const { data, error } = await supabase.from('invites').insert({
         email: em, role, department: department.trim() || 'General',
         title: finalTitle, invited_by: profile.id,
         nda_path: ndaPath, ip_path: ipPath, contract_path: contractPath,
       }).select().single();
       if (error) {
-        await supabase.storage.from('contracts').remove([ndaPath, ipPath, contractPath]);
+        if (uploaded.length) await supabase.storage.from('contracts').remove(uploaded);
         throw new Error(error.code === '23505'
           ? 'There’s already a pending invite for this email.' : error.message);
       }
@@ -180,9 +183,9 @@ function InviteModal({ onClose, onDone }) {
           <b>{created.email}</b> can now sign up as <b>{created.title}</b>.
         </div>
         <p className="text-2 small">
-          Their NDA, IP agreement and role contract are stored with the invite — they can view
-          them from their own profile once they join. Send them the app link and tell them to
-          use <b>Sign up</b> with this exact email address.
+          Any contracts you attached are stored with the invite. You can also add or update
+          them anytime from their profile — the contracts aren’t required to invite. Send them
+          the app link and tell them to use <b>Sign up</b> with this exact email address.
         </p>
         <div className="modal-foot">
           <button className="btn btn-primary" onClick={() => onDone(created)}>Done</button>
@@ -194,7 +197,7 @@ function InviteModal({ onClose, onDone }) {
   const FileField = ({ label, value, set }) => (
     <div className="field">
       <label>{label} {value ? '✓' : ''}</label>
-      <input className="input" type="file" required accept=".pdf,.doc,.docx"
+      <input className="input" type="file" accept=".pdf,.doc,.docx"
         onChange={(e) => set(e.target.files?.[0] || null)} />
     </div>
   );
@@ -218,9 +221,7 @@ function InviteModal({ onClose, onDone }) {
           <div className="field grow">
             <label>Access level</label>
             <select className="select" value={role} onChange={(e) => setRole(e.target.value)}>
-              <option value="member">Member</option>
-              <option value="lead">Team Lead</option>
-              <option value="admin">Founder / Admin</option>
+              {ROLE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
           </div>
           <div className="field grow">
@@ -237,16 +238,16 @@ function InviteModal({ onClose, onDone }) {
           </div>
         )}
         <div className="card card-pad mb-16" style={{ background: 'rgba(168,85,247,0.05)' }}>
-          <div className="card-title">Required contracts (PDF/DOC)</div>
-          <FileField label="1. Non-Disclosure Agreement (NDA)" value={nda} set={setNda} />
-          <FileField label="2. Intellectual Property Rights Agreement" value={ip} set={setIp} />
-          <FileField label="3. Role-specific contract" value={contract} set={setContract} />
-          <div className="text-3 small">The invite can’t be created until all three are attached.</div>
+          <div className="card-title">Contracts (optional — add now or later)</div>
+          <FileField label="Non-Disclosure Agreement (NDA)" value={nda} set={setNda} />
+          <FileField label="Intellectual Property Rights Agreement" value={ip} set={setIp} />
+          <FileField label="Role-specific contract" value={contract} set={setContract} />
+          <div className="text-3 small">Attach whichever you have — you can upload or replace the rest anytime from their profile.</div>
         </div>
         <div className="modal-foot">
           <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
-          <button className="btn btn-primary" disabled={busy || !nda || !ip || !contract}>
-            {busy ? 'Uploading & creating…' : 'Create invite'}
+          <button className="btn btn-primary" disabled={busy}>
+            {busy ? 'Creating…' : 'Create invite'}
           </button>
         </div>
       </form>
