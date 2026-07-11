@@ -278,6 +278,7 @@ function EditProfile({ onClose }) {
   const { profile, refreshProfile, refreshTeam } = useAuth();
   const toast = useToast();
   const [name, setName] = useState(profile.name);
+  const [title, setTitle] = useState(profile.title || '');
   const [department, setDepartment] = useState(profile.department);
   const [bio, setBio] = useState(profile.bio);
   const [focus, setFocus] = useState(profile.current_focus);
@@ -287,7 +288,7 @@ function EditProfile({ onClose }) {
     e.preventDefault();
     setBusy(true);
     const { error } = await supabase.from('profiles').update({
-      name: name.trim(), department: department.trim() || 'General',
+      name: name.trim(), title: title.trim(), department: department.trim() || 'General',
       bio: bio.trim(), current_focus: focus.trim(),
     }).eq('id', profile.id);
     setBusy(false);
@@ -303,6 +304,11 @@ function EditProfile({ onClose }) {
         <div className="field">
           <label>Full name</label>
           <input className="input" required value={name} onChange={(e) => setName(e.target.value)} maxLength={80} />
+        </div>
+        <div className="field">
+          <label>Job title</label>
+          <input className="input" value={title} onChange={(e) => setTitle(e.target.value)}
+            placeholder="Founder & CEO" maxLength={60} />
         </div>
         <div className="field">
           <label>Department</label>
