@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth, useToast } from '../context/AuthContext';
 import { Avatar, EmptyState, Modal, Spinner } from '../components/ui';
 import { IcPlus } from '../components/Icons';
-import { dueState, fmtDate, timeAgo } from '../lib/util';
+import { dueState, fmtDate, timeAgo, isAdminRole } from '../lib/util';
 
 export default function NextSteps() {
   const { profile, team, teamById } = useAuth();
@@ -43,7 +43,7 @@ export default function NextSteps() {
 
   const Row = ({ s }) => {
     const ds = dueState(s.due_date, s.status === 'done' ? 'done' : 'todo');
-    const canDelete = s.created_by === profile.id || profile.role === 'admin';
+    const canDelete = s.created_by === profile.id || isAdminRole(profile.role);
     return (
       <div className="mini-item" style={{ cursor: 'default', opacity: s.status === 'done' ? 0.6 : 1 }}>
         <input type="checkbox" checked={s.status === 'done'} onChange={() => toggle(s)}

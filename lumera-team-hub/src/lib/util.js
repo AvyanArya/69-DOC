@@ -65,7 +65,19 @@ export function dueState(due, status) {
   return null;
 }
 
-export const ROLE_LABEL = { admin: 'Founder / Admin', lead: 'Team Lead', member: 'Member' };
+export const ROLE_LABEL = { founder: 'Founder', admin: 'Admin', lead: 'Team Lead', member: 'Associate' };
+
+// Founder shares full admin access; treat both as "admin-level" in the UI.
+// (The database enforces this too — is_admin() returns true for both.)
+export const isAdminRole = (role) => role === 'admin' || role === 'founder';
+
+// Options for the role dropdowns, top of hierarchy first.
+export const ROLE_OPTIONS = [
+  { value: 'founder', label: 'Founder' },
+  { value: 'admin', label: 'Admin' },
+  { value: 'lead', label: 'Team Lead' },
+  { value: 'member', label: 'Associate' },
+];
 
 // Job titles (display roles). Access is still governed by ROLE_LABEL roles.
 export const ROLE_TITLES = [
@@ -95,8 +107,8 @@ export const FOLDERS = [
 export function canAccessFolder(folder, role) {
   const f = FOLDERS.find((x) => x.id === folder);
   if (!f) return false;
-  if (f.access === 'admin') return role === 'admin';
-  if (f.access === 'lead') return role === 'admin' || role === 'lead';
+  if (f.access === 'admin') return isAdminRole(role);
+  if (f.access === 'lead') return isAdminRole(role) || role === 'lead';
   return true;
 }
 

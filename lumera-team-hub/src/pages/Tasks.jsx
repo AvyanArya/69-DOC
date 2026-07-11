@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth, useToast } from '../context/AuthContext';
 import { Avatar, EmptyState, Modal, Spinner } from '../components/ui';
 import { IcPlus } from '../components/Icons';
-import { dueState, fmtDate, timeAgo } from '../lib/util';
+import { dueState, fmtDate, timeAgo, isAdminRole } from '../lib/util';
 
 const COLS = [
   { id: 'todo', label: 'To Do', dot: 'dot-todo' },
@@ -74,7 +74,7 @@ export default function Tasks() {
     }
   }
 
-  const canManageProjects = profile.role === 'admin' || profile.role === 'lead';
+  const canManageProjects = isAdminRole(profile.role) || profile.role === 'lead';
 
   if (!projects || !tasks) return <Spinner fill />;
 
@@ -319,9 +319,9 @@ function TaskDetail({ task, projects, onClose, onChange, onDelete }) {
   const [busy, setBusy] = useState(false);
 
   const project = projects.find((p) => p.id === task.project_id);
-  const canEdit = profile.role === 'admin' || task.assignee_id === profile.id ||
+  const canEdit = isAdminRole(profile.role) || task.assignee_id === profile.id ||
     task.created_by === profile.id || project?.lead_id === profile.id;
-  const canDelete = profile.role === 'admin' || task.created_by === profile.id ||
+  const canDelete = isAdminRole(profile.role) || task.created_by === profile.id ||
     project?.lead_id === profile.id;
 
   useEffect(() => {

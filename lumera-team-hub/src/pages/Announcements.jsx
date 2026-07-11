@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth, useToast } from '../context/AuthContext';
 import { Avatar, EmptyState, Modal, RoleBadge, Spinner } from '../components/ui';
 import { IcPlus } from '../components/Icons';
-import { timeAgo } from '../lib/util';
+import { timeAgo, isAdminRole } from '../lib/util';
 
 const EMOJIS = ['👍', '❤️', '🎉', '🚀', '👀'];
 
@@ -65,7 +65,7 @@ export default function Announcements() {
           <h1>Announcements</h1>
           <div className="sub">Company-wide updates — only founders/admins can post.</div>
         </div>
-        {profile.role === 'admin' && (
+        {isAdminRole(profile.role) && (
           <div className="actions">
             <button className="btn btn-primary" onClick={() => setShowNew(true)}>
               <span style={{ width: 15, height: 15, display: 'inline-flex' }}><IcPlus /></span> Post announcement
@@ -76,7 +76,7 @@ export default function Announcements() {
 
       {anns.length === 0 && (
         <div className="card"><EmptyState title="Nothing announced yet"
-          sub={profile.role === 'admin' ? 'Share the first company update with the team.'
+          sub={isAdminRole(profile.role) ? 'Share the first company update with the team.'
             : 'Founders’ updates will appear here — you’ll get notified.'} /></div>
       )}
 
@@ -92,7 +92,7 @@ export default function Announcements() {
                 <div className="ann-meta">{author?.name || 'Admin'} · {timeAgo(a.created_at)}</div>
               </div>
               {author && <RoleBadge role={author.role} />}
-              {profile.role === 'admin' && (
+              {isAdminRole(profile.role) && (
                 <button className="btn btn-danger btn-sm" onClick={() => remove(a)}>Delete</button>
               )}
             </div>

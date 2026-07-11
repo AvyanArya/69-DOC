@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth, useToast } from '../context/AuthContext';
 import { Avatar, EmptyState, Modal, Spinner } from '../components/ui';
 import { IcPlus } from '../components/Icons';
-import { fmtDateTime, timeAgo } from '../lib/util';
+import { fmtDateTime, timeAgo, isAdminRole } from '../lib/util';
 
 export default function Meetings() {
   const [params, setParams] = useSearchParams();
@@ -57,7 +57,7 @@ function MeetingsTab() {
 
   function MeetingCard({ m, past }) {
     const attendees = (m.meeting_attendees || []).map((a) => teamById[a.user_id]).filter(Boolean);
-    const mine = m.created_by === profile.id || profile.role === 'admin';
+    const mine = m.created_by === profile.id || isAdminRole(profile.role);
     const amAttendee = (m.meeting_attendees || []).some((a) => a.user_id === profile.id);
     return (
       <div className={`card card-pad mb-16 ${past ? '' : 'card-glow'}`} style={past ? { opacity: 0.75 } : {}}>
@@ -379,7 +379,7 @@ function PollsTab() {
         const total = pollVotes.length;
         const voterIds = [...new Set(pollVotes.map((v) => v.voter_id))];
         const closed = poll.closes_at && new Date(poll.closes_at) < new Date();
-        const mine = poll.created_by === profile.id || profile.role === 'admin';
+        const mine = poll.created_by === profile.id || isAdminRole(profile.role);
         return (
           <div key={poll.id} className="card card-pad mb-16">
             <div className="flex aic jcb g12 wrap mb-8">

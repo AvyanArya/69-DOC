@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth, useToast } from '../context/AuthContext';
 import { Avatar, EmptyState, Modal, RoleBadge, Spinner } from '../components/ui';
-import { dueState, fmtDate, timeAgo } from '../lib/util';
+import { dueState, fmtDate, timeAgo, isAdminRole, ROLE_OPTIONS } from '../lib/util';
 
 export default function ProfilePage() {
   const { id } = useParams();
@@ -18,7 +18,7 @@ export default function ProfilePage() {
   const [busyAvatar, setBusyAvatar] = useState(false);
   const fileRef = useRef(null);
 
-  const isAdmin = me.role === 'admin';
+  const isAdmin = isAdminRole(me.role);
   const [contracts, setContracts] = useState([]);
   const [uploadingSlot, setUploadingSlot] = useState(null);
   const slotFileRef = useRef(null);
@@ -160,12 +160,10 @@ export default function ProfilePage() {
             <div className="flex g8 mt-16 wrap">
               {isMe && <button className="btn btn-primary" onClick={() => setEditing(true)}>Edit profile</button>}
               {!isMe && <button className="btn btn-primary" onClick={() => nav(`/messages?dm=${person.id}`)}>Message</button>}
-              {me.role === 'admin' && !isMe && (
-                <select className="select" style={{ width: 180 }} value={person.role}
+              {isAdminRole(me.role) && !isMe && !(person.role === 'founder' && me.role !== 'founder') && (
+                <select className="select" style={{ width: 160 }} value={person.role}
                   onChange={(e) => changeRole(e.target.value)}>
-                  <option value="admin">Founder / Admin</option>
-                  <option value="lead">Team Lead</option>
-                  <option value="member">Member</option>
+                  {ROLE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </select>
               )}
             </div>

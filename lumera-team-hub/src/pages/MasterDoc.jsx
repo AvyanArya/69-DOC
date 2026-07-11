@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth, useToast } from '../context/AuthContext';
 import { Modal, Spinner } from '../components/ui';
-import { fmtBytes, timeAgo } from '../lib/util';
+import { fmtBytes, timeAgo, isAdminRole } from '../lib/util';
 
 export default function MasterDoc() {
   const { profile, teamById } = useAuth();
@@ -11,7 +11,7 @@ export default function MasterDoc() {
   const [fileUrl, setFileUrl] = useState(null);
   const [editing, setEditing] = useState(false);
 
-  const isAdmin = profile.role === 'admin';
+  const isAdmin = isAdminRole(profile.role);
 
   async function load() {
     const { data, error } = await supabase.from('master_document').select('*').eq('id', 1).single();

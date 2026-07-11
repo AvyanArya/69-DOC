@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth, useToast } from '../context/AuthContext';
 import { Avatar, EmptyState, Modal, Spinner } from '../components/ui';
 import { IcPlus } from '../components/Icons';
-import { fmtBytes, timeAgo, weekStartOf } from '../lib/util';
+import { fmtBytes, timeAgo, weekStartOf, isAdminRole } from '../lib/util';
 
 export default function Reports() {
   const { profile, teamById } = useAuth();
@@ -80,7 +80,7 @@ export default function Reports() {
               <button className="btn btn-ghost btn-sm" onClick={() => setOpen(open === r.id ? null : r.id)}>
                 {open === r.id ? 'Collapse' : 'Read'}
               </button>
-              {(r.created_by === profile.id || profile.role === 'admin') && (
+              {(r.created_by === profile.id || isAdminRole(profile.role)) && (
                 <button className="btn btn-danger btn-sm" onClick={() => remove(r)}>Delete</button>
               )}
             </div>

@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth, useToast } from '../context/AuthContext';
 import { Avatar, EmptyState, Modal, Spinner } from '../components/ui';
 import { IcHash, IcMenu, IcSend, IcUpload, IcX } from '../components/Icons';
-import { clockTime, dayLabel, findMentions, fmtBytes, fileKind, mentionSegments, timeAgo } from '../lib/util';
+import { clockTime, dayLabel, findMentions, fmtBytes, fileKind, mentionSegments, timeAgo, isAdminRole } from '../lib/util';
 
 const IMG_EXT = /\.(png|jpe?g|gif|webp|svg)$/i;
 
@@ -720,7 +720,7 @@ function GroupMembers({ channel, onClose, onChanged, onLeft }) {
               <div className="mi-title">{teamById[uid]?.name || 'Unknown'}{uid === channel.created_by && ' · creator'}</div>
               <div className="mi-sub">{teamById[uid]?.title || teamById[uid]?.department}</div>
             </div>
-            {(uid === profile.id || isCreator || profile.role === 'admin') && (
+            {(uid === profile.id || isCreator || isAdminRole(profile.role)) && (
               <button className="btn btn-danger btn-sm" onClick={() => remove(uid)}>
                 {uid === profile.id ? 'Leave' : 'Remove'}
               </button>
