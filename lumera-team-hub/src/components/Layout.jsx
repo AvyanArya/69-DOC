@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth, useToast } from '../context/AuthContext';
-import { timeAgo, ROLE_LABEL, isAdminRole } from '../lib/util';
+import { timeAgo, ROLE_LABEL, isAdminRole, isBirthdayToday } from '../lib/util';
 import { Avatar, EmptyState } from './ui';
 import {
   IcHome, IcChat, IcDoc, IcBoard, IcCal, IcMegaphone, IcTeam, IcShield,
@@ -32,7 +32,7 @@ function useClickOutside(ref, onOut) {
 }
 
 export default function Layout({ children }) {
-  const { profile, signOut, teamById } = useAuth();
+  const { profile, signOut, team, teamById } = useAuth();
   const toast = useToast();
   const nav = useNavigate();
   const loc = useLocation();
@@ -109,6 +109,25 @@ export default function Layout({ children }) {
     return () => { supabase.removeChannel(ch); };
     // teamById is rebuilt each render; profile.id is the real dependency.
   }, [profile.id]); // eslint-disable-line
+
+  // Birthday reminders — shown once per day per person, client-side.
+  useEffect(() => {
+    const todays = (team || []).filter((p) => isBirthdayToday(p.birthday));
+    if (!todays.length) return;
+    const key = 'lumera_bday_' + new Date().toISOString().slice(0, 10);
+    let seen = [];
+    try { seen = JSON.parse(localStorage.getItem(key) || '[]'); } catch { seen = []; }
+    const fresh = todays.filter((p) => !seen.includes(p.id));
+    if (!fresh.length) return;
+    fresh.forEach((p) => {
+      const msg = p.id === profile.id
+        ? '🎂 Happy birthday! Hope you have a wonderful day.'
+        : `🎂 It's ${p.name}'s birthday today — wish them a happy birthday!`;
+      toast(msg);
+      desktopNotify('🎂 Birthday at Lumera', msg);
+    });
+    localStorage.setItem(key, JSON.stringify([...seen, ...fresh.map((p) => p.id)]));
+  }, [team, profile.id, toast, desktopNotify]);
 
   const unreadCount = notifs.filter((n) => !n.read).length;
 

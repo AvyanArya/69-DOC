@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { useAuth } from '../context/AuthContext';
+import { useAuth, useToast } from '../context/AuthContext';
 import { Avatar, EmptyState, Spinner } from '../components/ui';
-import { timeAgo, fmtDateTime, fmtDate, dueState, ROLE_LABEL, fileKind } from '../lib/util';
+import { timeAgo, fmtDateTime, fmtDate, dueState, ROLE_LABEL, fileKind,
+  isAdminRole, isBirthdayToday, daysUntilBirthday, birthdayLabel } from '../lib/util';
 
 function greetingWord() {
   const h = new Date().getHours();
@@ -14,9 +15,29 @@ function greetingWord() {
 }
 
 export default function Dashboard() {
-  const { profile, teamById } = useAuth();
+  const { profile, team, teamById } = useAuth();
+  const toast = useToast();
   const nav = useNavigate();
   const [data, setData] = useState(null);
+  const [posted, setPosted] = useState({});
+
+  const birthdaysToday = (team || []).filter((p) => isBirthdayToday(p.birthday));
+  const upcomingBirthdays = (team || [])
+    .filter((p) => p.birthday && !isBirthdayToday(p.birthday))
+    .map((p) => ({ p, d: daysUntilBirthday(p.birthday) }))
+    .filter((x) => x.d > 0 && x.d <= 30)
+    .sort((a, b) => a.d - b.d);
+
+  async function postBirthday(p) {
+    const { error } = await supabase.from('announcements').insert({
+      title: `🎂 Happy Birthday, ${p.name}!`,
+      content: `It's ${p.name}'s birthday today! Drop by and wish them well 🎉`,
+      author_id: profile.id,
+    });
+    if (error) return toast(error.message, 'error');
+    setPosted((s) => ({ ...s, [p.id]: true }));
+    toast('Birthday announcement posted 🎉');
+  }
 
   useEffect(() => {
     let alive = true;
@@ -141,6 +162,42 @@ export default function Dashboard() {
         </div>
 
         <div className="col-4">
+          {(birthdaysToday.length > 0 || upcomingBirthdays.length > 0) && (
+            <div className={`card card-pad mb-16 ${birthdaysToday.length ? 'card-glow' : ''}`}>
+              <div className="card-title">🎂 Birthdays</div>
+              {birthdaysToday.map((p) => (
+                <div key={p.id} className="mini-item" style={{ cursor: 'default', background: 'var(--accent-soft)', borderRadius: 8 }}>
+                  <Avatar profile={p} size="md" />
+                  <div className="mi-main">
+                    <div className="mi-title">{p.name}</div>
+                    <div className="mi-sub" style={{ color: 'var(--accent-hi)' }}>Today! Wish them a happy birthday 🎉</div>
+                  </div>
+                  {isAdminRole(profile.role) && p.id !== profile.id && (
+                    posted[p.id]
+                      ? <span className="badge">Posted ✓</span>
+                      : <button className="btn btn-primary btn-sm" onClick={() => postBirthday(p)}>Post wish</button>
+                  )}
+                </div>
+              ))}
+              {upcomingBirthdays.length > 0 && (
+                <>
+                  {birthdaysToday.length > 0 && <div className="text-3 small mt-8 mb-8">Coming up</div>}
+                  <div className="mini-list">
+                    {upcomingBirthdays.slice(0, 5).map(({ p, d }) => (
+                      <div key={p.id} className="mini-item" onClick={() => nav(`/team/${p.id}`)}>
+                        <Avatar profile={p} size="sm" />
+                        <div className="mi-main">
+                          <div className="mi-title">{p.name}</div>
+                          <div className="mi-sub">{birthdayLabel(p.birthday)}</div>
+                        </div>
+                        <span className="mi-right">{d === 1 ? 'tomorrow' : `in ${d}d`}</span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
           <div className="card card-pad mb-16">
             <div className="card-title">Upcoming meetings <Link to="/meetings">All</Link></div>
             {shownMeetings.length === 0 && <EmptyState title="No meetings scheduled" sub="Schedule one from Meetings & Polls." />}

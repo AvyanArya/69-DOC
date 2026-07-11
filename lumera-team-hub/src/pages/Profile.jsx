@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth, useToast } from '../context/AuthContext';
 import { Avatar, EmptyState, Modal, RoleBadge, Spinner } from '../components/ui';
-import { dueState, fmtDate, timeAgo, isAdminRole, ROLE_OPTIONS } from '../lib/util';
+import { dueState, fmtDate, timeAgo, isAdminRole, ROLE_OPTIONS, birthdayLabel } from '../lib/util';
 
 export default function ProfilePage() {
   const { id } = useParams();
@@ -154,6 +154,7 @@ export default function ProfilePage() {
             </div>
             {person.title && <div className="text-2 mt-8" style={{ fontWeight: 600 }}>{person.title}</div>}
             <div className="text-2 mt-8">{person.department} · <a href={`mailto:${person.email}`}>{person.email}</a></div>
+            <BirthdayRow person={person} canEdit={isMe || isAdminRole(me.role)} onSaved={refreshTeam} />
             {person.current_focus && <div className="text-2 mt-8">🎯 <b>Currently:</b> {person.current_focus}</div>}
             {person.bio && <p className="text-2 mt-8" style={{ whiteSpace: 'pre-wrap' }}>{person.bio}</p>}
             <div className="text-3 small mt-8">Joined {timeAgo(person.created_at)}</div>
@@ -272,6 +273,54 @@ export default function ProfilePage() {
       {editing && <EditProfile onClose={() => setEditing(false)} />}
     </div>
   );
+}
+
+function BirthdayRow({ person, canEdit, onSaved }) {
+  const toast = useToast();
+  const [editing, setEditing] = useState(false);
+  const [val, setVal] = useState(person.birthday || '');
+  const [busy, setBusy] = useState(false);
+
+  async function save() {
+    setBusy(true);
+    const { error } = await supabase.from('profiles')
+      .update({ birthday: val || null }).eq('id', person.id);
+    setBusy(false);
+    if (error) return toast(error.message, 'error');
+    setEditing(false);
+    person.birthday = val || null; // optimistic local
+    onSaved?.();
+    toast('Birthday saved');
+  }
+
+  if (editing) {
+    return (
+      <div className="flex aic g8 mt-8 wrap">
+        <span>🎂</span>
+        <input className="input" style={{ width: 170 }} type="date" value={val || ''}
+          onChange={(e) => setVal(e.target.value)} />
+        <button className="btn btn-primary btn-sm" disabled={busy} onClick={save}>{busy ? '…' : 'Save'}</button>
+        <button className="btn btn-ghost btn-sm" onClick={() => { setVal(person.birthday || ''); setEditing(false); }}>Cancel</button>
+        <span className="text-3 small">(only the day &amp; month are shown to the team)</span>
+      </div>
+    );
+  }
+  if (person.birthday) {
+    return (
+      <div className="text-2 mt-8">
+        🎂 <b>Birthday:</b> {birthdayLabel(person.birthday)}
+        {canEdit && <button className="btn btn-ghost btn-sm" style={{ marginLeft: 8 }} onClick={() => setEditing(true)}>Edit</button>}
+      </div>
+    );
+  }
+  if (canEdit) {
+    return (
+      <div className="mt-8">
+        <button className="btn btn-ghost btn-sm" onClick={() => setEditing(true)}>🎂 Add birthday</button>
+      </div>
+    );
+  }
+  return null;
 }
 
 function EditProfile({ onClose }) {

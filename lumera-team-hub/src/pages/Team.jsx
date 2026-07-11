@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Avatar, EmptyState, RoleBadge } from '../components/ui';
+import { isBirthdayToday, birthdayLabel } from '../lib/util';
 
 export default function Team() {
   const { team } = useAuth();
@@ -45,6 +46,11 @@ export default function Team() {
             <div className="mc-name">{p.name}</div>
             <div className="mc-dept">{p.title ? `${p.title} · ` : ''}{p.department}</div>
             <RoleBadge role={p.role} />
+            {isBirthdayToday(p.birthday) && (
+              <div className="badge mt-8" style={{ background: 'var(--accent-soft)', color: 'var(--accent-hi)' }}>
+                🎂 Birthday today!
+              </div>
+            )}
             {p.current_focus && (
               <div className="text-3 small mt-8 ellipsis" style={{ maxWidth: '100%' }}>
                 🎯 {p.current_focus}
