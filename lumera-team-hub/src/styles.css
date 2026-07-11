@@ -601,6 +601,66 @@ h1, h2, h3, h4 { font-weight: 700; letter-spacing: -0.02em; line-height: 1.25; }
   border: 1px solid rgba(168, 85, 247, 0.2);
 }
 
+/* ---------- action plan timeline ---------- */
+.progress-track { height: 8px; border-radius: 999px; background: rgba(10,8,18,.6); border: 1px solid var(--border); overflow: hidden; flex: 1; min-width: 60px; }
+.progress-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent-deep), var(--accent-hi)); box-shadow: 0 0 12px var(--accent-glow); transition: width .5s ease; }
+
+.week-strip { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+.week-chip {
+  flex-shrink: 0; display: flex; flex-direction: column; gap: 1px;
+  padding: 8px 13px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: var(--bg-2);
+  cursor: pointer; transition: all .13s; font-family: var(--font); text-align: left;
+}
+.week-chip:hover { border-color: var(--border-strong); }
+.week-chip.now { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 14px rgba(168,85,247,.18); }
+.week-chip .wc-rel { font-size: 12px; font-weight: 700; color: var(--text-1); }
+.week-chip.now .wc-rel { color: var(--accent-hi); }
+.week-chip .wc-range { font-size: 10.5px; color: var(--text-3); }
+.week-chip .wc-count { font-size: 10px; font-weight: 700; color: var(--accent-hi); margin-top: 1px; }
+
+.timeline { position: relative; padding-left: 30px; }
+.timeline::before { content: ''; position: absolute; left: 9px; top: 8px; bottom: 8px; width: 2px;
+  background: linear-gradient(var(--accent-deep), rgba(124,58,237,.15)); }
+.tl-week { position: relative; margin-bottom: 26px; }
+.tl-node {
+  position: absolute; left: -30px; top: 3px; width: 20px; height: 20px; border-radius: 50%;
+  background: var(--bg-3); border: 2px solid var(--border-strong); box-sizing: border-box; z-index: 1;
+}
+.tl-node.now { border-color: var(--accent); background: radial-gradient(circle at 35% 35%, var(--accent-hi), var(--accent-deep)); box-shadow: 0 0 16px var(--accent-glow); }
+.tl-node.complete { border-color: var(--success); background: radial-gradient(circle at 35% 35%, #6ee7b7, #059669); }
+.tl-week-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.tl-week-head .tl-rel { font-size: 15px; font-weight: 800; letter-spacing: -.01em; }
+.tl-week-head.now .tl-rel { color: var(--accent-hi); text-shadow: 0 0 16px var(--accent-glow); }
+.tl-empty { font-size: 12.5px; color: var(--text-3); padding: 2px 0 6px; }
+.tl-items { display: flex; flex-direction: column; gap: 10px; }
+
+.plan-card {
+  display: flex; gap: 12px; align-items: flex-start;
+  background: linear-gradient(160deg, var(--bg-2), rgba(21,16,36,.6));
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 13px 14px; position: relative; overflow: hidden;
+  transition: border-color .14s, transform .14s;
+}
+.plan-card:hover { border-color: var(--border-strong); transform: translateX(2px); }
+.plan-card.done { opacity: .62; }
+.plan-card.done .pc-title { text-decoration: line-through; }
+.pc-stripe { position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--cat); }
+.pc-cat { font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
+.pc-title { font-size: 14px; font-weight: 600; margin-top: 5px; }
+.pc-desc { font-size: 12.5px; color: var(--text-3); margin-top: 3px; white-space: pre-wrap; }
+.pc-side { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0; }
+.pc-actions { display: flex; gap: 2px; }
+.pc-actions button { background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 13px; padding: 3px 7px; border-radius: 6px; }
+.pc-actions button:hover { background: var(--bg-4); color: var(--text-1); }
+.pc-actions button.danger:hover { color: var(--danger); }
+
+.status-pill { font-family: var(--font); font-size: 10.5px; font-weight: 700; padding: 2px 9px; border-radius: 999px; border: 1px solid; cursor: pointer; }
+.status-pill:disabled { cursor: default; }
+.st-planned  { background: rgba(125,115,156,.14); color: var(--text-2); border-color: rgba(125,115,156,.35); }
+.st-progress { background: rgba(251,191,36,.13); color: var(--warning); border-color: rgba(251,191,36,.35); }
+.st-done     { background: rgba(52,211,153,.13); color: var(--success); border-color: rgba(52,211,153,.35); }
+
 /* ---------- kanban ---------- */
 .kanban { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; align-items: start; }
 .kanban-col {

@@ -70,6 +70,7 @@ export const ROLE_LABEL = { founder: 'Founder', admin: 'Admin', lead: 'Team Lead
 // Founder shares full admin access; treat both as "admin-level" in the UI.
 // (The database enforces this too — is_admin() returns true for both.)
 export const isAdminRole = (role) => role === 'admin' || role === 'founder';
+export const isLeadOrAdmin = (role) => role === 'admin' || role === 'founder' || role === 'lead';
 
 // Options for the role dropdowns, top of hierarchy first.
 export const ROLE_OPTIONS = [
@@ -115,6 +116,27 @@ export function weekStartOf(d = new Date()) {
   const day = (x.getDay() + 6) % 7; // Monday = 0
   x.setDate(x.getDate() - day);
   return x.toISOString().slice(0, 10);
+}
+
+// "Jul 7 – Jul 13" for a Monday week_start (YYYY-MM-DD).
+export function weekRangeLabel(ws) {
+  const start = new Date(ws + 'T00:00:00');
+  const end = new Date(start); end.setDate(start.getDate() + 6);
+  const f = (d) => d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  return `${f(start)} – ${f(end)}`;
+}
+
+// "This week" / "Next week" / "In 3 weeks" / "2 weeks ago" for a week_start.
+export function relativeWeekLabel(ws) {
+  const thisWeek = weekStartOf();
+  const a = new Date(ws + 'T00:00:00');
+  const b = new Date(thisWeek + 'T00:00:00');
+  const diff = Math.round((a - b) / (7 * 86400000));
+  if (diff === 0) return 'This week';
+  if (diff === 1) return 'Next week';
+  if (diff === -1) return 'Last week';
+  if (diff > 1) return `In ${diff} weeks`;
+  return `${-diff} weeks ago`;
 }
 
 export const FOLDERS = [

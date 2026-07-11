@@ -6,7 +6,7 @@ import { timeAgo, ROLE_LABEL, isAdminRole, isBirthdayToday } from '../lib/util';
 import { Avatar, EmptyState } from './ui';
 import {
   IcHome, IcChat, IcDoc, IcBoard, IcCal, IcMegaphone, IcTeam, IcShield,
-  IcBell, IcSearch, IcMenu, IcLogout, IcUser, IcCheck, IcChart, IcLock,
+  IcBell, IcSearch, IcMenu, IcLogout, IcUser, IcCheck, IcChart, IcLock, IcRoadmap,
 } from './Icons';
 import Logo from './Logo';
 
@@ -15,6 +15,7 @@ const NAV = [
   { to: '/messages', label: 'Messages', ico: IcChat },
   { to: '/documents', label: 'Documents', ico: IcDoc },
   { to: '/tasks', label: 'Tasks', ico: IcBoard },
+  { to: '/action-plan', label: 'Action Plan', ico: IcRoadmap },
   { to: '/meetings', label: 'Meetings & Polls', ico: IcCal },
   { to: '/next-steps', label: 'Next Steps', ico: IcCheck },
   { to: '/reports', label: 'Weekly Reports', ico: IcChart },
