@@ -18,26 +18,82 @@ export default function ProfilePage() {
   const [busyAvatar, setBusyAvatar] = useState(false);
   const fileRef = useRef(null);
 
+  const isAdmin = me.role === 'admin';
   const [contracts, setContracts] = useState([]);
-  const canSeeContracts = isMe || me.role === 'admin';
+  const [uploadingSlot, setUploadingSlot] = useState(null);
+  const slotFileRef = useRef(null);
+  const pendingSlot = useRef(null);
+  const canSeeContracts = isMe || isAdmin;
+  const emailFolder = person?.email?.toLowerCase();
 
   useEffect(() => {
     let alive = true;
     supabase.from('tasks').select('*').eq('assignee_id', id).neq('status', 'done')
       .order('due_date', { ascending: true, nullsFirst: false }).limit(10)
       .then(({ data }) => alive && setTasks(data || []));
-    if (canSeeContracts && person?.email) {
-      supabase.storage.from('contracts').list(person.email.toLowerCase())
-        .then(({ data }) => alive && setContracts(data || []));
+    if (canSeeContracts && emailFolder) {
+      supabase.storage.from('contracts').list(emailFolder)
+        .then(({ data }) => alive && setContracts((data || []).filter((f) => f.id)));
     }
     return () => { alive = false; };
-  }, [id, canSeeContracts, person?.email]);
+  }, [id, canSeeContracts, emailFolder]);
+
+  const CONTRACT_SLOTS = [
+    { key: 'nda', label: 'NDA' },
+    { key: 'ip', label: 'IP Rights Agreement' },
+    { key: 'role', label: 'Role-specific Contract' },
+  ];
+  const findContract = (key) => contracts.find((f) => f.name.startsWith(key + '-'));
+  const otherContracts = contracts.filter(
+    (f) => !CONTRACT_SLOTS.some((s) => f.name.startsWith(s.key + '-')));
+  const prettyContract = (name) => {
+    const m = name.match(/^(nda|ip|role|other)-\d+-(.*)$/);
+    if (!m) return name;
+    const lbl = { nda: 'NDA', ip: 'IP Agreement', role: 'Role Contract', other: 'Document' }[m[1]];
+    return `${lbl}: ${m[2]}`;
+  };
+
+  async function refreshContracts() {
+    const { data } = await supabase.storage.from('contracts').list(emailFolder);
+    setContracts((data || []).filter((f) => f.id));
+  }
 
   async function openContract(name) {
     const { data, error } = await supabase.storage.from('contracts')
-      .createSignedUrl(`${person.email.toLowerCase()}/${name}`, 120);
+      .createSignedUrl(`${emailFolder}/${name}`, 120);
     if (error) return toast(error.message, 'error');
     window.open(data.signedUrl, '_blank');
+  }
+
+  function pickFile(key) {
+    pendingSlot.current = key;
+    slotFileRef.current?.click();
+  }
+
+  async function onSlotFile(e) {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    const key = pendingSlot.current;
+    if (!file || !key) return;
+    if (file.size > 25 * 1024 * 1024) return toast('Max contract size is 25 MB.', 'error');
+    setUploadingSlot(key);
+    const existing = key === 'other' ? null : findContract(key);
+    const path = `${emailFolder}/${key}-${Date.now()}-${file.name}`;
+    const { error } = await supabase.storage.from('contracts').upload(path, file);
+    if (!error && existing) {
+      await supabase.storage.from('contracts').remove([`${emailFolder}/${existing.name}`]);
+    }
+    setUploadingSlot(null);
+    if (error) return toast('Upload failed: ' + error.message, 'error');
+    toast(`${key === 'other' ? 'Document' : key.toUpperCase()} saved for ${person.name.split(' ')[0]}`);
+    refreshContracts();
+  }
+
+  async function deleteContract(name) {
+    if (!window.confirm('Delete this contract?')) return;
+    const { error } = await supabase.storage.from('contracts').remove([`${emailFolder}/${name}`]);
+    if (error) return toast(error.message, 'error');
+    refreshContracts();
   }
 
   if (!person) {
@@ -117,16 +173,79 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {canSeeContracts && contracts.length > 0 && (
+      {(isAdmin || (isMe && contracts.length > 0)) && (
         <div className="card card-pad mb-16">
-          <div className="card-title">{isMe ? 'Your contracts' : 'Contracts'}</div>
-          <div className="flex g8 wrap">
-            {contracts.map((f) => (
-              <button key={f.name} className="btn btn-ghost btn-sm" onClick={() => openContract(f.name)}>
-                📄 {f.name.replace(/^(nda|ip|role)-\d+-/, (m) => m.split('-')[0].toUpperCase() + ': ')}
-              </button>
-            ))}
+          <div className="card-title">
+            {isMe ? 'Your contracts' : `${person.name.split(' ')[0]}’s contracts`}
           </div>
+
+          {isAdmin ? (
+            <>
+              <div className="contract-slots">
+                {CONTRACT_SLOTS.map((s) => {
+                  const f = findContract(s.key);
+                  const busy = uploadingSlot === s.key;
+                  return (
+                    <div key={s.key} className="contract-slot">
+                      <div className="cs-label">{s.label} {f && <span style={{ color: 'var(--success)' }}>✓</span>}</div>
+                      {f ? (
+                        <>
+                          <div className="text-3 small ellipsis mb-8" title={prettyContract(f.name)}>
+                            {f.name.replace(/^\w+-\d+-/, '')}
+                          </div>
+                          <div className="flex g8 wrap">
+                            <button className="btn btn-ghost btn-sm" onClick={() => openContract(f.name)}>View</button>
+                            <button className="btn btn-ghost btn-sm" disabled={busy} onClick={() => pickFile(s.key)}>
+                              {busy ? '…' : 'Replace'}
+                            </button>
+                            <button className="btn btn-danger btn-sm" onClick={() => deleteContract(f.name)}>✕</button>
+                          </div>
+                        </>
+                      ) : (
+                        <button className="btn btn-primary btn-sm" disabled={busy} onClick={() => pickFile(s.key)}>
+                          {busy ? 'Uploading…' : '＋ Upload'}
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {otherContracts.length > 0 && (
+                <div className="mt-16">
+                  <div className="text-3 small mb-8">Other documents</div>
+                  <div className="flex g8 wrap">
+                    {otherContracts.map((f) => (
+                      <span key={f.name} className="flex aic g8">
+                        <button className="btn btn-ghost btn-sm" onClick={() => openContract(f.name)}>
+                          📄 {f.name.replace(/^\w+-\d+-/, '')}
+                        </button>
+                        <button className="btn btn-danger btn-sm" onClick={() => deleteContract(f.name)}>✕</button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-16">
+                <button className="btn btn-ghost btn-sm" disabled={uploadingSlot === 'other'} onClick={() => pickFile('other')}>
+                  {uploadingSlot === 'other' ? 'Uploading…' : '＋ Add another document'}
+                </button>
+              </div>
+              <div className="text-3 small mt-8">
+                Only admins can upload or remove contracts. {isMe ? 'You' : person.name.split(' ')[0]} can view them here.
+              </div>
+              <input type="file" hidden ref={slotFileRef} accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" onChange={onSlotFile} />
+            </>
+          ) : (
+            <div className="flex g8 wrap">
+              {contracts.map((f) => (
+                <button key={f.name} className="btn btn-ghost btn-sm" onClick={() => openContract(f.name)}>
+                  📄 {prettyContract(f.name)}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
