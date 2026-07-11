@@ -16,6 +16,7 @@ import Announcements from './pages/Announcements';
 import Team from './pages/Team';
 import ProfilePage from './pages/Profile';
 import Admin from './pages/Admin';
+import ActionPlan from './pages/ActionPlan';
 import NextSteps from './pages/NextSteps';
 import Reports from './pages/Reports';
 import MasterDoc from './pages/MasterDoc';
@@ -65,6 +66,7 @@ function Gate() {
         <Route path="/documents" element={<Documents />} />
         <Route path="/tasks" element={<Tasks />} />
         <Route path="/meetings" element={<Meetings />} />
+        <Route path="/action-plan" element={<ActionPlan />} />
         <Route path="/next-steps" element={<NextSteps />} />
         <Route path="/reports" element={<Reports />} />
         <Route path="/master-doc" element={<MasterDoc />} />

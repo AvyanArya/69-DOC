@@ -30,3 +30,4 @@ export const IcChart = () => <I><path d="M4 20V10M10 20V4M16 20v-8M21 20H3" /></
 export const IcLock = () => <I><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V7.8a4 4 0 0 1 8 0V11" /></I>;
 export const IcChevD = () => <I><path d="m6 9.5 6 6 6-6" /></I>;
 export const IcHash = () => <I><path d="M9.5 4 7.5 20M16.5 4l-2 16M4.5 9h16M3.5 15h16" /></I>;
+export const IcRoadmap = () => <I><path d="M4 6h9M4 6a2 2 0 1 0 0-.01M4 12h13M20 12a2 2 0 1 0 0-.01M4 18h7M11 18a2 2 0 1 0 0-.01" /></I>;

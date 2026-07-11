@@ -59,6 +59,10 @@ screen immediately.
    everyone who opens the app gets a pop-up reminder that day, a dashboard birthday card
    appears, and admins get a one-click "Post wish" button. Set birthdays from each person's
    profile (you can edit anyone's as an admin).
+6. Then run [`supabase/migrations/005_action_plan.sql`](supabase/migrations/005_action_plan.sql)
+   — adds the week-by-week **Action Plan** timeline (schedule of tasks/milestones grouped by
+   week, with owners, categories, status, and live progress). Whole team can view; team
+   leads/admins/founder build and manage it; the assignee can update their item's status.
 3. You should see “Success”. This single script creates:
    - all 19 tables with relations and indexes,
    - every RLS policy (roles: `admin` / `lead` / `member`),
