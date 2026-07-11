@@ -89,6 +89,27 @@ export const ROLE_TITLES = [
   'Operations & Executive Associate',
 ];
 
+// Birthdays — only month/day are ever shown (year kept private).
+export function birthdayLabel(d) {
+  if (!d) return '';
+  return new Date(d + 'T00:00:00').toLocaleDateString(undefined, { month: 'long', day: 'numeric' });
+}
+export function isBirthdayToday(d) {
+  if (!d) return false;
+  const dt = new Date(d + 'T00:00:00');
+  const now = new Date();
+  return dt.getMonth() === now.getMonth() && dt.getDate() === now.getDate();
+}
+export function daysUntilBirthday(d) {
+  if (!d) return null;
+  const dt = new Date(d + 'T00:00:00');
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  let next = new Date(now.getFullYear(), dt.getMonth(), dt.getDate());
+  if (next < today) next = new Date(now.getFullYear() + 1, dt.getMonth(), dt.getDate());
+  return Math.round((next - today) / 86400000);
+}
+
 export function weekStartOf(d = new Date()) {
   const x = new Date(d);
   const day = (x.getDay() + 6) % 7; // Monday = 0

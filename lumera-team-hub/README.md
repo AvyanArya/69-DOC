@@ -54,6 +54,11 @@ screen immediately.
    where id = (select id from public.profiles order by created_at limit 1);
    ```
    (Run that as a separate query after 003 — it makes the first/earliest account the Founder.)
+5. Then run [`supabase/migrations/004_birthdays.sql`](supabase/migrations/004_birthdays.sql)
+   — adds birthdays to profiles (only month/day are ever shown). On someone's birthday,
+   everyone who opens the app gets a pop-up reminder that day, a dashboard birthday card
+   appears, and admins get a one-click "Post wish" button. Set birthdays from each person's
+   profile (you can edit anyone's as an admin).
 3. You should see “Success”. This single script creates:
    - all 19 tables with relations and indexes,
    - every RLS policy (roles: `admin` / `lead` / `member`),
