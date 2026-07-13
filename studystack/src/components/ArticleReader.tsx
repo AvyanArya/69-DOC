@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import type { Article, Quiz, GlossaryTerm } from "@/lib/types";
+import type { Article, Quiz, GlossaryTerm, Reference } from "@/lib/types";
 import { GLOSSARY_MAP } from "@/lib/data/glossary";
 import { USER_MAP } from "@/lib/data/users";
 import { CATEGORY_MAP } from "@/lib/data/categories";
@@ -13,8 +13,10 @@ import { QuizRunner } from "./Quiz";
 import { ArticleRow } from "./ArticleCard";
 import { buildComments, ARTICLES } from "@/lib/content";
 
-// Wrap glossary terms in paragraph text with tappable highlights.
-function HighlightedText({
+// Wrap glossary terms in paragraph text with tappable highlights. Memoized so
+// that unrelated state changes elsewhere on the page (liking, bookmarking)
+// don't force every paragraph to redo its regex split on every render.
+const HighlightedText = memo(function HighlightedText({
   text,
   terms,
   onTerm,
@@ -49,6 +51,42 @@ function HighlightedText({
         return <span key={i}>{part}</span>;
       })}
     </>
+  );
+});
+
+function ReferenceItem({ reference, index }: { reference: Reference; index: number }) {
+  const [copied, setCopied] = useState(false);
+
+  async function copyCitation() {
+    const citation = `${reference.authors} (${reference.year}). ${reference.label}. ${reference.source}.`;
+    try {
+      await navigator.clipboard.writeText(citation);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      /* clipboard unavailable */
+    }
+  }
+
+  return (
+    <li className="flex items-start justify-between gap-3 rounded-2xl bg-canvas p-3">
+      <div className="flex gap-2 text-sm text-muted">
+        <span className="font-bold text-ink">{index + 1}.</span>
+        <span>
+          <b className="text-ink">{reference.authors}</b> ({reference.year}). {reference.label}. <i>{reference.source}</i>.{" "}
+          <a href={reference.url} target="_blank" rel="noopener noreferrer" className="text-brand-700 underline">
+            search →
+          </a>
+        </span>
+      </div>
+      <button
+        onClick={copyCitation}
+        className="shrink-0 rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-ink card-shadow hover:text-brand-700"
+        title="Copy citation"
+      >
+        {copied ? "✅ Copied" : "📋 Copy"}
+      </button>
+    </li>
   );
 }
 
@@ -206,18 +244,11 @@ export function ArticleReader({ article, quiz }: { article: Article; quiz: Quiz 
 
         {/* References */}
         <div className="rounded-3xl border border-line bg-white p-5">
-          <div className="mb-3 flex items-center gap-2 text-sm font-black text-ink">📚 References</div>
+          <div className="mb-1 flex items-center gap-2 text-sm font-black text-ink">📚 References</div>
+          <p className="mb-3 text-xs text-muted">Every claim above traces back to one of these sources.</p>
           <ol className="space-y-2 text-sm">
             {article.references.map((r, i) => (
-              <li key={i} className="flex gap-2 text-muted">
-                <span className="font-bold text-ink">{i + 1}.</span>
-                <span>
-                  {r.label}. <i>{r.source}</i>.{" "}
-                  <a href={r.url} target="_blank" rel="noopener noreferrer" className="text-brand-700 underline">
-                    link
-                  </a>
-                </span>
-              </li>
+              <ReferenceItem key={i} reference={r} index={i} />
             ))}
           </ol>
         </div>
@@ -234,7 +265,20 @@ export function ArticleReader({ article, quiz }: { article: Article; quiz: Quiz 
               </div>
             </div>
           ) : (
-            <QuizRunner article={article} quiz={quiz} />
+            <>
+              <QuizRunner article={article} quiz={quiz} />
+              <button
+                onClick={() =>
+                  dispatch({
+                    type: "markRead",
+                    payload: { articleId: article.id, xp: Math.round(article.xp * 0.4), coins: Math.round(article.coins * 0.4) },
+                  })
+                }
+                className="mt-3 w-full text-center text-xs font-semibold text-muted hover:text-brand-700"
+              >
+                Already know this? Just mark as read for partial credit →
+              </button>
+            </>
           )}
         </section>
 

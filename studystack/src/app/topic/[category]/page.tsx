@@ -6,12 +6,15 @@ import { ArticleCard } from "@/components/ArticleCard";
 import { EmptyState } from "@/components/ui";
 import { CATEGORY_MAP, CATEGORIES } from "@/lib/data/categories";
 import { articlesByCategory } from "@/lib/content";
+import { useStore } from "@/lib/store";
+import { getTopicTower, isArticleUnlocked } from "@/lib/towers";
 import type { Category } from "@/lib/types";
 
 export default function TopicPage() {
   const params = useParams();
   const category = (Array.isArray(params.category) ? params.category[0] : params.category) as Category;
   const def = CATEGORY_MAP[category];
+  const { state } = useStore();
 
   if (!def) {
     return (
@@ -20,6 +23,8 @@ export default function TopicPage() {
   }
 
   const articles = articlesByCategory(category);
+  const tower = getTopicTower(category, state.completed);
+  const currentTier = tower.tiers[tower.currentTierIndex];
 
   return (
     <div className="space-y-6">
@@ -28,8 +33,13 @@ export default function TopicPage() {
         <div className="text-5xl">{def.emoji}</div>
         <h1 className="mt-2 text-3xl font-black">{def.name}</h1>
         <p className="mt-1 max-w-md text-white/90">{def.blurb}</p>
-        <div className="mt-3 inline-flex rounded-full bg-white/20 px-3 py-1 text-sm font-bold">
-          {articles.length} articles
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <span className="inline-flex rounded-full bg-white/20 px-3 py-1 text-sm font-bold">
+            {articles.length} articles
+          </span>
+          <Link href={`/tower/${category}`} className="inline-flex items-center gap-1 rounded-full bg-white/20 px-3 py-1 text-sm font-bold">
+            🏗️ {tower.masteredAll ? "Fully mastered" : `${currentTier.emoji} ${currentTier.name} tier`} →
+          </Link>
         </div>
       </div>
 
@@ -53,7 +63,7 @@ export default function TopicPage() {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {articles.map((a, i) => (
-            <ArticleCard key={a.id} article={a} index={i} />
+            <ArticleCard key={a.id} article={a} index={i} locked={!isArticleUnlocked(a, state.completed)} />
           ))}
         </div>
       )}

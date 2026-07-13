@@ -8,7 +8,7 @@ import { BADGE_MAP } from "@/lib/data/badges";
 import { ArticleRow } from "@/components/ArticleCard";
 import { Button, EmptyState, StatTile } from "@/components/ui";
 import { ARTICLES } from "@/lib/content";
-import { levelTitle, towerStage } from "@/lib/gamification";
+import { levelTitle } from "@/lib/gamification";
 
 export default function UserProfilePage() {
   const params = useParams();
@@ -62,7 +62,7 @@ export default function UserProfilePage() {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatTile emoji="🔥" value={user.streak} label="Day streak" />
         <StatTile emoji="⚡" value={user.xp.toLocaleString()} label="Total XP" />
-        <StatTile emoji="🏗️" value={user.towerHeight} label={towerStage(user.towerHeight).name} />
+        <StatTile emoji="🏗️" value={user.towerHeight} label="Tower floors" />
         <StatTile emoji="🎯" value={`${Math.round(user.quizAccuracy * 100)}%`} label="Quiz accuracy" />
       </div>
 

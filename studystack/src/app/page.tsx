@@ -2,18 +2,19 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { useStore, useDerived } from "@/lib/store";
+import { useStore } from "@/lib/store";
 import { StreakCard } from "@/components/StreakCard";
-import { TowerCard } from "@/components/KnowledgeTower";
+import { TopicTowerCard } from "@/components/KnowledgeTower";
 import { ArticleCard, ArticleRow, HScroll } from "@/components/ArticleCard";
 import { Button, CoverArt, DifficultyPill, SectionHeader, TypePill } from "@/components/ui";
 import { ARTICLES, featuredArticles, studentArticles, getArticle } from "@/lib/content";
 import { USER_MAP } from "@/lib/data/users";
 import { greeting } from "@/lib/gamification";
+import { allTopicTowers } from "@/lib/towers";
 
 export default function HomePage() {
   const { state } = useStore();
-  const { towerHeight } = useDerived();
+  const topTower = allTopicTowers(state.completed)[0];
 
   const featured = featuredArticles()[0] ?? ARTICLES[0];
   const recommended = ARTICLES.filter((a) => a.type === "study" && a.id !== featured.id).slice(0, 8);
@@ -42,7 +43,12 @@ export default function HomePage() {
 
       {/* Tower + quick stats */}
       <div className="grid gap-4 lg:grid-cols-2">
-        <TowerCard height={towerHeight} completed={state.completed} />
+        <div>
+          {topTower && <TopicTowerCard tower={topTower} />}
+          <Link href="/tower" className="mt-2 block text-center text-sm font-semibold text-brand-700">
+            View all Knowledge Towers →
+          </Link>
+        </div>
         <div className="grid grid-cols-2 gap-4">
           <QuickStat emoji="⚡" value={state.xp} label="Total XP" href="/profile" />
           <QuickStat emoji="🪙" value={state.coins} label="Coins" href="/profile" />
@@ -50,6 +56,22 @@ export default function HomePage() {
           <QuickStat emoji="🏅" value={state.badges.length} label="Badges" href="/profile" />
         </div>
       </div>
+
+      {/* Health awareness campaign */}
+      <Link href="/awareness/cancer" className="group block">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-rose-400 via-pink-500 to-fuchsia-600 p-6 text-white soft-shadow transition group-hover:-translate-y-0.5">
+          <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/15 blur-2xl" />
+          <div className="flex items-center gap-4">
+            <span className="text-4xl">🎗️</span>
+            <div className="flex-1">
+              <div className="text-xs font-bold uppercase tracking-wide text-white/80">Health Awareness</div>
+              <h3 className="text-lg font-black">Cancer Awareness &amp; Prevention</h3>
+              <p className="mt-0.5 text-sm text-white/85">Learn the facts, prevention steps and warning signs — earn a badge.</p>
+            </div>
+            <span className="hidden shrink-0 rounded-full bg-white/20 px-4 py-2 text-sm font-bold sm:block">Explore →</span>
+          </div>
+        </div>
+      </Link>
 
       {/* Featured study */}
       <section>

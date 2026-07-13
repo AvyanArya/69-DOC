@@ -58,37 +58,6 @@ export function levelTitle(level: number): string {
   return LEVEL_TITLES[Math.min(LEVEL_TITLES.length - 1, Math.floor((level - 1) / 3))];
 }
 
-// ─── Knowledge Tower stages ──────────────────────────────────────────────────
-
-export interface TowerStage {
-  min: number;
-  name: string;
-  emoji: string;
-  description: string;
-}
-
-export const TOWER_STAGES: TowerStage[] = [
-  { min: 0, name: "Empty Plot", emoji: "🌱", description: "Read your first study to lay a foundation." },
-  { min: 1, name: "Tiny Tower", emoji: "🏠", description: "Your first blocks of knowledge." },
-  { min: 10, name: "Stone Tower", emoji: "🗼", description: "A solid tower is taking shape." },
-  { min: 25, name: "Watchtower", emoji: "🏯", description: "You can see further every day." },
-  { min: 50, name: "Castle", emoji: "🏰", description: "A fortress of understanding." },
-  { min: 100, name: "Scientific Institute", emoji: "🏛️", description: "Serious scholarship lives here." },
-  { min: 250, name: "Research Campus", emoji: "🏙️", description: "Whole fields under one roof." },
-  { min: 500, name: "City of Knowledge", emoji: "🌆", description: "A futuristic skyline of everything you know." },
-];
-
-export function towerStage(height: number): TowerStage {
-  let stage = TOWER_STAGES[0];
-  for (const s of TOWER_STAGES) if (height >= s.min) stage = s;
-  return stage;
-}
-
-export function nextTowerStage(height: number): TowerStage | null {
-  for (const s of TOWER_STAGES) if (height < s.min) return s;
-  return null;
-}
-
 // ─── Dates & streak helpers ──────────────────────────────────────────────────
 
 export function dayKey(d: Date = new Date()): string {

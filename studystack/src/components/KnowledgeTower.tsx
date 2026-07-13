@@ -1,104 +1,76 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { towerStage, nextTowerStage } from "@/lib/gamification";
 import { CATEGORY_MAP } from "@/lib/data/categories";
-import { getArticle } from "@/lib/content";
-import type { CompletedArticle } from "@/lib/types";
+import type { TierProgress, TopicTower } from "@/lib/towers";
 
-/** A stylised, animated block tower whose size reflects articles completed. */
-export function KnowledgeTowerViz({
-  height,
-  completed = [],
-  compact = false,
-}: {
-  height: number;
-  completed?: CompletedArticle[];
-  compact?: boolean;
-}) {
-  const stage = towerStage(height);
-  // Show up to 14 recent blocks, most recent on top
-  const blocks = [...completed].slice(-14).reverse();
-  const filler = Math.max(0, Math.min(height, 8) - blocks.length);
-
+function TierBand({ tier, gradient }: { tier: TierProgress; gradient: string }) {
+  const slotCount = Math.max(tier.required, tier.completedCount, 1);
+  const blocks = Array.from({ length: slotCount });
   return (
-    <div className={`relative flex flex-col items-center justify-end ${compact ? "h-44" : "h-64"}`}>
-      {/* sky glow */}
-      <div className="pointer-events-none absolute inset-0 rounded-3xl bg-gradient-to-b from-violet-100/60 to-transparent" />
-      <div className="absolute right-4 top-3 text-2xl opacity-70">☁️</div>
-      <div className="absolute left-5 top-8 text-lg opacity-50">☁️</div>
-
-      <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: "spring", stiffness: 120, damping: 14 }}
-        className="mb-1 text-4xl"
-      >
-        {stage.emoji}
-      </motion.div>
-
-      <div className="flex flex-col-reverse items-center gap-0.5">
-        {blocks.map((b, i) => {
-          const cat = getArticle(b.articleId)?.category;
-          const c = cat ? CATEGORY_MAP[cat] : null;
-          const width = 70 + Math.min(i, 6) * 8;
-          return (
-            <motion.div
-              key={b.articleId + i}
-              initial={{ y: -20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: i * 0.04, type: "spring", stiffness: 200, damping: 18 }}
-              style={{ width }}
-              className={`grid h-5 place-items-center rounded-md bg-gradient-to-br ${c?.gradient ?? "from-slate-300 to-slate-400"} text-[10px] shadow-sm`}
-              title={getArticle(b.articleId)?.title}
-            >
-              <span aria-hidden className="drop-shadow-sm">{c?.emoji}</span>
-            </motion.div>
-          );
-        })}
-        {Array.from({ length: filler }).map((_, i) => (
+    <div className={`relative rounded-2xl p-3 transition ${tier.unlocked ? "bg-white" : "bg-black/5"}`}>
+      <div className="flex items-center justify-between">
+        <span className="flex items-center gap-1.5 text-xs font-black text-ink">
+          {tier.emoji} {tier.name}
+          {!tier.unlocked && <span aria-hidden>🔒</span>}
+          {tier.mastered && <span aria-hidden>✓</span>}
+        </span>
+        <span className="text-[11px] font-bold text-muted">
+          {tier.completedCount}/{tier.required} mastered
+        </span>
+      </div>
+      <div className="mt-2 flex gap-1">
+        {blocks.map((_, i) => (
           <div
-            key={`f-${i}`}
-            style={{ width: 70 + Math.min(blocks.length + i, 6) * 8 }}
-            className="h-5 rounded-md bg-gradient-to-br from-violet-200 to-violet-300"
+            key={i}
+            className={`h-4 flex-1 rounded-md ${
+              i < tier.completedCount
+                ? `bg-gradient-to-br ${gradient} ${tier.unlocked ? "" : "opacity-60 grayscale"}`
+                : "bg-black/10"
+            }`}
           />
         ))}
-        {/* base */}
-        <div className="h-3 w-32 rounded-b-lg bg-gradient-to-br from-grape-400 to-grape" />
       </div>
+      {!tier.unlocked && <div className="mt-1.5 text-[11px] text-muted">Master the tier below to unlock</div>}
     </div>
   );
 }
 
-export function TowerCard({ height, completed }: { height: number; completed: CompletedArticle[] }) {
-  const stage = towerStage(height);
-  const next = nextTowerStage(height);
-  const toNext = next ? next.min - height : 0;
+/** The Knowledge Tower for one topic: three tiers, Foundation at the bottom,
+ * Mastery at the top — you climb it by mastering easier material first. */
+export function TopicTowerViz({ tower }: { tower: TopicTower }) {
+  const cat = CATEGORY_MAP[tower.category];
+  const topToBottom = [...tower.tiers].reverse();
   return (
-    <Link href="/tower" className="block">
+    <div className="space-y-2">
+      {topToBottom.map((tier) => (
+        <TierBand key={tier.difficulty} tier={tier} gradient={cat.gradient} />
+      ))}
+    </div>
+  );
+}
+
+export function TopicTowerCard({ tower }: { tower: TopicTower }) {
+  const cat = CATEGORY_MAP[tower.category];
+  const currentTier = tower.tiers[tower.currentTierIndex];
+  return (
+    <Link href={`/tower/${tower.category}`} className="block">
       <div className="overflow-hidden rounded-3xl bg-card card-shadow transition hover:-translate-y-0.5">
         <div className="flex items-center justify-between px-5 pt-4">
           <div>
-            <div className="text-xs font-bold uppercase tracking-wide text-grape-500">Knowledge Tower</div>
-            <div className="text-lg font-black text-ink">{stage.name}</div>
+            <div className="text-xs font-bold uppercase tracking-wide text-grape-500">
+              {cat.emoji} {cat.name} Tower
+            </div>
+            <div className="text-lg font-black text-ink">
+              {tower.masteredAll ? "Fully Mastered 🏆" : `${currentTier.emoji} ${currentTier.name}`}
+            </div>
           </div>
           <div className="rounded-full bg-grape/5 px-3 py-1 text-sm font-bold text-grape-500">
-            {height} {height === 1 ? "floor" : "floors"}
+            {tower.floors} {tower.floors === 1 ? "floor" : "floors"}
           </div>
         </div>
-        <KnowledgeTowerViz height={height} completed={completed} compact />
-        <div className="px-5 pb-4 pt-1 text-center text-sm text-muted">
-          {next ? (
-            <>
-              <b className="text-ink">{toNext}</b> more to reach{" "}
-              <b className="text-ink">
-                {next.emoji} {next.name}
-              </b>
-            </>
-          ) : (
-            <>You’ve built the ultimate City of Knowledge 🌆</>
-          )}
+        <div className="px-5 pb-4 pt-3">
+          <TopicTowerViz tower={tower} />
         </div>
       </div>
     </Link>

@@ -93,12 +93,36 @@ export function AppShell({ children }: { children: ReactNode }) {
             )}
           </Link>
           <Link
+            href="/tower"
+            className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-[15px] font-semibold transition ${
+              isActive(pathname, "/tower") ? "bg-black/5 text-ink" : "text-muted hover:bg-black/5 hover:text-ink"
+            }`}
+          >
+            <span className="text-lg">🏗️</span> Towers
+          </Link>
+          <Link
+            href="/bookmarks"
+            className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-[15px] font-semibold transition ${
+              isActive(pathname, "/bookmarks") ? "bg-black/5 text-ink" : "text-muted hover:bg-black/5 hover:text-ink"
+            }`}
+          >
+            <span className="text-lg">🔖</span> Favorites
+          </Link>
+          <Link
             href="/leaderboard"
             className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-[15px] font-semibold transition ${
               isActive(pathname, "/leaderboard") ? "bg-black/5 text-ink" : "text-muted hover:bg-black/5 hover:text-ink"
             }`}
           >
             <span className="text-lg">🏆</span> Leaderboard
+          </Link>
+          <Link
+            href="/awareness/cancer"
+            className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-[15px] font-semibold transition ${
+              isActive(pathname, "/awareness") ? "bg-black/5 text-ink" : "text-muted hover:bg-black/5 hover:text-ink"
+            }`}
+          >
+            <span className="text-lg">🎗️</span> Cancer Awareness
           </Link>
           {state.isAdmin && (
             <Link

@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import type { Article, Quiz, QuizQuestion, QuizResult } from "@/lib/types";
+import type { Article, Quiz, QuizQuestion, QuizResult, QuestionKind, Category } from "@/lib/types";
 import { useStore } from "@/lib/store";
-import { Button, ProgressBar } from "./ui";
+import { Button, CoverArt, ProgressBar } from "./ui";
 import { ARTICLES } from "@/lib/content";
 
 function shuffle<T>(arr: T[], seed: string): T[] {
@@ -17,60 +17,88 @@ function shuffle<T>(arr: T[], seed: string): T[] {
     .map((x) => x.v);
 }
 
-export function QuizRunner({ article, quiz }: { article: Article; quiz: Quiz }) {
-  const { dispatch } = useStore();
+const QUESTION_KIND_META: Record<QuestionKind, { emoji: string; label: string }> = {
+  "multiple-choice": { emoji: "☑️", label: "Multiple choice" },
+  "true-false": { emoji: "✅", label: "True or false" },
+  matching: { emoji: "🔗", label: "Matching" },
+  ordering: { emoji: "🔀", label: "Ordering" },
+  scenario: { emoji: "🧠", label: "Scenario" },
+  image: { emoji: "🖼️", label: "Visual" },
+};
+
+// ─── Generic quiz mechanics, shared by article quizzes and the citation gate ──
+
+export interface QuizFinishArgs {
+  correct: number;
+  total: number;
+  score: number;
+  passed: boolean;
+}
+
+export function GenericQuizRunner({
+  questions,
+  passScore,
+  category,
+  introEmoji = "🧩",
+  introTitle,
+  introBody,
+  introButtonLabel = "Start quiz →",
+  onFinish,
+  renderResult,
+}: {
+  questions: QuizQuestion[];
+  passScore: number;
+  category?: Category;
+  introEmoji?: string;
+  introTitle: string;
+  introBody: ReactNode;
+  introButtonLabel?: string;
+  onFinish?: (args: QuizFinishArgs) => void;
+  renderResult: (args: QuizFinishArgs & { retry: () => void }) => ReactNode;
+}) {
   const [started, setStarted] = useState(false);
   const [idx, setIdx] = useState(0);
   const [answers, setAnswers] = useState<Record<string, boolean>>({});
   const [finished, setFinished] = useState(false);
+  const [streak, setStreak] = useState(0);
 
-  const q = quiz.questions[idx];
-  const total = quiz.questions.length;
+  function retry() {
+    setIdx(0);
+    setAnswers({});
+    setFinished(false);
+    setStreak(0);
+  }
+
+  const q = questions[idx];
+  const total = questions.length;
+  const correctSoFar = Object.values(answers).filter(Boolean).length;
 
   function recordAnswer(correct: boolean) {
     setAnswers((prev) => ({ ...prev, [q.id]: correct }));
+    setStreak((s) => (correct ? s + 1 : 0));
   }
 
   function next() {
     if (idx < total - 1) {
       setIdx((i) => i + 1);
     } else {
-      finish();
+      const correct = Object.values({ ...answers }).filter(Boolean).length;
+      const score = correct / total;
+      const passed = score >= passScore;
+      onFinish?.({ correct, total, score, passed });
+      setFinished(true);
     }
-  }
-
-  function finish() {
-    const correct = Object.values(answers).filter(Boolean).length;
-    const score = correct / total;
-    const passed = score >= quiz.passScore;
-    const xpEarned = passed ? article.xp : Math.round(article.xp * 0.3);
-    const coinsEarned = passed ? article.coins : 0;
-    const result: QuizResult = {
-      articleId: article.id,
-      score,
-      correct,
-      total,
-      passed,
-      completedAt: new Date().toISOString(),
-      xpEarned,
-      coinsEarned,
-    };
-    dispatch({ type: "completeArticle", payload: { articleId: article.id, quizResult: result } });
-    setFinished(true);
   }
 
   if (!started) {
     return (
       <div className="rounded-3xl gradient-purple p-6 text-center text-white soft-shadow">
-        <div className="text-4xl">🧩</div>
-        <h3 className="mt-2 text-xl font-black">Ready for the quiz?</h3>
-        <p className="mx-auto mt-1 max-w-sm text-sm text-white/85">
-          {total} questions · pass with {Math.round(quiz.passScore * 100)}% to earn{" "}
-          <b>+{article.xp} XP</b> and <b>+{article.coins} coins</b>.
-        </p>
+        <div className="text-4xl">{introEmoji}</div>
+        <h3 className="mt-2 text-xl font-black">{introTitle}</h3>
+        <div className="mx-auto mt-1 max-w-sm text-sm text-white/85">{introBody}</div>
         <div className="mt-4">
           <Button onClick={() => setStarted(true)} variant="primary" size="lg">
-            Launch quiz →
+            {introButtonLabel}
           </Button>
         </div>
       </div>
@@ -78,23 +106,41 @@ export function QuizRunner({ article, quiz }: { article: Article; quiz: Quiz }) 
   }
 
   if (finished) {
-    const correct = Object.values(answers).filter(Boolean).length;
-    const score = correct / total;
-    const passed = score >= quiz.passScore;
-    return <QuizResultView article={article} correct={correct} total={total} passed={passed} score={score} />;
+    const score = correctSoFar / total;
+    const passed = score >= passScore;
+    return <>{renderResult({ correct: correctSoFar, total, score, passed, retry })}</>;
   }
+
+  const kindMeta = QUESTION_KIND_META[q.kind];
 
   return (
     <div className="rounded-3xl bg-card p-5 card-shadow">
-      <div className="mb-4 flex items-center justify-between">
-        <span className="text-sm font-bold text-muted">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+        <span className="flex items-center gap-2 text-sm font-bold text-muted">
           Question {idx + 1} / {total}
+          <span className="rounded-full bg-canvas px-2 py-0.5 text-xs font-semibold text-ink">
+            {kindMeta.emoji} {kindMeta.label}
+          </span>
         </span>
-        <span className="rounded-full bg-brand/10 px-3 py-1 text-xs font-bold text-brand-700">
-          {Object.values(answers).filter(Boolean).length} correct
-        </span>
+        <div className="flex items-center gap-2">
+          <AnimatePresence>
+            {streak >= 2 && (
+              <motion.span
+                initial={{ scale: 0.6, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.6, opacity: 0 }}
+                className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-700"
+              >
+                🔥 {streak} streak
+              </motion.span>
+            )}
+          </AnimatePresence>
+          <span className="rounded-full bg-brand/10 px-3 py-1 text-xs font-bold text-brand-700">
+            {correctSoFar} correct
+          </span>
+        </div>
       </div>
-      <ProgressBar percent={((idx) / total) * 100} className="mb-5" />
+      <ProgressBar percent={(idx / total) * 100} className="mb-5" />
 
       <AnimatePresence mode="wait">
         <motion.div
@@ -104,7 +150,7 @@ export function QuizRunner({ article, quiz }: { article: Article; quiz: Quiz }) 
           exit={{ opacity: 0, x: -24 }}
           transition={{ duration: 0.25 }}
         >
-          <QuestionView question={q} onAnswer={recordAnswer} onNext={next} isLast={idx === total - 1} />
+          <QuestionView question={q} category={category} onAnswer={recordAnswer} onNext={next} isLast={idx === total - 1} />
         </motion.div>
       </AnimatePresence>
     </div>
@@ -113,11 +159,13 @@ export function QuizRunner({ article, quiz }: { article: Article; quiz: Quiz }) 
 
 function QuestionView({
   question,
+  category,
   onAnswer,
   onNext,
   isLast,
 }: {
   question: QuizQuestion;
+  category?: Category;
   onAnswer: (correct: boolean) => void;
   onNext: () => void;
   isLast: boolean;
@@ -127,6 +175,16 @@ function QuestionView({
       return <MatchingQ question={question} onAnswer={onAnswer} onNext={onNext} isLast={isLast} />;
     case "ordering":
       return <OrderingQ question={question} onAnswer={onAnswer} onNext={onNext} isLast={isLast} />;
+    case "image":
+      return (
+        <ChoiceQ
+          question={question}
+          onAnswer={onAnswer}
+          onNext={onNext}
+          isLast={isLast}
+          header={category && <CoverArt category={category} className="mb-4 h-36 w-full rounded-2xl" big />}
+        />
+      );
     default:
       return <ChoiceQ question={question} onAnswer={onAnswer} onNext={onNext} isLast={isLast} />;
   }
@@ -137,11 +195,13 @@ function ChoiceQ({
   onAnswer,
   onNext,
   isLast,
+  header,
 }: {
   question: QuizQuestion;
   onAnswer: (correct: boolean) => void;
   onNext: () => void;
   isLast: boolean;
+  header?: ReactNode;
 }) {
   const [selected, setSelected] = useState<number | null>(null);
   const options = question.options ?? [];
@@ -155,6 +215,7 @@ function ChoiceQ({
 
   return (
     <div>
+      {header}
       <h3 className="text-lg font-bold text-ink">{question.prompt}</h3>
       <div className="mt-4 space-y-2.5">
         {options.map((opt, i) => {
@@ -342,6 +403,55 @@ function OrderingQ({
   );
 }
 
+// ─── Article quiz (wraps the generic runner with XP/coin rewards) ────────────
+
+export function QuizRunner({ article, quiz }: { article: Article; quiz: Quiz }) {
+  const { dispatch } = useStore();
+
+  return (
+    <GenericQuizRunner
+      questions={quiz.questions}
+      passScore={quiz.passScore}
+      category={article.category}
+      introEmoji="🧩"
+      introTitle="Ready for the quiz?"
+      introBody={
+        <>
+          {quiz.questions.length} questions across multiple formats · pass with {Math.round(quiz.passScore * 100)}% to earn{" "}
+          <b>+{article.xp} XP</b> and <b>+{article.coins} coins</b>.
+        </>
+      }
+      introButtonLabel="Launch quiz →"
+      onFinish={({ correct, total, score, passed }) => {
+        const xpEarned = passed ? article.xp : Math.round(article.xp * 0.3);
+        const coinsEarned = passed ? article.coins : 0;
+        const result: QuizResult = {
+          articleId: article.id,
+          score,
+          correct,
+          total,
+          passed,
+          completedAt: new Date().toISOString(),
+          xpEarned,
+          coinsEarned,
+        };
+        dispatch({ type: "completeArticle", payload: { articleId: article.id, quizResult: result } });
+      }}
+      renderResult={({ correct, total, score, passed }) => (
+        <QuizResultView article={article} correct={correct} total={total} passed={passed} score={score} />
+      )}
+    />
+  );
+}
+
+function AnimatedCount({ value }: { value: number }) {
+  return (
+    <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }}>
+      {value}
+    </motion.span>
+  );
+}
+
 function QuizResultView({
   article,
   correct,
@@ -364,12 +474,27 @@ function QuizResultView({
     <motion.div
       initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
-      className={`rounded-3xl p-6 text-center text-white soft-shadow ${passed ? "gradient-pink" : "gradient-purple"}`}
+      className={`relative overflow-hidden rounded-3xl p-6 text-center text-white soft-shadow ${passed ? "gradient-pink" : "gradient-purple"}`}
     >
+      {passed && (
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          {["🎉", "✨", "⭐", "🎊"].map((e, i) => (
+            <motion.span
+              key={i}
+              initial={{ y: -20, x: `${20 + i * 20}%`, opacity: 0, rotate: 0 }}
+              animate={{ y: 220, opacity: [0, 1, 0], rotate: 180 }}
+              transition={{ duration: 1.6, delay: i * 0.12, ease: "easeIn" }}
+              className="absolute top-0 text-2xl"
+            >
+              {e}
+            </motion.span>
+          ))}
+        </div>
+      )}
       <div className="text-5xl">{passed ? "🎉" : "💪"}</div>
       <h3 className="mt-2 text-2xl font-black">{passed ? "Quiz passed!" : "Almost there!"}</h3>
       <p className="mt-1 text-white/85">
-        You got <b>{correct}/{total}</b> ({Math.round(score * 100)}%)
+        You got <AnimatedCount value={correct} />/{total} ({Math.round(score * 100)}%)
       </p>
 
       {passed ? (

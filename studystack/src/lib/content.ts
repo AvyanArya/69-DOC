@@ -19,6 +19,13 @@ function pick<T>(arr: T[], seed: number): T {
   return arr[Math.abs(Math.trunc(seed)) % arr.length];
 }
 
+function shuffleBy<T>(items: T[], seedKey: string): T[] {
+  return items
+    .map((o, idx) => ({ o, k: hash(String(o) + idx + seedKey) }))
+    .sort((a, b) => a.k - b.k)
+    .map((x) => x.o);
+}
+
 function slugify(title: string): string {
   return title
     .toLowerCase()
@@ -69,32 +76,58 @@ function buildSections(seed: Seed) {
   ];
 }
 
+// ─── References ──────────────────────────────────────────────────────────────
+// These are synthetic, clearly-fictional demo citations (this whole app is
+// seed data) — deliberately formatted as author/year/journal only, with no
+// fabricated DOI-style identifiers that could look like a real, resolvable ID.
+
+const JOURNALS = [
+  "Nature",
+  "Science",
+  "The Lancet",
+  "Cell",
+  "New England Journal of Medicine",
+  "PNAS",
+  "Journal of Neuroscience",
+  "PLOS Biology",
+  "Nature Medicine",
+  "Annual Review of Physiology",
+  "BMJ",
+  "Journal of Clinical Investigation",
+];
+
+const AUTHOR_SURNAMES = [
+  "Kim", "Patel", "Garcia", "Chen", "Müller", "Okafor", "Silva", "Novak",
+  "Andersson", "Haddad", "Rossi", "Nakamura", "Ivanova", "Kowalski", "Dubois",
+  "Santos", "Larsen", "Yilmaz", "Osei", "Fitzgerald",
+];
+
+function authorsFor(seedNum: number, n: number): string {
+  const chosen = Array.from({ length: n }, (_, i) => pick(AUTHOR_SURNAMES, seedNum + i * 97 + 13));
+  if (n === 1) return chosen[0];
+  if (n === 2) return `${chosen[0]} & ${chosen[1]}`;
+  return `${chosen[0]} et al.`;
+}
+
 function buildReferences(seed: Seed) {
-  const journals = [
-    "Nature",
-    "Science",
-    "The Lancet",
-    "Cell",
-    "New England Journal of Medicine",
-    "PNAS",
-    "Journal of Neuroscience",
-    "PLOS Biology",
-  ];
   const h = hash(seed.title);
-  const y1 = 2015 + (h % 9);
-  const y2 = 2012 + ((h >>> 3) % 12);
-  return [
-    {
-      label: `Review on ${seed.category.replace("-", " ")}`,
-      source: `${pick(journals, h)} (${y1})`,
-      url: "https://scholar.google.com/",
-    },
-    {
-      label: "Foundational study",
-      source: `${pick(journals, h >>> 4)} (${y2})`,
-      url: "https://pubmed.ncbi.nlm.nih.gov/",
-    },
+  const labels = [
+    `Review: ${seed.category.replace("-", " ")} fundamentals`,
+    "Primary research study",
+    "Follow-up replication study",
   ];
+  return labels.map((label, i) => {
+    const hi = h + i * 4111;
+    const year = 2011 + (hi % 15);
+    const authorCount = 1 + (hi % 3);
+    return {
+      label,
+      authors: authorsFor(hi, authorCount),
+      source: pick(JOURNALS, hi >>> 4),
+      year,
+      url: i === 0 ? "https://scholar.google.com/" : "https://pubmed.ncbi.nlm.nih.gov/",
+    };
+  });
 }
 
 export function buildArticle(seed: Seed, index: number): Article {
@@ -141,21 +174,79 @@ const GENERIC_DISTRACTORS = [
   "It reverses the normal process completely.",
 ];
 
+// Word-level negations used to build plausible, near-miss wrong answers
+// instead of obviously-silly distractors — this makes multiple choice
+// questions test real understanding rather than pattern-matching the "weird"
+// option.
+const NEGATIONS: [RegExp, string][] = [
+  [/\bincreases?\b/i, "decreases"],
+  [/\bdecreases?\b/i, "increases"],
+  [/\bmore\b/i, "less"],
+  [/\bless\b/i, "more"],
+  [/\bfaster\b/i, "slower"],
+  [/\bslower\b/i, "faster"],
+  [/\bhigher\b/i, "lower"],
+  [/\blower\b/i, "higher"],
+  [/\bcan\b/i, "cannot"],
+  [/\bhelps?\b/i, "prevents"],
+  [/\bprevents?\b/i, "helps"],
+  [/\balways\b/i, "rarely"],
+  [/\bbefore\b/i, "after"],
+  [/\bafter\b/i, "before"],
+  [/\bstrengthens?\b/i, "weakens"],
+  [/\bweakens?\b/i, "strengthens"],
+  [/\bopens?\b/i, "closes"],
+  [/\bblocks?\b/i, "boosts"],
+  [/\breleases?\b/i, "absorbs"],
+  [/\btogether\b/i, "in isolation"],
+];
+
+function numericCorrupt(fact: string): string | null {
+  const m = fact.match(/(\d[\d,]*)(\s?%)?/);
+  if (!m || m.index === undefined) return null;
+  const num = parseInt(m[1].replace(/,/g, ""), 10);
+  if (!num) return null;
+  const isPercent = !!m[2];
+  let next: number;
+  if (isPercent) next = num > 50 ? Math.max(1, num - 40) : num + 40;
+  else if (num < 20) next = num * 4 + 3;
+  else next = Math.max(1, Math.round(num / 3));
+  if (next === num) next += 5;
+  return fact.slice(0, m.index) + next.toLocaleString() + (m[2] ?? "") + fact.slice(m.index + m[0].length);
+}
+
+/** Produce plausible-but-wrong variants of a true fact, for rigorous MC options. */
+function corruptVariants(fact: string): string[] {
+  const out: string[] = [];
+  for (const [pattern, replacement] of NEGATIONS) {
+    if (pattern.test(fact)) {
+      const variant = fact.replace(pattern, replacement);
+      if (variant !== fact && !out.includes(variant)) out.push(variant);
+    }
+  }
+  const numeric = numericCorrupt(fact);
+  if (numeric && !out.includes(numeric)) out.push(numeric);
+  return out;
+}
+
+function distractorsFor(fact: string, seedKey: string, count: number): string[] {
+  const pool = [...corruptVariants(fact)];
+  for (const g of GENERIC_DISTRACTORS) {
+    if (pool.length >= count + 2) break;
+    if (!pool.includes(g)) pool.push(g);
+  }
+  return shuffleBy(pool, seedKey).slice(0, count);
+}
+
 function trueFalse(seed: Seed, fact: string, i: number): QuizQuestion {
-  const flip = hash(fact) % 2 === 0;
-  // Build a plausibly-false version by negating for the "false" case.
-  const falseVersion = fact
-    .replace(/\bincreases?\b/i, "decreases")
-    .replace(/\bfaster\b/i, "slower")
-    .replace(/\bmore\b/i, "less")
-    .replace(/\bcan\b/i, "cannot")
-    .replace(/\bhelps?\b/i, "prevents");
-  const changed = falseVersion !== fact;
-  const showFalse = flip && changed;
+  const flip = hash(fact + i) % 2 === 0;
+  const variants = corruptVariants(fact);
+  const falseVersion = variants[hash(fact) % Math.max(variants.length, 1)] ?? null;
+  const showFalse = flip && !!falseVersion;
   return {
     id: `${slugify(seed.title)}-tf-${i}`,
     kind: "true-false",
-    prompt: showFalse ? falseVersion : fact,
+    prompt: showFalse ? falseVersion! : fact,
     options: ["True", "False"],
     correctIndex: showFalse ? 1 : 0,
     explanation: `The accurate statement is: ${fact}`,
@@ -163,37 +254,23 @@ function trueFalse(seed: Seed, fact: string, i: number): QuizQuestion {
 }
 
 function multipleChoice(seed: Seed, fact: string, i: number): QuizQuestion {
-  const h = hash(fact + i);
-  const distractors = [...GENERIC_DISTRACTORS]
-    .sort((a, b) => hash(a + h) - hash(b + h))
-    .slice(0, 3);
-  const options = [fact, ...distractors];
-  // shuffle deterministically
-  const shuffled = options
-    .map((o, idx) => ({ o, k: hash(o + idx + h) }))
-    .sort((a, b) => a.k - b.k)
-    .map((x) => x.o);
-  const correctIndex = shuffled.indexOf(fact);
+  const seedKey = seed.title + i;
+  const distractors = distractorsFor(fact, seedKey, 3);
+  const shuffled = shuffleBy([fact, ...distractors], seedKey);
   return {
     id: `${slugify(seed.title)}-mc-${i}`,
     kind: "multiple-choice",
     prompt: `Which statement is correct about ${seed.title.replace(/\(.*?\)/g, "").trim().toLowerCase()}?`,
     options: shuffled,
-    correctIndex,
+    correctIndex: shuffled.indexOf(fact),
     explanation: `Correct: ${fact}`,
   };
 }
 
-function scenario(seed: Seed, i: number): QuizQuestion {
-  const fact = seed.facts[0];
-  const options = [
-    fact,
-    ...[...GENERIC_DISTRACTORS].sort((a, b) => hash(a + i) - hash(b + i)).slice(0, 2),
-  ];
-  const shuffled = options
-    .map((o, idx) => ({ o, k: hash(o + idx + seed.title) }))
-    .sort((a, b) => a.k - b.k)
-    .map((x) => x.o);
+function scenario(seed: Seed, fact: string, i: number): QuizQuestion {
+  const seedKey = seed.title + "sc" + i;
+  const distractors = distractorsFor(fact, seedKey, 2);
+  const shuffled = shuffleBy([fact, ...distractors], seedKey);
   return {
     id: `${slugify(seed.title)}-sc-${i}`,
     kind: "scenario",
@@ -201,6 +278,29 @@ function scenario(seed: Seed, i: number): QuizQuestion {
     options: shuffled,
     correctIndex: shuffled.indexOf(fact),
     explanation: `The clearest correct explanation is: ${fact}`,
+  };
+}
+
+/** A visual question built from the article's own cover art + topic, testing
+ * whether the reader can tell which topic a fact actually belongs to. */
+function imageQuestion(seed: Seed, i: number): QuizQuestion {
+  const correct = seed.facts[0];
+  const others = ALL_SEEDS.filter((s) => s.category !== seed.category && s.title !== seed.title);
+  const h = hash(seed.title + "img");
+  const d1 = others[h % others.length]?.facts[0];
+  const d2 = others[(h >>> 4) % others.length]?.facts[0];
+  const pool = [correct, d1, d2, ...GENERIC_DISTRACTORS].filter(
+    (v, idx, arr): v is string => !!v && arr.indexOf(v) === idx,
+  );
+  const shuffled = shuffleBy(pool, seed.title + "imgshuf").slice(0, 4);
+  const options = shuffled.includes(correct) ? shuffled : [correct, ...shuffled.slice(0, 3)];
+  return {
+    id: `${slugify(seed.title)}-img-${i}`,
+    kind: "image",
+    prompt: `Look at this figure from "${seed.title}". Which fact does it illustrate?`,
+    options,
+    correctIndex: options.indexOf(correct),
+    explanation: `Correct: ${correct}`,
   };
 }
 
@@ -237,12 +337,14 @@ export function buildQuiz(seed: Seed): Quiz {
   const questions: QuizQuestion[] = [];
   questions.push(multipleChoice(seed, seed.facts[0], 0));
   if (seed.facts[1]) questions.push(trueFalse(seed, seed.facts[1], 1));
-  const m = matching(seed, 2);
+  if (seed.facts[2]) questions.push(multipleChoice(seed, seed.facts[2], 2));
+  if (seed.facts[3]) questions.push(trueFalse(seed, seed.facts[3], 3));
+  const m = matching(seed, 4);
   if (m) questions.push(m);
-  else if (seed.facts[2]) questions.push(multipleChoice(seed, seed.facts[2], 2));
-  const o = ordering(seed, 3);
+  const o = ordering(seed, 5);
   if (o) questions.push(o);
-  questions.push(scenario(seed, 4));
+  questions.push(imageQuestion(seed, 6));
+  questions.push(scenario(seed, seed.facts[0], 7));
   return {
     articleId: slugify(seed.title),
     passScore: 0.6,

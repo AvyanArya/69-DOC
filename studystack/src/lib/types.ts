@@ -50,7 +50,9 @@ export interface Article extends Topic {
 
 export interface Reference {
   label: string;
+  authors: string;
   source: string;
+  year: number;
   url: string;
 }
 
@@ -61,7 +63,8 @@ export type QuestionKind =
   | "true-false"
   | "matching"
   | "ordering"
-  | "scenario";
+  | "scenario"
+  | "image";
 
 export interface QuizQuestion {
   id: string;
@@ -205,6 +208,7 @@ export interface CompletedArticle {
   completedAt: string;
   quizScore: number; // 0..1
   notes?: string;
+  method?: "quiz" | "marked"; // "marked" = quick "I read this" without taking the quiz
 }
 
 export interface UserState {
@@ -245,4 +249,7 @@ export interface UserState {
   writingUnlockArticles: number; // configurable threshold
   writingUnlockDays: number;
   activeDays: string[]; // distinct yyyy-mm-dd days with activity
+
+  citationQuizPassed: boolean; // must pass the referencing/citation skills quiz to publish
+  citationQuizBestScore: number; // 0..1
 }

@@ -18,6 +18,9 @@ import type {
 import { dayKey, daysBetween, weekKey, levelFromXp } from "./gamification";
 import { getArticle } from "./content";
 import { BADGES } from "./data/badges";
+import { allTopicTowers } from "./towers";
+
+export const CANCER_AWARENESS_ID = "cancer-awareness-guide";
 
 const STORAGE_KEY = "studystack:v1";
 
@@ -62,6 +65,8 @@ function freshState(): UserState {
     writingUnlockArticles: 5,
     writingUnlockDays: 3,
     activeDays: [],
+    citationQuizPassed: false,
+    citationQuizBestScore: 0,
   };
 }
 
@@ -123,6 +128,8 @@ type Action =
   | { type: "updateProfile"; payload: Partial<Pick<UserState, "displayName" | "avatar" | "bio" | "username">> }
   | { type: "setProgress"; payload: { articleId: string; percent: number } }
   | { type: "completeArticle"; payload: { articleId: string; quizResult: QuizResult } }
+  | { type: "markRead"; payload: { articleId: string; xp: number; coins: number } }
+  | { type: "passCitationQuiz"; payload: { score: number } }
   | { type: "toggleLike"; payload: { articleId: string } }
   | { type: "toggleBookmark"; payload: { articleId: string; folder: string } }
   | { type: "addFolder"; payload: { name: string } }
@@ -191,6 +198,7 @@ function evaluateBadges(state: UserState): UserState {
   const medicineReads = state.completed.filter((c) => getArticle(c.articleId)?.category === "medicine").length;
   const perfect = state.quizResults.some((q) => q.score === 1);
   const published = state.submissions.some((s) => s.status === "published" || s.status === "approved");
+  const healthAdvocate = state.completed.some((c) => c.articleId === CANCER_AWARENESS_ID);
 
   const check: Record<string, boolean> = {
     "first-article": readCount >= 1,
@@ -205,7 +213,12 @@ function evaluateBadges(state: UserState): UserState {
     "thirty-day": state.bestStreak >= 30,
     "hundred-day": state.bestStreak >= 100,
     "top-author": published,
+    "citation-verified": state.citationQuizPassed,
+    "health-advocate": healthAdvocate,
   };
+  for (const tower of allTopicTowers(state.completed)) {
+    check[`master-${tower.category}`] = tower.masteredAll;
+  }
 
   const newNotifs: AppNotification[] = [];
   for (const b of BADGES) {
@@ -301,6 +314,51 @@ function reducer(state: UserState, action: Action): UserState {
       ];
 
       s = evaluateBadges(s);
+      return s;
+    }
+
+    case "markRead": {
+      const { articleId, xp, coins } = action.payload;
+      if (state.completed.some((c) => c.articleId === articleId)) return state;
+      let s = { ...state };
+      s.xp += xp;
+      s.coins += coins;
+      s = rollDailyXp(s);
+      s.dailyXp += xp;
+      s.weeklyXp += xp;
+      s.completed = [
+        ...s.completed,
+        { articleId, completedAt: new Date().toISOString(), quizScore: 0, method: "marked" },
+      ];
+      s.progress = s.progress.filter((p) => p.articleId !== articleId);
+      s = applyStreakOnActivity(s);
+      s = evaluateBadges(s);
+      return s;
+    }
+
+    case "passCitationQuiz": {
+      const { score } = action.payload;
+      const passed = score >= 0.7 || state.citationQuizPassed;
+      let s: UserState = {
+        ...state,
+        citationQuizPassed: passed,
+        citationQuizBestScore: Math.max(state.citationQuizBestScore, score),
+      };
+      if (passed && !state.citationQuizPassed) {
+        s.notifications = [
+          {
+            id: `citation-verified-${Date.now()}`,
+            kind: "badge",
+            title: "Referencing skills verified ✅",
+            body: "You can now submit articles for moderation.",
+            createdAt: new Date().toISOString(),
+            read: false,
+            href: "/write",
+          },
+          ...s.notifications,
+        ];
+        s = evaluateBadges(s);
+      }
       return s;
     }
 
@@ -466,6 +524,7 @@ export function useDerived() {
   const writingUnlocked =
     state.completed.length >= state.writingUnlockArticles ||
     state.activeDays.length >= state.writingUnlockDays;
+  const canPublish = writingUnlocked && state.citationQuizPassed;
   const unreadNotifications = state.notifications.filter((n) => !n.read).length;
-  return { level, towerHeight, quizAccuracy, writingUnlocked, unreadNotifications };
+  return { level, towerHeight, quizAccuracy, writingUnlocked, canPublish, unreadNotifications };
 }

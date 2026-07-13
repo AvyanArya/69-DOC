@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useStore, useDerived } from "@/lib/store";
 import { Button, Chip } from "@/components/ui";
+import { CitationQuizGate } from "@/components/CitationQuizGate";
 import { CATEGORIES } from "@/lib/data/categories";
 import type { Category, Difficulty, Submission, SubmissionStatus } from "@/lib/types";
 
@@ -43,7 +44,7 @@ function renderMarkdown(md: string): string {
 
 export default function WritePage() {
   const { state, dispatch } = useStore();
-  const { writingUnlocked } = useDerived();
+  const { writingUnlocked, canPublish } = useDerived();
 
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState<Category>("biology");
@@ -138,10 +139,23 @@ export default function WritePage() {
         <div className="rounded-3xl bg-white p-5 card-shadow">
           <h3 className="text-sm font-black text-ink">Why the gate?</h3>
           <p className="mt-1 text-sm text-muted">
-            Reading first means you learn how good science writing looks before you publish. Once unlocked, your articles
-            go through moderation and can be featured across StudyStack.
+            Reading first means you learn how good science writing looks before you publish. Once unlocked, you&apos;ll take
+            a short skills check on referencing and citations, then your articles go through moderation and can be
+            featured across StudyStack.
           </p>
         </div>
+      </div>
+    );
+  }
+
+  if (!canPublish) {
+    return (
+      <div className="space-y-5">
+        <div>
+          <h1 className="text-2xl font-black tracking-tight text-ink">Write ✍️</h1>
+          <p className="text-sm text-muted">One more step before you can publish.</p>
+        </div>
+        <CitationQuizGate />
       </div>
     );
   }
@@ -153,7 +167,10 @@ export default function WritePage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-black tracking-tight text-ink">Write ✍️</h1>
-          <p className="text-sm text-muted">Publishing unlocked — share what you’ve learned.</p>
+          <p className="flex items-center gap-2 text-sm text-muted">
+            Publishing unlocked — share what you’ve learned.
+            <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-700">✅ Skills verified</span>
+          </p>
         </div>
         {saved && <span className="text-xs text-muted">💾 Saved {saved}</span>}
       </div>

@@ -7,7 +7,15 @@ import { CoverArt, DifficultyPill, TypePill } from "./ui";
 import { USER_MAP } from "@/lib/data/users";
 import { CATEGORY_MAP } from "@/lib/data/categories";
 
-export function ArticleCard({ article, index = 0 }: { article: Article; index?: number }) {
+export function ArticleCard({
+  article,
+  index = 0,
+  locked = false,
+}: {
+  article: Article;
+  index?: number;
+  locked?: boolean;
+}) {
   const author = USER_MAP[article.authorId];
   return (
     <motion.div
@@ -16,8 +24,16 @@ export function ArticleCard({ article, index = 0 }: { article: Article; index?: 
       transition={{ duration: 0.35, delay: Math.min(index * 0.04, 0.3) }}
     >
       <Link href={`/learn/${article.id}`} className="group block">
-        <div className="overflow-hidden rounded-3xl bg-card card-shadow transition group-hover:-translate-y-1 group-hover:soft-shadow">
+        <div className="relative overflow-hidden rounded-3xl bg-card card-shadow transition group-hover:-translate-y-1 group-hover:soft-shadow">
           <CoverArt category={article.category} className="h-36 w-full" />
+          {locked && (
+            <span
+              className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-bold text-white backdrop-blur"
+              title="Ahead of your level — master easier articles in this topic first"
+            >
+              🔒 Ahead of your level
+            </span>
+          )}
           <div className="space-y-3 p-4">
             <div className="flex flex-wrap items-center gap-1.5">
               <TypePill type={article.type} />

@@ -4,12 +4,13 @@ import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useStore, useDerived } from "@/lib/store";
-import { KnowledgeTowerViz } from "@/components/KnowledgeTower";
+import { TopicTowerCard } from "@/components/KnowledgeTower";
 import { ArticleRow } from "@/components/ArticleCard";
 import { Button, ProgressBar, StatTile } from "@/components/ui";
 import { BADGES } from "@/lib/data/badges";
 import { getArticle } from "@/lib/content";
-import { levelTitle, towerStage } from "@/lib/gamification";
+import { levelTitle } from "@/lib/gamification";
+import { allTopicTowers } from "@/lib/towers";
 import { USER_MAP } from "@/lib/data/users";
 
 export default function ProfilePage() {
@@ -29,6 +30,7 @@ export default function ProfilePage() {
     items: state.bookmarks.filter((b) => b.folder === f),
   }));
   const following = state.followingIds.map((id) => USER_MAP[id]).filter(Boolean);
+  const topTower = allTopicTowers(state.completed)[0];
 
   function saveProfile() {
     dispatch({ type: "updateProfile", payload: { displayName: name, bio } });
@@ -108,13 +110,13 @@ export default function ProfilePage() {
       </div>
 
       {/* Tower */}
-      <Link href="/tower" className="block rounded-3xl bg-card card-shadow">
-        <div className="flex items-center justify-between px-5 pt-4">
+      <section>
+        <div className="mb-3 flex items-center justify-between px-1">
           <h2 className="text-lg font-black text-ink">Knowledge Tower</h2>
-          <span className="text-sm font-bold text-grape-500">{towerStage(towerHeight).name} →</span>
+          <Link href="/tower" className="text-sm font-semibold text-brand-700">View all towers →</Link>
         </div>
-        <KnowledgeTowerViz height={towerHeight} completed={state.completed} compact />
-      </Link>
+        {topTower && <TopicTowerCard tower={topTower} />}
+      </section>
 
       {/* Badges */}
       <section>

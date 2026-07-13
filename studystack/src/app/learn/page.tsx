@@ -1,11 +1,14 @@
 "use client";
 
 import { Suspense, useMemo, useState } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { ArticleCard } from "@/components/ArticleCard";
 import { Chip, EmptyState } from "@/components/ui";
 import { ARTICLES } from "@/lib/content";
 import { CATEGORIES } from "@/lib/data/categories";
+import { useStore } from "@/lib/store";
+import { isArticleUnlocked } from "@/lib/towers";
 import type { Category, Difficulty, ArticleType } from "@/lib/types";
 
 type Sort = "trending" | "newest" | "most-read";
@@ -14,6 +17,7 @@ function LearnInner() {
   const params = useSearchParams();
   const initialType = (params.get("type") as ArticleType | null) ?? "all";
   const initialCat = (params.get("category") as Category | null) ?? "all";
+  const { state } = useStore();
 
   const [query, setQuery] = useState("");
   const [type, setType] = useState<ArticleType | "all">(initialType);
@@ -95,6 +99,23 @@ function LearnInner() {
         ))}
       </div>
 
+      {/* Cancer awareness quick link */}
+      {query.trim().toLowerCase().includes("cancer") && (
+        <Link
+          href="/awareness/cancer"
+          className="block rounded-3xl bg-gradient-to-br from-rose-400 via-pink-500 to-fuchsia-600 p-4 text-white soft-shadow transition hover:-translate-y-0.5"
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">🎗️</span>
+            <div className="flex-1">
+              <div className="text-xs font-bold uppercase text-white/80">Featured guide</div>
+              <div className="font-black">Cancer Awareness &amp; Prevention</div>
+            </div>
+            <span className="text-sm font-bold">Open →</span>
+          </div>
+        </Link>
+      )}
+
       {/* Results */}
       <div className="pt-1 text-sm font-semibold text-muted">{results.length} results</div>
       {results.length === 0 ? (
@@ -102,7 +123,7 @@ function LearnInner() {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {results.slice(0, 60).map((a, i) => (
-            <ArticleCard key={a.id} article={a} index={i} />
+            <ArticleCard key={a.id} article={a} index={i} locked={!isArticleUnlocked(a, state.completed)} />
           ))}
         </div>
       )}

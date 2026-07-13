@@ -1,4 +1,5 @@
 import type { BadgeDef } from "../types";
+import { CATEGORIES } from "./categories";
 
 export const BADGES: BadgeDef[] = [
   { id: "first-article", name: "First Steps", emoji: "🎉", description: "Read your very first study.", condition: "Read 1 article" },
@@ -14,6 +15,15 @@ export const BADGES: BadgeDef[] = [
   { id: "hundred-day", name: "Immortal Streak", emoji: "🌟", description: "One hundred days in a row.", condition: "100 day streak" },
   { id: "top-author", name: "Top Author", emoji: "✍️", description: "Published an approved article.", condition: "Publish an article" },
   { id: "community-helper", name: "Community Helper", emoji: "🤝", description: "Left 10 helpful comments.", condition: "10 comments" },
+  { id: "citation-verified", name: "Fact Checker", emoji: "🔗", description: "Passed the referencing & citation skills quiz.", condition: "Pass the citation quiz" },
+  { id: "health-advocate", name: "Health Advocate", emoji: "🎗️", description: "Completed the Cancer Awareness guide.", condition: "Finish the Cancer Awareness quiz" },
+  ...CATEGORIES.map((c) => ({
+    id: `master-${c.id}`,
+    name: `${c.name} Master`,
+    emoji: "🏆",
+    description: `Mastered every tier of the ${c.name} Knowledge Tower.`,
+    condition: `Master all 3 tiers of ${c.name}`,
+  })),
 ];
 
 export const BADGE_MAP = Object.fromEntries(BADGES.map((b) => [b.id, b])) as Record<string, BadgeDef>;
