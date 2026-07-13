@@ -5,42 +5,12 @@ import { motion } from "framer-motion";
 import { useStore, useDerived } from "@/lib/store";
 import { Button, Chip } from "@/components/ui";
 import { CitationQuizGate } from "@/components/CitationQuizGate";
+import { SubmissionDetailModal } from "@/components/SubmissionDetail";
+import { STATUS_STYLE, STATUS_LABEL, renderMarkdown } from "@/lib/submissions";
 import { CATEGORIES } from "@/lib/data/categories";
-import type { Category, Difficulty, Submission, SubmissionStatus } from "@/lib/types";
+import type { Category, Difficulty, Submission } from "@/lib/types";
 
-const DRAFT_KEY = "studystack:draft";
-
-const STATUS_STYLE: Record<SubmissionStatus, string> = {
-  draft: "bg-slate-100 text-slate-600",
-  pending: "bg-amber-100 text-amber-700",
-  "under-review": "bg-blue-100 text-blue-700",
-  "needs-changes": "bg-orange-100 text-orange-700",
-  approved: "bg-emerald-100 text-emerald-700",
-  published: "bg-emerald-100 text-emerald-700",
-  rejected: "bg-rose-100 text-rose-700",
-};
-
-const STATUS_LABEL: Record<SubmissionStatus, string> = {
-  draft: "Draft",
-  pending: "Pending",
-  "under-review": "Under review",
-  "needs-changes": "Needs changes",
-  approved: "Approved",
-  published: "Published",
-  rejected: "Rejected",
-};
-
-function renderMarkdown(md: string): string {
-  return md
-    .replace(/^### (.*)$/gm, '<h3 class="text-lg font-bold mt-4 mb-1">$1</h3>')
-    .replace(/^## (.*)$/gm, '<h2 class="text-xl font-black mt-5 mb-2">$1</h2>')
-    .replace(/^# (.*)$/gm, '<h1 class="text-2xl font-black mt-5 mb-2">$1</h1>')
-    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    .replace(/\*(.+?)\*/g, "<em>$1</em>")
-    .replace(/^> (.*)$/gm, '<blockquote class="border-l-4 border-brand pl-3 italic text-muted my-2">$1</blockquote>')
-    .replace(/^- (.*)$/gm, '<li class="ml-5 list-disc">$1</li>')
-    .replace(/\n\n/g, '<br/><br/>');
-}
+const DRAFT_KEY = "vera:draft";
 
 export default function WritePage() {
   const { state, dispatch } = useStore();
@@ -54,6 +24,7 @@ export default function WritePage() {
   const [references, setReferences] = useState("");
   const [preview, setPreview] = useState(false);
   const [saved, setSaved] = useState<string>("");
+  const [viewing, setViewing] = useState<Submission | null>(null);
 
   // Load draft
   useEffect(() => {
@@ -141,7 +112,7 @@ export default function WritePage() {
           <p className="mt-1 text-sm text-muted">
             Reading first means you learn how good science writing looks before you publish. Once unlocked, you&apos;ll take
             a short skills check on referencing and citations, then your articles go through moderation and can be
-            featured across StudyStack.
+            featured across Vera.
           </p>
         </div>
       </div>
@@ -265,7 +236,11 @@ export default function WritePage() {
         ) : (
           <div className="space-y-2">
             {state.submissions.map((s) => (
-              <div key={s.id} className="rounded-2xl bg-card p-4 card-shadow">
+              <button
+                key={s.id}
+                onClick={() => setViewing(s)}
+                className="block w-full rounded-2xl bg-card p-4 text-left card-shadow transition hover:-translate-y-0.5"
+              >
                 <div className="flex items-center justify-between gap-3">
                   <h3 className="font-bold text-ink">{s.title}</h3>
                   <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-bold ${STATUS_STYLE[s.status]}`}>
@@ -278,11 +253,14 @@ export default function WritePage() {
                 {s.moderatorNote && (
                   <div className="mt-2 rounded-xl bg-canvas p-2 text-xs text-muted">🛡️ Moderator: {s.moderatorNote}</div>
                 )}
-              </div>
+                <div className="mt-2 text-xs font-semibold text-brand-700">Tap to view →</div>
+              </button>
             ))}
           </div>
         )}
       </section>
+
+      {viewing && <SubmissionDetailModal submission={viewing} authorName="You" onClose={() => setViewing(null)} />}
     </div>
   );
 }

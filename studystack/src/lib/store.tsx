@@ -26,7 +26,7 @@ export const CANCER_AWARENESS_SECTIONS = [
   "cancer-awareness-signs",
 ] as const;
 
-const STORAGE_KEY = "studystack:v1";
+const STORAGE_KEY = "vera:v1";
 
 const DEFAULT_FOLDERS = ["Favorites", "Exam Prep", "Interesting"];
 
@@ -40,9 +40,11 @@ function freshState(): UserState {
     signedIn: false,
     username: "",
     displayName: "",
+    email: "",
     avatar: "🦊",
     bio: "",
     isAdmin: false,
+    gradeLevel: "grade-9-10",
     createdAt: new Date().toISOString(),
     xp: 0,
     coins: 0,
@@ -77,7 +79,7 @@ function freshState(): UserState {
 
 /** A pre-populated starter account so the app feels alive right after sign-in. */
 function starterState(
-  opts: { username: string; displayName: string; avatar: string } = {
+  opts: { username: string; displayName: string; avatar: string; email?: string; gradeLevel?: UserState["gradeLevel"] } = {
     username: "you",
     displayName: "Alex",
     avatar: "🦊",
@@ -93,6 +95,8 @@ function starterState(
     username: opts.username,
     displayName: opts.displayName,
     avatar: opts.avatar,
+    email: opts.email ?? "",
+    gradeLevel: opts.gradeLevel ?? base.gradeLevel,
     bio: "Curious about medicine and the brain. Learning every day.",
     isAdmin: true,
     xp: 640,
@@ -128,12 +132,13 @@ function starterState(
 
 type Action =
   | { type: "hydrate"; payload: UserState }
-  | { type: "signIn"; payload: { username: string; displayName: string; avatar: string } }
+  | { type: "signIn"; payload: { username: string; displayName: string; avatar: string; email?: string; gradeLevel?: UserState["gradeLevel"] } }
   | { type: "signOut" }
-  | { type: "updateProfile"; payload: Partial<Pick<UserState, "displayName" | "avatar" | "bio" | "username">> }
+  | { type: "updateProfile"; payload: Partial<Pick<UserState, "displayName" | "avatar" | "bio" | "username" | "gradeLevel" | "email">> }
   | { type: "setProgress"; payload: { articleId: string; percent: number } }
   | { type: "completeArticle"; payload: { articleId: string; quizResult: QuizResult } }
   | { type: "markRead"; payload: { articleId: string; xp: number; coins: number } }
+  | { type: "unmarkRead"; payload: { articleId: string } }
   | { type: "passCitationQuiz"; payload: { score: number } }
   | { type: "claimDailyFact" }
   | { type: "toggleLike"; payload: { articleId: string } }
@@ -336,12 +341,23 @@ function reducer(state: UserState, action: Action): UserState {
       s.weeklyXp += xp;
       s.completed = [
         ...s.completed,
-        { articleId, completedAt: new Date().toISOString(), quizScore: 0, method: "marked" },
+        { articleId, completedAt: new Date().toISOString(), quizScore: 0, method: "marked", xpEarned: xp, coinsEarned: coins },
       ];
       s.progress = s.progress.filter((p) => p.articleId !== articleId);
       s = applyStreakOnActivity(s);
       s = evaluateBadges(s);
       return s;
+    }
+
+    case "unmarkRead": {
+      const entry = state.completed.find((c) => c.articleId === action.payload.articleId);
+      if (!entry || entry.method !== "marked") return state;
+      return {
+        ...state,
+        xp: Math.max(0, state.xp - (entry.xpEarned ?? 0)),
+        coins: Math.max(0, state.coins - (entry.coinsEarned ?? 0)),
+        completed: state.completed.filter((c) => c.articleId !== action.payload.articleId),
+      };
     }
 
     case "passCitationQuiz": {

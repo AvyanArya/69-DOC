@@ -4,8 +4,8 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 
 export type ThemePref = "system" | "light" | "dark";
 
-const THEME_KEY = "studystack:theme";
-const HC_KEY = "studystack:hc";
+const THEME_KEY = "vera:theme";
+const HC_KEY = "vera:hc";
 
 interface ThemeValue {
   theme: ThemePref;

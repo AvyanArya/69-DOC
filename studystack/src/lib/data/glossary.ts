@@ -31,6 +31,21 @@ export const GLOSSARY: GlossaryTerm[] = [
   { id: "peer-review", term: "Peer review", definition: "Evaluation of research by independent experts before it is published." },
   { id: "photosynthesis", term: "Photosynthesis", definition: "The process by which plants convert light energy into chemical energy stored as sugars." },
   { id: "entropy", term: "Entropy", definition: "A measure of disorder in a system; it tends to increase over time." },
+  { id: "momentum", term: "Momentum", definition: "A measure of motion equal to an object's mass times its velocity; conserved in collisions." },
+  { id: "gravity", term: "Gravity", definition: "The attractive force between any two masses, responsible for weight and orbits." },
+  { id: "wavelength", term: "Wavelength", definition: "The distance between successive peaks of a wave, which determines pitch or colour." },
+  { id: "magnetism", term: "Magnetism", definition: "A force produced by moving electric charges, seen in magnets and electric motors." },
+  { id: "nuclear-fission", term: "Nuclear fission", definition: "The splitting of a heavy atomic nucleus into smaller nuclei, releasing large amounts of energy." },
+  { id: "relativity", term: "Relativity", definition: "Einstein's theories describing how space, time and gravity relate to motion." },
+  { id: "compound-interest", term: "Compound interest", definition: "Interest calculated on both the original amount and previously earned interest, causing growth to accelerate." },
+  { id: "inflation", term: "Inflation", definition: "The rate at which the general level of prices rises, reducing the purchasing power of money." },
+  { id: "diversification", term: "Diversification", definition: "Spreading investments across different assets to reduce overall risk." },
+  { id: "supply-demand", term: "Supply and demand", definition: "The economic relationship between how much of something is available and how much people want it, which sets price." },
+  { id: "equity", term: "Equity", definition: "Ownership value in an asset or company after subtracting any debts owed against it." },
+  { id: "liquidity", term: "Liquidity", definition: "How quickly and easily an asset can be converted into cash without losing value." },
+  { id: "opportunity-cost", term: "Opportunity cost", definition: "The value of the next-best alternative given up when making a choice." },
+  { id: "market-cap", term: "Market capitalisation", definition: "The total value of a company's shares, calculated as share price times number of shares." },
+  { id: "budget", term: "Budget", definition: "A plan that matches expected income against planned spending over a period of time." },
 ];
 
 export const GLOSSARY_MAP = Object.fromEntries(GLOSSARY.map((g) => [g.id, g])) as Record<string, GlossaryTerm>;

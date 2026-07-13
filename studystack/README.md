@@ -1,6 +1,6 @@
-# StudyStack 🧠
+# Vera 🧠
 
-**Make science addictive.** StudyStack is a gamified learning platform where students read
+**Make science addictive.** Vera is a gamified learning platform where students read
 scientific studies and student-written summaries, take quizzes, build daily streaks, grow a
 **Knowledge Tower**, and eventually earn the right to publish their own moderated research.
 

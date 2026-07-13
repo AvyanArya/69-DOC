@@ -4,10 +4,12 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useStore } from "@/lib/store";
 import { Button, Chip } from "@/components/ui";
+import { SubmissionDetailModal } from "@/components/SubmissionDetail";
+import { STATUS_STYLE } from "@/lib/submissions";
 import { CATEGORIES } from "@/lib/data/categories";
 import { DEMO_USERS } from "@/lib/data/users";
 import { STUDY_COUNT, STUDENT_COUNT, ARTICLES } from "@/lib/content";
-import type { SubmissionStatus } from "@/lib/types";
+import type { Category, Difficulty, Submission, SubmissionStatus } from "@/lib/types";
 
 type Tab = "moderation" | "users" | "analytics" | "content";
 
@@ -16,23 +18,68 @@ interface QueueItem {
   title: string;
   author: string;
   avatar: string;
-  category: string;
+  category: Category;
+  difficulty: Difficulty;
   excerpt: string;
+  body: string;
+  references: string;
+  tags: string[];
   status: SubmissionStatus;
 }
 
 const INITIAL_QUEUE: QueueItem[] = [
-  { id: "q1", title: "How Mnemonics Boost Memory Retention", author: "Tom Fischer", avatar: "🐢", category: "Psychology", excerpt: "A student-friendly review of how memory tricks work and why they help before exams…", status: "pending" },
-  { id: "q2", title: "The Biology of Sunburn", author: "Zoe Adeyemi", avatar: "🐝", category: "Biology", excerpt: "What actually happens in your skin cells when you get burned by UV light…", status: "under-review" },
-  { id: "q3", title: "Why Antibiotics Don't Work on Viruses", author: "Priya Nair", avatar: "🦋", category: "Medicine", excerpt: "A clear explanation of the difference between bacteria and viruses for beginners…", status: "pending" },
-  { id: "q4", title: "The Chemistry of Fizzy Drinks", author: "Aarav Sharma", avatar: "🦁", category: "Chemistry", excerpt: "How carbon dioxide gets into your soda and why it fizzes when you open it…", status: "needs-changes" },
+  {
+    id: "q1", title: "How Mnemonics Boost Memory Retention", author: "Tom Fischer", avatar: "🐢", category: "psychology", difficulty: "beginner",
+    excerpt: "A student-friendly review of how memory tricks work and why they help before exams…",
+    body: "## Why mnemonics work\n\nOur brains are much better at remembering vivid, connected images than raw facts. Mnemonics work by turning abstract information into something memorable — a phrase, an acronym, or a story.\n\n**Common techniques:**\n\n- Acronyms (like ROYGBIV for the colours of the rainbow)\n- The method of loci (linking facts to a mental journey through a familiar place)\n- Rhymes and songs\n\n> Mnemonics don't replace understanding — they're a scaffold while your brain builds real, lasting connections.",
+    references: "1. Higbee, K. (2001). Your Memory: How It Works and How to Improve It.\n2. Worthen & Hunt (2011). Mnemonology: Mnemonics for the 21st Century.",
+    tags: ["memory", "study-tips", "exams"], status: "pending",
+  },
+  {
+    id: "q2", title: "The Biology of Sunburn", author: "Zoe Adeyemi", avatar: "🐝", category: "biology", difficulty: "beginner",
+    excerpt: "What actually happens in your skin cells when you get burned by UV light…",
+    body: "## What's actually happening\n\nUV light damages the DNA inside your skin cells. Your body responds by increasing blood flow to the area (redness) and eventually shedding the damaged cells (peeling).\n\n**Key facts:**\n\n- Melanin is your skin's natural UV shield\n- Sunburn is technically a radiation injury\n- Repeated sunburns raise long-term skin cancer risk\n\n> Sunscreen doesn't just prevent pain today — it protects your skin's DNA for the long run.",
+    references: "1. Matsumura & Ananthaswamy (2004). Toxicology and Applied Pharmacology.\n2. D'Orazio et al. (2013). International Journal of Molecular Sciences.",
+    tags: ["skin", "uv", "biology"], status: "under-review",
+  },
+  {
+    id: "q3", title: "Why Antibiotics Don't Work on Viruses", author: "Priya Nair", avatar: "🦋", category: "medicine", difficulty: "beginner",
+    excerpt: "A clear explanation of the difference between bacteria and viruses for beginners…",
+    body: "## Two very different invaders\n\nAntibiotics target structures bacteria have and human cells don't — like bacterial cell walls. Viruses don't have these structures; they hijack our own cells to reproduce, so antibiotics have nothing to attack.\n\n**Why this matters:**\n\n- Taking antibiotics for a virus won't help you get better\n- It can still cause side effects and feed antibiotic resistance\n- Antivirals work completely differently, targeting viral replication steps",
+    references: "1. CDC (2023). Antibiotic Use Guidance.\n2. Ryan & Ray (2020). Sherris Medical Microbiology.",
+    tags: ["antibiotics", "viruses", "medicine"], status: "pending",
+  },
+  {
+    id: "q4", title: "The Chemistry of Fizzy Drinks", author: "Aarav Sharma", avatar: "🦁", category: "chemistry", difficulty: "beginner",
+    excerpt: "How carbon dioxide gets into your soda and why it fizzes when you open it…",
+    body: "## Trapped gas, under pressure\n\nSoda is bottled under high pressure with dissolved CO2 gas. When you open the cap, pressure drops suddenly, and the gas rushes out of the liquid as bubbles — that's the fizz.\n\n**Fun fact:** shaking the bottle first creates tiny bubbles that give the escaping gas more surfaces to gather on, making it fizz over faster.",
+    references: "1. Liger-Belair, G. (2012). Journal of Agricultural and Food Chemistry.",
+    tags: ["chemistry", "gases", "everyday-science"], status: "needs-changes",
+  },
 ];
+
+function queueItemToSubmission(item: QueueItem): Submission {
+  return {
+    id: item.id,
+    title: item.title,
+    category: item.category,
+    difficulty: item.difficulty,
+    tags: item.tags,
+    body: item.body,
+    references: item.references,
+    status: item.status,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    authorId: item.author,
+  };
+}
 
 export default function AdminPage() {
   const { state, dispatch } = useStore();
   const [tab, setTab] = useState<Tab>("moderation");
   const [queue, setQueue] = useState<QueueItem[]>(INITIAL_QUEUE);
   const [bannedUsers, setBannedUsers] = useState<string[]>([]);
+  const [viewing, setViewing] = useState<{ submission: Submission; authorName: string } | null>(null);
 
   function setQueueStatus(id: string, status: SubmissionStatus) {
     setQueue((q) => q.map((item) => (item.id === id ? { ...item, status } : item)));
@@ -70,6 +117,7 @@ export default function AdminPage() {
               category={CATEGORIES.find((c) => c.id === s.category)?.name ?? s.category}
               excerpt={s.body.slice(0, 120) || "No preview."}
               status={s.status}
+              onView={() => setViewing({ submission: s, authorName: "You" })}
               onApprove={() => dispatch({ type: "updateSubmission", payload: { id: s.id, changes: { status: "approved" } } })}
               onReject={() => dispatch({ type: "updateSubmission", payload: { id: s.id, changes: { status: "rejected", moderatorNote: "Needs more citations." } } })}
               onChanges={() => dispatch({ type: "updateSubmission", payload: { id: s.id, changes: { status: "needs-changes", moderatorNote: "Great start — please add references and a summary." } } })}
@@ -81,9 +129,10 @@ export default function AdminPage() {
               title={item.title}
               author={item.author}
               avatar={item.avatar}
-              category={item.category}
+              category={CATEGORIES.find((c) => c.id === item.category)?.name ?? item.category}
               excerpt={item.excerpt}
               status={item.status}
+              onView={() => setViewing({ submission: queueItemToSubmission(item), authorName: item.author })}
               onApprove={() => setQueueStatus(item.id, "approved")}
               onReject={() => setQueueStatus(item.id, "rejected")}
               onChanges={() => setQueueStatus(item.id, "needs-changes")}
@@ -178,19 +227,17 @@ export default function AdminPage() {
           </div>
         </div>
       )}
+
+      {viewing && (
+        <SubmissionDetailModal
+          submission={viewing.submission}
+          authorName={viewing.authorName}
+          onClose={() => setViewing(null)}
+        />
+      )}
     </div>
   );
 }
-
-const STATUS_STYLE: Record<SubmissionStatus, string> = {
-  draft: "bg-slate-100 text-slate-600",
-  pending: "bg-amber-100 text-amber-700",
-  "under-review": "bg-blue-100 text-blue-700",
-  "needs-changes": "bg-orange-100 text-orange-700",
-  approved: "bg-emerald-100 text-emerald-700",
-  published: "bg-emerald-100 text-emerald-700",
-  rejected: "bg-rose-100 text-rose-700",
-};
 
 function ModerationCard({
   title,
@@ -199,6 +246,7 @@ function ModerationCard({
   category,
   excerpt,
   status,
+  onView,
   onApprove,
   onReject,
   onChanges,
@@ -209,6 +257,7 @@ function ModerationCard({
   category: string;
   excerpt: string;
   status: SubmissionStatus;
+  onView: () => void;
   onApprove: () => void;
   onReject: () => void;
   onChanges: () => void;
@@ -216,16 +265,19 @@ function ModerationCard({
   const decided = status === "approved" || status === "rejected";
   return (
     <div className="rounded-3xl bg-card p-4 card-shadow">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h3 className="font-bold text-ink">{title}</h3>
-          <div className="mt-0.5 text-xs text-muted">{avatar} {author} · {category}</div>
+      <button onClick={onView} className="block w-full text-left">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h3 className="font-bold text-ink hover:text-brand-700">{title}</h3>
+            <div className="mt-0.5 text-xs text-muted">{avatar} {author} · {category}</div>
+          </div>
+          <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-bold capitalize ${STATUS_STYLE[status]}`}>
+            {status.replace("-", " ")}
+          </span>
         </div>
-        <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-bold capitalize ${STATUS_STYLE[status]}`}>
-          {status.replace("-", " ")}
-        </span>
-      </div>
-      <p className="mt-2 line-clamp-2 text-sm text-muted">{excerpt}</p>
+        <p className="mt-2 line-clamp-2 text-sm text-muted">{excerpt}</p>
+        <div className="mt-1 text-xs font-semibold text-brand-700">Tap to view full submission →</div>
+      </button>
       {!decided && (
         <div className="mt-3 flex flex-wrap gap-2">
           <Button size="sm" onClick={onApprove}>✓ Approve</Button>

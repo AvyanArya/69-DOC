@@ -1,4 +1,4 @@
-// ─── Core domain types for StudyStack ────────────────────────────────────────
+// ─── Core domain types for Vera ──────────────────────────────────────────────
 
 export type Category =
   | "biology"
@@ -10,9 +10,18 @@ export type Category =
   | "epidemiology"
   | "pharmacology"
   | "public-health"
-  | "physics";
+  | "physics"
+  | "business"
+  | "finance";
 
 export type Difficulty = "beginner" | "intermediate" | "advanced";
+
+export type GradeLevel =
+  | "grade-6-8"
+  | "grade-9-10"
+  | "grade-11-12"
+  | "college"
+  | "postgrad";
 
 export type ArticleType = "study" | "student";
 
@@ -209,15 +218,19 @@ export interface CompletedArticle {
   quizScore: number; // 0..1
   notes?: string;
   method?: "quiz" | "marked"; // "marked" = quick "I read this" without taking the quiz
+  xpEarned?: number; // only set for "marked" entries, so unmarking can reverse it precisely
+  coinsEarned?: number;
 }
 
 export interface UserState {
   signedIn: boolean;
   username: string;
   displayName: string;
+  email: string;
   avatar: string;
   bio: string;
   isAdmin: boolean;
+  gradeLevel: GradeLevel;
   createdAt: string;
 
   xp: number;

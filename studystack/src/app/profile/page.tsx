@@ -7,12 +7,14 @@ import { useStore, useDerived } from "@/lib/store";
 import { useTheme, type ThemePref } from "@/lib/theme";
 import { TopicTowerCard } from "@/components/KnowledgeTower";
 import { ArticleRow } from "@/components/ArticleCard";
-import { Button, ProgressBar, StatTile } from "@/components/ui";
+import { Button, ProgressBar } from "@/components/ui";
 import { BADGES } from "@/lib/data/badges";
 import { getArticle } from "@/lib/content";
 import { levelTitle } from "@/lib/gamification";
 import { allTopicTowers } from "@/lib/towers";
 import { USER_MAP } from "@/lib/data/users";
+import { GRADE_LEVELS } from "@/lib/data/gradeLevels";
+import type { GradeLevel } from "@/lib/types";
 
 export default function ProfilePage() {
   const { state, dispatch } = useStore();
@@ -98,17 +100,20 @@ export default function ProfilePage() {
         <div className="mt-1 text-right text-xs text-muted">{level.needed - level.intoLevel} XP to level {level.level + 1}</div>
       </div>
 
-      {/* Stats grid */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatTile emoji="🔥" value={state.streak} label="Day streak" />
-        <StatTile emoji="⚡" value={state.xp.toLocaleString()} label="Total XP" />
-        <StatTile emoji="📚" value={state.completed.length} label="Articles read" />
-        <StatTile emoji="🎯" value={`${Math.round(quizAccuracy * 100)}%`} label="Quiz accuracy" />
-        <StatTile emoji="🪙" value={state.coins} label="Coins" />
-        <StatTile emoji="🏗️" value={towerHeight} label="Tower floors" />
-        <StatTile emoji="🏅" value={state.badges.length} label="Badges" />
-        <StatTile emoji="❤️" value={state.likes.length} label="Liked" />
-      </div>
+      {/* Milestones */}
+      <section className="rounded-3xl bg-card p-4 card-shadow">
+        <h2 className="mb-3 px-1 text-lg font-black text-ink">Milestones</h2>
+        <div className="grid grid-cols-2 divide-y divide-line sm:grid-cols-4 sm:divide-y-0 sm:divide-x">
+          <MilestoneStat emoji="🔥" value={state.streak} label="Day streak" />
+          <MilestoneStat emoji="⚡" value={state.xp.toLocaleString()} label="Total XP" />
+          <MilestoneStat emoji="📚" value={state.completed.length} label="Articles read" />
+          <MilestoneStat emoji="🎯" value={`${Math.round(quizAccuracy * 100)}%`} label="Quiz accuracy" />
+          <MilestoneStat emoji="🪙" value={state.coins} label="Coins" />
+          <MilestoneStat emoji="🏗️" value={towerHeight} label="Tower floors" />
+          <MilestoneStat emoji="🏅" value={state.badges.length} label="Badges" />
+          <MilestoneStat emoji="❤️" value={state.likes.length} label="Liked" />
+        </div>
+      </section>
 
       {/* Tower */}
       <section>
@@ -120,26 +125,7 @@ export default function ProfilePage() {
       </section>
 
       {/* Badges */}
-      <section>
-        <h2 className="mb-3 px-1 text-lg font-black text-ink">Achievements</h2>
-        <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
-          {BADGES.map((b) => {
-            const earned = state.badges.includes(b.id);
-            return (
-              <motion.div
-                key={b.id}
-                whileHover={{ scale: 1.03 }}
-                className={`rounded-2xl p-3 text-center card-shadow ${earned ? "bg-card" : "bg-card/50 opacity-60"}`}
-                title={b.condition}
-              >
-                <div className={`text-3xl ${earned ? "" : "grayscale"}`}>{b.emoji}</div>
-                <div className="mt-1 text-xs font-bold text-ink">{b.name}</div>
-                <div className="text-[10px] text-muted">{earned ? "Unlocked" : b.condition}</div>
-              </motion.div>
-            );
-          })}
-        </div>
-      </section>
+      <AchievementsSection />
 
       {/* Recently read */}
       {completedArticles.length > 0 && (
@@ -191,7 +177,57 @@ export default function ProfilePage() {
       {/* Settings */}
       <AppearanceSettings />
       <ProfileSettings />
+      <AccountSettings />
     </div>
+  );
+}
+
+function AccountSettings() {
+  const { state, dispatch } = useStore();
+  const [email, setEmail] = useState(state.email);
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  const currentGrade = GRADE_LEVELS.find((g) => g.id === state.gradeLevel) ?? GRADE_LEVELS[1];
+
+  return (
+    <section className="rounded-3xl bg-card p-5 card-shadow">
+      <h2 className="text-lg font-black text-ink">🎓 Account &amp; grade level</h2>
+      <p className="text-sm text-muted">
+        Your grade level tailors which studies get recommended, so material always matches what you can follow.
+      </p>
+
+      <div className="mt-4 space-y-4">
+        <div>
+          <label className="mb-1.5 block text-sm font-semibold text-ink">Email</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            onBlur={() => emailValid && dispatch({ type: "updateProfile", payload: { email: email.trim() } })}
+            placeholder="you@example.com"
+            className={`w-full rounded-xl border bg-canvas px-3 py-2 text-sm text-ink outline-none focus:border-brand/40 ${
+              email && !emailValid ? "border-rose-400" : "border-line"
+            }`}
+          />
+          {email && !emailValid && <p className="mt-1 text-xs font-semibold text-rose-500">Enter a valid email.</p>}
+        </div>
+
+        <div>
+          <label className="mb-1.5 block text-sm font-semibold text-ink">Grade / school level</label>
+          <select
+            value={state.gradeLevel}
+            onChange={(e) => dispatch({ type: "updateProfile", payload: { gradeLevel: e.target.value as GradeLevel } })}
+            className="w-full rounded-xl border border-line bg-canvas px-3 py-2 text-sm text-ink outline-none focus:border-brand/40"
+          >
+            {GRADE_LEVELS.map((g) => (
+              <option key={g.id} value={g.id}>
+                {g.emoji} {g.label}
+              </option>
+            ))}
+          </select>
+          <p className="mt-1 text-xs text-muted">{currentGrade.blurb}</p>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -205,7 +241,7 @@ function AppearanceSettings() {
   return (
     <section className="rounded-3xl bg-card p-5 card-shadow">
       <h2 className="text-lg font-black text-ink">🎨 Appearance</h2>
-      <p className="text-sm text-muted">Choose how StudyStack looks on this device.</p>
+      <p className="text-sm text-muted">Choose how Vera looks on this device.</p>
       <div className="mt-4 grid grid-cols-3 gap-2">
         {options.map((opt) => (
           <button
@@ -301,5 +337,74 @@ function SettingRow({
         </button>
       </div>
     </div>
+  );
+}
+
+function MilestoneStat({ emoji, value, label }: { emoji: string; value: React.ReactNode; label: string }) {
+  return (
+    <div className="flex flex-col items-center gap-0.5 px-2 py-3 text-center sm:py-1">
+      <div className="text-xl">{emoji}</div>
+      <div className="text-lg font-extrabold text-ink">{value}</div>
+      <div className="text-[11px] font-medium text-muted">{label}</div>
+    </div>
+  );
+}
+
+const DEFAULT_LOCKED_SHOWN = 6;
+
+function AchievementsSection() {
+  const { state } = useStore();
+  const [expanded, setExpanded] = useState(false);
+
+  const earned = BADGES.filter((b) => state.badges.includes(b.id));
+  const locked = BADGES.filter((b) => !state.badges.includes(b.id));
+  const visibleLocked = expanded ? locked : locked.slice(0, DEFAULT_LOCKED_SHOWN);
+  const hiddenCount = locked.length - visibleLocked.length;
+
+  return (
+    <section>
+      <div className="mb-3 flex items-center justify-between px-1">
+        <h2 className="text-lg font-black text-ink">Achievements</h2>
+        <span className="text-sm font-semibold text-muted">{earned.length} / {BADGES.length} unlocked</span>
+      </div>
+      <div className="grid grid-cols-4 gap-2.5 sm:grid-cols-6">
+        {earned.map((b) => (
+          <BadgeTile key={b.id} badge={b} earned />
+        ))}
+        {visibleLocked.map((b) => (
+          <BadgeTile key={b.id} badge={b} earned={false} />
+        ))}
+      </div>
+      {hiddenCount > 0 && (
+        <button
+          onClick={() => setExpanded(true)}
+          className="mt-3 w-full rounded-2xl bg-card py-2.5 text-center text-sm font-semibold text-brand-700 card-shadow"
+        >
+          Show {hiddenCount} more →
+        </button>
+      )}
+      {expanded && locked.length > DEFAULT_LOCKED_SHOWN && (
+        <button
+          onClick={() => setExpanded(false)}
+          className="mt-3 w-full rounded-2xl bg-card py-2.5 text-center text-sm font-semibold text-muted card-shadow"
+        >
+          Show fewer
+        </button>
+      )}
+    </section>
+  );
+}
+
+function BadgeTile({ badge, earned }: { badge: (typeof BADGES)[number]; earned: boolean }) {
+  return (
+    <motion.div
+      whileHover={{ scale: 1.05 }}
+      title={badge.condition}
+      className={`relative rounded-2xl p-2.5 text-center card-shadow ${earned ? "bg-card" : "bg-card/50 opacity-60"}`}
+    >
+      {earned && <span className="absolute right-1 top-1 text-[10px]">✅</span>}
+      <div className={`text-2xl ${earned ? "" : "grayscale"}`}>{badge.emoji}</div>
+      <div className="mt-0.5 truncate text-[10px] font-bold text-ink">{badge.name}</div>
+    </motion.div>
   );
 }

@@ -63,7 +63,7 @@ export default function BookmarksPage() {
       {items.length === 0 ? (
         <EmptyState emoji="📑" title="No bookmarks here" body="Tap the bookmark icon on any study to save it to a folder." />
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {items.map(({ b }, i) => (
             <BookmarkTile
               key={b.articleId}
@@ -91,37 +91,47 @@ function BookmarkTile({
   onRemove: () => void;
 }) {
   const article = getArticle(articleId);
-  const [shared, setShared] = useState(false);
+  const [shareState, setShareState] = useState<"idle" | "shared" | "copied">("idle");
   if (!article) return null;
 
-  async function share() {
-    setShared(true);
-    setTimeout(() => setShared(false), 1500);
+  async function share(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    const url = `${window.location.origin}/learn/${article!.id}`;
     try {
       if (navigator.share) {
-        await navigator.share({ title: article!.title, text: article!.summary, url: window.location.origin + "/learn/" + article!.id });
+        await navigator.share({ title: article!.title, text: article!.summary, url });
+        setShareState("shared");
       } else if (navigator.clipboard) {
-        await navigator.clipboard.writeText(`${article!.title} — ${article!.summary} · via StudyStack`);
+        await navigator.clipboard.writeText(url);
+        setShareState("copied");
       }
     } catch {
       /* user cancelled the share sheet */
     }
+    setTimeout(() => setShareState("idle"), 1600);
+  }
+
+  function remove(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    onRemove();
   }
 
   return (
-    <div className="relative">
-      <ArticleCard article={article} index={index} />
+    <div className="relative flex h-full flex-col">
+      <ArticleCard article={article} index={index} className="flex-1" />
       <div className="absolute right-2 top-2 flex gap-1.5">
         <button
           onClick={share}
           className="grid h-8 w-8 place-items-center rounded-full bg-white/90 text-sm card-shadow hover:bg-white"
-          aria-label="Share"
-          title="Share"
+          aria-label="Share link"
+          title={shareState === "copied" ? "Link copied!" : "Share"}
         >
-          {shared ? "✅" : "🔗"}
+          {shareState === "idle" ? "🔗" : "✅"}
         </button>
         <button
-          onClick={onRemove}
+          onClick={remove}
           className="grid h-8 w-8 place-items-center rounded-full bg-white/90 text-sm card-shadow hover:bg-white"
           aria-label="Remove bookmark"
           title="Remove"
@@ -129,7 +139,12 @@ function BookmarkTile({
           ✕
         </button>
       </div>
-      <div className="mt-1.5 px-1 text-[11px] font-semibold text-muted">📁 {folder}</div>
+      {shareState === "copied" && (
+        <div className="absolute right-2 top-12 rounded-lg bg-black/80 px-2 py-1 text-[10px] font-semibold text-white">
+          Link copied!
+        </div>
+      )}
+      <div className="mt-1.5 shrink-0 px-1 text-[11px] font-semibold text-muted">📁 {folder}</div>
     </div>
   );
 }

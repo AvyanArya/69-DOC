@@ -5,23 +5,39 @@ import { motion } from "framer-motion";
 import { useStore } from "@/lib/store";
 import { Button } from "./ui";
 import { STUDY_COUNT, STUDENT_COUNT } from "@/lib/content";
+import { GRADE_LEVELS } from "@/lib/data/gradeLevels";
+import type { GradeLevel } from "@/lib/types";
 
 const AVATARS = ["🦊", "🦉", "🦁", "🐨", "🐼", "🦋", "🐧", "🦄", "🐝", "🦝", "🐺", "🐢"];
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function AuthScreen() {
   const { dispatch } = useStore();
   const [mode, setMode] = useState<"signup" | "login">("signup");
   const [displayName, setDisplayName] = useState("");
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [gradeLevel, setGradeLevel] = useState<GradeLevel>("grade-9-10");
   const [avatar, setAvatar] = useState("🦊");
+  const [touched, setTouched] = useState(false);
+
+  const emailValid = EMAIL_RE.test(email.trim());
+  const canSubmit = mode === "login" || emailValid;
 
   function submit() {
+    if (!canSubmit) {
+      setTouched(true);
+      return;
+    }
     dispatch({
       type: "signIn",
       payload: {
         displayName: displayName.trim() || "Learner",
         username: (username.trim() || "learner").replace(/\s+/g, "_").toLowerCase(),
         avatar,
+        email: email.trim(),
+        gradeLevel,
       },
     });
   }
@@ -74,7 +90,7 @@ export function AuthScreen() {
             <div className="flex items-center gap-3">
               <div className="grid h-12 w-12 place-items-center rounded-2xl gradient-brand text-2xl">🧠</div>
               <div>
-                <div className="text-xl font-black tracking-tight">StudyStack</div>
+                <div className="text-xl font-black tracking-tight">Vera</div>
                 <div className="text-xs text-muted">Science, one streak at a time</div>
               </div>
             </div>
@@ -137,7 +153,46 @@ export function AuthScreen() {
                 </div>
               </div>
 
-              <Button onClick={submit} size="lg" className="w-full">
+              {mode === "signup" && (
+                <div>
+                  <label className="mb-1.5 block text-sm font-semibold text-ink">Email</label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    onBlur={() => setTouched(true)}
+                    placeholder="you@example.com"
+                    className={`w-full rounded-2xl border bg-canvas px-4 py-3 text-ink outline-none focus:border-brand/50 ${
+                      touched && !emailValid ? "border-rose-400" : "border-line"
+                    }`}
+                  />
+                  {touched && !emailValid && (
+                    <p className="mt-1 text-xs font-semibold text-rose-500">Enter a valid email to continue.</p>
+                  )}
+                </div>
+              )}
+
+              {mode === "signup" && (
+                <div>
+                  <label className="mb-1.5 block text-sm font-semibold text-ink">Grade / school level</label>
+                  <select
+                    value={gradeLevel}
+                    onChange={(e) => setGradeLevel(e.target.value as GradeLevel)}
+                    className="w-full rounded-2xl border border-line bg-canvas px-4 py-3 text-ink outline-none focus:border-brand/50"
+                  >
+                    {GRADE_LEVELS.map((g) => (
+                      <option key={g.id} value={g.id}>
+                        {g.emoji} {g.label}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="mt-1 text-xs text-muted">
+                    We&apos;ll tailor recommended studies to your level so you&apos;re never stuck on something too advanced.
+                  </p>
+                </div>
+              )}
+
+              <Button onClick={submit} size="lg" className="w-full" disabled={!canSubmit}>
                 {mode === "signup" ? "Start learning" : "Continue"} →
               </Button>
 

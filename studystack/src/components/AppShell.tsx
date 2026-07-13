@@ -50,11 +50,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-canvas">
       {/* Desktop sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-line bg-card/80 backdrop-blur lg:flex">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col overflow-y-auto border-r border-line bg-card/80 backdrop-blur lg:flex">
         <div className="flex items-center gap-3 px-6 py-6">
           <div className="grid h-10 w-10 place-items-center rounded-2xl gradient-brand text-xl">🧠</div>
           <div>
-            <div className="text-lg font-black tracking-tight">StudyStack</div>
+            <div className="text-lg font-black tracking-tight">Vera</div>
             <div className="text-[11px] text-muted">Science, gamified</div>
           </div>
         </div>
@@ -185,7 +185,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <header className="sticky top-0 z-30 flex items-center justify-between border-b border-line bg-card/85 px-4 py-3 backdrop-blur lg:hidden">
         <Link href="/" className="flex items-center gap-2">
           <div className="grid h-8 w-8 place-items-center rounded-xl gradient-brand text-base">🧠</div>
-          <span className="text-lg font-black tracking-tight">StudyStack</span>
+          <span className="text-lg font-black tracking-tight">Vera</span>
         </Link>
         <div className="flex items-center gap-1">
           <div className="flex items-center gap-1 rounded-full bg-amber-100 px-3 py-1.5 text-sm font-bold text-amber-700">

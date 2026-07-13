@@ -36,7 +36,7 @@ export function CitationQuizGate() {
             <h3 className="font-black text-ink">Verify your research skills</h3>
             <p className="mt-1 text-sm text-muted">
               Before you can submit an article, pass a short quiz on referencing, citations and telling credible
-              sources from unreliable ones. This keeps StudyStack&apos;s community writing trustworthy.
+              sources from unreliable ones. This keeps Vera&apos;s community writing trustworthy.
             </p>
           </div>
         </div>

@@ -11,10 +11,12 @@ export function ArticleCard({
   article,
   index = 0,
   locked = false,
+  className = "",
 }: {
   article: Article;
   index?: number;
   locked?: boolean;
+  className?: string;
 }) {
   const author = USER_MAP[article.authorId];
   return (
@@ -22,10 +24,11 @@ export function ArticleCard({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: Math.min(index * 0.04, 0.3) }}
+      className={`h-full ${className}`}
     >
-      <Link href={`/learn/${article.id}`} className="group block">
-        <div className="relative overflow-hidden rounded-3xl bg-card card-shadow transition group-hover:-translate-y-1 group-hover:soft-shadow">
-          <CoverArt category={article.category} className="h-36 w-full" />
+      <Link href={`/learn/${article.id}`} className="group flex h-full flex-col">
+        <div className="relative flex h-full flex-col overflow-hidden rounded-3xl bg-card card-shadow transition group-hover:-translate-y-1 group-hover:soft-shadow">
+          <CoverArt category={article.category} className="h-36 w-full shrink-0" />
           {locked && (
             <span
               className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-bold text-white backdrop-blur"
@@ -34,7 +37,7 @@ export function ArticleCard({
               🔒 Ahead of your level
             </span>
           )}
-          <div className="space-y-3 p-4">
+          <div className="flex flex-1 flex-col gap-3 p-4">
             <div className="flex flex-wrap items-center gap-1.5">
               <TypePill type={article.type} />
               <DifficultyPill difficulty={article.difficulty} />
@@ -43,7 +46,7 @@ export function ArticleCard({
               {article.title}
             </h3>
             <p className="line-clamp-2 text-sm text-muted">{article.summary}</p>
-            <div className="flex items-center justify-between pt-1 text-xs text-muted">
+            <div className="mt-auto flex items-center justify-between pt-1 text-xs text-muted">
               <span className="flex items-center gap-1.5">
                 <span className="grid h-6 w-6 place-items-center rounded-full bg-canvas">{author?.avatar}</span>
                 {author?.displayName}

@@ -11,13 +11,22 @@ import { ARTICLES, featuredArticles, studentArticles, getArticle } from "@/lib/c
 import { USER_MAP } from "@/lib/data/users";
 import { greeting } from "@/lib/gamification";
 import { allTopicTowers } from "@/lib/towers";
+import { GRADE_LEVEL_MAP, isWithinGradeCeiling } from "@/lib/data/gradeLevels";
 
 export default function HomePage() {
   const { state } = useStore();
   const topTower = allTopicTowers(state.completed)[0];
 
-  const featured = featuredArticles()[0] ?? ARTICLES[0];
-  const recommended = ARTICLES.filter((a) => a.type === "study" && a.id !== featured.id).slice(0, 8);
+  const featuredPool = featuredArticles();
+  const featured =
+    featuredPool.find((a) => isWithinGradeCeiling(a.difficulty, state.gradeLevel)) ?? featuredPool[0] ?? ARTICLES[0];
+  const recommended = ARTICLES.filter((a) => a.type === "study" && a.id !== featured.id)
+    .sort((a, b) => {
+      const aOk = isWithinGradeCeiling(a.difficulty, state.gradeLevel) ? 0 : 1;
+      const bOk = isWithinGradeCeiling(b.difficulty, state.gradeLevel) ? 0 : 1;
+      return aOk - bOk;
+    })
+    .slice(0, 8);
   const students = studentArticles().slice(0, 6);
   const continueReading = state.progress
     .map((p) => ({ p, a: getArticle(p.articleId) }))
@@ -130,6 +139,9 @@ export default function HomePage() {
           emoji="🎯"
           action={<Link href="/learn" className="text-sm font-semibold text-brand-700">See all</Link>}
         />
+        <p className="-mt-2 mb-2 px-1 text-xs text-muted">
+          Tailored to {GRADE_LEVEL_MAP[state.gradeLevel].short} · <Link href="/profile" className="font-semibold text-brand-700">change level</Link>
+        </p>
         <HScroll>
           {recommended.map((a, i) => (
             <div key={a.id} className="w-64 shrink-0">

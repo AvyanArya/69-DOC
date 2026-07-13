@@ -117,8 +117,7 @@ export function TierProgressCards({ tower }: { tower: TopicTower }) {
 }
 
 function TierRow({ tier, gradient }: { tier: TierProgress; gradient: string }) {
-  const slotCount = Math.max(tier.required, tier.completedCount, 1);
-  const blocks = Array.from({ length: slotCount });
+  const percent = tier.required > 0 ? Math.min(100, (tier.completedCount / tier.required) * 100) : 100;
   return (
     <div className={`relative rounded-2xl p-3 transition ${tier.unlocked ? "bg-card" : "bg-soft"}`}>
       <div className="flex items-center justify-between">
@@ -131,17 +130,13 @@ function TierRow({ tier, gradient }: { tier: TierProgress; gradient: string }) {
           {tier.completedCount}/{tier.required} mastered
         </span>
       </div>
-      <div className="mt-2 flex gap-1">
-        {blocks.map((_, i) => (
-          <div
-            key={i}
-            className={`h-4 flex-1 rounded-md ${
-              i < tier.completedCount
-                ? `bg-gradient-to-br ${gradient} ${tier.unlocked ? "" : "opacity-60 grayscale"}`
-                : "bg-soft2"
-            }`}
-          />
-        ))}
+      <div className="mt-2.5 h-2.5 w-full overflow-hidden rounded-full bg-soft2">
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: `${percent}%` }}
+          transition={{ type: "spring", stiffness: 120, damping: 20 }}
+          className={`h-full rounded-full bg-gradient-to-r ${gradient} ${tier.unlocked ? "" : "opacity-50 grayscale"}`}
+        />
       </div>
       {!tier.unlocked && <div className="mt-1.5 text-[11px] text-muted">Master the tier below to unlock</div>}
     </div>

@@ -79,6 +79,20 @@ export const CATEGORIES: CategoryDef[] = [
     gradient: "from-indigo-400 via-violet-500 to-purple-600",
     blurb: "Matter, energy, space and time.",
   },
+  {
+    id: "business",
+    name: "Business",
+    emoji: "📈",
+    gradient: "from-slate-500 via-slate-600 to-zinc-700",
+    blurb: "Companies, strategy and how markets really work.",
+  },
+  {
+    id: "finance",
+    name: "Finance",
+    emoji: "💰",
+    gradient: "from-amber-500 via-yellow-500 to-lime-600",
+    blurb: "Money, investing and building financial literacy.",
+  },
 ];
 
 export const CATEGORY_MAP: Record<Category, CategoryDef> = Object.fromEntries(

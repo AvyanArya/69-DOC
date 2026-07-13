@@ -377,15 +377,15 @@ export default function CancerAwarenessPage() {
                 key={s.id}
                 onClick={() => setActiveSection(s)}
                 className={`rounded-3xl p-5 text-left card-shadow transition hover:-translate-y-0.5 ${
-                  done ? "bg-emerald-50" : "bg-card"
+                  done ? "bg-emerald-50 !text-slate-900" : "bg-card"
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <span className="text-3xl">{s.emoji}</span>
                   {done && <span className="text-xl">✅</span>}
                 </div>
-                <h3 className="mt-2 font-black text-ink">{s.title}</h3>
-                <p className="mt-1 text-sm text-muted">{s.blurb}</p>
+                <h3 className={`mt-2 font-black ${done ? "" : "text-ink"}`}>{s.title}</h3>
+                <p className={`mt-1 text-sm ${done ? "!text-slate-700" : "text-muted"}`}>{s.blurb}</p>
                 <div className="mt-3 text-xs font-bold text-brand-700">
                   {done ? "Retake quiz →" : `${s.quiz.length} questions · +20 XP →`}
                 </div>

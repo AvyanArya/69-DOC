@@ -222,8 +222,8 @@ function ChoiceQ({
           const isCorrect = i === question.correctIndex;
           const isChosen = i === selected;
           let cls = "border-line bg-card hover:border-brand/40";
-          if (revealed && isCorrect) cls = "border-emerald-400 bg-emerald-50";
-          else if (revealed && isChosen && !isCorrect) cls = "border-rose-400 bg-rose-50";
+          if (revealed && isCorrect) cls = "border-emerald-400 bg-emerald-50 !text-slate-900";
+          else if (revealed && isChosen && !isCorrect) cls = "border-rose-400 bg-rose-50 !text-slate-900";
           return (
             <button
               key={i}
@@ -298,15 +298,19 @@ function MatchingQ({
                     ? "border-grape-400 bg-grape/5"
                     : checked
                       ? isCorrect
-                        ? "border-emerald-400 bg-emerald-50"
-                        : "border-rose-400 bg-rose-50"
+                        ? "border-emerald-400 bg-emerald-50 !text-slate-900"
+                        : "border-rose-400 bg-rose-50 !text-slate-900"
                       : matched
                         ? "border-brand/40 bg-brand/5"
                         : "border-line bg-card"
                 }`}
               >
                 {p.left}
-                {matched && <span className="ml-2 text-xs text-muted">→ {rights[matches[i]]?.slice(0, 26)}…</span>}
+                {matched && (
+                  <span className={`ml-2 text-xs ${checked ? "!text-slate-700" : "text-muted"}`}>
+                    → {rights[matches[i]]?.slice(0, 26)}…
+                  </span>
+                )}
               </button>
             );
           })}
@@ -376,7 +380,11 @@ function OrderingQ({
             <div
               key={it}
               className={`flex items-center gap-2 rounded-2xl border-2 px-3 py-2.5 text-sm font-medium text-ink ${
-                checked ? (isRight ? "border-emerald-400 bg-emerald-50" : "border-rose-400 bg-rose-50") : "border-line bg-card"
+                checked
+                  ? isRight
+                    ? "border-emerald-400 bg-emerald-50 !text-slate-900"
+                    : "border-rose-400 bg-rose-50 !text-slate-900"
+                  : "border-line bg-card"
               }`}
             >
               <span className="grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-canvas text-xs font-bold">{i + 1}</span>
