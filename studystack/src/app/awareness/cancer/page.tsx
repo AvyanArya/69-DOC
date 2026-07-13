@@ -29,6 +29,21 @@ const MYTHS = [
   { myth: "Cancer is contagious, like a cold.", fact: "Cancer itself doesn't spread between people. A few viruses linked to some cancers (like HPV) are contagious, but the cancer itself is not." },
 ];
 
+const CANCER_TYPES = [
+  { emoji: "🎗️", name: "Breast cancer", body: "Starts in breast tissue. One of the most common cancers; can affect anyone, though it's more common in women. Regular self-awareness and age-appropriate screening help with early detection." },
+  { emoji: "🫁", name: "Lung cancer", body: "Starts in the lungs. Smoking is the leading risk factor by far, though it can occur in non-smokers too, including from radon or air pollution exposure." },
+  { emoji: "🩸", name: "Leukaemia & lymphoma", body: "Blood cancers that affect blood cells or the lymphatic (immune) system, rather than forming a single solid tumour. Can occur at any age, including in children." },
+  { emoji: "🧬", name: "Colorectal cancer", body: "Starts in the colon or rectum. Linked to diet, activity levels and age; screening from a recommended age can catch precancerous growths early." },
+  { emoji: "🔬", name: "Prostate cancer", body: "Starts in the prostate gland. Risk rises with age; often grows slowly, and many cases are found through routine checks before symptoms appear." },
+  { emoji: "☀️", name: "Skin cancer (melanoma)", body: "Starts in skin cells, often linked to UV exposure. Melanoma is less common than other skin cancers but more likely to spread — new or changing moles are worth checking." },
+  { emoji: "🎗️", name: "Cervical cancer", body: "Starts in the cervix, most often linked to persistent HPV infection. HPV vaccination and regular screening are the two strongest protective tools." },
+  { emoji: "🧠", name: "Brain tumours", body: "Can be cancerous or non-cancerous; symptoms vary widely depending on location and size. Less common overall, but occur across all age groups." },
+  { emoji: "🫀", name: "Pancreatic cancer", body: "Starts in the pancreas. Less common but harder to detect early since symptoms often appear late; smoking and chronic pancreatitis raise risk." },
+  { emoji: "💧", name: "Bladder cancer", body: "Starts in the bladder lining. Smoking is a major risk factor; blood in urine is a common early warning sign worth checking." },
+  { emoji: "🦋", name: "Thyroid cancer", body: "Starts in the thyroid gland in the neck. Often grows slowly and is frequently treatable, especially when caught through a routine neck check." },
+  { emoji: "🌸", name: "Ovarian cancer", body: "Starts in the ovaries. Symptoms can be vague (bloating, pelvic discomfort), which is why persistent, unexplained changes are worth mentioning to a doctor." },
+];
+
 const WARNING_SIGNS = [
   "A change in bowel or bladder habits that doesn't go away",
   "A sore or wound that doesn't heal",
@@ -276,6 +291,23 @@ export default function CancerAwarenessPage() {
           one single cancer — it&apos;s a large family of diseases that share this same broken-control idea but behave very
           differently depending on where and how they start.
         </p>
+      </section>
+
+      {/* Common types of cancer */}
+      <section>
+        <h2 className="mb-1 px-1 text-xl font-black text-ink">Common types of cancer</h2>
+        <p className="mb-3 px-1 text-sm text-muted">
+          A quick overview of some of the most talked-about types — not an exhaustive list, and not a diagnostic tool.
+        </p>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {CANCER_TYPES.map((c) => (
+            <div key={c.name} className="rounded-2xl bg-card p-4 card-shadow">
+              <div className="text-2xl">{c.emoji}</div>
+              <h3 className="mt-2 font-bold text-ink">{c.name}</h3>
+              <p className="mt-1 text-sm text-muted">{c.body}</p>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* Prevention pillars */}

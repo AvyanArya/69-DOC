@@ -5,30 +5,29 @@ import { motion } from "framer-motion";
 import { CATEGORY_MAP } from "@/lib/data/categories";
 import type { TierProgress, TopicTower } from "@/lib/towers";
 
-// ─── The actual tower graphic ────────────────────────────────────────────────
-// One floor block per article slot in the topic: coloured + the category emoji
-// once completed, a dashed outline while unlocked-but-unread, and a grey
-// locked block (with a padlock) for slots in tiers not unlocked yet. Blocks
-// stack bottom-to-top and taper, so the whole thing actually reads as a tower
-// silhouette — colour creeping up from the ground as you master more.
+// ─── The actual tower graphic: a stepped pyramid ─────────────────────────────
+// Each tier is its own horizontal level — Foundation the widest, at the base;
+// Core narrower, in the middle; Mastery narrowest, at the peak — so the shape
+// itself reads as a hierarchy: broad, simple ground floor tapering up to a
+// small, hard-won summit. Each level is built from one block per article slot
+// in that tier: coloured + the category emoji once completed, a dashed
+// outline while unlocked-but-unread, and a grey padlock block for a tier not
+// unlocked yet.
 
-interface Row {
+interface Slot {
   key: string;
   state: "done" | "empty" | "locked";
 }
 
-function buildRows(tower: TopicTower): Row[] {
-  const rows: Row[] = [];
-  for (const tier of tower.tiers) {
-    const slots = Math.max(tier.required, tier.completedCount);
-    for (let i = 0; i < slots; i++) {
-      rows.push({
-        key: `${tier.difficulty}-${i}`,
-        state: i < tier.completedCount ? "done" : tier.unlocked ? "empty" : "locked",
-      });
-    }
-  }
-  return rows;
+/** Level width as a fraction of the pyramid's base, widest at the bottom. */
+const LEVEL_WIDTH: Record<number, number> = { 0: 1, 1: 0.68, 2: 0.4 };
+
+function slotsFor(tier: TierProgress): Slot[] {
+  const count = Math.max(tier.required, tier.completedCount);
+  return Array.from({ length: count }, (_, i) => ({
+    key: `${tier.difficulty}-${i}`,
+    state: i < tier.completedCount ? "done" : tier.unlocked ? "empty" : "locked",
+  }));
 }
 
 function capstoneFor(tower: TopicTower): string {
@@ -41,11 +40,8 @@ function capstoneFor(tower: TopicTower): string {
 
 export function TopicTowerViz({ tower, compact }: { tower: TopicTower; compact?: boolean }) {
   const cat = CATEGORY_MAP[tower.category];
-  const rows = buildRows(tower);
   const capstone = capstoneFor(tower);
-  const maxRows = compact ? 10 : 24;
-  const shown = rows.slice(0, maxRows);
-  const overflow = rows.length - shown.length;
+  const maxPerLevel = compact ? 6 : 12;
 
   return (
     <div
@@ -57,44 +53,51 @@ export function TopicTowerViz({ tower, compact }: { tower: TopicTower; compact?:
       <div className="pointer-events-none absolute right-8 top-9 text-2xl opacity-50">☁️</div>
       <div className="pointer-events-none absolute left-1/2 top-3 -translate-x-1/2 text-sm opacity-40">☁️</div>
 
-      <div className="relative z-10 flex flex-1 flex-col-reverse items-center justify-start gap-1 overflow-hidden">
-        {overflow > 0 && (
-          <div className="mb-1 text-[10px] font-bold text-grape-500">+{overflow} more floors above</div>
-        )}
-        {[...shown].reverse().map((row, i) => {
-          const idxFromBottom = shown.length - 1 - i;
-          const width = Math.max(52, 140 - idxFromBottom * 5);
+      <motion.div
+        initial={{ scale: 0.6, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 160, damping: 14 }}
+        className="relative z-10 mb-1 text-4xl"
+      >
+        {capstone}
+      </motion.div>
+
+      <div className="relative z-10 flex flex-1 flex-col-reverse items-center justify-start gap-1.5">
+        {tower.tiers.map((tier, levelIdx) => {
+          const slots = slotsFor(tier).slice(0, maxPerLevel);
+          const overflow = slotsFor(tier).length - slots.length;
           return (
             <motion.div
-              key={row.key}
-              initial={{ y: -12, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: Math.min(idxFromBottom, 10) * 0.03, type: "spring", stiffness: 220, damping: 20 }}
-              style={{ width }}
-              className={`grid h-5 shrink-0 place-items-center rounded-md text-[11px] shadow-sm ${
-                row.state === "done"
-                  ? `bg-gradient-to-br ${cat.gradient}`
-                  : row.state === "empty"
-                    ? "border border-dashed border-grape-300 bg-card/50"
-                    : "bg-soft2"
-              }`}
+              key={tier.difficulty}
+              initial={{ scaleX: 0, opacity: 0 }}
+              animate={{ scaleX: 1, opacity: 1 }}
+              transition={{ delay: levelIdx * 0.08, type: "spring", stiffness: 200, damping: 22 }}
+              style={{ width: `${LEVEL_WIDTH[levelIdx] * 100}%` }}
+              className="flex flex-wrap items-center justify-center gap-1"
+              title={`${tier.name}${tier.unlocked ? "" : " (locked)"}`}
             >
-              {row.state === "done" && <span aria-hidden>{cat.emoji}</span>}
-              {row.state === "locked" && <span aria-hidden className="opacity-70">🔒</span>}
+              {slots.map((slot) => (
+                <div
+                  key={slot.key}
+                  className={`grid h-5 w-5 shrink-0 place-items-center rounded-md text-[11px] shadow-sm ${
+                    slot.state === "done"
+                      ? `bg-gradient-to-br ${cat.gradient}`
+                      : slot.state === "empty"
+                        ? "border border-dashed border-grape-300 bg-card/50"
+                        : "bg-soft2"
+                  }`}
+                >
+                  {slot.state === "done" && <span aria-hidden>{cat.emoji}</span>}
+                  {slot.state === "locked" && <span aria-hidden className="opacity-70">🔒</span>}
+                </div>
+              ))}
+              {overflow > 0 && <span className="text-[9px] font-bold text-grape-500">+{overflow}</span>}
             </motion.div>
           );
         })}
       </div>
 
-      <motion.div
-        initial={{ scale: 0.6, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: "spring", stiffness: 160, damping: 14 }}
-        className="relative z-10 my-1 text-4xl"
-      >
-        {capstone}
-      </motion.div>
-      <div className="relative z-10 h-3 w-40 rounded-b-xl bg-gradient-to-br from-grape-400 to-grape" />
+      <div className="relative z-10 mt-1.5 h-3 w-48 rounded-b-xl bg-gradient-to-br from-grape-400 to-grape" />
     </div>
   );
 }
