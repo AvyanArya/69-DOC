@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useStore, useDerived } from "@/lib/store";
+import { useTheme, type ThemePref } from "@/lib/theme";
 import { TopicTowerCard } from "@/components/KnowledgeTower";
 import { ArticleRow } from "@/components/ArticleCard";
 import { Button, ProgressBar, StatTile } from "@/components/ui";
@@ -44,12 +45,12 @@ export default function ProfilePage() {
         <div className="h-24 gradient-brand" />
         <div className="px-5 pb-5">
           <div className="-mt-10 flex items-end justify-between">
-            <div className="grid h-20 w-20 place-items-center rounded-3xl border-4 border-white bg-canvas text-4xl soft-shadow">
+            <div className="grid h-20 w-20 place-items-center rounded-3xl border-4 border-card bg-canvas text-4xl soft-shadow">
               {state.avatar}
             </div>
             <button
               onClick={() => setEditing((e) => !e)}
-              className="rounded-full border border-line bg-white px-4 py-1.5 text-sm font-semibold text-ink hover:border-brand/40"
+              className="rounded-full border border-line bg-card px-4 py-1.5 text-sm font-semibold text-ink hover:border-brand/40"
             >
               {editing ? "Cancel" : "Edit profile"}
             </button>
@@ -128,7 +129,7 @@ export default function ProfilePage() {
               <motion.div
                 key={b.id}
                 whileHover={{ scale: 1.03 }}
-                className={`rounded-2xl p-3 text-center card-shadow ${earned ? "bg-white" : "bg-white/50 opacity-60"}`}
+                className={`rounded-2xl p-3 text-center card-shadow ${earned ? "bg-card" : "bg-card/50 opacity-60"}`}
                 title={b.condition}
               >
                 <div className={`text-3xl ${earned ? "" : "grayscale"}`}>{b.emoji}</div>
@@ -163,7 +164,7 @@ export default function ProfilePage() {
             <Link
               key={f.folder}
               href="/bookmarks"
-              className="rounded-2xl bg-white px-4 py-3 text-sm card-shadow transition hover:-translate-y-0.5"
+              className="rounded-2xl bg-card px-4 py-3 text-sm card-shadow transition hover:-translate-y-0.5"
             >
               <span className="font-bold text-ink">📁 {f.folder}</span>
               <span className="ml-2 text-muted">{f.items.length}</span>
@@ -178,7 +179,7 @@ export default function ProfilePage() {
           <h2 className="mb-3 px-1 text-lg font-black text-ink">Following</h2>
           <div className="flex flex-wrap gap-2">
             {following.map((u) => (
-              <Link key={u.id} href={`/user/${u.id}`} className="flex items-center gap-2 rounded-2xl bg-white px-3 py-2 card-shadow">
+              <Link key={u.id} href={`/user/${u.id}`} className="flex items-center gap-2 rounded-2xl bg-card px-3 py-2 card-shadow">
                 <span className="grid h-8 w-8 place-items-center rounded-full bg-canvas text-lg">{u.avatar}</span>
                 <span className="text-sm font-bold text-ink">{u.displayName}</span>
               </Link>
@@ -188,8 +189,48 @@ export default function ProfilePage() {
       )}
 
       {/* Settings */}
+      <AppearanceSettings />
       <ProfileSettings />
     </div>
+  );
+}
+
+function AppearanceSettings() {
+  const { theme, setTheme, hc, setHc } = useTheme();
+  const options: { value: ThemePref; icon: string; label: string }[] = [
+    { value: "light", icon: "☀️", label: "Light" },
+    { value: "dark", icon: "🌙", label: "Dark" },
+    { value: "system", icon: "💻", label: "Auto" },
+  ];
+  return (
+    <section className="rounded-3xl bg-card p-5 card-shadow">
+      <h2 className="text-lg font-black text-ink">🎨 Appearance</h2>
+      <p className="text-sm text-muted">Choose how StudyStack looks on this device.</p>
+      <div className="mt-4 grid grid-cols-3 gap-2">
+        {options.map((opt) => (
+          <button
+            key={opt.value}
+            onClick={() => setTheme(opt.value)}
+            aria-pressed={theme === opt.value}
+            className={`flex flex-col items-center gap-1 rounded-2xl py-3 text-sm font-bold transition ${
+              theme === opt.value ? "gradient-purple text-white" : "bg-canvas text-muted hover:text-ink"
+            }`}
+          >
+            <span className="text-lg">{opt.icon}</span>
+            {opt.label}
+          </button>
+        ))}
+      </div>
+      <button
+        onClick={() => setHc(!hc)}
+        className="mt-4 flex w-full items-center justify-between rounded-2xl bg-canvas px-4 py-3 text-sm font-semibold text-ink"
+      >
+        <span>◐ High contrast mode</span>
+        <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${hc ? "bg-emerald-100 text-emerald-700" : "bg-soft text-muted"}`}>
+          {hc ? "On" : "Off"}
+        </span>
+      </button>
+    </section>
   );
 }
 
@@ -245,7 +286,7 @@ function SettingRow({
       <div className="flex items-center gap-2">
         <button
           onClick={() => onChange(Math.max(min, value - 1))}
-          className="grid h-8 w-8 place-items-center rounded-full bg-canvas font-bold text-ink hover:bg-black/5"
+          className="grid h-8 w-8 place-items-center rounded-full bg-canvas font-bold text-ink hover:bg-soft"
           aria-label="Decrease"
         >
           −
@@ -253,7 +294,7 @@ function SettingRow({
         <span className="w-8 text-center font-black text-ink">{value}</span>
         <button
           onClick={() => onChange(Math.min(max, value + 1))}
-          className="grid h-8 w-8 place-items-center rounded-full bg-canvas font-bold text-ink hover:bg-black/5"
+          className="grid h-8 w-8 place-items-center rounded-full bg-canvas font-bold text-ink hover:bg-soft"
           aria-label="Increase"
         >
           +

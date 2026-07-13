@@ -136,7 +136,7 @@ export default function WritePage() {
           </div>
         </motion.div>
 
-        <div className="rounded-3xl bg-white p-5 card-shadow">
+        <div className="rounded-3xl bg-card p-5 card-shadow">
           <h3 className="text-sm font-black text-ink">Why the gate?</h3>
           <p className="mt-1 text-sm text-muted">
             Reading first means you learn how good science writing looks before you publish. Once unlocked, you&apos;ll take
@@ -189,7 +189,7 @@ export default function WritePage() {
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value as Category)}
-            className="rounded-xl border border-line bg-white px-3 py-1.5 text-sm font-semibold"
+            className="rounded-xl border border-line bg-card px-3 py-1.5 text-sm font-semibold"
           >
             {CATEGORIES.map((c) => (
               <option key={c.id} value={c.id}>
@@ -259,13 +259,13 @@ export default function WritePage() {
       <section>
         <h2 className="mb-3 px-1 text-lg font-black text-ink">Your submissions</h2>
         {state.submissions.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-line bg-white/60 p-8 text-center text-sm text-muted">
+          <div className="rounded-3xl border border-dashed border-line bg-card/60 p-8 text-center text-sm text-muted">
             No submissions yet. Write your first science summary above.
           </div>
         ) : (
           <div className="space-y-2">
             {state.submissions.map((s) => (
-              <div key={s.id} className="rounded-2xl bg-white p-4 card-shadow">
+              <div key={s.id} className="rounded-2xl bg-card p-4 card-shadow">
                 <div className="flex items-center justify-between gap-3">
                   <h3 className="font-bold text-ink">{s.title}</h3>
                   <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-bold ${STATUS_STYLE[s.status]}`}>

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { useStore } from "@/lib/store";
 import { getTopicTower, demoUserTopicFloors } from "@/lib/towers";
-import { TopicTowerViz } from "@/components/KnowledgeTower";
+import { TopicTowerViz, TierProgressCards } from "@/components/KnowledgeTower";
 import { CATEGORY_MAP } from "@/lib/data/categories";
 import { DEMO_USERS } from "@/lib/data/users";
 import { DifficultyPill, EmptyState } from "@/components/ui";
@@ -54,6 +54,11 @@ export default function TopicTowerPage() {
         <TopicTowerViz tower={tower} />
       </div>
 
+      <div className="rounded-3xl bg-card p-5 card-shadow">
+        <h2 className="mb-3 text-sm font-black text-ink">Tier progress</h2>
+        <TierProgressCards tower={tower} />
+      </div>
+
       {tiersTopToBottom.map((tier) => (
         <section key={tier.difficulty}>
           <h2 className="mb-2 flex items-center gap-1.5 px-1 text-base font-black text-ink">
@@ -61,7 +66,7 @@ export default function TopicTowerPage() {
             {!tier.unlocked && <span aria-hidden>🔒</span>}
           </h2>
           {tier.articles.length === 0 ? (
-            <div className="rounded-2xl bg-white/60 p-4 text-center text-sm text-muted">No articles yet in this tier.</div>
+            <div className="rounded-2xl bg-card/60 p-4 text-center text-sm text-muted">No articles yet in this tier.</div>
           ) : (
             <div className="grid gap-2 sm:grid-cols-2">
               {tier.articles.map((a) => {
@@ -71,7 +76,7 @@ export default function TopicTowerPage() {
                     key={a.id}
                     onClick={() => setSelected({ article: a, done })}
                     className={`flex items-center gap-3 rounded-2xl p-3 text-left card-shadow transition hover:-translate-y-0.5 ${
-                      done ? "bg-white" : tier.unlocked ? "bg-white/80" : "bg-white/40 opacity-70"
+                      done ? "bg-card" : tier.unlocked ? "bg-card/80" : "bg-card/40 opacity-70"
                     }`}
                   >
                     <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-canvas text-lg">
@@ -97,7 +102,7 @@ export default function TopicTowerPage() {
 
       <section>
         <h2 className="mb-3 px-1 text-lg font-black text-ink">🏆 {cat.name} leaderboard</h2>
-        <div className="rounded-3xl bg-white p-3 card-shadow">
+        <div className="rounded-3xl bg-card p-3 card-shadow">
           {ranking.map((r, i) => (
             <div key={r.name + i} className={`flex items-center gap-3 rounded-2xl px-3 py-2.5 ${r.you ? "bg-brand/5" : ""}`}>
               <span className="w-6 text-center font-black text-muted">{i + 1}</span>
@@ -133,7 +138,7 @@ function FloorDetail({
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        className="fixed inset-x-4 bottom-24 z-50 mx-auto max-w-md rounded-3xl bg-white p-5 soft-shadow lg:bottom-10"
+        className="fixed inset-x-4 bottom-24 z-50 mx-auto max-w-md rounded-3xl bg-card p-5 soft-shadow lg:bottom-10"
       >
         <div className={`mb-3 grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br ${c.gradient} text-2xl`}>{c.emoji}</div>
         <h3 className="text-lg font-black text-ink">{article.title}</h3>

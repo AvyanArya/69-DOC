@@ -252,4 +252,6 @@ export interface UserState {
 
   citationQuizPassed: boolean; // must pass the referencing/citation skills quiz to publish
   citationQuizBestScore: number; // 0..1
+
+  dailyFactClaimedDate: string; // yyyy-mm-dd of last "Today's Cancer Fact" claim
 }

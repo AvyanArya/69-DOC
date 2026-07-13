@@ -221,7 +221,7 @@ function ChoiceQ({
         {options.map((opt, i) => {
           const isCorrect = i === question.correctIndex;
           const isChosen = i === selected;
-          let cls = "border-line bg-white hover:border-brand/40";
+          let cls = "border-line bg-card hover:border-brand/40";
           if (revealed && isCorrect) cls = "border-emerald-400 bg-emerald-50";
           else if (revealed && isChosen && !isCorrect) cls = "border-rose-400 bg-rose-50";
           return (
@@ -302,7 +302,7 @@ function MatchingQ({
                         : "border-rose-400 bg-rose-50"
                       : matched
                         ? "border-brand/40 bg-brand/5"
-                        : "border-line bg-white"
+                        : "border-line bg-card"
                 }`}
               >
                 {p.left}
@@ -317,7 +317,7 @@ function MatchingQ({
               key={i}
               onClick={() => assign(i)}
               disabled={checked}
-              className="w-full rounded-2xl border-2 border-line bg-white px-3 py-2.5 text-left text-xs text-muted transition hover:border-brand/40"
+              className="w-full rounded-2xl border-2 border-line bg-card px-3 py-2.5 text-left text-xs text-muted transition hover:border-brand/40"
             >
               {r}
             </button>
@@ -376,7 +376,7 @@ function OrderingQ({
             <div
               key={it}
               className={`flex items-center gap-2 rounded-2xl border-2 px-3 py-2.5 text-sm font-medium text-ink ${
-                checked ? (isRight ? "border-emerald-400 bg-emerald-50" : "border-rose-400 bg-rose-50") : "border-line bg-white"
+                checked ? (isRight ? "border-emerald-400 bg-emerald-50" : "border-rose-400 bg-rose-50") : "border-line bg-card"
               }`}
             >
               <span className="grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-canvas text-xs font-bold">{i + 1}</span>

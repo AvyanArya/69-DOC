@@ -97,7 +97,7 @@ export default function AdminPage() {
           {DEMO_USERS.filter((u) => u.id !== "editorial").map((u) => {
             const banned = bannedUsers.includes(u.id);
             return (
-              <div key={u.id} className="flex items-center gap-3 rounded-2xl bg-white p-3 card-shadow">
+              <div key={u.id} className="flex items-center gap-3 rounded-2xl bg-card p-3 card-shadow">
                 <span className="grid h-11 w-11 place-items-center rounded-2xl bg-canvas text-xl">{u.avatar}</span>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
@@ -127,7 +127,7 @@ export default function AdminPage() {
             <AnalyticTile label="Student articles" value={`${STUDENT_COUNT}`} emoji="✍️" />
             <AnalyticTile label="Pending review" value={`${pendingCount}`} emoji="🗂" />
           </div>
-          <div className="rounded-3xl bg-white p-5 card-shadow">
+          <div className="rounded-3xl bg-card p-5 card-shadow">
             <h3 className="mb-4 text-sm font-black text-ink">Reads by topic (last 30 days)</h3>
             <div className="space-y-2">
               {CATEGORIES.map((c, i) => {
@@ -154,7 +154,7 @@ export default function AdminPage() {
 
       {tab === "content" && (
         <div className="space-y-3">
-          <div className="rounded-3xl bg-white p-5 card-shadow">
+          <div className="rounded-3xl bg-card p-5 card-shadow">
             <h3 className="mb-2 text-sm font-black text-ink">Featured studies</h3>
             <p className="mb-3 text-xs text-muted">Curated studies shown on the home page.</p>
             <div className="grid gap-2 sm:grid-cols-2">
@@ -166,7 +166,7 @@ export default function AdminPage() {
               ))}
             </div>
           </div>
-          <div className="rounded-3xl bg-white p-5 card-shadow">
+          <div className="rounded-3xl bg-card p-5 card-shadow">
             <h3 className="mb-3 text-sm font-black text-ink">Categories</h3>
             <div className="flex flex-wrap gap-2">
               {CATEGORIES.map((c) => (
@@ -215,7 +215,7 @@ function ModerationCard({
 }) {
   const decided = status === "approved" || status === "rejected";
   return (
-    <div className="rounded-3xl bg-white p-4 card-shadow">
+    <div className="rounded-3xl bg-card p-4 card-shadow">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 className="font-bold text-ink">{title}</h3>
@@ -241,7 +241,7 @@ function ModerationCard({
 
 function AnalyticTile({ label, value, emoji }: { label: string; value: string; emoji: string }) {
   return (
-    <div className="rounded-2xl bg-white p-4 card-shadow">
+    <div className="rounded-2xl bg-card p-4 card-shadow">
       <div className="text-2xl">{emoji}</div>
       <div className="mt-1 text-2xl font-black text-ink">{value}</div>
       <div className="text-xs text-muted">{label}</div>

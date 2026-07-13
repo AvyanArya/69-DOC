@@ -91,7 +91,7 @@ export default function LeaderboardPage() {
           return (
             <div key={r.id} className="flex flex-col items-center">
               <div className="text-2xl">{medals[pos === 0 ? 0 : pos === 1 ? 1 : 2]}</div>
-              <span className="grid h-12 w-12 place-items-center rounded-full bg-white text-2xl card-shadow">{r.avatar}</span>
+              <span className="grid h-12 w-12 place-items-center rounded-full bg-card text-2xl card-shadow">{r.avatar}</span>
               <div className="mt-1 max-w-full truncate text-xs font-bold text-ink">{r.name}</div>
               <div className="text-xs font-black text-brand-700">{cfg.key(r).toLocaleString()}</div>
               <div className={`mt-1 w-full rounded-t-2xl gradient-purple ${heights[order]}`} />
@@ -101,7 +101,7 @@ export default function LeaderboardPage() {
       </div>
 
       {/* Rest */}
-      <div className="rounded-3xl bg-white p-3 card-shadow">
+      <div className="rounded-3xl bg-card p-3 card-shadow">
         {rest.map((r, i) => (
           <div key={r.id} className={`flex items-center gap-3 rounded-2xl px-3 py-2.5 ${r.you ? "bg-brand/5" : ""}`}>
             <span className="w-6 text-center font-black text-muted">{i + 4}</span>

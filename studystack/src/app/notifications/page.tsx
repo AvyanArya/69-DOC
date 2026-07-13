@@ -46,7 +46,7 @@ export default function NotificationsPage() {
         <div className="space-y-2">
           {seed.map((n) => {
             const inner = (
-              <div className={`flex items-start gap-3 rounded-2xl p-4 card-shadow transition ${n.read ? "bg-white" : "bg-brand/5"}`}>
+              <div className={`flex items-start gap-3 rounded-2xl p-4 card-shadow transition ${n.read ? "bg-card" : "bg-brand/5"}`}>
                 <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-canvas text-lg">{ICON[n.kind]}</span>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">

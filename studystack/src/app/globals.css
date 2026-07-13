@@ -12,6 +12,52 @@
   --ink: #1e1b39;
   --muted: #64748b;
   --line: #eef0f5;
+  --soft: rgba(15, 15, 35, 0.05);
+  --soft-2: rgba(15, 15, 35, 0.09);
+  --reading-ink: #33314d;
+  --sky-1: #e0f2fe;
+  --sky-2: #ede9fe;
+}
+
+/* Dark theme: follows system preference by default, or an explicit choice
+   stamped as data-theme="dark" / "light" on <html> by the in-app toggle. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e0b1a;
+    --card: #1a1530;
+    --ink: #f1f0f7;
+    --muted: #a9a3c4;
+    --line: #2c2650;
+    --soft: rgba(255, 255, 255, 0.06);
+    --soft-2: rgba(255, 255, 255, 0.11);
+    --reading-ink: #d8d6ea;
+    --sky-1: #1e2a4a;
+    --sky-2: #2a1f4d;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e0b1a;
+  --card: #1a1530;
+  --ink: #f1f0f7;
+  --muted: #a9a3c4;
+  --line: #2c2650;
+  --soft: rgba(255, 255, 255, 0.06);
+  --soft-2: rgba(255, 255, 255, 0.11);
+  --reading-ink: #d8d6ea;
+  --sky-1: #1e2a4a;
+  --sky-2: #2a1f4d;
+}
+:root[data-theme="light"] {
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --ink: #1e1b39;
+  --muted: #64748b;
+  --line: #eef0f5;
+  --soft: rgba(15, 15, 35, 0.05);
+  --soft-2: rgba(15, 15, 35, 0.09);
+  --reading-ink: #33314d;
+  --sky-1: #e0f2fe;
+  --sky-2: #ede9fe;
 }
 
 @theme inline {
@@ -21,10 +67,15 @@
   --color-grape: #210561;
   --color-grape-500: #6d28d9;
   --color-grape-400: #8b5cf6;
-  --color-ink: #1e1b39;
-  --color-muted: #64748b;
-  --color-canvas: #f8fafc;
-  --color-line: #eef0f5;
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-canvas: var(--bg);
+  --color-card: var(--card);
+  --color-line: var(--line);
+  --color-soft: var(--soft);
+  --color-soft2: var(--soft-2);
+  --color-sky1: var(--sky-1);
+  --color-sky2: var(--sky-2);
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --radius-xl2: 1.5rem;
 }
@@ -35,6 +86,7 @@
 
 html {
   scroll-behavior: smooth;
+  color-scheme: light dark;
 }
 
 body {
@@ -43,6 +95,7 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* ─── Reusable utilities ────────────────────────────────────────────────── */
@@ -65,6 +118,14 @@ body {
 
 .card-shadow {
   box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 12px 32px -12px rgba(33, 5, 97, 0.14);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .card-shadow {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px -12px rgba(0, 0, 0, 0.45);
+  }
+}
+:root[data-theme="dark"] .card-shadow {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px -12px rgba(0, 0, 0, 0.45);
 }
 .soft-shadow {
   box-shadow: 0 10px 40px -12px rgba(33, 5, 97, 0.2);
@@ -101,7 +162,7 @@ body {
   100% { background-position: 400px 0; }
 }
 .skeleton {
-  background: linear-gradient(90deg, #eef0f5 25%, #e2e8f0 37%, #eef0f5 63%);
+  background: linear-gradient(90deg, var(--line) 25%, var(--soft-2) 37%, var(--line) 63%);
   background-size: 800px 100%;
   animation: shimmer 1.4s infinite linear;
 }
@@ -118,11 +179,14 @@ select:focus-visible {
   border-radius: 0.5rem;
 }
 
-/* High contrast mode toggled via .hc on <html> */
+/* High contrast mode toggled via .hc on <html> — always wins over the
+   current theme, light or dark, since these rules are declared last. */
 .hc {
   --bg: #ffffff;
   --ink: #000000;
   --muted: #1f2937;
+  --card: #ffffff;
+  --line: #000000;
 }
 .hc body {
   background: #ffffff;
@@ -135,7 +199,7 @@ select:focus-visible {
   font-size: 1.075rem;
   line-height: 1.85;
   margin-bottom: 1.15rem;
-  color: #33314d;
+  color: var(--reading-ink);
 }
 .prose-reading h2 {
   font-size: 1.4rem;

@@ -38,8 +38,8 @@ export function Button({
   const variants = {
     primary: "gradient-pink text-white glow-pink hover:brightness-105",
     purple: "gradient-purple text-white hover:brightness-110",
-    ghost: "text-ink hover:bg-black/5",
-    outline: "border border-line bg-white text-ink hover:border-brand/40 hover:text-brand",
+    ghost: "text-ink hover:bg-soft",
+    outline: "border border-line bg-card text-ink hover:border-brand/40 hover:text-brand",
     soft: "bg-brand/10 text-brand-700 hover:bg-brand/15",
   };
   const cls = `inline-flex items-center justify-center gap-2 rounded-2xl font-semibold transition ${sizes[size]} ${variants[variant]} ${disabled ? "opacity-50 pointer-events-none" : ""} ${className}`;
@@ -116,7 +116,7 @@ export function Chip({
     <button
       onClick={onClick}
       className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition ${
-        active ? "gradient-purple text-white shadow" : "bg-white text-muted border border-line hover:text-ink"
+        active ? "gradient-purple text-white shadow" : "bg-card text-muted border border-line hover:text-ink"
       }`}
     >
       {children}
@@ -162,7 +162,7 @@ export function ProgressBar({
   color?: "pink" | "purple";
 }) {
   return (
-    <div className={`h-2 w-full overflow-hidden rounded-full bg-black/5 ${className}`} role="progressbar" aria-valuenow={Math.round(percent)} aria-valuemin={0} aria-valuemax={100}>
+    <div className={`h-2 w-full overflow-hidden rounded-full bg-soft ${className}`} role="progressbar" aria-valuenow={Math.round(percent)} aria-valuemin={0} aria-valuemax={100}>
       <motion.div
         initial={{ width: 0 }}
         animate={{ width: `${Math.min(100, Math.max(0, percent))}%` }}
@@ -190,7 +190,7 @@ export function Ring({
   return (
     <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} strokeWidth={stroke} className="fill-none stroke-black/5" />
+        <circle cx={size / 2} cy={size / 2} r={r} strokeWidth={stroke} className="fill-none stroke-soft" />
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -251,7 +251,7 @@ export function StatTile({
   emoji?: string;
 }) {
   return (
-    <div className="rounded-2xl bg-white p-4 text-center card-shadow">
+    <div className="rounded-2xl bg-card p-4 text-center card-shadow">
       {emoji && <div className="text-2xl">{emoji}</div>}
       <div className="mt-1 text-2xl font-extrabold text-ink">{value}</div>
       <div className="text-xs font-medium text-muted">{label}</div>
@@ -261,7 +261,7 @@ export function StatTile({
 
 export function EmptyState({ emoji, title, body }: { emoji: string; title: string; body: string }) {
   return (
-    <div className="rounded-3xl border border-dashed border-line bg-white/60 p-10 text-center">
+    <div className="rounded-3xl border border-dashed border-line bg-card/60 p-10 text-center">
       <div className="text-5xl">{emoji}</div>
       <h3 className="mt-3 text-lg font-bold text-ink">{title}</h3>
       <p className="mx-auto mt-1 max-w-sm text-sm text-muted">{body}</p>

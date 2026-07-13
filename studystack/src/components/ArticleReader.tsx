@@ -81,7 +81,7 @@ function ReferenceItem({ reference, index }: { reference: Reference; index: numb
       </div>
       <button
         onClick={copyCitation}
-        className="shrink-0 rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-ink card-shadow hover:text-brand-700"
+        className="shrink-0 rounded-full bg-card px-2.5 py-1 text-[11px] font-bold text-ink card-shadow hover:text-brand-700"
         title="Copy citation"
       >
         {copied ? "✅ Copied" : "📋 Copy"}
@@ -173,14 +173,14 @@ export function ArticleReader({ article, quiz }: { article: Article; quiz: Quiz 
             <div className="flex items-center gap-1">
               <button
                 onClick={() => dispatch({ type: "toggleLike", payload: { articleId: article.id } })}
-                className={`grid h-10 w-10 place-items-center rounded-full text-lg transition ${liked ? "bg-brand/10" : "hover:bg-black/5"}`}
+                className={`grid h-10 w-10 place-items-center rounded-full text-lg transition ${liked ? "bg-brand/10" : "hover:bg-soft"}`}
                 aria-label="Like"
               >
                 {liked ? "❤️" : "🤍"}
               </button>
               <button
                 onClick={() => dispatch({ type: "toggleBookmark", payload: { articleId: article.id, folder: "Favorites" } })}
-                className={`grid h-10 w-10 place-items-center rounded-full text-lg transition ${bookmarked ? "bg-grape/10" : "hover:bg-black/5"}`}
+                className={`grid h-10 w-10 place-items-center rounded-full text-lg transition ${bookmarked ? "bg-grape/10" : "hover:bg-soft"}`}
                 aria-label="Bookmark"
               >
                 {bookmarked ? "🔖" : "📑"}
@@ -235,7 +235,7 @@ export function ArticleReader({ article, quiz }: { article: Article; quiz: Quiz 
           <div className="mb-3 flex items-center gap-2 text-sm font-black text-grape-500">⭐ Important facts</div>
           <div className="grid gap-2 sm:grid-cols-2">
             {article.importantFacts.map((f, i) => (
-              <div key={i} className="rounded-2xl bg-white p-3 text-sm text-ink card-shadow">
+              <div key={i} className="rounded-2xl bg-card p-3 text-sm text-ink card-shadow">
                 <HighlightedText text={f} terms={glossaryTerms} onTerm={setTerm} />
               </div>
             ))}
@@ -243,7 +243,7 @@ export function ArticleReader({ article, quiz }: { article: Article; quiz: Quiz 
         </div>
 
         {/* References */}
-        <div className="rounded-3xl border border-line bg-white p-5">
+        <div className="rounded-3xl border border-line bg-card p-5">
           <div className="mb-1 flex items-center gap-2 text-sm font-black text-ink">📚 References</div>
           <p className="mb-3 text-xs text-muted">Every claim above traces back to one of these sources.</p>
           <ol className="space-y-2 text-sm">
@@ -285,7 +285,7 @@ export function ArticleReader({ article, quiz }: { article: Article; quiz: Quiz 
         {/* Comments */}
         <section>
           <div className="mb-3 flex items-center gap-2 text-lg font-black text-ink">💬 Comments ({comments.length})</div>
-          <div className="mb-4 flex items-center gap-2 rounded-2xl bg-white p-3 card-shadow">
+          <div className="mb-4 flex items-center gap-2 rounded-2xl bg-card p-3 card-shadow">
             <span className="grid h-9 w-9 place-items-center rounded-full bg-canvas text-lg">{state.avatar}</span>
             <input
               placeholder="Add a thoughtful comment…"
@@ -298,7 +298,7 @@ export function ArticleReader({ article, quiz }: { article: Article; quiz: Quiz 
             {comments.map((c) => {
               const cAuthor = USER_MAP[c.authorId];
               return (
-                <div key={c.id} className="rounded-2xl bg-white p-4 card-shadow">
+                <div key={c.id} className="rounded-2xl bg-card p-4 card-shadow">
                   <div className="flex items-center gap-2">
                     <span className="grid h-8 w-8 place-items-center rounded-full bg-canvas">{cAuthor?.avatar}</span>
                     <span className="text-sm font-bold text-ink">{cAuthor?.displayName}</span>
@@ -315,7 +315,7 @@ export function ArticleReader({ article, quiz }: { article: Article; quiz: Quiz 
                     return (
                       <div key={r.id} className="ml-6 mt-3 rounded-2xl bg-canvas p-3">
                         <div className="flex items-center gap-2">
-                          <span className="grid h-7 w-7 place-items-center rounded-full bg-white">{rAuthor?.avatar}</span>
+                          <span className="grid h-7 w-7 place-items-center rounded-full bg-card">{rAuthor?.avatar}</span>
                           <span className="text-sm font-bold text-ink">{rAuthor?.displayName}</span>
                         </div>
                         <p className="mt-1.5 text-sm text-ink">{r.body}</p>
@@ -356,7 +356,7 @@ export function ArticleReader({ article, quiz }: { article: Article; quiz: Quiz 
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 30 }}
-              className="fixed inset-x-4 bottom-24 z-50 mx-auto max-w-md rounded-3xl bg-white p-5 soft-shadow lg:bottom-10"
+              className="fixed inset-x-4 bottom-24 z-50 mx-auto max-w-md rounded-3xl bg-card p-5 soft-shadow lg:bottom-10"
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-2">

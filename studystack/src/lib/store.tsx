@@ -20,7 +20,11 @@ import { getArticle } from "./content";
 import { BADGES } from "./data/badges";
 import { allTopicTowers } from "./towers";
 
-export const CANCER_AWARENESS_ID = "cancer-awareness-guide";
+export const CANCER_AWARENESS_SECTIONS = [
+  "cancer-awareness-prevention",
+  "cancer-awareness-myths",
+  "cancer-awareness-signs",
+] as const;
 
 const STORAGE_KEY = "studystack:v1";
 
@@ -67,6 +71,7 @@ function freshState(): UserState {
     activeDays: [],
     citationQuizPassed: false,
     citationQuizBestScore: 0,
+    dailyFactClaimedDate: "",
   };
 }
 
@@ -130,6 +135,7 @@ type Action =
   | { type: "completeArticle"; payload: { articleId: string; quizResult: QuizResult } }
   | { type: "markRead"; payload: { articleId: string; xp: number; coins: number } }
   | { type: "passCitationQuiz"; payload: { score: number } }
+  | { type: "claimDailyFact" }
   | { type: "toggleLike"; payload: { articleId: string } }
   | { type: "toggleBookmark"; payload: { articleId: string; folder: string } }
   | { type: "addFolder"; payload: { name: string } }
@@ -198,7 +204,9 @@ function evaluateBadges(state: UserState): UserState {
   const medicineReads = state.completed.filter((c) => getArticle(c.articleId)?.category === "medicine").length;
   const perfect = state.quizResults.some((q) => q.score === 1);
   const published = state.submissions.some((s) => s.status === "published" || s.status === "approved");
-  const healthAdvocate = state.completed.some((c) => c.articleId === CANCER_AWARENESS_ID);
+  const healthAdvocate = CANCER_AWARENESS_SECTIONS.every((id) =>
+    state.completed.some((c) => c.articleId === id),
+  );
 
   const check: Record<string, boolean> = {
     "first-article": readCount >= 1,
@@ -359,6 +367,17 @@ function reducer(state: UserState, action: Action): UserState {
         ];
         s = evaluateBadges(s);
       }
+      return s;
+    }
+
+    case "claimDailyFact": {
+      const today = todayKey();
+      if (state.dailyFactClaimedDate === today) return state;
+      let s = { ...state, dailyFactClaimedDate: today, xp: state.xp + 5, coins: state.coins + 2 };
+      s = rollDailyXp(s);
+      s.dailyXp += 5;
+      s.weeklyXp += 5;
+      s = applyStreakOnActivity(s);
       return s;
     }
 

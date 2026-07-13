@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useStore, useDerived } from "@/lib/store";
+import { useTheme, type ThemePref } from "@/lib/theme";
 import { AuthScreen } from "./AuthScreen";
 import { levelTitle } from "@/lib/gamification";
 
@@ -16,6 +17,12 @@ const NAV = [
   { href: "/profile", label: "Profile", icon: "👤" },
 ];
 
+const THEME_OPTIONS: { value: ThemePref; icon: string; label: string }[] = [
+  { value: "light", icon: "☀️", label: "Light" },
+  { value: "dark", icon: "🌙", label: "Dark" },
+  { value: "system", icon: "💻", label: "Auto" },
+];
+
 function isActive(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
   return pathname.startsWith(href);
@@ -24,15 +31,11 @@ function isActive(pathname: string, href: string) {
 export function AppShell({ children }: { children: ReactNode }) {
   const { state, dispatch } = useStore();
   const { level, unreadNotifications } = useDerived();
+  const { theme, setTheme, hc, setHc } = useTheme();
   const pathname = usePathname();
   const [hydrated, setHydrated] = useState(false);
-  const [hc, setHc] = useState(false);
 
   useEffect(() => setHydrated(true), []);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle("hc", hc);
-  }, [hc]);
 
   if (!hydrated) {
     return (
@@ -47,7 +50,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-canvas">
       {/* Desktop sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-line bg-white/80 backdrop-blur lg:flex">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-line bg-card/80 backdrop-blur lg:flex">
         <div className="flex items-center gap-3 px-6 py-6">
           <div className="grid h-10 w-10 place-items-center rounded-2xl gradient-brand text-xl">🧠</div>
           <div>
@@ -64,7 +67,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 key={item.href}
                 href={item.href}
                 className={`relative flex items-center gap-3 rounded-2xl px-4 py-3 text-[15px] font-semibold transition ${
-                  active ? "text-white" : "text-muted hover:bg-black/5 hover:text-ink"
+                  active ? "text-white" : "text-muted hover:bg-soft hover:text-ink"
                 }`}
               >
                 {active && (
@@ -82,7 +85,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <Link
             href="/notifications"
             className={`relative flex items-center gap-3 rounded-2xl px-4 py-3 text-[15px] font-semibold transition ${
-              isActive(pathname, "/notifications") ? "bg-black/5 text-ink" : "text-muted hover:bg-black/5 hover:text-ink"
+              isActive(pathname, "/notifications") ? "bg-soft text-ink" : "text-muted hover:bg-soft hover:text-ink"
             }`}
           >
             <span className="text-lg">🔔</span> Notifications
@@ -95,7 +98,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <Link
             href="/tower"
             className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-[15px] font-semibold transition ${
-              isActive(pathname, "/tower") ? "bg-black/5 text-ink" : "text-muted hover:bg-black/5 hover:text-ink"
+              isActive(pathname, "/tower") ? "bg-soft text-ink" : "text-muted hover:bg-soft hover:text-ink"
             }`}
           >
             <span className="text-lg">🏗️</span> Towers
@@ -103,7 +106,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <Link
             href="/bookmarks"
             className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-[15px] font-semibold transition ${
-              isActive(pathname, "/bookmarks") ? "bg-black/5 text-ink" : "text-muted hover:bg-black/5 hover:text-ink"
+              isActive(pathname, "/bookmarks") ? "bg-soft text-ink" : "text-muted hover:bg-soft hover:text-ink"
             }`}
           >
             <span className="text-lg">🔖</span> Favorites
@@ -111,7 +114,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <Link
             href="/leaderboard"
             className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-[15px] font-semibold transition ${
-              isActive(pathname, "/leaderboard") ? "bg-black/5 text-ink" : "text-muted hover:bg-black/5 hover:text-ink"
+              isActive(pathname, "/leaderboard") ? "bg-soft text-ink" : "text-muted hover:bg-soft hover:text-ink"
             }`}
           >
             <span className="text-lg">🏆</span> Leaderboard
@@ -119,7 +122,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <Link
             href="/awareness/cancer"
             className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-[15px] font-semibold transition ${
-              isActive(pathname, "/awareness") ? "bg-black/5 text-ink" : "text-muted hover:bg-black/5 hover:text-ink"
+              isActive(pathname, "/awareness") ? "bg-soft text-ink" : "text-muted hover:bg-soft hover:text-ink"
             }`}
           >
             <span className="text-lg">🎗️</span> Cancer Awareness
@@ -128,7 +131,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Link
               href="/admin"
               className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-[15px] font-semibold transition ${
-                isActive(pathname, "/admin") ? "bg-black/5 text-ink" : "text-muted hover:bg-black/5 hover:text-ink"
+                isActive(pathname, "/admin") ? "bg-soft text-ink" : "text-muted hover:bg-soft hover:text-ink"
               }`}
             >
               <span className="text-lg">🛡️</span> Admin
@@ -136,8 +139,8 @@ export function AppShell({ children }: { children: ReactNode }) {
           )}
         </nav>
 
-        <div className="p-3">
-          <Link href="/profile" className="flex items-center gap-3 rounded-2xl bg-canvas p-3 transition hover:bg-black/5">
+        <div className="space-y-2 p-3">
+          <Link href="/profile" className="flex items-center gap-3 rounded-2xl bg-canvas p-3 transition hover:bg-soft">
             <div className="grid h-10 w-10 place-items-center rounded-xl gradient-purple text-xl">{state.avatar}</div>
             <div className="min-w-0 flex-1">
               <div className="truncate text-sm font-bold text-ink">{state.displayName}</div>
@@ -146,15 +149,32 @@ export function AppShell({ children }: { children: ReactNode }) {
               </div>
             </div>
           </Link>
+
+          <div className="grid grid-cols-3 gap-1 rounded-xl bg-canvas p-1">
+            {THEME_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => setTheme(opt.value)}
+                aria-label={`${opt.label} theme`}
+                aria-pressed={theme === opt.value}
+                className={`rounded-lg py-1.5 text-xs font-bold transition ${
+                  theme === opt.value ? "bg-card text-ink card-shadow" : "text-muted hover:text-ink"
+                }`}
+              >
+                {opt.icon}
+              </button>
+            ))}
+          </div>
+
           <button
-            onClick={() => setHc((v) => !v)}
-            className="mt-2 w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-muted hover:bg-black/5"
+            onClick={() => setHc(!hc)}
+            className="w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-muted hover:bg-soft"
           >
             {hc ? "◐ High contrast: on" : "◐ High contrast: off"}
           </button>
           <button
             onClick={() => dispatch({ type: "signOut" })}
-            className="w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-muted hover:bg-black/5"
+            className="w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-muted hover:bg-soft"
           >
             ↩ Sign out
           </button>
@@ -162,7 +182,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </aside>
 
       {/* Mobile top bar */}
-      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-line bg-white/85 px-4 py-3 backdrop-blur lg:hidden">
+      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-line bg-card/85 px-4 py-3 backdrop-blur lg:hidden">
         <Link href="/" className="flex items-center gap-2">
           <div className="grid h-8 w-8 place-items-center rounded-xl gradient-brand text-base">🧠</div>
           <span className="text-lg font-black tracking-tight">StudyStack</span>
@@ -173,7 +193,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
           <Link
             href="/notifications"
-            className="relative grid h-10 w-10 place-items-center rounded-full text-xl hover:bg-black/5"
+            className="relative grid h-10 w-10 place-items-center rounded-full text-xl hover:bg-soft"
             aria-label="Notifications"
           >
             🔔
@@ -203,7 +223,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </main>
 
       {/* Mobile bottom nav */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-line bg-white/90 backdrop-blur lg:hidden">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-line bg-card/90 backdrop-blur lg:hidden">
         <div className="mx-auto flex max-w-lg items-stretch justify-around px-2 pb-[env(safe-area-inset-bottom)]">
           {NAV.map((item) => {
             const active = isActive(pathname, item.href);

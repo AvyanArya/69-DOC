@@ -30,7 +30,7 @@ export default function BookmarksPage() {
             key={f}
             onClick={() => setActive(f)}
             className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition ${
-              active === f ? "gradient-purple text-white" : "bg-white text-muted border border-line"
+              active === f ? "gradient-purple text-white" : "bg-card text-muted border border-line"
             }`}
           >
             {f === "Favorites" ? "⭐" : "📁"} {f}
@@ -41,7 +41,7 @@ export default function BookmarksPage() {
         ))}
       </div>
 
-      <div className="flex items-center gap-2 rounded-2xl bg-white p-2 card-shadow">
+      <div className="flex items-center gap-2 rounded-2xl bg-card p-2 card-shadow">
         <input
           value={newFolder}
           onChange={(e) => setNewFolder(e.target.value)}

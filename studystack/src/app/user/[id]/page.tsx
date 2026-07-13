@@ -31,7 +31,7 @@ export default function UserProfilePage() {
         <div className="h-24 gradient-purple" />
         <div className="px-5 pb-5">
           <div className="-mt-10 flex items-end justify-between">
-            <div className="grid h-20 w-20 place-items-center rounded-3xl border-4 border-white bg-canvas text-4xl soft-shadow">
+            <div className="grid h-20 w-20 place-items-center rounded-3xl border-4 border-card bg-canvas text-4xl soft-shadow">
               {user.avatar}
             </div>
             {user.id !== "you" && (
@@ -73,7 +73,7 @@ export default function UserProfilePage() {
             const badge = BADGE_MAP[b];
             if (!badge) return null;
             return (
-              <div key={b} className="rounded-2xl bg-white px-3 py-2 text-center card-shadow" title={badge.description}>
+              <div key={b} className="rounded-2xl bg-card px-3 py-2 text-center card-shadow" title={badge.description}>
                 <div className="text-2xl">{badge.emoji}</div>
                 <div className="text-[10px] font-bold text-ink">{badge.name}</div>
               </div>

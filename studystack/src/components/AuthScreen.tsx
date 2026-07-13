@@ -36,7 +36,7 @@ export function AuthScreen() {
           transition={{ duration: 0.5 }}
           className="order-2 lg:order-1"
         >
-          <div className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-grape-500 card-shadow">
+          <div className="inline-flex items-center gap-2 rounded-full bg-card px-4 py-2 text-sm font-semibold text-grape-500 card-shadow">
             🔥 Make science a daily habit
           </div>
           <h1 className="mt-5 text-4xl font-black leading-[1.05] tracking-tight text-ink sm:text-5xl">
@@ -48,15 +48,15 @@ export function AuthScreen() {
             <b className="text-ink">Knowledge Tower</b>. Level up until you can publish your own research.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <div className="rounded-2xl bg-white px-4 py-3 card-shadow">
+            <div className="rounded-2xl bg-card px-4 py-3 card-shadow">
               <div className="text-xl font-extrabold text-ink">{STUDY_COUNT}+</div>
               <div className="text-xs text-muted">Scientific studies</div>
             </div>
-            <div className="rounded-2xl bg-white px-4 py-3 card-shadow">
+            <div className="rounded-2xl bg-card px-4 py-3 card-shadow">
               <div className="text-xl font-extrabold text-ink">{STUDENT_COUNT}+</div>
               <div className="text-xs text-muted">Student articles</div>
             </div>
-            <div className="rounded-2xl bg-white px-4 py-3 card-shadow">
+            <div className="rounded-2xl bg-card px-4 py-3 card-shadow">
               <div className="text-xl font-extrabold text-ink">10</div>
               <div className="text-xs text-muted">Science topics</div>
             </div>
@@ -82,13 +82,13 @@ export function AuthScreen() {
             <div className="mt-6 grid grid-cols-2 gap-1 rounded-2xl bg-canvas p-1">
               <button
                 onClick={() => setMode("signup")}
-                className={`rounded-xl py-2 text-sm font-bold transition ${mode === "signup" ? "bg-white text-ink card-shadow" : "text-muted"}`}
+                className={`rounded-xl py-2 text-sm font-bold transition ${mode === "signup" ? "bg-card text-ink card-shadow" : "text-muted"}`}
               >
                 Sign up
               </button>
               <button
                 onClick={() => setMode("login")}
-                className={`rounded-xl py-2 text-sm font-bold transition ${mode === "login" ? "bg-white text-ink card-shadow" : "text-muted"}`}
+                className={`rounded-xl py-2 text-sm font-bold transition ${mode === "login" ? "bg-card text-ink card-shadow" : "text-muted"}`}
               >
                 Log in
               </button>
@@ -105,7 +105,7 @@ export function AuthScreen() {
                         onClick={() => setAvatar(a)}
                         aria-label={`Avatar ${a}`}
                         className={`grid h-10 w-10 place-items-center rounded-xl text-xl transition ${
-                          avatar === a ? "gradient-purple scale-110" : "bg-canvas hover:bg-black/5"
+                          avatar === a ? "gradient-purple scale-110" : "bg-canvas hover:bg-soft"
                         }`}
                       >
                         {a}
@@ -143,7 +143,7 @@ export function AuthScreen() {
 
               <button
                 onClick={submit}
-                className="flex w-full items-center justify-center gap-3 rounded-2xl border border-line bg-white py-3 font-semibold text-ink transition hover:border-brand/40"
+                className="flex w-full items-center justify-center gap-3 rounded-2xl border border-line bg-card py-3 font-semibold text-ink transition hover:border-brand/40"
               >
                 <span className="text-lg">🔵</span> Continue with Google
               </button>

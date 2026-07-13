@@ -84,7 +84,7 @@ export default function DiscoverPage() {
         </div>
       </div>
 
-      <div className="h-1 w-full overflow-hidden rounded-full bg-black/5">
+      <div className="h-1 w-full overflow-hidden rounded-full bg-soft">
         <motion.div
           className="h-full gradient-pink"
           animate={{ width: `${((index + 1) / feed.length) * 100}%` }}

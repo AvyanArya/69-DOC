@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { StoreProvider } from "@/lib/store";
+import { ThemeProvider } from "@/lib/theme";
 import { AppShell } from "@/components/AppShell";
 
 export const metadata: Metadata = {
@@ -12,7 +13,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#ec4899",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ec4899" },
+    { media: "(prefers-color-scheme: dark)", color: "#0e0b1a" },
+  ],
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
@@ -24,11 +28,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className="antialiased min-h-screen bg-canvas">
-        <StoreProvider>
-          <AppShell>{children}</AppShell>
-        </StoreProvider>
+        <ThemeProvider>
+          <StoreProvider>
+            <AppShell>{children}</AppShell>
+          </StoreProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

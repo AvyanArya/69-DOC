@@ -112,7 +112,7 @@ export default function HomePage() {
                 <CoverArt category={a!.category} className="h-14 w-14 shrink-0 rounded-2xl" />
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-sm font-bold text-ink">{a!.title}</div>
-                  <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-black/5">
+                  <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-soft">
                     <div className="h-full gradient-pink" style={{ width: `${p.percent}%` }} />
                   </div>
                 </div>

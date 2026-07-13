@@ -1,9 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useStore } from "@/lib/store";
-import { CANCER_AWARENESS_ID } from "@/lib/store";
+import { CANCER_AWARENESS_SECTIONS } from "@/lib/store";
 import { Button } from "@/components/ui";
 import { GenericQuizRunner } from "@/components/Quiz";
 import type { QuizQuestion } from "@/lib/types";
@@ -25,6 +26,7 @@ const MYTHS = [
   { myth: "Cutting out sugar completely can \"starve\" or cure cancer.", fact: "All cells, cancerous or not, use sugar for energy. No evidence shows eliminating sugar cures cancer — a balanced diet is the evidence-based approach." },
   { myth: "If it's not in your family, you won't get it.", fact: "Most cancers result from a mix of lifestyle, environment and chance mutations — only a minority are strongly hereditary." },
   { myth: "Herbal or 'natural' remedies can replace medical treatment.", fact: "No supplement or alternative remedy is a proven substitute for medical care — always discuss options with a qualified doctor." },
+  { myth: "Cancer is contagious, like a cold.", fact: "Cancer itself doesn't spread between people. A few viruses linked to some cancers (like HPV) are contagious, but the cancer itself is not." },
 ];
 
 const WARNING_SIGNS = [
@@ -37,9 +39,33 @@ const WARNING_SIGNS = [
   "A nagging cough or hoarseness that lingers",
 ];
 
-const AWARENESS_QUIZ: QuizQuestion[] = [
+const DAILY_FACTS = [
+  "Avoiding tobacco is the single biggest preventable step against cancer risk worldwide.",
+  "The HPV vaccine helps prevent infections linked to cervical and several other cancers.",
+  "Regular physical activity is linked to lower risk for several cancer types, independent of weight.",
+  "Skin cancer risk can be reduced simply with shade, sunscreen and avoiding tanning beds.",
+  "Most cancers result from a mix of lifestyle, environment and chance — not just family history.",
+  "Age-appropriate screening can catch some cancers early, when they're most treatable.",
+  "Diets rich in vegetables, fruit and fibre are linked to lower overall cancer risk.",
+  "Excess body weight is linked to a higher risk of several cancer types.",
+  "Cutting sugar completely does not \"starve\" cancer — there's no evidence it cures anything.",
+  "Cancer can occur at any age, though risk generally rises as we get older.",
+  "The Hepatitis B vaccine helps prevent infections linked to liver cancer.",
+  "Limiting alcohol intake lowers the risk of several cancer types.",
+  "A new lump is usually harmless, but any persistent or changing lump is worth a doctor's check.",
+  "Quitting smoking improves health outcomes at any age, even after decades of use.",
+  "Sun protection matters year-round, not just in summer — UV exposure adds up over a lifetime.",
+];
+
+function dayOfYear(d: Date): number {
+  const start = new Date(d.getFullYear(), 0, 0);
+  const diff = d.getTime() - start.getTime();
+  return Math.floor(diff / 86_400_000);
+}
+
+const PREVENTION_QUIZ: QuizQuestion[] = [
   {
-    id: "cancer-1",
+    id: "prev-1",
     kind: "multiple-choice",
     prompt: "Which of these is the single biggest preventable risk factor for cancer?",
     options: ["Tobacco use", "Occasionally eating sugar", "Being left-handed", "Drinking coffee"],
@@ -47,23 +73,7 @@ const AWARENESS_QUIZ: QuizQuestion[] = [
     explanation: "Avoiding all tobacco use is the single largest preventable step against cancer risk.",
   },
   {
-    id: "cancer-2",
-    kind: "true-false",
-    prompt: "Finding a lump always means someone has cancer.",
-    options: ["True", "False"],
-    correctIndex: 1,
-    explanation: "Many lumps are harmless (like cysts or fatty deposits) — but any new or changing lump should be checked by a doctor.",
-  },
-  {
-    id: "cancer-3",
-    kind: "multiple-choice",
-    prompt: "Which vaccines are linked to preventing infections that can cause certain cancers?",
-    options: ["HPV and Hepatitis B vaccines", "Flu and tetanus vaccines", "Only childhood vaccines", "There are no such vaccines"],
-    correctIndex: 0,
-    explanation: "HPV and Hepatitis B vaccines protect against infections linked to cervical, liver and some other cancers.",
-  },
-  {
-    id: "cancer-4",
+    id: "prev-2",
     kind: "true-false",
     prompt: "Regular physical activity is linked to a lower risk of several cancers, even without weight loss.",
     options: ["True", "False"],
@@ -71,7 +81,15 @@ const AWARENESS_QUIZ: QuizQuestion[] = [
     explanation: "Activity itself is linked to lower risk for several cancer types, independent of its effect on weight.",
   },
   {
-    id: "cancer-5",
+    id: "prev-3",
+    kind: "multiple-choice",
+    prompt: "Which vaccines are linked to preventing infections that can cause certain cancers?",
+    options: ["HPV and Hepatitis B vaccines", "Flu and tetanus vaccines", "Only childhood vaccines", "There are no such vaccines"],
+    correctIndex: 0,
+    explanation: "HPV and Hepatitis B vaccines protect against infections linked to cervical, liver and some other cancers.",
+  },
+  {
+    id: "prev-4",
     kind: "matching",
     prompt: "Match each habit to the kind of protection it mainly offers.",
     pairs: [
@@ -82,24 +100,118 @@ const AWARENESS_QUIZ: QuizQuestion[] = [
     ],
     explanation: "Different habits protect against different risks — together they add up.",
   },
+];
+
+const MYTHS_QUIZ: QuizQuestion[] = [
   {
-    id: "cancer-6",
-    kind: "scenario",
+    id: "myth-1",
+    kind: "true-false",
+    prompt: "Cutting out sugar completely can \"starve\" or cure cancer.",
+    options: ["True", "False"],
+    correctIndex: 1,
+    explanation: "All cells use sugar for energy. No evidence shows eliminating sugar cures cancer — balanced nutrition is the evidence-based approach.",
+  },
+  {
+    id: "myth-2",
+    kind: "true-false",
+    prompt: "Only older people get cancer.",
+    options: ["True", "False"],
+    correctIndex: 1,
+    explanation: "Risk rises with age, but cancer can occur at any age, including in children and young adults.",
+  },
+  {
+    id: "myth-3",
+    kind: "multiple-choice",
     prompt: "A friend says cutting all sugar from their diet will cure their relative's cancer. What's the best response?",
     options: [
-      "Gently explain that no food alone cures cancer, and encourage sticking with their doctor's treatment plan alongside a balanced diet",
+      "Gently explain no food alone cures cancer, and encourage sticking with their doctor's treatment plan",
       "Agree completely and recommend they stop all treatment",
       "Say nothing, it's not important",
       "Tell them to only eat sugar to test the theory",
     ],
     correctIndex: 0,
-    explanation: "Diet supports overall health, but it isn't a substitute for medical treatment — this is one of the most common cancer myths.",
+    explanation: "Diet supports overall health, but it isn't a substitute for medical treatment — one of the most common cancer myths.",
   },
+  {
+    id: "myth-4",
+    kind: "true-false",
+    prompt: "Cancer can spread from person to person like a cold.",
+    options: ["True", "False"],
+    correctIndex: 1,
+    explanation: "Cancer itself doesn't spread between people, though a few viruses linked to some cancers (like HPV) are contagious.",
+  },
+];
+
+const SIGNS_QUIZ: QuizQuestion[] = [
+  {
+    id: "sign-1",
+    kind: "true-false",
+    prompt: "Finding a lump always means someone has cancer.",
+    options: ["True", "False"],
+    correctIndex: 1,
+    explanation: "Many lumps are harmless — but any new or changing lump should be checked by a doctor.",
+  },
+  {
+    id: "sign-2",
+    kind: "multiple-choice",
+    prompt: "Which of these is a warning sign worth getting checked if it persists?",
+    options: [
+      "A sore or wound that doesn't heal",
+      "Feeling hungry after skipping breakfast",
+      "Being tired after a long day",
+      "A mild headache after screen time",
+    ],
+    correctIndex: 0,
+    explanation: "A sore or wound that won't heal is one of several general warning signs worth a doctor's attention if it persists.",
+  },
+  {
+    id: "sign-3",
+    kind: "true-false",
+    prompt: "Screening guidelines are exactly the same for every person, regardless of age or history.",
+    options: ["True", "False"],
+    correctIndex: 1,
+    explanation: "Screening recommendations vary by age, personal and family history, and country — a doctor can advise what's right for you.",
+  },
+  {
+    id: "sign-4",
+    kind: "scenario",
+    prompt: "You notice a wart or mole has changed shape recently. What should you do?",
+    options: [
+      "Get it checked by a doctor, since changing moles are a listed warning sign",
+      "Ignore it, moles never change",
+      "Remove it yourself at home",
+      "Wait a year and see what happens",
+    ],
+    correctIndex: 0,
+    explanation: "An obvious change in a wart or mole is a recognised warning sign worth having checked.",
+  },
+];
+
+interface SectionDef {
+  id: (typeof CANCER_AWARENESS_SECTIONS)[number];
+  emoji: string;
+  title: string;
+  blurb: string;
+  quiz: QuizQuestion[];
+}
+
+const SECTIONS: SectionDef[] = [
+  { id: "cancer-awareness-prevention", emoji: "🛡️", title: "Prevention Basics", blurb: "The habits with the strongest evidence behind them.", quiz: PREVENTION_QUIZ },
+  { id: "cancer-awareness-myths", emoji: "🧠", title: "Myths & Facts", blurb: "Unlearn the most common misconceptions.", quiz: MYTHS_QUIZ },
+  { id: "cancer-awareness-signs", emoji: "⚠️", title: "Warning Signs", blurb: "What's worth getting checked, and what isn't.", quiz: SIGNS_QUIZ },
 ];
 
 export default function CancerAwarenessPage() {
   const { state, dispatch } = useStore();
-  const alreadyDone = state.completed.some((c) => c.articleId === CANCER_AWARENESS_ID);
+  const [activeSection, setActiveSection] = useState<SectionDef | null>(null);
+
+  const completedIds = new Set(state.completed.map((c) => c.articleId));
+  const doneCount = SECTIONS.filter((s) => completedIds.has(s.id)).length;
+  const allDone = doneCount === SECTIONS.length;
+
+  const todayFact = DAILY_FACTS[dayOfYear(new Date()) % DAILY_FACTS.length];
+  const today = new Date().toISOString().slice(0, 10);
+  const factClaimed = state.dailyFactClaimedDate === today;
 
   return (
     <div className="space-y-8">
@@ -121,6 +233,36 @@ export default function CancerAwarenessPage() {
           ⚕️ This page shares general health education — it is <b>not medical advice</b>. Always talk to a qualified
           healthcare professional about your own health or someone else&rsquo;s.
         </div>
+        <div className="mt-4 flex items-center gap-3">
+          <div className="h-2 flex-1 overflow-hidden rounded-full bg-white/20">
+            <motion.div
+              className="h-full rounded-full bg-white"
+              animate={{ width: `${(doneCount / SECTIONS.length) * 100}%` }}
+              transition={{ type: "spring", stiffness: 120, damping: 24 }}
+            />
+          </div>
+          <span className="shrink-0 text-sm font-bold">{doneCount}/{SECTIONS.length} sections</span>
+        </div>
+      </motion.div>
+
+      {/* Daily fact — a reason to come back every day */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="rounded-3xl border-2 border-brand/15 bg-brand/5 p-5"
+      >
+        <div className="flex items-start gap-3">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl gradient-pink text-xl text-white">📅</span>
+          <div className="flex-1">
+            <div className="text-xs font-bold uppercase tracking-wide text-brand-700">Today&rsquo;s Cancer Fact</div>
+            <p className="mt-1 text-[15px] text-ink">{todayFact}</p>
+          </div>
+        </div>
+        <div className="mt-3 flex justify-end">
+          <Button size="sm" variant={factClaimed ? "soft" : "primary"} disabled={factClaimed} onClick={() => dispatch({ type: "claimDailyFact" })}>
+            {factClaimed ? "✅ Claimed today" : "Claim +5 XP →"}
+          </Button>
+        </div>
       </motion.div>
 
       {/* What is cancer */}
@@ -141,7 +283,7 @@ export default function CancerAwarenessPage() {
         <h2 className="mb-3 px-1 text-xl font-black text-ink">Prevention steps with strong evidence</h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {PREVENTION_PILLARS.map((p) => (
-            <div key={p.title} className="rounded-2xl bg-white p-4 card-shadow">
+            <div key={p.title} className="rounded-2xl bg-card p-4 card-shadow">
               <div className="text-3xl">{p.emoji}</div>
               <h3 className="mt-2 font-bold text-ink">{p.title}</h3>
               <p className="mt-1 text-sm text-muted">{p.body}</p>
@@ -166,21 +308,13 @@ export default function CancerAwarenessPage() {
         </ul>
       </section>
 
-      {/* Myths vs facts */}
+      {/* Myths vs facts — flip cards */}
       <section>
-        <h2 className="mb-3 px-1 text-xl font-black text-ink">Myths vs. facts</h2>
-        <div className="space-y-3">
+        <h2 className="mb-1 px-1 text-xl font-black text-ink">Myths vs. facts</h2>
+        <p className="mb-3 px-1 text-sm text-muted">Tap a card to reveal the fact.</p>
+        <div className="grid gap-3 sm:grid-cols-2">
           {MYTHS.map((m) => (
-            <div key={m.myth} className="rounded-2xl bg-white p-4 card-shadow">
-              <div className="flex gap-2 text-sm font-bold text-rose-600">
-                <span>❌ Myth</span>
-              </div>
-              <p className="mt-1 text-[15px] text-ink">{m.myth}</p>
-              <div className="mt-3 flex gap-2 text-sm font-bold text-emerald-600">
-                <span>✅ Fact</span>
-              </div>
-              <p className="mt-1 text-[15px] text-muted">{m.fact}</p>
-            </div>
+            <MythFlipCard key={m.myth} myth={m.myth} fact={m.fact} />
           ))}
         </div>
       </section>
@@ -197,66 +331,40 @@ export default function CancerAwarenessPage() {
         </p>
       </section>
 
-      {/* Quiz */}
+      {/* Three mini-quizzes */}
       <section id="quiz">
-        <h2 className="mb-3 px-1 text-xl font-black text-ink">Check your understanding</h2>
-        {alreadyDone ? (
-          <div className="rounded-3xl bg-emerald-50 p-6 text-center">
-            <div className="text-4xl">✅</div>
-            <h3 className="mt-2 text-lg font-black text-emerald-700">Guide completed</h3>
-            <p className="mt-1 text-sm text-emerald-700/80">You&apos;ve earned the Health Advocate badge 🎗️</p>
-          </div>
-        ) : (
-          <GenericQuizRunner
-            questions={AWARENESS_QUIZ}
-            passScore={0.6}
-            introEmoji="🎗️"
-            introTitle="Cancer Awareness Check"
-            introBody={
-              <>{AWARENESS_QUIZ.length} questions on prevention, warning signs and myths · earn XP and the Health Advocate badge.</>
-            }
-            introButtonLabel="Start check →"
-            onFinish={({ passed }) => {
-              if (passed) {
-                dispatch({
-                  type: "markRead",
-                  payload: { articleId: CANCER_AWARENESS_ID, xp: 60, coins: 20 },
-                });
-              }
-            }}
-            renderResult={({ correct, total, score, passed, retry }) => (
-              <div className={`rounded-3xl p-6 text-center text-white soft-shadow ${passed ? "gradient-pink" : "gradient-purple"}`}>
-                <div className="text-5xl">{passed ? "🎉" : "📚"}</div>
-                <h3 className="mt-2 text-2xl font-black">{passed ? "Nice work!" : "Give it another go"}</h3>
-                <p className="mt-1 text-white/85">
-                  You got {correct}/{total} ({Math.round(score * 100)}%)
-                </p>
-                {passed ? (
-                  <div className="mt-4 flex items-center justify-center gap-3">
-                    <div className="rounded-2xl bg-white/15 px-4 py-2">
-                      <div className="text-lg font-black">+60</div>
-                      <div className="text-[11px] text-white/80">XP</div>
-                    </div>
-                    <div className="rounded-2xl bg-white/15 px-4 py-2">
-                      <div className="text-lg font-black">🎗️</div>
-                      <div className="text-[11px] text-white/80">Health Advocate</div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="mt-5">
-                    <Button variant="outline" className="!border-white/30 !bg-white/20 !text-white" onClick={retry}>
-                      Try again
-                    </Button>
-                  </div>
-                )}
-              </div>
-            )}
-          />
-        )}
+        <div className="mb-3 flex items-center justify-between px-1">
+          <h2 className="text-xl font-black text-ink">Check your understanding</h2>
+          {allDone && <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700">🎗️ Health Advocate earned</span>}
+        </div>
+        <div className="grid gap-3 sm:grid-cols-3">
+          {SECTIONS.map((s) => {
+            const done = completedIds.has(s.id);
+            return (
+              <button
+                key={s.id}
+                onClick={() => setActiveSection(s)}
+                className={`rounded-3xl p-5 text-left card-shadow transition hover:-translate-y-0.5 ${
+                  done ? "bg-emerald-50" : "bg-card"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-3xl">{s.emoji}</span>
+                  {done && <span className="text-xl">✅</span>}
+                </div>
+                <h3 className="mt-2 font-black text-ink">{s.title}</h3>
+                <p className="mt-1 text-sm text-muted">{s.blurb}</p>
+                <div className="mt-3 text-xs font-bold text-brand-700">
+                  {done ? "Retake quiz →" : `${s.quiz.length} questions · +20 XP →`}
+                </div>
+              </button>
+            );
+          })}
+        </div>
       </section>
 
       {/* Resources */}
-      <section className="rounded-3xl border border-line bg-white p-6">
+      <section className="rounded-3xl border border-line bg-card p-6">
         <h2 className="text-lg font-black text-ink">📚 Learn more</h2>
         <p className="mt-2 text-sm text-muted">
           For up-to-date, authoritative guidance, look up these organisations directly: the World Health Organization
@@ -264,6 +372,96 @@ export default function CancerAwarenessPage() {
           They publish free, regularly-updated public information on prevention, screening and support.
         </p>
       </section>
+
+      {/* Active mini-quiz modal-ish panel */}
+      <AnimatePresence>
+        {activeSection && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 overflow-y-auto bg-black/50 p-4"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setActiveSection(null);
+            }}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 30, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              className="mx-auto mt-10 max-w-lg"
+            >
+              <div className="mb-3 flex justify-end">
+                <button
+                  onClick={() => setActiveSection(null)}
+                  className="grid h-9 w-9 place-items-center rounded-full bg-card text-ink card-shadow"
+                  aria-label="Close"
+                >
+                  ✕
+                </button>
+              </div>
+              <GenericQuizRunner
+                questions={activeSection.quiz}
+                passScore={0.6}
+                introEmoji={activeSection.emoji}
+                introTitle={activeSection.title}
+                introBody={<>{activeSection.quiz.length} questions · pass with 60% to earn +20 XP and progress toward the Health Advocate badge.</>}
+                introButtonLabel="Start →"
+                onFinish={({ passed }) => {
+                  if (passed) {
+                    dispatch({ type: "markRead", payload: { articleId: activeSection.id, xp: 20, coins: 8 } });
+                  }
+                }}
+                renderResult={({ correct, total, score, passed, retry }) => (
+                  <div className={`rounded-3xl p-6 text-center text-white soft-shadow ${passed ? "gradient-pink" : "gradient-purple"}`}>
+                    <div className="text-5xl">{passed ? "🎉" : "📚"}</div>
+                    <h3 className="mt-2 text-2xl font-black">{passed ? "Nice work!" : "Give it another go"}</h3>
+                    <p className="mt-1 text-white/85">You got {correct}/{total} ({Math.round(score * 100)}%)</p>
+                    <div className="mt-5 flex justify-center gap-3">
+                      {!passed && (
+                        <Button variant="outline" className="!border-white/30 !bg-white/20 !text-white" onClick={retry}>
+                          Try again
+                        </Button>
+                      )}
+                      <Button variant="outline" className="!bg-white !text-grape" onClick={() => setActiveSection(null)}>
+                        Close
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
+  );
+}
+
+function MythFlipCard({ myth, fact }: { myth: string; fact: string }) {
+  const [flipped, setFlipped] = useState(false);
+  return (
+    <button
+      onClick={() => setFlipped((f) => !f)}
+      className="group relative h-40 w-full [perspective:1000px]"
+      aria-label={flipped ? "Show myth" : "Show fact"}
+    >
+      <motion.div
+        className="relative h-full w-full [transform-style:preserve-3d]"
+        animate={{ rotateY: flipped ? 180 : 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="absolute inset-0 flex flex-col justify-center rounded-2xl bg-card p-4 text-left card-shadow [backface-visibility:hidden]">
+          <div className="text-xs font-bold text-rose-600">❌ MYTH — tap to reveal the fact</div>
+          <p className="mt-2 text-sm font-semibold text-ink">{myth}</p>
+        </div>
+        <div
+          className="absolute inset-0 flex flex-col justify-center rounded-2xl bg-emerald-50 p-4 text-left card-shadow [backface-visibility:hidden]"
+          style={{ transform: "rotateY(180deg)" }}
+        >
+          <div className="text-xs font-bold text-emerald-700">✅ FACT</div>
+          <p className="mt-2 text-sm text-emerald-900">{fact}</p>
+        </div>
+      </motion.div>
+    </button>
   );
 }

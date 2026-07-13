@@ -50,7 +50,7 @@ export default function TopicPage() {
             key={c.id}
             href={`/topic/${c.id}`}
             className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold ${
-              c.id === category ? "gradient-purple text-white" : "bg-white text-muted border border-line"
+              c.id === category ? "gradient-purple text-white" : "bg-card text-muted border border-line"
             }`}
           >
             {c.emoji} {c.name}
