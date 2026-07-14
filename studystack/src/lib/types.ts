@@ -12,7 +12,10 @@ export type Category =
   | "public-health"
   | "physics"
   | "business"
-  | "finance";
+  | "finance"
+  | "history"
+  | "art-history"
+  | "politics";
 
 export type Difficulty = "beginner" | "intermediate" | "advanced";
 
@@ -231,6 +234,7 @@ export interface UserState {
   bio: string;
   isAdmin: boolean;
   gradeLevel: GradeLevel;
+  interests: Category[]; // declared subjects of interest, used to bias recommendations
   createdAt: string;
 
   xp: number;
@@ -260,7 +264,6 @@ export interface UserState {
 
   dailyGoalArticles: number; // configurable goal
   writingUnlockArticles: number; // configurable threshold
-  writingUnlockDays: number;
   activeDays: string[]; // distinct yyyy-mm-dd days with activity
 
   citationQuizPassed: boolean; // must pass the referencing/citation skills quiz to publish

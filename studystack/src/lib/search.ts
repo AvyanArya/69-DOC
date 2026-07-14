@@ -17,6 +17,9 @@ export const CATEGORY_SYNONYMS: Record<Category, string[]> = {
   physics: ["physical science", "mechanics", "energy"],
   business: ["entrepreneurship", "management", "commerce", "corporate", "startups", "marketing", "economy"],
   finance: ["economics", "econ", "money", "investing", "financial literacy", "personal finance", "wealth", "banking"],
+  history: ["historical", "the past", "world history", "ancient history"],
+  "art-history": ["art", "painting", "paintings", "artists", "renaissance art", "sculpture"],
+  politics: ["government", "policy", "civics", "political science", "elections", "law"],
 };
 
 // Fields that are conceptually adjacent enough that a search for one should
@@ -29,6 +32,9 @@ const RELATED_CATEGORIES: Partial<Record<Category, Category[]>> = {
   genetics: ["medicine"],
   epidemiology: ["public-health"],
   "public-health": ["epidemiology"],
+  history: ["art-history", "politics"],
+  "art-history": ["history"],
+  politics: ["history"],
 };
 
 function normalize(s: string): string {

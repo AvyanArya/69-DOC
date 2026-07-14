@@ -11,6 +11,7 @@ import { useStore } from "@/lib/store";
 import { Button, CoverArt, DifficultyPill, TypePill } from "./ui";
 import { QuizRunner } from "./Quiz";
 import { ArticleRow } from "./ArticleCard";
+import { AvatarFace } from "./Avatar";
 import { buildComments, ARTICLES } from "@/lib/content";
 
 // Wrap glossary terms in paragraph text with tappable highlights. Memoized so
@@ -160,16 +161,28 @@ export function ArticleReader({ article, quiz }: { article: Article; quiz: Quiz 
             </Link>
           </div>
           <h1 className="text-3xl font-black leading-tight tracking-tight text-ink">{article.title}</h1>
-          <div className="flex items-center justify-between">
-            <Link href={`/user/${author?.id}`} className="flex items-center gap-2">
-              <span className="grid h-9 w-9 place-items-center rounded-full bg-canvas text-lg">{author?.avatar}</span>
-              <span>
-                <span className="block text-sm font-bold text-ink">{author?.displayName}</span>
-                <span className="block text-xs text-muted">
-                  {new Date(article.publishedAt).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })} · ⏱ {article.readMinutes} min · {progress}% read
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex min-w-0 items-center gap-2">
+              <Link href={`/user/${author?.id}`} className="flex min-w-0 items-center gap-2">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-canvas text-lg">{author && <AvatarFace value={author.avatar} />}</span>
+                <span className="min-w-0">
+                  <span className="block truncate text-sm font-bold text-ink">{author?.displayName}</span>
+                  <span className="block truncate text-xs text-muted">
+                    {new Date(article.publishedAt).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })} · ⏱ {article.readMinutes} min · {progress}% read
+                  </span>
                 </span>
-              </span>
-            </Link>
+              </Link>
+              {author && author.id !== "editorial" && (
+                <button
+                  onClick={() => dispatch({ type: "toggleFollow", payload: { userId: author.id } })}
+                  className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-bold transition ${
+                    state.followingIds.includes(author.id) ? "bg-soft text-ink" : "gradient-purple text-white"
+                  }`}
+                >
+                  {state.followingIds.includes(author.id) ? "✓ Following" : "+ Follow"}
+                </button>
+              )}
+            </div>
             <div className="flex items-center gap-1">
               <button
                 onClick={() => dispatch({ type: "toggleLike", payload: { articleId: article.id } })}
@@ -286,7 +299,7 @@ export function ArticleReader({ article, quiz }: { article: Article; quiz: Quiz 
         <section>
           <div className="mb-3 flex items-center gap-2 text-lg font-black text-ink">💬 Comments ({comments.length})</div>
           <div className="mb-4 flex items-center gap-2 rounded-2xl bg-card p-3 card-shadow">
-            <span className="grid h-9 w-9 place-items-center rounded-full bg-canvas text-lg">{state.avatar}</span>
+            <span className="grid h-9 w-9 place-items-center rounded-full bg-canvas text-lg"><AvatarFace value={state.avatar} /></span>
             <input
               placeholder="Add a thoughtful comment…"
               className="flex-1 bg-transparent text-sm outline-none"
@@ -300,7 +313,7 @@ export function ArticleReader({ article, quiz }: { article: Article; quiz: Quiz 
               return (
                 <div key={c.id} className="rounded-2xl bg-card p-4 card-shadow">
                   <div className="flex items-center gap-2">
-                    <span className="grid h-8 w-8 place-items-center rounded-full bg-canvas">{cAuthor?.avatar}</span>
+                    <span className="grid h-8 w-8 place-items-center rounded-full bg-canvas">{cAuthor && <AvatarFace value={cAuthor.avatar} />}</span>
                     <span className="text-sm font-bold text-ink">{cAuthor?.displayName}</span>
                     <span className="text-xs text-muted">· {new Date(c.createdAt).toLocaleDateString()}</span>
                   </div>
@@ -315,7 +328,7 @@ export function ArticleReader({ article, quiz }: { article: Article; quiz: Quiz 
                     return (
                       <div key={r.id} className="ml-6 mt-3 rounded-2xl bg-canvas p-3">
                         <div className="flex items-center gap-2">
-                          <span className="grid h-7 w-7 place-items-center rounded-full bg-card">{rAuthor?.avatar}</span>
+                          <span className="grid h-7 w-7 place-items-center rounded-full bg-card">{rAuthor && <AvatarFace value={rAuthor.avatar} />}</span>
                           <span className="text-sm font-bold text-ink">{rAuthor?.displayName}</span>
                         </div>
                         <p className="mt-1.5 text-sm text-ink">{r.body}</p>

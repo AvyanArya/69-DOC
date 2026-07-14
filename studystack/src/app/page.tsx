@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { useStore } from "@/lib/store";
 import { StreakCard } from "@/components/StreakCard";
@@ -11,22 +12,29 @@ import { ARTICLES, featuredArticles, studentArticles, getArticle } from "@/lib/c
 import { USER_MAP } from "@/lib/data/users";
 import { greeting } from "@/lib/gamification";
 import { allTopicTowers } from "@/lib/towers";
-import { GRADE_LEVEL_MAP, isWithinGradeCeiling } from "@/lib/data/gradeLevels";
+import { GRADE_LEVEL_MAP } from "@/lib/data/gradeLevels";
+import { pickDiverseRecommendations, scoreForUser, readCategoryCounts } from "@/lib/recommend";
+import { AvatarFace } from "@/components/Avatar";
 
 export default function HomePage() {
   const { state } = useStore();
   const topTower = allTopicTowers(state.completed)[0];
 
   const featuredPool = featuredArticles();
-  const featured =
-    featuredPool.find((a) => isWithinGradeCeiling(a.difficulty, state.gradeLevel)) ?? featuredPool[0] ?? ARTICLES[0];
-  const recommended = ARTICLES.filter((a) => a.type === "study" && a.id !== featured.id)
-    .sort((a, b) => {
-      const aOk = isWithinGradeCeiling(a.difficulty, state.gradeLevel) ? 0 : 1;
-      const bOk = isWithinGradeCeiling(b.difficulty, state.gradeLevel) ? 0 : 1;
-      return aOk - bOk;
-    })
-    .slice(0, 8);
+  // Memoized so liking/bookmarking on Home doesn't reshuffle these picks underneath the reader.
+  const { featured, recommended } = useMemo(() => {
+    const readCounts = readCategoryCounts(state);
+    const bestFeatured =
+      [...featuredPool].sort((a, b) => scoreForUser(b, state, readCounts) - scoreForUser(a, state, readCounts))[0] ??
+      ARTICLES[0];
+    const rec = pickDiverseRecommendations(
+      ARTICLES.filter((a) => a.type === "study" && a.id !== bestFeatured.id),
+      state,
+      8,
+    );
+    return { featured: bestFeatured, recommended: rec };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.gradeLevel, state.interests, state.completed.length]);
   const students = studentArticles().slice(0, 6);
   const continueReading = state.progress
     .map((p) => ({ p, a: getArticle(p.articleId) }))
@@ -98,7 +106,7 @@ export default function HomePage() {
               <p className="text-sm text-muted">{featured.summary}</p>
               <div className="flex items-center justify-between pt-1">
                 <span className="text-xs text-muted">
-                  {featAuthor?.avatar} {featAuthor?.displayName}
+                  {featAuthor && <AvatarFace value={featAuthor.avatar} />} {featAuthor?.displayName}
                 </span>
                 <Button size="sm">Start reading · +{featured.xp} XP</Button>
               </div>
@@ -151,10 +159,10 @@ export default function HomePage() {
         </HScroll>
       </section>
 
-      {/* Teen published */}
+      {/* Student published */}
       <section>
         <SectionHeader
-          title="Teen-published articles"
+          title="Student-written articles"
           emoji="✍️"
           action={<Link href="/learn?type=student" className="text-sm font-semibold text-brand-700">See all</Link>}
         />

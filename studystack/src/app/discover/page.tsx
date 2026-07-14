@@ -8,15 +8,16 @@ import { useStore } from "@/lib/store";
 import { CATEGORY_MAP } from "@/lib/data/categories";
 import { USER_MAP } from "@/lib/data/users";
 import { DifficultyPill, TypePill } from "@/components/ui";
-import { isWithinGradeCeiling } from "@/lib/data/gradeLevels";
+import { AvatarFace } from "@/components/Avatar";
 import { articleMatchesQuery } from "@/lib/search";
-import type { Article, GradeLevel } from "@/lib/types";
+import { scoreForUser, readCategoryCounts } from "@/lib/recommend";
+import type { Article, UserState } from "@/lib/types";
 
-function buildFeed(grade: GradeLevel): Article[] {
+function buildFeed(state: UserState): Article[] {
+  const readCounts = readCategoryCounts(state);
   return [...ARTICLES].sort((a, b) => {
-    const aOk = isWithinGradeCeiling(a.difficulty, grade) ? 0 : 1;
-    const bOk = isWithinGradeCeiling(b.difficulty, grade) ? 0 : 1;
-    if (aOk !== bOk) return aOk - bOk;
+    const diff = scoreForUser(b, state, readCounts) - scoreForUser(a, state, readCounts);
+    if (diff !== 0) return diff;
     return (b.likes % 97) - (a.likes % 97);
   });
 }
@@ -70,7 +71,13 @@ function topicIcons(article: Article, mainEmoji: string): string[] {
 
 export default function DiscoverPage() {
   const { state } = useStore();
-  const feed = useMemo(() => buildFeed(state.gradeLevel), [state.gradeLevel]);
+  // Only re-sort the feed when something that actually affects ranking changes —
+  // not on every like/bookmark tap, which would reshuffle cards under the reader.
+  const feed = useMemo(
+    () => buildFeed(state),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [state.gradeLevel, state.interests, state.completed.length],
+  );
   const [query, setQuery] = useState("");
   const [showSearch, setShowSearch] = useState(false);
   const [index, setIndex] = useState(0);
@@ -398,7 +405,7 @@ function DiscoverCard({ article, direction }: { article: Article; direction: 1 |
           </p>
         )}
         <div className="mt-3 flex items-center gap-3 text-xs text-white/85">
-          <span>{author?.avatar} {author?.displayName}</span>
+          <span>{author && <AvatarFace value={author.avatar} />} {author?.displayName}</span>
           <span>· ⏱ {article.readMinutes}m</span>
           <span className="rounded-full bg-white/20 px-2 py-0.5 font-bold">+{article.xp} XP</span>
         </div>

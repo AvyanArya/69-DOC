@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useStore } from "@/lib/store";
 import { Button, Chip, CoverArt } from "@/components/ui";
+import { AvatarFace } from "@/components/Avatar";
 import { SubmissionDetailModal } from "@/components/SubmissionDetail";
 import { STATUS_STYLE } from "@/lib/submissions";
 import { CATEGORIES } from "@/lib/data/categories";
@@ -26,6 +27,7 @@ interface QueueItem {
   references: string;
   tags: string[];
   status: SubmissionStatus;
+  moderatorNote?: string;
 }
 
 const INITIAL_QUEUE: QueueItem[] = [
@@ -72,6 +74,7 @@ function queueItemToSubmission(item: QueueItem): Submission {
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     authorId: item.author,
+    moderatorNote: item.moderatorNote,
   };
 }
 
@@ -82,8 +85,34 @@ export default function AdminPage() {
   const [bannedUsers, setBannedUsers] = useState<string[]>([]);
   const [viewing, setViewing] = useState<{ submission: Submission; authorName: string } | null>(null);
 
-  function setQueueStatus(id: string, status: SubmissionStatus) {
-    setQueue((q) => q.map((item) => (item.id === id ? { ...item, status } : item)));
+  function setQueueStatus(id: string, status: SubmissionStatus, moderatorNote?: string) {
+    setQueue((q) => q.map((item) => (item.id === id ? { ...item, status, moderatorNote: moderatorNote ?? item.moderatorNote } : item)));
+  }
+
+  function notifyAuthor(status: "approved" | "rejected" | "needs-changes", title: string, note?: string) {
+    const titles: Record<typeof status, string> = {
+      approved: "Your article was approved! 🎉",
+      rejected: "Your article wasn't approved",
+      "needs-changes": "Changes requested on your article",
+    };
+    const body =
+      status === "approved"
+        ? `"${title}" passed moderation and is now published.`
+        : note
+          ? `"${title}": ${note}`
+          : `"${title}" needs another look — check the moderator note.`;
+    dispatch({
+      type: "pushNotification",
+      payload: {
+        id: `notif-mod-${Date.now()}`,
+        kind: "moderation",
+        title: titles[status],
+        body,
+        createdAt: new Date().toISOString(),
+        read: false,
+        href: "/write",
+      },
+    });
   }
 
   const pendingCount = queue.filter((q) => q.status === "pending" || q.status === "under-review").length +
@@ -119,9 +148,19 @@ export default function AdminPage() {
               excerpt={s.body.slice(0, 120) || "No preview."}
               status={s.status}
               onView={() => setViewing({ submission: s, authorName: "You" })}
-              onApprove={() => dispatch({ type: "updateSubmission", payload: { id: s.id, changes: { status: "approved" } } })}
-              onReject={() => dispatch({ type: "updateSubmission", payload: { id: s.id, changes: { status: "rejected", moderatorNote: "Needs more citations." } } })}
-              onChanges={() => dispatch({ type: "updateSubmission", payload: { id: s.id, changes: { status: "needs-changes", moderatorNote: "Great start — please add references and a summary." } } })}
+              onApprove={() => {
+                dispatch({ type: "updateSubmission", payload: { id: s.id, changes: { status: "approved" } } });
+                notifyAuthor("approved", s.title);
+              }}
+              onReject={(note) => {
+                dispatch({ type: "updateSubmission", payload: { id: s.id, changes: { status: "rejected", moderatorNote: note } } });
+                notifyAuthor("rejected", s.title, note);
+              }}
+              onChanges={(note) => {
+                dispatch({ type: "updateSubmission", payload: { id: s.id, changes: { status: "needs-changes", moderatorNote: note } } });
+                notifyAuthor("needs-changes", s.title, note);
+              }}
+              onViewPublished={() => setViewing({ submission: { ...s, status: "approved" }, authorName: "You" })}
             />
           ))}
           {queue.map((item) => (
@@ -135,8 +174,9 @@ export default function AdminPage() {
               status={item.status}
               onView={() => setViewing({ submission: queueItemToSubmission(item), authorName: item.author })}
               onApprove={() => setQueueStatus(item.id, "approved")}
-              onReject={() => setQueueStatus(item.id, "rejected")}
-              onChanges={() => setQueueStatus(item.id, "needs-changes")}
+              onReject={(note) => setQueueStatus(item.id, "rejected", note)}
+              onChanges={(note) => setQueueStatus(item.id, "needs-changes", note)}
+              onViewPublished={() => setViewing({ submission: queueItemToSubmission({ ...item, status: "approved" }), authorName: item.author })}
             />
           ))}
         </div>
@@ -148,7 +188,7 @@ export default function AdminPage() {
             const banned = bannedUsers.includes(u.id);
             return (
               <div key={u.id} className="flex items-center gap-3 rounded-2xl bg-card p-3 card-shadow">
-                <span className="grid h-11 w-11 place-items-center rounded-2xl bg-canvas text-xl">{u.avatar}</span>
+                <span className="grid h-11 w-11 place-items-center rounded-2xl bg-canvas text-xl"><AvatarFace value={u.avatar} /></span>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <span className="truncate text-sm font-bold text-ink">{u.displayName}</span>
@@ -209,9 +249,9 @@ export default function AdminPage() {
             <p className="mb-3 text-xs text-muted">Curated studies shown on the home page.</p>
             <div className="grid gap-2 sm:grid-cols-2">
               {ARTICLES.filter((a) => a.featured).slice(0, 6).map((a) => (
-                <div key={a.id} className="flex items-center justify-between rounded-2xl bg-canvas p-3">
-                  <span className="truncate text-sm font-semibold text-ink">{a.title}</span>
-                  <span className="text-xs font-bold text-emerald-600">★ Featured</span>
+                <div key={a.id} className="flex items-center justify-between gap-2 rounded-2xl bg-canvas p-3">
+                  <span className="min-w-0 truncate text-sm font-semibold text-ink">{a.title}</span>
+                  <span className="shrink-0 whitespace-nowrap text-xs font-bold text-emerald-600">★ Featured</span>
                 </div>
               ))}
             </div>
@@ -252,6 +292,7 @@ function ModerationCard({
   onApprove,
   onReject,
   onChanges,
+  onViewPublished,
 }: {
   title: string;
   author: string;
@@ -261,17 +302,40 @@ function ModerationCard({
   status: SubmissionStatus;
   onView: () => void;
   onApprove: () => void;
-  onReject: () => void;
-  onChanges: () => void;
+  onReject: (note: string) => void;
+  onChanges: (note: string) => void;
+  onViewPublished?: () => void;
 }) {
+  const [composing, setComposing] = useState<"changes" | "reject" | null>(null);
+  const [note, setNote] = useState("");
+  const [justDecided, setJustDecided] = useState<"approved" | "changes" | "rejected" | null>(null);
   const decided = status === "approved" || status === "rejected";
+
+  function send() {
+    if (!note.trim()) return;
+    if (composing === "changes") {
+      onChanges(note.trim());
+      setJustDecided("changes");
+    } else if (composing === "reject") {
+      onReject(note.trim());
+      setJustDecided("rejected");
+    }
+    setComposing(null);
+    setNote("");
+  }
+
+  function approve() {
+    onApprove();
+    setJustDecided("approved");
+  }
+
   return (
     <div className="rounded-3xl bg-card p-4 card-shadow">
       <button onClick={onView} className="block w-full text-left">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <h3 className="font-bold text-ink hover:text-brand-700">{title}</h3>
-            <div className="mt-0.5 text-xs text-muted">{avatar} {author} · {category}</div>
+            <div className="mt-0.5 text-xs text-muted"><AvatarFace value={avatar} /> {author} · {category}</div>
           </div>
           <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-bold capitalize ${STATUS_STYLE[status]}`}>
             {status.replace("-", " ")}
@@ -280,14 +344,68 @@ function ModerationCard({
         <p className="mt-2 line-clamp-2 text-sm text-muted">{excerpt}</p>
         <div className="mt-1 text-xs font-semibold text-brand-700">Tap to view full submission →</div>
       </button>
-      {!decided && (
-        <div className="mt-3 flex flex-wrap gap-2">
-          <Button size="sm" onClick={onApprove}>✓ Approve</Button>
-          <Button size="sm" variant="outline" onClick={onChanges}>✎ Request changes</Button>
-          <button onClick={onReject} className="rounded-2xl bg-rose-50 px-3.5 py-2 text-sm font-semibold text-rose-600 hover:bg-rose-100">
-            ✕ Reject
-          </button>
+
+      {justDecided === "approved" && (
+        <div className="mt-3 flex items-center justify-between rounded-2xl bg-emerald-50 p-3 text-sm">
+          <span className="font-semibold text-emerald-700">✅ Approved &amp; author notified</span>
+          {onViewPublished && (
+            <button onClick={onViewPublished} className="font-bold text-emerald-700 hover:underline">
+              View it →
+            </button>
+          )}
         </div>
+      )}
+      {justDecided === "rejected" && (
+        <div className="mt-3 rounded-2xl bg-rose-50 p-3 text-sm font-semibold text-rose-600">✕ Rejected &amp; author notified with your message</div>
+      )}
+      {justDecided === "changes" && (
+        <div className="mt-3 rounded-2xl bg-amber-50 p-3 text-sm font-semibold text-amber-700">✎ Changes requested &amp; author notified with your message</div>
+      )}
+
+      {!decided && !justDecided && (
+        <>
+          {composing ? (
+            <div className="mt-3 space-y-2">
+              <textarea
+                autoFocus
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder={
+                  composing === "reject"
+                    ? "Explain why this was rejected — this message goes straight to the author…"
+                    : "Explain what needs to change — this message goes straight to the author…"
+                }
+                rows={3}
+                className="w-full rounded-2xl border border-line bg-canvas p-3 text-sm outline-none focus:border-brand/40"
+              />
+              <div className="flex gap-2">
+                <Button size="sm" onClick={send} disabled={!note.trim()}>
+                  Send &amp; {composing === "reject" ? "reject" : "request changes"}
+                </Button>
+                <button
+                  onClick={() => {
+                    setComposing(null);
+                    setNote("");
+                  }}
+                  className="rounded-2xl px-3.5 py-2 text-sm font-semibold text-muted hover:text-ink"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button size="sm" onClick={approve}>✓ Approve</Button>
+              <Button size="sm" variant="outline" onClick={() => setComposing("changes")}>✎ Request changes</Button>
+              <button
+                onClick={() => setComposing("reject")}
+                className="rounded-2xl bg-rose-50 px-3.5 py-2 text-sm font-semibold text-rose-600 hover:bg-rose-100"
+              >
+                ✕ Reject
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

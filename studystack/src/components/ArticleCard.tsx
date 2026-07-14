@@ -7,16 +7,15 @@ import { CoverArt, DifficultyPill, TypePill } from "./ui";
 import { USER_MAP } from "@/lib/data/users";
 import { CATEGORY_MAP } from "@/lib/data/categories";
 import { useStore } from "@/lib/store";
+import { AvatarFace } from "./Avatar";
 
 export function ArticleCard({
   article,
   index = 0,
-  locked = false,
   className = "",
 }: {
   article: Article;
   index?: number;
-  locked?: boolean;
   className?: string;
 }) {
   const author = USER_MAP[article.authorId];
@@ -32,14 +31,6 @@ export function ArticleCard({
       <Link href={`/learn/${article.id}`} className="group flex h-full flex-col">
         <div className="relative flex h-full flex-col overflow-hidden rounded-3xl bg-card card-shadow transition group-hover:-translate-y-1 group-hover:soft-shadow">
           <CoverArt category={article.category} coverUrl={coverUrl} className="h-36 w-full shrink-0" />
-          {locked && (
-            <span
-              className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-bold text-white backdrop-blur"
-              title="Ahead of your level — master easier articles in this topic first"
-            >
-              🔒 Ahead of your level
-            </span>
-          )}
           <div className="flex flex-1 flex-col gap-3 p-4">
             <div className="flex flex-wrap items-center gap-1.5">
               <TypePill type={article.type} />
@@ -51,7 +42,7 @@ export function ArticleCard({
             <p className="line-clamp-2 text-sm text-muted">{article.summary}</p>
             <div className="mt-auto flex items-center justify-between pt-1 text-xs text-muted">
               <span className="flex items-center gap-1.5">
-                <span className="grid h-6 w-6 place-items-center rounded-full bg-canvas">{author?.avatar}</span>
+                <span className="grid h-6 w-6 place-items-center rounded-full bg-canvas">{author && <AvatarFace value={author.avatar} />}</span>
                 {author?.displayName}
               </span>
               <span className="flex items-center gap-2">
@@ -82,7 +73,7 @@ export function ArticleRow({ article }: { article: Article }) {
           {article.title}
         </h3>
         <div className="mt-1 flex items-center gap-2 text-[11px] text-muted">
-          <span>{author?.avatar} {author?.displayName}</span>
+          <span>{author && <AvatarFace value={author.avatar} />} {author?.displayName}</span>
           <span>· ⏱ {article.readMinutes}m</span>
           <span className="font-bold text-brand-700">+{article.xp}</span>
         </div>

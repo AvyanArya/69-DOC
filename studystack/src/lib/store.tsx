@@ -30,6 +30,11 @@ const STORAGE_KEY = "vera:v1";
 
 const DEFAULT_FOLDERS = ["Favorites", "Exam Prep", "Interesting"];
 
+// Extra qualification bar for writing, beyond the referencing skills quiz:
+// real quiz-taking history, not just clicking "mark as read".
+export const MIN_QUIZZES_FOR_WRITING = 5;
+export const MIN_QUIZ_ACCURACY_FOR_WRITING = 0.7;
+
 function todayKey() {
   return dayKey(new Date());
 }
@@ -45,6 +50,7 @@ function freshState(): UserState {
     bio: "",
     isAdmin: false,
     gradeLevel: "grade-9-10",
+    interests: [],
     createdAt: new Date().toISOString(),
     xp: 0,
     coins: 0,
@@ -68,8 +74,7 @@ function freshState(): UserState {
     submissions: [],
     notifications: [],
     dailyGoalArticles: 1,
-    writingUnlockArticles: 5,
-    writingUnlockDays: 3,
+    writingUnlockArticles: 15,
     activeDays: [],
     citationQuizPassed: false,
     citationQuizBestScore: 0,
@@ -80,7 +85,14 @@ function freshState(): UserState {
 
 /** A pre-populated starter account so the app feels alive right after sign-in. */
 function starterState(
-  opts: { username: string; displayName: string; avatar: string; email?: string; gradeLevel?: UserState["gradeLevel"] } = {
+  opts: {
+    username: string;
+    displayName: string;
+    avatar: string;
+    email?: string;
+    gradeLevel?: UserState["gradeLevel"];
+    interests?: UserState["interests"];
+  } = {
     username: "you",
     displayName: "Alex",
     avatar: "🦊",
@@ -98,6 +110,7 @@ function starterState(
     avatar: opts.avatar,
     email: opts.email ?? "",
     gradeLevel: opts.gradeLevel ?? base.gradeLevel,
+    interests: opts.interests ?? [],
     bio: "Curious about medicine and the brain. Learning every day.",
     isAdmin: true,
     xp: 640,
@@ -133,9 +146,10 @@ function starterState(
 
 type Action =
   | { type: "hydrate"; payload: UserState }
-  | { type: "signIn"; payload: { username: string; displayName: string; avatar: string; email?: string; gradeLevel?: UserState["gradeLevel"] } }
+  | { type: "signIn"; payload: { username: string; displayName: string; avatar: string; email?: string; gradeLevel?: UserState["gradeLevel"]; interests?: UserState["interests"] } }
   | { type: "signOut" }
-  | { type: "updateProfile"; payload: Partial<Pick<UserState, "displayName" | "avatar" | "bio" | "username" | "gradeLevel" | "email">> }
+  | { type: "deleteAccount" }
+  | { type: "updateProfile"; payload: Partial<Pick<UserState, "displayName" | "avatar" | "bio" | "username" | "gradeLevel" | "email" | "interests">> }
   | { type: "setProgress"; payload: { articleId: string; percent: number } }
   | { type: "completeArticle"; payload: { articleId: string; quizResult: QuizResult } }
   | { type: "markRead"; payload: { articleId: string; xp: number; coins: number } }
@@ -151,7 +165,7 @@ type Action =
   | { type: "readNotification"; payload: { id: string } }
   | { type: "readAllNotifications" }
   | { type: "pushNotification"; payload: AppNotification }
-  | { type: "setConfig"; payload: Partial<Pick<UserState, "dailyGoalArticles" | "writingUnlockArticles" | "writingUnlockDays">> }
+  | { type: "setConfig"; payload: Partial<Pick<UserState, "dailyGoalArticles" | "writingUnlockArticles">> }
   | { type: "setCover"; payload: { articleId: string; dataUrl: string } }
   | { type: "removeCover"; payload: { articleId: string } };
 
@@ -269,6 +283,9 @@ function reducer(state: UserState, action: Action): UserState {
       return starterState(action.payload);
 
     case "signOut":
+      return freshState();
+
+    case "deleteAccount":
       return freshState();
 
     case "updateProfile":
@@ -571,9 +588,13 @@ export function useDerived() {
     state.quizResults.length > 0
       ? state.quizResults.reduce((a, q) => a + q.score, 0) / state.quizResults.length
       : 0;
+  // Writing has to be earned, not just clicked into: enough reading, enough
+  // real quiz attempts (not just "marked as read"), and a solid accuracy
+  // record — on top of the referencing skills check below.
   const writingUnlocked =
-    state.completed.length >= state.writingUnlockArticles ||
-    state.activeDays.length >= state.writingUnlockDays;
+    state.completed.length >= state.writingUnlockArticles &&
+    state.quizResults.length >= MIN_QUIZZES_FOR_WRITING &&
+    quizAccuracy >= MIN_QUIZ_ACCURACY_FOR_WRITING;
   const canPublish = writingUnlocked && state.citationQuizPassed;
   const unreadNotifications = state.notifications.filter((n) => !n.read).length;
   return { level, towerHeight, quizAccuracy, writingUnlocked, canPublish, unreadNotifications };

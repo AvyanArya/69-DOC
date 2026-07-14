@@ -93,6 +93,27 @@ export const CATEGORIES: CategoryDef[] = [
     gradient: "from-amber-500 via-yellow-500 to-lime-600",
     blurb: "Money, investing and building financial literacy.",
   },
+  {
+    id: "history",
+    name: "History",
+    emoji: "📜",
+    gradient: "from-amber-700 via-orange-800 to-stone-800",
+    blurb: "How the past explains the present.",
+  },
+  {
+    id: "art-history",
+    name: "Art History",
+    emoji: "🖼️",
+    gradient: "from-fuchsia-500 via-purple-600 to-indigo-700",
+    blurb: "Movements, masterpieces and why art looks the way it does.",
+  },
+  {
+    id: "politics",
+    name: "Politics",
+    emoji: "🏛️",
+    gradient: "from-red-500 via-rose-600 to-slate-700",
+    blurb: "How power, government and policy actually work.",
+  },
 ];
 
 export const CATEGORY_MAP: Record<Category, CategoryDef> = Object.fromEntries(

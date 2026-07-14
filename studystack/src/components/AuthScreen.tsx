@@ -6,9 +6,10 @@ import { useStore } from "@/lib/store";
 import { Button } from "./ui";
 import { STUDY_COUNT, STUDENT_COUNT } from "@/lib/content";
 import { GRADE_LEVELS } from "@/lib/data/gradeLevels";
-import type { GradeLevel } from "@/lib/types";
-
-const AVATARS = ["🦊", "🦉", "🦁", "🐨", "🐼", "🦋", "🐧", "🦄", "🐝", "🦝", "🐺", "🐢"];
+import { CATEGORIES } from "@/lib/data/categories";
+import { AvatarBuilder } from "./Avatar";
+import { DEFAULT_AVATAR_CONFIG, encodeAvatarConfig, type AvatarConfig } from "@/lib/data/avatarParts";
+import type { Category, GradeLevel } from "@/lib/types";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -19,11 +20,16 @@ export function AuthScreen() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [gradeLevel, setGradeLevel] = useState<GradeLevel>("grade-9-10");
-  const [avatar, setAvatar] = useState("🦊");
+  const [interests, setInterests] = useState<Category[]>([]);
+  const [avatarConfig, setAvatarConfig] = useState<AvatarConfig>(DEFAULT_AVATAR_CONFIG);
   const [touched, setTouched] = useState(false);
 
   const emailValid = EMAIL_RE.test(email.trim());
   const canSubmit = mode === "login" || emailValid;
+
+  function toggleInterest(c: Category) {
+    setInterests((prev) => (prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]));
+  }
 
   function submit() {
     if (!canSubmit) {
@@ -35,9 +41,10 @@ export function AuthScreen() {
       payload: {
         displayName: displayName.trim() || "Learner",
         username: (username.trim() || "learner").replace(/\s+/g, "_").toLowerCase(),
-        avatar,
+        avatar: encodeAvatarConfig(avatarConfig),
         email: email.trim(),
         gradeLevel,
+        interests,
       },
     });
   }
@@ -50,7 +57,7 @@ export function AuthScreen() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="order-2 lg:order-1"
+          className="order-1"
         >
           <div className="inline-flex items-center gap-2 rounded-full bg-card px-4 py-2 text-sm font-semibold text-grape-500 card-shadow">
             🔥 Make science a daily habit
@@ -84,7 +91,7 @@ export function AuthScreen() {
           initial={{ opacity: 0, y: 20, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.45, delay: 0.05 }}
-          className="order-1 mx-auto w-full max-w-md lg:order-2"
+          className="order-2 mx-auto w-full max-w-md"
         >
           <div className="rounded-[2rem] bg-card p-7 soft-shadow">
             <div className="flex items-center gap-3">
@@ -113,21 +120,8 @@ export function AuthScreen() {
             <div className="mt-5 space-y-4">
               {mode === "signup" && (
                 <div>
-                  <label className="mb-1.5 block text-sm font-semibold text-ink">Choose your avatar</label>
-                  <div className="flex flex-wrap gap-2">
-                    {AVATARS.map((a) => (
-                      <button
-                        key={a}
-                        onClick={() => setAvatar(a)}
-                        aria-label={`Avatar ${a}`}
-                        className={`grid h-10 w-10 place-items-center rounded-xl text-xl transition ${
-                          avatar === a ? "gradient-purple scale-110" : "bg-canvas hover:bg-soft"
-                        }`}
-                      >
-                        {a}
-                      </button>
-                    ))}
-                  </div>
+                  <label className="mb-1.5 block text-sm font-semibold text-ink">Build your character</label>
+                  <AvatarBuilder config={avatarConfig} onChange={setAvatarConfig} />
                 </div>
               )}
 
@@ -188,6 +182,31 @@ export function AuthScreen() {
                   </select>
                   <p className="mt-1 text-xs text-muted">
                     We&apos;ll tailor recommended studies to your level so you&apos;re never stuck on something too advanced.
+                  </p>
+                </div>
+              )}
+
+              {mode === "signup" && (
+                <div>
+                  <label className="mb-1.5 block text-sm font-semibold text-ink">
+                    What are you interested in? <span className="font-normal text-muted">(optional)</span>
+                  </label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {CATEGORIES.map((c) => (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => toggleInterest(c.id)}
+                        className={`rounded-full px-3 py-1.5 text-xs font-bold transition ${
+                          interests.includes(c.id) ? "gradient-purple text-white" : "bg-canvas text-muted hover:text-ink"
+                        }`}
+                      >
+                        {c.emoji} {c.name}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="mt-1 text-xs text-muted">
+                    Vera is multi-disciplinary — pick a few to steer recommendations, we&apos;ll still surface new fields too.
                   </p>
                 </div>
               )}

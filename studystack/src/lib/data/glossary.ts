@@ -46,6 +46,16 @@ export const GLOSSARY: GlossaryTerm[] = [
   { id: "opportunity-cost", term: "Opportunity cost", definition: "The value of the next-best alternative given up when making a choice." },
   { id: "market-cap", term: "Market capitalisation", definition: "The total value of a company's shares, calculated as share price times number of shares." },
   { id: "budget", term: "Budget", definition: "A plan that matches expected income against planned spending over a period of time." },
+  { id: "primary-source", term: "Primary source", definition: "First-hand evidence from the time being studied — a letter, artefact, photograph or eyewitness account." },
+  { id: "revolution", term: "Revolution", definition: "A fundamental, often rapid change in political power or organisation, usually achieved outside normal legal processes." },
+  { id: "empire", term: "Empire", definition: "A group of territories or peoples ruled by a single, often distant, authority." },
+  { id: "renaissance", term: "Renaissance", definition: "A period of renewed interest in classical art, learning and culture, beginning in Italy in the 14th century." },
+  { id: "perspective-art", term: "Perspective", definition: "A technique for representing three-dimensional depth and space on a flat surface." },
+  { id: "patronage", term: "Patronage", definition: "Financial or political support given to an artist by a wealthy sponsor, shaping what and how they created." },
+  { id: "democracy", term: "Democracy", definition: "A system of government in which power is held by citizens, directly or through elected representatives." },
+  { id: "constitution", term: "Constitution", definition: "The fundamental set of rules and principles that define how a state or organisation is governed." },
+  { id: "separation-of-powers", term: "Separation of powers", definition: "Dividing government into independent branches (e.g. legislative, executive, judicial) so no single branch holds total power." },
+  { id: "sovereignty", term: "Sovereignty", definition: "The authority of a state to govern itself without outside interference." },
 ];
 
 export const GLOSSARY_MAP = Object.fromEntries(GLOSSARY.map((g) => [g.id, g])) as Record<string, GlossaryTerm>;

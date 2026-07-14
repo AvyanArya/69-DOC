@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useStore, useDerived } from "@/lib/store";
 import { Chip } from "@/components/ui";
 import { DEMO_USERS } from "@/lib/data/users";
+import { AvatarFace } from "@/components/Avatar";
 
 type Board = "weekly" | "monthly" | "streak" | "tower" | "read";
 
@@ -91,7 +92,7 @@ export default function LeaderboardPage() {
           return (
             <div key={r.id} className="flex flex-col items-center">
               <div className="text-2xl">{medals[pos === 0 ? 0 : pos === 1 ? 1 : 2]}</div>
-              <span className="grid h-12 w-12 place-items-center rounded-full bg-card text-2xl card-shadow">{r.avatar}</span>
+              <span className="grid h-12 w-12 place-items-center rounded-full bg-card text-2xl card-shadow"><AvatarFace value={r.avatar} /></span>
               <div className="mt-1 max-w-full truncate text-xs font-bold text-ink">{r.name}</div>
               <div className="text-xs font-black text-brand-700">{cfg.key(r).toLocaleString()}</div>
               <div className={`mt-1 w-full rounded-t-2xl gradient-purple ${heights[order]}`} />
@@ -105,7 +106,7 @@ export default function LeaderboardPage() {
         {rest.map((r, i) => (
           <div key={r.id} className={`flex items-center gap-3 rounded-2xl px-3 py-2.5 ${r.you ? "bg-brand/5" : ""}`}>
             <span className="w-6 text-center font-black text-muted">{i + 4}</span>
-            <span className="grid h-9 w-9 place-items-center rounded-full bg-canvas text-lg">{r.avatar}</span>
+            <span className="grid h-9 w-9 place-items-center rounded-full bg-canvas text-lg"><AvatarFace value={r.avatar} /></span>
             <span className="flex-1 text-sm font-bold text-ink">
               {r.you ? (
                 <>{r.name} <span className="text-brand-700">(you)</span></>

@@ -10,6 +10,7 @@ import { TopicTowerViz, TierProgressCards } from "@/components/KnowledgeTower";
 import { CATEGORY_MAP } from "@/lib/data/categories";
 import { DEMO_USERS } from "@/lib/data/users";
 import { DifficultyPill, EmptyState } from "@/components/ui";
+import { AvatarFace } from "@/components/Avatar";
 import type { Article, Category, CompletedArticle } from "@/lib/types";
 
 export default function TopicTowerPage() {
@@ -63,7 +64,6 @@ export default function TopicTowerPage() {
         <section key={tier.difficulty}>
           <h2 className="mb-2 flex items-center gap-1.5 px-1 text-base font-black text-ink">
             {tier.emoji} {tier.name}
-            {!tier.unlocked && <span aria-hidden>🔒</span>}
           </h2>
           {tier.articles.length === 0 ? (
             <div className="rounded-2xl bg-card/60 p-4 text-center text-sm text-muted">No articles yet in this tier.</div>
@@ -76,20 +76,18 @@ export default function TopicTowerPage() {
                     key={a.id}
                     onClick={() => setSelected({ article: a, done })}
                     className={`flex items-center gap-3 rounded-2xl p-3 text-left card-shadow transition hover:-translate-y-0.5 ${
-                      done ? "bg-card" : tier.unlocked ? "bg-card/80" : "bg-card/40 opacity-70"
+                      done ? "bg-card" : "bg-card/80"
                     }`}
                   >
                     <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-canvas text-lg">
-                      {done ? "✅" : tier.unlocked ? "📖" : "🔒"}
+                      {done ? "✅" : "📖"}
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-sm font-bold text-ink">{a.title}</span>
                       <span className="block text-xs text-muted">
                         {done
                           ? `Quiz ${Math.round(done.quizScore * 100)}% · ${new Date(done.completedAt).toLocaleDateString()}`
-                          : tier.unlocked
-                            ? "Not read yet"
-                            : "Unlocks after mastering the tier below"}
+                          : "Not read yet"}
                       </span>
                     </span>
                   </button>
@@ -106,7 +104,7 @@ export default function TopicTowerPage() {
           {ranking.map((r, i) => (
             <div key={r.name + i} className={`flex items-center gap-3 rounded-2xl px-3 py-2.5 ${r.you ? "bg-brand/5" : ""}`}>
               <span className="w-6 text-center font-black text-muted">{i + 1}</span>
-              <span className="grid h-9 w-9 place-items-center rounded-full bg-canvas text-lg">{r.avatar}</span>
+              <span className="grid h-9 w-9 place-items-center rounded-full bg-canvas text-lg"><AvatarFace value={r.avatar} /></span>
               <span className="flex-1 text-sm font-bold text-ink">
                 {r.name}
                 {r.you && " (you)"}

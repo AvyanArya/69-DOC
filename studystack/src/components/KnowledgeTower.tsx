@@ -9,14 +9,13 @@ import type { TierProgress, TopicTower } from "@/lib/towers";
 // Each tier is its own horizontal level — Foundation the widest, at the base;
 // Core narrower, in the middle; Mastery narrowest, at the peak — so the shape
 // itself reads as a hierarchy: broad, simple ground floor tapering up to a
-// small, hard-won summit. Each level is built from one block per article slot
-// in that tier: coloured + the category emoji once completed, a dashed
-// outline while unlocked-but-unread, and a grey padlock block for a tier not
-// unlocked yet.
+// small, hard-won summit. Every tier is explorable any time — there's no
+// locked state — so each level is just one block per article slot: coloured
+// + the category emoji once completed, a dashed outline while still unread.
 
 interface Slot {
   key: string;
-  state: "done" | "empty" | "locked";
+  state: "done" | "empty";
 }
 
 /** Level width as a fraction of the pyramid's base, widest at the bottom. */
@@ -26,7 +25,7 @@ function slotsFor(tier: TierProgress): Slot[] {
   const count = Math.max(tier.required, tier.completedCount);
   return Array.from({ length: count }, (_, i) => ({
     key: `${tier.difficulty}-${i}`,
-    state: i < tier.completedCount ? "done" : tier.unlocked ? "empty" : "locked",
+    state: i < tier.completedCount ? "done" : "empty",
   }));
 }
 
@@ -74,21 +73,16 @@ export function TopicTowerViz({ tower, compact }: { tower: TopicTower; compact?:
               transition={{ delay: levelIdx * 0.08, type: "spring", stiffness: 200, damping: 22 }}
               style={{ width: `${LEVEL_WIDTH[levelIdx] * 100}%` }}
               className="flex flex-wrap items-center justify-center gap-1"
-              title={`${tier.name}${tier.unlocked ? "" : " (locked)"}`}
+              title={tier.name}
             >
               {slots.map((slot) => (
                 <div
                   key={slot.key}
                   className={`grid h-5 w-5 shrink-0 place-items-center rounded-md text-[11px] shadow-sm ${
-                    slot.state === "done"
-                      ? `bg-gradient-to-br ${cat.gradient}`
-                      : slot.state === "empty"
-                        ? "border border-dashed border-grape-300 bg-card/50"
-                        : "bg-soft2"
+                    slot.state === "done" ? `bg-gradient-to-br ${cat.gradient}` : "border border-dashed border-grape-300 bg-card/50"
                   }`}
                 >
                   {slot.state === "done" && <span aria-hidden>{cat.emoji}</span>}
-                  {slot.state === "locked" && <span aria-hidden className="opacity-70">🔒</span>}
                 </div>
               ))}
               {overflow > 0 && <span className="text-[9px] font-bold text-grape-500">+{overflow}</span>}
@@ -119,11 +113,10 @@ export function TierProgressCards({ tower }: { tower: TopicTower }) {
 function TierRow({ tier, gradient }: { tier: TierProgress; gradient: string }) {
   const percent = tier.required > 0 ? Math.min(100, (tier.completedCount / tier.required) * 100) : 100;
   return (
-    <div className={`relative rounded-2xl p-3 transition ${tier.unlocked ? "bg-card" : "bg-soft"}`}>
+    <div className="relative rounded-2xl bg-card p-3 transition">
       <div className="flex items-center justify-between">
         <span className="flex items-center gap-1.5 text-xs font-black text-ink">
           {tier.emoji} {tier.name}
-          {!tier.unlocked && <span aria-hidden>🔒</span>}
           {tier.mastered && <span aria-hidden>✓</span>}
         </span>
         <span className="text-[11px] font-bold text-muted">
@@ -135,10 +128,9 @@ function TierRow({ tier, gradient }: { tier: TierProgress; gradient: string }) {
           initial={{ width: 0 }}
           animate={{ width: `${percent}%` }}
           transition={{ type: "spring", stiffness: 120, damping: 20 }}
-          className={`h-full rounded-full bg-gradient-to-r ${gradient} ${tier.unlocked ? "" : "opacity-50 grayscale"}`}
+          className={`h-full rounded-full bg-gradient-to-r ${gradient}`}
         />
       </div>
-      {!tier.unlocked && <div className="mt-1.5 text-[11px] text-muted">Master the tier below to unlock</div>}
     </div>
   );
 }

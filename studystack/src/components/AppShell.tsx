@@ -7,14 +7,16 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useStore, useDerived } from "@/lib/store";
 import { useTheme, type ThemePref } from "@/lib/theme";
 import { AuthScreen } from "./AuthScreen";
+import { AssistantWidget } from "./Assistant";
+import { AvatarBadge } from "./Avatar";
 import { levelTitle } from "@/lib/gamification";
 
 const NAV = [
-  { href: "/", label: "Home", icon: "🏠" },
-  { href: "/discover", label: "Discover", icon: "🔍" },
-  { href: "/learn", label: "Learn", icon: "📖" },
-  { href: "/write", label: "Write", icon: "✍️" },
-  { href: "/profile", label: "Profile", icon: "👤" },
+  { href: "/", label: "Home", icon: "🏠", tour: "nav-home" },
+  { href: "/discover", label: "Discover", icon: "🔍", tour: "nav-discover" },
+  { href: "/learn", label: "Learn", icon: "📖", tour: "nav-learn" },
+  { href: "/write", label: "Write", icon: "✍️", tour: "nav-write" },
+  { href: "/profile", label: "Profile", icon: "👤", tour: "nav-profile" },
 ];
 
 const THEME_OPTIONS: { value: ThemePref; icon: string; label: string }[] = [
@@ -66,6 +68,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Link
                 key={item.href}
                 href={item.href}
+                data-tour={item.tour}
                 className={`relative flex items-center gap-3 rounded-2xl px-4 py-3 text-[15px] font-semibold transition ${
                   active ? "text-white" : "text-muted hover:bg-soft hover:text-ink"
                 }`}
@@ -83,20 +86,17 @@ export function AppShell({ children }: { children: ReactNode }) {
             );
           })}
           <Link
-            href="/notifications"
-            className={`relative flex items-center gap-3 rounded-2xl px-4 py-3 text-[15px] font-semibold transition ${
-              isActive(pathname, "/notifications") ? "bg-soft text-ink" : "text-muted hover:bg-soft hover:text-ink"
+            href="/awareness/cancer"
+            data-tour="nav-cancer"
+            className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-[15px] font-semibold transition ${
+              isActive(pathname, "/awareness") ? "bg-soft text-ink" : "text-muted hover:bg-soft hover:text-ink"
             }`}
           >
-            <span className="text-lg">🔔</span> Notifications
-            {unreadNotifications > 0 && (
-              <span className="ml-auto grid h-5 min-w-5 place-items-center rounded-full gradient-pink px-1.5 text-[11px] font-bold text-white">
-                {unreadNotifications}
-              </span>
-            )}
+            <span className="text-lg">🎗️</span> Cancer Awareness
           </Link>
           <Link
             href="/tower"
+            data-tour="nav-towers"
             className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-[15px] font-semibold transition ${
               isActive(pathname, "/tower") ? "bg-soft text-ink" : "text-muted hover:bg-soft hover:text-ink"
             }`}
@@ -119,14 +119,6 @@ export function AppShell({ children }: { children: ReactNode }) {
           >
             <span className="text-lg">🏆</span> Leaderboard
           </Link>
-          <Link
-            href="/awareness/cancer"
-            className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-[15px] font-semibold transition ${
-              isActive(pathname, "/awareness") ? "bg-soft text-ink" : "text-muted hover:bg-soft hover:text-ink"
-            }`}
-          >
-            <span className="text-lg">🎗️</span> Cancer Awareness
-          </Link>
           {state.isAdmin && (
             <Link
               href="/admin"
@@ -137,11 +129,26 @@ export function AppShell({ children }: { children: ReactNode }) {
               <span className="text-lg">🛡️</span> Admin
             </Link>
           )}
+
+          <div className="my-2 border-t border-line" />
+          <Link
+            href="/notifications"
+            className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-[15px] font-semibold transition ${
+              isActive(pathname, "/notifications") ? "bg-soft text-ink" : "text-muted hover:bg-soft hover:text-ink"
+            }`}
+          >
+            <span className="text-lg">🔔</span> Notifications
+            {unreadNotifications > 0 && (
+              <span className="ml-auto grid h-5 min-w-5 place-items-center rounded-full gradient-pink px-1.5 text-[11px] font-bold text-white">
+                {unreadNotifications}
+              </span>
+            )}
+          </Link>
         </nav>
 
         <div className="space-y-2 p-3">
           <Link href="/profile" className="flex items-center gap-3 rounded-2xl bg-canvas p-3 transition hover:bg-soft">
-            <div className="grid h-10 w-10 place-items-center rounded-xl gradient-purple text-xl">{state.avatar}</div>
+            <AvatarBadge value={state.avatar} size="h-10 w-10 text-xl" className="rounded-xl" />
             <div className="min-w-0 flex-1">
               <div className="truncate text-sm font-bold text-ink">{state.displayName}</div>
               <div className="truncate text-[11px] text-muted">
@@ -178,6 +185,10 @@ export function AppShell({ children }: { children: ReactNode }) {
           >
             ↩ Sign out
           </button>
+          <div className="flex items-center gap-3 px-3 pt-1 text-[11px] text-muted">
+            <Link href="/about" className="hover:text-ink">About</Link>
+            <Link href="/contact" className="hover:text-ink">Contact</Link>
+          </div>
         </div>
       </aside>
 
@@ -231,6 +242,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Link
                 key={item.href}
                 href={item.href}
+                data-tour={item.tour}
                 className="relative flex flex-1 flex-col items-center gap-0.5 py-2.5"
               >
                 <span className={`text-xl transition ${active ? "scale-110" : "opacity-60"}`}>{item.icon}</span>
@@ -248,6 +260,8 @@ export function AppShell({ children }: { children: ReactNode }) {
           })}
         </div>
       </nav>
+
+      <AssistantWidget />
     </div>
   );
 }

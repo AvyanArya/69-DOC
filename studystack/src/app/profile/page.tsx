@@ -14,6 +14,9 @@ import { levelTitle } from "@/lib/gamification";
 import { allTopicTowers } from "@/lib/towers";
 import { USER_MAP } from "@/lib/data/users";
 import { GRADE_LEVELS } from "@/lib/data/gradeLevels";
+import { CATEGORIES } from "@/lib/data/categories";
+import { AvatarBadge, AvatarBuilder, AvatarFace } from "@/components/Avatar";
+import { DEFAULT_AVATAR_CONFIG, encodeAvatarConfig, parseAvatarConfig } from "@/lib/data/avatarParts";
 import type { GradeLevel } from "@/lib/types";
 
 export default function ProfilePage() {
@@ -22,6 +25,7 @@ export default function ProfilePage() {
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(state.displayName);
   const [bio, setBio] = useState(state.bio);
+  const [avatarConfig, setAvatarConfig] = useState(() => parseAvatarConfig(state.avatar) ?? DEFAULT_AVATAR_CONFIG);
 
   const completedArticles = state.completed
     .map((c) => getArticle(c.articleId))
@@ -36,7 +40,7 @@ export default function ProfilePage() {
   const topTower = allTopicTowers(state.completed)[0];
 
   function saveProfile() {
-    dispatch({ type: "updateProfile", payload: { displayName: name, bio } });
+    dispatch({ type: "updateProfile", payload: { displayName: name, bio, avatar: encodeAvatarConfig(avatarConfig) } });
     setEditing(false);
   }
 
@@ -47,8 +51,8 @@ export default function ProfilePage() {
         <div className="h-24 gradient-brand" />
         <div className="px-5 pb-5">
           <div className="-mt-10 flex items-end justify-between">
-            <div className="grid h-20 w-20 place-items-center rounded-3xl border-4 border-card bg-canvas text-4xl soft-shadow">
-              {state.avatar}
+            <div className="rounded-3xl border-4 border-card soft-shadow">
+              <AvatarBadge value={state.avatar} size="h-20 w-20 text-4xl" className="rounded-2xl" />
             </div>
             <button
               onClick={() => setEditing((e) => !e)}
@@ -59,7 +63,7 @@ export default function ProfilePage() {
           </div>
 
           {editing ? (
-            <div className="mt-3 space-y-2">
+            <div className="mt-3 space-y-3">
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -71,6 +75,10 @@ export default function ProfilePage() {
                 rows={2}
                 className="w-full rounded-xl border border-line bg-canvas px-3 py-2 text-sm outline-none focus:border-brand/40"
               />
+              <div className="rounded-2xl bg-canvas p-3">
+                <div className="mb-2 text-xs font-bold uppercase text-muted">Character</div>
+                <AvatarBuilder config={avatarConfig} onChange={setAvatarConfig} />
+              </div>
               <Button onClick={saveProfile} size="sm">Save</Button>
             </div>
           ) : (
@@ -166,7 +174,7 @@ export default function ProfilePage() {
           <div className="flex flex-wrap gap-2">
             {following.map((u) => (
               <Link key={u.id} href={`/user/${u.id}`} className="flex items-center gap-2 rounded-2xl bg-card px-3 py-2 card-shadow">
-                <span className="grid h-8 w-8 place-items-center rounded-full bg-canvas text-lg">{u.avatar}</span>
+                <span className="grid h-8 w-8 place-items-center rounded-full bg-canvas text-lg"><AvatarFace value={u.avatar} /></span>
                 <span className="text-sm font-bold text-ink">{u.displayName}</span>
               </Link>
             ))}
@@ -178,6 +186,12 @@ export default function ProfilePage() {
       <AppearanceSettings />
       <ProfileSettings />
       <AccountSettings />
+      <DangerZone />
+
+      <div className="flex items-center justify-center gap-4 pb-2 text-xs text-muted">
+        <Link href="/about" className="hover:text-ink">About</Link>
+        <Link href="/contact" className="hover:text-ink">Contact</Link>
+      </div>
     </div>
   );
 }
@@ -225,6 +239,32 @@ function AccountSettings() {
             ))}
           </select>
           <p className="mt-1 text-xs text-muted">{currentGrade.blurb}</p>
+        </div>
+
+        <div>
+          <label className="mb-1.5 block text-sm font-semibold text-ink">Interests</label>
+          <div className="flex flex-wrap gap-1.5">
+            {CATEGORIES.map((c) => {
+              const active = state.interests.includes(c.id);
+              return (
+                <button
+                  key={c.id}
+                  onClick={() =>
+                    dispatch({
+                      type: "updateProfile",
+                      payload: { interests: active ? state.interests.filter((x) => x !== c.id) : [...state.interests, c.id] },
+                    })
+                  }
+                  className={`rounded-full px-3 py-1.5 text-xs font-bold transition ${
+                    active ? "gradient-purple text-white" : "bg-canvas text-muted hover:text-ink"
+                  }`}
+                >
+                  {c.emoji} {c.name}
+                </button>
+              );
+            })}
+          </div>
+          <p className="mt-1 text-xs text-muted">Steers recommendations — we still mix in new fields to explore.</p>
         </div>
       </div>
     </section>
@@ -290,13 +330,6 @@ function ProfileSettings() {
           onChange={(v) => dispatch({ type: "setConfig", payload: { writingUnlockArticles: v } })}
           min={1}
           max={25}
-        />
-        <SettingRow
-          label="Active days to unlock writing"
-          value={state.writingUnlockDays}
-          onChange={(v) => dispatch({ type: "setConfig", payload: { writingUnlockDays: v } })}
-          min={1}
-          max={30}
         />
       </div>
     </section>
@@ -406,5 +439,58 @@ function BadgeTile({ badge, earned }: { badge: (typeof BADGES)[number]; earned: 
       <div className={`text-2xl ${earned ? "" : "grayscale"}`}>{badge.emoji}</div>
       <div className="mt-0.5 truncate text-[10px] font-bold text-ink">{badge.name}</div>
     </motion.div>
+  );
+}
+
+function DangerZone() {
+  const { dispatch } = useStore();
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  return (
+    <section className="rounded-3xl border-2 border-rose-200 bg-card p-5 card-shadow">
+      <h2 className="text-lg font-black text-ink">⚙️ Account</h2>
+      <p className="text-sm text-muted">Manage your session or leave Vera entirely.</p>
+
+      <div className="mt-4 space-y-2">
+        <button
+          onClick={() => dispatch({ type: "signOut" })}
+          className="flex w-full items-center justify-between rounded-2xl bg-canvas px-4 py-3 text-sm font-semibold text-ink hover:bg-soft"
+        >
+          <span>↩ Sign out</span>
+          <span className="text-muted">→</span>
+        </button>
+
+        {!confirmDelete ? (
+          <button
+            onClick={() => setConfirmDelete(true)}
+            className="flex w-full items-center justify-between rounded-2xl bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-600 hover:bg-rose-100"
+          >
+            <span>🗑 Delete account</span>
+            <span>→</span>
+          </button>
+        ) : (
+          <div className="rounded-2xl bg-rose-50 p-4">
+            <p className="text-sm font-bold text-rose-700">Delete your account? This can&apos;t be undone.</p>
+            <p className="mt-1 text-xs text-rose-700/80">
+              Your XP, streak, badges, bookmarks, submissions and all other progress on this device will be permanently erased.
+            </p>
+            <div className="mt-3 flex gap-2">
+              <button
+                onClick={() => dispatch({ type: "deleteAccount" })}
+                className="rounded-2xl bg-rose-600 px-4 py-2 text-sm font-bold text-white hover:bg-rose-700"
+              >
+                Yes, delete everything
+              </button>
+              <button
+                onClick={() => setConfirmDelete(false)}
+                className="rounded-2xl bg-white px-4 py-2 text-sm font-bold text-rose-600"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
   );
 }

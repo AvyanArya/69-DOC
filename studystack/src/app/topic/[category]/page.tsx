@@ -7,7 +7,7 @@ import { EmptyState } from "@/components/ui";
 import { CATEGORY_MAP, CATEGORIES } from "@/lib/data/categories";
 import { articlesByCategory } from "@/lib/content";
 import { useStore } from "@/lib/store";
-import { getTopicTower, isArticleUnlocked } from "@/lib/towers";
+import { getTopicTower } from "@/lib/towers";
 import type { Category } from "@/lib/types";
 
 export default function TopicPage() {
@@ -63,7 +63,7 @@ export default function TopicPage() {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {articles.map((a, i) => (
-            <ArticleCard key={a.id} article={a} index={i} locked={!isArticleUnlocked(a, state.completed)} />
+            <ArticleCard key={a.id} article={a} index={i} />
           ))}
         </div>
       )}

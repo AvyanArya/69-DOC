@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import type { Article, Quiz, QuizQuestion, QuizResult, QuestionKind, Category } from "@/lib/types";
@@ -45,6 +45,7 @@ export function GenericQuizRunner({
   introButtonLabel = "Start quiz →",
   onFinish,
   renderResult,
+  focusMode = false,
 }: {
   questions: QuizQuestion[];
   passScore: number;
@@ -55,12 +56,17 @@ export function GenericQuizRunner({
   introButtonLabel?: string;
   onFinish?: (args: QuizFinishArgs) => void;
   renderResult: (args: QuizFinishArgs & { retry: () => void }) => ReactNode;
+  /** When true, the active quiz (and its result) takes over the full screen and
+   * locks page scroll, so there's no way to scroll up and peek at the article
+   * or wander off to another page mid-quiz. */
+  focusMode?: boolean;
 }) {
   const [started, setStarted] = useState(false);
   const [idx, setIdx] = useState(0);
   const [answers, setAnswers] = useState<Record<string, boolean>>({});
   const [finished, setFinished] = useState(false);
   const [streak, setStreak] = useState(0);
+  const [overlayOpen, setOverlayOpen] = useState(false);
 
   function retry() {
     setIdx(0);
@@ -68,6 +74,31 @@ export function GenericQuizRunner({
     setFinished(false);
     setStreak(0);
   }
+
+  function launch() {
+    setStarted(true);
+    if (focusMode) setOverlayOpen(true);
+  }
+
+  function exitOverlay() {
+    if (window.confirm("Exit the quiz? Your progress on this attempt will be lost.")) {
+      retry();
+      setStarted(false);
+      setOverlayOpen(false);
+    }
+  }
+
+  useEffect(() => {
+    if (!overlayOpen) return;
+    const prevOverflow = document.body.style.overflow;
+    const prevTouchAction = document.body.style.touchAction;
+    document.body.style.overflow = "hidden";
+    document.body.style.touchAction = "none";
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.body.style.touchAction = prevTouchAction;
+    };
+  }, [overlayOpen]);
 
   const q = questions[idx];
   const total = questions.length;
@@ -90,71 +121,103 @@ export function GenericQuizRunner({
     }
   }
 
+  let body: ReactNode;
+
   if (!started) {
-    return (
+    body = (
       <div className="rounded-3xl gradient-purple p-6 text-center text-white soft-shadow">
         <div className="text-4xl">{introEmoji}</div>
         <h3 className="mt-2 text-xl font-black">{introTitle}</h3>
         <div className="mx-auto mt-1 max-w-sm text-sm text-white/85">{introBody}</div>
+        {focusMode && (
+          <p className="mx-auto mt-3 max-w-sm text-xs text-white/70">
+            🔒 Once you start, the quiz takes over the screen until you finish — no peeking back at the article.
+          </p>
+        )}
         <div className="mt-4">
-          <Button onClick={() => setStarted(true)} variant="primary" size="lg">
+          <Button onClick={launch} variant="primary" size="lg">
             {introButtonLabel}
           </Button>
         </div>
       </div>
     );
-  }
-
-  if (finished) {
+  } else if (finished) {
     const score = correctSoFar / total;
     const passed = score >= passScore;
-    return <>{renderResult({ correct: correctSoFar, total, score, passed, retry })}</>;
+    body = <>{renderResult({ correct: correctSoFar, total, score, passed, retry })}</>;
+  } else {
+    const kindMeta = QUESTION_KIND_META[q.kind];
+    body = (
+      <div className="rounded-3xl bg-card p-5 card-shadow">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+          <span className="flex items-center gap-2 text-sm font-bold text-muted">
+            Question {idx + 1} / {total}
+            <span className="rounded-full bg-canvas px-2 py-0.5 text-xs font-semibold text-ink">
+              {kindMeta.emoji} {kindMeta.label}
+            </span>
+          </span>
+          <div className="flex items-center gap-2">
+            <AnimatePresence>
+              {streak >= 2 && (
+                <motion.span
+                  initial={{ scale: 0.6, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.6, opacity: 0 }}
+                  className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-700"
+                >
+                  🔥 {streak} streak
+                </motion.span>
+              )}
+            </AnimatePresence>
+            <span className="rounded-full bg-brand/10 px-3 py-1 text-xs font-bold text-brand-700">
+              {correctSoFar} correct
+            </span>
+          </div>
+        </div>
+        <ProgressBar percent={(idx / total) * 100} className="mb-5" />
+
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={q.id}
+            initial={{ opacity: 0, x: 24 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -24 }}
+            transition={{ duration: 0.25 }}
+          >
+            <QuestionView question={q} category={category} onAnswer={recordAnswer} onNext={next} isLast={idx === total - 1} />
+          </motion.div>
+        </AnimatePresence>
+      </div>
+    );
   }
 
-  const kindMeta = QUESTION_KIND_META[q.kind];
-
-  return (
-    <div className="rounded-3xl bg-card p-5 card-shadow">
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-        <span className="flex items-center gap-2 text-sm font-bold text-muted">
-          Question {idx + 1} / {total}
-          <span className="rounded-full bg-canvas px-2 py-0.5 text-xs font-semibold text-ink">
-            {kindMeta.emoji} {kindMeta.label}
-          </span>
-        </span>
-        <div className="flex items-center gap-2">
-          <AnimatePresence>
-            {streak >= 2 && (
-              <motion.span
-                initial={{ scale: 0.6, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.6, opacity: 0 }}
-                className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-700"
-              >
-                🔥 {streak} streak
-              </motion.span>
+  if (focusMode && overlayOpen) {
+    return (
+      <div className="fixed inset-0 z-[100] overflow-y-auto overscroll-contain bg-canvas p-4 pb-10 pt-6 sm:p-8">
+        <div className="mx-auto max-w-xl">
+          <div className="mb-3 flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wide text-muted">🔒 Focus mode</span>
+            {started && !finished && (
+              <button onClick={exitOverlay} className="text-sm font-semibold text-muted hover:text-ink">
+                ✕ Exit quiz
+              </button>
             )}
-          </AnimatePresence>
-          <span className="rounded-full bg-brand/10 px-3 py-1 text-xs font-bold text-brand-700">
-            {correctSoFar} correct
-          </span>
+          </div>
+          {body}
+          {finished && (
+            <button
+              onClick={() => setOverlayOpen(false)}
+              className="mt-4 w-full rounded-2xl bg-card py-3 text-sm font-bold text-ink card-shadow"
+            >
+              Continue →
+            </button>
+          )}
         </div>
       </div>
-      <ProgressBar percent={(idx / total) * 100} className="mb-5" />
+    );
+  }
 
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={q.id}
-          initial={{ opacity: 0, x: 24 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -24 }}
-          transition={{ duration: 0.25 }}
-        >
-          <QuestionView question={q} category={category} onAnswer={recordAnswer} onNext={next} isLast={idx === total - 1} />
-        </motion.div>
-      </AnimatePresence>
-    </div>
-  );
+  return body;
 }
 
 function QuestionView({
@@ -448,6 +511,7 @@ export function QuizRunner({ article, quiz }: { article: Article; quiz: Quiz }) 
       renderResult={({ correct, total, score, passed }) => (
         <QuizResultView article={article} correct={correct} total={total} passed={passed} score={score} />
       )}
+      focusMode
     />
   );
 }

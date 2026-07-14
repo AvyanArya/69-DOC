@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useStore } from "@/lib/store";
 import { CANCER_AWARENESS_SECTIONS } from "@/lib/store";
 import { Button } from "@/components/ui";
 import { GenericQuizRunner } from "@/components/Quiz";
-import type { QuizQuestion } from "@/lib/types";
+import { ARTICLES } from "@/lib/content";
+import type { Article, QuizQuestion } from "@/lib/types";
 
 const PREVENTION_PILLARS = [
   { emoji: "🚭", title: "Don't use tobacco", body: "Avoiding all forms of tobacco is the single biggest preventable step against cancer risk." },
@@ -29,20 +30,27 @@ const MYTHS = [
   { myth: "Cancer is contagious, like a cold.", fact: "Cancer itself doesn't spread between people. A few viruses linked to some cancers (like HPV) are contagious, but the cancer itself is not." },
 ];
 
+// Gradients match each cancer's real-world awareness-ribbon colour(s), e.g.
+// pink for breast cancer, so the badge is instantly recognisable.
 const CANCER_TYPES = [
-  { emoji: "🎗️", name: "Breast cancer", body: "Starts in breast tissue. One of the most common cancers; can affect anyone, though it's more common in women. Regular self-awareness and age-appropriate screening help with early detection." },
-  { emoji: "🫁", name: "Lung cancer", body: "Starts in the lungs. Smoking is the leading risk factor by far, though it can occur in non-smokers too, including from radon or air pollution exposure." },
-  { emoji: "🩸", name: "Leukaemia & lymphoma", body: "Blood cancers that affect blood cells or the lymphatic (immune) system, rather than forming a single solid tumour. Can occur at any age, including in children." },
-  { emoji: "🧬", name: "Colorectal cancer", body: "Starts in the colon or rectum. Linked to diet, activity levels and age; screening from a recommended age can catch precancerous growths early." },
-  { emoji: "🔬", name: "Prostate cancer", body: "Starts in the prostate gland. Risk rises with age; often grows slowly, and many cases are found through routine checks before symptoms appear." },
-  { emoji: "☀️", name: "Skin cancer (melanoma)", body: "Starts in skin cells, often linked to UV exposure. Melanoma is less common than other skin cancers but more likely to spread — new or changing moles are worth checking." },
-  { emoji: "🎗️", name: "Cervical cancer", body: "Starts in the cervix, most often linked to persistent HPV infection. HPV vaccination and regular screening are the two strongest protective tools." },
-  { emoji: "🧠", name: "Brain tumours", body: "Can be cancerous or non-cancerous; symptoms vary widely depending on location and size. Less common overall, but occur across all age groups." },
-  { emoji: "🫀", name: "Pancreatic cancer", body: "Starts in the pancreas. Less common but harder to detect early since symptoms often appear late; smoking and chronic pancreatitis raise risk." },
-  { emoji: "💧", name: "Bladder cancer", body: "Starts in the bladder lining. Smoking is a major risk factor; blood in urine is a common early warning sign worth checking." },
-  { emoji: "🦋", name: "Thyroid cancer", body: "Starts in the thyroid gland in the neck. Often grows slowly and is frequently treatable, especially when caught through a routine neck check." },
-  { emoji: "🌸", name: "Ovarian cancer", body: "Starts in the ovaries. Symptoms can be vague (bloating, pelvic discomfort), which is why persistent, unexplained changes are worth mentioning to a doctor." },
+  { emoji: "🎗️", name: "Breast cancer", gradient: "from-pink-400 via-pink-500 to-rose-500", body: "Starts in breast tissue. One of the most common cancers; can affect anyone, though it's more common in women. Regular self-awareness and age-appropriate screening help with early detection.", searchTerms: ["breast"], symptoms: ["A new lump or thickening in the breast or underarm", "A change in breast size, shape, or skin texture (dimpling, puckering)", "Nipple discharge other than breast milk, or a nipple turning inward", "Persistent breast or nipple pain"], whatToDo: "See a doctor promptly about any new lump or change. Most breast lumps turn out to be benign, but only an exam (and imaging if needed) can confirm that — don't wait it out." },
+  { emoji: "🫁", name: "Lung cancer", gradient: "from-slate-200 via-slate-300 to-zinc-400", body: "Starts in the lungs. Smoking is the leading risk factor by far, though it can occur in non-smokers too, including from radon or air pollution exposure.", searchTerms: ["lung", "smoking"], symptoms: ["A persistent cough that doesn't go away or gets worse", "Coughing up blood, even a small amount", "Shortness of breath or unexplained wheezing", "Unexplained weight loss and chest pain"], whatToDo: "Respiratory symptoms lasting more than a few weeks — especially in smokers or ex-smokers — deserve a doctor's visit. Early imaging catches many cases while still very treatable." },
+  { emoji: "🩸", name: "Leukaemia & lymphoma", gradient: "from-orange-400 via-amber-500 to-violet-500", body: "Blood cancers that affect blood cells or the lymphatic (immune) system, rather than forming a single solid tumour. Can occur at any age, including in children.", searchTerms: ["blood", "immune"], symptoms: ["Persistent fatigue and unexplained fever", "Unexplained weight loss and night sweats", "Swollen lymph nodes in the neck, armpit or groin that don't go down", "Easy bruising or unusual bleeding"], whatToDo: "These overlap with many common illnesses, but if they persist for weeks without another explanation, a simple blood test can quickly rule serious causes in or out." },
+  { emoji: "🧬", name: "Colorectal cancer", gradient: "from-blue-600 via-blue-700 to-indigo-800", body: "Starts in the colon or rectum. Linked to diet, activity levels and age; screening from a recommended age can catch precancerous growths early.", searchTerms: ["colorectal", "gut", "microbiome"], symptoms: ["A persistent change in bowel habits", "Blood in the stool or rectal bleeding", "Ongoing abdominal discomfort or cramping", "Unexplained weight loss and fatigue"], whatToDo: "Rectal bleeding or a lasting change in bowel habits should always be checked, even though haemorrhoids are a far more common cause. Routine screening from the recommended age catches most cases early." },
+  { emoji: "🔬", name: "Prostate cancer", gradient: "from-sky-300 via-sky-400 to-blue-500", body: "Starts in the prostate gland. Risk rises with age; often grows slowly, and many cases are found through routine checks before symptoms appear.", searchTerms: ["prostate"], symptoms: ["Difficulty starting or stopping urination", "Weak or interrupted urine flow", "Frequent urination, especially at night", "Blood in urine or semen"], whatToDo: "Many of these symptoms come from common, non-cancerous prostate enlargement — but they're worth a simple check-up, especially after age 50." },
+  { emoji: "☀️", name: "Skin cancer (melanoma)", gradient: "from-slate-600 via-slate-800 to-black", body: "Starts in skin cells, often linked to UV exposure. Melanoma is less common than other skin cancers but more likely to spread — new or changing moles are worth checking.", searchTerms: ["skin", "sunscreen", "uv"], symptoms: ["A new mole, or a mole that changes size, shape or colour", "A mole with irregular, asymmetric or blurred edges", "A sore that doesn't heal or keeps bleeding", "Itching or tenderness in a mole"], whatToDo: "Use the ABCDE rule — Asymmetry, Border, Colour, Diameter, Evolving — to check moles, and get any changing mole examined by a doctor promptly." },
+  { emoji: "🎗️", name: "Cervical cancer", gradient: "from-teal-300 via-teal-400 to-cyan-500", body: "Starts in the cervix, most often linked to persistent HPV infection. HPV vaccination and regular screening are the two strongest protective tools.", searchTerms: ["vaccine", "hpv"], symptoms: ["Unusual vaginal bleeding — between periods, after sex, or after menopause", "Unusual vaginal discharge", "Pelvic pain, including during sex"], whatToDo: "Routine cervical screening catches most precancerous changes before symptoms even appear — don't skip a scheduled screening, and report unusual bleeding to a doctor." },
+  { emoji: "🧠", name: "Brain tumours", gradient: "from-gray-400 via-gray-500 to-slate-600", body: "Can be cancerous or non-cancerous; symptoms vary widely depending on location and size. Less common overall, but occur across all age groups.", searchTerms: ["brain", "neuron"], symptoms: ["New, worsening or persistent headaches", "Seizures with no prior history", "Vision, balance or speech changes", "Unexplained nausea or personality changes"], whatToDo: "Any new neurological symptom, especially a first seizure or sudden vision/speech change, warrants prompt medical attention and imaging." },
+  { emoji: "🫀", name: "Pancreatic cancer", gradient: "from-purple-400 via-purple-500 to-violet-600", body: "Starts in the pancreas. Less common but harder to detect early since symptoms often appear late; smoking and chronic pancreatitis raise risk.", searchTerms: ["pancrea", "insulin", "diabetes"], symptoms: ["Yellowing of the skin or eyes (jaundice)", "Unexplained weight loss and appetite loss", "Upper abdominal or back pain", "New-onset diabetes later in life"], whatToDo: "Jaundice or unexplained weight loss should always be checked promptly. Pancreatic cancer is harder to catch early, so acting fast on these signs genuinely matters." },
+  { emoji: "💧", name: "Bladder cancer", gradient: "from-blue-400 via-yellow-400 to-purple-500", body: "Starts in the bladder lining. Smoking is a major risk factor; blood in urine is a common early warning sign worth checking.", searchTerms: ["bladder", "kidney"], symptoms: ["Blood in the urine, even just once", "Pain or burning during urination without an infection", "A frequent or urgent need to urinate", "Lower back pain on one side"], whatToDo: "Blood in the urine should never be ignored, even if it happens only once and then stops — get it checked." },
+  { emoji: "🦋", name: "Thyroid cancer", gradient: "from-blue-400 via-pink-400 to-teal-400", body: "Starts in the thyroid gland in the neck. Often grows slowly and is frequently treatable, especially when caught through a routine neck check.", searchTerms: ["thyroid"], symptoms: ["A lump or swelling in the front of the neck", "Voice changes or persistent hoarseness", "Difficulty swallowing or breathing", "Swollen lymph nodes in the neck"], whatToDo: "A neck lump is usually benign, but any lump lasting more than a couple of weeks is worth having a doctor examine, and scan if needed." },
+  { emoji: "🌸", name: "Ovarian cancer", gradient: "from-teal-400 via-cyan-500 to-teal-600", body: "Starts in the ovaries. Symptoms can be vague (bloating, pelvic discomfort), which is why persistent, unexplained changes are worth mentioning to a doctor.", searchTerms: ["ovar", "hormone"], symptoms: ["Persistent bloating", "Pelvic or abdominal pain", "Feeling full quickly when eating", "Urinary urgency or frequency"], whatToDo: "These symptoms are easy to dismiss since they're common — but if they're new, persistent most days for 3+ weeks, and unusual for you, see a doctor." },
 ];
+
+const BENIGN_VS_MALIGNANT = {
+  benign: "Grows locally and doesn't invade nearby tissue or spread elsewhere. Can still cause problems by pressing on nearby structures, but it isn't cancer.",
+  malignant: "Cancerous — cells can invade nearby tissue and spread (metastasise) to distant parts of the body through the blood or lymphatic system. That ability to spread is what makes cancer dangerous, and why early detection matters so much.",
+};
 
 const WARNING_SIGNS = [
   "A change in bowel or bladder habits that doesn't go away",
@@ -219,6 +227,7 @@ const SECTIONS: SectionDef[] = [
 export default function CancerAwarenessPage() {
   const { state, dispatch } = useStore();
   const [activeSection, setActiveSection] = useState<SectionDef | null>(null);
+  const [selectedType, setSelectedType] = useState<(typeof CANCER_TYPES)[number] | null>(null);
 
   const completedIds = new Set(state.completed.map((c) => c.articleId));
   const doneCount = SECTIONS.filter((s) => completedIds.has(s.id)).length;
@@ -297,18 +306,37 @@ export default function CancerAwarenessPage() {
       <section>
         <h2 className="mb-1 px-1 text-xl font-black text-ink">Common types of cancer</h2>
         <p className="mb-3 px-1 text-sm text-muted">
-          A quick overview of some of the most talked-about types — not an exhaustive list, and not a diagnostic tool.
+          Tap any card for symptoms, what to do, and suggested reading — not an exhaustive list, and not a diagnostic tool.
         </p>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {CANCER_TYPES.map((c) => (
-            <div key={c.name} className="rounded-2xl bg-card p-4 card-shadow">
-              <div className="text-2xl">{c.emoji}</div>
-              <h3 className="mt-2 font-bold text-ink">{c.name}</h3>
-              <p className="mt-1 text-sm text-muted">{c.body}</p>
-            </div>
+            <motion.button
+              key={c.name}
+              onClick={() => setSelectedType(c)}
+              whileHover={{ y: -4, scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              className="overflow-hidden rounded-2xl bg-card text-left card-shadow"
+            >
+              <div className={`h-1.5 bg-gradient-to-r ${c.gradient}`} />
+              <div className="p-4">
+                <motion.div
+                  whileHover={{ rotate: [0, -8, 8, 0] }}
+                  transition={{ duration: 0.4 }}
+                  className={`grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br text-xl ${c.gradient}`}
+                >
+                  {c.emoji}
+                </motion.div>
+                <h3 className="mt-3 font-bold text-ink">{c.name}</h3>
+                <p className="mt-1 text-sm text-muted">{c.body}</p>
+                <div className="mt-2 text-xs font-semibold text-brand-700">Tap for symptoms &amp; guidance →</div>
+              </div>
+            </motion.button>
           ))}
         </div>
       </section>
+
+      {selectedType && <CancerDetailModal type={selectedType} onClose={() => setSelectedType(null)} />}
 
       {/* Prevention pillars */}
       <section>
@@ -495,5 +523,84 @@ function MythFlipCard({ myth, fact }: { myth: string; fact: string }) {
         </div>
       </motion.div>
     </button>
+  );
+}
+
+function relatedArticlesFor(type: (typeof CANCER_TYPES)[number]): Article[] {
+  const terms = type.searchTerms.map((t) => t.toLowerCase());
+  const hay = (a: Article) => `${a.title} ${a.summary} ${a.facts.join(" ")}`.toLowerCase();
+  const specific = ARTICLES.filter((a) => terms.some((t) => hay(a).includes(t)));
+  if (specific.length >= 3) return specific.slice(0, 3);
+  const generalCancer = ARTICLES.filter((a) => !specific.includes(a) && /cancer|tumour|tumor|oncology/.test(hay(a)));
+  return [...specific, ...generalCancer].slice(0, 3);
+}
+
+function CancerDetailModal({ type, onClose }: { type: (typeof CANCER_TYPES)[number]; onClose: () => void }) {
+  const related = useMemo(() => relatedArticlesFor(type), [type]);
+
+  return (
+    <>
+      <div className="fixed inset-0 z-50 bg-black/50" onClick={onClose} />
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="fixed inset-x-4 top-8 bottom-8 z-50 mx-auto max-w-lg overflow-y-auto rounded-3xl bg-card p-6 soft-shadow sm:inset-x-auto sm:left-1/2 sm:w-full sm:-translate-x-1/2"
+      >
+        <button onClick={onClose} className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full bg-canvas text-lg" aria-label="Close">
+          ✕
+        </button>
+
+        <div className={`grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br text-2xl ${type.gradient}`}>
+          {type.emoji}
+        </div>
+        <h2 className="mt-3 text-xl font-black text-ink">{type.name}</h2>
+        <p className="mt-1 text-sm text-muted">{type.body}</p>
+
+        <div className="mt-5 rounded-2xl bg-canvas p-4">
+          <h3 className="text-sm font-black text-ink">🩺 Symptoms to watch for</h3>
+          <ul className="mt-2 space-y-1.5">
+            {type.symptoms.map((s) => (
+              <li key={s} className="flex gap-2 text-sm text-ink">
+                <span className="text-muted">•</span> {s}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="mt-3 rounded-2xl bg-brand/5 p-4">
+          <h3 className="text-sm font-black text-brand-700">❗ What to do if you notice these</h3>
+          <p className="mt-1.5 text-sm text-ink">{type.whatToDo}</p>
+        </div>
+
+        <div className="mt-3 rounded-2xl bg-grape/5 p-4">
+          <h3 className="text-sm font-black text-grape-500">🔬 Benign vs. malignant</h3>
+          <div className="mt-2 space-y-2 text-sm text-ink">
+            <p><b>Benign:</b> {BENIGN_VS_MALIGNANT.benign}</p>
+            <p><b>Malignant:</b> {BENIGN_VS_MALIGNANT.malignant}</p>
+          </div>
+        </div>
+
+        {related.length > 0 && (
+          <div className="mt-5">
+            <h3 className="mb-2 text-sm font-black text-ink">📖 Suggested reading</h3>
+            <div className="space-y-2">
+              {related.map((a) => (
+                <Link
+                  key={a.id}
+                  href={`/learn/${a.id}`}
+                  className="block rounded-2xl bg-canvas p-3 text-sm font-semibold text-ink transition hover:bg-soft"
+                >
+                  {a.title} <span className="font-normal text-muted">→</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <p className="mt-5 text-center text-xs text-muted">
+          This is general education, not medical advice — always talk to a doctor about symptoms or concerns.
+        </p>
+      </motion.div>
+    </>
   );
 }

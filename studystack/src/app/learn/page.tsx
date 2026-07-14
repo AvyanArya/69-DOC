@@ -7,8 +7,6 @@ import { ArticleCard } from "@/components/ArticleCard";
 import { Chip, EmptyState } from "@/components/ui";
 import { ARTICLES } from "@/lib/content";
 import { CATEGORIES } from "@/lib/data/categories";
-import { useStore } from "@/lib/store";
-import { isArticleUnlocked } from "@/lib/towers";
 import { articleMatchesQuery } from "@/lib/search";
 import type { Category, Difficulty, ArticleType } from "@/lib/types";
 
@@ -18,7 +16,6 @@ function LearnInner() {
   const params = useSearchParams();
   const initialType = (params.get("type") as ArticleType | null) ?? "all";
   const initialCat = (params.get("category") as Category | null) ?? "all";
-  const { state } = useStore();
 
   const [query, setQuery] = useState("");
   const [type, setType] = useState<ArticleType | "all">(initialType);
@@ -120,7 +117,7 @@ function LearnInner() {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {results.slice(0, 60).map((a, i) => (
-            <ArticleCard key={a.id} article={a} index={i} locked={!isArticleUnlocked(a, state.completed)} />
+            <ArticleCard key={a.id} article={a} index={i} />
           ))}
         </div>
       )}

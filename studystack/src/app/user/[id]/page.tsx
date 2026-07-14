@@ -7,6 +7,7 @@ import { USER_MAP } from "@/lib/data/users";
 import { BADGE_MAP } from "@/lib/data/badges";
 import { ArticleRow } from "@/components/ArticleCard";
 import { Button, EmptyState, StatTile } from "@/components/ui";
+import { AvatarBadge } from "@/components/Avatar";
 import { ARTICLES } from "@/lib/content";
 import { levelTitle } from "@/lib/gamification";
 
@@ -31,8 +32,8 @@ export default function UserProfilePage() {
         <div className="h-24 gradient-purple" />
         <div className="px-5 pb-5">
           <div className="-mt-10 flex items-end justify-between">
-            <div className="grid h-20 w-20 place-items-center rounded-3xl border-4 border-card bg-canvas text-4xl soft-shadow">
-              {user.avatar}
+            <div className="rounded-3xl border-4 border-card soft-shadow">
+              <AvatarBadge value={user.avatar} size="h-20 w-20 text-4xl" className="rounded-2xl" />
             </div>
             {user.id !== "you" && (
               <Button
