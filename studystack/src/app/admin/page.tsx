@@ -9,6 +9,7 @@ import { SubmissionDetailModal } from "@/components/SubmissionDetail";
 import { STATUS_STYLE } from "@/lib/submissions";
 import { CATEGORIES } from "@/lib/data/categories";
 import { DEMO_USERS } from "@/lib/data/users";
+import { encodeAvatarConfig, seededAvatarConfig } from "@/lib/data/avatarParts";
 import { STUDY_COUNT, STUDENT_COUNT, ARTICLES } from "@/lib/content";
 import { articleMatchesQuery } from "@/lib/search";
 import type { Article, Category, Difficulty, Submission, SubmissionStatus } from "@/lib/types";
@@ -30,30 +31,35 @@ interface QueueItem {
   moderatorNote?: string;
 }
 
+/** Mock submission authors match existing demo users — reuse their real avatar for consistency. */
+function authorAvatar(name: string): string {
+  return DEMO_USERS.find((u) => u.displayName === name)?.avatar ?? encodeAvatarConfig(seededAvatarConfig(name));
+}
+
 const INITIAL_QUEUE: QueueItem[] = [
   {
-    id: "q1", title: "How Mnemonics Boost Memory Retention", author: "Tom Fischer", avatar: "🐢", category: "psychology", difficulty: "beginner",
+    id: "q1", title: "How Mnemonics Boost Memory Retention", author: "Tom Fischer", avatar: authorAvatar("Tom Fischer"), category: "psychology", difficulty: "beginner",
     excerpt: "A student-friendly review of how memory tricks work and why they help before exams…",
     body: "## Why mnemonics work\n\nOur brains are much better at remembering vivid, connected images than raw facts. Mnemonics work by turning abstract information into something memorable — a phrase, an acronym, or a story.\n\n**Common techniques:**\n\n- Acronyms (like ROYGBIV for the colours of the rainbow)\n- The method of loci (linking facts to a mental journey through a familiar place)\n- Rhymes and songs\n\n> Mnemonics don't replace understanding — they're a scaffold while your brain builds real, lasting connections.",
     references: "1. Higbee, K. (2001). Your Memory: How It Works and How to Improve It.\n2. Worthen & Hunt (2011). Mnemonology: Mnemonics for the 21st Century.",
     tags: ["memory", "study-tips", "exams"], status: "pending",
   },
   {
-    id: "q2", title: "The Biology of Sunburn", author: "Zoe Adeyemi", avatar: "🐝", category: "biology", difficulty: "beginner",
+    id: "q2", title: "The Biology of Sunburn", author: "Zoe Adeyemi", avatar: authorAvatar("Zoe Adeyemi"), category: "biology", difficulty: "beginner",
     excerpt: "What actually happens in your skin cells when you get burned by UV light…",
     body: "## What's actually happening\n\nUV light damages the DNA inside your skin cells. Your body responds by increasing blood flow to the area (redness) and eventually shedding the damaged cells (peeling).\n\n**Key facts:**\n\n- Melanin is your skin's natural UV shield\n- Sunburn is technically a radiation injury\n- Repeated sunburns raise long-term skin cancer risk\n\n> Sunscreen doesn't just prevent pain today — it protects your skin's DNA for the long run.",
     references: "1. Matsumura & Ananthaswamy (2004). Toxicology and Applied Pharmacology.\n2. D'Orazio et al. (2013). International Journal of Molecular Sciences.",
     tags: ["skin", "uv", "biology"], status: "under-review",
   },
   {
-    id: "q3", title: "Why Antibiotics Don't Work on Viruses", author: "Priya Nair", avatar: "🦋", category: "medicine", difficulty: "beginner",
+    id: "q3", title: "Why Antibiotics Don't Work on Viruses", author: "Priya Nair", avatar: authorAvatar("Priya Nair"), category: "medicine", difficulty: "beginner",
     excerpt: "A clear explanation of the difference between bacteria and viruses for beginners…",
     body: "## Two very different invaders\n\nAntibiotics target structures bacteria have and human cells don't — like bacterial cell walls. Viruses don't have these structures; they hijack our own cells to reproduce, so antibiotics have nothing to attack.\n\n**Why this matters:**\n\n- Taking antibiotics for a virus won't help you get better\n- It can still cause side effects and feed antibiotic resistance\n- Antivirals work completely differently, targeting viral replication steps",
     references: "1. CDC (2023). Antibiotic Use Guidance.\n2. Ryan & Ray (2020). Sherris Medical Microbiology.",
     tags: ["antibiotics", "viruses", "medicine"], status: "pending",
   },
   {
-    id: "q4", title: "The Chemistry of Fizzy Drinks", author: "Aarav Sharma", avatar: "🦁", category: "chemistry", difficulty: "beginner",
+    id: "q4", title: "The Chemistry of Fizzy Drinks", author: "Aarav Sharma", avatar: authorAvatar("Aarav Sharma"), category: "chemistry", difficulty: "beginner",
     excerpt: "How carbon dioxide gets into your soda and why it fizzes when you open it…",
     body: "## Trapped gas, under pressure\n\nSoda is bottled under high pressure with dissolved CO2 gas. When you open the cap, pressure drops suddenly, and the gas rushes out of the liquid as bubbles — that's the fizz.\n\n**Fun fact:** shaking the bottle first creates tiny bubbles that give the escaping gas more surfaces to gather on, making it fizz over faster.",
     references: "1. Liger-Belair, G. (2012). Journal of Agricultural and Food Chemistry.",
@@ -335,7 +341,9 @@ function ModerationCard({
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <h3 className="font-bold text-ink hover:text-brand-700">{title}</h3>
-            <div className="mt-0.5 text-xs text-muted"><AvatarFace value={avatar} /> {author} · {category}</div>
+            <div className="mt-0.5 inline-flex items-center gap-1.5 text-xs text-muted">
+              <AvatarFace value={avatar} className="inline-block h-5 w-5 shrink-0" /> {author} · {category}
+            </div>
           </div>
           <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-bold capitalize ${STATUS_STYLE[status]}`}>
             {status.replace("-", " ")}

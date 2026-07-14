@@ -73,7 +73,9 @@ export function ArticleRow({ article }: { article: Article }) {
           {article.title}
         </h3>
         <div className="mt-1 flex items-center gap-2 text-[11px] text-muted">
-          <span>{author && <AvatarFace value={author.avatar} />} {author?.displayName}</span>
+          <span className="inline-flex items-center gap-1">
+            {author && <AvatarFace value={author.avatar} className="inline-block h-4 w-4 shrink-0" />} {author?.displayName}
+          </span>
           <span>· ⏱ {article.readMinutes}m</span>
           <span className="font-bold text-brand-700">+{article.xp}</span>
         </div>

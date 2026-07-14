@@ -19,6 +19,7 @@ import { dayKey, daysBetween, weekKey, levelFromXp } from "./gamification";
 import { getArticle } from "./content";
 import { BADGES } from "./data/badges";
 import { allTopicTowers } from "./towers";
+import { DEFAULT_AVATAR_CONFIG, encodeAvatarConfig } from "./data/avatarParts";
 
 export const CANCER_AWARENESS_SECTIONS = [
   "cancer-awareness-prevention",
@@ -46,7 +47,7 @@ function freshState(): UserState {
     username: "",
     displayName: "",
     email: "",
-    avatar: "🦊",
+    avatar: encodeAvatarConfig(DEFAULT_AVATAR_CONFIG),
     bio: "",
     isAdmin: false,
     gradeLevel: "grade-9-10",
@@ -95,7 +96,7 @@ function starterState(
   } = {
     username: "you",
     displayName: "Alex",
-    avatar: "🦊",
+    avatar: encodeAvatarConfig(DEFAULT_AVATAR_CONFIG),
   },
 ): UserState {
   const base = freshState();

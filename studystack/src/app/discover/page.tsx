@@ -405,7 +405,9 @@ function DiscoverCard({ article, direction }: { article: Article; direction: 1 |
           </p>
         )}
         <div className="mt-3 flex items-center gap-3 text-xs text-white/85">
-          <span>{author && <AvatarFace value={author.avatar} />} {author?.displayName}</span>
+          <span className="inline-flex items-center gap-1.5">
+            {author && <AvatarFace value={author.avatar} className="inline-block h-5 w-5 shrink-0" />} {author?.displayName}
+          </span>
           <span>· ⏱ {article.readMinutes}m</span>
           <span className="rounded-full bg-white/20 px-2 py-0.5 font-bold">+{article.xp} XP</span>
         </div>

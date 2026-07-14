@@ -1,57 +1,98 @@
-// A layered, customizable character avatar built entirely from Unicode (no
-// image assets): a skin tone + hairstyle combo (real combinable emoji
-// sequences), an outfit colour, and an optional accessory badge.
+// A real illustrated character avatar (Bitmoji/Kahoot-style cartoon bust),
+// built on top of the "react-nice-avatar" SVG illustration set instead of
+// combining emoji glyphs — every part (face, hair, outfit, accessories) is
+// genuine layered vector art.
 
-export interface AvatarConfig {
-  skin: string; // Unicode skin tone modifier, or "" for default
-  hair: string; // hairstyle id
-  outfit: string; // outfit id (colour)
-  accessory: string; // accessory id, or "none"
-}
+import { genConfig, type AvatarFullConfig, type HairStyle, type ShirtStyle } from "react-nice-avatar";
 
-export const SKIN_TONES: { id: string; label: string; modifier: string }[] = [
-  { id: "default", label: "Default", modifier: "" },
-  { id: "light", label: "Light", modifier: "\u{1F3FB}" },
-  { id: "medium-light", label: "Medium-light", modifier: "\u{1F3FC}" },
-  { id: "medium", label: "Medium", modifier: "\u{1F3FD}" },
-  { id: "medium-dark", label: "Medium-dark", modifier: "\u{1F3FE}" },
-  { id: "dark", label: "Dark", modifier: "\u{1F3FF}" },
+export type AvatarConfig = Required<AvatarFullConfig>;
+
+export const SKIN_TONES: { id: string; label: string }[] = [
+  { id: "#FFDBAC", label: "Fair" },
+  { id: "#F1C27D", label: "Light" },
+  { id: "#E0AC69", label: "Tan" },
+  { id: "#C68642", label: "Medium" },
+  { id: "#8D5524", label: "Deep" },
+  { id: "#613D30", label: "Dark" },
 ];
 
-export const HAIRSTYLES: { id: string; label: string; component: string | null }[] = [
-  { id: "plain", label: "Plain", component: null },
-  { id: "curly", label: "Curly", component: "\u{1F9B1}" },
-  { id: "red", label: "Red", component: "\u{1F9B0}" },
-  { id: "white", label: "White", component: "\u{1F9B3}" },
-  { id: "bald", label: "Bald", component: "\u{1F9B2}" },
+export const HAIR_STYLES: { id: HairStyle; label: string }[] = [
+  { id: "normal", label: "Classic" },
+  { id: "thick", label: "Thick" },
+  { id: "mohawk", label: "Mohawk" },
+  { id: "womanLong", label: "Long" },
+  { id: "womanShort", label: "Bob" },
 ];
 
-export const OUTFITS: { id: string; label: string; gradient: string }[] = [
-  { id: "sunset", label: "Sunset", gradient: "from-pink-400 via-orange-400 to-amber-400" },
-  { id: "ocean", label: "Ocean", gradient: "from-sky-400 via-blue-500 to-indigo-600" },
-  { id: "forest", label: "Forest", gradient: "from-emerald-400 via-teal-500 to-green-600" },
-  { id: "grape", label: "Grape", gradient: "from-purple-400 via-violet-500 to-indigo-600" },
-  { id: "rose", label: "Rose", gradient: "from-rose-400 via-pink-500 to-fuchsia-600" },
-  { id: "midnight", label: "Midnight", gradient: "from-slate-700 via-slate-800 to-gray-900" },
-  { id: "mint", label: "Mint", gradient: "from-teal-300 via-emerald-400 to-cyan-500" },
-  { id: "sun", label: "Sun", gradient: "from-yellow-300 via-amber-400 to-orange-500" },
+export const HAIR_COLORS: { id: string; label: string }[] = [
+  { id: "#2C2C2C", label: "Black" },
+  { id: "#77311D", label: "Brown" },
+  { id: "#B58143", label: "Blonde" },
+  { id: "#A55728", label: "Auburn" },
+  { id: "#EFEFEF", label: "White" },
+  { id: "#506AF4", label: "Blue" },
+  { id: "#FC909F", label: "Pink" },
 ];
 
-export const ACCESSORIES: { id: string; label: string; emoji: string | null }[] = [
-  { id: "none", label: "None", emoji: null },
-  { id: "glasses", label: "Glasses", emoji: "🕶️" },
-  { id: "tophat", label: "Top hat", emoji: "🎩" },
-  { id: "cap", label: "Cap", emoji: "🧢" },
-  { id: "crown", label: "Crown", emoji: "👑" },
-  { id: "headphones", label: "Headphones", emoji: "🎧" },
-  { id: "bow", label: "Bow", emoji: "🎀" },
+export const SHIRT_STYLES: { id: ShirtStyle; label: string }[] = [
+  { id: "polo", label: "Polo" },
+  { id: "hoody", label: "Hoodie" },
+  { id: "short", label: "Tee" },
+];
+
+export const OUTFIT_COLORS: { id: string; label: string }[] = [
+  { id: "#FB923C", label: "Sunset" },
+  { id: "#38BDF8", label: "Ocean" },
+  { id: "#34D399", label: "Forest" },
+  { id: "#A78BFA", label: "Grape" },
+  { id: "#FB7185", label: "Rose" },
+  { id: "#1E293B", label: "Midnight" },
+  { id: "#5EEAD4", label: "Mint" },
+  { id: "#FACC15", label: "Sun" },
+];
+
+export const GLASSES_STYLES: { id: AvatarConfig["glassesStyle"]; label: string }[] = [
+  { id: "none", label: "None" },
+  { id: "round", label: "Round" },
+  { id: "square", label: "Square" },
+];
+
+export const HAT_STYLES: { id: AvatarConfig["hatStyle"]; label: string }[] = [
+  { id: "none", label: "None" },
+  { id: "beanie", label: "Beanie" },
+  { id: "turban", label: "Turban" },
+];
+
+export const EYE_STYLES: { id: AvatarConfig["eyeStyle"]; label: string }[] = [
+  { id: "circle", label: "Round" },
+  { id: "oval", label: "Sleepy" },
+  { id: "smile", label: "Happy" },
+];
+
+export const MOUTH_STYLES: { id: AvatarConfig["mouthStyle"]; label: string }[] = [
+  { id: "smile", label: "Smile" },
+  { id: "laugh", label: "Laugh" },
+  { id: "peace", label: "Calm" },
 ];
 
 export const DEFAULT_AVATAR_CONFIG: AvatarConfig = {
-  skin: "default",
-  hair: "plain",
-  outfit: "grape",
-  accessory: "none",
+  sex: "man",
+  faceColor: "#F1C27D",
+  earSize: "small",
+  hairColor: "#2C2C2C",
+  hairStyle: "normal",
+  hairColorRandom: false,
+  hatColor: "#A78BFA",
+  hatStyle: "none",
+  eyeStyle: "circle",
+  glassesStyle: "none",
+  noseStyle: "short",
+  mouthStyle: "smile",
+  shirtStyle: "polo",
+  shirtColor: "#A78BFA",
+  bgColor: "#EDE9FE",
+  isGradient: false,
+  eyeBrowStyle: "up",
 };
 
 const AVATAR_PREFIX = "vera-avatar:";
@@ -73,21 +114,11 @@ export function parseAvatarConfig(value: string): AvatarConfig | null {
   }
 }
 
-/** Compose the person+skin-tone+hair Unicode sequence for a config. */
-export function composeFace(cfg: AvatarConfig): string {
-  const base = "\u{1F9D1}"; // 🧑 person
-  const skin = SKIN_TONES.find((s) => s.id === cfg.skin)?.modifier ?? "";
-  const hair = HAIRSTYLES.find((h) => h.id === cfg.hair)?.component ?? null;
-  if (!hair) return base + skin;
-  return base + skin + "‍" + hair;
+export function randomAvatarConfig(): AvatarConfig {
+  return genConfig() as AvatarConfig;
 }
 
-export function randomAvatarConfig(): AvatarConfig {
-  const pick = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
-  return {
-    skin: pick(SKIN_TONES).id,
-    hair: pick(HAIRSTYLES).id,
-    outfit: pick(OUTFITS).id,
-    accessory: pick(ACCESSORIES).id,
-  };
+/** Deterministic config for demo/editorial accounts — same seed always renders the same character. */
+export function seededAvatarConfig(seed: string): AvatarConfig {
+  return genConfig(seed) as AvatarConfig;
 }

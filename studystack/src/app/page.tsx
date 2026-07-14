@@ -105,8 +105,8 @@ export default function HomePage() {
               <h3 className="text-xl font-black leading-tight text-ink group-hover:text-brand-700">{featured.title}</h3>
               <p className="text-sm text-muted">{featured.summary}</p>
               <div className="flex items-center justify-between pt-1">
-                <span className="text-xs text-muted">
-                  {featAuthor && <AvatarFace value={featAuthor.avatar} />} {featAuthor?.displayName}
+                <span className="inline-flex items-center gap-1.5 text-xs text-muted">
+                  {featAuthor && <AvatarFace value={featAuthor.avatar} className="inline-block h-5 w-5 shrink-0" />} {featAuthor?.displayName}
                 </span>
                 <Button size="sm">Start reading · +{featured.xp} XP</Button>
               </div>
