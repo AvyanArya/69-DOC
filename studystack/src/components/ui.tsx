@@ -221,13 +221,23 @@ export function CoverArt({
   className = "",
   emoji,
   big,
+  coverUrl,
 }: {
   category: Category;
   className?: string;
   emoji?: string;
   big?: boolean;
+  coverUrl?: string;
 }) {
   const c = CATEGORY_MAP[category];
+  if (coverUrl) {
+    return (
+      <div className={`relative overflow-hidden bg-gradient-to-br ${c.gradient} ${className}`}>
+        {/* eslint-disable-next-line @next/next/no-img-element -- admin-uploaded data URLs, not static assets */}
+        <img src={coverUrl} alt="" className="h-full w-full object-cover" />
+      </div>
+    );
+  }
   return (
     <div className={`relative overflow-hidden bg-gradient-to-br ${c.gradient} ${className}`}>
       <div className="absolute -right-6 -top-8 h-28 w-28 rounded-full bg-white/20 blur-xl" />

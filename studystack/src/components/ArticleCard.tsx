@@ -6,6 +6,7 @@ import type { Article } from "@/lib/types";
 import { CoverArt, DifficultyPill, TypePill } from "./ui";
 import { USER_MAP } from "@/lib/data/users";
 import { CATEGORY_MAP } from "@/lib/data/categories";
+import { useStore } from "@/lib/store";
 
 export function ArticleCard({
   article,
@@ -19,6 +20,8 @@ export function ArticleCard({
   className?: string;
 }) {
   const author = USER_MAP[article.authorId];
+  const { state } = useStore();
+  const coverUrl = state.customCovers[article.id];
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -28,7 +31,7 @@ export function ArticleCard({
     >
       <Link href={`/learn/${article.id}`} className="group flex h-full flex-col">
         <div className="relative flex h-full flex-col overflow-hidden rounded-3xl bg-card card-shadow transition group-hover:-translate-y-1 group-hover:soft-shadow">
-          <CoverArt category={article.category} className="h-36 w-full shrink-0" />
+          <CoverArt category={article.category} coverUrl={coverUrl} className="h-36 w-full shrink-0" />
           {locked && (
             <span
               className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-bold text-white backdrop-blur"
@@ -66,9 +69,11 @@ export function ArticleCard({
 export function ArticleRow({ article }: { article: Article }) {
   const author = USER_MAP[article.authorId];
   const c = CATEGORY_MAP[article.category];
+  const { state } = useStore();
+  const coverUrl = state.customCovers[article.id];
   return (
     <Link href={`/learn/${article.id}`} className="group flex gap-3 rounded-2xl bg-card p-3 card-shadow transition hover:-translate-y-0.5">
-      <CoverArt category={article.category} className="h-20 w-20 shrink-0 rounded-2xl" emoji={c.emoji} />
+      <CoverArt category={article.category} coverUrl={coverUrl} className="h-20 w-20 shrink-0 rounded-2xl" emoji={c.emoji} />
       <div className="min-w-0 flex-1">
         <div className="mb-1 flex items-center gap-1.5">
           <TypePill type={article.type} />

@@ -1,15 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useStore } from "@/lib/store";
-import { Button, Chip } from "@/components/ui";
+import { Button, Chip, CoverArt } from "@/components/ui";
 import { SubmissionDetailModal } from "@/components/SubmissionDetail";
 import { STATUS_STYLE } from "@/lib/submissions";
 import { CATEGORIES } from "@/lib/data/categories";
 import { DEMO_USERS } from "@/lib/data/users";
 import { STUDY_COUNT, STUDENT_COUNT, ARTICLES } from "@/lib/content";
-import type { Category, Difficulty, Submission, SubmissionStatus } from "@/lib/types";
+import { articleMatchesQuery } from "@/lib/search";
+import type { Article, Category, Difficulty, Submission, SubmissionStatus } from "@/lib/types";
 
 type Tab = "moderation" | "users" | "analytics" | "content";
 
@@ -225,6 +226,7 @@ export default function AdminPage() {
               ))}
             </div>
           </div>
+          <ArticleCoversPanel />
         </div>
       )}
 
@@ -297,6 +299,138 @@ function AnalyticTile({ label, value, emoji }: { label: string; value: string; e
       <div className="text-2xl">{emoji}</div>
       <div className="mt-1 text-2xl font-black text-ink">{value}</div>
       <div className="text-xs text-muted">{label}</div>
+    </div>
+  );
+}
+
+function ArticleCoversPanel() {
+  const { state } = useStore();
+  const [query, setQuery] = useState("");
+
+  const customizedIds = new Set(Object.keys(state.customCovers));
+  const results = query.trim()
+    ? ARTICLES.filter((a) => articleMatchesQuery(a, query)).slice(0, 12)
+    : ARTICLES.filter((a) => customizedIds.has(a.id) || a.featured).slice(0, 12);
+
+  return (
+    <div className="rounded-3xl bg-card p-5 card-shadow">
+      <h3 className="mb-1 text-sm font-black text-ink">🖼️ Article covers</h3>
+      <p className="mb-3 text-xs text-muted">
+        Upload a real photo for any article — drag &amp; drop or click to browse. Uploaded covers replace the
+        default gradient everywhere the article appears.
+      </p>
+      <div className="mb-3 flex items-center gap-2 rounded-2xl bg-canvas px-3 py-2">
+        <span className="text-muted">🔍</span>
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search an article to give it a cover…"
+          className="w-full bg-transparent text-sm text-ink outline-none placeholder:text-muted"
+        />
+        {query && (
+          <button onClick={() => setQuery("")} className="text-xs text-muted hover:text-ink" aria-label="Clear search">
+            ✕
+          </button>
+        )}
+      </div>
+      {!query.trim() && (
+        <p className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-muted">
+          Showing customized &amp; featured articles — search to find any other
+        </p>
+      )}
+      {results.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-line p-6 text-center text-sm text-muted">
+          No articles match &ldquo;{query}&rdquo;.
+        </div>
+      ) : (
+        <div className="grid gap-3 sm:grid-cols-2">
+          {results.map((a) => (
+            <CoverUploadCard key={a.id} article={a} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CoverUploadCard({ article }: { article: Article }) {
+  const { state, dispatch } = useStore();
+  const [dragOver, setDragOver] = useState(false);
+  const [error, setError] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+  const coverUrl = state.customCovers[article.id];
+
+  function handleFiles(files: FileList | null) {
+    const file = files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setError("Please upload an image file.");
+      return;
+    }
+    setError("");
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        dispatch({ type: "setCover", payload: { articleId: article.id, dataUrl: reader.result } });
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+
+  return (
+    <div className="rounded-2xl bg-canvas p-3">
+      <div className="flex items-center gap-3">
+        <CoverArt category={article.category} coverUrl={coverUrl} className="h-16 w-16 shrink-0 rounded-xl" />
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-sm font-bold text-ink">{article.title}</div>
+          <div className="text-xs text-muted">
+            {article.category} · {article.difficulty}
+            {coverUrl && <span className="ml-1.5 font-semibold text-emerald-600">· custom cover</span>}
+          </div>
+        </div>
+      </div>
+
+      <div
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragOver(true);
+        }}
+        onDragLeave={() => setDragOver(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDragOver(false);
+          handleFiles(e.dataTransfer.files);
+        }}
+        onClick={() => inputRef.current?.click()}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") inputRef.current?.click();
+        }}
+        className={`mt-2 flex cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed p-4 text-center transition ${
+          dragOver ? "border-brand bg-brand/5" : "border-line hover:border-brand/40"
+        }`}
+      >
+        <span className="text-lg" aria-hidden>📤</span>
+        <span className="text-xs font-semibold text-muted">Drag &amp; drop an image, or click to upload</span>
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => handleFiles(e.target.files)}
+        />
+      </div>
+      {error && <p className="mt-1.5 text-xs font-semibold text-rose-500">{error}</p>}
+
+      {coverUrl && (
+        <button
+          onClick={() => dispatch({ type: "removeCover", payload: { articleId: article.id } })}
+          className="mt-2 w-full rounded-xl bg-rose-50 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-100"
+        >
+          Remove custom cover
+        </button>
+      )}
     </div>
   );
 }

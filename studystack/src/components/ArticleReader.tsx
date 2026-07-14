@@ -149,7 +149,7 @@ export function ArticleReader({ article, quiz }: { article: Article; quiz: Quiz 
           ← Back to Learn
         </Link>
 
-        <CoverArt category={article.category} className="h-52 w-full rounded-3xl sm:h-64" big />
+        <CoverArt category={article.category} coverUrl={state.customCovers[article.id]} className="h-52 w-full rounded-3xl sm:h-64" big />
 
         <header className="space-y-3">
           <div className="flex flex-wrap items-center gap-2">

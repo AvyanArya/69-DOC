@@ -9,6 +9,7 @@ import { CATEGORY_MAP } from "@/lib/data/categories";
 import { USER_MAP } from "@/lib/data/users";
 import { DifficultyPill, TypePill } from "@/components/ui";
 import { isWithinGradeCeiling } from "@/lib/data/gradeLevels";
+import { articleMatchesQuery } from "@/lib/search";
 import type { Article, GradeLevel } from "@/lib/types";
 
 function buildFeed(grade: GradeLevel): Article[] {
@@ -78,12 +79,9 @@ export default function DiscoverPage() {
   const touchStartY = useRef<number | null>(null);
 
   const visible = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = query.trim();
     if (!q) return feed;
-    return feed.filter((a) => {
-      const hay = `${a.title} ${a.summary} ${a.category} ${a.difficulty}`.toLowerCase();
-      return hay.includes(q);
-    });
+    return feed.filter((a) => articleMatchesQuery(a, q, a.difficulty));
   }, [feed, query]);
 
   useEffect(() => {
@@ -200,7 +198,7 @@ export default function DiscoverPage() {
       </div>
 
       <div
-        className="relative mt-3 h-[calc(100vh-13rem)] overflow-hidden rounded-3xl lg:h-[calc(100vh-11rem)]"
+        className="relative mt-3 h-[calc(100vh-13rem)] touch-none overflow-hidden overscroll-contain rounded-3xl lg:h-[calc(100vh-11rem)]"
         onWheel={onWheel}
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
@@ -253,6 +251,7 @@ function DiscoverCard({ article, direction }: { article: Article; direction: 1 |
   const alreadyRead = !!completedEntry;
   const canUnmark = completedEntry?.method === "marked";
   const extraIcons = useMemo(() => topicIcons(article, c.emoji), [article, c.emoji]);
+  const coverUrl = state.customCovers[article.id];
   const [shareState, setShareState] = useState<"idle" | "done">("idle");
   const [justMarked, setJustMarked] = useState(false);
 
@@ -297,8 +296,13 @@ function DiscoverCard({ article, direction }: { article: Article; direction: 1 |
       transition={{ y: { type: "spring", stiffness: 260, damping: 30 }, opacity: { duration: 0.15 } }}
       className="absolute inset-0 flex items-end overflow-hidden rounded-3xl"
     >
-      {/* Background art — layered gradient, pattern, shine and topical icons */}
-      <div className={`absolute inset-0 bg-gradient-to-br ${c.gradient}`} />
+      {/* Background art — admin-uploaded photo when set, else a layered gradient, pattern, shine and topical icons */}
+      {coverUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element -- admin-uploaded data URL, not a static asset
+        <img src={coverUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
+      ) : (
+        <div className={`absolute inset-0 bg-gradient-to-br ${c.gradient}`} />
+      )}
       <div
         className="absolute inset-0 opacity-[0.15]"
         style={{
@@ -314,24 +318,28 @@ function DiscoverCard({ article, direction }: { article: Article; direction: 1 |
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
-      <motion.div
-        animate={{ scale: [1, 1.06, 1], rotate: [0, 3, 0] }}
-        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-        className="pointer-events-none absolute right-6 top-10 text-8xl opacity-40 drop-shadow-lg"
-      >
-        {c.emoji}
-      </motion.div>
-      {extraIcons.map((icon, i) => (
-        <motion.div
-          key={icon}
-          animate={{ y: [0, -10, 0] }}
-          transition={{ duration: 4 + i, repeat: Infinity, ease: "easeInOut", delay: i * 0.6 }}
-          className="pointer-events-none absolute text-4xl opacity-30 drop-shadow"
-          style={{ left: i === 0 ? "10%" : "22%", top: i === 0 ? "14%" : "38%" }}
-        >
-          {icon}
-        </motion.div>
-      ))}
+      {!coverUrl && (
+        <>
+          <motion.div
+            animate={{ scale: [1, 1.06, 1], rotate: [0, 3, 0] }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+            className="pointer-events-none absolute right-6 top-10 text-8xl opacity-40 drop-shadow-lg"
+          >
+            {c.emoji}
+          </motion.div>
+          {extraIcons.map((icon, i) => (
+            <motion.div
+              key={icon}
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 4 + i, repeat: Infinity, ease: "easeInOut", delay: i * 0.6 }}
+              className="pointer-events-none absolute text-4xl opacity-30 drop-shadow"
+              style={{ left: i === 0 ? "10%" : "22%", top: i === 0 ? "14%" : "38%" }}
+            >
+              {icon}
+            </motion.div>
+          ))}
+        </>
+      )}
       {SPARKLES.map((s, i) => (
         <motion.span
           key={s}

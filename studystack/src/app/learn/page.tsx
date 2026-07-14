@@ -9,6 +9,7 @@ import { ARTICLES } from "@/lib/content";
 import { CATEGORIES } from "@/lib/data/categories";
 import { useStore } from "@/lib/store";
 import { isArticleUnlocked } from "@/lib/towers";
+import { articleMatchesQuery } from "@/lib/search";
 import type { Category, Difficulty, ArticleType } from "@/lib/types";
 
 type Sort = "trending" | "newest" | "most-read";
@@ -30,11 +31,7 @@ function LearnInner() {
       if (type !== "all" && a.type !== type) return false;
       if (cat !== "all" && a.category !== cat) return false;
       if (diff !== "all" && a.difficulty !== diff) return false;
-      if (query.trim()) {
-        const q = query.toLowerCase();
-        const hay = (a.title + " " + a.summary + " " + a.facts.join(" ") + " " + a.category).toLowerCase();
-        if (!hay.includes(q)) return false;
-      }
+      if (query.trim() && !articleMatchesQuery(a, query, a.difficulty)) return false;
       return true;
     });
     if (sort === "newest") list = [...list].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));

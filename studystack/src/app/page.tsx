@@ -87,7 +87,7 @@ export default function HomePage() {
         <SectionHeader title="Featured study" emoji="✨" />
         <Link href={`/learn/${featured.id}`} className="group block">
           <div className="overflow-hidden rounded-3xl bg-card card-shadow transition group-hover:-translate-y-1">
-            <CoverArt category={featured.category} className="h-48 w-full sm:h-56" big />
+            <CoverArt category={featured.category} coverUrl={state.customCovers[featured.id]} className="h-48 w-full sm:h-56" big />
             <div className="space-y-3 p-5">
               <div className="flex flex-wrap items-center gap-2">
                 <TypePill type={featured.type} />
@@ -118,7 +118,7 @@ export default function HomePage() {
                 href={`/learn/${p.articleId}`}
                 className="flex items-center gap-3 rounded-2xl bg-card p-3 card-shadow transition hover:-translate-y-0.5"
               >
-                <CoverArt category={a!.category} className="h-14 w-14 shrink-0 rounded-2xl" />
+                <CoverArt category={a!.category} coverUrl={state.customCovers[a!.id]} className="h-14 w-14 shrink-0 rounded-2xl" />
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-sm font-bold text-ink">{a!.title}</div>
                   <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-soft">

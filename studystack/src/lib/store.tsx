@@ -74,6 +74,7 @@ function freshState(): UserState {
     citationQuizPassed: false,
     citationQuizBestScore: 0,
     dailyFactClaimedDate: "",
+    customCovers: {},
   };
 }
 
@@ -150,7 +151,9 @@ type Action =
   | { type: "readNotification"; payload: { id: string } }
   | { type: "readAllNotifications" }
   | { type: "pushNotification"; payload: AppNotification }
-  | { type: "setConfig"; payload: Partial<Pick<UserState, "dailyGoalArticles" | "writingUnlockArticles" | "writingUnlockDays">> };
+  | { type: "setConfig"; payload: Partial<Pick<UserState, "dailyGoalArticles" | "writingUnlockArticles" | "writingUnlockDays">> }
+  | { type: "setCover"; payload: { articleId: string; dataUrl: string } }
+  | { type: "removeCover"; payload: { articleId: string } };
 
 function grantFreezeIfNewWeek(state: UserState): UserState {
   const wk = weekKey(new Date());
@@ -494,6 +497,18 @@ function reducer(state: UserState, action: Action): UserState {
 
     case "setConfig":
       return { ...state, ...action.payload };
+
+    case "setCover":
+      return {
+        ...state,
+        customCovers: { ...state.customCovers, [action.payload.articleId]: action.payload.dataUrl },
+      };
+
+    case "removeCover": {
+      const next = { ...state.customCovers };
+      delete next[action.payload.articleId];
+      return { ...state, customCovers: next };
+    }
 
     default:
       return state;

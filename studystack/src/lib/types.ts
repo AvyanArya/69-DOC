@@ -267,4 +267,6 @@ export interface UserState {
   citationQuizBestScore: number; // 0..1
 
   dailyFactClaimedDate: string; // yyyy-mm-dd of last "Today's Cancer Fact" claim
+
+  customCovers: Record<string, string>; // articleId -> admin-uploaded cover image data URL
 }
