@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WolfMode — Sales & Communication Trainer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <div class="logo">
+        <span class="logo-icon">🐺</span>
+        <span class="logo-text">WolfMode</span>
+      </div>
+      <div class="nav-links">
+        <a href="#practice" class="nav-link">Practice</a>
+        <a href="#articulation" class="nav-link">Articulation</a>
+        <button class="btn-api" id="apiBtn">Add API Key</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg">
+      <div class="hero-orb hero-orb-1"></div>
+      <div class="hero-orb hero-orb-2"></div>
+      <div class="hero-orb hero-orb-3"></div>
+    </div>
+    <div class="hero-content">
+      <div class="hero-badge">AI-Powered Sales Training</div>
+      <h1 class="hero-title">
+        Train Like<br />
+        <span class="gradient-text">The Wolf.</span>
+      </h1>
+      <p class="hero-sub">
+        Practice cold calls, sharpen your pitch, and master articulation — with an AI that fights back like Jordan Belfort.
+      </p>
+      <div class="hero-cta">
+        <a href="#practice" class="btn-primary">Start Training</a>
+        <a href="#articulation" class="btn-ghost">Articulation Drills</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><span class="stat-num">3</span><span class="stat-label">Practice Modes</span></div>
+        <div class="stat"><span class="stat-num">20+</span><span class="stat-label">Articulation Drills</span></div>
+        <div class="stat"><span class="stat-num">AI</span><span class="stat-label">Live Feedback</span></div>
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <div class="scroll-indicator"></div>
+    </div>
+  </section>
+
+  <!-- API KEY MODAL -->
+  <div class="modal-overlay" id="apiModal">
+    <div class="modal">
+      <button class="modal-close" id="modalClose">✕</button>
+      <div class="modal-icon">🔑</div>
+      <h2 class="modal-title">Anthropic API Key</h2>
+      <p class="modal-desc">Your key is stored locally in your browser and never sent to any server other than Anthropic.</p>
+      <input type="password" id="apiKeyInput" class="modal-input" placeholder="sk-ant-..." />
+      <button class="btn-primary full-width" id="saveApiKey">Save Key</button>
+      <p class="modal-note">Get a key at <strong>console.anthropic.com</strong></p>
+    </div>
+  </div>
+
+  <!-- PRACTICE SECTION -->
+  <section class="section" id="practice">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Live AI Roleplay</span>
+        <h2 class="section-title">Pick Your Battle</h2>
+        <p class="section-sub">Choose a scenario and go live with AI. No scripts. No safety nets.</p>
+      </div>
+
+      <div class="scenario-grid">
+        <div class="scenario-card" data-scenario="belfort_pen">
+          <div class="card-glow glow-gold"></div>
+          <div class="card-icon">🖊️</div>
+          <div class="card-difficulty"><span class="diff-badge diff-medium">Medium</span></div>
+          <h3 class="card-title">Sell Me This Pen</h3>
+          <p class="card-desc">The classic. Jordan Belfort is your prospect. He's heard every pitch. Show him something he hasn't.</p>
+          <ul class="card-skills">
+            <li>Value creation</li>
+            <li>Objection handling</li>
+            <li>Closing techniques</li>
+          </ul>
+          <button class="btn-card" onclick="openScenario('belfort_pen')">Start Session →</button>
+        </div>
+
+        <div class="scenario-card featured" data-scenario="belfort_ai">
+          <div class="card-glow glow-purple"></div>
+          <div class="card-badge">Most Relevant</div>
+          <div class="card-icon">🤖</div>
+          <div class="card-difficulty"><span class="diff-badge diff-hard">Hard</span></div>
+          <h3 class="card-title">AI Automation Pitch</h3>
+          <p class="card-desc">Cold call a sceptical business owner. You're pitching AI automation. He thinks it's hype. Prove him wrong.</p>
+          <ul class="card-skills">
+            <li>Cold call opening</li>
+            <li>ROI storytelling</li>
+            <li>Tech objections</li>
+          </ul>
+          <button class="btn-card btn-card-featured" onclick="openScenario('belfort_ai')">Start Session →</button>
+        </div>
+
+        <div class="scenario-card" data-scenario="receptionist">
+          <div class="card-glow glow-red"></div>
+          <div class="card-icon">📞</div>
+          <div class="card-difficulty"><span class="diff-badge diff-easy">Beginner</span></div>
+          <h3 class="card-title">Get Past the Gatekeeper</h3>
+          <p class="card-desc">Karen the receptionist is blocking the CEO. She's seen every trick. Build rapport or get cut off.</p>
+          <ul class="card-skills">
+            <li>Rapport building</li>
+            <li>Confidence tonality</li>
+            <li>Gatekeeper tactics</li>
+          </ul>
+          <button class="btn-card" onclick="openScenario('receptionist')">Start Session →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHAT ARENA -->
+  <div class="chat-arena" id="chatArena">
+    <div class="arena-inner">
+      <div class="arena-header">
+        <div class="arena-persona">
+          <div class="persona-avatar" id="personaAvatar">🐺</div>
+          <div class="persona-info">
+            <span class="persona-name" id="personaName">Jordan Belfort</span>
+            <span class="persona-status">● Live</span>
+          </div>
+        </div>
+        <div class="arena-controls">
+          <button class="ctrl-btn" id="feedbackBtn" title="Get AI Feedback">📊 Feedback</button>
+          <button class="ctrl-btn" id="resetBtn" title="Reset">↺ Reset</button>
+          <button class="ctrl-btn ctrl-close" id="closeArena" title="Close">✕</button>
+        </div>
+      </div>
+
+      <div class="chat-messages" id="chatMessages">
+        <div class="chat-intro" id="chatIntro">
+          <div class="intro-avatar" id="introAvatar">🐺</div>
+          <p class="intro-text" id="introText">Loading...</p>
+        </div>
+      </div>
+
+      <div class="chat-input-area">
+        <div class="input-row">
+          <button class="mic-btn" id="micBtn" title="Hold to speak">🎤</button>
+          <textarea
+            class="chat-input"
+            id="chatInput"
+            placeholder="Type your pitch... or use the mic"
+            rows="1"
+          ></textarea>
+          <button class="send-btn" id="sendBtn">Send</button>
+        </div>
+        <div class="mic-status" id="micStatus"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEEDBACK MODAL -->
+  <div class="modal-overlay" id="feedbackModal">
+    <div class="modal modal-wide">
+      <button class="modal-close" id="feedbackClose">✕</button>
+      <div class="modal-icon">📊</div>
+      <h2 class="modal-title">Session Analysis</h2>
+      <div class="feedback-loading" id="feedbackLoading">
+        <div class="spinner"></div>
+        <p>Analysing your performance...</p>
+      </div>
+      <div class="feedback-content" id="feedbackContent"></div>
+    </div>
+  </div>
+
+  <!-- ARTICULATION SECTION -->
+  <section class="section" id="articulation">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Speech Training</span>
+        <h2 class="section-title">Articulation Lab</h2>
+        <p class="section-sub">Your mouth is an instrument. These drills sharpen it. Do them daily.</p>
+      </div>
+
+      <div class="drill-tabs">
+        <button class="drill-tab active" onclick="switchTab('jaw')">Jaw Exercises</button>
+        <button class="drill-tab" onclick="switchTab('twisters')">Tongue Twisters</button>
+        <button class="drill-tab" onclick="switchTab('diction')">Diction Drills</button>
+        <button class="drill-tab" onclick="switchTab('warmup')">Vocal Warmup</button>
+      </div>
+
+      <div class="drill-content" id="drillContent">
+        <!-- Content injected by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- TIPS SECTION -->
+  <section class="section section-dark">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Pro Knowledge</span>
+        <h2 class="section-title">The Wolf's Playbook</h2>
+      </div>
+      <div class="tips-grid">
+        <div class="tip-card">
+          <div class="tip-num">01</div>
+          <h3 class="tip-title">Tone Over Words</h3>
+          <p class="tip-text">38% of communication is tone. You can say "I need to check my calendar" in a way that makes someone feel valued or dismissed. Train your tone daily.</p>
+        </div>
+        <div class="tip-card">
+          <div class="tip-num">02</div>
+          <h3 class="tip-title">Create the Need First</h3>
+          <p class="tip-text">Never pitch features. Ask questions that surface the pain. The pen isn't a pen — it's the contract they can't sign without it.</p>
+        </div>
+        <div class="tip-card">
+          <div class="tip-num">03</div>
+          <h3 class="tip-title">Silence is Power</h3>
+          <p class="tip-text">After you close, shut up. The next person to speak loses. Sit in the silence. Amateurs fill it with noise.</p>
+        </div>
+        <div class="tip-card">
+          <div class="tip-num">04</div>
+          <h3 class="tip-title">Match & Lead</h3>
+          <p class="tip-text">Mirror their energy first, then slowly pull them to yours. If they're slow, start slow. Then accelerate. They'll follow without knowing it.</p>
+        </div>
+        <div class="tip-card">
+          <div class="tip-num">05</div>
+          <h3 class="tip-title">The Pen Drill</h3>
+          <p class="tip-text">Hold a pen horizontally between your teeth. Read sentences aloud for 5 minutes daily. It forces exaggerated articulation and removes mumbling fast.</p>
+        </div>
+        <div class="tip-card">
+          <div class="tip-num">06</div>
+          <h3 class="tip-title">Record Yourself</h3>
+          <p class="tip-text">Most people have never heard themselves speak. Record a 2-minute pitch. Watch it back. The cringe is your roadmap.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="logo">
+          <span class="logo-icon">🐺</span>
+          <span class="logo-text">WolfMode</span>
+        </div>
+        <p class="footer-text">Train hard. Close harder.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="articulation.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
