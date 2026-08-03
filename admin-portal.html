@@ -280,7 +280,7 @@ function switchTab(tab){
 /* ============================================================
    Storage + analytics helpers (reads what the Lumera app records)
    ============================================================ */
-const ACCT='lumera_accounts', ANALYTICS='lumera_analytics', UPDATES='lumera_updates', NEWS='lumera_news', OFFERS='lumera_offers', FEEDBACK='lumera_feedback', FEATURES='lumera_features';
+const ACCT='lumera_accounts', ANALYTICS='lumera_analytics', UPDATES='lumera_updates', NEWS='lumera_news', OFFERS='lumera_offers', FEEDBACK='lumera_feedback', FEATURES='lumera_flags';
 const loadJSON = (k, def)=>{ try{ const v=JSON.parse(localStorage.getItem(k)); return (v==null)?def:v; }catch(e){ return def; } };
 const saveJSON = (k, v)=>{ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} };
 const DAY=864e5;
@@ -560,12 +560,31 @@ function renderFeedback(){ const list=loadJSON(FEEDBACK,[]);
         <div class="meta"><span>${escapeHtml(f.email||'anonymous')}</span><span class="faint">${new Date(f.at||Date.now()).toLocaleString()}</span></div>
         <p class="desc">${escapeHtml(f.body||'')}</p></div></div>`).join('')}</div>`; }
 
-function renderFeatures(){ const flags=loadJSON(FEATURES,{ai_assistant:true, world_monitor:true, spark_mode:true, product_worlds:true, mascot_guides:true, gamified_quests:true});
-  C.innerHTML=`${pageHead('Feature flags','Toggle major features on/off across all Lumera users on this origin.')}
-    <div class="card">${Object.entries(flags).map(([k,v])=>`<label style="display:flex;align-items:center;gap:12px;padding:10px 4px;border-bottom:1px solid var(--line);cursor:pointer;">
-      <input type="checkbox" ${v?'checked':''} onchange="toggleFlag('${k}',this.checked)" style="width:auto;"/>
-      <span style="font-size:14px;">${k.replace(/_/g,' ')}</span><span class="faint" style="margin-left:auto;font-size:11px;">${v?'enabled':'disabled'}</span></label>`).join('')}</div>`; }
-function toggleFlag(k,v){ const flags=loadJSON(FEATURES,{}); flags[k]=v; saveJSON(FEATURES,flags); broadcast('lumera_features'); render(); }
+// Must mirror FEATURES in Lumera.html (same keys, same storage key 'lumera_flags').
+const APP_FEATURES=[
+  ['community','Community','Member feed, connections and shared opportunities'],
+  ['careerLab','CV & LinkedIn Lab','CV templates, best practices and free courses'],
+  ['sideIncome','Side Income','Side-income ideas matched to available time'],
+  ['opportunities','Opportunities','Internships, competitions, programmes and scholarships'],
+  ['salary','Salary Check','Benchmark pay by role and level'],
+  ['universities','Universities','Ranked university shortlist and comparison'],
+  ['subjects','Subject Selection','Recommended subjects per career path'],
+  ['prep','Career Prep Hub','Skill roadmaps for interviews'],
+  ['wordOfDay','Word of the Day','Daily vocabulary with spaced repetition'],
+  ['worldMonitor','World Monitor','Interactive global risk map'],
+  ['globe','Global Markets','Spinnable globe of exchanges'],
+];
+function renderFeatures(){ const flags=loadJSON(FEATURES,{});
+  const on=(k)=> (k in flags)? !!flags[k] : true;
+  const live=APP_FEATURES.filter(f=>on(f[0])).length;
+  C.innerHTML=`${pageHead('Feature flags','Toggle features on or off for all Lumera users on this origin. Switching one off hides it from navigation and blocks its URL, so you can stage a rollout without shipping code.')}
+    <div class="card" style="margin-bottom:14px;"><div class="eyebrow">Live features</div>
+      <div style="font-size:30px;font-family:Fraunces,serif;">${live} <span class="faint" style="font-size:14px;">of ${APP_FEATURES.length} enabled</span></div></div>
+    <div class="card">${APP_FEATURES.map(([k,label,desc])=>`<label style="display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid var(--line);cursor:pointer;">
+      <input type="checkbox" ${on(k)?'checked':''} onchange="toggleFlag('${k}',this.checked)" style="width:auto;"/>
+      <span><span style="font-size:14px;font-weight:600;">${label}</span><span class="faint" style="display:block;font-size:12px;">${desc}</span></span>
+      <span class="faint" style="margin-left:auto;font-size:11px;">${on(k)?'enabled':'disabled'}</span></label>`).join('')}</div>`; }
+function toggleFlag(k,v){ const flags=loadJSON(FEATURES,{}); flags[k]=v; saveJSON(FEATURES,flags); broadcast(FEATURES); render(); }
 
 function renderTrends(){ const news=loadJSON(NEWS,[]),updates=loadJSON(UPDATES,[]);
   const text=[...news.map(n=>n.title+' '+(n.body||n.summary||'')),...updates.map(u=>u.title+' '+u.body)].join(' ').toLowerCase();

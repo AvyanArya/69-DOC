@@ -1565,6 +1565,11 @@ const ROUTE_BANDS = {
   '/world':['mid','established'], '/news':['young','mid','established'],
   '/learn':['young','mid'], '/resources':['young','mid','established'], '/badges':['young','mid'],
   '/updates':['young','mid','established'], '/pricing':['young','mid','established'], '/privacy':['young','mid','established'],
+  // Learning and career lead for younger users; planning tools lead for older ones.
+  '/quiz':['young','mid'], '/habits':['young','mid'], '/challenges':['young','mid'], '/community':['young','mid','established'],
+  '/careers':['young','mid'], '/universities':['young'], '/subjects':['young'], '/career-lab':['young','mid'],
+  '/prep':['young','mid'], '/opportunities':['young','mid'], '/firms':['young','mid'], '/finance-vs-econ':['young'],
+  '/salary':['young','mid','established'], '/sideincome':['young','mid'], '/exchanges':['young','mid'],
 };
 const isFeatured = (to, band)=>{ const b=ROUTE_BANDS[to]; return !b || b.includes(band); };
 
@@ -1595,7 +1600,7 @@ function Sidebar(){
           <div className="px-3 mb-1.5 text-[10px] tracking-[.22em] uppercase text-faint">{grp.section}</div>
           {grp.items.map(navBtn)}</div>);
         // Inside a sub-product: show only that product's tools + a way back to Lumera.
-        if(inProduct){ const tools=curSub.routes.map(r=>NAV_BY_ROUTE[r]).filter(Boolean);
+        if(inProduct){ const tools=curSub.routes.filter(r=>flagForRoute(app.flags,r)).map(r=>NAV_BY_ROUTE[r]).filter(Boolean);
           return <>
             <button onClick={backToLumera} className="w-full flex items-center gap-2 rounded-xl px-3 py-2 mb-3 text-xs text-muted hover:bg-sand hover:text-charcoal transition">
               <Icon name="chevron" size={14} className="rotate-180"/>Back to Lumera</button>
@@ -1605,7 +1610,7 @@ function Sidebar(){
         }
         // Lumera home (Spark): core tools, then one link per sub-product.
         const lumeraSub=SUBS.find(s=>s.key==='lumera');
-        const core=lumeraSub.routes.filter(r=>isFeatured(r,band)).map(r=>NAV_BY_ROUTE[r]).filter(Boolean);
+        const core=lumeraSub.routes.filter(r=>isFeatured(r,band)&&flagForRoute(app.flags,r)).map(r=>NAV_BY_ROUTE[r]).filter(Boolean);
         const products=SUBS.filter(s=>s.key!=='lumera');
         return <>
           <button onClick={()=>app.nav('/hub')} className={cx('w-full flex items-center gap-3 rounded-xl px-3 py-2.5 mb-3 text-sm transition-all duration-300', route==='/hub'?'bg-charcoal text-cream shadow-soft':'text-charcoal/80 hover:bg-sand')}>
@@ -2562,7 +2567,7 @@ function ProductPage({ k }){
   const chal=PRODUCT_CHALLENGE[k]; const chalKey = chal? ('lumera_chal_'+k+'_'+todayKey()) : null;
   const [done,setDone]=useState(()=>{ try{ return chalKey? !!localStorage.getItem(chalKey) : false; }catch(e){ return false; } });
   if(!sub) return <AppShell><div className="text-center text-muted py-20">Unknown product.</div></AppShell>;
-  const tools=sub.routes.map(r=>NAV_BY_ROUTE[r]).filter(Boolean); const a=sub.accent;
+  const tools=sub.routes.filter(r=>flagForRoute(app.flags,r)).map(r=>NAV_BY_ROUTE[r]).filter(Boolean); const a=sub.accent;
   const lvl=levelFromXp(app.xp); const base=xpForLevel(lvl),next=xpForLevel(lvl+1);
   const pct=Math.round(((app.xp-base)/((next-base)||1))*100); const badges=Math.floor(app.xp/100);
   const parts=PRODUCT_PARTICLES[k]||PRODUCT_PARTICLES.lumera;
@@ -2701,7 +2706,7 @@ function ProductHub(){
     <PageHead eyebrow="Lumera Group" title="The Lumera family."
       desc="Lumera is the parent company. Each product is its own focused world, open one to enter its site and tools." />
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
-      {SUBS.map(s=>{ const tools=s.routes.map(r=>NAV_BY_ROUTE[r]).filter(Boolean);
+      {SUBS.map(s=>{ const tools=s.routes.filter(r=>flagForRoute(app.flags,r)).map(r=>NAV_BY_ROUTE[r]).filter(Boolean);
         return <Card key={s.key} hover={s.live} onClick={s.live?()=>openProduct(app,s.key):undefined} className="relative overflow-hidden sweep-wrap">
           <div className="absolute -top-10 -right-10 h-28 w-28 rounded-full blur-2xl opacity-40" style={{background:s.accent}}/>
           <div className="relative">
@@ -3780,18 +3785,15 @@ function Subscriptions(){
       </div>
       <div className="flex gap-2 mt-3"><Btn variant="gold" onClick={addSub}>Add subscription</Btn><Btn variant="ghost" onClick={()=>setShowAdd(false)}>Cancel</Btn></div>
     </Card>}
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-      {[['Current / month',total,'charcoal','What you pay today'],['After your changes',kept,'sage','If you cancel the marked'],['Monthly saved',cancelSum,'berry','From cancellations'],['Annual saved',cancelSum*12,'gold','Per year']].map(([l,v,t,d])=>
-        <Card key={l} hover={false} className="!p-4"><div className="text-xs text-muted">{l}</div><div className="font-serif text-xl mt-0.5 tnum" style={{color:t==='charcoal'?COLORS.charcoal:COLORS[t]}}><AnimatedNumber value={v} money/></div><div className="text-[11px] text-faint mt-0.5">{d}</div></Card>)}
-    </div>
     <Card><div className="space-y-2.5">
       {subs.map(s=>{ const save=s.alt?Math.max(0,s.cost-s.alt.cost):0; return <div key={s.id} className="rounded-xl border border-line bg-cream/60 p-3">
         <div className="flex flex-wrap items-center gap-3">
-          <span className="grid place-items-center h-9 w-9 rounded-lg bg-sand text-goldd shrink-0 overflow-hidden">
+          <span className="grid place-items-center h-10 w-10 rounded-lg bg-sand text-goldd shrink-0 overflow-hidden">
             {s.domain ? <img src={`https://logo.clearbit.com/${s.domain}`} alt="" className="h-6 w-6 object-contain" onError={e=>{ e.target.style.display='none'; if(e.target.nextSibling) e.target.nextSibling.style.display='block'; }}/> : null}
             <Icon name="tv" size={16} style={{display:s.domain?'none':'block'}}/></span>
-          <div className="flex-1 min-w-[120px]"><div className="text-sm font-medium text-charcoal">{s.name}</div>
-            <div className="flex items-center gap-2 mt-0.5 flex-wrap"><span className="text-xs text-muted tnum">{fmt.money(s.cost)}/mo</span><Pill tone={freqTone[s.freq]}>{s.freq}</Pill>{s.category&&<Pill tone="neutral">{s.category}</Pill>}{s.renew&&<span className="text-[11px] text-faint">renews {s.renew}</span>}</div></div>
+          <div className="flex-1 min-w-[120px]"><div className="text-base font-medium text-charcoal">{s.name}</div>
+            <div className="flex items-center gap-2 mt-0.5 flex-wrap"><Pill tone={freqTone[s.freq]}>{s.freq}</Pill>{s.category&&<Pill tone="neutral">{s.category}</Pill>}</div></div>
+          <div className="text-right shrink-0 mr-1"><div className="font-serif text-2xl text-charcoal tnum leading-none">{fmt.money(s.cost)}</div><div className="text-[11px] text-faint mt-0.5">per month</div></div>
           <div className="flex flex-wrap gap-1.5 justify-end">{['active','review','paused','cancelled'].map(v=><button key={v} onClick={()=>setVerdict(s.id,v)} className={cx('rounded-lg px-2.5 py-1.5 text-xs font-medium capitalize border transition',
             s.verdict===v?(v==='active'?'border-sage bg-sage/12 text-saged':v==='cancelled'?'border-berry bg-berry/12 text-berry':v==='paused'?'border-sky bg-sky/12 text-sky':'border-gold bg-gold/12 text-goldd'):'border-line bg-card text-muted hover:bg-sand')}>{v}</button>)}
             <button onClick={()=>removeSub(s.id)} title="Remove" className="grid place-items-center h-8 w-8 rounded-lg text-faint hover:text-clayd hover:bg-sand transition"><Icon name="x" size={14}/></button></div>
@@ -3799,8 +3801,16 @@ function Subscriptions(){
         {s.alt && <div className="mt-2 flex items-start gap-2 rounded-lg bg-gold/8 px-3 py-2 text-xs"><Icon name="bulb" size={13} className="text-goldd mt-0.5 shrink-0"/><span className="text-charcoal/80"><b>Cheaper option:</b> {s.alt.name}, {s.alt.cost>0?`${fmt.money(s.alt.cost)}/mo`:'free'}{save>0&&<> · save <b className="text-saged">{fmt.money(save)}/mo</b> ({fmt.money(save*12)}/yr)</>}</span></div>}
       </div>; })}
     </div>
-    {cancelSum>0 && <div className="mt-4 rounded-xl bg-charcoal text-cream px-4 py-3 flex items-start gap-2 text-sm"><Icon name="spark" size={16} className="text-gold mt-0.5"/>Cancelling {toCancel.length} subscription{toCancel.length>1?'s':''} drops your monthly bill from <b className="text-gold">{fmt.money(total)}</b> to <b className="text-gold">{fmt.money(kept)}</b>, saving <b className="text-gold">{fmt.money(cancelSum*12)}</b> a year, which invested could grow far more.</div>}
     </Card>
+    {/* Totals sit below the list, where you expect them. */}
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-4">
+      {[['Current / month',total,'charcoal'],['After your changes',kept,'sage'],['Monthly saved',cancelSum,'berry'],['Annual saved',cancelSum*12,'gold']].map(([l,v,t])=>
+        <Card key={l} hover={false} className="!p-4"><div className="text-xs text-muted">{l}</div><div className="font-serif text-2xl mt-0.5 tnum" style={{color:t==='charcoal'?COLORS.charcoal:COLORS[t]}}><AnimatedNumber value={v} money/></div></Card>)}
+    </div>
+    {cancelSum>0 && <Card hover={false} className="mt-3" style={{background:'linear-gradient(135deg,#6D28D9,#4F46E5)',border:'none'}}>
+      <div className="flex items-start gap-2 text-sm" style={{color:'#fff'}}><Icon name="spark" size={16} className="mt-0.5 shrink-0"/>
+        <span>Cancelling {toCancel.length} subscription{toCancel.length>1?'s':''} drops your monthly bill from <b>{fmt.money(total)}</b> to <b>{fmt.money(kept)}</b>, saving <b>{fmt.money(cancelSum*12)}</b> a year.</span></div>
+    </Card>}
     {toReview.length>0 && <Card className="mt-4"><Eyebrow className="mb-3">Review list <span className="normal-case tracking-normal text-faint font-normal">· reminders optional</span></Eyebrow>
       <div className="space-y-2">{toReview.map(s=><div key={s.id} className="flex items-center gap-3 rounded-xl border border-line bg-cream/60 p-3">
         <Icon name="bell" size={16} className="text-goldd shrink-0"/><div className="flex-1 text-sm"><b className="text-charcoal">{s.name}</b> <span className="text-muted">· {fmt.money(s.cost)}/mo{s.renew?` · renews ${s.renew}`:''}</span></div>
@@ -3846,7 +3856,21 @@ function Debt(){
   return <AppShell>
     <PageHead eyebrow="Debt repayment planner" title="A clear runway to debt-free."
       desc="Compare strategies, add an extra payment, and see exactly when you’ll be free, and how much interest you’ll save."
-      action={<div className="flex gap-1 rounded-full bg-sand p-1">{['avalanche','snowball'].map(x=><button key={x} onClick={()=>setStrategy(x)} className={cx('rounded-full px-3 py-1.5 text-xs font-medium capitalize transition',strategy===x?'bg-card shadow-soft text-charcoal':'text-muted')}>{x}</button>)}</div>}/>
+      />
+    {/* Big, obvious strategy switch */}
+    <div className="grid sm:grid-cols-2 gap-3 mb-4">
+      {[['avalanche','Avalanche','Highest interest rate first','Saves the most money',av],
+        ['snowball','Snowball','Smallest balance first','Fastest visible wins',sn]].map(([k,name,how,why,sim])=>{
+        const on=strategy===k; const isBest=best===k;
+        return <button key={k} onClick={()=>setStrategy(k)} className={cx('rounded-xl3 border-2 p-4 text-left transition-all',on?'shadow-soft':'opacity-70 hover:opacity-100')}
+          style={{borderColor:on?(k==='avalanche'?'#6D28D9':'#0D9488'):'var(--c-line,#e5e5e5)',background:on?(k==='avalanche'?'rgba(109,40,217,.08)':'rgba(13,148,136,.08)'):'transparent'}}>
+          <div className="flex items-center justify-between"><span className="font-serif text-xl text-charcoal">{name}</span>
+            <span className="flex items-center gap-2">{isBest&&<Pill tone="sage">Saves most</Pill>}
+              <span className={cx('grid place-items-center h-5 w-5 rounded-full border-2')} style={{borderColor:on?(k==='avalanche'?'#6D28D9':'#0D9488'):'#bbb',background:on?(k==='avalanche'?'#6D28D9':'#0D9488'):'transparent'}}>{on&&<Icon name="check" size={12} className="text-white"/>}</span></span></div>
+          <div className="text-sm text-muted mt-1">{how}. {why}.</div>
+          <div className="flex gap-4 mt-3 text-sm"><span className="text-charcoal">Debt-free in <b>{Math.floor(sim.months/12)}y {sim.months%12}m</b></span><span className="text-charcoal">Interest <b>{fmt.money(sim.interest)}</b></span></div>
+        </button>; })}
+    </div>
     <div className="grid lg:grid-cols-3 gap-4 mb-4">
       <Card className="lg:col-span-2"><div className="flex items-center justify-between mb-3"><Eyebrow>Your debts</Eyebrow><button onClick={()=>setShowAdd(s=>!s)} className="btn btn-gold px-3 py-1.5 text-xs"><Icon name="plus" size={14}/>Add debt</button></div>
         {showAdd && <div className="rounded-xl2 border border-line bg-cream/60 p-3 mb-3 anim-fadeUp grid sm:grid-cols-2 gap-3">
@@ -4444,11 +4468,11 @@ function Insurance(){
           {riskBeh.map(([t,d])=><div key={t} className="rounded-xl border border-line bg-cream/60 p-3"><div className="flex items-center gap-2 text-sm font-medium text-clayd"><Icon name="info" size={15}/>{t}</div><p className="text-xs text-muted mt-1 leading-relaxed">{d}</p></div>)}
         </div>
       </Card>
-      <Card className="bg-charcoal text-cream flex flex-col justify-center">
-        <Eyebrow className="mb-1 text-gold">Estimated saving</Eyebrow>
-        <div className="font-serif text-4xl tnum"><AnimatedNumber value={saved} money/></div>
-        <div className="text-sm text-cream/60">per month · {fmt.money(saved*12)}/year</div>
-        <p className="text-xs text-cream/50 mt-3 leading-relaxed">Based on a modelled monthly premium of {fmt.money(base)}. Real savings depend on your insurer and region.</p>
+      <Card hover={false} className="flex flex-col justify-center" style={{background:'linear-gradient(135deg,#6D28D9,#4F46E5)',border:'none'}}>
+        <div className="text-[11px] font-semibold tracking-[.22em] uppercase" style={{color:'rgba(255,255,255,.85)'}}>Estimated saving</div>
+        <div className="font-serif text-4xl tnum mt-1" style={{color:'#fff'}}><AnimatedNumber value={saved} money/></div>
+        <div className="text-sm" style={{color:'rgba(255,255,255,.8)'}}>per month · {fmt.money(saved*12)}/year</div>
+        <p className="text-xs mt-3 leading-relaxed" style={{color:'rgba(255,255,255,.7)'}}>Based on a modelled monthly premium of {fmt.money(base)}. Real savings depend on your insurer and region.</p>
       </Card>
     </div>
     <Eyebrow className="mb-3 mt-6">By insurance type</Eyebrow>
@@ -6067,6 +6091,30 @@ function StreakRewards(){
   </Card>;
 }
 
+/* ============================================================
+   FEATURE FLAGS
+   Toggle whole features on/off (from the admin portal, or here).
+   Stored in localStorage under 'lumera_flags' so a staged rollout is
+   a switch, not a code change.
+   ============================================================ */
+const FEATURES = [
+  { key:'community',   label:'Community',            routes:['/community'],                      def:true },
+  { key:'careerLab',   label:'CV & LinkedIn Lab',    routes:['/career-lab'],                     def:true },
+  { key:'sideIncome',  label:'Side Income',          routes:['/sideincome'],                     def:true },
+  { key:'opportunities',label:'Opportunities',       routes:['/opportunities'],                  def:true },
+  { key:'salary',      label:'Salary Check',         routes:['/salary'],                         def:true },
+  { key:'universities',label:'Universities',         routes:['/universities'],                   def:true },
+  { key:'subjects',    label:'Subject Selection',    routes:['/subjects'],                       def:true },
+  { key:'prep',        label:'Career Prep Hub',      routes:['/prep'],                           def:true },
+  { key:'wordOfDay',   label:'Word of the Day',      routes:[],                                  def:true },
+  { key:'worldMonitor',label:'World Monitor',        routes:['/world'],                          def:true },
+  { key:'globe',       label:'Global Markets',       routes:['/globe'],                          def:true },
+];
+const FLAG_KEY='lumera_flags';
+function loadFlags(){ let saved={}; try{ saved=JSON.parse(localStorage.getItem(FLAG_KEY))||{}; }catch(e){}
+  const out={}; FEATURES.forEach(f=>{ out[f.key] = (f.key in saved) ? !!saved[f.key] : f.def; }); return out; }
+function flagForRoute(flags, path){ const f=FEATURES.find(x=>x.routes.includes(path)); return f? !!flags[f.key] : true; }
+
 const ROUTES = {
   '/':Landing, '/login':Login, '/signup':Signup, '/forgot':Forgot,
   '/insurance':Insurance, '/credit':Credit, '/badges':Badges, '/analytics':Analytics,
@@ -6164,6 +6212,10 @@ function App(){
     if(!user) demoSilent();
     const h=location.hash.replace('#',''); if(!h||h==='/'||h==='/dashboard') location.hash='/'+SITE;
   },[]);
+  const [flags,setFlagsState] = useState(loadFlags);
+  const setFlag = useCallback((key,on)=>{ setFlagsState(f=>{ const nf={...f,[key]:on}; try{ localStorage.setItem(FLAG_KEY, JSON.stringify(nf)); }catch(e){} return nf; }); },[]);
+  // Re-read flags if the admin portal changes them in another tab.
+  useEffect(()=>{ const h=(e)=>{ if(e.key===FLAG_KEY) setFlagsState(loadFlags()); }; window.addEventListener('storage',h); return ()=>window.removeEventListener('storage',h); },[]);
   const awardXp = useCallback((n)=>{ setXp(x=>{ const v=x+(n||0); try{ localStorage.setItem('lumera_spark_xp', JSON.stringify(v)); }catch(e){} return v; }); setQuestBurst(b=>b+1); },[]);
   const completeQuest = useCallback((id)=>{ setQuests(qs=>{ const next=qs.map(q=>{ if(q.id===id&&!q.done){ awardXp(q.xp); return {...q,done:true}; } return q; });
     try{ localStorage.setItem('lumera_spark_quests', JSON.stringify({day:new Date().toISOString().slice(0,10), list:next})); }catch(e){} return next; }); },[awardXp]);
@@ -6190,6 +6242,8 @@ function App(){
   let redirect=null;
   if(!user && !PUBLIC.includes(path)) redirect='/login';
   else if(user && !onboarded && NEEDS_FIGURES.includes(path)) redirect='/onboarding';
+  // A feature switched off in the admin portal is not reachable by URL either.
+  else if(!flagForRoute(flags, path)) redirect='/hub';
   // Redirect synchronously so there is no blank-frame flash before navigation fires
   if(redirect && redirect!==route){ location.hash=redirect; }
 
@@ -6205,7 +6259,7 @@ function App(){
 
   const value = { route, nav, user, signup, login, loginProvider, demo, logout:askLogout, askLogout, completeOnboarding, checkIn, onboarded,
     profile, updateProfile, setProfile, expenses, setExpenses, balances, setBalances,
-    lang, setLang, theme, setTheme, mode, setMode, product, xp, quests, awardXp, completeQuest,
+    lang, setLang, theme, setTheme, mode, setMode, product, xp, quests, awardXp, completeQuest, flags, setFlag,
     setRegion, resetAll, fmt, metrics, mobileMenu, setMobileMenu, t: tfn(lang) };
 
   const Page = redirect ? (()=> null) : (ROUTES[path]||Landing);
