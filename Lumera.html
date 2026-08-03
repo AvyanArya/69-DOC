@@ -1050,6 +1050,13 @@ const STOCKS = [
   {ticker:'JPM', company:'JPMorgan Chase', sector:'Financials', price:212.7, chg:0.6, risk:'Moderate', sentiment:'Positive', summary:'Largest US bank; earnings track interest rates and the economic cycle.', why:'Good lens for understanding how banks respond to rates.'},
   {ticker:'XOM', company:'ExxonMobil', sector:'Energy', price:113.2, chg:-1.1, risk:'Moderate', sentiment:'Cyclical', summary:'Oil major; profits swing with energy prices. Often pays a meaningful dividend.', why:'Example of a cyclical, commodity-linked business.'},
   {ticker:'VOO', company:'Vanguard S&P 500 ETF', sector:'Index Fund', price:516.8, chg:0.6, risk:'Lower', sentiment:'Diversified', summary:'Holds 500 large US companies in one low-cost fund. The classic beginner diversification tool.', why:'The single best example of broad diversification in one ticker.'},
+  {ticker:'AMZN', company:'Amazon', sector:'Consumer / Cloud', price:186.3, chg:1.4, risk:'Moderate', sentiment:'Positive', summary:'E-commerce at scale plus AWS, the cloud business that drives most of the profit.', why:'Shows how one high-margin division can carry a huge low-margin business.'},
+  {ticker:'GOOGL', company:'Alphabet', sector:'Technology', price:174.8, chg:0.9, risk:'Moderate', sentiment:'Positive', summary:'Search and advertising dominance, with YouTube, Cloud and AI as growth arms.', why:'A clear example of a business built on an advertising moat.'},
+  {ticker:'META', company:'Meta Platforms', sector:'Technology', price:512.4, chg:1.1, risk:'High', sentiment:'Volatile', summary:'Social platforms with enormous reach, spending heavily on AI and hardware bets.', why:'Useful for understanding how heavy capital spending affects sentiment.'},
+  {ticker:'TSLA', company:'Tesla', sector:'Automotive / Energy', price:248.9, chg:-2.1, risk:'High', sentiment:'Volatile', summary:'Electric vehicles, energy storage and autonomy ambitions. Priced on the future, not today.', why:'A textbook example of narrative-driven volatility.'},
+  {ticker:'BRK.B', company:'Berkshire Hathaway', sector:'Conglomerate', price:441.6, chg:0.3, risk:'Low', sentiment:'Stable', summary:'A diversified holding company with insurance at its core and a huge equity portfolio.', why:'Shows what long-horizon, value-driven investing looks like in practice.'},
+  {ticker:'VWRP', company:'Vanguard FTSE All-World ETF', sector:'Index Fund', price:118.2, chg:0.5, risk:'Lower', sentiment:'Diversified', summary:'Global equity exposure in one fund, thousands of companies across developed and emerging markets.', why:'The simplest way to see what worldwide diversification means.'},
+  {ticker:'TSM', company:'Taiwan Semiconductor', sector:'Semiconductors', price:174.2, chg:1.8, risk:'High', sentiment:'Positive', summary:'Manufactures most of the world advanced chips, a critical link in the AI supply chain.', why:'Illustrates concentration risk in a single global supplier.'},
   {ticker:'EMAAR', company:'Emaar Properties', sector:'Real Estate', price:8.21, chg:0.9, risk:'Moderate', sentiment:'Positive', summary:'Dubai real-estate developer; tied to the regional property cycle and tourism.', why:'A regional name for users in the Gulf to recognise.'},
 ];
 // Full educational "AI insight" per stock, powers the click-through detail panel.
@@ -2033,18 +2040,41 @@ function Landing(){
     </section>
 
     {/* Footer */}
-    <footer className="border-t border-line">
-      <div className="max-w-[1180px] mx-auto px-4 sm:px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <Logo size={18} sub/>
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted">
-          <button onClick={()=>app.nav('/privacy')} className="hover:text-charcoal">Privacy</button>
-          <button onClick={()=>app.nav('/pricing')} className="hover:text-charcoal">Pricing</button>
-          <button onClick={()=>app.nav('/learn')} className="hover:text-charcoal">Learn</button>
-          <button onClick={()=>app.nav('/market')} className="hover:text-charcoal">Markets</button>
-          <LanguageSwitcher compact/>
+    <footer className="border-t border-line bg-cream/40">
+      <div className="max-w-[1180px] mx-auto px-4 sm:px-6 py-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="lg:col-span-2">
+          <Logo size={20} sub/>
+          <p className="text-sm text-muted mt-3 max-w-xs leading-relaxed">Financial clarity for students and early-career professionals. Clear, calm and jargon-free.</p>
+          <div className="flex gap-2 mt-4">
+            {[['in','https://www.linkedin.com/'],['IG','https://www.instagram.com/'],['X','https://x.com/']].map(([l,u])=>
+              <a key={l} href={u} target="_blank" rel="noopener noreferrer" className="grid place-items-center h-9 w-9 rounded-lg border border-line text-xs font-semibold text-muted hover:text-charcoal hover:bg-sand transition">{l}</a>)}
+          </div>
+        </div>
+        {[['Product',[['Features','/'],['Pricing','/pricing'],['Markets','/market'],['Learn','/learn']]],
+          ['Company',[['About us','/about'],['Founding team','/team'],['What’s new','/updates'],['Privacy','/privacy']]],
+          ['The family',[['Leaf','/leaf'],['Atlas','/atlas'],['Shield','/shield'],['Forge','/forge']]]].map(([h,links])=>
+          <div key={h}>
+            <div className="text-[11px] font-semibold tracking-[.18em] uppercase text-faint mb-3">{h}</div>
+            <div className="flex flex-col gap-2">{links.map(([l,to])=>
+              <button key={l} onClick={()=>app.nav(to)} className="text-sm text-muted hover:text-charcoal text-left transition">{l}</button>)}</div>
+          </div>)}
+        <div>
+          <div className="text-[11px] font-semibold tracking-[.18em] uppercase text-faint mb-3">Contact</div>
+          <div className="flex flex-col gap-2 text-sm text-muted">
+            <a href="mailto:hello@lumera.app" className="hover:text-charcoal transition">hello@lumera.app</a>
+            <a href="mailto:support@lumera.app" className="hover:text-charcoal transition">support@lumera.app</a>
+            <span className="text-faint text-xs leading-relaxed mt-1">Dubai, United Arab Emirates<br/><span className="text-faint">Phone: add your number</span></span>
+          </div>
+          <button onClick={()=>app.nav('/signup')} className="btn btn-primary mt-4 px-4 py-2 text-xs">Get started</button>
         </div>
       </div>
-      <div className="max-w-[1180px] mx-auto px-4 sm:px-6 pb-8 text-[11px] text-faint leading-relaxed">© 2026 Lumera. Educational financial guidance only, not licensed financial advice. Lumera does not guarantee investment returns. Market data shown is mock data in this prototype. Always do your own research or consult a qualified professional.</div>
+      <div className="border-t border-line/70">
+        <div className="max-w-[1180px] mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row gap-3 sm:items-center justify-between">
+          <span className="text-[11px] text-faint">© 2026 Lumera. All rights reserved.</span>
+          <LanguageSwitcher compact/>
+        </div>
+        <div className="max-w-[1180px] mx-auto px-4 sm:px-6 pb-8 text-[11px] text-faint leading-relaxed">Educational financial guidance only, not licensed financial advice. Lumera does not guarantee investment returns. Market data shown is mock data in this prototype. Always do your own research or consult a qualified professional.</div>
+      </div>
     </footer>
   </div>;
 }
@@ -2439,7 +2469,7 @@ Object.assign(NAV_BY_ROUTE, {
   '/chats':{ to:'/chats', k:'Chat History', icon:'spark' },
   '/benchmarks':{ to:'/benchmarks', k:'Benchmarks', icon:'chart' },
   '/recommendations':{ to:'/recommendations', k:'AI Recommendations', icon:'bulb' },
-  '/exchanges':{ to:'/exchanges', k:'Stock Markets', icon:'book' },
+  '/exchanges':{ to:'/exchanges', k:'How Markets Work', icon:'cap' },
   '/about':{ to:'/about', k:'About Lumera', icon:'info' },
   '/quiz':{ to:'/quiz', k:'Money Quiz', icon:'trophy' },
   '/glossary':{ to:'/glossary', k:'Word of the Day', icon:'book' },
@@ -2472,7 +2502,7 @@ const SUB_TOOL_DESC = {
   '/simulator':'Watch small changes compound.', '/twin':'Meet your what-if self.', '/community':'Connect with other Lumera members.', '/chats':'Revisit your past chats with Lumi.', '/benchmarks':'How your spending compares.', '/recommendations':'What to do next, and why.',
   '/learn':'Two-minute lessons on money basics.', '/resources':'Deep dives, guides and a glossary.',
   '/quiz':'Test your money knowledge, earn XP.', '/glossary':'Learn three money words a day.', '/habits':'Build daily money habits and streaks.', '/challenges':'Gamified saving challenges to join.', '/badges':'Track your wins and streaks.', '/updates':'What’s new in Lumera.',
-  '/invest':'Start investing, explained simply.', '/market':'Live-style markets with the “why”.', '/exchanges':'How the stock market really works.', '/about':'The mission behind Lumera.', '/globe':'Spin the world’s exchanges.', '/world':'The big economic picture.', '/news':'Headlines in plain English.',
+  '/invest':'Start investing, explained simply.', '/market':'Live-style markets with the “why”.', '/exchanges':'The fundamentals, explained simply.', '/about':'The mission behind Lumera.', '/globe':'Spin the world’s exchanges.', '/world':'The big economic picture.', '/news':'Headlines in plain English.',
   '/credit':'Build a score you’re proud of.', '/debt':'A clear plan to clear what you owe.', '/insurance':'Cover what would actually hurt to lose.', '/retirement':'Tiny amounts now, huge later.',
   '/careers':'14 finance paths, what they pay, how to get in.', '/firms':'Profiles of the firms that shape markets.', '/universities':'Ranked shortlist for finance recruiting.', '/subjects':'Pick subjects for your target career.', '/finance-vs-econ':'Which path is right for you.', '/prep':'Master the skills interviews test.', '/career-lab':'Build a CV recruiters notice.', '/opportunities':'Internships, comps and scholarships.', '/sideincome':'Earn more on the side.', '/salary':'Know what your role really pays.',
 };
@@ -2493,7 +2523,7 @@ const FORGE_FEATURES = [
   ['Career roadmaps','🧭','Step-by-step moves to your next role.'],
 ];
 const TOOL_EMOJI = { '/dashboard':'🏠','/budget':'🧾','/goals':'🎯','/emergency':'🛟','/subscriptions':'📺','/networth':'📈','/simulator':'🪄','/twin':'🧬','/community':'🤝','/chats':'💬','/benchmarks':'📊','/recommendations':'💡',
-  '/learn':'📚','/resources':'🧠','/quiz':'🧩','/glossary':'🔤','/habits':'🌱','/challenges':'🎯','/badges':'🏅','/updates':'✨','/invest':'🌱','/market':'📊','/exchanges':'🏛️','/globe':'🌍','/world':'🛰️','/news':'📰','/about':'💡',
+  '/learn':'📚','/resources':'🧠','/quiz':'🧩','/glossary':'🔤','/habits':'🌱','/challenges':'🎯','/badges':'🏅','/updates':'✨','/invest':'🌱','/market':'📊','/exchanges':'🎓','/globe':'🌍','/world':'🛰️','/news':'📰','/about':'💡',
   '/credit':'💳','/debt':'⛓️','/insurance':'☂️','/retirement':'🌅',
   '/careers':'📈','/firms':'🏦','/universities':'🎓','/subjects':'📝','/finance-vs-econ':'⚖️','/prep':'🧭','/career-lab':'📄','/opportunities':'🚀','/sideincome':'💡','/salary':'📊' };
 // [label, emoji, xp, verifyRoute], challenge completes only when you visit the route.
@@ -3421,7 +3451,7 @@ function Spark({ seed, up }){
 function Market(){
   const app = useApp();
   const [watch,setWatch]=useState(['AAPL','VOO','NVDA']);
-  const [openStock,setOpenStock]=useState(null);
+  const [openStock,setOpenStock]=useState(null); const [stockQ,setStockQ]=useState('');
   const [query,setQuery]=useState(''); const [newsCat,setNewsCat]=useState('All');
   const toggle=t=>setWatch(w=>w.includes(t)?w.filter(x=>x!==t):[...w,t]);
   const found = query? STOCKS.filter(s=> (s.ticker+' '+s.company).toLowerCase().includes(query.toLowerCase())) : [];
@@ -3432,7 +3462,7 @@ function Market(){
   ];
   const allNews = NEWS.map(n=>({...n, cat:CAT[n.tag]||'Economic', impact: n.sentiment==='positive'?'Could support related stocks in the short term.':n.sentiment==='negative'?'May pressure related prices in the short term.':'Limited direct impact, watch the broader trend.'})).concat(COMPANY_NEWS);
   const news = newsCat==='All'? allNews : allNews.filter(n=>n.cat===newsCat);
-  const RATINGS={AAPL:['Buy','High'],MSFT:['Strong Buy','High'],NVDA:['Hold','Medium'],JNJ:['Buy','Medium'],JPM:['Buy','Medium'],XOM:['Hold','Low'],VOO:['Strong Buy','High'],EMAAR:['Hold','Low']};
+  const RATINGS={AMZN:['Buy','High'],GOOGL:['Buy','High'],META:['Hold','Medium'],TSLA:['Hold','Low'],'BRK.B':['Buy','High'],VWRP:['Strong Buy','High'],TSM:['Buy','Medium'],AAPL:['Buy','High'],MSFT:['Strong Buy','High'],NVDA:['Hold','Medium'],JNJ:['Buy','Medium'],JPM:['Buy','Medium'],XOM:['Hold','Low'],VOO:['Strong Buy','High'],EMAAR:['Hold','Low']};
   const ratingTone=r=> (r==='Strong Buy'||r==='Buy')?'sage': r==='Hold'?'neutral':'clay';
   const watchChg = sum(watch.map(t=>{const s=STOCKS.find(x=>x.ticker===t); return s?s.chg:0;}))/(watch.length||1);
   const greet=(()=>{const h=new Date().getHours();return h<12?'morning':h<18?'afternoon':'evening';})();
@@ -3492,8 +3522,13 @@ function Market(){
 
     {/* Stock cards */}
     <div className="flex items-center justify-between mb-3 flex-wrap gap-2"><Eyebrow>Stock insights</Eyebrow><span className="text-[11px] text-faint flex items-center gap-1"><Icon name="info" size={11}/>Ratings are educational, not financial advice</span></div>
+    {/* Search by ticker or company, then open the full AI insight. */}
+    <div className="relative mb-3 max-w-md"><Icon name="search" size={16} className="absolute left-3.5 top-3.5 text-faint"/>
+      <input value={stockQ} onChange={e=>setStockQ(e.target.value)} placeholder="Search by ticker or company, e.g. AMZN or Amazon"
+        className="w-full rounded-xl2 border border-line bg-cream pl-10 pr-3 py-3 text-sm focus:border-gold focus:outline-none"/>
+      {stockQ && <button onClick={()=>setStockQ('')} className="absolute right-3 top-3.5 text-faint hover:text-charcoal"><Icon name="x" size={15}/></button>}</div>
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-      {STOCKS.map(st=>{ const rt=RATINGS[st.ticker]||['Hold','Medium']; return <Card key={st.ticker} onClick={()=>setOpenStock(st.ticker)} className="!p-5 cursor-pointer group">
+      {STOCKS.filter(st=>!stockQ || (st.ticker+' '+st.company+' '+st.sector).toLowerCase().includes(stockQ.toLowerCase())).map(st=>{ const rt=RATINGS[st.ticker]||['Hold','Medium']; return <Card key={st.ticker} onClick={()=>setOpenStock(st.ticker)} className="!p-5 cursor-pointer group">
         <div className="flex items-start justify-between">
           <div><div className="flex items-center gap-2"><span className="tnum font-bold text-charcoal">{st.ticker}</span><Pill tone={st.risk==='High'?'clay':st.risk==='Low'||st.risk==='Lower'?'sage':'neutral'}>{st.risk} risk</Pill></div>
             <div className="text-sm text-muted">{st.company}</div></div>
@@ -5159,6 +5194,59 @@ function StockMarketsEdu(){
       <div><Eyebrow className="mb-1">Ready to go deeper?</Eyebrow><p className="text-sm text-charcoal/85">Head to <b>Investing</b> for a matched allocation, <b>Stock Market</b> for live-style prices with AI insight, or <b>Global Markets</b> to spin the globe of exchanges.</p></div></div></Card>
   </AppShell>;
 }
+// Founding team. Replace TEAM entries (and photo URLs) with the real names,
+// roles and images; `photo:null` renders a styled initials placeholder.
+const TEAM = [
+  { name:'Avyan Arya', role:'Founder & CEO', focus:'Product vision, strategy and design', photo:null,
+    bio:'Leads Lumera’s direction, from the product experience to the partnerships that make financial clarity reachable for students.', li:'https://www.linkedin.com/' },
+  { name:'Add name', role:'Co-founder & CTO', focus:'Engineering and architecture', photo:null,
+    bio:'Owns the technical foundation: the app, the data layer and everything that keeps Lumera fast and private.', li:'https://www.linkedin.com/' },
+  { name:'Add name', role:'Head of Product', focus:'Research, roadmap and delivery', photo:null,
+    bio:'Turns user research into the features that ship, and makes sure each one earns its place.', li:'https://www.linkedin.com/' },
+  { name:'Add name', role:'Head of Growth', focus:'Community, marketing and partnerships', photo:null,
+    bio:'Builds the community around Lumera and brings the product to the people who need it most.', li:'https://www.linkedin.com/' },
+  { name:'Add name', role:'Head of Content', focus:'Learning, lessons and editorial', photo:null,
+    bio:'Writes the lessons, glossary and guidance that make money make sense without jargon.', li:'https://www.linkedin.com/' },
+  { name:'Add name', role:'Head of Operations', focus:'Finance, legal and people', photo:null,
+    bio:'Keeps the business running so the team can focus on building.', li:'https://www.linkedin.com/' },
+];
+const TEAM_HUES = ['#7C3AED','#2563EB','#0D9488','#DB2777','#D97706','#16A34A'];
+function FoundingTeam(){
+  const app=useApp();
+  return <AppShell>
+    <PageHead eyebrow="Our team" title="The people building Lumera."
+      desc="A small team with one shared belief: financial understanding should not depend on who your parents are."/>
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 stagger">
+      {TEAM.map((p,i)=>{ const hue=TEAM_HUES[i%TEAM_HUES.length];
+        return <Card key={p.role} className="overflow-hidden !p-0">
+          {/* Photo slot: drop a real image URL into `photo` to replace the placeholder. */}
+          <div className="relative h-48 grid place-items-center" style={{background:`linear-gradient(135deg,${hue}22,${hue}0A)`}}>
+            {p.photo
+              ? <img src={p.photo} alt={p.name} className="absolute inset-0 h-full w-full object-cover"/>
+              : <div className="text-center">
+                  <span className="mx-auto grid place-items-center h-20 w-20 rounded-full text-white font-serif text-2xl" style={{background:`linear-gradient(135deg,${hue},${hue}AA)`}}>
+                    {p.name.split(' ').map(w=>w[0]).join('').slice(0,2)}</span>
+                  <div className="text-[11px] text-faint mt-2">Photo coming soon</div>
+                </div>}
+          </div>
+          <div className="p-5">
+            <div className="font-serif text-xl text-charcoal">{p.name}</div>
+            <div className="text-sm font-medium mt-0.5" style={{color:hue}}>{p.role}</div>
+            <div className="text-[11px] text-faint mt-0.5">{p.focus}</div>
+            <p className="text-sm text-muted mt-2.5 leading-relaxed">{p.bio}</p>
+            <a href={p.li} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold" style={{color:hue}}>
+              LinkedIn <Icon name="arrowR" size={11} className="-rotate-45"/></a>
+          </div>
+        </Card>; })}
+    </div>
+    <Card hover={false} className="mt-5 text-center py-8">
+      <div className="text-3xl mb-2">✉️</div>
+      <div className="font-serif text-xl text-charcoal">Want to join us?</div>
+      <p className="text-sm text-muted mt-1">We are always happy to hear from people who care about this problem.</p>
+      <a href="mailto:hello@lumera.app" className="btn btn-primary mt-4 px-5 py-2.5 text-sm">hello@lumera.app</a>
+    </Card>
+  </AppShell>;
+}
 function AboutLumera(){
   const gives=[
     ['Benchmark clarity','🎯','See every spending category against realistic ranges for your income and region.'],
@@ -6390,7 +6478,7 @@ const ROUTES = {
   '/careers':FinanceCareers, '/firms':TopFinanceFirms, '/universities':UniversitiesRank, '/subjects':SubjectSelection,
   '/finance-vs-econ':FinanceVsEcon, '/prep':CareerPrepHub, '/career-lab':CVLab, '/opportunities':Opportunities,
   '/quiz':LeafQuiz, '/glossary':LeafWordOfDay, '/habits':LeafHabits, '/challenges':LeafChallenges,
-  '/community':Community, '/exchanges':StockMarketsEdu, '/about':AboutLumera, '/chats':ChatHistory, '/benchmarks':Benchmarks, '/recommendations':Recommendations,
+  '/community':Community, '/exchanges':StockMarketsEdu, '/about':AboutLumera, '/team':FoundingTeam, '/chats':ChatHistory, '/benchmarks':Benchmarks, '/recommendations':Recommendations,
 };
 
 const STORE='lumera_v2';
