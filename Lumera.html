@@ -1136,21 +1136,43 @@ const LESSONS = [
 ];
 
 /* Gamification badges */
+// Rarity drives the badge colour scheme. "held" is the share of users who have
+// it; rarity is derived live from that number so it reflects the real community.
+const RARITY = {
+  Common:    { color:'#9CA3AF', glow:'rgba(156,163,175,.45)', label:'Common' },
+  Uncommon:  { color:'#22C55E', glow:'rgba(34,197,94,.45)',   label:'Uncommon' },
+  Rare:      { color:'#3B82F6', glow:'rgba(59,130,246,.5)',   label:'Rare' },
+  Epic:      { color:'#A855F7', glow:'rgba(168,85,247,.5)',   label:'Epic' },
+  Legendary: { color:'#F59E0B', glow:'rgba(245,158,11,.55)',  label:'Legendary' },
+  Mythic:    { color:'#EC4899', glow:'rgba(236,72,153,.55)',  label:'Mythic', rainbow:true },
+};
+const RARITY_ORDER = ['Common','Uncommon','Rare','Epic','Legendary','Mythic'];
+// Live rarity from the share of users holding a badge.
+const rarityFromShare = (pct)=> pct>=50?'Common' : pct>=25?'Uncommon' : pct>=10?'Rare' : pct>=4?'Epic' : pct>=1?'Legendary' : 'Mythic';
+// Share of users holding each badge, read from stored accounts so it is real.
+function badgeHolderPct(id){
+  try{
+    const accts=JSON.parse(localStorage.getItem('lumera_accounts'))||{};
+    const users=Object.values(accts); if(!users.length) return null;
+    const held=users.filter(u=>u && u.badges && u.badges[id]).length;
+    return Math.round(held/users.length*100);
+  }catch(e){ return null; }
+}
 const BADGES = [
-  {id:'firstStep', name:'First Step', icon:'leaf', desc:'Created your Lumera account', tier:'Foundational'},
-  {id:'clarity', name:'Clarity Achieved', icon:'spark', desc:'Generated your first health score', tier:'Foundational'},
-  {id:'firstBudget', name:'Budget Builder', icon:'wallet', desc:'Set up your first budget', tier:'Foundational'},
-  {id:'streak', name:'30-Day Tracker', icon:'flame', desc:'Checked in 30 days in a row', tier:'Milestone'},
-  {id:'saver', name:'Consistent Saver', icon:'pig', desc:'Reached a 15%+ savings rate', tier:'Milestone'},
-  {id:'subs', name:'Subscription Optimiser', icon:'tv', desc:'Cut unused recurring spend', tier:'Milestone'},
-  {id:'smart', name:'Smart Spender', icon:'check', desc:'All lifestyle categories within benchmark', tier:'Milestone'},
-  {id:'emergency', name:'Safety Net', icon:'shield', desc:'Built a 3-month emergency fund', tier:'Milestone'},
-  {id:'debt', name:'Debt Crusher', icon:'credit', desc:'Kept debt under 10% of income', tier:'Prestige'},
-  {id:'invest', name:'Investment Ready', icon:'chart', desc:'Buffer set, debts controlled, surplus flowing', tier:'Prestige'},
-  {id:'netpos', name:'In the Black', icon:'trend', desc:'Reached a positive net worth', tier:'Prestige'},
-  {id:'learner', name:'Lifelong Learner', icon:'book', desc:'Completed a learning path', tier:'Prestige'},
-  {id:'improve', name:'Momentum', icon:'gauge', desc:'Improved your score two months running', tier:'Prestige'},
-  {id:'goal', name:'Goal Achiever', icon:'trophy', desc:'Completed a savings goal', tier:'Prestige'},
+  {id:'firstStep', name:'First Step', icon:'leaf', desc:'Created your Lumera account', tier:'Foundational', rarity:'Common', emoji:'🌱'},
+  {id:'clarity', name:'Clarity Achieved', icon:'spark', desc:'Generated your first health score', tier:'Foundational', rarity:'Common', emoji:'✨'},
+  {id:'firstBudget', name:'Budget Builder', icon:'wallet', desc:'Set up your first budget', tier:'Foundational', rarity:'Uncommon', emoji:'🧾'},
+  {id:'streak', name:'30-Day Tracker', icon:'flame', desc:'Checked in 30 days in a row', tier:'Milestone', rarity:'Rare', emoji:'🔥'},
+  {id:'saver', name:'Consistent Saver', icon:'pig', desc:'Reached a 15%+ savings rate', tier:'Milestone', rarity:'Uncommon', emoji:'🐖'},
+  {id:'subs', name:'Subscription Optimiser', icon:'tv', desc:'Cut unused recurring spend', tier:'Milestone', rarity:'Uncommon', emoji:'📺'},
+  {id:'smart', name:'Smart Spender', icon:'check', desc:'All lifestyle categories within benchmark', tier:'Milestone', rarity:'Rare', emoji:'🎯'},
+  {id:'emergency', name:'Safety Net', icon:'shield', desc:'Built a 3-month emergency fund', tier:'Milestone', rarity:'Rare', emoji:'🛡️'},
+  {id:'debt', name:'Debt Crusher', icon:'credit', desc:'Kept debt under 10% of income', tier:'Prestige', rarity:'Epic', emoji:'⛓️'},
+  {id:'invest', name:'Investment Ready', icon:'chart', desc:'Buffer set, debts controlled, surplus flowing', tier:'Prestige', rarity:'Epic', emoji:'📈'},
+  {id:'netpos', name:'In the Black', icon:'trend', desc:'Reached a positive net worth', tier:'Prestige', rarity:'Epic', emoji:'💎'},
+  {id:'learner', name:'Lifelong Learner', icon:'book', desc:'Completed a learning path', tier:'Prestige', rarity:'Rare', emoji:'📚'},
+  {id:'improve', name:'Momentum', icon:'gauge', desc:'Improved your score two months running', tier:'Prestige', rarity:'Legendary', emoji:'🚀'},
+  {id:'goal', name:'Goal Achiever', icon:'trophy', desc:'Completed a savings goal', tier:'Prestige', rarity:'Legendary', emoji:'🏆'},
 ];
 
 /* Tools seed data */
@@ -1640,6 +1662,50 @@ function Sidebar(){
   </aside>;
 }
 
+// Avatar + account dropdown: settings, language, theme, photo upload, logout.
+function ProfileMenu(){
+  const app=useApp(); const [open,setOpen]=useState(false); const fileRef=useRef(null);
+  const pic=app.profile.avatar;
+  const pick=(e)=>{ const f=e.target.files&&e.target.files[0]; if(!f) return;
+    if(f.size>1.5*1024*1024){ alert('Please choose an image under 1.5 MB.'); return; }
+    const r=new FileReader(); r.onload=()=>{ app.updateProfile({avatar:r.result}); setOpen(false); }; r.readAsDataURL(f); };
+  const items=[
+    ['Dashboard','grid','/dashboard'],['My score breakdown','gauge','/analytics'],
+    ['Achievements','trophy','/badges'],['Community','user','/community'],['Settings','sliders','/settings'],
+  ];
+  return <div className="relative">
+    <button onClick={()=>setOpen(o=>!o)} aria-label="Account menu"
+      className="grid place-items-center h-10 w-10 rounded-full overflow-hidden bg-gradient-to-br from-gold to-goldd text-cream font-serif">
+      {pic? <img src={pic} alt="" className="h-full w-full object-cover"/> : app.profile.name[0]}
+    </button>
+    {open && <Fragment>
+      <div className="fixed inset-0 z-30" onClick={()=>setOpen(false)}/>
+      <div className="absolute right-0 mt-2 w-64 rounded-xl2 border border-line bg-card shadow-2xl z-40 overflow-hidden anim-scaleIn">
+        <div className="p-4 border-b border-line flex items-center gap-3">
+          <span className="grid place-items-center h-12 w-12 rounded-full overflow-hidden bg-gradient-to-br from-gold to-goldd text-cream font-serif text-xl shrink-0">
+            {pic? <img src={pic} alt="" className="h-full w-full object-cover"/> : app.profile.name[0]}</span>
+          <div className="min-w-0"><div className="font-medium text-charcoal truncate">{app.profile.name}</div>
+            <div className="text-xs text-faint truncate">{app.user?app.user.email:'Guest'}</div></div>
+        </div>
+        <button onClick={()=>fileRef.current&&fileRef.current.click()} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-charcoal hover:bg-sand transition">
+          <Icon name="user" size={16} className="text-muted"/>{pic?'Change photo':'Upload a photo'}</button>
+        {pic && <button onClick={()=>{app.updateProfile({avatar:null});setOpen(false);}} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-charcoal hover:bg-sand transition">
+          <Icon name="x" size={16} className="text-muted"/>Remove photo</button>}
+        <input ref={fileRef} type="file" accept="image/*" onChange={pick} className="hidden"/>
+        <div className="border-t border-line">
+          {items.map(([l,ic,to])=><button key={to} onClick={()=>{app.nav(to);setOpen(false);}} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-charcoal hover:bg-sand transition">
+            <Icon name={ic} size={16} className="text-muted"/>{l}</button>)}
+        </div>
+        <div className="border-t border-line px-4 py-3 flex items-center justify-between gap-2">
+          <span className="text-xs text-muted">Appearance</span><ThemeToggle/></div>
+        <div className="border-t border-line px-4 py-3 flex items-center justify-between gap-2">
+          <span className="text-xs text-muted">Language</span><LanguageSwitcher compact/></div>
+        <button onClick={()=>{setOpen(false);app.askLogout();}} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-berry hover:bg-sand transition border-t border-line">
+          <Icon name="x" size={16}/>Log out</button>
+      </div>
+    </Fragment>}
+  </div>;
+}
 function ThemeToggle(){
   const app = useApp();
   // One-tap light/dark flip from the header; full Light/Dark/System control lives in Settings.
@@ -1660,15 +1726,15 @@ function TopBar(){
         <div className="font-serif text-lg text-charcoal leading-none">{app.profile.name}</div>
       </div>
       <div className="flex-1"/>
-      <Hint text={t('what_streak')}><button onClick={()=>app.nav('/dashboard')} className="hidden sm:flex items-center gap-1.5 rounded-full bg-sand px-3 py-1.5">
+      <Hint text={t('what_streak')}><button onClick={()=>app.nav('/badges')} className="hidden sm:flex items-center gap-1.5 rounded-full bg-sand px-3 py-1.5">
         <Icon name="flame" size={15} className="text-clay"/><span className="text-sm font-semibold tnum">{app.profile.streak}</span><span className="text-xs text-muted">day streak</span><Icon name="info" size={11} className="text-faint"/></button></Hint>
-      <button onClick={()=>app.nav('/dashboard')} className="hidden sm:flex items-center gap-2 rounded-full bg-charcoal text-cream px-3 py-1.5">
+      <button onClick={()=>app.nav('/analytics')} className="hidden sm:flex items-center gap-2 rounded-full bg-charcoal text-cream px-3 py-1.5">
         <span className="text-xs text-gold">Score</span><span className="text-sm font-semibold tnum">{m.overall}</span></button>
       {app.mode==='spark' && <Hint text="Your Spark level, earn XP by completing daily quests."><button onClick={()=>app.nav('/dashboard')} className="hidden sm:flex items-center gap-1.5 rounded-full bg-gold/15 px-3 py-1.5">
         <span className="grid place-items-center h-5 w-5 rounded-full text-white text-[10px] font-bold tnum" style={{background:'linear-gradient(135deg,#9B6CFF,#6366F1)'}}>{levelFromXp(app.xp)}</span><span className="text-xs font-semibold text-goldd tnum">{app.xp} XP</span></button></Hint>}
       <CurrencySwitcher/><LanguageSwitcher compact/>
       <ThemeToggle/>
-      <button onClick={()=>app.nav('/settings')} className="grid place-items-center h-10 w-10 rounded-full bg-gradient-to-br from-gold to-goldd text-cream font-serif">{app.profile.name[0]}</button>
+      <ProfileMenu/>
     </div>
   </header>;
 }
@@ -2440,23 +2506,23 @@ const GUIDE = {
     'Up top is your Level, XP bar and daily quests. Complete quests to level up!',
     'Below are your money tools, tap any card to dive in.',
     'On the left is the Lumera family: Leaf, Atlas, Shield & Forge. Each is its own world. Let’s grow! 🌱'] },
-  leaf:{ name:'Sprout', tip:'your learning buddy', emoji:'🌱', lines:[
-    'Hey! I’m Sprout 🌱, welcome to Leaf, where money finally makes sense.',
+  leaf:{ name:'Lumi', tip:'your learning buddy', emoji:'🦉', lines:[
+    'Hey! I’m Lumi, welcome to Leaf, where money finally makes sense.',
     'Follow the green path below, each numbered node is a lesson or tool. Tap one to start.',
     'Smash the Daily Challenge for bonus XP every single day.',
     'Keep your streak alive and you’ll be a money pro in no time! 🍃'] },
-  atlas:{ name:'Nova', tip:'your markets co-pilot', emoji:'🛰️', lines:[
-    'I’m Nova 🛰️, welcome to Atlas, your window on the markets.',
+  atlas:{ name:'Lumi', tip:'your markets co-pilot', emoji:'🦉', lines:[
+    'I’m Lumi, welcome to Atlas, your window on the markets.',
     'The blue path takes you through investing, live-style markets and world news.',
     'New to investing? Start at step 1 and work your way down.',
     'Do the Daily Challenge to sharpen your market eye. 📈'] },
-  shield:{ name:'Sentinel', tip:'your protection guide', emoji:'🛡️', lines:[
-    'I’m Sentinel 🛡️, welcome to Shield, where you protect what matters.',
+  shield:{ name:'Lumi', tip:'your protection guide', emoji:'🦉', lines:[
+    'I’m Lumi, welcome to Shield, where you protect what matters.',
     'Walk the path to build credit, plan ahead and clear debt, step by step.',
     'Every node you finish strengthens your financial defences.',
     'Complete challenges to level up your protection. ⚔️'] },
-  forge:{ name:'Blaze', tip:'your income coach', emoji:'🔥', lines:[
-    'I’m Blaze 🔥, welcome to Forge, where you build your career and income.',
+  forge:{ name:'Lumi', tip:'your income coach', emoji:'🦉', lines:[
+    'I’m Lumi, welcome to Forge, where you build your career and income.',
     'Explore finance careers, top firms and universities, then plan the subjects and skills to get there.',
     'Polish your CV in the Lab, hunt down opportunities, and check what roles really pay.',
     'Do the Daily Challenge and let’s turn up the heat on your future! ⚡'] },
@@ -2464,21 +2530,13 @@ const GUIDE = {
 // Individualised caped-superhero SVG, each product has a distinct head/silhouette.
 function Mascot({ kind='lumera', color='#8B5CF6', emoji='🦉', size=58 }){
   const gid='mg'+color.replace('#','');
-  // distinct topper per character (owl tufts · sprout leaf · antenna · knight crest · flame)
-  const TOP = {
-    lumera: <g><path d="M20 14 L23 -10 L35 12 Z" fill={`url(#${gid})`}/><path d="M52 14 L49 -10 L37 12 Z" fill={`url(#${gid})`}/>
-      <path d="M23 -10 L25 -2 L29 4 Z" fill="#fff" opacity=".25"/><path d="M49 -10 L47 -2 L43 4 Z" fill="#fff" opacity=".25"/></g>,
-    leaf:   <g><line x1="36" y1="14" x2="36" y2="-6" stroke="#0E7A37" strokeWidth="2.6"/>
-      <path d="M36 1 Q18 -7 23 -17 Q40 -15 36 1 Z" fill="#22C55E"/><path d="M30 -8 Q34 -6 35 -2" stroke="#0E7A37" strokeWidth="1.2" fill="none"/>
-      <path d="M36 -2 Q54 -10 50 -19 Q34 -17 36 -2 Z" fill="#15A34A"/><path d="M43 -11 Q40 -8 38 -5" stroke="#0b5e2a" strokeWidth="1.2" fill="none"/></g>,
-    atlas:  <g><line x1="36" y1="14" x2="36" y2="-12" stroke={color} strokeWidth="2.4"/><circle cx="36" cy="-15" r="4.5" fill={color}/><circle cx="36" cy="-15" r="4.5" fill="#fff" opacity=".35"/><circle cx="36" cy="-15" r="8" fill="none" stroke={color} strokeWidth="1.2" opacity=".5"/></g>,
-    shield: <g><path d="M26 13 Q36 -16 46 13 Z" fill={`url(#${gid})`}/><path d="M31 13 L36 -6 L41 13 Z" fill="#fff" opacity=".35"/><circle cx="36" cy="-7" r="2.4" fill="#fff" opacity=".6"/></g>,
-    forge:  <g><path d="M27 16 Q28 -2 36 10 Q44 -2 45 16 Z" fill="#F97316"/><path d="M31 16 Q32 -10 36 6 Q40 -10 41 16 Z" fill="#FB923C"/><path d="M33 16 Q34 -2 36 9 Q38 -2 39 16 Z" fill="#FCD34D"/></g>,
-  };
-  // Atlas wears a glossy visor; the rest wear a hero domino mask.
-  const face = kind==='atlas'
-    ? <g><path d="M19 27 Q36 22 53 27 L52 34 Q36 30 20 34 Z" fill="#0b1220" opacity=".9"/><path d="M22 28 Q36 25 50 28 L49 30 Q36 27.5 23 30 Z" fill="#7dd3fc" opacity=".7"/></g>
-    : <g><path d="M17 28 Q36 19 55 28 L55 35 Q36 28 17 35 Z" fill="#0b0b16" opacity=".82"/>
+  // One character everywhere: Lumi the owl. Only the colour changes per world,
+  // so the assistant stays a single recognisable identity.
+  const owlTufts = <g><path d="M20 14 L23 -10 L35 12 Z" fill={`url(#${gid})`}/><path d="M52 14 L49 -10 L37 12 Z" fill={`url(#${gid})`}/>
+      <path d="M23 -10 L25 -2 L29 4 Z" fill="#fff" opacity=".25"/><path d="M49 -10 L47 -2 L43 4 Z" fill="#fff" opacity=".25"/></g>;
+  const TOP = { lumera:owlTufts, leaf:owlTufts, atlas:owlTufts, shield:owlTufts, forge:owlTufts };
+  // Lumi keeps the same face in every world.
+  const face = <g><path d="M17 28 Q36 19 55 28 L55 35 Q36 28 17 35 Z" fill="#0b0b16" opacity=".82"/>
         <ellipse className="mascot-blink" cx="29" cy="31" rx="3.4" ry="3.8" fill="#fff"/>
         <ellipse className="mascot-blink" cx="43" cy="31" rx="3.4" ry="3.8" fill="#fff"/></g>;
   return <span className="mascot inline-block" style={{width:size, height:size*110/80, lineHeight:0, filter:`drop-shadow(0 8px 16px ${color}66)`}}>
@@ -4602,6 +4660,12 @@ function Badges(){
     streak:'Check in 30 days in a row', saver:'Reach a savings rate of 15% or more', subs:'Cancel an unused subscription in the detector',
     smart:'Keep every lifestyle category within benchmark', emergency:'Reach a 3-month emergency fund', debt:'Keep total debt under 10% of income',
     invest:'Buffer set, debts controlled and a surplus flowing', netpos:'Get your assets above your liabilities', learner:'Complete a learning path in the Learn hub', improve:'Improve your health score two months running', goal:'Complete a savings goal' };
+  // Persist what this user has earned so community rarity percentages are real.
+  useEffect(()=>{ if(!app.user) return;
+    try{ const a=JSON.parse(localStorage.getItem('lumera_accounts'))||{};
+      if(a[app.user.email]){ a[app.user.email].badges=earned; localStorage.setItem('lumera_accounts', JSON.stringify(a)); }
+    }catch(e){}
+  },[app.user, JSON.stringify(earned)]);
   const earnedCount=Object.values(earned).filter(Boolean).length;
   return <AppShell>
     <PageHead eyebrow="Achievements" title="Your milestones."
@@ -4611,14 +4675,27 @@ function Badges(){
     <div className="mb-4"><StreakRewards/></div>
     <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
       {BADGES.map(b=>{ const got=earned[b.id];
+        const pct=badgeHolderPct(b.id);
+        const rar=pct==null? (b.rarity||'Common') : rarityFromShare(pct);
+        const R=RARITY[rar]||RARITY.Common;
+        const ring = R.rainbow
+          ? 'conic-gradient(from 210deg,#EC4899,#F59E0B,#22C55E,#3B82F6,#A855F7,#EC4899)'
+          : `linear-gradient(135deg,${R.color},${R.color}99)`;
         return <Hint key={b.id} text={got?`Earned · ${b.desc}`:`Locked · ${req[b.id]}`}>
-          <div className={cx('lux-card lift p-5 text-center h-full w-full', !got&&'opacity-70')}>
-            <span className={cx('mx-auto grid place-items-center h-16 w-16 rounded-2xl mb-3', got?'bg-gradient-to-br from-gold/25 to-sand text-goldd':'bg-sand text-taupe')}>
-              <Icon name={got?b.icon:'lock'} size={28}/></span>
+          <div className={cx('lux-card lift p-5 text-center h-full w-full relative overflow-hidden', !got&&'opacity-70')}
+            style={got?{borderColor:R.color+'66', boxShadow:`0 0 0 1px ${R.color}33, 0 12px 30px ${R.glow}`}:undefined}>
+            {got && <span className="absolute inset-x-0 top-0 h-1" style={{background:ring}}/>}
+            <span className="mx-auto grid place-items-center h-16 w-16 rounded-2xl mb-3 text-3xl"
+              style={got?{background:ring, boxShadow:`0 6px 18px ${R.glow}`}:{background:'rgb(var(--c-sand))'}}>
+              {got? (b.emoji||'🏅') : <Icon name="lock" size={26} className="text-taupe"/>}</span>
             <div className="font-serif text-lg text-charcoal">{b.name}</div>
-            <div className="text-xs text-faint mt-0.5">{b.tier}</div>
-            <div className="mt-2">{got?<Pill tone="sage"><Icon name="check" size={12}/> Earned</Pill>:<Pill tone="neutral">Locked</Pill>}</div>
+            <div className="mt-1.5 flex items-center justify-center gap-1.5">
+              <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2 py-0.5"
+                style={{background:R.color+'22', color:R.color}}>{R.label}</span>
+              {got && <Icon name="check" size={13} className="text-saged"/>}
+            </div>
             <p className="text-[11px] text-muted mt-2 leading-relaxed">{got?b.desc:req[b.id]}</p>
+            <div className="text-[10px] text-faint mt-1.5">{pct==null? 'Rarity updates as the community grows' : `${pct}% of members have this`}</div>
           </div></Hint>; })}
     </div>
   </AppShell>;
