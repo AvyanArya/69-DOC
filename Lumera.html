@@ -2419,7 +2419,7 @@ function AchievementsStrip(){
 const SUBS = [
   { key:'lumera', name:'Lumera', tag:'Core money', accent:'#8B5CF6', emoji:'🪙', live:true,
     blurb:'The parent. Your everyday money HQ, budgeting, goals, net worth and the wealth simulator.',
-    routes:['/dashboard','/budget','/goals','/emergency','/subscriptions','/networth','/simulator','/twin','/community','/badges','/updates'] },
+    routes:['/dashboard','/benchmarks','/recommendations','/budget','/goals','/emergency','/subscriptions','/networth','/simulator','/twin','/chats','/community'] },
   { key:'leaf', name:'Leaf', tag:'Learn & grow', accent:'#22C55E', emoji:'🌿', live:true,
     blurb:'Money education that doesn’t bore you, bite-size lessons and a deep knowledge hub.',
     routes:['/learn','/quiz','/glossary','/habits','/challenges','/resources'] },
@@ -2436,10 +2436,13 @@ const SUBS = [
 const NAV_BY_ROUTE = {}; NAV.forEach(g=>g.items.forEach(it=>{ NAV_BY_ROUTE[it.to]=it; }));
 Object.assign(NAV_BY_ROUTE, {
   '/community':{ to:'/community', k:'Community', icon:'user' },
+  '/chats':{ to:'/chats', k:'Chat History', icon:'spark' },
+  '/benchmarks':{ to:'/benchmarks', k:'Benchmarks', icon:'chart' },
+  '/recommendations':{ to:'/recommendations', k:'AI Recommendations', icon:'bulb' },
   '/exchanges':{ to:'/exchanges', k:'Stock Markets', icon:'book' },
   '/about':{ to:'/about', k:'About Lumera', icon:'info' },
   '/quiz':{ to:'/quiz', k:'Money Quiz', icon:'trophy' },
-  '/glossary':{ to:'/glossary', k:'Jargon Buster', icon:'book' },
+  '/glossary':{ to:'/glossary', k:'Word of the Day', icon:'book' },
   '/habits':{ to:'/habits', k:'Money Habits', icon:'check' },
   '/challenges':{ to:'/challenges', k:'Challenges', icon:'spark' },
   '/careers':{ to:'/careers', k:'Finance Careers', icon:'trend' },
@@ -2466,9 +2469,9 @@ const backToLumera = ()=>{ if(SITE==='lumera'){ location.hash='/dashboard'; } el
 const SUB_TOOL_DESC = {
   '/dashboard':'Your money at a glance.', '/budget':'See where every dirham goes.', '/goals':'Save for the things that matter.',
   '/emergency':'Size your safety buffer.', '/subscriptions':'Catch the silent money leaks.', '/networth':'One honest number, tracked.',
-  '/simulator':'Watch small changes compound.', '/twin':'Meet your what-if self.', '/community':'Connect with other Lumera members.',
+  '/simulator':'Watch small changes compound.', '/twin':'Meet your what-if self.', '/community':'Connect with other Lumera members.', '/chats':'Revisit your past chats with Lumi.', '/benchmarks':'How your spending compares.', '/recommendations':'What to do next, and why.',
   '/learn':'Two-minute lessons on money basics.', '/resources':'Deep dives, guides and a glossary.',
-  '/quiz':'Test your money knowledge, earn XP.', '/glossary':'Every money word in plain English.', '/habits':'Build daily money habits and streaks.', '/challenges':'Gamified saving challenges to join.', '/badges':'Track your wins and streaks.', '/updates':'What’s new in Lumera.',
+  '/quiz':'Test your money knowledge, earn XP.', '/glossary':'Learn three money words a day.', '/habits':'Build daily money habits and streaks.', '/challenges':'Gamified saving challenges to join.', '/badges':'Track your wins and streaks.', '/updates':'What’s new in Lumera.',
   '/invest':'Start investing, explained simply.', '/market':'Live-style markets with the “why”.', '/exchanges':'How the stock market really works.', '/about':'The mission behind Lumera.', '/globe':'Spin the world’s exchanges.', '/world':'The big economic picture.', '/news':'Headlines in plain English.',
   '/credit':'Build a score you’re proud of.', '/debt':'A clear plan to clear what you owe.', '/insurance':'Cover what would actually hurt to lose.', '/retirement':'Tiny amounts now, huge later.',
   '/careers':'14 finance paths, what they pay, how to get in.', '/firms':'Profiles of the firms that shape markets.', '/universities':'Ranked shortlist for finance recruiting.', '/subjects':'Pick subjects for your target career.', '/finance-vs-econ':'Which path is right for you.', '/prep':'Master the skills interviews test.', '/career-lab':'Build a CV recruiters notice.', '/opportunities':'Internships, comps and scholarships.', '/sideincome':'Earn more on the side.', '/salary':'Know what your role really pays.',
@@ -2489,8 +2492,8 @@ const FORGE_FEATURES = [
   ['Raise & negotiation','🤝','Scripts and data to ask for (and get) more.'],
   ['Career roadmaps','🧭','Step-by-step moves to your next role.'],
 ];
-const TOOL_EMOJI = { '/dashboard':'🏠','/budget':'🧾','/goals':'🎯','/emergency':'🛟','/subscriptions':'📺','/networth':'📈','/simulator':'🪄','/twin':'🧬','/community':'🤝',
-  '/learn':'📚','/resources':'🧠','/quiz':'🧩','/glossary':'📖','/habits':'🌱','/challenges':'🎯','/badges':'🏅','/updates':'✨','/invest':'🌱','/market':'📊','/exchanges':'🏛️','/globe':'🌍','/world':'🛰️','/news':'📰','/about':'💡',
+const TOOL_EMOJI = { '/dashboard':'🏠','/budget':'🧾','/goals':'🎯','/emergency':'🛟','/subscriptions':'📺','/networth':'📈','/simulator':'🪄','/twin':'🧬','/community':'🤝','/chats':'💬','/benchmarks':'📊','/recommendations':'💡',
+  '/learn':'📚','/resources':'🧠','/quiz':'🧩','/glossary':'🔤','/habits':'🌱','/challenges':'🎯','/badges':'🏅','/updates':'✨','/invest':'🌱','/market':'📊','/exchanges':'🏛️','/globe':'🌍','/world':'🛰️','/news':'📰','/about':'💡',
   '/credit':'💳','/debt':'⛓️','/insurance':'☂️','/retirement':'🌅',
   '/careers':'📈','/firms':'🏦','/universities':'🎓','/subjects':'📝','/finance-vs-econ':'⚖️','/prep':'🧭','/career-lab':'📄','/opportunities':'🚀','/sideincome':'💡','/salary':'📊' };
 // [label, emoji, xp, verifyRoute], challenge completes only when you visit the route.
@@ -2781,6 +2784,71 @@ function ProductHub(){
   </AppShell>;
 }
 
+function Benchmarks(){
+  const app=useApp(); const fmt=app.fmt; const m=app.metrics;
+  const [tab,setTab]=useState('All'); const [showAll,setShowAll]=useState(false);
+  const rows = m.rows.filter(r=>!r.good && r.amount>0 && (tab==='All' || r.g===tab.toLowerCase()));
+  const shownRows = showAll? rows : rows.slice(0,10);
+  return <AppShell>
+    <PageHead eyebrow="Benchmark comparison" title="How your spending compares."
+      desc="Every category measured against realistic ranges for your income and region, with the leaks worth fixing first."/>
+    <div className="grid lg:grid-cols-3 gap-4">
+      <Card className="lg:col-span-2">
+        <div className="flex items-center justify-between mb-4 flex-wrap gap-2"><Eyebrow>By category</Eyebrow>
+          <div className="flex gap-1 rounded-full bg-sand p-1">{['All','Essentials','Lifestyle','Obligations'].map(tt=>
+            <button key={tt} onClick={()=>{setTab(tt);setShowAll(false);}} className={cx('rounded-full px-3 py-1 text-xs font-medium transition', tab===tt?'bg-card shadow-soft text-charcoal':'text-muted')}>{tt}</button>)}</div></div>
+        <div className="space-y-4">
+          {shownRows.map(r=><BenchmarkBar key={r.id} label={r.label} icon={r.icon} value={r.amount} lo={r.lo} hi={r.hi} status={r.status} fmt={fmt}/>)}
+          {!rows.length && <div className="text-sm text-muted text-center py-8">Every category is inside its benchmark range. Excellent work.</div>}
+        </div>
+        {rows.length>10 && <button onClick={()=>setShowAll(s=>!s)} className="mt-4 text-sm font-semibold text-goldd flex items-center gap-1">{showAll?'Show less':`Show all ${rows.length}`}<Icon name="chevron" size={14} className="rotate-90"/></button>}
+      </Card>
+      <Card hover={false}>
+        <Eyebrow className="mb-3">Money leak detector</Eyebrow>
+        <div className="grid grid-cols-3 gap-2 mb-3">
+          <div className="rounded-xl bg-clay/8 p-2.5 text-center"><div className="font-serif text-lg text-clayd tnum">{fmt.compact(m.realistic)}</div><div className="text-[10px] text-faint">/mo waste</div></div>
+          <div className="rounded-xl bg-clay/8 p-2.5 text-center"><div className="font-serif text-lg text-clayd tnum">{round(m.realistic/Math.max(m.consumption,1)*100)}%</div><div className="text-[10px] text-faint">of spending</div></div>
+          <div className="rounded-xl bg-clay/8 p-2.5 text-center"><div className="font-serif text-lg text-clayd tnum">{fmt.compact(m.realistic*12)}</div><div className="text-[10px] text-faint">/year</div></div>
+        </div>
+        <div className="space-y-2.5">
+          {m.topLeaks.slice(0,6).map((r,i)=>{ const ease=r.disc?'Easy':'Medium'; const prio=i===0?'High':i<2?'Medium':'Low';
+            return <div key={r.id} className="flex items-center gap-3 rounded-xl border border-line bg-cream/60 p-3">
+            <span className="grid place-items-center h-8 w-8 rounded-lg bg-clay/12 text-clayd text-xs font-bold tnum">#{i+1}</span>
+            <div className="flex-1 min-w-0"><div className="text-sm font-medium text-charcoal truncate">{r.label}</div><div className="text-[11px] text-faint">{fmt.money(r.over)} over · {ease} fix</div></div>
+            <Pill tone={prio==='High'?'clay':prio==='Medium'?'gold':'neutral'}>{prio}</Pill>
+          </div>; })}
+          {!m.topLeaks.length && <div className="text-sm text-muted text-center py-4">No leaks detected.</div>}
+        </div>
+        <p className="text-[11px] text-faint mt-3 flex items-center gap-1"><Icon name="info" size={11}/>Ranked by impact and ease of fixing.</p>
+      </Card>
+    </div>
+    <div className="mt-4"><Disclaimer compact/></div>
+  </AppShell>;
+}
+function Recommendations(){
+  const app=useApp(); const fmt=app.fmt; const m=app.metrics;
+  const insights = useMemo(()=>deriveInsights(m, fmt),[m,fmt]);
+  return <AppShell>
+    <PageHead eyebrow="AI recommendations" title="What to do next, and why."
+      desc="Prioritised actions built from your own numbers. Each one explains the reasoning, so you are never asked to trust a black box."/>
+    <div className="grid md:grid-cols-2 gap-4">
+      {insights.map((ins,i)=><Card key={i}>
+        <div className="flex items-start gap-3">
+          <span className={cx('grid place-items-center h-11 w-11 rounded-xl shrink-0', ins.priority==='High'?'bg-clay/12 text-clayd':'bg-gold/12 text-goldd')}><Icon name={ins.icon} size={19}/></span>
+          <div className="flex-1 min-w-0"><Pill tone={ins.priority==='High'?'clay':'gold'}>{ins.priority} priority</Pill>
+            <div className="font-serif text-lg text-charcoal mt-1.5">{ins.title}</div></div>
+        </div>
+        <p className="text-sm text-muted leading-relaxed mt-3">{ins.explanation}</p>
+        <div className="mt-3 rounded-xl2 px-3.5 py-3 flex items-start gap-2 text-sm" style={{background:'linear-gradient(135deg,#6D28D9,#4F46E5)',color:'#fff'}}>
+          <Icon name="check" size={15} className="mt-0.5 shrink-0"/><span>{ins.action}</span></div>
+      </Card>)}
+      {!insights.length && <Card hover={false} className="md:col-span-2 text-center py-10"><div className="text-4xl mb-2">✅</div>
+        <div className="font-serif text-xl text-charcoal">Nothing urgent right now</div>
+        <p className="text-sm text-muted mt-1">Your numbers look healthy. Come back after your next monthly update.</p></Card>}
+    </div>
+    <div className="mt-4"><Disclaimer compact/></div>
+  </AppShell>;
+}
 function Dashboard(){
   const app = useApp(); const fmt = app.fmt; const m = app.metrics; const ref = useReveal();
   const [tab,setTab]=useState('All'); const [showAll,setShowAll]=useState(false); const [after,setAfter]=useState(false);
@@ -2908,54 +2976,19 @@ function Dashboard(){
       </Card>
     </div>
 
-    {/* Benchmark comparison + alerts */}
-    <div className="grid lg:grid-cols-3 gap-4 mb-4">
-      <Card className="lg:col-span-2">
-        <div className="flex items-center justify-between mb-4 flex-wrap gap-2"><Eyebrow>Benchmark comparison</Eyebrow>
-          <div className="flex gap-1 rounded-full bg-sand p-1">{['All','Essentials','Lifestyle','Obligations'].map(tt=>
-            <button key={tt} onClick={()=>{setTab(tt);setShowAll(false);}} className={cx('rounded-full px-3 py-1 text-xs font-medium transition', tab===tt?'bg-card shadow-soft text-charcoal':'text-muted')}>{tt}</button>)}</div></div>
-        <div className="space-y-4">
-          {shownRows.map(r=><BenchmarkBar key={r.id} label={r.label} icon={r.icon} value={r.amount} lo={r.lo} hi={r.hi} status={r.status} fmt={fmt}/>)}
-        </div>
-        {rows.length>7 && <button onClick={()=>setShowAll(s=>!s)} className="mt-4 text-sm font-semibold text-goldd flex items-center gap-1">{showAll?'Show less':`Show all ${rows.length}`}<Icon name={showAll?'chevL':'chevron'} size={14} className={showAll?'rotate-90':'rotate-90'}/></button>}
-      </Card>
-
-      <Card>
-        <div className="flex items-center gap-2 mb-3"><Eyebrow>Money leak detector</Eyebrow></div>
-        <div className="grid grid-cols-3 gap-2 mb-3">
-          <div className="rounded-xl bg-clay/8 p-2.5 text-center"><div className="font-serif text-lg text-clayd tnum">{fmt.compact(m.realistic)}</div><div className="text-[10px] text-faint">/mo waste</div></div>
-          <div className="rounded-xl bg-clay/8 p-2.5 text-center"><div className="font-serif text-lg text-clayd tnum">{round(m.realistic/Math.max(m.consumption,1)*100)}%</div><div className="text-[10px] text-faint">of spending</div></div>
-          <div className="rounded-xl bg-clay/8 p-2.5 text-center"><div className="font-serif text-lg text-clayd tnum">{fmt.compact(m.realistic*12)}</div><div className="text-[10px] text-faint">/year</div></div>
-        </div>
-        <div className="space-y-2.5">
-          {m.topLeaks.slice(0,5).map((r,i)=>{ const ease=r.disc?'Easy':'Medium'; const prio=i===0?'High':i<2?'Medium':'Low';
-            return <div key={r.id} className="flex items-center gap-3 rounded-xl border border-line bg-cream/60 p-3">
-            <span className="relative grid place-items-center h-8 w-8 rounded-lg bg-clay/12 text-clayd text-xs font-bold tnum">#{i+1}
-              <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-clay" style={{animation:`drip 1.8s ${i*0.2}s infinite`}}/></span>
-            <div className="flex-1 min-w-0"><div className="text-sm font-medium text-charcoal truncate">{r.label}</div><div className="text-[11px] text-faint">{fmt.money(r.over)} over · {ease} fix</div></div>
-            <Pill tone={prio==='High'?'clay':prio==='Medium'?'gold':'neutral'}>{prio}</Pill>
-          </div>; })}
-        </div>
-        <p className="text-[11px] text-faint mt-3 flex items-center gap-1"><Icon name="info" size={11}/>Ranked by impact × ease of fixing.</p>
-      </Card>
+    {/* Deeper analysis lives on its own pages so the dashboard stays scannable. */}
+    <div className="grid sm:grid-cols-2 gap-4 mb-4">
+      <Card onClick={()=>app.nav('/benchmarks')} className="cursor-pointer group flex items-center gap-4">
+        <span className="grid place-items-center h-12 w-12 rounded-xl bg-sky/15 text-sky shrink-0"><Icon name="chart" size={22}/></span>
+        <div className="flex-1"><div className="font-serif text-lg text-charcoal">Benchmark comparison</div>
+          <p className="text-sm text-muted">See every category against realistic ranges, plus your money leaks.</p></div>
+        <Icon name="arrowR" size={18} className="text-faint group-hover:translate-x-1 transition"/></Card>
+      <Card onClick={()=>app.nav('/recommendations')} className="cursor-pointer group flex items-center gap-4">
+        <span className="grid place-items-center h-12 w-12 rounded-xl bg-gold/15 text-goldd shrink-0"><Icon name="spark" size={22}/></span>
+        <div className="flex-1"><div className="font-serif text-lg text-charcoal">AI recommendations</div>
+          <p className="text-sm text-muted">Prioritised, explained actions built from your own numbers.</p></div>
+        <Icon name="arrowR" size={18} className="text-faint group-hover:translate-x-1 transition"/></Card>
     </div>
-
-    {/* AI recommendations */}
-    <Card className="mb-4">
-      <div className="flex items-center gap-2 mb-4"><span className="grid place-items-center h-8 w-8 rounded-lg bg-gold/15 text-goldd"><Icon name="spark" size={17}/></span><Eyebrow>AI recommendations</Eyebrow></div>
-      <div className="grid md:grid-cols-3 gap-3">
-        {insights.map((ins,i)=><details key={i} className="group rounded-xl2 border border-line bg-cream/60 p-4 [&_summary]:cursor-pointer">
-          <summary className="flex items-start gap-3 list-none">
-            <span className={cx('grid place-items-center h-9 w-9 rounded-lg shrink-0', ins.priority==='High'?'bg-clay/12 text-clayd':'bg-gold/12 text-goldd')}><Icon name={ins.icon} size={16}/></span>
-            <span className="flex-1 min-w-0"><span className="flex items-center gap-2"><Pill tone={ins.priority==='High'?'clay':'gold'}>{ins.priority}</Pill></span>
-              <span className="block font-medium text-charcoal text-sm mt-1.5">{ins.title}</span></span>
-            <Icon name="chevron" size={16} className="rotate-90 text-faint group-open:rotate-[270deg] transition"/>
-          </summary>
-          <p className="text-sm text-muted leading-relaxed mt-3">{ins.explanation}</p>
-          <div className="mt-3 rounded-lg bg-charcoal text-cream text-xs px-3 py-2 flex items-start gap-2"><Icon name="check" size={14} className="text-gold mt-0.5"/>{ins.action}</div>
-        </details>)}
-      </div>
-    </Card>
 
     {/* 30-day plan + projection */}
     <div className="grid lg:grid-cols-2 gap-4 mb-4">
@@ -3595,10 +3628,55 @@ function botReply(text, m, fmt, app){
     text:`Good question, ${name}, ask me anything in your own words and I’ll use your actual numbers. I can dig into spending, saving, debt, investing, credit, insurance, retirement, net worth or the markets.\n\nFor example: “Why is my score ${m.overall}?”, “Should I pay debt or invest?”, or “How do I save ${fmt.money(500)} a month?”`,
     reasoning:`No specific intent matched, so I invited a free-form question and gave tailored examples. ${ref}`};
 }
+const CHAT_KEY='lumera_chats';
+function ChatHistory(){
+  const app=useApp();
+  const [chats,setChats]=useState(()=>{ try{ return JSON.parse(localStorage.getItem(CHAT_KEY))||[]; }catch(e){ return []; } });
+  const [open,setOpen]=useState(null);
+  const del=(id)=>{ const n=chats.filter(c=>c.id!==id); setChats(n); try{ localStorage.setItem(CHAT_KEY, JSON.stringify(n)); }catch(e){} if(open&&open.id===id) setOpen(null); };
+  const clearAll=()=>{ if(!confirm('Delete every saved conversation?')) return; setChats([]); try{ localStorage.removeItem(CHAT_KEY); }catch(e){} setOpen(null); };
+  return <AppShell>
+    <PageHead eyebrow="Chat history" title="Everything you have asked Lumi." desc="Your past conversations, saved on this device. Open one to read it back or start a fresh chat."
+      action={chats.length? <button onClick={clearAll} className="btn btn-ghost px-3 py-2 text-sm"><Icon name="x" size={14}/>Clear all</button> : null}/>
+    {chats.length===0
+      ? <Card hover={false} className="text-center py-10"><div className="text-4xl mb-2">💬</div>
+          <div className="font-serif text-xl text-charcoal">No conversations yet</div>
+          <p className="text-sm text-muted mt-1">Ask Lumi anything and it will show up here.</p>
+          <Btn variant="primary" className="mt-4" iconR="arrowR" onClick={()=>app.nav('/assistant')}>Open the assistant</Btn></Card>
+      : <div className="grid lg:grid-cols-3 gap-4">
+          <div className="space-y-2.5">{chats.map(c=>
+            <Card key={c.id} onClick={()=>setOpen(c)} className={cx('cursor-pointer', open&&open.id===c.id&&'ring-1 ring-gold/40')}>
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0"><div className="text-sm font-medium text-charcoal truncate">{c.title}</div>
+                  <div className="text-[11px] text-faint mt-0.5">{new Date(c.at).toLocaleString()} · {c.msgs.length} messages</div></div>
+                <button onClick={(e)=>{e.stopPropagation();del(c.id);}} className="grid place-items-center h-7 w-7 rounded-lg text-faint hover:text-berry hover:bg-sand shrink-0"><Icon name="x" size={13}/></button>
+              </div></Card>)}</div>
+          <Card hover={false} className="lg:col-span-2">{!open
+            ? <div className="text-sm text-muted text-center py-10">Pick a conversation to read it.</div>
+            : <Fragment><div className="flex items-center justify-between mb-3"><Eyebrow>{new Date(open.at).toLocaleDateString()}</Eyebrow>
+                <Btn variant="ghost" onClick={()=>app.nav('/assistant')}>New chat</Btn></div>
+              <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">{open.msgs.map((mm,i)=>
+                <div key={i} className={cx('flex', mm.role==='user'?'justify-end':'justify-start')}>
+                  <div className={cx('max-w-[85%] rounded-xl2 px-3.5 py-2.5 text-sm whitespace-pre-wrap leading-relaxed', mm.role==='user'?'bg-charcoal text-cream':'border border-line bg-cream/60 text-charcoal')}>{mm.text}</div>
+                </div>)}</div></Fragment>}</Card>
+        </div>}
+  </AppShell>;
+}
+
+const CHAT_SID='c'+Date.now();
 function AIAssistant(){
   const app = useApp(); const fmt = app.fmt; const m = app.metrics;
   const [msgs,setMsgs]=useState([{role:'bot', text:`Hi ${app.profile.name}. I’ve read your latest month. Ask me anything, where you’re overspending, whether you’re ready to invest, or how an ETF works. I keep it simple and honest.`}]);
   const [typing,setTyping]=useState(false); const [input,setInput]=useState(''); const endRef=useRef(null);
+  // Persist the conversation so it can be revisited from Chat history.
+  useEffect(()=>{ if(msgs.length<2) return;
+    try{ const all=JSON.parse(localStorage.getItem(CHAT_KEY))||[];
+      const first=msgs.find(x=>x.role==='user'); if(!first) return;
+      const entry={ id:CHAT_SID, title:first.text.slice(0,70), at:Date.now(), msgs:msgs.map(x=>({role:x.role,text:x.text})) };
+      const idx=all.findIndex(c=>c.id===CHAT_SID); if(idx>=0) all[idx]=entry; else all.unshift(entry);
+      localStorage.setItem(CHAT_KEY, JSON.stringify(all.slice(0,50)));
+    }catch(e){}
+  },[msgs]);
   const prompts=['Where am I overspending?','How can I save AED 500/month?','What is an ETF?','Am I ready to invest?','Should I save, invest, or pay debt first?','Build me a monthly action plan'];
   useEffect(()=>{ endRef.current && endRef.current.scrollIntoView({behavior:'smooth'}); },[msgs,typing]);
   const send=(text)=>{ const t=(text||input).trim(); if(!t) return; setInput(''); setMsgs(x=>[...x,{role:'user',text:t}]); setTyping(true);
@@ -4820,6 +4898,57 @@ const UPDATES_SEED=[
   {date:'Jun 2026', tag:'Live now', title:'Streak rewards, custom entries & Knowledge Hub', body:'Daily check-in rewards, your own budget categories and subscriptions, and a curated shelf of the best places to learn.'},
   {date:'Next', tag:'Coming', title:'Live market data & headlines', body:'Real-time prices and news via a market-data provider (see the integration guide).'},
 ];
+// Claim your streak the moment you open Lumera, instead of hunting for it.
+function DailyCheckIn(){
+  const app=useApp();
+  const today=new Date().toISOString().slice(0,10);
+  const already=app.profile.lastCheckin===today;
+  const [open,setOpen]=useState(false),[claimed,setClaimed]=useState(false);
+  useEffect(()=>{ if(already) return; const t=setTimeout(()=>setOpen(true),900); return ()=>clearTimeout(t); },[already]);
+  if(!open) return null;
+  const streak=app.profile.streak||0; const nextStreak=claimed?streak:streak+1;
+  const week=Array.from({length:7},(_,i)=>i<(claimed?streak:streak)%7||((claimed?streak:streak)>0&&(claimed?streak:streak)%7===0));
+  const claim=()=>{ app.checkIn(); if(app.awardXp) app.awardXp(10); setClaimed(true); };
+  return <div className="fixed inset-0 z-[170] grid place-items-center p-4">
+    <div className="absolute inset-0" style={{background:'rgba(8,8,16,.7)',backdropFilter:'blur(6px)'}} onClick={()=>claimed&&setOpen(false)}/>
+    <div className="relative w-full max-w-sm lux-card !p-7 text-center anim-scaleIn">
+      <div className="text-5xl mb-2">{claimed?'🎉':'🔥'}</div>
+      <h3 className="font-serif text-2xl text-charcoal">{claimed?'Streak claimed!':'Welcome back'}</h3>
+      <p className="text-sm text-muted mt-1">{claimed?`You’re on a ${nextStreak}-day streak. Same time tomorrow.`:'Claim today’s check-in to keep your streak alive.'}</p>
+      <div className="flex justify-center gap-1.5 my-5">{week.map((on,i)=>
+        <span key={i} className="grid place-items-center h-8 w-8 rounded-lg text-xs font-bold"
+          style={on?{background:'linear-gradient(135deg,#F59E0B,#EF4444)',color:'#fff'}:{background:'rgb(var(--c-sand))',color:'rgb(var(--c-faint))'}}>{i+1}</span>)}</div>
+      <div className="rounded-xl2 bg-gold/8 border border-gold/20 px-4 py-3 mb-4">
+        <div className="font-serif text-3xl" style={{color:'#D4A24E'}}>{nextStreak}<span className="text-base text-muted"> day{nextStreak===1?'':'s'}</span></div>
+        <div className="text-[11px] text-faint">Best: {Math.max(app.profile.streakBest||0,nextStreak)} days</div></div>
+      {claimed
+        ? <button onClick={()=>setOpen(false)} className="btn btn-primary w-full py-2.5 text-sm">Let’s go <Icon name="arrowR" size={14}/></button>
+        : <button onClick={claim} className="btn btn-gold w-full py-3 text-sm">Claim check-in, +10 XP</button>}
+      {!claimed && <button onClick={()=>setOpen(false)} className="text-xs text-faint mt-3 hover:text-muted">Maybe later</button>}
+    </div></div>;
+}
+// What's new appears as a popup on login rather than a page you must go find.
+function WhatsNewPopup(){
+  const items=(()=>{ try{ const u=JSON.parse(localStorage.getItem('lumera_updates')); return (Array.isArray(u)&&u.length)?u:UPDATES_SEED; }catch(e){ return UPDATES_SEED; } })();
+  const stamp=items.length?String(items[0].title||'')+String(items[0].date||''):'none';
+  const [open,setOpen]=useState(false);
+  useEffect(()=>{ try{ if(localStorage.getItem('lumera_seen_update')!==stamp){ const t=setTimeout(()=>setOpen(true),2600); return ()=>clearTimeout(t);} }catch(e){} },[stamp]);
+  const close=()=>{ try{ localStorage.setItem('lumera_seen_update',stamp); }catch(e){} setOpen(false); };
+  if(!open||!items.length) return null;
+  return <div className="fixed inset-0 z-[160] grid place-items-center p-4">
+    <div className="absolute inset-0 bg-charcoal/50" onClick={close}/>
+    <div className="relative w-full max-w-lg lux-card !p-6 anim-scaleIn max-h-[80vh] overflow-y-auto">
+      <div className="flex items-start justify-between"><div><Eyebrow>What’s new</Eyebrow>
+        <h3 className="font-serif text-2xl text-charcoal mt-1">Fresh in Lumera</h3></div>
+        <button onClick={close} className="grid place-items-center h-8 w-8 rounded-lg hover:bg-sand"><Icon name="x"/></button></div>
+      <div className="space-y-3 mt-4">{items.slice(0,4).map((u,i)=>{ const live=/live|now|shipped/i.test(u.tag||'');
+        return <div key={i} className="flex items-start gap-3 rounded-xl2 border border-line p-3">
+          <span className={cx('grid place-items-center h-9 w-9 rounded-xl shrink-0', live?'bg-sage/15 text-saged':'bg-gold/12 text-goldd')}><Icon name={live?'check':'spark'} size={16}/></span>
+          <div><div className="flex items-center gap-2 flex-wrap"><span className="font-medium text-charcoal">{u.title}</span><Pill tone={live?'sage':'gold'}>{u.tag}</Pill></div>
+            <p className="text-sm text-muted mt-0.5 leading-relaxed">{u.body}</p></div></div>; })}</div>
+      <button onClick={close} className="btn btn-primary w-full mt-5 py-2.5 text-sm">Got it</button>
+    </div></div>;
+}
 function Updates(){
   const [,bump]=useState(0);
   useEffect(()=>{ try{ const bc=new BroadcastChannel('lumera_updates'); bc.onmessage=()=>bump(x=>x+1); return ()=>bc.close(); }catch(e){} },[]);
@@ -5412,38 +5541,93 @@ function LeafQuiz(){
       {answered && <button onClick={next} className="btn w-full mt-4 py-2.5 text-white" style={{background:LEAF_G}}>{i+1>=bank.length?'See my score':'Next question'} <Icon name="arrowR" size={14}/></button>}
     </Card></AppShell>;
 }
-function LeafGlossary(){
-  const [qy,setQy]=useState(''),[cat,setCat]=useState('All');
-  const terms=[
-    ['Budgeting','APR','The yearly cost of borrowing, including interest and fees, the higher, the pricier the debt.'],
-    ['Budgeting','Net worth','Everything you own minus everything you owe. One honest number for your finances.'],
-    ['Budgeting','Emergency fund','Cash set aside (3–6 months of costs) for life’s surprises, so you don’t reach for debt.'],
-    ['Budgeting','Fixed vs variable','Fixed costs stay the same (rent); variable ones move (groceries, fun). Cut variables first.'],
-    ['Investing','ETF','A fund holding many investments at once, cheap, simple diversification in one buy.'],
-    ['Investing','Index fund','A fund that mirrors a whole market (like the S&P 500) instead of picking winners.'],
-    ['Investing','Diversification','Spreading money across many assets so one bad bet can’t sink you.'],
-    ['Investing','Compound interest','Earning returns on your returns, the engine behind long-term wealth.'],
-    ['Investing','Dividend','A share of a company’s profit paid to shareholders, usually quarterly.'],
-    ['Investing','Bull / bear market','Bull = prices rising and optimistic; bear = falling and cautious.'],
-    ['Credit','Credit score','A number (roughly 300–850) lenders use to judge how reliably you repay.'],
-    ['Credit','Credit utilisation','How much of your available credit you’re using, keep it under ~30%.'],
-    ['Credit','Secured vs unsecured','Secured debt is backed by an asset (mortgage); unsecured isn’t (most cards).'],
-    ['Planning','Inflation','The gradual rise in prices that erodes the buying power of idle cash.'],
-    ['Planning','Compound growth','The same snowball as compound interest, applied to investments over years.'],
-    ['Planning','Liquidity','How quickly an asset turns into spendable cash without losing value.'],
-  ];
-  const cats=['All',...Array.from(new Set(terms.map(t=>t[0])))];
-  const shown=terms.filter(t=>(cat==='All'||t[0]===cat)&&(t[1].toLowerCase().includes(qy.toLowerCase())||t[2].toLowerCase().includes(qy.toLowerCase())));
-  return <AppShell>
-    <PageHead eyebrow="Leaf · Jargon buster" title="Every money word, in plain English." desc="Search or filter the glossary, no finance degree required."/>
-    <Card className="mb-4"><div className="flex flex-col sm:flex-row gap-3">
-      <div className="flex-1 relative"><Icon name="search" size={15} className="absolute left-3 top-3 text-faint"/><input value={qy} onChange={e=>setQy(e.target.value)} placeholder="Search a term…" className="w-full rounded-xl border border-line bg-cream pl-9 pr-3 py-2.5 focus:outline-none" style={{borderColor:qy?LEAF_G:undefined}}/></div>
+/* Word of the Day with Anki-style spaced repetition.
+   Each word carries a box (1-5). Correct answers promote it and push the next
+   review further out; wrong answers demote it back to box 1. */
+const WORDS = [
+  ['APR','Budgeting','The yearly cost of borrowing, including interest and fees. The higher it is, the pricier the debt.'],
+  ['Net worth','Budgeting','Everything you own minus everything you owe. One honest number for your finances.'],
+  ['Emergency fund','Budgeting','Cash set aside (3 to 6 months of costs) for life’s surprises, so you don’t reach for debt.'],
+  ['Fixed vs variable','Budgeting','Fixed costs stay the same (rent); variable ones move (groceries, fun). Cut variables first.'],
+  ['ETF','Investing','A fund holding many investments at once. Cheap, simple diversification in one buy.'],
+  ['Index fund','Investing','A fund that mirrors a whole market (like the S&P 500) instead of picking winners.'],
+  ['Diversification','Investing','Spreading money across many assets so one bad bet can’t sink you.'],
+  ['Compound interest','Investing','Earning returns on your returns. The engine behind long-term wealth.'],
+  ['Dividend','Investing','A share of a company’s profit paid to shareholders, usually quarterly.'],
+  ['Bull market','Investing','A sustained period of rising prices and optimism.'],
+  ['Bear market','Investing','A sustained fall of roughly 20% or more, with widespread pessimism.'],
+  ['Credit score','Credit','A number (roughly 300 to 850) lenders use to judge how reliably you repay.'],
+  ['Credit utilisation','Credit','How much of your available credit you’re using. Keep it under about 30%.'],
+  ['Secured debt','Credit','Debt backed by an asset, like a mortgage. Usually cheaper because the lender has security.'],
+  ['Inflation','Planning','The gradual rise in prices that erodes the buying power of idle cash.'],
+  ['Liquidity','Planning','How quickly an asset turns into spendable cash without losing value.'],
+  ['Asset allocation','Planning','How you split money across shares, bonds and cash. The biggest driver of risk and return.'],
+  ['Dollar-cost averaging','Investing','Investing a fixed amount on a schedule so you buy through highs and lows.'],
+];
+const SRS_KEY='lumera_srs';
+const BOX_DAYS=[0,1,2,4,8,16];
+function loadSrs(){ try{ return JSON.parse(localStorage.getItem(SRS_KEY))||{}; }catch(e){ return {}; } }
+function saveSrs(s){ try{ localStorage.setItem(SRS_KEY, JSON.stringify(s)); }catch(e){} }
+const todayNum = ()=> Math.floor(Date.now()/864e5);
+// Words due for review today, hardest first, then anything never seen.
+function dueWords(srs){
+  const t=todayNum();
+  const seen=WORDS.filter(w=>srs[w[0]]).filter(w=>(srs[w[0]].due||0)<=t);
+  const fresh=WORDS.filter(w=>!srs[w[0]]);
+  return [...seen.sort((a,b)=>(srs[a[0]].box||1)-(srs[b[0]].box||1)), ...fresh];
+}
+function gradeWord(srs, word, correct){
+  const cur=srs[word]||{box:1,seen:0,right:0,wrong:0};
+  const box = correct ? Math.min(5,(cur.box||1)+1) : 1;
+  return {...srs, [word]:{ box, due: todayNum()+BOX_DAYS[box], seen:(cur.seen||0)+1,
+    right:(cur.right||0)+(correct?1:0), wrong:(cur.wrong||0)+(correct?0:1) }};
+}
+function LeafWordOfDay(){
+  const app=useApp();
+  const [srs,setSrs]=useState(loadSrs);
+  const [queue,setQueue]=useState(()=>dueWords(loadSrs()).slice(0,3));
+  const [i,setI]=useState(0),[pick,setPick]=useState(null),[done,setDone]=useState(false);
+  const w=queue[i];
+  // Three options: the right definition plus two decoys.
+  const options=useMemo(()=>{ if(!w) return [];
+    const others=WORDS.filter(x=>x[0]!==w[0]).sort((a,b)=>hashStr(a[0]+w[0])-hashStr(b[0]+w[0])).slice(0,2);
+    return [[w[2],true],...others.map(o=>[o[2],false])].sort((a,b)=>hashStr(a[0])-hashStr(b[0]));
+  },[w&&w[0]]);
+  const choose=(n)=>{ if(pick!==null||!w) return; setPick(n);
+    const correct=options[n][1]; const ns=gradeWord(srs,w[0],correct); setSrs(ns); saveSrs(ns); };
+  const next=()=>{ if(i+1>=queue.length){ setDone(true); if(app.awardXp) app.awardXp(15); } else { setI(i+1); setPick(null); } };
+  const mastered=WORDS.filter(x=>(srs[x[0]]||{}).box>=5).length;
+  const learning=WORDS.filter(x=>srs[x[0]]&&(srs[x[0]].box||1)<5).length;
+  if(!w||done) return <AppShell>
+    <PageHead eyebrow="Leaf · Word of the day" title="Three words down." desc="Come back tomorrow. Words you find hard come round sooner; ones you know drift further away."/>
+    <div className="grid sm:grid-cols-3 gap-4 mb-4">
+      {[['Mastered',mastered,LEAF_G],['Still learning',learning,'#D4A24E'],['Not seen yet',WORDS.length-mastered-learning,'#6E86A0']].map(([l,v,c])=>
+        <Card key={l} hover={false}><div className="text-xs text-muted">{l}</div><div className="font-serif text-3xl mt-0.5" style={{color:c}}>{v}</div></Card>)}
     </div>
-    <div className="flex gap-2 mt-3 flex-wrap">{cats.map(c=><button key={c} onClick={()=>setCat(c)} className={cx('chip',cat===c&&'on')}>{c}</button>)}</div></Card>
-    <div className="grid sm:grid-cols-2 gap-3 stagger">{shown.map(([c,term,def])=>
-      <Card key={term}><div className="flex items-center justify-between"><span className="font-serif text-lg text-charcoal">{term}</span><Pill tone="neutral">{c}</Pill></div>
-        <p className="text-sm text-muted mt-1.5 leading-relaxed">{def}</p></Card>)}
-      {!shown.length && <div className="sm:col-span-2 text-center text-sm text-muted py-6">No terms match “{qy}”. Try another word.</div>}</div>
+    <Card hover={false}><Eyebrow className="mb-3">Your vocabulary</Eyebrow>
+      <div className="grid sm:grid-cols-2 gap-2">{WORDS.map(([term,cat])=>{ const s=srs[term]; const box=s?(s.box||1):0;
+        const c = box>=5?LEAF_G : box>=3?'#D4A24E' : box>=1?'#6E86A0' : '#9C9387';
+        return <div key={term} className="flex items-center gap-2 rounded-xl border border-line p-2.5">
+          <span className="h-2 w-2 rounded-full shrink-0" style={{background:c}}/>
+          <span className="text-sm text-charcoal flex-1">{term}</span>
+          <span className="text-[10px] text-faint">{box===0?'new':'box '+box+'/5'}</span></div>; })}</div></Card>
+  </AppShell>;
+  return <AppShell>
+    <PageHead eyebrow="Leaf · Word of the day" title="Learn three words today." desc="Pick the right meaning. Get it wrong and the word comes back sooner, so it actually sticks."/>
+    <Card>
+      <div className="flex items-center justify-between mb-3"><Eyebrow>Word {i+1} of {queue.length}</Eyebrow>
+        <span className="text-xs text-muted">{srs[w[0]]?`box ${srs[w[0]].box||1}/5`:'new word'}</span></div>
+      <div className="h-1.5 rounded-full bg-sand mb-6"><div className="h-1.5 rounded-full transition-all" style={{width:((i+(pick!==null?1:0))/queue.length*100)+'%',background:LEAF_G}}/></div>
+      <div className="text-center mb-5"><Pill tone="neutral">{w[1]}</Pill>
+        <div className="font-serif text-4xl text-charcoal mt-2">{w[0]}</div>
+        <div className="text-sm text-muted mt-1">What does it mean?</div></div>
+      <div className="space-y-2.5">{options.map(([text,isRight],n)=>{ const chosen=n===pick; const answered=pick!==null;
+        const cls=!answered?'border-line hover:border-[color:var(--lg)]':isRight?'border-sage bg-sage/10':chosen?'border-berry/50 bg-berry/8':'border-line opacity-60';
+        return <button key={n} onClick={()=>choose(n)} className={cx('w-full rounded-xl2 border p-3.5 text-left text-sm transition flex items-start gap-3',cls)} style={{'--lg':LEAF_G}}>
+          <span className={cx('grid place-items-center h-6 w-6 rounded-lg shrink-0 text-xs font-semibold mt-0.5',answered&&isRight?'bg-sage text-white':answered&&chosen?'bg-berry text-white':'bg-sand text-muted')}>{answered&&isRight?'✓':answered&&chosen?'✕':String.fromCharCode(65+n)}</span>
+          <span className="text-charcoal">{text}</span></button>; })}</div>
+      {pick!==null && <button onClick={next} className="btn w-full mt-4 py-2.5 text-white" style={{background:LEAF_G}}>{i+1>=queue.length?'Finish':'Next word'} <Icon name="arrowR" size={14}/></button>}
+    </Card>
   </AppShell>;
 }
 function LeafHabits(){
@@ -6183,7 +6367,7 @@ const FEATURES = [
   { key:'universities',label:'Universities',         routes:['/universities'],                   def:true },
   { key:'subjects',    label:'Subject Selection',    routes:['/subjects'],                       def:true },
   { key:'prep',        label:'Career Prep Hub',      routes:['/prep'],                           def:true },
-  { key:'wordOfDay',   label:'Word of the Day',      routes:[],                                  def:true },
+  { key:'wordOfDay',   label:'Word of the Day',      routes:['/glossary'],                        def:true },
   { key:'worldMonitor',label:'World Monitor',        routes:['/world'],                          def:true },
   { key:'globe',       label:'Global Markets',       routes:['/globe'],                          def:true },
 ];
@@ -6205,8 +6389,8 @@ const ROUTES = {
   '/cv':ForgeCV, '/university':ForgeUniversity, '/career':ForgeCareer, '/sideincome':ForgeSideIncome, '/salary':ForgeSalary,
   '/careers':FinanceCareers, '/firms':TopFinanceFirms, '/universities':UniversitiesRank, '/subjects':SubjectSelection,
   '/finance-vs-econ':FinanceVsEcon, '/prep':CareerPrepHub, '/career-lab':CVLab, '/opportunities':Opportunities,
-  '/quiz':LeafQuiz, '/glossary':LeafGlossary, '/habits':LeafHabits, '/challenges':LeafChallenges,
-  '/community':Community, '/exchanges':StockMarketsEdu, '/about':AboutLumera,
+  '/quiz':LeafQuiz, '/glossary':LeafWordOfDay, '/habits':LeafHabits, '/challenges':LeafChallenges,
+  '/community':Community, '/exchanges':StockMarketsEdu, '/about':AboutLumera, '/chats':ChatHistory, '/benchmarks':Benchmarks, '/recommendations':Recommendations,
 };
 
 const STORE='lumera_v2';
@@ -6343,6 +6527,8 @@ function App(){
   return <AppCtx.Provider value={value}>
     {mode==='spark' && <XPBurst fire={questBurst}/>}
     <div key={redirect||path} className="anim-fadeIn"><Page/></div>
+    {user && <DailyCheckIn/>}
+    {user && <WhatsNewPopup/>}
     {showLogout && <div className="fixed inset-0 z-[150] grid place-items-center p-4">
       <div className="absolute inset-0 bg-charcoal/45" onClick={()=>setShowLogout(false)}/>
       <div className="relative w-full max-w-sm lux-card !p-6 text-center anim-scaleIn">
