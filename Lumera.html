@@ -153,11 +153,13 @@
   [data-mode="spark"] .lift:hover{ border-color:rgba(var(--glow),.5); box-shadow:0 0 0 1px rgba(var(--glow),.30), 0 18px 50px rgba(var(--glow),.20); }
   [data-mode="spark"] ::selection{ background:rgba(var(--glow),.32); color:#fff; }
 
-  /* per-product accent, recolours the whole shell */
-  [data-mode="spark"][data-product="leaf"]  { --c-gold:34 197 94;  --c-goldd:22 163 74;  --c-golddd:21 128 61;  --gold:#22C55E; --goldd:#16A34A; --glow:34,197,94; }
-  [data-mode="spark"][data-product="atlas"] { --c-gold:59 130 246; --c-goldd:37 99 235;  --c-golddd:29 78 216;  --gold:#3B82F6; --goldd:#2563EB; --glow:59,130,246; }
-  [data-mode="spark"][data-product="shield"]{ --c-gold:148 163 184;--c-goldd:100 116 139;--c-golddd:71 85 105;  --gold:#94A3B8; --goldd:#64748B; --glow:148,163,184; }
-  [data-mode="spark"][data-product="forge"] { --c-gold:239 68 68;  --c-goldd:220 38 38;  --c-golddd:185 28 28;  --gold:#EF4444; --goldd:#DC2626; --glow:239,68,68; }
+  /* Per-product colour. Each world's colour is the MAIN colour there, not a
+     side accent: it drives the accent tokens AND the primary button. */
+  [data-product="leaf"]  { --c-gold:34 197 94;  --c-goldd:22 163 74;  --c-golddd:21 128 61;  --gold:#22C55E; --goldd:#16A34A; --glow:34,197,94;   --p1:#22C55E; --p2:#15803D; --pshadow:22,163,74; }
+  [data-product="atlas"] { --c-gold:59 130 246; --c-goldd:37 99 235;  --c-golddd:29 78 216;  --gold:#3B82F6; --goldd:#2563EB; --glow:59,130,246;  --p1:#3B82F6; --p2:#1D4ED8; --pshadow:37,99,235; }
+  [data-product="shield"]{ --c-gold:148 163 184;--c-goldd:100 116 139;--c-golddd:71 85 105;  --gold:#94A3B8; --goldd:#64748B; --glow:148,163,184; --p1:#64748B; --p2:#334155; --pshadow:71,85,105; }
+  [data-product="forge"] { --c-gold:217 119 6;  --c-goldd:180 83 9;   --c-golddd:146 64 14;  --gold:#D97706; --goldd:#B45309; --glow:217,119,6;   --p1:#D97706; --p2:#92400E; --pshadow:180,83,9; }
+  [data-product="lumera"]{ --p1:#8B5CF6; --p2:#6D28D9; --pshadow:109,40,217; }
 
   /* ----- DARK base ("Nebula": black/grey) ----- */
   [data-mode="spark"][data-theme="dark"]{
@@ -177,7 +179,7 @@
   [data-mode="spark"][data-theme="dark"] .lux-card{ background:linear-gradient(180deg,#1B1B25,#15151C); }
   [data-mode="spark"][data-theme="dark"] .skeleton{ background:linear-gradient(90deg,#1c1c26 25%,#26263340 37%,#1c1c26 63%); background-size:200% 100%; }
   [data-mode="spark"][data-theme="dark"] img:not([src*=".svg"]){ filter:brightness(.9); }
-  [data-mode="spark"][data-theme="dark"] .btn-primary{ background:linear-gradient(180deg,#8B5CF6,#6D28D9); color:#fff; }
+  [data-mode="spark"][data-theme="dark"] .btn-primary{ background:linear-gradient(180deg,var(--p1,#8B5CF6),var(--p2,#6D28D9)); color:#fff; }
   [data-mode="spark"][data-theme="dark"] .btn-ghost{ background:rgba(255,255,255,.04); border-color:#2A2A38; color:#E9EAF4; }
   [data-mode="spark"][data-theme="dark"] .btn-ghost:hover{ background:rgba(255,255,255,.08); border-color:rgba(var(--glow),.4); }
   [data-mode="spark"][data-theme="dark"] #loader{ background:#0E0E13; }
@@ -277,11 +279,21 @@
   .gold-text{ background:linear-gradient(100deg,#9E7E45,#D9BE86,#9E7E45); background-size:200% auto; -webkit-background-clip:text; background-clip:text; color:transparent; animation:gpan 6s ease infinite; }
   .hairline{ border-color:var(--line); }
 
+  /* Filter chips: used across every filter row, so they get a real style. */
+  .chip{ display:inline-flex; align-items:center; gap:.4rem; padding:.45rem .85rem; border-radius:999px;
+    font-size:12.5px; font-weight:600; line-height:1; cursor:pointer; white-space:nowrap;
+    color:rgb(var(--c-muted)); background:rgb(var(--c-cream)); border:1px solid rgb(var(--c-line));
+    transition:all .22s cubic-bezier(.22,1,.36,1); }
+  .chip:hover{ color:rgb(var(--c-charcoal)); border-color:rgb(var(--c-taupe)); transform:translateY(-1px); }
+  .chip.on{ color:#fff; border-color:transparent; background:linear-gradient(180deg,var(--p1,#8B5CF6),var(--p2,#6D28D9));
+    box-shadow:0 4px 14px rgba(var(--pshadow,109,40,217),.34); }
+  .chip.on:hover{ transform:translateY(-1px); box-shadow:0 6px 18px rgba(var(--pshadow,109,40,217),.45); }
+
   /* Buttons */
   .btn{ display:inline-flex; align-items:center; justify-content:center; gap:.5rem; font-weight:600; border-radius:999px; transition:all .35s cubic-bezier(.22,1,.36,1); cursor:pointer; border:1px solid transparent; white-space:nowrap; }
   .btn:active{ transform:translateY(1px) scale(.99); }
-  .btn-primary{ background:linear-gradient(180deg,#8B5CF6,#6D28D9); color:#fff; box-shadow:0 6px 18px rgba(109,40,217,.32); }
-  .btn-primary:hover{ box-shadow:0 10px 30px rgba(109,40,217,.42); transform:translateY(-2px); }
+  .btn-primary{ background:linear-gradient(180deg,var(--p1,#8B5CF6),var(--p2,#6D28D9)); color:#fff; box-shadow:0 6px 18px rgba(var(--pshadow,109,40,217),.32); }
+  .btn-primary:hover{ box-shadow:0 10px 30px rgba(var(--pshadow,109,40,217),.45); transform:translateY(-2px); }
   .btn-gold{ background:linear-gradient(180deg,#caa971,#b0894f); color:#2a2016; box-shadow:0 6px 20px rgba(176,137,79,.35); }
   .btn-gold:hover{ transform:translateY(-2px); box-shadow:0 12px 32px rgba(176,137,79,.45); }
   .btn-ghost{ background:rgba(255,255,255,.5); border-color:var(--line); color:var(--charcoal); }
@@ -393,7 +405,7 @@ const LA = {
 const CURRENCIES = {
   AED: { code:'AED', symbol:'AED', locale:'en-AE', name:'UAE Dirham', flag:'🇦🇪', suffix:true },
   USD: { code:'USD', symbol:'$',   locale:'en-US', name:'US Dollar', flag:'🇺🇸' },
-  GBP: { code:'GBP', symbol:'£',   locale:'en-GB', name:'British Pound', flag:'🇬🇧' },
+  GBP: { code:'GBP', symbol:'$',   locale:'en-GB', name:'British Pound', flag:'🇬🇧' },
   EUR: { code:'EUR', symbol:'€',   locale:'en-IE', name:'Euro', flag:'🇪🇺' },
   INR: { code:'INR', symbol:'₹',   locale:'en-IN', name:'Indian Rupee', flag:'🇮🇳' },
   PKR: { code:'PKR', symbol:'₨',   locale:'en-PK', name:'Pakistani Rupee', flag:'🇵🇰', suffix:true },
@@ -432,14 +444,24 @@ function useFmt(display, base){
 
 /* Animated counter hook */
 function useCountUp(target, dur=1100, deps=[]){
-  const [v,setV] = useState(0);
+  const to = Number(target)||0;
+  const [v,setV] = useState(to);
+  const cur = useRef(to);      // last painted value, so we tween from it
+  const first = useRef(true);  // only the first paint counts up from zero
+  useEffect(()=>{ cur.current = v; },[v]);
   useEffect(()=>{
-    let raf, start; const from=0, to=Number(target)||0;
+    const from = first.current ? 0 : cur.current;
+    first.current = false;
+    // Small adjustments (slider drags) settle fast so numbers don't flicker.
+    const delta = Math.abs(to-from), scale = Math.abs(to)||1;
+    const d = delta/scale < 0.25 ? 220 : dur;
+    if(delta < 0.5){ setV(to); return; }
+    let raf, start;
     const ease = t => 1-Math.pow(1-t,3);
-    const step = ts => { if(!start) start=ts; const p=clamp((ts-start)/dur,0,1); setV(from+(to-from)*ease(p)); if(p<1) raf=requestAnimationFrame(step); };
+    const step = ts => { if(!start) start=ts; const p=clamp((ts-start)/d,0,1); setV(from+(to-from)*ease(p)); if(p<1) raf=requestAnimationFrame(step); };
     raf=requestAnimationFrame(step); return ()=>cancelAnimationFrame(raf);
   // eslint-disable-next-line
-  },[target, ...deps]);
+  },[to, ...deps]);
   return v;
 }
 
@@ -760,7 +782,7 @@ const MT = {
 const _trKey = new WeakMap(); let _trObs=null, _trT=null; let _curLang='en'; let _mtRunning=false;
 let _autoMT=(()=>{ try{ return localStorage.getItem('lumera_autoMT')!=='off'; }catch(e){ return true; } })();
 function setAutoMT(on){ _autoMT=on; try{ localStorage.setItem('lumera_autoMT', on?'on':'off'); }catch(e){} translateDOM(_curLang); }
-const _mtOK=(t)=> t.length>1 && /[A-Za-z]/.test(t) && !/^[A-Z0-9]{1,6}$/.test(t) && !/^[\d.,%+\-\s$£€₹]+$/.test(t);
+const _mtOK=(t)=> t.length>1 && /[A-Za-z]/.test(t) && !/^[A-Z0-9]{1,6}$/.test(t) && !/^[\d.,%+\-\s$$€₹]+$/.test(t);
 function translateDOM(lang){
   const root=document.getElementById('root'); if(!root) return;
   const idx=TR_LANGS.indexOf(lang);
@@ -1446,16 +1468,32 @@ function AreaProjection({ a, b, width=560, height=210, labels=['If you change no
 }
 
 /* Simple multi-point line (net worth / growth) */
-function LineChart({ data, width=560, height=200, color=COLORS.sage, fill=true }){
-  const pad=24, W=width,H=height; const max=Math.max(...data)*1.05, min=Math.min(...data,0)*1; const n=data.length;
-  const x=i=> pad+(i/(n-1))*(W-pad*2); const y=v=> H-pad-((v-min)/((max-min)||1))*(H-pad*1.7);
+function LineChart({ data, width=560, height=210, color=COLORS.sage, fill=true, fmt=null, labels=null }){
+  const padL=54, padR=14, padT=14, padB=26; const W=width,H=height;
+  const raw=Math.max(...data); const min=Math.min(...data,0);
+  // Fine ladder so the line fills the chart instead of stopping halfway.
+  const nice=(v)=>{ if(v<=0) return 1; const p=Math.pow(10,Math.floor(Math.log10(v))); const r=v/p;
+    const steps=[1,1.1,1.2,1.25,1.4,1.5,1.6,1.75,2,2.25,2.5,3,3.5,4,4.5,5,6,7,7.5,8,9,10];
+    return (steps.find(x=>r<=x)||10)*p; };
+  const max=nice(raw*1.04)||1; const n=data.length;
+  const x=i=> padL+(i/(n-1))*(W-padL-padR);
+  const y=v=> H-padB-((v-min)/((max-min)||1))*(H-padB-padT);
   const ln = data.map((v,i)=>`${i?'L':'M'}${x(i)},${y(v)}`).join(' ');
+  const short=(v)=> Math.abs(v)>=1e6? (v/1e6).toFixed(1).replace(/\.0$/,'')+'M'
+                 : Math.abs(v)>=1e3? Math.round(v/1e3)+'k' : Math.round(v);
+  const ticks=[0,.25,.5,.75,1].map(g=> min+(max-min)*g);
+  const gid='lf'+String(color).replace(/[^a-z0-9]/gi,'');
   return <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto">
-    <defs><linearGradient id="lf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor={color} stopOpacity=".25"/><stop offset="1" stopColor={color} stopOpacity="0"/></linearGradient></defs>
-    {[0,.5,1].map((g,i)=><line key={i} x1={pad} x2={W-pad} y1={pad+(H-pad*1.7)*g} y2={pad+(H-pad*1.7)*g} stroke="#EAE3D6"/>)}
-    {fill && <path d={`${ln} L${x(n-1)},${H-pad} L${x(0)},${H-pad} Z`} fill="url(#lf)"/>}
+    <defs><linearGradient id={gid} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor={color} stopOpacity=".25"/><stop offset="1" stopColor={color} stopOpacity="0"/></linearGradient></defs>
+    {/* Gridlines + real value labels on the axis. */}
+    {ticks.map((v,i)=><g key={i}>
+      <line x1={padL} x2={W-padR} y1={y(v)} y2={y(v)} stroke="currentColor" className="text-line" strokeWidth="1"/>
+      <text x={padL-8} y={y(v)+3.5} textAnchor="end" fontSize="10" fill="currentColor" className="text-faint">{fmt?fmt(v):short(v)}</text>
+    </g>)}
+    {fill && <path d={`${ln} L${x(n-1)},${H-padB} L${x(0)},${H-padB} Z`} fill={`url(#${gid})`}/>}
     <path d={ln} fill="none" stroke={color} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"/>
-    {data.map((v,i)=>(i%Math.ceil(n/6)===0||i===n-1)?<circle key={i} cx={x(i)} cy={y(v)} r="3" fill={color}/>:null)}
+    {data.map((v,i)=>(i%Math.ceil(n/6)===0||i===n-1)?<circle key={i} cx={x(i)} cy={y(v)} r="3.2" fill={color}/>:null)}
+    {labels && labels.map((l,i)=> l? <text key={i} x={x(i)} y={H-8} textAnchor="middle" fontSize="10" fill="currentColor" className="text-faint">{l}</text> : null)}
   </svg>;
 }
 
@@ -2541,17 +2579,17 @@ const GUIDE = {
     'On the left is the Lumera family: Leaf, Atlas, Shield & Forge. Each is its own world. Let’s grow! 🌱'] },
   leaf:{ name:'Lumi', tip:'your learning buddy', emoji:'🦉', lines:[
     'Hey! I’m Lumi, welcome to Leaf, where money finally makes sense.',
-    'Follow the green path below, each numbered node is a lesson or tool. Tap one to start.',
+    'Explore the tools below in any order, there is no fixed sequence.',
     'Smash the Daily Challenge for bonus XP every single day.',
     'Keep your streak alive and you’ll be a money pro in no time! 🍃'] },
   atlas:{ name:'Lumi', tip:'your markets co-pilot', emoji:'🦉', lines:[
     'I’m Lumi, welcome to Atlas, your window on the markets.',
-    'The blue path takes you through investing, live-style markets and world news.',
+    'Investing, live-style markets and world news, all in one place.',
     'New to investing? Start at step 1 and work your way down.',
     'Do the Daily Challenge to sharpen your market eye. 📈'] },
   shield:{ name:'Lumi', tip:'your protection guide', emoji:'🦉', lines:[
     'I’m Lumi, welcome to Shield, where you protect what matters.',
-    'Walk the path to build credit, plan ahead and clear debt, step by step.',
+    'Build credit, plan ahead and clear debt, in whatever order suits you.',
     'Every node you finish strengthens your financial defences.',
     'Complete challenges to level up your protection. ⚔️'] },
   forge:{ name:'Lumi', tip:'your income coach', emoji:'🦉', lines:[
@@ -2713,29 +2751,24 @@ function ProductPage({ k }){
       </Card>
     </div>
 
-    {/* ===== INTERACTIVE JOURNEY PATH ===== */}
+    {/* ===== TOOLS (explore in any order, not a fixed sequence) ===== */}
     {tools.length? <>
-      <div className="flex items-center justify-between mb-4"><h2 className="font-serif text-2xl text-charcoal">Your {sub.name} path</h2><span className="text-sm text-muted">{tools.length} steps</span></div>
-      <div className="relative pb-2">
-        <div className="absolute left-[31px] top-6 bottom-6 w-1 rounded-full" style={{background:`linear-gradient(${a}, ${a}22)`}}/>
-        <div className="space-y-3">
-          {tools.map((it,i)=><button key={it.to} onClick={()=>app.nav(it.to)} className="group relative flex items-center gap-4 w-full text-left">
-            <span className="relative z-10 grid place-items-center h-16 w-16 rounded-2xl shrink-0 text-2xl transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6"
-              style={{background:`linear-gradient(135deg, ${a}, ${a}bb)`, color:'#fff', boxShadow:`0 8px 22px ${a}55`}}>{TOOL_EMOJI[it.to]||'•'}
-              <span className="absolute -top-1.5 -left-1.5 grid place-items-center h-6 w-6 rounded-full text-[11px] font-bold shadow" style={{background:'#fff', color:a}}>{i+1}</span></span>
-            <span className="flex-1 lux-card lift p-4 flex items-center justify-between gap-3">
-              <span className="min-w-0"><span className="block font-serif text-lg text-charcoal">{t(it.k)}</span><span className="block text-sm text-muted leading-snug">{SUB_TOOL_DESC[it.to]||''}</span></span>
-              <span className="grid place-items-center h-9 w-9 rounded-full shrink-0 transition-transform group-hover:translate-x-1" style={{background:a+'18', color:a}}><Icon name="arrowR" size={16}/></span>
-            </span>
-          </button>)}
-        </div>
+      <div className="flex items-center justify-between mb-4"><h2 className="font-serif text-2xl text-charcoal">Explore {sub.name}</h2><span className="text-sm text-muted">{tools.length} tools</span></div>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
+        {tools.map(it=><button key={it.to} onClick={()=>app.nav(it.to)} className="group lux-card lift p-5 text-left">
+          <span className="grid place-items-center h-14 w-14 rounded-2xl text-2xl transition-transform duration-300 group-hover:scale-110"
+            style={{background:`linear-gradient(135deg, ${a}, ${a}bb)`, color:'#fff', boxShadow:`0 8px 22px ${a}55`}}>{TOOL_EMOJI[it.to]||'•'}</span>
+          <span className="block font-serif text-lg text-charcoal mt-3">{t(it.k)}</span>
+          <span className="block text-sm text-muted leading-snug mt-0.5">{SUB_TOOL_DESC[it.to]||''}</span>
+          <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold" style={{color:a}}>Open <Icon name="arrowR" size={13} className="group-hover:translate-x-1 transition"/></span>
+        </button>)}
       </div>
       <Card className="mt-5 text-center relative overflow-hidden" hover={false}>
         <div className="absolute inset-0 opacity-10" style={{background:HERO_GRAD[k]}}/>
         <div className="relative"><div className="text-3xl mb-1">{sub.emoji}</div>
           <div className="font-serif text-xl text-charcoal">Keep your {sub.name} streak alive</div>
           <p className="text-sm text-muted mt-1 mb-4 max-w-md mx-auto">Every step earns XP and moves you up a level. Come back daily to keep the momentum.</p>
-          <button onClick={goFirst} className="btn btn-gold px-6 py-3 text-sm">Continue your path <Icon name="arrowR" size={14}/></button></div>
+          <button onClick={goFirst} className="btn btn-gold px-6 py-3 text-sm">Jump back in <Icon name="arrowR" size={14}/></button></div>
       </Card>
     </> : <>
       <div className="flex items-center justify-between mb-3"><h2 className="font-serif text-2xl text-charcoal">Coming to {sub.name}</h2><Pill tone="gold">Launching soon</Pill></div>
@@ -3210,8 +3243,12 @@ function WealthSimulator(){
   ];
   // ---- numbered projection chart with a dynamic, stepped y-scale (rises with wealth, never plateaus) ----
   const W=560,H=240,padL=58,padR=14,padT=14,padB=34; const n=11;
-  const niceMax=(v)=>{ if(v<=0) return 1; const p=Math.pow(10,Math.floor(Math.log10(v))); const r=v/p; const s=r<=1?1:r<=2?2:r<=2.5?2.5:r<=5?5:10; return s*p; };
-  const maxY=niceMax(Math.max(base[10],proj[10],1)*1.05);
+  // Fine-grained ladder so the top line fills the chart instead of stopping
+  // halfway (a coarse ladder rounded 110k up to 200k).
+  const niceMax=(v)=>{ if(v<=0) return 1; const p=Math.pow(10,Math.floor(Math.log10(v))); const r=v/p;
+    const steps=[1,1.1,1.2,1.25,1.4,1.5,1.6,1.75,2,2.25,2.5,3,3.5,4,4.5,5,6,7,7.5,8,9,10];
+    return (steps.find(x=>r<=x)||10)*p; };
+  const maxY=niceMax(Math.max(base[10],proj[10],1)*1.04);
   // Zoomed baseline: the y-axis starts above zero so the gap between the two paths is easy to see (clearly labelled, end values stay exact).
   const yMin=Math.max(0, Math.min(base[0],base[10])*0.5);
   const Y=v=>H-padB-((v-yMin)/((maxY-yMin)||1))*(H-padB-padT);
@@ -3579,17 +3616,26 @@ function Market(){
     <div className="flex items-center justify-between mb-3 flex-wrap gap-2"><Eyebrow>News, in plain English</Eyebrow>
       <div className="flex gap-1 rounded-full bg-sand p-1 overflow-x-auto no-scrollbar">{['All','Company','Sector','Economic','Regional'].map(c=><button key={c} onClick={()=>setNewsCat(c)} className={cx('rounded-full px-3 py-1 text-xs font-medium whitespace-nowrap transition', newsCat===c?'bg-card shadow-soft text-charcoal':'text-muted')}>{c}</button>)}</div></div>
     <div className="grid md:grid-cols-2 gap-4 mb-4">
-      {news.map((n,i)=><Card key={i}>
-        <div className="flex items-center gap-2 mb-1.5"><Pill tone={n.sentiment==='positive'?'sage':n.sentiment==='negative'?'clay':'neutral'}>{n.tag}</Pill><Pill tone="neutral">{n.cat}</Pill><span className="text-[11px] text-faint ml-auto">Lumera Wire · 2h ago</span></div>
-        <a href={`https://news.google.com/search?q=${encodeURIComponent(n.title)}`} target="_blank" rel="noopener noreferrer" className="group inline-flex items-start gap-1.5"><h3 className="font-serif text-lg text-charcoal group-hover:text-goldd transition">{n.title}</h3><Icon name="arrowR" size={14} className="text-faint mt-1.5 -rotate-45 group-hover:text-goldd transition shrink-0"/></a>
-        <div className="mt-2 space-y-1.5 text-sm">
-          <div className="flex gap-2"><span className="text-[10px] font-semibold uppercase tracking-wide text-faint w-20 shrink-0 pt-1">Happened</span><span className="text-charcoal/80">{n.summary}</span></div>
-          <div className="flex gap-2"><span className="text-[10px] font-semibold uppercase tracking-wide text-faint w-20 shrink-0 pt-1">Why it matters</span><span className="text-charcoal/80">{n.beginner}</span></div>
-          <div className="flex gap-2"><span className="text-[10px] font-semibold uppercase tracking-wide text-faint w-20 shrink-0 pt-1">Impact</span><span className="text-charcoal/80">{n.impact}</span></div>
+      {news.map((n,i)=>{ const hue=n.sentiment==='positive'?'#16A34A':n.sentiment==='negative'?'#DC2626':'#2563EB';
+        return <Card key={i} className="!p-0 overflow-hidden flex flex-col">
+        {/* Headline image band, tinted by sentiment with the category glyph. */}
+        <div className="relative h-32 grid place-items-center" style={{background:`linear-gradient(135deg,${hue}26,${hue}0A)`}}>
+          <span className="text-5xl opacity-80">{n.cat==='Company'?'🏢':n.cat==='Sector'?'🏭':n.cat==='Regional'?'🌍':'🏦'}</span>
+          <span className="absolute top-3 left-3 text-[11px] font-semibold rounded-full px-2.5 py-1 text-white" style={{background:hue}}>{n.tag}</span>
         </div>
-      </Card>)}
+        <div className="p-5 flex-1 flex flex-col">
+          <a href={`https://news.google.com/search?q=${encodeURIComponent(n.title)}`} target="_blank" rel="noopener noreferrer" className="group">
+            <h3 className="font-serif text-2xl text-charcoal leading-snug group-hover:text-goldd transition">{n.title}</h3></a>
+          <div className="flex items-center gap-2 mt-2">
+            <span className="text-sm font-semibold text-charcoal/70">Lumera Wire</span>
+            <span className="text-sm text-faint">· 2h ago</span>
+            <span className="ml-auto text-xs text-muted">{n.cat}</span></div>
+          <p className="text-sm text-muted mt-3 leading-relaxed flex-1">{n.beginner}</p>
+          <a href={`https://news.google.com/search?q=${encodeURIComponent(n.title)}`} target="_blank" rel="noopener noreferrer"
+            className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold" style={{color:hue}}>Read the story <Icon name="arrowR" size={13} className="-rotate-45"/></a>
+        </div>
+      </Card>; })}
     </div>
-    <Disclaimer/>
   </AppShell>;
 }
 
@@ -3822,7 +3868,24 @@ function Budget(){
    ============================================================ */
 function monthsUntil(ym){ const [y,m]=ym.split('-').map(Number); const d=new Date(y,m-1,1); const now=new Date(2026,4,31); return Math.max(1, Math.round((d-now)/(1000*60*60*24*30))); }
 function goalImage(g){ const n=(g.name||'').toLowerCase();
-  const kw = /japan/.test(n)?'japan,tokyo': /switzerl/.test(n)?'switzerland,alps': /\bcar\b|vehicle/.test(n)?'sports,car': /house|home|deposit|property|flat|apartment/.test(n)?'modern,house': /univers|college|tuition|education|school/.test(n)?'university,campus': /travel|holiday|trip|vacation|flight/.test(n)?'travel,landscape': /retire/.test(n)?'beach,sunset': /invest|portfolio|stock|wealth/.test(n)?'finance,city': /emergency|safety|rainy/.test(n)?'umbrella,rain': /wedding/.test(n)?'wedding': /baby|child|family/.test(n)?'family': 'mountain,goal';
+  // Match the picture to what the goal is actually about.
+  const kw = /japan|tokyo/.test(n)?'tokyo,japan,temple'
+    : /switzerl|alps|ski/.test(n)?'switzerland,alps,snow'
+    : /\bcar\b|vehicle|tesla|bike|motorbike/.test(n)?'car,automobile'
+    : /laptop|macbook|computer|pc|phone|iphone|tech|gadget/.test(n)?'laptop,desk,technology'
+    : /house|home|deposit|property|flat|apartment|mortgage/.test(n)?'house,home,architecture'
+    : /univers|college|tuition|education|school|degree|master/.test(n)?'university,campus,library'
+    : /wedding|marriage|engagement|ring/.test(n)?'wedding,celebration'
+    : /baby|child|kids|family/.test(n)?'family,children'
+    : /travel|holiday|trip|vacation|flight|backpack/.test(n)?'travel,airplane,landscape'
+    : /retire|pension/.test(n)?'beach,sunset,calm'
+    : /invest|portfolio|stock|wealth|fund|isa/.test(n)?'city,skyline,finance'
+    : /emergency|safety|rainy|buffer|cushion/.test(n)?'umbrella,rain,shelter'
+    : /business|startup|company|shop/.test(n)?'startup,office,business'
+    : /debt|loan|credit/.test(n)?'calculator,paperwork'
+    : /health|gym|fitness|medical/.test(n)?'gym,fitness,health'
+    : /camera|music|guitar|hobby/.test(n)?'camera,hobby'
+    : 'savings,goal,journey';
   let lock=0; for(let i=0;i<n.length;i++) lock=(lock+n.charCodeAt(i))%997;
   return `https://loremflickr.com/640/300/${encodeURIComponent(kw)}?lock=${lock||7}`; }
 function Goals(){
@@ -3851,7 +3914,7 @@ function Goals(){
         return <Card key={g.id} hover className="relative overflow-hidden !p-0">
           <div className="relative h-28 bg-sand">
             <img src={g.img||goalImage(g)} alt="" className="h-full w-full object-cover" loading="lazy" onError={e=>{e.target.style.display='none';}}/>
-            <div className="absolute inset-0 bg-gradient-to-t from-charcoal/65 via-charcoal/10 to-transparent"/>
+            <div className="absolute inset-0" style={{background:'linear-gradient(to top, rgba(76,29,149,.86) 0%, rgba(109,40,217,.45) 45%, rgba(139,92,246,.22) 100%)'}}/>
             <span className="absolute top-2 left-2 grid place-items-center h-8 w-8 rounded-lg bg-cream/85 text-goldd backdrop-blur"><Icon name={done?'trophy':g.icon} size={16}/></span>
             <label className="absolute top-2 right-2 grid place-items-center h-8 w-8 rounded-lg bg-cream/85 text-charcoal cursor-pointer hover:bg-cream backdrop-blur" title="Upload your own image">
               <Icon name="plus" size={15}/>
@@ -4231,7 +4294,7 @@ function Learn(){
             </div>; })}</div>
           {activePath.quiz && <Fragment><div className="text-[11px] tracking-[.16em] uppercase text-faint mb-2 mt-4">Practice check, self-test, tap to reveal</div>
           <div className="space-y-2">{activePath.quiz.map((qa,i)=><details key={i} className="group rounded-xl border border-line bg-cream/60 p-3 [&_summary]:cursor-pointer"><summary className="list-none flex items-center justify-between text-sm text-charcoal gap-2"><span>{i+1}. {qa[0]}</span><Icon name="chevron" size={14} className="text-faint rotate-90 group-open:rotate-[270deg] transition shrink-0"/></summary><div className="mt-2 text-sm text-saged flex items-center gap-1.5"><Icon name="check" size={14}/>{qa[1]}</div></details>)}</div>
-          <a href="https://www.khanacademy.org/college-careers-more/personal-finance" target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-1.5 text-xs text-goldd font-medium"><Icon name="cap" size={13}/>Take a graded quiz on Khan Academy (free)</a></Fragment>}
+          <a href="https://www.khanacademy.org/college-careers-more/personal-finance" target="_blank" rel="noopener noreferrer" className="mt-3 btn btn-primary w-full py-3 text-sm"><Icon name="cap" size={15}/>Continue learning on Khan Academy (free course)</a></Fragment>}
           {doneN===steps.length ? <div className="mt-4 rounded-xl bg-sage/10 text-saged text-sm px-4 py-3 flex items-center gap-2"><Icon name="trophy" size={16}/>Path complete, you’ve earned the Lifelong Learner badge.</div>
             : <p className="text-xs text-faint mt-3">Watch or read each lesson, tick it off, then test yourself with the quiz. Finish all {steps.length} to earn the badge.</p>}
         </Fragment>; })()}
@@ -5006,7 +5069,7 @@ function Updates(){
    ============================================================ */
 const RET_ACCOUNTS = {
   US:{label:'United States', items:[['401(k)','Employer plan, always contribute at least enough to capture the full employer match. That match is an instant, risk-free return.'],['Roth IRA','You contribute after-tax money; growth and qualified withdrawals are completely tax-free.'],['Traditional IRA','Contributions can lower today’s taxable income; you pay tax when you withdraw in retirement.'],['HSA','If you have an eligible health plan, an HSA is triple tax-advantaged and can double as a retirement account.']]},
-  GB:{label:'United Kingdom', items:[['Workplace pension','Auto-enrolment plus employer contributions, opt in and contribute enough to get the full match.'],['SIPP','A self-invested personal pension with tax relief on contributions and wide investment choice.'],['Stocks & Shares ISA','£20,000/yr of tax-free growth and withdrawals, brilliantly flexible alongside a pension.'],['State Pension','Check your forecast on gov.uk and fill any National Insurance gaps.']]},
+  GB:{label:'United Kingdom', items:[['Workplace pension','Auto-enrolment plus employer contributions, opt in and contribute enough to get the full match.'],['SIPP','A self-invested personal pension with tax relief on contributions and wide investment choice.'],['Stocks & Shares ISA','$20,000/yr of tax-free growth and withdrawals, brilliantly flexible alongside a pension.'],['State Pension','Check your forecast on gov.uk and fill any National Insurance gaps.']]},
   AE:{label:'UAE / Gulf', items:[['End-of-service gratuity','A lump sum based on tenure, useful, but rarely enough alone. Treat it as a top-up, not a plan.'],['Low-cost global index funds','With no income tax, the priority is investing consistently via a regulated broker into diversified, low-fee funds.'],['Voluntary savings schemes (e.g. DEWS)','Some employers offer funded savings plans, opt in where available.'],['Home-country pension','Keep contributing to a pension or retirement account back home if it offers tax advantages.']]},
   IN:{label:'India', items:[['EPF','Employees’ Provident Fund, employer-matched, tax-advantaged retirement saving.'],['PPF','Public Provident Fund, long-term, tax-free, government-backed.'],['NPS','National Pension System, low-cost, with an extra tax deduction.'],['ELSS','Equity-linked savings schemes, growth plus a tax deduction, with a short lock-in.']]},
   EU:{label:'Europe', items:[['Workplace / occupational pension','Employer-sponsored schemes are the backbone, contribute enough for any match.'],['Private pension','Tax-advantaged personal pensions vary by country; many offer upfront relief.'],['Low-cost index funds / ETFs','A diversified ETF portfolio in a tax-efficient wrapper compounds steadily.'],['State pension','Understand your national entitlement and any voluntary top-ups.']]},
@@ -5068,9 +5131,9 @@ function Retirement(){
       <LineChart data={chartData} color={onTrack?COLORS.sage:COLORS.gold}/>
       <div className="flex justify-between text-[11px] text-faint mt-1"><span>Age {age}</span><span>Age {Math.round((age+retire)/2)}</span><span>Age {retire}</span></div>
     </Card>
-    <Card className="mb-4 bg-charcoal text-cream"><div className="flex items-start gap-3"><span className="grid place-items-center h-10 w-10 rounded-xl bg-gold/20 text-gold shrink-0"><Icon name="spark" size={18}/></span>
+    <Card hover={false} className="mb-4" style={{background:'linear-gradient(135deg,#6D28D9,#4F46E5)',border:'none',color:'#fff'}}><div className="flex items-start gap-3"><span className="grid place-items-center h-10 w-10 rounded-xl shrink-0" style={{background:'rgba(255,255,255,.18)',color:'#fff'}}><Icon name="spark" size={18}/></span>
       <div className="flex-1"><div className="font-serif text-lg">{onTrack?'You’re on track for the lifestyle you set.':'There’s a gap, but it’s closable.'}</div>
-        <p className="text-sm text-cream/80 mt-1 leading-relaxed">{onTrack
+        <p className="text-sm mt-1 leading-relaxed" style={{color:'rgba(255,255,255,.85)'}}>{onTrack
           ? `At ${fmt.money(contrib)}/mo your pot reaches about ${fmt.money(Math.round(nest))} by ${retire}, supporting roughly ${fmt.money(Math.round(sustainableAnnual/12))}/mo, more than your ${fmt.money(income)}/mo target (in tomorrow’s money). Consider retiring earlier or raising your target.`
           : `Your target needs a pot of about ${fmt.money(Math.round(neededPot))}. To get there, raise contributions to about ${fmt.money(Math.round(requiredContrib))}/mo, or delay retirement, or trim the target. Small increases now compound enormously.`}</p>
         {!onTrack && requiredContrib>contrib && <button onClick={()=>setContrib(Math.round(requiredContrib))} className="btn btn-gold mt-3 px-3 py-2 text-xs"><Icon name="arrowUp" size={13}/>Set contribution to {fmt.money(Math.round(requiredContrib))}/mo</button>}
@@ -5616,18 +5679,33 @@ function LeafQuiz(){
       <button onClick={()=>{setI(0);setPick(null);setScore(0);setDone(false);}} className="btn btn-ghost mt-5">Retake quiz <Icon name="arrowR" size={14}/></button></Card></AppShell>;
   return <AppShell>
     <PageHead eyebrow="Leaf · Money quiz" title="Test what you know." desc="Eight quick questions. Instant explanations. +20 XP when you finish."/>
-    <Card>
-      <div className="flex items-center justify-between mb-3"><Eyebrow>Question {i+1} of {bank.length}</Eyebrow><span className="text-sm text-muted">Score {score}</span></div>
-      <div className="h-1.5 rounded-full bg-sand mb-5"><div className="h-1.5 rounded-full transition-all" style={{width:((i+(answered?1:0))/bank.length*100)+'%',background:LEAF_G}}/></div>
-      <div className="font-serif text-xl text-charcoal mb-4">{q[0]}</div>
-      <div className="grid sm:grid-cols-2 gap-2.5">{q[1].map((opt,n)=>{ const correct=n===q[2]; const chosen=n===pick;
-        const cls=!answered?'border-line hover:border-[color:var(--lg)]':correct?'border-sage bg-sage/10':chosen?'border-berry/50 bg-berry/8':'border-line opacity-60';
-        return <button key={n} onClick={()=>choose(n)} className={cx('rounded-xl2 border p-3 text-left text-sm transition flex items-center gap-2.5',cls)} style={{'--lg':LEAF_G}}>
-          <span className={cx('grid place-items-center h-6 w-6 rounded-lg shrink-0 text-xs font-semibold',answered&&correct?'bg-sage text-white':answered&&chosen?'bg-berry text-white':'bg-sand text-muted')}>{answered&&correct?'✓':answered&&chosen?'✕':String.fromCharCode(65+n)}</span>
-          <span className="text-charcoal">{opt}</span></button>; })}</div>
-      {answered && <div className="mt-4 rounded-xl2 bg-sage/8 border border-sage/25 p-3 text-sm text-charcoal/85 anim-pop"><b>{pick===q[2]?'Correct! ':'Not quite. '}</b>{q[3]}</div>}
-      {answered && <button onClick={next} className="btn w-full mt-4 py-2.5 text-white" style={{background:LEAF_G}}>{i+1>=bank.length?'See my score':'Next question'} <Icon name="arrowR" size={14}/></button>}
-    </Card></AppShell>;
+    <div className="grid lg:grid-cols-3 gap-4 items-start">
+      {/* Progress rail fills the left so the page never looks half empty. */}
+      <Card hover={false} className="lg:sticky lg:top-24">
+        <Eyebrow className="mb-3">Progress</Eyebrow>
+        <div className="flex items-center gap-4">
+          <ScoreRing value={Math.round(i/bank.length*100)} size={92} stroke={9} label="done" color={LEAF_G}/>
+          <div><div className="font-serif text-3xl text-charcoal">{score}<span className="text-base text-muted">/{bank.length}</span></div>
+            <div className="text-xs text-muted">correct so far</div></div>
+        </div>
+        <div className="grid grid-cols-4 gap-1.5 mt-4">{bank.map((_,n)=>
+          <span key={n} className="h-8 rounded-lg grid place-items-center text-[11px] font-semibold"
+            style={n<i?{background:LEAF_G,color:'#fff'}:n===i?{background:LEAF_G+'26',color:LEAF_G,border:'1px solid '+LEAF_G}:{background:'rgb(var(--c-sand))',color:'rgb(var(--c-faint))'}}>{n+1}</span>)}</div>
+        <p className="text-xs text-faint mt-4 leading-relaxed">Answer honestly, the explanation after each question is where the learning happens.</p>
+      </Card>
+      <Card className="lg:col-span-2">
+        <div className="flex items-center justify-between mb-3"><Eyebrow>Question {i+1} of {bank.length}</Eyebrow><span className="text-sm text-muted">Score {score}</span></div>
+        <div className="h-1.5 rounded-full bg-sand mb-6"><div className="h-1.5 rounded-full transition-all" style={{width:((i+(answered?1:0))/bank.length*100)+'%',background:LEAF_G}}/></div>
+        <div className="font-serif text-2xl text-charcoal mb-5 leading-snug">{q[0]}</div>
+        <div className="grid gap-2.5">{q[1].map((opt,n)=>{ const correct=n===q[2]; const chosen=n===pick;
+          const cls=!answered?'border-line hover:border-[color:var(--lg)]':correct?'border-sage bg-sage/10':chosen?'border-berry/50 bg-berry/8':'border-line opacity-60';
+          return <button key={n} onClick={()=>choose(n)} className={cx('rounded-xl2 border p-4 text-left text-sm transition flex items-center gap-3',cls)} style={{'--lg':LEAF_G}}>
+            <span className={cx('grid place-items-center h-7 w-7 rounded-lg shrink-0 text-xs font-semibold',answered&&correct?'bg-sage text-white':answered&&chosen?'bg-berry text-white':'bg-sand text-muted')}>{answered&&correct?'✓':answered&&chosen?'✕':String.fromCharCode(65+n)}</span>
+            <span className="text-charcoal text-base">{opt}</span></button>; })}</div>
+        {answered && <div className="mt-4 rounded-xl2 bg-sage/8 border border-sage/25 p-4 text-sm text-charcoal/85 anim-pop leading-relaxed"><b>{pick===q[2]?'Correct! ':'Not quite. '}</b>{q[3]}</div>}
+        {answered && <button onClick={next} className="btn w-full mt-4 py-3 text-white" style={{background:LEAF_G}}>{i+1>=bank.length?'See my score':'Next question'} <Icon name="arrowR" size={14}/></button>}
+      </Card>
+    </div></AppShell>;
 }
 /* Word of the Day with Anki-style spaced repetition.
    Each word carries a box (1-5). Correct answers promote it and push the next
@@ -5722,8 +5800,8 @@ function LeafHabits(){
   const KEY='lumera_leaf_habits';
   const habits=[
     ['track','📒','Log today’s spending','A 30-second habit that reveals where money really goes.'],
-    ['noimpulse','🛑','No impulse buys today','Add a 24-hour wait to anything unplanned over £30.'],
-    ['save','🪙','Move something to savings','Even £1 keeps the muscle strong.'],
+    ['noimpulse','🛑','No impulse buys today','Add a 24-hour wait to anything unplanned over $30.'],
+    ['save','🪙','Move something to savings','Even $1 keeps the muscle strong.'],
     ['learn','📚','Learn one money idea','A lesson, article or quiz counts.'],
     ['cook','🍳','Eat in instead of out','Small swaps, big monthly difference.'],
     ['check','👀','Check one subscription','Cancel anything you forgot you had.'],
@@ -5754,12 +5832,12 @@ function LeafHabits(){
 function LeafChallenges(){
   const app=useApp(); const fmt=app.fmt;
   const challenges=[
-    ['52-week save','🪜','Save £1 in week 1, £2 in week 2… up to £52. Painless start, £1,378 by year end.',1378,'52 weeks'],
+    ['52-week save','🪜','Save $1 in week 1, $2 in week 2… up to $52. Painless start, $1,378 by year end.',1378,'52 weeks'],
     ['No-spend week','🚫','Buy only essentials for 7 days. Notice every habit purchase you skip.',0,'7 days'],
     ['Round-up jar','🫙','Round every purchase up to the nearest pound; stash the change.',300,'Ongoing'],
     ['Pantry challenge','🥫','Cook only from what you already own for a week. Zero grocery spend.',60,'7 days'],
     ['Subscription audit','📺','Cancel two subscriptions you forgot about this month.',180,'1 hour'],
-    ['£5 a day','🖐️','Tuck away £5 every day. Small, steady, and £150 richer each month.',150,'30 days'],
+    ['$5 a day','🖐️','Tuck away $5 every day. Small, steady, and $150 richer each month.',150,'30 days'],
   ];
   const KEY='lumera_leaf_chal';
   const [joined,setJoined]=useState(()=>{ try{ return JSON.parse(localStorage.getItem(KEY))||[]; }catch(e){ return []; } });
@@ -6008,6 +6086,10 @@ const UNIS=[
   ['IIM Ahmedabad','IIM-A','Ahmedabad','Asia','Tier 1',92,[93,94,90,92],'India’s most prestigious business school (MBA); elite placement into finance and consulting.','CAT + interview (MBA)'],
 ];
 const UNI_SCORE_LABELS=['Finance rep','Employability','Teaching','Outcomes'];
+// Sub-scores all sit in the 80s and 90s, so a raw 0-100 bar makes every school
+// look identical. Rescale against the real spread instead.
+const UNI_SCORE_MIN = 80;
+const uniBarPct = (v)=> Math.max(6, Math.min(100, Math.round((v-UNI_SCORE_MIN)/(100-UNI_SCORE_MIN)*100)));
 const UNI_REGIONS=['UK','US','Europe','Middle East','Asia'];
 const UNI_SUBJECTS=['Overall','Finance','Economics','Accounting','Computer Science','Mathematics','Engineering','Medicine','Law','Business / MBA'];
 const SHORTLIST_TAGS=['Reach','Target','Match','Safety'];
@@ -6031,7 +6113,7 @@ function UniversitiesRank(){
         return <Card key={u[0]} style={{borderTop:`3px solid ${hue}`}}><div className="flex items-start justify-between gap-2"><div><div className="flex items-center gap-2 flex-wrap"><span className="text-[11px] font-semibold rounded-full px-2 py-0.5" style={{background:hue+'18',color:hue}}>{u[4]}</span><span className="text-[10px] text-faint">{u[3]}</span></div><div className="font-serif text-lg text-charcoal mt-1.5">{u[0]}</div><div className="text-xs text-faint">{u[2]}</div></div>
           <div className="grid place-items-center h-14 w-14 rounded-full shrink-0" style={{background:grade+'14'}}><div className="text-center leading-none"><div className="font-serif text-xl" style={{color:grade}}>{score}</div><div className="text-[8px] uppercase tracking-wider text-faint">score</div></div></div></div>
           <p className="text-sm text-muted mt-2 leading-relaxed">{u[8]}</p>
-          <div className="mt-3 space-y-1.5">{UNI_SCORE_LABELS.map((lab,i)=><div key={lab} className="flex items-center gap-2"><span className="text-[11px] text-faint w-24 shrink-0">{lab}</span><div className="h-1.5 rounded-full bg-sand flex-1"><div className="h-1.5 rounded-full" style={{width:u[6][i]+'%',background:hue}}/></div><span className="text-[11px] text-muted w-6 text-right">{u[6][i]}</span></div>)}</div>
+          <div className="mt-3 space-y-1.5">{UNI_SCORE_LABELS.map((lab,i)=><div key={lab} className="flex items-center gap-2"><span className="text-[11px] text-faint w-24 shrink-0">{lab}</span><div className="h-1.5 rounded-full bg-sand flex-1"><div className="h-1.5 rounded-full" style={{width:uniBarPct(u[6][i])+'%',background:hue}}/></div><span className="text-[11px] text-muted w-6 text-right">{u[6][i]}</span></div>)}</div>
           <div className="mt-3 pt-3 border-t border-line"><div className="text-[10px] uppercase tracking-wider text-faint mb-1.5">My list · {u[9]}</div>
             <div className="flex gap-1.5">{SHORTLIST_TAGS.map(t=><button key={t} onClick={()=>setTag(u[0],t)} className="flex-1 text-[11px] font-semibold rounded-lg py-1.5 border transition" style={tag===t?{background:TAG_HUE[t],color:'#fff',borderColor:TAG_HUE[t]}:{borderColor:'var(--c-line,#e5e5e5)',color:TAG_HUE[t]}}>{t}</button>)}</div></div></Card>; })}</div>
       <div className="space-y-4">
@@ -6285,12 +6367,12 @@ function ForgeCareer(){
 function ForgeSideIncome(){
   const [time,setTime]=useState('Any');
   const ideas=[
-    ['Freelance your skill','💻','£200–2k/mo','5–15h/wk','Design, writing, code, tutoring, sell what you already do.'],
-    ['Tutoring','📚','£20–40/hr','3–10h/wk','Teach a subject you know to students online.'],
-    ['Sell digital products','🧩','£0–1k/mo','Flexible','Templates, presets, guides, make once, sell many.'],
-    ['Local services','🔧','£100–600/mo','Weekends','Pet-sitting, cleaning, handyman, gardening.'],
-    ['Content / creator','🎬','£0–∞','Flexible','Slow to start, but compounding upside.'],
-    ['Reselling / flipping','📦','£100–800/mo','Flexible','Buy underpriced, sell at market.'],
+    ['Freelance your skill','💻','$200–2k/mo','5–15h/wk','Design, writing, code, tutoring, sell what you already do.'],
+    ['Tutoring','📚','$20–40/hr','3–10h/wk','Teach a subject you know to students online.'],
+    ['Sell digital products','🧩','$0–1k/mo','Flexible','Templates, presets, guides, make once, sell many.'],
+    ['Local services','🔧','$100–600/mo','Weekends','Pet-sitting, cleaning, handyman, gardening.'],
+    ['Content / creator','🎬','$0–∞','Flexible','Slow to start, but compounding upside.'],
+    ['Reselling / flipping','📦','$100–800/mo','Flexible','Buy underpriced, sell at market.'],
   ];
   const times=['Any','Weekends','5–15h/wk','Flexible'];
   const shown=time==='Any'?ideas:ideas.filter(i=>i[3]===time||i[3]==='Flexible');
@@ -6565,11 +6647,12 @@ function App(){
   const setFlag = useCallback((key,on)=>{ setFlagsState(f=>{ const nf={...f,[key]:on}; try{ localStorage.setItem(FLAG_KEY, JSON.stringify(nf)); }catch(e){} return nf; }); },[]);
   // Re-read flags if the admin portal changes them in another tab.
   useEffect(()=>{ const h=(e)=>{ if(e.key===FLAG_KEY) setFlagsState(loadFlags()); }; window.addEventListener('storage',h); return ()=>window.removeEventListener('storage',h); },[]);
-  const awardXp = useCallback((n)=>{ setXp(x=>{ const v=x+(n||0); try{ localStorage.setItem('lumera_spark_xp', JSON.stringify(v)); }catch(e){} return v; }); setQuestBurst(b=>b+1); },[]);
-  const completeQuest = useCallback((id)=>{ setQuests(qs=>{ const next=qs.map(q=>{ if(q.id===id&&!q.done){ awardXp(q.xp); return {...q,done:true}; } return q; });
+  // silent=true skips the confetti (used when simply visiting a page completes a quest).
+  const awardXp = useCallback((n,silent)=>{ setXp(x=>{ const v=x+(n||0); try{ localStorage.setItem('lumera_spark_xp', JSON.stringify(v)); }catch(e){} return v; }); if(!silent) setQuestBurst(b=>b+1); },[]);
+  const completeQuest = useCallback((id,silent)=>{ setQuests(qs=>{ const next=qs.map(q=>{ if(q.id===id&&!q.done){ awardXp(q.xp,silent); return {...q,done:true}; } return q; });
     try{ localStorage.setItem('lumera_spark_quests', JSON.stringify({day:new Date().toISOString().slice(0,10), list:next})); }catch(e){} return next; }); },[awardXp]);
   // Quest VERIFICATION: a quest only completes when you actually visit its tool, no free check-offs.
-  useEffect(()=>{ const path=route.split('?')[0]; const q=quests.find(x=>!x.done && x.to===path); if(q) completeQuest(q.id); },[route, quests, completeQuest]);
+  useEffect(()=>{ const path=route.split('?')[0]; const q=quests.find(x=>!x.done && x.to===path); if(q) completeQuest(q.id,true); },[route, quests, completeQuest]);
   useEffect(()=>{ LA.start({ lang, cur:profile.currency, user:user?user.email:'guest' }); },[]);
   useEffect(()=>{ LA.event('view',{ path:route.split('?')[0], user:user?user.email:'guest' }); },[route]);
   useEffect(()=>{ LA.event('lang',{ lang }); },[lang]);
