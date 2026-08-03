@@ -1274,6 +1274,7 @@ const P = {
   trend:'M4 17l5-5 4 4 7-8M16 8h4v4', gauge:'M12 13l4-3M5 18a8 8 0 1 1 14 0', trophy:'M7 4h10v4a5 5 0 0 1-10 0zM7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3M9 18h6M10 14v4M14 14v4M8 21h8',
   target:'M12 12m-8 0a8 8 0 1 0 16 0 8 8 0 1 0-16 0M12 12m-4 0a4 4 0 1 0 8 0 4 4 0 1 0-8 0M12 12h.01', bulb:'M9 18h6M10 21h4M12 3a6 6 0 0 1 4 10c-1 1-1 2-1 3H9c0-1 0-2-1-3a6 6 0 0 1 4-10z',
   lock:'M6 11h12v9H6zM9 11V8a3 3 0 0 1 6 0v3', globe:'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18',
+  mic:'M12 3a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3zM5 11a7 7 0 0 0 14 0M12 18v3M8 21h8',
   bell:'M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6M10 20a2 2 0 0 0 4 0', user:'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM5 21a7 7 0 0 1 14 0',
   menu:'M4 7h16M4 12h16M4 17h16', search:'M11 11m-7 0a7 7 0 1 0 14 0 7 7 0 1 0-14 0M21 21l-5-5', send:'M4 12l16-7-7 16-2-6z', sliders:'M4 8h10M18 8h2M4 16h2M10 16h10M14 6v4M8 14v4',
   book:'M5 4h11a2 2 0 0 1 2 2v14H7a2 2 0 0 1-2-2zM18 6v14', leaf:'M5 19c0-8 6-13 14-13 0 8-5 14-13 14-1 0-1-1-1-1zM7 17c3-3 6-5 9-6', eye:'M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7zM12 12m-3 0a3 3 0 1 0 6 0 3 3 0 1 0-6 0',
@@ -1703,11 +1704,97 @@ function Sidebar(){
       <button onClick={()=>app.nav('/assistant')} className="w-full btn btn-gold px-4 py-3 text-sm"><Icon name="spark" size={16}/>{t('nav_assistant')}</button>
       {app.user&&app.user.isAdmin&&<button onClick={()=>app.nav('/analytics')} className={cx('w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-300', route==='/analytics'?'bg-charcoal text-cream shadow-soft':'text-charcoal/80 hover:bg-sand')}><Icon name="chart" size={18} className={route==='/analytics'?'text-gold':'text-muted'}/>Analytics</button>}
       {app.user && <button onClick={()=>app.logout()} className="w-full text-xs text-muted hover:text-charcoal py-1.5">Log out</button>}
+      {/* Milestone badges sit below log out, out of the main navigation flow. */}
+      {app.user && <button onClick={()=>app.nav('/badges')} className={cx('w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs transition border border-line', route==='/badges'?'bg-sand text-charcoal':'text-muted hover:bg-sand')}>
+        <Icon name="trophy" size={15} className="text-goldd"/>Milestone badges
+        <span className="ml-auto text-[10px] text-faint">{app.profile.streak||0}d</span></button>}
     </div>
   </aside>;
 }
 
 // Avatar + account dropdown: settings, language, theme, photo upload, logout.
+// Global search palette with optional voice input.
+// Opens with the header button or Cmd/Ctrl+K.
+function GlobalSearch(){
+  const app=useApp(); const { t }=app;
+  const [open,setOpen]=useState(false),[q,setQ]=useState(''),[sel,setSel]=useState(0);
+  const [listening,setListening]=useState(false),[voiceErr,setVoiceErr]=useState('');
+  const inputRef=useRef(null); const recRef=useRef(null);
+  useEffect(()=>{ const h=(e)=>{ if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){ e.preventDefault(); setOpen(o=>!o); }
+      if(e.key==='Escape') setOpen(false); };
+    window.addEventListener('keydown',h); return ()=>window.removeEventListener('keydown',h); },[]);
+  useEffect(()=>{ if(open){ setQ(''); setSel(0); setVoiceErr(''); setTimeout(()=>inputRef.current&&inputRef.current.focus(),40); } },[open]);
+  // Every reachable tool, respecting feature flags.
+  const items=useMemo(()=>{
+    const seen={}; const out=[];
+    SUBS.forEach(s=>s.routes.forEach(r=>{ const it=NAV_BY_ROUTE[r];
+      if(!it||seen[r]||!flagForRoute(app.flags,r)) return; seen[r]=1;
+      out.push({ to:r, label:t(it.k), desc:SUB_TOOL_DESC[r]||'', emoji:TOOL_EMOJI[r]||'•', world:s.name }); }));
+    ['/assistant','/settings','/about','/team','/pricing','/privacy','/hub'].forEach(r=>{ if(seen[r]) return; seen[r]=1;
+      const names={'/assistant':'AI Assistant','/settings':'Settings','/about':'About Lumera','/team':'Founding team','/pricing':'Pricing','/privacy':'Privacy','/hub':'All products'};
+      out.push({ to:r, label:names[r], desc:SUB_TOOL_DESC[r]||'', emoji:'⚙️', world:'Lumera' }); });
+    return out;
+  },[app.flags,t]);
+  const results=useMemo(()=>{ const s=q.trim().toLowerCase();
+    if(!s) return items.slice(0,8);
+    return items.filter(x=>(x.label+' '+x.desc+' '+x.world).toLowerCase().includes(s)).slice(0,10);
+  },[q,items]);
+  const goTo=(it)=>{ if(!it) return; setOpen(false); app.nav(it.to); };
+  const onKey=(e)=>{ if(e.key==='ArrowDown'){ e.preventDefault(); setSel(s=>Math.min(s+1,results.length-1)); }
+    else if(e.key==='ArrowUp'){ e.preventDefault(); setSel(s=>Math.max(s-1,0)); }
+    else if(e.key==='Enter'){ e.preventDefault(); goTo(results[sel]); } };
+  // Voice: uses the browser's built-in speech recognition when available.
+  const SR = typeof window!=='undefined' && (window.SpeechRecognition||window.webkitSpeechRecognition);
+  const toggleVoice=()=>{
+    if(!SR){ setVoiceErr('Voice search is not supported in this browser.'); return; }
+    if(listening){ try{ recRef.current&&recRef.current.stop(); }catch(e){} setListening(false); return; }
+    try{
+      const r=new SR(); recRef.current=r; r.lang=(app.lang==='ar'?'ar-AE':app.lang==='fr'?'fr-FR':app.lang==='es'?'es-ES':app.lang==='de'?'de-DE':'en-US');
+      r.interimResults=true; r.continuous=false;
+      r.onresult=(ev)=>{ const txt=Array.from(ev.results).map(x=>x[0].transcript).join(''); setQ(txt); setSel(0); };
+      r.onerror=()=>{ setVoiceErr('Could not hear anything. Try again.'); setListening(false); };
+      r.onend=()=>setListening(false);
+      r.start(); setListening(true); setVoiceErr('');
+    }catch(e){ setVoiceErr('Voice search could not start.'); setListening(false); }
+  };
+  return <Fragment>
+    <button onClick={()=>setOpen(true)} aria-label="Search Lumera" title="Search (Ctrl+K)"
+      className="grid place-items-center h-10 w-10 rounded-full hover:bg-sand text-charcoal/80 transition">
+      <Icon name="search" size={18}/></button>
+    {open && <div className="fixed inset-0 z-[180] flex items-start justify-center p-4 pt-[12vh]">
+      <div className="absolute inset-0" style={{background:'rgba(8,8,16,.6)',backdropFilter:'blur(4px)'}} onClick={()=>setOpen(false)}/>
+      <div className="relative w-full max-w-xl lux-card !p-0 overflow-hidden anim-scaleIn">
+        <div className="flex items-center gap-2 px-4 py-3 border-b border-line">
+          <Icon name="search" size={18} className="text-faint shrink-0"/>
+          <input ref={inputRef} value={q} onChange={e=>{setQ(e.target.value);setSel(0);}} onKeyDown={onKey}
+            placeholder="Search tools, pages and features…" className="flex-1 bg-transparent text-base focus:outline-none text-charcoal"/>
+          <button onClick={toggleVoice} title={listening?'Stop listening':'Search by voice'}
+            className={cx('grid place-items-center h-9 w-9 rounded-lg transition shrink-0', listening?'bg-berry/15 text-berry':'text-faint hover:bg-sand')}>
+            <Icon name="mic" size={17}/></button>
+          <button onClick={()=>setOpen(false)} className="grid place-items-center h-9 w-9 rounded-lg text-faint hover:bg-sand shrink-0"><Icon name="x" size={16}/></button>
+        </div>
+        {listening && <div className="px-4 py-2 text-xs flex items-center gap-2" style={{color:'#DC2626'}}>
+          <span className="h-2 w-2 rounded-full bg-berry" style={{animation:'pulse 1.2s infinite'}}/>Listening, speak now…</div>}
+        {voiceErr && <div className="px-4 py-2 text-xs text-muted">{voiceErr}</div>}
+        <div className="max-h-[52vh] overflow-y-auto py-2">
+          {results.length===0
+            ? <div className="px-4 py-8 text-center text-sm text-muted">Nothing matches “{q}”.</div>
+            : results.map((it,i)=>
+              <button key={it.to} onMouseEnter={()=>setSel(i)} onClick={()=>goTo(it)}
+                className={cx('w-full flex items-center gap-3 px-4 py-2.5 text-left transition', i===sel?'bg-sand':'hover:bg-sand/60')}>
+                <span className="text-xl shrink-0">{it.emoji}</span>
+                <span className="min-w-0 flex-1"><span className="block text-sm font-medium text-charcoal truncate">{it.label}</span>
+                  <span className="block text-xs text-faint truncate">{it.desc}</span></span>
+                <span className="text-[10px] uppercase tracking-wider text-faint shrink-0">{it.world}</span>
+              </button>)}
+        </div>
+        <div className="px-4 py-2 border-t border-line text-[11px] text-faint flex items-center gap-3">
+          <span>↑↓ to move</span><span>↵ to open</span><span>esc to close</span><span className="ml-auto">Ctrl / ⌘ + K</span>
+        </div>
+      </div>
+    </div>}
+  </Fragment>;
+}
 function ProfileMenu(){
   const app=useApp(); const [open,setOpen]=useState(false); const fileRef=useRef(null);
   const pic=app.profile.avatar;
@@ -1777,6 +1864,7 @@ function TopBar(){
         <span className="text-xs text-gold">Score</span><span className="text-sm font-semibold tnum">{m.overall}</span></button>
       {app.mode==='spark' && <Hint text="Your Spark level, earn XP by completing daily quests."><button onClick={()=>app.nav('/dashboard')} className="hidden sm:flex items-center gap-1.5 rounded-full bg-gold/15 px-3 py-1.5">
         <span className="grid place-items-center h-5 w-5 rounded-full text-white text-[10px] font-bold tnum" style={{background:'linear-gradient(135deg,#9B6CFF,#6366F1)'}}>{levelFromXp(app.xp)}</span><span className="text-xs font-semibold text-goldd tnum">{app.xp} XP</span></button></Hint>}
+      <GlobalSearch/>
       <CurrencySwitcher/><LanguageSwitcher compact/>
       <ThemeToggle/>
       <ProfileMenu/>
@@ -2235,9 +2323,16 @@ function Review(){
   const set=(id,v)=>setDraft(s=>({...s,[id]:v}));
   const setB=(id,v)=>setBal(s=>({...s,[id]:v}));
   const groups = GROUPS.filter(g=>g.id!=='savings');
+  const [extra,setExtra]=useState(()=>{ try{ return JSON.parse(localStorage.getItem('lumera_budget_custom'))||[]; }catch(e){ return []; } });
+  const [nx,setNx]=useState({name:'',amount:0,bucket:'Wants'});
+  const addExtra=()=>{ if(!nx.name||!Number(nx.amount)) return; const n=[...extra,{id:'c'+Date.now(),name:nx.name,amount:Number(nx.amount),bucket:nx.bucket}];
+    setExtra(n); try{ localStorage.setItem('lumera_budget_custom', JSON.stringify(n)); }catch(e){} setNx({name:'',amount:0,bucket:'Wants'}); };
+  const delExtra=(id)=>{ const n=extra.filter(x=>x.id!==id); setExtra(n); try{ localStorage.setItem('lumera_budget_custom', JSON.stringify(n)); }catch(e){} };
   const stepDefs = [
+    { type:'intro' },
     ...groups.map(g=>({ type:'group', g })),
     { type:'savings' },
+    { type:'custom' },
     { type:'behaviour' },
   ];
   const total = stepDefs.length; const cur = stepDefs[step]; const progress=Math.round(((step)/(total))*100);
@@ -2256,18 +2351,30 @@ function Review(){
         <div className="flex items-center gap-2 mb-6 overflow-x-auto no-scrollbar pb-1">
           {stepDefs.map((s,i)=><div key={i} className={cx('h-1.5 rounded-full transition-all', i<=step?'bg-goldd':'bg-sand', i===step?'w-8':'w-4')}/>)}
         </div>
-        {step===0 && <Card className="mb-6 anim-fadeUp bg-gradient-to-br from-gold/8 to-transparent">
-          <div className="flex items-start gap-3"><span className="grid place-items-center h-10 w-10 rounded-xl bg-gold/15 text-goldd shrink-0"><Icon name="info" size={18}/></span>
-            <div><div className="font-serif text-lg text-charcoal">What to have ready</div>
-              <p className="text-sm text-muted mt-1 leading-relaxed">Not sure what to track? Grab a rough monthly figure for each of these, estimates are totally fine, you can refine later:</p>
-              <div className="grid sm:grid-cols-2 gap-1.5 mt-3 text-sm text-charcoal/85">
-                {[['💰','Income, your take-home pay (after tax)'],['🏠','Housing, rent or mortgage'],['🛒','Food, groceries & eating out'],['🚇','Transport, fuel, transit, car costs'],['🔁','Bills & subscriptions, the auto-renewing ones'],['🛍️','Lifestyle, shopping, fun, travel'],['💳','Debt, card, loan or BNPL payments'],['🐖','Saving & investing, what you set aside']].map(([e,txt])=>
-                  <div key={txt} className="flex items-start gap-2"><span>{e}</span><span>{txt}</span></div>)}
-              </div>
-              <p className="text-[11px] text-faint mt-3">Tip: check last month’s bank or card statement, it’s the fastest way to see where money actually went.</p>
-            </div></div>
-        </Card>}
         <div key={step} className="anim-fadeUp">
+          {cur.type==='intro' && <>
+            <Eyebrow className="mb-2">Before you start</Eyebrow>
+            <h1 className="font-serif text-3xl sm:text-4xl text-charcoal">What to have ready.</h1>
+            <p className="text-muted mt-2 max-w-xl">Grab a rough monthly figure for each of these. Estimates are completely fine, you can refine them later.</p>
+            <div className="grid sm:grid-cols-2 gap-3 mt-6">
+              {[['💰','Income','Your take-home pay, after tax'],
+                ['🏠','Housing','Rent or mortgage, plus service charges'],
+                ['🛒','Food','Groceries and eating out'],
+                ['🚇','Transport','Fuel, transit passes, car costs'],
+                ['🔁','Bills & subscriptions','The auto-renewing ones'],
+                ['🛍️','Lifestyle','Shopping, fun, travel'],
+                ['💳','Debt','Card, loan or BNPL payments'],
+                ['🐖','Saving & investing','What you set aside each month']].map(([e,ttl,d])=>
+                <Card key={ttl} hover={false} className="!p-4 flex items-start gap-3">
+                  <span className="text-2xl shrink-0">{e}</span>
+                  <span><span className="block font-medium text-charcoal">{ttl}</span>
+                    <span className="block text-sm text-muted leading-snug">{d}</span></span></Card>)}
+            </div>
+            <Card hover={false} className="mt-4 bg-gradient-to-br from-gold/8 to-transparent">
+              <div className="flex items-start gap-3"><span className="grid place-items-center h-9 w-9 rounded-xl bg-gold/15 text-goldd shrink-0"><Icon name="bulb" size={17}/></span>
+                <p className="text-sm text-charcoal/85 leading-relaxed">Fastest route: open last month’s bank or card statement. It shows where the money actually went, rather than where you think it went. Takes about five minutes.</p></div>
+            </Card>
+          </>}
           {cur.type==='group' && <>
             <Eyebrow className="mb-2">Step {step+1} of {total}</Eyebrow>
             <h1 className="font-serif text-3xl text-charcoal">{cur.g.label}</h1>
@@ -2275,6 +2382,34 @@ function Review(){
             <Card className="mt-6"><div className="grid sm:grid-cols-2 gap-x-6 gap-y-4">
               {ITEMS.filter(i=>i.g===cur.g.id).map(it=><NumberField key={it.id} id={it.id} icon={it.icon} label={it.label} value={draft[it.id]} onChange={set} income={it.kind==='income'}/>)}
             </div></Card>
+          </>}
+          {cur.type==='custom' && <>
+            <Eyebrow className="mb-2">Step {step+1} of {total}</Eyebrow>
+            <h1 className="font-serif text-3xl text-charcoal">Anything we missed?</h1>
+            <p className="text-muted mt-1">Add your own categories for spending that does not fit the standard list, like tuition, pet care, childcare or hobbies.</p>
+            <Card className="mt-6">
+              <div className="grid sm:grid-cols-3 gap-3">
+                <label className="block sm:col-span-1"><span className="text-sm text-charcoal/85 mb-1.5 block">Category name</span>
+                  <input value={nx.name} onChange={e=>setNx(v=>({...v,name:e.target.value}))} placeholder="e.g. Pet care"
+                    className="w-full rounded-xl border border-line bg-cream px-3 py-2.5 focus:border-gold focus:outline-none"/></label>
+                <NumberField id="amount" label="Monthly amount" value={nx.amount} onChange={(k,v)=>setNx(x=>({...x,amount:v}))}/>
+                <label className="block"><span className="text-sm text-charcoal/85 mb-1.5 block">Counts as</span>
+                  <select value={nx.bucket} onChange={e=>setNx(v=>({...v,bucket:e.target.value}))}
+                    className="w-full rounded-xl border border-line bg-cream px-3 py-2.5 focus:border-gold focus:outline-none">
+                    {['Needs','Wants','Savings','Debt'].map(o=><option key={o}>{o}</option>)}</select></label>
+              </div>
+              <Btn variant="gold" className="mt-3" icon="plus" onClick={addExtra}>Add category</Btn>
+              {extra.length>0 && <div className="mt-4 space-y-2">
+                {extra.map(x=><div key={x.id} className="flex items-center gap-3 rounded-xl border border-line bg-cream/60 p-3">
+                  <span className="grid place-items-center h-8 w-8 rounded-lg bg-sand text-goldd shrink-0"><Icon name="tag" size={15}/></span>
+                  <span className="flex-1 text-sm text-charcoal">{x.name}</span>
+                  <Pill tone="neutral">{x.bucket}</Pill>
+                  <span className="text-sm text-charcoal tnum">{app.fmt.money(x.amount)}</span>
+                  <button onClick={()=>delExtra(x.id)} className="grid place-items-center h-7 w-7 rounded-lg text-faint hover:text-berry hover:bg-sand"><Icon name="x" size={13}/></button>
+                </div>)}
+              </div>}
+              {extra.length===0 && <p className="text-sm text-muted mt-4">Nothing added yet. This step is optional, skip it if the standard categories covered you.</p>}
+            </Card>
           </>}
           {cur.type==='savings' && <>
             <Eyebrow className="mb-2">Step {step+1} of {total}</Eyebrow>
@@ -2490,7 +2625,7 @@ const SUBS = [
     routes:['/dashboard','/benchmarks','/recommendations','/budget','/goals','/emergency','/subscriptions','/networth','/simulator','/twin','/chats','/community'] },
   { key:'leaf', name:'Leaf', tag:'Learn & grow', accent:'#22C55E', emoji:'🌿', live:true,
     blurb:'Money education that doesn’t bore you, bite-size lessons and a deep knowledge hub.',
-    routes:['/learn','/quiz','/glossary','/habits','/challenges','/resources'] },
+    routes:['/learn','/quiz','/glossary','/challenges','/resources'] },
   { key:'atlas', name:'Atlas', tag:'Markets & investing', accent:'#3B82F6', emoji:'🛰️', live:true,
     blurb:'Markets explained for humans, stocks, indices, a globe of exchanges and plain-English news.',
     routes:['/invest','/market','/exchanges','/globe','/world','/news'] },
@@ -2912,6 +3047,36 @@ function Recommendations(){
     <div className="mt-4"><Disclaimer compact/></div>
   </AppShell>;
 }
+// Compact daily habits strip for the dashboard, so it is easy to find.
+function HabitsStrip(){
+  const KEY='lumera_leaf_habits';
+  const habits=[
+    ['track','📒','Log spending'],['noimpulse','🛑','No impulse buys'],['save','🪙','Move to savings'],
+    ['learn','📚','Learn one idea'],['cook','🍳','Eat in'],['check','👀','Check a subscription'],
+  ];
+  const today=new Date().toISOString().slice(0,10);
+  const [state,setState]=useState(()=>{ try{ return JSON.parse(localStorage.getItem(KEY))||{}; }catch(e){ return {}; } });
+  const day=state[today]||{};
+  const toggle=(id)=>setState(s=>{ const d={...(s[today]||{})}; d[id]=!d[id]; const ns={...s,[today]:d};
+    try{ localStorage.setItem(KEY,JSON.stringify(ns)); }catch(e){} return ns; });
+  const doneN=habits.filter(h=>day[h[0]]).length;
+  let streak=0; for(let k=0;k<60;k++){ const d=new Date(Date.now()-k*864e5).toISOString().slice(0,10);
+    const v=state[d]; if(v&&Object.values(v).some(Boolean)) streak++; else if(k>0) break; }
+  return <Card hover={false} className="mb-4">
+    <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+      <Eyebrow>Today’s money habits</Eyebrow>
+      <span className="text-sm text-muted">{doneN}/{habits.length} done · <b className="text-goldd">{streak} day streak 🔥</b></span>
+    </div>
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+      {habits.map(([id,e,label])=>{ const on=!!day[id];
+        return <button key={id} onClick={()=>toggle(id)}
+          className={cx('rounded-xl2 border p-3 text-center transition', on?'border-sage/50 bg-sage/10':'border-line hover:border-taupe')}>
+          <div className="text-2xl">{e}</div>
+          <div className={cx('text-[11px] mt-1 leading-tight', on?'text-saged font-medium':'text-muted')}>{label}</div>
+        </button>; })}
+    </div>
+  </Card>;
+}
 function Dashboard(){
   const app = useApp(); const fmt = app.fmt; const m = app.metrics; const ref = useReveal();
   const [tab,setTab]=useState('All'); const [showAll,setShowAll]=useState(false); const [after,setAfter]=useState(false);
@@ -2966,6 +3131,7 @@ function Dashboard(){
       </div>
     </div>
 
+    <HabitsStrip/>
     <HeadlinesPanel/>
 
     <PageHead eyebrow="Your monthly review" title="Financial health, decoded."
@@ -3976,10 +4142,14 @@ function Emergency(){
           <Card hover={false} className="!p-4"><div className="text-xs text-muted">Target</div><div className="font-serif text-xl text-goldd tnum"><AnimatedNumber value={target} money/></div></Card>
           <Card hover={false} className="!p-4"><div className="text-xs text-muted">Gap</div><div className="font-serif text-xl text-clayd tnum"><AnimatedNumber value={gap} money/></div></Card>
         </div>
-        <Card><div className="flex items-center justify-between"><div><div className="text-sm text-muted">To close the gap in 12 months</div><div className="font-serif text-2xl text-saged tnum">{fmt.money(perMonth)}<span className="text-sm text-muted">/mo</span></div>
-          <div className="text-xs text-faint mt-1">Currently covers <b className="text-charcoal/70">{(current/(ess||1)).toFixed(1)} months</b> of essentials · {round(clamp(current/target*100,0,100))}% of target</div></div>
-          <ScoreRing value={clamp(current/target*100,0,100)} size={92} stroke={9} label="% funded" color={COLORS.sage}/></div>
-          <p className="text-xs text-goldd mt-3 flex items-start gap-1.5"><Icon name="spark" size={13} className="mt-0.5"/>{perMonth<=m.realistic?`Within reach, your savings opportunity is ${fmt.money(m.realistic)}/mo.`:`Stretch the timeline or combine with reclaimed spending of ${fmt.money(m.realistic)}/mo.`}</p>
+        <Card><div className="flex flex-wrap items-center justify-between gap-5">
+          <div className="min-w-[190px] flex-1">
+            <div className="text-sm text-muted">To close the gap in 12 months</div>
+            <div className="font-serif text-3xl text-saged tnum mt-0.5">{fmt.money(perMonth)}<span className="text-base text-muted">/mo</span></div>
+            <div className="text-xs text-faint mt-2 leading-relaxed">Currently covers <b className="text-charcoal/70">{(current/(ess||1)).toFixed(1)} months</b> of essentials<br/>{round(clamp(current/target*100,0,100))}% of target</div>
+          </div>
+          <div className="shrink-0 mx-auto sm:mx-0"><ScoreRing value={clamp(current/target*100,0,100)} size={104} stroke={10} label="% funded" color={COLORS.sage}/></div></div>
+          <p className="text-xs text-goldd mt-4 pt-4 border-t border-line flex items-start gap-1.5"><Icon name="spark" size={13} className="mt-0.5"/>{perMonth<=m.realistic?`Within reach, your savings opportunity is ${fmt.money(m.realistic)}/mo.`:`Stretch the timeline or combine with reclaimed spending of ${fmt.money(m.realistic)}/mo.`}</p>
           <p className="text-[11px] text-muted mt-2 flex items-start gap-1.5"><Icon name="info" size={12} className="mt-0.5 shrink-0"/>Cash can lose a little to <Term>Inflation</Term> over time, but an emergency fund’s job is safety and instant access, not growth. Keep it liquid.</p>
         </Card>
       </div>
@@ -4797,11 +4967,35 @@ function Credit(){
       <Eyebrow className="mb-3">Top credit cards for your profile</Eyebrow>
       <div className="grid lg:grid-cols-2 gap-4">
         <div className="grid sm:grid-cols-2 gap-3">{CREDIT_CARDS.map((cc,i)=>{ const on=i===cardSel;
-          return <button key={cc.name} onClick={()=>setCardSel(i)} className={cx('relative rounded-2xl p-4 text-left text-white overflow-hidden transition-transform',on?'ring-2 ring-goldd scale-[1.01]':'opacity-90 hover:opacity-100')} style={{background:`linear-gradient(135deg,${cc.hue} 0%,${cc.hue}CC 100%)`,minHeight:130}}>
-            <div className="absolute top-3 right-3 text-[10px] font-semibold rounded-full bg-white/20 px-2 py-0.5">#{i+1}</div>
-            <div className="h-6 w-8 rounded-md bg-white/25 mb-6"/>
-            <div className="text-[11px] tracking-[.3em] opacity-80">•••• •••• •••• {cc.num}</div>
-            <div className="flex items-end justify-between mt-2"><div className="text-sm font-semibold leading-tight">{cc.bank}</div><div className="text-xs opacity-80">{cc.fee}</div></div>
+          return <button key={cc.name} onClick={()=>setCardSel(i)}
+            className={cx('relative rounded-2xl p-4 text-left text-white overflow-hidden transition-all duration-300', on?'ring-2 ring-goldd scale-[1.02] shadow-2xl':'opacity-90 hover:opacity-100 hover:scale-[1.01]')}
+            style={{background:`linear-gradient(135deg,${cc.hue} 0%,${cc.hue}DD 55%,${cc.hue}AA 100%)`, aspectRatio:'1.586/1', minHeight:150,
+              boxShadow:on?`0 18px 40px ${cc.hue}88`:'0 8px 22px rgba(0,0,0,.28)'}}>
+            {/* holographic sheen */}
+            <span className="absolute inset-0 pointer-events-none" style={{background:'linear-gradient(115deg, rgba(255,255,255,.28) 0%, rgba(255,255,255,0) 38%, rgba(255,255,255,.14) 62%, rgba(255,255,255,0) 100%)'}}/>
+            <span className="absolute -right-8 -top-10 h-28 w-28 rounded-full" style={{background:'rgba(255,255,255,.10)'}}/>
+            <span className="absolute -right-2 top-10 h-20 w-20 rounded-full" style={{background:'rgba(255,255,255,.07)'}}/>
+            <div className="relative flex items-start justify-between">
+              <span className="text-[11px] font-semibold tracking-wide opacity-90">{cc.bank}</span>
+              <span className="text-[10px] font-semibold rounded-full px-2 py-0.5" style={{background:'rgba(255,255,255,.22)'}}>#{i+1}</span>
+            </div>
+            {/* EMV chip + contactless */}
+            <div className="relative flex items-center gap-2 mt-4">
+              <span className="h-7 w-9 rounded-[5px] grid place-items-center" style={{background:'linear-gradient(135deg,#F4D27A,#C9A24A)'}}>
+                <span className="block h-4 w-6 rounded-[3px]" style={{background:'linear-gradient(135deg,#E6C173,#B4913F)',boxShadow:'inset 0 0 0 1px rgba(0,0,0,.18)'}}/></span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" opacity=".85">
+                <path d="M8.5 8.5a5 5 0 0 1 0 7M12 6a9 9 0 0 1 0 12M5 11a2 2 0 0 1 0 2"/></svg>
+            </div>
+            <div className="relative text-[12px] tracking-[.22em] mt-4 opacity-95">•••• •••• •••• {cc.num}</div>
+            <div className="relative flex items-end justify-between mt-2">
+              <div className="min-w-0"><div className="text-[9px] uppercase tracking-wider opacity-70">Card holder</div>
+                <div className="text-[11px] font-medium truncate">{(app.profile.name||'Your name').toUpperCase()}</div></div>
+              {/* network mark */}
+              <span className="flex items-center shrink-0" aria-hidden="true">
+                <span className="h-5 w-5 rounded-full" style={{background:'rgba(255,255,255,.85)'}}/>
+                <span className="h-5 w-5 rounded-full -ml-2" style={{background:'rgba(255,255,255,.55)'}}/>
+              </span>
+            </div>
           </button>; })}</div>
         <Card hover={false}><div className="flex items-start justify-between"><div><Eyebrow>{c.bank}</Eyebrow><div className="font-serif text-xl text-charcoal mt-1">{c.name}</div></div><Pill tone="gold">#{cardSel+1}</Pill></div>
           <div className="grid grid-cols-2 gap-3 mt-3">
@@ -4974,18 +5168,35 @@ function KnowledgeHub(){
       {n:'Reuters Markets', d:'Fast wire-service market & world news.', u:'https://www.reuters.com/markets/'},
     ]},
   ];
+  // A colour and glyph per shelf so the page reads as more than a link list.
+  const GROUP_STYLE={
+    'Featured, Recommended by Lumera':{hue:'#7C3AED', icon:'⭐'},
+    'Learn the fundamentals':{hue:'#16A34A', icon:'📚'},
+    'Courses & platforms':{hue:'#2563EB', icon:'🎓'},
+    'Research & data':{hue:'#0D9488', icon:'🔬'},
+    'News & journalism':{hue:'#D97706', icon:'📰'},
+  };
   return <AppShell>
     <PageHead eyebrow="Knowledge hub" title="The best places to learn about money."
-      desc="A curated shelf of the most trusted finance education, research and news, vetted so you don’t have to wade through the noise."/>
-    {groups.map(g=><div key={g.h} className="mb-6">
-      <Eyebrow className="mb-3">{g.h}</Eyebrow>
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {g.items.map(it=><a key={it.n} href={it.u} target="_blank" rel="noopener noreferrer" className="lux-card lift p-4 block group">
-          <div className="flex items-center justify-between gap-2"><span className="font-serif text-lg text-charcoal group-hover:text-goldd transition">{it.n}</span>{it.tag&&<Pill tone="gold">{it.tag}</Pill>}</div>
-          <p className="text-sm text-muted mt-1.5 leading-relaxed">{it.d}</p>
-          <div className="mt-2 text-xs font-semibold text-goldd flex items-center gap-1">Open <Icon name="arrowR" size={12} className="-rotate-45"/></div></a>)}
+      desc="A curated shelf of trusted finance education, research and news."/>
+    {groups.map(g=>{ const st=GROUP_STYLE[g.h]||{hue:'#7C3AED',icon:'📘'};
+      return <div key={g.h} className="mb-7">
+      <div className="flex items-center gap-2.5 mb-3">
+        <span className="grid place-items-center h-9 w-9 rounded-xl text-lg" style={{background:st.hue+'1A'}}>{st.icon}</span>
+        <h2 className="font-serif text-xl text-charcoal">{g.h}</h2>
+        <span className="ml-auto text-xs text-faint">{g.items.length} sources</span>
       </div>
-    </div>)}
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
+        {g.items.map(it=><a key={it.n} href={it.u} target="_blank" rel="noopener noreferrer"
+          className="lux-card lift p-5 flex flex-col items-center text-center group" style={{borderTop:`3px solid ${st.hue}`}}>
+          <span className="grid place-items-center h-12 w-12 rounded-2xl text-xl mb-3" style={{background:`linear-gradient(135deg,${st.hue},${st.hue}AA)`,color:'#fff'}}>
+            {it.n.trim()[0]}</span>
+          <span className="font-serif text-lg text-charcoal group-hover:text-goldd transition leading-snug">{it.n}</span>
+          {it.tag&&<span className="text-[10px] font-semibold rounded-full px-2 py-0.5 mt-1.5" style={{background:st.hue+'18',color:st.hue}}>{it.tag}</span>}
+          <p className="text-sm text-muted mt-2 leading-relaxed flex-1">{it.d}</p>
+          <span className="mt-3 text-xs font-semibold flex items-center gap-1" style={{color:st.hue}}>Open <Icon name="arrowR" size={12} className="-rotate-45 group-hover:translate-x-0.5 transition"/></span></a>)}
+      </div>
+    </div>; })}
     <div className="mt-2"><Disclaimer compact/></div>
   </AppShell>;
 }
@@ -5638,15 +5849,28 @@ function WorldMonitor(){
         <div className="-mx-1 mt-1.5"><MiniSpark seed={s.k+dayKey} up={up} color={up?GREEN:RED} h={26}/></div>
       </Card>; })}
     </div>
-    {WORLD_GROUPS.map(g=><div key={g.h} className="mb-6">
-      <div className="flex items-center gap-2 mb-3"><span className="grid place-items-center h-8 w-8 rounded-xl bg-gold/15 text-goldd"><Icon name={g.icon} size={16}/></span><h2 className="font-serif text-xl text-charcoal">{g.h}</h2></div>
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        {g.items.map(it=><a key={it.n} href={it.u} target="_blank" rel="noopener noreferrer" className="lux-card lift p-4 block group">
-          <div className="font-serif text-base text-charcoal group-hover:text-goldd transition leading-snug">{it.n}</div>
-          <p className="text-xs text-muted mt-1.5 leading-relaxed">{it.d}</p>
-          <div className="mt-2 text-xs font-semibold text-goldd flex items-center gap-1">Open live <Icon name="arrowR" size={12} className="-rotate-45"/></div></a>)}
+    {/* Live sources, collapsed by default so the page stays clean. */}
+    <div className="mt-2">
+      <h2 className="font-serif text-xl text-charcoal mb-1">Live sources</h2>
+      <p className="text-sm text-muted mb-3">Trusted feeds for each area. Open a shelf to see them.</p>
+      <div className="space-y-2">
+        {WORLD_GROUPS.map((g,gi)=>{ const hue=['#2563EB','#0D9488','#D97706','#7C3AED','#DC2626','#0EA5E9'][gi%6];
+          return <details key={g.h} className="group rounded-xl2 border border-line bg-cream/50 overflow-hidden [&_summary]:cursor-pointer">
+            <summary className="list-none flex items-center gap-3 px-4 py-3">
+              <span className="grid place-items-center h-8 w-8 rounded-lg shrink-0" style={{background:hue+'1A',color:hue}}><Icon name={g.icon} size={16}/></span>
+              <span className="font-medium text-charcoal flex-1">{g.h}</span>
+              <span className="text-xs text-faint">{g.items.length}</span>
+              <Icon name="chevron" size={15} className="text-faint rotate-90 group-open:rotate-[270deg] transition"/>
+            </summary>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2 px-4 pb-4">
+              {g.items.map(it=><a key={it.n} href={it.u} target="_blank" rel="noopener noreferrer"
+                className="rounded-xl border border-line bg-card p-3 hover:border-taupe transition group/i">
+                <div className="text-sm font-medium text-charcoal group-hover/i:text-goldd transition">{it.n}</div>
+                <div className="mt-1.5 text-[11px] font-semibold flex items-center gap-1" style={{color:hue}}>Open <Icon name="arrowR" size={11} className="-rotate-45"/></div></a>)}
+            </div>
+          </details>; })}
       </div>
-    </div>)}
+    </div>
     <div className="mt-2"><Disclaimer compact/></div>
   </AppShell>;
 }
@@ -6253,31 +6477,106 @@ function CareerPrepHub(){
   </AppShell>;
 }
 
+/* Opportunities.
+   Each row carries application / start / end dates so deadlines are visible.
+   OPPS_API is the drop-in point for an AI agent that fetches live listings:
+   set window.LUMERA_OPPS_ENDPOINT (and optionally window.LUMERA_OPPS_KEY) and
+   the page will use it instead of the built-in seed list. */
 const OPPS=[
-  ['Internship','Spring Insight Weeks','Bulge-bracket banks · Year 1','Paid week-long insight programs, the earliest foot in the door for IB. Apply in autumn of first year.','https://www.jpmorgan.com/careers'],
-  ['Internship','Summer Analyst Programs','IB / S&T / AM · Penultimate year','10-week paid internships that convert to full-time offers. The main graduate pipeline.','https://www.goldmansachs.com/careers/'],
-  ['Competition','Investment Banking Case Comps','Global · University','Team competitions run by banks and societies; great CV signal and networking.','https://www.wallstreetoasis.com/'],
-  ['Competition','Trading & Quant Challenges','Jane Street, Citadel, Optiver','Estimathons, puzzles and trading games, a direct route into quant recruiting.','https://www.janestreet.com/puzzles/'],
-  ['Program','Diversity & Access Schemes','SEO, 10000 Black Interns, Sponsors for Ed. Opportunity','Structured mentoring and fast-tracked internships for underrepresented students.','https://www.seo-london.org/'],
-  ['Program','University Finance Societies','Your campus','Join (and lead) the finance/investment society, deal flow, alumni and mentoring.','https://www.google.com/search?q=university+finance+society'],
-  ['Scholarship','Firm Scholarships & Bursaries','Banks & asset managers','Many firms fund scholarships tied to internships, search each firm’s early-careers page.','https://www.google.com/search?q=investment+bank+scholarship+students'],
-  ['Networking','Coffee Chats & Alumni','LinkedIn','Reach out to alumni at target firms; a 15-minute chat often beats 50 applications.','https://www.linkedin.com/'],
+  {type:'Internship', title:'Spring Insight Weeks', org:'Bulge-bracket banks · Year 1',
+    desc:'Paid week-long insight programs, the earliest foot in the door for IB.',
+    applyBy:'2026-11-30', starts:'2027-04-06', ends:'2027-04-10', url:'https://www.jpmorgan.com/careers'},
+  {type:'Internship', title:'Summer Analyst Programs', org:'IB / S&T / AM · Penultimate year',
+    desc:'10-week paid internships that convert to full-time offers. The main graduate pipeline.',
+    applyBy:'2026-10-15', starts:'2027-06-14', ends:'2027-08-20', url:'https://www.goldmansachs.com/careers/'},
+  {type:'Competition', title:'Investment Banking Case Competition', org:'Global · University teams',
+    desc:'Team competitions run by banks and societies. A strong CV signal and real networking.',
+    applyBy:'2027-01-20', starts:'2027-02-14', ends:'2027-02-16', url:'https://www.wallstreetoasis.com/'},
+  {type:'Competition', title:'Trading & Quant Challenges', org:'Jane Street, Citadel, Optiver',
+    desc:'Estimathons, puzzles and trading games, a direct route into quant recruiting.',
+    applyBy:'2027-03-01', starts:'2027-03-20', ends:'2027-03-21', url:'https://www.janestreet.com/puzzles/'},
+  {type:'Program', title:'Diversity & Access Schemes', org:'SEO · 10000 Interns · Sponsors for Ed. Opportunity',
+    desc:'Structured mentoring and fast-tracked internships for underrepresented students.',
+    applyBy:'2026-12-12', starts:'2027-07-05', ends:'2027-08-28', url:'https://www.seo-london.org/'},
+  {type:'Program', title:'University Finance Society', org:'Your campus',
+    desc:'Join and then lead the finance or investment society. Deal flow, alumni and mentoring.',
+    applyBy:'2026-09-30', starts:'2026-10-05', ends:'2027-06-01', url:'https://www.google.com/search?q=university+finance+society'},
+  {type:'Scholarship', title:'Firm Scholarships & Bursaries', org:'Banks and asset managers',
+    desc:'Many firms fund scholarships tied to internships. Check each firm’s early-careers page.',
+    applyBy:'2027-01-31', starts:'2027-09-01', ends:'2028-06-30', url:'https://www.google.com/search?q=investment+bank+scholarship+students'},
+  {type:'Networking', title:'Alumni Coffee Chats', org:'LinkedIn · rolling',
+    desc:'Reach out to alumni at target firms. A 15-minute chat often beats 50 applications.',
+    applyBy:'', starts:'', ends:'', url:'https://www.linkedin.com/'},
 ];
 const OPP_TABS=['All','Internship','Competition','Program','Scholarship','Networking'];
+// Fetch live opportunities from a configured agent/API. Falls back to the seed list.
+async function fetchOpportunities(){
+  const url = typeof window!=='undefined' && window.LUMERA_OPPS_ENDPOINT;
+  if(!url) return null;
+  const key = (typeof window!=='undefined' && window.LUMERA_OPPS_KEY) || '';
+  const res = await fetch(url, { headers: key? { 'Authorization':'Bearer '+key } : {} });
+  if(!res.ok) throw new Error('Opportunities API returned '+res.status);
+  const data = await res.json();
+  const rows = Array.isArray(data) ? data : (data.opportunities||data.items||[]);
+  // Normalise so the UI never depends on one provider's field names.
+  return rows.map(r=>({
+    type: r.type||r.category||'Internship',
+    title: r.title||r.name||'Untitled',
+    org: r.org||r.company||r.employer||'',
+    desc: r.desc||r.description||r.summary||'',
+    applyBy: r.applyBy||r.deadline||r.application_deadline||'',
+    starts: r.starts||r.start_date||r.startDate||'',
+    ends: r.ends||r.end_date||r.endDate||'',
+    url: r.url||r.link||'#',
+  }));
+}
+const fmtDate=(d)=>{ if(!d) return null; const t=new Date(d); if(isNaN(t)) return null;
+  return t.toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}); };
+const daysLeft=(d)=>{ if(!d) return null; const t=new Date(d); if(isNaN(t)) return null;
+  return Math.ceil((t-Date.now())/864e5); };
 function Opportunities(){
   const [tab,setTab]=useState('All');
-  const shown=OPPS.filter(o=>tab==='All'||o[0]===tab);
+  const [rows,setRows]=useState(OPPS); const [live,setLive]=useState(false); const [err,setErr]=useState('');
+  useEffect(()=>{ let alive=true;
+    fetchOpportunities().then(r=>{ if(alive&&r&&r.length){ setRows(r); setLive(true); } })
+      .catch(e=>{ if(alive) setErr(String(e.message||e)); });
+    return ()=>{ alive=false; }; },[]);
+  const shown=rows.filter(o=>tab==='All'||o.type===tab)
+    .slice().sort((a,b)=>{ const A=daysLeft(a.applyBy), B=daysLeft(b.applyBy);
+      if(A==null) return 1; if(B==null) return -1; return A-B; });
+  const TONE={Internship:'#2563EB',Competition:'#DB2777',Program:'#0D9488',Scholarship:'#D97706',Networking:'#7C3AED'};
   return <AppShell>
-    <PageHead eyebrow="Opportunities" title="Ways to get your foot in the door." desc="Internships, competitions, access programs and scholarships that actually move the needle for finance careers, with where to apply."/>
+    <PageHead eyebrow="Opportunities" title="Ways to get your foot in the door."
+      desc="Internships, competitions, access programmes and scholarships that move the needle, sorted by how soon they close."
+      action={<Pill tone={live?'sage':'neutral'}>{live?'Live feed':'Curated list'}</Pill>}/>
     <Card className="mb-4"><div className="flex gap-2 flex-wrap">{OPP_TABS.map(t=><button key={t} onClick={()=>setTab(t)} className={cx('chip',tab===t&&'on')}>{t}</button>)}</div></Card>
-    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">{shown.map(o=>
-      <Card key={o[1]} className="flex flex-col"><div className="flex items-center justify-between"><Pill tone="gold">{o[0]}</Pill></div>
-        <div className="font-serif text-lg text-charcoal mt-2">{o[1]}</div><div className="text-[11px] text-faint mt-0.5">{o[2]}</div>
-        <p className="text-sm text-muted mt-2 leading-relaxed flex-1">{o[3]}</p>
-        <a href={o[4]} target="_blank" rel="noopener noreferrer" className="btn btn-ghost mt-3 py-2 text-xs justify-between">Learn more <Icon name="arrowR" size={11} className="-rotate-45"/></a></Card>)}</div>
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">{shown.map(o=>{
+      const hue=TONE[o.type]||'#7C3AED'; const dl=daysLeft(o.applyBy);
+      const urgent = dl!=null && dl>=0 && dl<=30;
+      return <Card key={o.title} className="flex flex-col" style={{borderTop:`3px solid ${hue}`}}>
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-[11px] font-semibold rounded-full px-2.5 py-1" style={{background:hue+'18',color:hue}}>{o.type}</span>
+          {dl!=null && (dl<0
+            ? <span className="text-[11px] text-faint">Closed</span>
+            : <span className={cx('text-[11px] font-semibold', urgent?'text-berry':'text-muted')}>{dl===0?'Closes today':`${dl} days left`}</span>)}
+        </div>
+        <div className="font-serif text-lg text-charcoal mt-2">{o.title}</div>
+        <div className="text-[11px] text-faint mt-0.5">{o.org}</div>
+        <p className="text-sm text-muted mt-2 leading-relaxed flex-1">{o.desc}</p>
+        <div className="mt-3 space-y-1 text-xs">
+          {fmtDate(o.applyBy) && <div className="flex justify-between"><span className="text-faint">Apply by</span><span className="text-charcoal font-medium">{fmtDate(o.applyBy)}</span></div>}
+          {fmtDate(o.starts) && <div className="flex justify-between"><span className="text-faint">Starts</span><span className="text-charcoal">{fmtDate(o.starts)}</span></div>}
+          {fmtDate(o.ends) && <div className="flex justify-between"><span className="text-faint">Ends</span><span className="text-charcoal">{fmtDate(o.ends)}</span></div>}
+          {!fmtDate(o.applyBy) && <div className="text-faint">Rolling, no fixed deadline</div>}
+        </div>
+        <a href={o.url} target="_blank" rel="noopener noreferrer" className="btn btn-ghost mt-3 py-2 text-xs justify-between">Learn more <Icon name="arrowR" size={11} className="-rotate-45"/></a></Card>; })}</div>
+    <p className="text-[11px] text-faint mt-3">
+      {live ? 'Listings come from your configured opportunities feed.'
+            : 'Curated list. To pull live listings, set window.LUMERA_OPPS_ENDPOINT (and optionally window.LUMERA_OPPS_KEY) to your AI agent or API.'}
+      {err && <span className="text-clayd"> Feed error: {err}</span>}
+    </p>
   </AppShell>;
 }
-
 /* ============================================================
    FORGE · Career & income tools (a real Lumera sub-product)
    ============================================================ */
