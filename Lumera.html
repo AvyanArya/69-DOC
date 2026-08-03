@@ -1489,7 +1489,7 @@ function AreaProjection({ a, b, width=560, height=210, labels=['If you change no
       <linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor={COLORS.gold} stopOpacity=".28"/><stop offset="1" stopColor={COLORS.gold} stopOpacity="0"/></linearGradient>
       <linearGradient id="gb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#6E8B6A" stopOpacity=".30"/><stop offset="1" stopColor="#6E8B6A" stopOpacity="0"/></linearGradient>
     </defs>
-    {[0,.5,1].map((g,i)=><line key={i} x1={pad} x2={W-pad} y1={pad+(H-pad*1.6)*g} y2={pad+(H-pad*1.6)*g} stroke="#EAE3D6" strokeWidth="1"/>)}
+    {[0,.5,1].map((g,i)=><line key={i} x1={pad} x2={W-pad} y1={pad+(H-pad*1.6)*g} y2={pad+(H-pad*1.6)*g} stroke="currentColor" className="text-line" strokeWidth="1"/>)}
     <path d={area(a)} fill="url(#ga)"/><path d={area(b)} fill="url(#gb)"/>
     <path d={line(a)} fill="none" stroke={COLORS.gold} strokeWidth="2.4" strokeLinecap="round" style={{strokeDasharray:1400, animation:'none'}}/>
     <path d={line(b)} fill="none" stroke="#4C6447" strokeWidth="2.6" strokeLinecap="round"/>
@@ -1558,14 +1558,14 @@ function LuxSlider({ value, min=0, max=100, step=1, onChange, label, suffix='', 
 /* ---- Switchers ---- */
 function LanguageSwitcher({ compact=false }){
   const app = useApp(); const [open,setOpen]=useState(false);
+  const wrapRef=useOutsideClose(open,()=>setOpen(false));
   const cur = LANGS.find(l=>l.code===app.lang)||LANGS[0];
-  return <div className="relative">
+  return <div className="relative" ref={wrapRef}>
     <button onClick={()=>setOpen(o=>!o)} className="btn btn-ghost px-3 py-2 text-xs">
       <Icon name="globe" size={15}/>{compact? cur.code.toUpperCase(): cur.native}<Icon name="chevron" size={13} className="rotate-90 opacity-60"/>
     </button>
     {open && <>
-      <div className="fixed inset-0 z-20" onClick={()=>setOpen(false)}/>
-      <div className="absolute z-30 mt-2 right-0 w-44 rounded-xl2 border border-line bg-cream shadow-lift p-1.5 anim-scaleIn">
+      <div className="absolute z-[100] mt-2 right-0 w-44 rounded-xl2 border border-line bg-cream shadow-lift p-1.5 anim-scaleIn">
         {LANGS.map(l=><button key={l.code} onClick={()=>{app.setLang(l.code); setOpen(false);}}
           className={cx('w-full flex items-center justify-between rounded-lg px-3 py-2 text-sm hover:bg-sand transition', app.lang===l.code&&'bg-sand')}>
           <span>{l.native}</span>{app.lang===l.code&&<Icon name="check" size={15} className="text-goldd"/>}
@@ -1577,14 +1577,14 @@ function LanguageSwitcher({ compact=false }){
 }
 function RegionSwitcher(){
   const app = useApp(); const [open,setOpen]=useState(false);
+  const wrapRef=useOutsideClose(open,()=>setOpen(false));
   const cur = REGIONS[app.profile.region];
-  return <div className="relative">
+  return <div className="relative" ref={wrapRef}>
     <button onClick={()=>setOpen(o=>!o)} className="btn btn-ghost px-3 py-2 text-xs">
       <span>{cur.flag}</span>{cur.currency}<Icon name="chevron" size={13} className="rotate-90 opacity-60"/>
     </button>
     {open && <>
-      <div className="fixed inset-0 z-20" onClick={()=>setOpen(false)}/>
-      <div className="absolute z-30 mt-2 right-0 w-52 rounded-xl2 border border-line bg-cream shadow-lift p-1.5 anim-scaleIn">
+      <div className="absolute z-[100] mt-2 right-0 w-52 rounded-xl2 border border-line bg-cream shadow-lift p-1.5 anim-scaleIn">
         {Object.entries(REGIONS).map(([k,r])=><button key={k} onClick={()=>{app.setRegion(k); setOpen(false);}}
           className={cx('w-full flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-sand transition', app.profile.region===k&&'bg-sand')}>
           <span>{r.flag}</span><span className="flex-1 text-left">{r.name}</span><span className="text-xs text-faint">{r.currency}</span>
@@ -1593,14 +1593,27 @@ function RegionSwitcher(){
     </>}
   </div>;
 }
+// Close a popover when clicking anywhere outside it.
+function useOutsideClose(open, onClose){
+  const ref=useRef(null); const cb=useRef(onClose); cb.current=onClose;
+  useEffect(()=>{ if(!open) return;
+    const h=(e)=>{ const el=ref.current; if(el && !el.contains(e.target)) cb.current(); };
+    const k=(e)=>{ if(e.key==='Escape') cb.current(); };
+    // capture phase so nothing can swallow the event first
+    document.addEventListener('pointerdown',h,true);
+    document.addEventListener('keydown',k);
+    return ()=>{ document.removeEventListener('pointerdown',h,true); document.removeEventListener('keydown',k); };
+  },[open]);
+  return ref;
+}
 function CurrencySwitcher(){
   const app = useApp(); const [open,setOpen]=useState(false);
+  const wrapRef=useOutsideClose(open,()=>setOpen(false));
   const cur = CURRENCIES[app.profile.currency]||CURRENCIES.AED;
-  return <div className="relative">
+  return <div className="relative" ref={wrapRef}>
     <button onClick={()=>setOpen(o=>!o)} className="btn btn-ghost px-3 py-2 text-xs"><span>{cur.flag}</span>{cur.code}<Icon name="chevron" size={13} className="rotate-90 opacity-60"/></button>
     {open && <>
-      <div className="fixed inset-0 z-20" onClick={()=>setOpen(false)}/>
-      <div className="absolute z-30 mt-2 right-0 w-60 max-h-80 overflow-y-auto no-scrollbar rounded-xl2 border border-line bg-cream shadow-lift p-1.5 anim-scaleIn">
+      <div className="absolute z-[100] mt-2 right-0 w-60 max-h-80 overflow-y-auto no-scrollbar rounded-xl2 border border-line bg-cream shadow-lift p-1.5 anim-scaleIn">
         {Object.values(CURRENCIES).map(c=><button key={c.code} onClick={()=>{app.updateProfile({currency:c.code}); setOpen(false);}}
           className={cx('w-full flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-sand transition', app.profile.currency===c.code&&'bg-sand')}>
           <span className="text-base w-6 text-center">{c.flag}</span><span className="tnum font-semibold w-9 text-left">{c.code}</span><span className="flex-1 text-left text-charcoal/80 truncate">{c.name}</span>{app.profile.currency===c.code&&<Icon name="check" size={15} className="text-goldd"/>}
@@ -1826,6 +1839,7 @@ function GlobalSearch(){
 }
 function ProfileMenu(){
   const app=useApp(); const [open,setOpen]=useState(false); const fileRef=useRef(null);
+  const wrapRef=useOutsideClose(open,()=>setOpen(false));
   const pic=app.profile.avatar;
   const pick=(e)=>{ const f=e.target.files&&e.target.files[0]; if(!f) return;
     if(f.size>1.5*1024*1024){ alert('Please choose an image under 1.5 MB.'); return; }
@@ -1834,13 +1848,12 @@ function ProfileMenu(){
     ['Dashboard','grid','/dashboard'],['My score breakdown','gauge','/analytics'],
     ['Achievements','trophy','/badges'],['Community','user','/community'],['Settings','sliders','/settings'],
   ];
-  return <div className="relative">
+  return <div className="relative" ref={wrapRef}>
     <button onClick={()=>setOpen(o=>!o)} aria-label="Account menu"
       className="grid place-items-center h-10 w-10 rounded-full overflow-hidden bg-gradient-to-br from-gold to-goldd text-cream font-serif">
       {pic? <img src={pic} alt="" className="h-full w-full object-cover"/> : app.profile.name[0]}
     </button>
     {open && <Fragment>
-      <div className="fixed inset-0 z-30" onClick={()=>setOpen(false)}/>
       <div className="absolute right-0 mt-2 w-64 rounded-xl2 border border-line bg-card shadow-2xl z-40 overflow-hidden anim-scaleIn">
         <div className="p-4 border-b border-line flex items-center gap-3">
           <span className="grid place-items-center h-12 w-12 rounded-full overflow-hidden bg-gradient-to-br from-gold to-goldd text-cream font-serif text-xl shrink-0">
@@ -3478,7 +3491,7 @@ function WealthSimulator(){
               <linearGradient id="simG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor={COLORS.gold} stopOpacity=".22"/><stop offset="1" stopColor={COLORS.gold} stopOpacity="0"/></linearGradient>
               <linearGradient id="simS" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#6E8B6A" stopOpacity=".30"/><stop offset="1" stopColor="#6E8B6A" stopOpacity="0"/></linearGradient>
             </defs>
-            {yticks.map((v,i)=><g key={i}><line x1={padL} x2={W-padR} y1={Y(v)} y2={Y(v)} stroke="#EAE3D6"/><text x={padL-8} y={Y(v)+3} textAnchor="end" fontSize="9" fill="#9C9387">{fmt.compact(v)}</text></g>)}
+            {yticks.map((v,i)=><g key={i}><line x1={padL} x2={W-padR} y1={Y(v)} y2={Y(v)} stroke="currentColor" className="text-line"/><text x={padL-8} y={Y(v)+3} textAnchor="end" fontSize="9" fill="#9C9387">{fmt.compact(v)}</text></g>)}
             <path d={ar(base)} fill="url(#simG)"/><path d={ar(proj)} fill="url(#simS)"/>
             <path d={ln(base)} fill="none" stroke={COLORS.gold} strokeWidth="2.4" strokeLinecap="round"/>
             <path d={ln(proj)} fill="none" stroke="#4C6447" strokeWidth="2.8" strokeLinecap="round"/>
@@ -6432,23 +6445,113 @@ function CVLab(){
 
 const SUBJECT_SYSTEMS=['A-Level (UK)','IB Diploma','AP / US High School','GCSE / IGCSE (Year 11)'];
 const SUBJECT_CAREERS=[
-  ['Investment Banking','📈',{'A-Level (UK)':[['Mathematics (A*)','Further Maths or Economics'],['Physics or Chemistry','EPQ on a finance topic']],'IB Diploma':[['Maths AA HL','Economics HL'],['A science or Business HL','English SL/HL']],'AP / US High School':[['AP Calculus BC','AP Economics (Micro + Macro)'],['AP Statistics','Strong GPA + SAT/ACT']],'GCSE / IGCSE (Year 11)':[['Maths (grade 8–9)','Triple Science'],['Economics/Business if offered','Strong English']]},'IB analysts spend their day in Excel and PowerPoint modelling deals. Quantitative rigour is the single biggest signal.'],
-  ['Private Equity','🏛️',{'A-Level (UK)':[['Same as IB (Maths A* essential)','Economics A*']],'IB Diploma':[['Maths AA HL','Economics HL']],'AP / US High School':[['AP Calculus BC','AP Economics']],'GCSE / IGCSE (Year 11)':[['Maths (8–9)','Triple Science']]},'PE is recruited from IB analyst classes, so the prep is identical. Add a finance internship or modelling competition.'],
-  ['Hedge Funds (Quant)','📊',{'A-Level (UK)':[['Mathematics (A*)','Further Maths (A*)'],['Physics or Computer Science (A)','EPQ on probability or ML']],'IB Diploma':[['Maths AA HL (7)','Physics HL'],['Computer Science HL','']],'AP / US High School':[['AP Calculus BC','AP Physics C'],['AP Computer Science A','Olympiad participation']],'GCSE / IGCSE (Year 11)':[['Maths (grade 9)','Triple Science']]},'Quant funds (Jane Street, Citadel, Two Sigma) screen for olympiad-level mathematical aptitude. Top of class only.'],
-  ['Consulting','🧭',{'A-Level (UK)':[['Any strong A-levels','Maths recommended'],['A humanity for essay skills','']],'IB Diploma':[['Balanced HL mix','English HL']],'AP / US High School':[['Broad APs','Strong writing']],'GCSE / IGCSE (Year 11)':[['Broad strong grades','Maths + English 7+']]},'Consulting values structured thinking and communication over pure maths, but keep quantitative options open.'],
+  {name:'Investment Banking', icon:'📈', field:'Finance', hue:'#2563EB',
+    subs:{'A-Level (UK)':['Mathematics (A*)','Further Maths or Economics','Physics or Chemistry','EPQ on a finance topic'],
+      'IB Diploma':['Maths AA HL (6-7)','Economics HL','A science or Business HL','English SL/HL'],
+      'AP / US High School':['AP Calculus BC','AP Micro + Macroeconomics','AP Statistics','Strong GPA plus SAT/ACT'],
+      'GCSE / IGCSE (Year 11)':['Maths grade 8-9','Triple Science','Economics or Business if offered','Strong English']},
+    tip:'Analysts live in Excel and PowerPoint. Quantitative rigour is the single biggest signal.'},
+  {name:'Private Equity', icon:'🏛️', field:'Finance', hue:'#7C3AED',
+    subs:{'A-Level (UK)':['Mathematics (A*)','Economics (A*)','Further Maths helpful'],
+      'IB Diploma':['Maths AA HL','Economics HL','Business Management HL'],
+      'AP / US High School':['AP Calculus BC','AP Economics','AP Statistics'],
+      'GCSE / IGCSE (Year 11)':['Maths grade 8-9','Triple Science','Business if offered']},
+    tip:'Recruited from banking analyst classes, so the prep is identical. Add a modelling competition.'},
+  {name:'Hedge Funds (Quant)', icon:'📊', field:'Finance', hue:'#0D9488',
+    subs:{'A-Level (UK)':['Mathematics (A*)','Further Maths (A*)','Physics or Computer Science','EPQ on probability or ML'],
+      'IB Diploma':['Maths AA HL (7)','Physics HL','Computer Science HL'],
+      'AP / US High School':['AP Calculus BC','AP Physics C','AP Computer Science A','Olympiad participation'],
+      'GCSE / IGCSE (Year 11)':['Maths grade 9','Triple Science','Computer Science']},
+    tip:'Quant funds screen for olympiad-level mathematical aptitude. Top of class only.'},
+  {name:'Consulting', icon:'🧭', field:'Business', hue:'#D97706',
+    subs:{'A-Level (UK)':['Any strong A-levels','Maths recommended','A humanity for essay skills'],
+      'IB Diploma':['Balanced HL mix','English HL','Maths AA or AI HL'],
+      'AP / US High School':['Broad AP mix','AP English','Strong writing portfolio'],
+      'GCSE / IGCSE (Year 11)':['Broad strong grades','Maths and English 7+']},
+    tip:'Values structured thinking and communication over pure maths, but keep quantitative doors open.'},
+  {name:'Accounting & Audit', icon:'🧾', field:'Finance', hue:'#16A34A',
+    subs:{'A-Level (UK)':['Mathematics','Economics or Business','Accounting if offered'],
+      'IB Diploma':['Maths AA or AI HL','Business Management HL','Economics SL'],
+      'AP / US High School':['AP Calculus AB','AP Macroeconomics','AP Statistics'],
+      'GCSE / IGCSE (Year 11)':['Maths grade 7+','Business Studies','English']},
+    tip:'A very accessible route in. Professional qualifications (ACA, ACCA, CIMA) matter more than your school.'},
+  {name:'Economics & Policy', icon:'🏛', field:'Public', hue:'#0EA5E9',
+    subs:{'A-Level (UK)':['Mathematics (essential)','Economics','History or Politics'],
+      'IB Diploma':['Maths AA HL','Economics HL','History HL'],
+      'AP / US High School':['AP Calculus','AP Micro + Macro','AP Statistics'],
+      'GCSE / IGCSE (Year 11)':['Maths grade 8-9','History or Geography','Strong English']},
+    tip:'Top economics degrees require A-level Maths. Do not drop it, even if the course looks essay-based.'},
+  {name:'Software Engineering', icon:'💻', field:'Technology', hue:'#6366F1',
+    subs:{'A-Level (UK)':['Mathematics','Computer Science','Physics or Further Maths'],
+      'IB Diploma':['Maths AA HL','Computer Science HL','Physics SL/HL'],
+      'AP / US High School':['AP Computer Science A','AP Calculus BC','AP Physics'],
+      'GCSE / IGCSE (Year 11)':['Maths grade 8-9','Computer Science','Triple Science']},
+    tip:'Personal projects and a public GitHub often count for more than a specific subject combination.'},
+  {name:'Data Science', icon:'📐', field:'Technology', hue:'#DB2777',
+    subs:{'A-Level (UK)':['Mathematics (A*)','Further Maths','Computer Science or Physics'],
+      'IB Diploma':['Maths AA HL','Computer Science HL','Economics or Physics'],
+      'AP / US High School':['AP Statistics','AP Calculus BC','AP Computer Science A'],
+      'GCSE / IGCSE (Year 11)':['Maths grade 9','Computer Science','Triple Science']},
+    tip:'Statistics is the backbone. If your school offers a stats option, take it.'},
+  {name:'Law', icon:'⚖️', field:'Law', hue:'#DC2626',
+    subs:{'A-Level (UK)':['History or English','Politics or Economics','A third essay subject'],
+      'IB Diploma':['History HL','English HL','Economics or Global Politics'],
+      'AP / US High School':['AP English Language','AP US Government','AP History'],
+      'GCSE / IGCSE (Year 11)':['English grade 8-9','History','Maths grade 7+']},
+    tip:'Law rarely requires Law A-level. Essay subjects that prove argument and evidence matter more.'},
+  {name:'Medicine', icon:'🩺', field:'Healthcare', hue:'#059669',
+    subs:{'A-Level (UK)':['Chemistry (essential)','Biology (essential)','Maths or Physics'],
+      'IB Diploma':['Chemistry HL','Biology HL','Maths AA or AI'],
+      'AP / US High School':['AP Biology','AP Chemistry','AP Calculus'],
+      'GCSE / IGCSE (Year 11)':['Triple Science grade 8-9','Maths grade 8-9','English grade 7+']},
+    tip:'Chemistry plus Biology is non-negotiable at almost every medical school. Check each one early.'},
+  {name:'Engineering', icon:'⚙️', field:'Engineering', hue:'#B45309',
+    subs:{'A-Level (UK)':['Mathematics (essential)','Physics (essential)','Further Maths strongly preferred'],
+      'IB Diploma':['Maths AA HL','Physics HL','Chemistry or Design Technology'],
+      'AP / US High School':['AP Calculus BC','AP Physics C','AP Chemistry'],
+      'GCSE / IGCSE (Year 11)':['Maths grade 8-9','Triple Science','Design Technology']},
+    tip:'Maths and Physics are hard requirements. Further Maths separates offers at the top universities.'},
+  {name:'Marketing & Creative', icon:'🎨', field:'Creative', hue:'#9333EA',
+    subs:{'A-Level (UK)':['English or Media','Business or Economics','Art, Design or Psychology'],
+      'IB Diploma':['English HL','Business Management HL','Visual Arts or Psychology'],
+      'AP / US High School':['AP English','AP Psychology','AP Studio Art'],
+      'GCSE / IGCSE (Year 11)':['English grade 7+','Art or Media','Business Studies']},
+    tip:'Build a portfolio early. Evidence of real campaigns or work beats any subject list.'},
 ];
+const SUBJECT_FIELDS=['All','Finance','Business','Technology','Healthcare','Engineering','Law','Public','Creative'];
 function SubjectSelection(){
   const [sys,setSys]=useState(SUBJECT_SYSTEMS[0]);
+  const [field,setField]=useState('All'); const [q,setQ]=useState('');
+  const shown=SUBJECT_CAREERS.filter(c=>(field==='All'||c.field===field)&&c.name.toLowerCase().includes(q.toLowerCase()));
   return <AppShell>
-    <PageHead eyebrow="Subject selection guide" title="Pick subjects with your future career in mind." desc="Which A-Levels, IB courses, APs and GCSEs each finance career actually values. The fewer surprises later, the better."/>
-    <Card className="mb-4"><div className="flex gap-2 flex-wrap">{SUBJECT_SYSTEMS.map(s=><button key={s} onClick={()=>setSys(s)} className={cx('chip',sys===s&&'on')}>{s}</button>)}</div></Card>
-    <div className="space-y-3">{SUBJECT_CAREERS.map(([name,icon,map,tip])=>{ const rows=map[sys]||[];
-      return <Card key={name}><div className="flex items-start gap-3"><span className="text-2xl shrink-0">{icon}</span>
-        <div className="flex-1"><div className="flex items-baseline gap-2 flex-wrap"><span className="font-serif text-lg text-charcoal">{name}</span><span className="text-[11px] text-faint">{sys}</span></div>
-          <div className="text-[10px] uppercase tracking-wider text-faint mt-2 mb-1.5">Recommended subjects</div>
-          <div className="grid sm:grid-cols-2 gap-x-6 gap-y-1.5">{rows.flat().filter(Boolean).map((s,i)=><div key={i} className="flex items-center gap-2 text-sm text-charcoal/85"><Icon name="check" size={13} style={{color:LEAF_G}}/>{s}</div>)}</div>
-          <div className="mt-3 rounded-xl bg-sand/60 px-3 py-2 text-xs text-muted flex gap-2"><Icon name="spark" size={13} className="mt-0.5 shrink-0 text-goldd"/>{tip}</div>
-        </div></div></Card>; })}</div>
+    <PageHead eyebrow="Subject selection guide" title="Pick subjects with your future career in mind."
+      desc="Which A-Levels, IB courses, APs and GCSEs each career actually values. The fewer surprises later, the better."/>
+    <Card className="mb-4">
+      <div className="text-[10px] uppercase tracking-wider text-faint mb-1.5">Your exam system</div>
+      <div className="flex gap-2 flex-wrap">{SUBJECT_SYSTEMS.map(s=><button key={s} onClick={()=>setSys(s)} className={cx('chip',sys===s&&'on')}>{s}</button>)}</div>
+      <div className="text-[10px] uppercase tracking-wider text-faint mb-1.5 mt-4">Career field</div>
+      <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+        <div className="flex gap-2 flex-wrap flex-1">{SUBJECT_FIELDS.map(f=><button key={f} onClick={()=>setField(f)} className={cx('chip',field===f&&'on')}>{f}</button>)}</div>
+        <div className="relative sm:w-56"><Icon name="search" size={15} className="absolute left-3 top-3 text-faint"/>
+          <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Search a career…" className="w-full rounded-xl border border-line bg-cream pl-9 pr-3 py-2.5 focus:outline-none"/></div>
+      </div>
+    </Card>
+    <div className="grid md:grid-cols-2 gap-4 stagger">{shown.map(c=>{ const list=c.subs[sys]||[];
+      return <Card key={c.name} style={{borderTop:`3px solid ${c.hue}`}}>
+        <div className="flex items-start gap-3">
+          <span className="grid place-items-center h-12 w-12 rounded-xl text-2xl shrink-0" style={{background:c.hue+'1A'}}>{c.icon}</span>
+          <div className="min-w-0"><div className="font-serif text-lg text-charcoal">{c.name}</div>
+            <span className="text-[11px] font-semibold rounded-full px-2 py-0.5" style={{background:c.hue+'18',color:c.hue}}>{c.field}</span></div>
+        </div>
+        <div className="text-[10px] uppercase tracking-wider text-faint mt-4 mb-2">Recommended for {sys}</div>
+        <div className="space-y-1.5">{list.map((s,i)=>
+          <div key={i} className="flex items-center gap-2 text-sm text-charcoal/85">
+            <Icon name="check" size={13} style={{color:c.hue}} className="shrink-0"/>{s}</div>)}</div>
+        <div className="mt-4 rounded-xl px-3 py-2.5 text-xs text-charcoal/80 flex gap-2" style={{background:c.hue+'0F'}}>
+          <Icon name="bulb" size={13} className="mt-0.5 shrink-0" style={{color:c.hue}}/>{c.tip}</div>
+      </Card>; })}
+      {!shown.length && <div className="md:col-span-2 text-center text-sm text-muted py-8">No careers match that search.</div>}
+    </div>
   </AppShell>;
 }
 
@@ -6715,21 +6818,36 @@ function ForgeSideIncome(){
 }
 function ForgeSalary(){
   const app=useApp(); const fmt=app.fmt;
-  const roles=['Software Engineer','Data Analyst','Product Manager','Designer','Marketing','Accountant','Nurse','Teacher','Sales','Operations'];
-  const levels=['Entry','Mid','Senior']; const [role,setRole]=useState(roles[0]),[level,setLevel]=useState('Mid');
+  const ROLE_GROUPS={
+    'Finance':['Investment Banking Analyst','Private Equity Associate','Hedge Fund Analyst','Equity Research Analyst','Sales & Trading Analyst','Asset Management Analyst','Corporate Finance Analyst','Financial Planner','Risk Analyst','Actuary','Accountant','Auditor','Tax Adviser','Commercial Banker','Insurance Underwriter','Compliance Officer','Treasury Analyst','Fintech Product Manager'],
+    'Technology':['Software Engineer','Frontend Engineer','Backend Engineer','Data Scientist','Data Analyst','Data Engineer','Machine Learning Engineer','DevOps Engineer','Cybersecurity Analyst','Cloud Architect','QA Engineer','Mobile Developer','IT Support Specialist','Quantitative Developer'],
+    'Business':['Product Manager','Management Consultant','Strategy Analyst','Business Analyst','Operations Manager','Project Manager','Supply Chain Analyst','Human Resources Manager','Recruiter','Marketing Manager','Digital Marketer','Sales Representative','Account Executive','Customer Success Manager'],
+    'Creative':['Graphic Designer','UX/UI Designer','Product Designer','Content Writer','Copywriter','Video Editor','Social Media Manager','Brand Manager','Architect'],
+    'Healthcare':['Nurse','Doctor (Resident)','Pharmacist','Physiotherapist','Dentist','Radiographer','Healthcare Administrator','Clinical Research Associate'],
+    'Public & Education':['Teacher','Lecturer','Civil Servant','Policy Adviser','Economist','Social Worker','Librarian','Non-profit Programme Manager'],
+    'Law & Property':['Solicitor','Barrister','Paralegal','Legal Counsel','Real Estate Agent','Quantity Surveyor','Property Manager'],
+    'Engineering & Trades':['Mechanical Engineer','Civil Engineer','Electrical Engineer','Chemical Engineer','Electrician','Plumber','Site Manager','Logistics Coordinator'],
+  };
+  const roles=Object.values(ROLE_GROUPS).flat();
+  const levels=['Entry','Mid','Senior']; const [role,setRole]=useState('Investment Banking Analyst'),[level,setLevel]=useState('Mid'); const [rq,setRq]=useState('');
   const base=28000+(hashStr(role)%42000); const mult={Entry:0.8,Mid:1.15,Senior:1.65}[level];
   const mid=Math.round(base*mult/1000)*1000, lo=Math.round(mid*0.82/1000)*1000, hi=Math.round(mid*1.28/1000)*1000;
   return <AppShell>
     <PageHead eyebrow="Forge · Salary benchmarks" title="Know your number before you negotiate." desc="An illustrative benchmark range by role and level. Always cross-check with live sources for your country." />
     <Card className="mb-4"><div className="grid sm:grid-cols-2 gap-4">
-      <div><label className="text-sm text-charcoal/85 mb-1.5 block">Role</label><select value={role} onChange={e=>setRole(e.target.value)} className="w-full rounded-xl border border-line bg-cream px-3 py-2.5 focus:border-gold focus:outline-none">{roles.map(r=><option key={r}>{r}</option>)}</select></div>
+      <div><label className="text-sm text-charcoal/85 mb-1.5 block">Role <span className="text-faint">({roles.length} roles)</span></label>
+        <div className="relative mb-2"><Icon name="search" size={14} className="absolute left-3 top-3 text-faint"/><input value={rq} onChange={e=>setRq(e.target.value)} placeholder="Search a role…" className="w-full rounded-xl border border-line bg-cream pl-9 pr-3 py-2.5 focus:outline-none"/></div>
+        <select value={role} onChange={e=>setRole(e.target.value)} className="w-full rounded-xl border border-line bg-cream px-3 py-2.5 focus:border-gold focus:outline-none">
+          {Object.entries(ROLE_GROUPS).map(([g,list])=>{ const f=list.filter(r=>r.toLowerCase().includes(rq.toLowerCase())); if(!f.length) return null;
+            return <optgroup key={g} label={g}>{f.map(r=><option key={r}>{r}</option>)}</optgroup>; })}
+        </select></div>
       <div><label className="text-sm text-charcoal/85 mb-1.5 block">Level</label><div className="flex gap-2">{levels.map(l=><button key={l} onClick={()=>setLevel(l)} className={cx('chip flex-1', level===l&&'on')}>{l}</button>)}</div></div>
     </div></Card>
     <Card hover={false}><Eyebrow className="mb-3">Benchmark · {role} · {level}</Eyebrow>
       <div className="flex items-end justify-between gap-2"><div className="text-sm text-muted">Low<div className="font-serif text-xl text-charcoal">{fmt.money(lo)}</div></div>
-        <div className="text-center"><div className="text-xs text-faint uppercase tracking-wider">Typical</div><div className="font-serif text-4xl" style={{color:'#EF4444'}}>{fmt.money(mid)}</div></div>
+        <div className="text-center"><div className="text-xs text-faint uppercase tracking-wider">Typical</div><div className="font-serif text-4xl" style={{color:'#B45309'}}>{fmt.money(mid)}</div></div>
         <div className="text-sm text-muted text-right">High<div className="font-serif text-xl text-charcoal">{fmt.money(hi)}</div></div></div>
-      <div className="h-2.5 rounded-full bg-sand mt-4 relative overflow-visible"><div className="absolute h-2.5 rounded-full" style={{left:'12%',right:'12%',background:'#EF4444',opacity:.45}}/><div className="absolute h-5 w-1.5 rounded -top-1.5" style={{left:'calc(50% - 3px)',background:'#EF4444'}}/></div>
+      <div className="h-2.5 rounded-full bg-sand mt-4 relative overflow-visible"><div className="absolute h-2.5 rounded-full" style={{left:'12%',right:'12%',background:'#D97706',opacity:.45}}/><div className="absolute h-5 w-1.5 rounded -top-1.5" style={{left:'calc(50% - 3px)',background:'#B45309'}}/></div>
       <p className="text-xs text-faint mt-4">Illustrative only. Check Glassdoor, Levels.fyi, LinkedIn Salary or your national statistics office for live figures.</p>
       <a href={`https://www.google.com/search?q=${encodeURIComponent(role+' '+level+' salary')}`} target="_blank" rel="noopener noreferrer" className="btn btn-ghost mt-3 text-sm">See live salary data <Icon name="arrowR" size={12} className="-rotate-45"/></a>
     </Card>
