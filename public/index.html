@@ -5283,10 +5283,14 @@ function DailyCheckIn(){
 }
 // What's new appears as a popup on login rather than a page you must go find.
 function WhatsNewPopup(){
+  const app=useApp();
   const items=(()=>{ try{ const u=JSON.parse(localStorage.getItem('lumera_updates')); return (Array.isArray(u)&&u.length)?u:UPDATES_SEED; }catch(e){ return UPDATES_SEED; } })();
   const stamp=items.length?String(items[0].title||'')+String(items[0].date||''):'none';
   const [open,setOpen]=useState(false);
-  useEffect(()=>{ try{ if(localStorage.getItem('lumera_seen_update')!==stamp){ const t=setTimeout(()=>setOpen(true),2600); return ()=>clearTimeout(t);} }catch(e){} },[stamp]);
+  // Wait until the daily check-in is done so the two never stack.
+  const checkedIn = app.profile.lastCheckin===new Date().toISOString().slice(0,10);
+  useEffect(()=>{ if(!checkedIn) return;
+    try{ if(localStorage.getItem('lumera_seen_update')!==stamp){ const t=setTimeout(()=>setOpen(true),700); return ()=>clearTimeout(t);} }catch(e){} },[stamp,checkedIn]);
   const close=()=>{ try{ localStorage.setItem('lumera_seen_update',stamp); }catch(e){} setOpen(false); };
   if(!open||!items.length) return null;
   return <div className="fixed inset-0 z-[160] grid place-items-center p-4">
@@ -7149,8 +7153,9 @@ function App(){
   return <AppCtx.Provider value={value}>
     {mode==='spark' && <XPBurst fire={questBurst}/>}
     <div key={(redirect||path)+'::'+lang} className="anim-fadeIn"><Page/></div>
-    {user && <DailyCheckIn/>}
-    {user && <WhatsNewPopup/>}
+    {/* Both popups belong on the dashboard, not on whatever page you happen to land on. */}
+    {user && !redirect && path==='/dashboard' && <DailyCheckIn/>}
+    {user && !redirect && path==='/dashboard' && <WhatsNewPopup/>}
     {showLogout && <div className="fixed inset-0 z-[150] grid place-items-center p-4">
       <div className="absolute inset-0 bg-charcoal/45" onClick={()=>setShowLogout(false)}/>
       <div className="relative w-full max-w-sm lux-card !p-6 text-center anim-scaleIn">
