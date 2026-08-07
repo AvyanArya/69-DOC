@@ -9,10 +9,12 @@
 <title>Lumera, Your personal financial intelligence system</title>
 <meta name="description" content="Lumera turns one month of financial behaviour into a clear action plan. Benchmark your spending, understand the invisible patterns behind your money, and invest with confidence. Educational guidance, privacy-first." />
 
-<!-- Font: Fraunces, the wordmark face, used across the whole product -->
+<!-- Fonts: Fraunces (the wordmark face) for titles and long-form copy;
+     Inter for small UI text, labels, numbers and controls, where a serif
+     at 11-13px turns mushy. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=Inter:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <!-- Tailwind (Play CDN) -->
 <script src="https://cdn.tailwindcss.com"></script>
@@ -22,8 +24,8 @@
       extend: {
         fontFamily: {
           serif: ['Fraunces', 'Noto Naskh Arabic', 'Georgia', 'serif'],
-          sans: ['Fraunces', 'Noto Naskh Arabic', 'Georgia', 'serif'],
-          mono: ['Fraunces', 'Noto Naskh Arabic', 'Georgia', 'serif'],
+          sans: ['Inter', 'Noto Naskh Arabic', 'system-ui', 'sans-serif'],
+          mono: ['Inter', 'Noto Naskh Arabic', 'system-ui', 'sans-serif'],
         },
         // Colors reference CSS variables (R G B channels) so light/dark is a
         // single variable flip and Tailwind opacity modifiers (e.g. bg-gold/15) still work.
@@ -119,8 +121,9 @@
   *{ -webkit-tap-highlight-color: transparent; }
   html{ scroll-behavior:smooth; }
   body{
-    /* One face across the whole product: the same Fraunces as the wordmark. */
-    font-family:'Fraunces','Noto Naskh Arabic',Georgia,serif; font-optical-sizing:auto;
+    /* UI sans by default. Titles opt into Fraunces via h1-h3 / .font-serif,
+       and long-form sub-copy opts in via .lede. */
+    font-family:'Inter','Noto Naskh Arabic',system-ui,sans-serif;
     color:var(--charcoal); background:var(--ivory);
     -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; margin:0;
     transition:background-color .4s ease, color .4s ease;
@@ -135,6 +138,10 @@
   [data-theme="dark"] .bg-ink{ background-color:#0A0805 !important; }
   /* Light-on-dark text utilities must stay light. */
   [data-theme="dark"] .text-cream{ color:#F3ECDD !important; }
+  [data-theme="dark"] [class*="text-cream/"]{ color:rgba(243,236,221,.74) !important; }
+  [data-theme="dark"] [class*="text-ivory/"]{ color:rgba(243,236,221,.74) !important; }
+  [data-mode="spark"][data-theme="dark"] [class*="text-cream/"],
+  [data-mode="spark"][data-theme="dark"] [class*="text-ivory/"]{ color:rgba(236,237,246,.74) !important; }
   [data-theme="dark"] .text-ivory{ color:#F3ECDD !important; }
   /* Glass panels: darken the translucent white so they read on a dark page. */
   [data-theme="dark"] .glass{ background:rgba(20,17,13,.72) !important; }
@@ -148,8 +155,10 @@
      grey · Forge red). Works in light OR dark (follows the theme toggle).
      btn-gold / gold-text use var(--gold/--goldd) so they retint per product. */
   [data-mode="spark"]{ --c-gold:139 92 246; --c-goldd:124 110 240; --c-golddd:99 102 241; --gold:#8B5CF6; --goldd:#6D4FE6; --glow:139,92,246; }
-  [data-mode="spark"] .btn-gold{ background:linear-gradient(180deg,var(--gold),var(--goldd)); color:#fff; box-shadow:0 6px 22px rgba(var(--glow),.40); }
-  [data-mode="spark"] .btn-gold:hover{ box-shadow:0 12px 34px rgba(var(--glow),.52); }
+  [data-mode="spark"] .btn-gold{ background:linear-gradient(180deg,var(--p1,#8B5CF6),var(--p2,#6D28D9)); color:#fff;
+    box-shadow:0 6px 22px rgba(var(--pshadow,109,40,217),.45); }
+  [data-mode="spark"] .btn-gold:hover{ background:linear-gradient(180deg,var(--p2,#6D28D9),var(--p1,#8B5CF6));
+    box-shadow:0 14px 38px rgba(var(--pshadow,109,40,217),.62); }
   [data-mode="spark"] .gold-text{ background:linear-gradient(100deg,var(--goldd),var(--gold),var(--goldd)); background-size:200% auto; -webkit-background-clip:text; background-clip:text; color:transparent; }
   [data-mode="spark"] input[type=range].lux{ background:linear-gradient(90deg,var(--gold) var(--p,40%), rgba(128,128,150,.22) var(--p,40%)); }
   [data-mode="spark"] input[type=range].lux::-webkit-slider-thumb{ background:radial-gradient(circle at 35% 30%, #fff, var(--gold) 100%); box-shadow:0 3px 10px rgba(var(--glow),.5), 0 0 0 1px rgba(var(--glow),.3); }
@@ -231,11 +240,14 @@
   @keyframes blink{ 0%,90%,100%{ transform:scaleY(1) } 95%{ transform:scaleY(.12) } }
   @keyframes capesway{ 0%,100%{ transform:rotate(-3deg) } 50%{ transform:rotate(3deg) } }
 
-  h1,h2,h3,.serif{ font-family:'Fraunces','Noto Naskh Arabic',Georgia,serif; font-optical-sizing:auto; }
-  /* Small UI text gets a touch more weight and spacing so the serif stays crisp. */
-  body{ font-variation-settings:'SOFT' 0,'WONK' 0; letter-spacing:.002em; }
+  h1,h2,h3,.serif,.font-serif{ font-family:'Fraunces','Noto Naskh Arabic',Georgia,serif; font-optical-sizing:auto;
+    font-variation-settings:'SOFT' 0,'WONK' 0; }
+  /* .lede = the long descriptive paragraph that sits under a heading. It keeps
+     the Fraunces voice, but at a light weight so it never reads as bold. */
+  .lede{ font-family:'Fraunces','Noto Naskh Arabic',Georgia,serif; font-optical-sizing:auto;
+    font-weight:400; letter-spacing:.004em; }
+  h1,h2,h3{ font-weight:600; }
   input,textarea,select,button{ font-family:inherit; }
-  .text-xs,.text-\[11px\],.text-\[10px\]{ letter-spacing:.012em; }
   /* Tabular figures use the body font so numbers never switch to a third family. */
   .tnum{ font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1; }
   ::selection{ background:rgba(191,160,106,.28); color:#1c1813; }
@@ -279,7 +291,9 @@
   @keyframes labDrift{ 0%{transform:translate(0,0)} 50%{transform:translate(14px,-22px)} 100%{transform:translate(0,0)} }
   .lab-drift{ animation:labDrift 12s ease-in-out infinite; }
   @media (prefers-reduced-motion: reduce){
-    .lab-float,.lab-float-2,.lab-float-3,.lab-wave,.lab-bubble,.lab-glow,.lab-drift{ animation:none; }
+    .lab-float,.lab-float-2,.lab-float-3,.lab-wave,.lab-bubble,.lab-glow,.lab-drift,
+    .flame-pulse,.ember-field .ember,.shimmer-bar::after,.nudge,.gold-text,.tick{ animation:none; }
+    .tilt:hover{ transform:none; }
   }
   @keyframes shimmer{ 0%{background-position:-200% 0} 100%{background-position:200% 0} }
   @keyframes skel{ 0%{background-position:-200% 0} 100%{background-position:200% 0} }
@@ -297,6 +311,59 @@
   .anim-slideIn{ animation:slideIn .34s cubic-bezier(.22,1,.36,1) both; }
   .anim-pop{ animation:popIn .5s cubic-bezier(.22,1,.36,1) both; }
   .floaty{ animation:floaty 6s ease-in-out infinite; }
+
+  /* ===== Motion kit =====
+     A small set of named, reusable motions so movement across the product
+     feels like one hand drew it. Every one is disabled under
+     prefers-reduced-motion by the global rule further down. */
+  @keyframes dropIn{ from{opacity:0; transform:translateY(-14px) scale(.97)} to{opacity:1; transform:translateY(0) scale(1)} }
+  .anim-dropIn{ animation:dropIn .45s cubic-bezier(.22,1,.36,1) both; }
+
+  /* Flame that breathes, for the streak card */
+  @keyframes flamePulse{
+    0%,100%{ transform:scale(1) rotate(-2deg); filter:drop-shadow(0 0 10px rgba(249,115,22,.5)) }
+    50%    { transform:scale(1.12) rotate(2deg); filter:drop-shadow(0 0 22px rgba(249,115,22,.85)) } }
+  .flame-pulse{ animation:flamePulse 1.7s ease-in-out infinite; }
+
+  /* Embers drifting up behind the streak header */
+  @keyframes emberRise{
+    0%  { transform:translateY(0) scale(.6); opacity:0 }
+    15% { opacity:.85 }
+    100%{ transform:translateY(-96px) scale(1.15); opacity:0 } }
+  .ember-field{ position:absolute; inset:0; overflow:hidden; pointer-events:none; }
+  .ember-field .ember{ position:absolute; bottom:-8px; width:6px; height:6px; border-radius:50%;
+    background:radial-gradient(circle,#FEF3C7,#F59E0B 60%,transparent 72%);
+    animation:emberRise linear infinite; }
+
+  /* Light travelling along a filled progress bar */
+  @keyframes barShimmer{ 0%{background-position:0% 0} 100%{background-position:220% 0} }
+  .shimmer-bar{ position:relative; overflow:hidden; }
+  .shimmer-bar::after{ content:''; position:absolute; inset:0;
+    background:linear-gradient(100deg,transparent 20%,rgba(255,255,255,.55) 50%,transparent 80%);
+    background-size:220% 100%; animation:barShimmer 2.2s linear infinite; }
+
+  /* Cards that tilt very slightly toward the cursor on hover */
+  .tilt{ transition:transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s ease; transform-style:preserve-3d; }
+  .tilt:hover{ transform:perspective(700px) rotateX(2.2deg) rotateY(-2.2deg) translateY(-4px); }
+
+  /* A soft colour halo that wakes up on hover, used on tool tiles */
+  .halo{ position:relative; }
+  .halo::before{ content:''; position:absolute; inset:-1px; border-radius:inherit; opacity:0;
+    background:radial-gradient(120px 80px at var(--mx,50%) var(--my,0%), rgba(var(--glow,139,92,246),.28), transparent 70%);
+    transition:opacity .35s ease; pointer-events:none; }
+  .halo:hover::before{ opacity:1; }
+
+  /* Numbers that flick over when they change */
+  @keyframes tickUp{ 0%{transform:translateY(45%); opacity:0} 100%{transform:translateY(0); opacity:1} }
+  .tick{ display:inline-block; animation:tickUp .42s cubic-bezier(.22,1,.36,1) both; }
+
+  /* Gentle attention wobble for a single call-to-action */
+  @keyframes nudge{ 0%,88%,100%{transform:translateX(0)} 92%{transform:translateX(-3px)} 96%{transform:translateX(3px)} }
+  .nudge{ animation:nudge 5s ease-in-out infinite; }
+
+  /* Gradient text that slowly drifts, for hero words */
+  @keyframes hueDrift{ 0%{background-position:0% 50%} 100%{background-position:200% 50%} }
+  .gold-text{ animation:hueDrift 9s linear infinite alternate; }
 
   /* Stagger helper */
   .stagger > *{ animation:fadeUp .6s cubic-bezier(.22,1,.36,1) both; }
@@ -412,7 +479,7 @@
   <div id="root" style="position:relative; z-index:1;"></div>
 
 <script type="text/babel" data-presets="react">
-const { useState, useEffect, useRef, useMemo, useCallback, createContext, useContext, Fragment } = React;
+const { useState, useEffect, useRef, useMemo, useCallback, useReducer, createContext, useContext, Fragment } = React;
 
 class ErrorBoundary extends React.Component {
   constructor(p){ super(p); this.state={err:null}; this._onHash=()=>{ if(this.state.err) this.setState({err:null}); }; }
@@ -1455,8 +1522,10 @@ const Card = ({ className='', children, hover=true, style, onClick }) =>
   <div onClick={onClick} style={style} className={cx('lux-card', hover&&'lift', onClick&&'cursor-pointer', 'p-5 sm:p-6', className)}>{children}</div>;
 
 const Eyebrow = ({ children, className='' }) =>
-  <div className={cx('inline-flex items-center gap-2 text-[11px] font-semibold tracking-[.22em] uppercase text-goldd', className)}>
-    <span className="h-px w-6 bg-gold/50"/>{children}</div>;
+  // --goldd lifts almost to white in dark mode; --gold is the saturated brand
+  // colour, which is what this tag should read as.
+  <div className={cx('inline-flex items-center gap-2 text-[11px] font-semibold tracking-[.22em] uppercase text-gold', className)}>
+    <span className="h-px w-6 bg-gold/60"/>{children}</div>;
 
 function Pill({ children, tone='neutral', className='' }){
   const map={ neutral:'bg-sand text-muted', gold:'bg-gold/15 text-goldd', sage:'bg-sage/15 text-saged',
@@ -2079,13 +2148,15 @@ function AppShell({ children }){
 
 /* Page header used across app pages */
 function PageHead({ eyebrow, title, desc, action }){
-  return <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
-    <div className="max-w-2xl">
-      {eyebrow&&<Eyebrow className="mb-2">{eyebrow}</Eyebrow>}
+  // Centred by default so every page opens the same way. An `action` pins to
+  // the right without knocking the heading off centre.
+  return <div className="relative mb-8">
+    <div className="max-w-2xl mx-auto text-center">
+      {eyebrow&&<Eyebrow className="mb-2 justify-center">{eyebrow}</Eyebrow>}
       <h1 className="font-serif text-3xl sm:text-4xl text-charcoal leading-tight">{title}</h1>
-      {desc&&<p className="text-muted mt-2 leading-relaxed">{desc}</p>}
+      {desc&&<p className="lede text-muted mt-3 leading-relaxed">{desc}</p>}
     </div>
-    {action}
+    {action&&<div className="mt-4 flex justify-center sm:mt-0 sm:absolute sm:right-0 sm:bottom-0">{action}</div>}
   </div>;
 }
 
@@ -2161,15 +2232,15 @@ function Landing(){
     <header className="sticky top-0 z-40 glass border-b border-line/70">
       <div className="max-w-[1180px] mx-auto px-4 sm:px-6 h-16 flex items-center gap-4">
         <button onClick={()=>app.nav('/')}><Logo size={20}/></button>
-        <nav className="hidden md:flex items-center gap-1 ml-4 text-sm text-charcoal/75">
+        <nav className="hidden lg:flex items-center gap-0.5 ml-2 text-sm text-charcoal/75">
           {[['Problem','problem'],['Family','family'],['Features','features'],['Markets','market'],['Trust','trust'],['Pricing','pricing']].map(([l,id])=>
-            <button key={id} onClick={()=>goTo(id)} className="px-3 py-2 rounded-lg hover:bg-sand transition">{l}</button>)}
+            <button key={id} onClick={()=>goTo(id)} className="px-2.5 py-2 rounded-lg hover:bg-sand transition whitespace-nowrap">{l}</button>)}
         </nav>
         <div className="flex-1"/>
         <ThemeToggle/>
-        <LanguageSwitcher compact/>
-        <Btn variant="ghost" className="hidden sm:inline-flex" onClick={()=>app.nav('/login')}>{t('cta_open')}</Btn>
-        <Btn variant="primary" onClick={()=>app.nav('/signup')}>{t('cta_start')}</Btn>
+        <span className="hidden sm:inline-flex"><LanguageSwitcher compact/></span>
+        <Btn variant="ghost" className="hidden sm:inline-flex shrink-0" onClick={()=>app.nav('/login')}>{t('Log in')}</Btn>
+        <Btn variant="primary" className="shrink-0 whitespace-nowrap !px-3 !text-xs sm:!px-5 sm:!text-sm" onClick={()=>app.nav('/signup')}>{t('Get started')}</Btn>
       </div>
     </header>
 
@@ -2181,7 +2252,7 @@ function Landing(){
           <h1 className="anim-fadeUp font-serif text-[2.05rem] sm:text-[2.45rem] leading-[1.12] text-charcoal tracking-[-0.01em]" style={{textWrap:'balance'}}>
             {t('hero_h1').split(' ').slice(0,-2).join(' ')} <span className="gold-text">{t('hero_h1').split(' ').slice(-2).join(' ')}</span>
           </h1>
-          <p className="anim-fadeUp text-lg text-muted leading-relaxed mt-5 max-w-xl" style={{animationDelay:'.08s'}}>{t('hero_sub')}</p>
+          <p className="anim-fadeUp lede text-lg text-muted leading-relaxed mt-5 max-w-xl" style={{animationDelay:'.08s'}}>{t('hero_sub')}</p>
           <div className="anim-fadeUp flex flex-wrap gap-3 mt-8" style={{animationDelay:'.16s'}}>
             <Btn variant="gold" iconR="arrowR" onClick={()=>app.nav('/signup')}>{t('cta_start')}</Btn>
             <Btn variant="ghost" icon="gauge" onClick={()=>app.nav('/market')}>{t('cta_market')}</Btn>
@@ -2199,9 +2270,9 @@ function Landing(){
 
     {/* Problem */}
     <section id="problem" className="max-w-[1180px] mx-auto px-4 sm:px-6 py-20">
-      <div className="reveal max-w-2xl"><Eyebrow className="mb-3">{t('sec_problem')}</Eyebrow>
+      <div className="reveal max-w-2xl mx-auto text-center"><Eyebrow className="mb-3 justify-center">{t('sec_problem')}</Eyebrow>
         <h2 className="font-serif text-3xl sm:text-4xl text-charcoal leading-tight">Most people don’t have a money problem. They have a <span className="gold-text">visibility</span> problem.</h2>
-        <p className="text-muted mt-4 leading-relaxed text-lg">You earn, you spend, and the month disappears. Budgeting apps hand you charts but never tell you whether your spending is normal, where the silent leaks are, or what to actually do next. Lumera turns one month of behaviour into a clear, benchmarked, personalised plan.</p>
+        <p className="lede text-muted mt-4 leading-relaxed text-lg">You earn, you spend, and the month disappears. Budgeting apps hand you charts but never tell you whether your spending is normal, where the silent leaks are, or what to actually do next. Lumera turns one month of behaviour into a clear, benchmarked, personalised plan.</p>
       </div>
       <div className="grid sm:grid-cols-3 gap-4 mt-10 stagger">
         {[['eye','Invisible leaks','Small recurring costs quietly cap how fast your wealth grows.'],
@@ -2217,10 +2288,10 @@ function Landing(){
       <div className="max-w-[1180px] mx-auto px-4 sm:px-6 py-20">
         <div className="reveal text-center max-w-2xl mx-auto mb-12"><Eyebrow className="mb-3 justify-center">The Lumera family</Eyebrow>
           <h2 className="font-serif text-3xl sm:text-4xl text-charcoal">Four worlds, one financial life.</h2>
-          <p className="text-muted mt-3 text-lg">Lumera is the hub. Each product below is its own space with its own tools.</p></div>
+          <p className="lede text-muted mt-3 text-lg">Lumera is the hub. Each product below is its own space with its own tools.</p></div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 stagger">
           {SUBS.filter(s=>s.key!=='lumera').map(s=>
-            <div key={s.key} className="reveal rounded-xl3 overflow-hidden lift cursor-pointer" onClick={()=>app.nav('/signup')} style={{border:`1px solid ${s.accent}44`}}>
+            <div key={s.key} className="reveal rounded-xl3 overflow-hidden lift tilt halo cursor-pointer" onClick={()=>app.nav('/signup')} style={{border:`1px solid ${s.accent}44`}}>
               <div className="p-5 text-white" style={{background:HERO_GRAD[s.key]}}>
                 <div className="text-3xl">{s.emoji}</div>
                 <div className="font-serif text-2xl mt-2">{s.name}</div>
@@ -2238,11 +2309,11 @@ function Landing(){
 
     {/* Features */}
     <section id="features" className="max-w-[1180px] mx-auto px-4 sm:px-6 py-20">
-      <div className="reveal max-w-2xl mb-12"><Eyebrow className="mb-3">{t('sec_features')}</Eyebrow>
+      <div className="reveal max-w-2xl mx-auto text-center mb-12"><Eyebrow className="mb-3 justify-center">{t('sec_features')}</Eyebrow>
         <h2 className="font-serif text-3xl sm:text-4xl text-charcoal leading-tight">Everything your money needs, in one calm place.</h2>
-        <p className="text-muted mt-3 text-lg">Not another budgeting tab. A financial operating system that understands the invisible patterns behind your spending.</p></div>
+        <p className="lede text-muted mt-3 text-lg">Not another budgeting tab. A financial operating system that understands the invisible patterns behind your spending.</p></div>
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 stagger">
-        {features.map(f=><Card key={f.title} onClick={()=>app.nav(f.to)} className="reveal sweep-wrap group">
+        {features.map(f=><Card key={f.title} onClick={()=>app.nav(f.to)} className="reveal sweep-wrap group halo tilt">
           <div className="grid place-items-center h-11 w-11 rounded-xl bg-gold/12 text-goldd mb-3 group-hover:scale-110 transition"><Icon name={f.icon}/></div>
           <h3 className="font-serif text-lg text-charcoal">{f.title}</h3><p className="text-muted text-sm mt-1.5 leading-relaxed">{f.desc}</p>
           <div className="mt-3 text-xs font-semibold text-goldd flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">Explore <Icon name="arrowR" size={13}/></div>
@@ -2252,9 +2323,9 @@ function Landing(){
 
     {/* Market intel preview */}
     <section id="market" className="max-w-[1180px] mx-auto px-4 sm:px-6 py-20 grid lg:grid-cols-2 gap-12 items-center">
-        <div className="reveal"><Eyebrow className="mb-3">{t('sec_market')}</Eyebrow>
+        <div className="reveal text-center lg:text-left"><Eyebrow className="mb-3 justify-center lg:justify-start">{t('sec_market')}</Eyebrow>
           <h2 className="font-serif text-3xl sm:text-4xl text-charcoal leading-tight">Serious market intelligence, in plain English.</h2>
-          <p className="text-muted mt-4 leading-relaxed text-lg">Markets without the jargon. Every index, sector and stock comes with a plain-English “why it matters”, so you learn the language of money while you watch it.</p>
+          <p className="lede text-muted mt-4 leading-relaxed text-lg">Markets without the jargon. Every index, sector and stock comes with a plain-English “why it matters”, so you learn the language of money while you watch it.</p>
           <Btn variant="primary" className="mt-7" iconR="arrowR" onClick={()=>app.nav('/market')}>{t('cta_market')}</Btn>
         </div>
         <div className="reveal grid grid-cols-2 gap-3">
@@ -2270,7 +2341,7 @@ function Landing(){
     <section className="max-w-[1180px] mx-auto px-4 sm:px-6 py-20">
       <div className="reveal text-center max-w-xl mx-auto mb-10"><Eyebrow className="mb-3 justify-center">Engagement, refined</Eyebrow>
         <h2 className="font-serif text-3xl sm:text-4xl text-charcoal">Milestones that feel like achievements, not arcade points.</h2>
-        <p className="text-muted mt-3">Prestige badges that mark real financial progress, built on the engagement psychology of the best products, kept serious and premium.</p></div>
+        <p className="lede text-muted mt-3">Prestige badges that mark real financial progress, built on the engagement psychology of the best products, kept serious and premium.</p></div>
       <div className="flex flex-wrap justify-center gap-3 stagger">
         {BADGES.map(b=><div key={b.id} className="reveal lux-card lift px-4 py-3 flex items-center gap-3">
           <span className="grid place-items-center h-10 w-10 rounded-xl bg-gradient-to-br from-gold/20 to-sand text-goldd"><Icon name={b.icon} size={20}/></span>
@@ -2281,9 +2352,9 @@ function Landing(){
     {/* Trust */}
     <section id="trust" className="bg-cream/60 border-y border-line/60">
       <div className="max-w-[1180px] mx-auto px-4 sm:px-6 py-20 grid lg:grid-cols-2 gap-12 items-center">
-        <div className="reveal"><Eyebrow className="mb-3">{t('sec_trust')}</Eyebrow>
+        <div className="reveal text-center lg:text-left"><Eyebrow className="mb-3 justify-center lg:justify-start">{t('sec_trust')}</Eyebrow>
           <h2 className="font-serif text-3xl sm:text-4xl text-charcoal leading-tight">Your data is yours. Full stop.</h2>
-          <p className="text-muted mt-4 leading-relaxed text-lg">Lumera is privacy-first by architecture. We never sell your data. You can export or permanently delete everything at any time. Future bank connections will use secure, revocable consent, never stored credentials.</p>
+          <p className="lede text-muted mt-4 leading-relaxed text-lg">Lumera is privacy-first by architecture. We never sell your data. You can export or permanently delete everything at any time. Future bank connections will use secure, revocable consent, never stored credentials.</p>
           <Btn variant="ghost" className="mt-6" icon="lock" onClick={()=>app.nav('/privacy')}>Read our privacy commitments</Btn>
         </div>
         <div className="reveal grid sm:grid-cols-2 gap-4">
@@ -2948,17 +3019,54 @@ function Mascot({ kind='lumera', color='#8B5CF6', emoji='🦉', size=58 }){
     </svg>
   </span>;
 }
+// '#22C55E' -> '34,197,94', so CSS rgba(var(--glow),a) can take a hex accent.
+function hexToRgbList(hex){ const h=String(hex||'').replace('#',''); if(h.length!==6) return '139,92,246';
+  return [0,2,4].map(i=>parseInt(h.slice(i,i+2),16)).join(','); }
 const GUIDE_CHAT_KEY='lumera_guide_chat';
+
+/* ============================================================
+   Popup sequencer
+   Everything that interrupts you (guide intro, daily streak, word of the day,
+   what's new) used to decide for itself when to appear, so they stacked on top
+   of each other on the same page load. They now queue: at most one is on
+   screen, and they come in a fixed order of importance.
+   ============================================================ */
+const POPUP_ORDER = ['guide','checkin','wotd','whatsnew'];
+const popupQueue = {
+  want:{}, active:null, subs:new Set(),
+  sub(fn){ this.subs.add(fn); return ()=>this.subs.delete(fn); },
+  settle(){
+    const next = POPUP_ORDER.find(k=>this.want[k]) || null;
+    if(next===this.active) return;
+    this.active=next; this.subs.forEach(f=>f());
+  },
+  request(id){ if(this.want[id]) return; this.want[id]=1; this.settle(); },
+  release(id){ if(!this.want[id]) return; delete this.want[id]; this.settle(); },
+};
+// Returns true only when this popup is the one whose turn it is.
+function usePopupSlot(id, wanted){
+  const [,bump]=useReducer(x=>x+1,0);
+  useEffect(()=>popupQueue.sub(bump),[]);
+  useEffect(()=>{
+    if(wanted) popupQueue.request(id); else popupQueue.release(id);
+    return ()=>popupQueue.release(id);
+  },[id,wanted]);
+  return popupQueue.active===id;
+}
 // Tap the hero to chat, themed personality, answered by the in-app assistant engine.
 function Guide(){
   const app=useApp(); const p=app.product||'lumera'; const g=GUIDE[p]||GUIDE.lumera;
   const a=(SUBS.find(s=>s.key===p)||{}).accent||'#8B5CF6'; const sk='lumera_guide_'+p;
   const [showTut,setShowTut]=useState(false); const [ti,setTi]=useState(0);
+  const [intro,setIntro]=useState(false);   // the light "new guide" card
   const [open,setOpen]=useState(false); const [msgs,setMsgs]=useState([]); const [typing,setTyping]=useState(false); const [txt,setTxt]=useState('');
   const scroller=useRef(null);
   // One shared conversation across every world: the character changes, the
   // history does not. Each guide just adds its own greeting when you arrive.
-  useEffect(()=>{ setTi(0); let seen=false; try{ seen=localStorage.getItem(sk); }catch(e){} setShowTut(!seen); setOpen(false);
+  useEffect(()=>{ setTi(0);
+    let seen=false, anyTut=false;
+    try{ seen=localStorage.getItem(sk); anyTut=localStorage.getItem('lumera_guide_tut_done'); }catch(e){}
+    setShowTut(!seen && !anyTut); setIntro(!seen && !!anyTut); setOpen(false);
     let prior=[]; try{ prior=JSON.parse(localStorage.getItem(GUIDE_CHAT_KEY))||[]; }catch(e){}
     const hello={role:'bot',text:`${g.lines[0]} Ask me anything, I’m ${g.name}. 💬`,who:g.name};
     const last=prior[prior.length-1];
@@ -2967,8 +3075,12 @@ function Guide(){
   // Persist the shared thread whenever it changes.
   useEffect(()=>{ if(!msgs.length) return; try{ localStorage.setItem(GUIDE_CHAT_KEY, JSON.stringify(msgs.slice(-60))); }catch(e){} },[msgs]);
   useEffect(()=>{ if(scroller.current) scroller.current.scrollTop=scroller.current.scrollHeight; },[msgs,typing,open]);
+  // The walkthrough goes first in the queue: meet your guide, then claim the
+  // streak, then the word of the day, then what's new.
+  const tutTurn=usePopupSlot('guide', showTut);
   if(app.mode!=='spark') return null;
-  const finishTut=()=>{ setShowTut(false); try{ localStorage.setItem(sk,'1'); }catch(e){} };
+  const finishTut=()=>{ setShowTut(false); setIntro(false);
+    try{ localStorage.setItem(sk,'1'); localStorage.setItem('lumera_guide_tut_done','1'); }catch(e){} };
   const tutNext=()=>{ if(ti<g.lines.length-1) setTi(ti+1); else finishTut(); };
   const close=()=>{ setOpen(false); try{ localStorage.setItem(sk,'1'); }catch(e){} };
   const send=(t)=>{ t=(t||txt).trim(); if(!t) return; setTxt(''); setMsgs(m=>[...m,{role:'me',text:t}]); setTyping(true);
@@ -2977,8 +3089,9 @@ function Guide(){
       setTyping(false); setMsgs(m=>[...m,{role:'bot',text:reply,who:g.name}]); }, 650+Math.random()*500); };
   const chips=['How do I earn XP?','What can I do here?','Give me a money tip'];
   return <>
-    {/* FORCED first-time tutorial, blocks the screen until you walk through it */}
-    {showTut && <div className="fixed inset-0 z-[200] grid place-items-center p-4" style={{background:'rgba(8,8,16,.74)', backdropFilter:'blur(6px)'}}>
+    {/* First-time walkthrough. Shown once, for the first world you enter, and
+        always skippable, so it introduces the app instead of blocking it. */}
+    {tutTurn && <div className="fixed inset-0 z-[200] grid place-items-center p-4" style={{background:'rgba(8,8,16,.74)', backdropFilter:'blur(6px)'}}>
       <div className="lux-card !p-0 w-full max-w-md overflow-hidden anim-scaleIn" style={{borderColor:a+'66'}}>
         <div className="p-6 pb-5 text-center relative overflow-hidden" style={{background:`linear-gradient(160deg, ${a}, ${a}cc)`}}>
           <div className="absolute inset-0 opacity-[.14]" style={{backgroundImage:'radial-gradient(circle, #fff 1.4px, transparent 1.5px)', backgroundSize:'22px 22px'}}/>
@@ -2994,7 +3107,22 @@ function Guide(){
             <div className="flex gap-2">{ti>0&&<button onClick={()=>setTi(ti-1)} className="btn btn-ghost px-3 py-2.5 text-sm">Back</button>}
               <button onClick={tutNext} className="btn btn-gold px-5 py-2.5 text-sm">{ti<g.lines.length-1?'Next →':'Let’s go! 🚀'}</button></div>
           </div>
+          <button onClick={finishTut} className="block mx-auto text-[11px] text-faint mt-4 hover:text-muted">Skip the tour</button>
         </div>
+      </div>
+    </div>}
+
+    {/* Every world after the first: a quiet hand-off, not another walkthrough. */}
+    {intro && <div className="fixed z-[130] left-1/2 -translate-x-1/2 top-4 w-[min(92vw,380px)] anim-dropIn">
+      <div className="lux-card !p-3 flex items-center gap-3 shadow-lift" style={{borderColor:a+'66'}}>
+        <span className="grid place-items-center h-11 w-11 rounded-xl shrink-0 text-xl"
+          style={{background:`linear-gradient(135deg, ${a}, ${a}aa)`}}>{g.emoji}</span>
+        <div className="flex-1 leading-tight">
+          <div className="font-serif text-base text-charcoal">{g.name} is your guide here</div>
+          <div className="text-[11px] text-muted">{g.tip} · your chat history carries over</div>
+        </div>
+        <button onClick={finishTut} className="grid place-items-center h-8 w-8 rounded-lg hover:bg-sand shrink-0"
+          aria-label="Dismiss"><Icon name="x" size={14}/></button>
       </div>
     </div>}
     <div className="fixed z-[120] right-3 sm:right-5 bottom-20 lg:bottom-6 flex flex-col items-end gap-2">
@@ -3086,8 +3214,9 @@ function ProductPage({ k }){
     {tools.length? <>
       <div className="flex items-center justify-between mb-4"><h2 className="font-serif text-2xl text-charcoal">Explore {sub.name}</h2><span className="text-sm text-muted">{tools.length} tools</span></div>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
-        {tools.map(it=><button key={it.to} onClick={()=>app.nav(it.to)} className="group lux-card lift p-5 text-left">
-          <span className="grid place-items-center h-14 w-14 rounded-2xl text-2xl transition-transform duration-300 group-hover:scale-110"
+        {tools.map(it=><button key={it.to} onClick={()=>app.nav(it.to)} className="group lux-card lift tilt halo p-5 text-left"
+          style={{'--glow':hexToRgbList(a)}}>
+          <span className="grid place-items-center h-14 w-14 rounded-2xl text-2xl transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6"
             style={{background:`linear-gradient(135deg, ${a}, ${a}bb)`, color:'#fff', boxShadow:`0 8px 22px ${a}55`}}>{TOOL_EMOJI[it.to]||'•'}</span>
           <span className="block font-serif text-lg text-charcoal mt-3">{t(it.k)}</span>
           <span className="block text-sm text-muted leading-snug mt-0.5">{SUB_TOOL_DESC[it.to]||''}</span>
@@ -5514,32 +5643,108 @@ const UPDATES_SEED=[
   {date:'Next', tag:'Coming', title:'Live market data & headlines', body:'Real-time prices and news via a market-data provider (see the integration guide).'},
 ];
 // Claim your streak the moment you open Lumera, instead of hunting for it.
+// Streak milestones: the next one is what the card counts down to.
+const STREAK_TIERS = [
+  { at:3,   label:'Spark',     emoji:'✨', xp:25  },
+  { at:7,   label:'Kindling',  emoji:'🔥', xp:50  },
+  { at:14,  label:'Blaze',     emoji:'☄️', xp:100 },
+  { at:30,  label:'Wildfire',  emoji:'🌋', xp:250 },
+  { at:60,  label:'Inferno',   emoji:'⚡', xp:500 },
+  { at:100, label:'Supernova', emoji:'🌟', xp:1000 },
+];
+const nextTier = (n)=> STREAK_TIERS.find(t=>t.at>n) || STREAK_TIERS[STREAK_TIERS.length-1];
 function DailyCheckIn(){
   const app=useApp();
   const today=new Date().toISOString().slice(0,10);
   const already=app.profile.lastCheckin===today;
-  const [open,setOpen]=useState(false),[claimed,setClaimed]=useState(false);
-  useEffect(()=>{ if(already) return; const t=setTimeout(()=>setOpen(true),900); return ()=>clearTimeout(t); },[already]);
-  if(!open) return null;
-  const streak=app.profile.streak||0; const nextStreak=claimed?streak:streak+1;
-  const week=Array.from({length:7},(_,i)=>i<(claimed?streak:streak)%7||((claimed?streak:streak)>0&&(claimed?streak:streak)%7===0));
+  const [claimed,setClaimed]=useState(false);
+  const [dismissed,setDismissed]=useState(false);
+  // Wants the screen until you have either claimed and closed it, or skipped.
+  const myTurn=usePopupSlot('checkin', !already && !dismissed);
+  if(!myTurn) return null;
+
+  const streak=app.profile.streak||0;
+  const shown=claimed?streak:streak+1;          // what the card is counting to
+  const best=Math.max(app.profile.streakBest||0, shown);
+  const tier=nextTier(claimed?streak:streak);
+  const toGo=Math.max(0,tier.at-shown);
+  const pct=Math.min(100, Math.round(shown/tier.at*100));
+  // The last seven days, with today as the final cell.
+  const days=Array.from({length:7},(_,i)=>{
+    const back=6-i;
+    const d=new Date(); d.setDate(d.getDate()-back);
+    return { key:d.toISOString().slice(0,10), letter:'SMTWTFS'[d.getDay()],
+             done: back===0 ? claimed : back < streak, isToday: back===0 };
+  });
   const claim=()=>{ app.checkIn(); if(app.awardXp) app.awardXp(10); setClaimed(true); };
+
   return <div className="fixed inset-0 z-[170] grid place-items-center p-4">
-    <div className="absolute inset-0" style={{background:'rgba(8,8,16,.7)',backdropFilter:'blur(6px)'}} onClick={()=>claimed&&setOpen(false)}/>
-    <div className="relative w-full max-w-sm lux-card !p-7 text-center anim-scaleIn">
-      <div className="text-5xl mb-2">{claimed?'🎉':'🔥'}</div>
-      <h3 className="font-serif text-2xl text-charcoal">{claimed?'Streak claimed!':'Welcome back'}</h3>
-      <p className="text-sm text-muted mt-1">{claimed?`You’re on a ${nextStreak}-day streak. Same time tomorrow.`:'Claim today’s check-in to keep your streak alive.'}</p>
-      <div className="flex justify-center gap-1.5 my-5">{week.map((on,i)=>
-        <span key={i} className="grid place-items-center h-8 w-8 rounded-lg text-xs font-bold"
-          style={on?{background:'linear-gradient(135deg,#F59E0B,#EF4444)',color:'#fff'}:{background:'rgb(var(--c-sand))',color:'rgb(var(--c-faint))'}}>{i+1}</span>)}</div>
-      <div className="rounded-xl2 bg-gold/8 border border-gold/20 px-4 py-3 mb-4">
-        <div className="font-serif text-3xl" style={{color:'#D4A24E'}}>{nextStreak}<span className="text-base text-muted"> day{nextStreak===1?'':'s'}</span></div>
-        <div className="text-[11px] text-faint">Best: {Math.max(app.profile.streakBest||0,nextStreak)} days</div></div>
-      {claimed
-        ? <button onClick={()=>setOpen(false)} className="btn btn-primary w-full py-2.5 text-sm">Let’s go <Icon name="arrowR" size={14}/></button>
-        : <button onClick={claim} className="btn btn-gold w-full py-3 text-sm">Claim check-in, +10 XP</button>}
-      {!claimed && <button onClick={()=>setOpen(false)} className="text-xs text-faint mt-3 hover:text-muted">Maybe later</button>}
+    <div className="absolute inset-0" style={{background:'rgba(8,8,16,.72)',backdropFilter:'blur(8px)'}}
+      onClick={()=>claimed&&setDismissed(true)}/>
+    <div className="relative w-full max-w-md lux-card !p-0 overflow-hidden anim-scaleIn">
+      {/* Ember header: the flame reacts to whether today is claimed yet */}
+      <div className="relative px-7 pt-7 pb-6 text-center overflow-hidden"
+        style={{background:'linear-gradient(160deg,#F59E0B,#EF4444 62%,#B91C1C)'}}>
+        <div className="ember-field" aria-hidden="true">
+          {Array.from({length:9},(_,i)=><span key={i} className="ember" style={{left:(6+i*10.5)+'%',
+            animationDelay:(i*0.42)+'s', animationDuration:(3.4+(i%4)*0.7)+'s'}}/>)}
+        </div>
+        <div className="relative">
+          <div className={cx('text-6xl inline-block', claimed?'anim-pop':'flame-pulse')}>{claimed?'🎉':'🔥'}</div>
+          <div className="font-serif text-4xl text-white mt-1 tnum">
+            {shown}<span className="text-lg font-sans opacity-85"> day{shown===1?'':'s'}</span></div>
+          <div className="text-[11px] uppercase tracking-[.22em] text-white/85 mt-1">
+            {claimed?'Streak secured':'Streak on the line'}</div>
+        </div>
+      </div>
+
+      <div className="p-6">
+        {/* Seven-day ribbon, today highlighted */}
+        <div className="flex justify-between gap-1.5">{days.map(d=>
+          <div key={d.key} className="flex-1 text-center">
+            <div className={cx('grid place-items-center h-10 rounded-xl text-sm transition-all duration-500',
+              d.isToday&&!d.done&&'ring-2 ring-gold/60 animate-pulse')}
+              style={d.done
+                ? {background:'linear-gradient(135deg,#F59E0B,#EF4444)',color:'#fff',boxShadow:'0 4px 14px rgba(239,68,68,.35)'}
+                : {background:'rgb(var(--c-sand))',color:'rgb(var(--c-faint))'}}>
+              {d.done?'🔥':'·'}</div>
+            <div className="text-[10px] text-faint mt-1">{d.letter}</div>
+          </div>)}
+        </div>
+
+        {/* Progress to the next milestone */}
+        <div className="mt-5 rounded-xl2 border border-line p-4">
+          <div className="flex items-center gap-2">
+            <span className="text-xl">{tier.emoji}</span>
+            <div className="flex-1 leading-tight">
+              <div className="text-sm font-semibold text-charcoal">{tier.label} at {tier.at} days</div>
+              <div className="text-[11px] text-faint">{toGo===0?'Unlocked today':`${toGo} more day${toGo===1?'':'s'} · +${tier.xp} XP`}</div>
+            </div>
+            <div className="tnum text-sm font-semibold text-gold">{pct}%</div>
+          </div>
+          <div className="h-2 rounded-full bg-sand mt-3 overflow-hidden">
+            <div className="h-full rounded-full transition-all duration-[1200ms] shimmer-bar"
+              style={{width:pct+'%', background:'linear-gradient(90deg,#F59E0B,#EF4444)'}}/>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 mt-3">
+          <div className="rounded-xl2 bg-sand/60 px-3 py-2.5 text-center">
+            <div className="tnum font-serif text-xl text-charcoal">{best}</div>
+            <div className="text-[10px] uppercase tracking-wider text-faint">Best streak</div></div>
+          <div className="rounded-xl2 bg-sand/60 px-3 py-2.5 text-center">
+            <div className="tnum font-serif text-xl text-charcoal">{app.profile.checkins||streak}</div>
+            <div className="text-[10px] uppercase tracking-wider text-faint">Total check-ins</div></div>
+        </div>
+
+        {claimed
+          ? <button onClick={()=>setDismissed(true)} className="btn btn-primary w-full mt-4 py-2.5 text-sm">
+              Let’s go <Icon name="arrowR" size={14}/></button>
+          : <button onClick={claim} className="btn btn-gold w-full mt-4 py-3 text-sm">
+              Claim today’s check-in · +10 XP</button>}
+        {!claimed && <button onClick={()=>setDismissed(true)}
+          className="block mx-auto text-xs text-faint mt-3 hover:text-muted">Maybe later</button>}
+      </div>
     </div></div>;
 }
 // What's new appears as a popup on login rather than a page you must go find.
@@ -5548,12 +5753,12 @@ function WhatsNewPopup(){
   const items=(()=>{ try{ const u=JSON.parse(localStorage.getItem('lumera_updates')); return (Array.isArray(u)&&u.length)?u:UPDATES_SEED; }catch(e){ return UPDATES_SEED; } })();
   const stamp=items.length?String(items[0].title||'')+String(items[0].date||''):'none';
   const [open,setOpen]=useState(false);
-  // Wait until the daily check-in is done so the two never stack.
-  const checkedIn = app.profile.lastCheckin===new Date().toISOString().slice(0,10);
-  useEffect(()=>{ if(!checkedIn) return;
-    try{ if(localStorage.getItem('lumera_seen_update')!==stamp){ const t=setTimeout(()=>setOpen(true),700); return ()=>clearTimeout(t);} }catch(e){} },[stamp,checkedIn]);
+  useEffect(()=>{
+    try{ if(localStorage.getItem('lumera_seen_update')!==stamp) setOpen(true); }catch(e){} },[stamp]);
+  // Last in the queue: news can always wait until the streak is safe.
+  const myTurn=usePopupSlot('whatsnew', open && items.length>0);
   const close=()=>{ try{ localStorage.setItem('lumera_seen_update',stamp); }catch(e){} setOpen(false); };
-  if(!open||!items.length) return null;
+  if(!myTurn) return null;
   return <div className="fixed inset-0 z-[160] grid place-items-center p-4">
     <div className="absolute inset-0 bg-charcoal/50" onClick={close}/>
     <div className="relative w-full max-w-lg lux-card !p-6 anim-scaleIn max-h-[80vh] overflow-y-auto">
@@ -6299,8 +6504,10 @@ function WordOfDayPopup(){
     try{ if(localStorage.getItem('lumera_wotd_day')===today) return; }catch(e){}
     const q=dueWords(loadSrs()).slice(0,3);
     if(!q.length) return;
-    setQueue(q); const t=setTimeout(()=>setOpen(true),700); return ()=>clearTimeout(t);
+    setQueue(q); setOpen(true);
   },[today]);
+  // Take a turn in the queue rather than appearing on top of the streak card.
+  const myTurn=usePopupSlot('wotd', open);
   const w=queue[i];
   // One correct definition plus three decoys.
   const options=useMemo(()=>{ if(!w) return [];
@@ -6315,7 +6522,7 @@ function WordOfDayPopup(){
       if(app.awardXp) app.awardXp(15,true);
     } else { setI(i+1); setPick(null); } };
   const close=()=>{ try{ localStorage.setItem('lumera_wotd_day',today); }catch(e){} setOpen(false); };
-  if(!open||!w) return null;
+  if(!myTurn||!w) return null;
   const wrongOnes=queue.slice(0,i+1).filter(x=>(srs[x[0]]||{}).box===1);
   return <div className="fixed inset-0 z-[175] grid place-items-center p-4">
     <div className="absolute inset-0" style={{background:'rgba(6,20,12,.72)',backdropFilter:'blur(6px)'}} onClick={()=>done&&close()}/>
