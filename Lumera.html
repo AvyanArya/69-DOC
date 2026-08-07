@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
 <meta name="theme-color" content="#F6F2EB" />
 <meta http-equiv="Content-Security-Policy" content="default-src 'self' blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://open.er-api.com https://api.mymemory.translated.net https://translate.googleapis.com; img-src 'self' data: blob: https:;" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 104 92'%3E%3ClinearGradient id='g' x1='0' y1='1' x2='1' y2='0'%3E%3Cstop offset='0%25' stop-color='%23E7C87A'/%3E%3Cstop offset='50%25' stop-color='%238B5CF6'/%3E%3Cstop offset='100%25' stop-color='%23F0D289'/%3E%3C/linearGradient%3E%3Cpath d='M6 70 C16 44, 34 34, 50 48 C66 62, 80 66, 92 26' fill='none' stroke='url(%23g)' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M97 4 L100 18 L104 20 L100 22 L97 36 L94 22 L90 20 L94 18 Z' fill='%23F0D289'/%3E%3C/svg%3E"/>
 <title>Lumera, Your personal financial intelligence system</title>
 <meta name="description" content="Lumera turns one month of financial behaviour into a clear action plan. Benchmark your spending, understand the invisible patterns behind your money, and invest with confidence. Educational guidance, privacy-first." />
 
@@ -386,6 +387,24 @@
 </head>
 <body class="grain">
   <div id="loader">
+    <svg width="86" height="76" viewBox="0 0 104 92" aria-hidden="true" style="margin-bottom:2px">
+      <defs>
+        <linearGradient id="ldg" x1="0" y1="1" x2="1" y2="0">
+          <stop offset="0%" stop-color="#E7C87A"/><stop offset="22%" stop-color="#C9A0E8"/>
+          <stop offset="50%" stop-color="#8B5CF6"/><stop offset="78%" stop-color="#C9A0E8"/>
+          <stop offset="100%" stop-color="#F0D289"/></linearGradient>
+        <linearGradient id="lds" x1="0" y1="1" x2="1" y2="0">
+          <stop offset="0%" stop-color="#F5DFA0"/><stop offset="100%" stop-color="#D9B45F"/></linearGradient>
+      </defs>
+      <g fill="none" stroke="url(#ldg)" stroke-linecap="round">
+        <path d="M6 70 C16 44, 34 34, 50 48 C66 62, 80 66, 92 26" stroke-width="1.5"/>
+        <path d="M5 71 C15 46, 34 38, 50 52 C66 66, 80 68, 92.5 30" stroke-width="1.4" opacity=".93"/>
+        <path d="M4 72 C14 48, 34 42, 50 56 C66 70, 80 70, 93 34" stroke-width="1.3" opacity=".86"/>
+        <path d="M3 73 C13 50, 34 46, 50 60 C66 74, 80 72, 93.5 38" stroke-width="1.2" opacity=".79"/>
+        <path d="M2 74 C12 52, 34 50, 50 64 C66 78, 80 74, 94 42" stroke-width="1.1" opacity=".72"/>
+      </g>
+      <path d="M97 4 L99.4 17.6 L104 20 L99.4 22.4 L97 36 L94.6 22.4 L90 20 L94.6 17.6 Z" fill="url(#lds)"/>
+    </svg>
     <div class="mark">L U M E R A</div>
     <div class="bar"><i></i></div>
     <small>Preparing your financial intelligence</small>
@@ -1367,21 +1386,65 @@ function Icon({ name, size=20, sw=1.7, className='', style }){
 }
 
 /* ---- Brand ---- */
-function Logo({ size=22, light=false, sub=false }){
+/* Brand mark, drawn as inline SVG so it stays sharp at any size, themes
+   correctly and costs no extra request.
+   Ten stacked strands sweep in an S-curve, gold at the tails and violet through
+   the middle, rising into a four-point star. */
+const LUMERA_STRANDS = 10;
+function LumeraMark({ size=40, glow=true, idSuffix='' }){
+  const uid='lm'+idSuffix+size;
+  const GAP=2.3;
+  // Ten evenly spaced strands sweeping an S-curve: gold tails, violet body,
+  // converging into a four-point star at the crest.
+  const strands=Array.from({length:LUMERA_STRANDS},(_,i)=>{
+    const o=i*GAP, fanS=i*1.1, fanE=i*0.9;
+    return `M ${9+fanS*0.8} ${57+o+fanS*0.7}
+            C ${19} ${34+o*0.75}, ${34} ${29+o}, ${50} ${43+o}
+            C ${66} ${57+o}, ${75} ${55+o*0.9}, ${88+fanE*0.35} ${20+o*0.55+fanE}`;
+  });
+  return <svg width={size} height={size*0.88} viewBox="0 0 104 92" aria-hidden="true"
+    style={glow?{filter:'drop-shadow(0 2px 10px rgba(139,92,246,.32))'}:undefined}>
+    <defs>
+      <linearGradient id={uid+'g'} x1="0.05" y1="1" x2="0.95" y2="0">
+        <stop offset="0%"   stopColor="#EFCF86"/>
+        <stop offset="16%"  stopColor="#CBA3EA"/>
+        <stop offset="46%"  stopColor="#8B5CF6"/>
+        <stop offset="78%"  stopColor="#CBA3EA"/>
+        <stop offset="100%" stopColor="#F3D68F"/>
+      </linearGradient>
+      <linearGradient id={uid+'s'} x1="0" y1="1" x2="1" y2="0">
+        <stop offset="0%" stopColor="#F7E3A8"/><stop offset="100%" stopColor="#DCB863"/>
+      </linearGradient>
+    </defs>
+    <g fill="none" stroke={`url(#${uid}g)`} strokeLinecap="round">
+      {strands.map((d,i)=><path key={i} d={d} strokeWidth="0.85" opacity={0.95-i*0.03}/>)}
+    </g>
+    <path d="M93 6 L94.4 15.4 L102 18.5 L94.4 21.6 L93 31 L91.6 21.6 L84 18.5 L91.6 15.4 Z" fill={`url(#${uid}s)`}/>
+  </svg>;
+}
+function Logo({ size=22, light=false, sub=false, stacked=false, tagline=false }){
+  const mark=<LumeraMark size={size+16} idSuffix={light?'l':'d'}/>;
+  const word=<div className={cx('font-serif', light?'text-cream':'text-charcoal')}
+    style={{fontSize:size*0.86, letterSpacing:'.22em', lineHeight:1}}>LUMERA</div>;
+  if(stacked) return (
+    <div className="flex flex-col items-center select-none">
+      {mark}
+      <div className="mt-1">{word}</div>
+      {(sub||tagline) && <div className="flex items-center gap-2 mt-2 w-full">
+        <span className="h-px flex-1" style={{background:'linear-gradient(90deg,transparent,#C9A45F)'}}/>
+        <svg width="9" height="9" viewBox="0 0 10 10" aria-hidden="true"><path d="M5 0 L6 4 L10 5 L6 6 L5 10 L4 6 L0 5 L4 4 Z" fill="#D9B45F"/></svg>
+        <span className="h-px flex-1" style={{background:'linear-gradient(270deg,transparent,#C9A45F)'}}/>
+      </div>}
+      {(sub||tagline) && <div className={cx('text-[9px] tracking-[.3em] uppercase mt-1.5 text-center', light?'text-cream/70':'text-faint')}>
+        All financial intelligence. One place.</div>}
+    </div>
+  );
   return (
-    <div className="flex items-center gap-2.5 select-none">
-      <span className="relative inline-flex items-center justify-center" style={{width:size+10,height:size+10}}>
-        <svg width={size+10} height={size+10} viewBox="0 0 40 40" aria-hidden="true">
-          <defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stopColor="#caa971"/><stop offset="1" stopColor="#9E7E45"/></linearGradient></defs>
-          <circle cx="20" cy="20" r="18" fill="none" stroke="url(#lg)" strokeWidth="2"/>
-          <path d="M14 12v16h12" fill="none" stroke="url(#lg)" strokeWidth="2.4" strokeLinecap="round"/>
-          <circle cx="26" cy="14" r="2.6" fill="url(#lg)"/>
-        </svg>
-      </span>
+    <div className="flex items-center gap-2 select-none">
+      <span className="inline-flex items-center justify-center shrink-0">{mark}</span>
       <div className="leading-none">
-        <div className={cx('font-serif tracking-[.16em]', light?'text-cream':'text-charcoal')} style={{fontSize:size*0.82}}>LUMERA</div>
-        {sub && <div className="text-[9px] tracking-[.34em] uppercase mt-1 text-faint">Financial Intelligence</div>}
+        {word}
+        {sub && <div className={cx('text-[8.5px] tracking-[.28em] uppercase mt-1', light?'text-cream/70':'text-faint')}>All financial intelligence. One place.</div>}
       </div>
     </div>
   );
@@ -1770,21 +1833,31 @@ function Sidebar(){
         const core=lumeraSub.routes.filter(r=>isFeatured(r,band)&&flagForRoute(app.flags,r)).map(r=>NAV_BY_ROUTE[r]).filter(Boolean);
         const products=SUBS.filter(s=>s.key!=='lumera');
         return <>
-          <button onClick={()=>app.nav('/hub')} className={cx('w-full flex items-center gap-3 rounded-xl px-3 py-2.5 mb-3 text-sm transition-all duration-300', route==='/hub'?'bg-charcoal text-cream shadow-soft':'text-charcoal/80 hover:bg-sand')}>
-            <Icon name="grid" size={18} className={route==='/hub'?'text-gold':'text-muted'}/>All products</button>
           <div className="mb-4">
             <div className="px-3 mb-1.5 text-[10px] tracking-[.22em] uppercase text-faint">Lumera</div>
             {core.map(navBtn)}
           </div>
           <div className="mb-4">
-            <div className="px-3 mb-1.5 text-[10px] tracking-[.22em] uppercase text-faint">The Lumera family</div>
+            <div className="px-3 mb-2 text-[10px] tracking-[.22em] uppercase text-faint">The Lumera family</div>
+            {/* Each product leads with its own colour rather than a faint accent. */}
             {products.map(s=>{
+              const active = app.product===s.key;
               return <button key={s.key} onClick={()=>s.live&&openProduct(app,s.key)} disabled={!s.live}
-                className={cx('w-full flex items-center gap-3 rounded-xl px-3 py-2.5 mb-0.5 text-sm transition-all duration-300',
-                  'text-charcoal/80 hover:bg-sand', !s.live&&'opacity-50 cursor-default')} title={s.live?('Open '+s.name+' (new tab)'):''}>
-                <span className="w-[18px] text-center text-base">{s.emoji}</span>
-                <span className="flex-1 text-left leading-tight">{s.name}<span className="block text-[10px]" style={{color:s.accent}}>{s.tag}</span></span>
-                {s.live? <Icon name="arrowR" size={13} className="text-faint -rotate-45"/> : <span className="text-[9px] text-faint uppercase tracking-wider">soon</span>}</button>; })}
+                className={cx('w-full flex items-center gap-3 rounded-xl px-3 py-2.5 mb-1.5 text-sm transition-all duration-300 border',
+                  !s.live&&'opacity-50 cursor-default', s.live&&'hover:-translate-y-0.5')}
+                style={active
+                  ? {background:HERO_GRAD[s.key], color:'#fff', borderColor:'transparent', boxShadow:`0 8px 20px ${s.accent}55`}
+                  : {background:s.accent+'14', borderColor:s.accent+'44', color:'rgb(var(--c-charcoal))'}}
+                title={s.live?('Open '+s.name):''}>
+                <span className="grid place-items-center h-8 w-8 rounded-lg text-base shrink-0"
+                  style={active?{background:'rgba(255,255,255,.22)'}:{background:s.accent+'22'}}>{s.emoji}</span>
+                <span className="flex-1 text-left leading-tight">
+                  <span className="block font-semibold">{s.name}</span>
+                  <span className="block text-[10px]" style={{color:active?'rgba(255,255,255,.85)':s.accent}}>{s.tag}</span></span>
+                {s.live
+                  ? <Icon name="arrowR" size={14} style={{color:active?'#fff':s.accent}}/>
+                  : <span className="text-[9px] text-faint uppercase tracking-wider">soon</span>}
+              </button>; })}
           </div>
         </>;
       })()}
@@ -2809,23 +2882,23 @@ const GUIDE = {
     'Up top is your Level, XP bar and daily quests. Complete quests to level up!',
     'Below are your money tools, tap any card to dive in.',
     'On the left is the Lumera family: Leaf, Atlas, Shield & Forge. Each is its own world. Let’s grow! 🌱'] },
-  leaf:{ name:'Lumi', tip:'your learning buddy', emoji:'🦉', lines:[
-    'Hey! I’m Lumi, welcome to Leaf, where money finally makes sense.',
+  leaf:{ name:'Sprout', tip:'your learning buddy', emoji:'🌱', lines:[
+    'Hey! I’m Sprout 🌱, welcome to Leaf, where money finally makes sense.',
     'Explore the tools below in any order, there is no fixed sequence.',
     'Smash the Daily Challenge for bonus XP every single day.',
     'Keep your streak alive and you’ll be a money pro in no time! 🍃'] },
-  atlas:{ name:'Lumi', tip:'your markets co-pilot', emoji:'🦉', lines:[
-    'I’m Lumi, welcome to Atlas, your window on the markets.',
+  atlas:{ name:'Nova', tip:'your markets co-pilot', emoji:'🛰️', lines:[
+    'I’m Nova 🛰️, welcome to Atlas, your window on the markets.',
     'Investing, live-style markets and world news, all in one place.',
     'New to investing? Start at step 1 and work your way down.',
     'Do the Daily Challenge to sharpen your market eye. 📈'] },
-  shield:{ name:'Lumi', tip:'your protection guide', emoji:'🦉', lines:[
-    'I’m Lumi, welcome to Shield, where you protect what matters.',
+  shield:{ name:'Sentinel', tip:'your protection guide', emoji:'🛡️', lines:[
+    'I’m Sentinel 🛡️, welcome to Shield, where you protect what matters.',
     'Build credit, plan ahead and clear debt, in whatever order suits you.',
     'Every node you finish strengthens your financial defences.',
     'Complete challenges to level up your protection. ⚔️'] },
-  forge:{ name:'Lumi', tip:'your income coach', emoji:'🦉', lines:[
-    'I’m Lumi, welcome to Forge, where you build your career and income.',
+  forge:{ name:'Blaze', tip:'your income coach', emoji:'🔥', lines:[
+    'I’m Blaze 🔥, welcome to Forge, where you build your career and income.',
     'Explore finance careers, top firms and universities, then plan the subjects and skills to get there.',
     'Polish your CV in the Lab, hunt down opportunities, and check what roles really pay.',
     'Do the Daily Challenge and let’s turn up the heat on your future! ⚡'] },
@@ -2833,13 +2906,30 @@ const GUIDE = {
 // Individualised caped-superhero SVG, each product has a distinct head/silhouette.
 function Mascot({ kind='lumera', color='#8B5CF6', emoji='🦉', size=58 }){
   const gid='mg'+color.replace('#','');
-  // One character everywhere: Lumi the owl. Only the colour changes per world,
-  // so the assistant stays a single recognisable identity.
-  const owlTufts = <g><path d="M20 14 L23 -10 L35 12 Z" fill={`url(#${gid})`}/><path d="M52 14 L49 -10 L37 12 Z" fill={`url(#${gid})`}/>
-      <path d="M23 -10 L25 -2 L29 4 Z" fill="#fff" opacity=".25"/><path d="M49 -10 L47 -2 L43 4 Z" fill="#fff" opacity=".25"/></g>;
-  const TOP = { lumera:owlTufts, leaf:owlTufts, atlas:owlTufts, shield:owlTufts, forge:owlTufts };
-  // Lumi keeps the same face in every world.
-  const face = <g><path d="M17 28 Q36 19 55 28 L55 35 Q36 28 17 35 Z" fill="#0b0b16" opacity=".82"/>
+  // Four distinct characters, one per world: Lumi the owl, Sprout the seedling,
+  // Nova the satellite, Sentinel the knight and Blaze the flame.
+  const TOP = {
+    lumera: <g><path d="M20 14 L23 -10 L35 12 Z" fill={`url(#${gid})`}/><path d="M52 14 L49 -10 L37 12 Z" fill={`url(#${gid})`}/>
+      <path d="M23 -10 L25 -2 L29 4 Z" fill="#fff" opacity=".25"/><path d="M49 -10 L47 -2 L43 4 Z" fill="#fff" opacity=".25"/></g>,
+    leaf:   <g><line x1="36" y1="14" x2="36" y2="-8" stroke="#0E7A37" strokeWidth="3"/>
+      <path d="M36 0 Q16 -9 22 -20 Q41 -17 36 0 Z" fill="#22C55E"/><path d="M29 -10 Q33 -7 35 -3" stroke="#0B5E2A" strokeWidth="1.3" fill="none"/>
+      <path d="M36 -3 Q56 -12 51 -23 Q33 -20 36 -3 Z" fill="#15A34A"/><path d="M44 -13 Q40 -9 38 -6" stroke="#0B5E2A" strokeWidth="1.3" fill="none"/></g>,
+    atlas:  <g><line x1="36" y1="14" x2="36" y2="-13" stroke={color} strokeWidth="2.6"/>
+      <circle cx="36" cy="-17" r="5" fill={color}/><circle cx="36" cy="-17" r="2.2" fill="#fff" opacity=".85"/>
+      <circle cx="36" cy="-17" r="9.5" fill="none" stroke={color} strokeWidth="1.3" opacity=".55"/>
+      <ellipse cx="36" cy="-17" rx="14" ry="4.5" fill="none" stroke={color} strokeWidth="1.1" opacity=".4" transform="rotate(-18 36 -17)"/></g>,
+    shield: <g><path d="M24 13 Q36 -18 48 13 Z" fill={`url(#${gid})`}/><path d="M30 13 L36 -7 L42 13 Z" fill="#fff" opacity=".38"/>
+      <circle cx="36" cy="-8" r="2.8" fill="#fff" opacity=".7"/>
+      <path d="M22 14 h28" stroke="#fff" strokeWidth="2" opacity=".45" strokeLinecap="round"/></g>,
+    forge:  <g><path d="M26 16 Q27 -4 36 9 Q45 -4 46 16 Z" fill="#F97316"/>
+      <path d="M30 16 Q31 -12 36 5 Q41 -12 42 16 Z" fill="#FB923C"/>
+      <path d="M33 16 Q34 -3 36 8 Q38 -3 39 16 Z" fill="#FCD34D"/></g>,
+  };
+  // Atlas wears a visor; everyone else wears the hero mask.
+  const face = kind==='atlas'
+    ? <g><path d="M19 27 Q36 22 53 27 L52 34 Q36 30 20 34 Z" fill="#0b1220" opacity=".9"/>
+        <path d="M22 28 Q36 25 50 28 L49 30 Q36 27.5 23 30 Z" fill="#7dd3fc" opacity=".7"/></g>
+    : <g><path d="M17 28 Q36 19 55 28 L55 35 Q36 28 17 35 Z" fill="#0b0b16" opacity=".82"/>
         <ellipse className="mascot-blink" cx="29" cy="31" rx="3.4" ry="3.8" fill="#fff"/>
         <ellipse className="mascot-blink" cx="43" cy="31" rx="3.4" ry="3.8" fill="#fff"/></g>;
   return <span className="mascot inline-block" style={{width:size, height:size*110/80, lineHeight:0, filter:`drop-shadow(0 8px 16px ${color}66)`}}>
@@ -2858,6 +2948,7 @@ function Mascot({ kind='lumera', color='#8B5CF6', emoji='🦉', size=58 }){
     </svg>
   </span>;
 }
+const GUIDE_CHAT_KEY='lumera_guide_chat';
 // Tap the hero to chat, themed personality, answered by the in-app assistant engine.
 function Guide(){
   const app=useApp(); const p=app.product||'lumera'; const g=GUIDE[p]||GUIDE.lumera;
@@ -2865,8 +2956,16 @@ function Guide(){
   const [showTut,setShowTut]=useState(false); const [ti,setTi]=useState(0);
   const [open,setOpen]=useState(false); const [msgs,setMsgs]=useState([]); const [typing,setTyping]=useState(false); const [txt,setTxt]=useState('');
   const scroller=useRef(null);
+  // One shared conversation across every world: the character changes, the
+  // history does not. Each guide just adds its own greeting when you arrive.
   useEffect(()=>{ setTi(0); let seen=false; try{ seen=localStorage.getItem(sk); }catch(e){} setShowTut(!seen); setOpen(false);
-    setMsgs([{role:'bot',text:g.lines[0]},{role:'bot',text:`Ask me anything, money, this world, or how XP works. I’m ${g.name}. 💬`}]); },[p]);
+    let prior=[]; try{ prior=JSON.parse(localStorage.getItem(GUIDE_CHAT_KEY))||[]; }catch(e){}
+    const hello={role:'bot',text:`${g.lines[0]} Ask me anything, I’m ${g.name}. 💬`,who:g.name};
+    const last=prior[prior.length-1];
+    setMsgs(last && last.who===g.name ? prior : [...prior, hello].slice(-60));
+  },[p]);
+  // Persist the shared thread whenever it changes.
+  useEffect(()=>{ if(!msgs.length) return; try{ localStorage.setItem(GUIDE_CHAT_KEY, JSON.stringify(msgs.slice(-60))); }catch(e){} },[msgs]);
   useEffect(()=>{ if(scroller.current) scroller.current.scrollTop=scroller.current.scrollHeight; },[msgs,typing,open]);
   if(app.mode!=='spark') return null;
   const finishTut=()=>{ setShowTut(false); try{ localStorage.setItem(sk,'1'); }catch(e){} };
@@ -2875,7 +2974,7 @@ function Guide(){
   const send=(t)=>{ t=(t||txt).trim(); if(!t) return; setTxt(''); setMsgs(m=>[...m,{role:'me',text:t}]); setTyping(true);
     setTimeout(()=>{ let r; try{ r=botReply(t, app.metrics, app.fmt, app); }catch(e){ r=null; }
       const reply=(r&&r.text)|| `Great question! ${g.name} here, try exploring the path below, and I’ll guide you as you go. You can ask me about saving, budgeting, investing or how XP works.`;
-      setTyping(false); setMsgs(m=>[...m,{role:'bot',text:reply}]); }, 650+Math.random()*500); };
+      setTyping(false); setMsgs(m=>[...m,{role:'bot',text:reply,who:g.name}]); }, 650+Math.random()*500); };
   const chips=['How do I earn XP?','What can I do here?','Give me a money tip'];
   return <>
     {/* FORCED first-time tutorial, blocks the screen until you walk through it */}
@@ -2907,7 +3006,7 @@ function Guide(){
       </div>
       <div ref={scroller} className="flex-1 overflow-y-auto p-3 space-y-2.5 no-scrollbar" style={{minHeight:140}}>
         {msgs.map((m,i)=>m.role==='bot'
-          ? <div key={i} className="flex gap-2 items-end"><span className="text-lg shrink-0 mb-0.5">{g.emoji}</span><div className="rounded-2xl rounded-bl-sm bg-sand px-3 py-2 text-sm text-charcoal max-w-[82%] whitespace-pre-wrap leading-relaxed">{m.text}</div></div>
+          ? <div key={i} className="flex gap-2 items-end"><span className="text-lg shrink-0 mb-0.5">{(GUIDE[Object.keys(GUIDE).find(k=>GUIDE[k].name===m.who)]||g).emoji}</span><div><div className="text-[10px] text-faint mb-0.5 ml-1">{m.who||g.name}</div><div className="rounded-2xl rounded-bl-sm bg-sand px-3 py-2 text-sm text-charcoal max-w-[82%] whitespace-pre-wrap leading-relaxed">{m.text}</div></div></div>
           : <div key={i} className="flex justify-end"><div className="rounded-2xl rounded-br-sm px-3 py-2 text-sm text-white max-w-[82%]" style={{background:a}}>{m.text}</div></div>)}
         {typing && <div className="flex gap-2 items-center"><span className="text-lg">{g.emoji}</span><span className="rounded-2xl bg-sand px-3 py-2.5 inline-flex gap-1"><span className="dot"/><span className="dot"/><span className="dot"/></span></div>}
       </div>
@@ -5679,60 +5778,86 @@ function StockMarketsEdu(){
       <div><Eyebrow className="mb-1">Ready to go deeper?</Eyebrow><p className="text-sm text-charcoal/85">Head to <b>Investing</b> for a matched allocation, <b>Stock Market</b> for live-style prices with AI insight, or <b>Global Markets</b> to spin the globe of exchanges.</p></div></div></Card>
   </AppShell>;
 }
-// Founding team. Replace TEAM entries (and photo URLs) with the real names,
-// roles and images; `photo:null` renders a styled initials placeholder.
-const TEAM = [
-  { name:'Avyan Arya', role:'Founder & CEO', focus:'Product vision, strategy and design', photo:null,
-    bio:'Leads Lumera’s direction, from the product experience to the partnerships that make financial clarity reachable for students.', li:'https://www.linkedin.com/' },
-  { name:'Add name', role:'Co-founder & CTO', focus:'Engineering and architecture', photo:null,
-    bio:'Owns the technical foundation: the app, the data layer and everything that keeps Lumera fast and private.', li:'https://www.linkedin.com/' },
-  { name:'Add name', role:'Head of Product', focus:'Research, roadmap and delivery', photo:null,
-    bio:'Turns user research into the features that ship, and makes sure each one earns its place.', li:'https://www.linkedin.com/' },
-  { name:'Add name', role:'Head of Growth', focus:'Community, marketing and partnerships', photo:null,
-    bio:'Builds the community around Lumera and brings the product to the people who need it most.', li:'https://www.linkedin.com/' },
-  { name:'Add name', role:'Head of Content', focus:'Learning, lessons and editorial', photo:null,
-    bio:'Writes the lessons, glossary and guidance that make money make sense without jargon.', li:'https://www.linkedin.com/' },
-  { name:'Add name', role:'Head of Operations', focus:'Finance, legal and people', photo:null,
-    bio:'Keeps the business running so the team can focus on building.', li:'https://www.linkedin.com/' },
+// Founding team. Roles, bios and photos are editable from the admin portal
+// (Admin → About & team), which writes to localStorage['lumera_about'].
+// These entries are the defaults shown until the portal overrides them.
+const TEAM_DEFAULT = [
+  { name:'Avyan Arya',           role:'Founder', focus:'Product vision and strategy', photo:null, bio:'', li:'' },
+  { name:'Ernie Engmann',        role:'Add role', focus:'', photo:null, bio:'', li:'' },
+  { name:'Alaya Ahmad',          role:'Add role', focus:'', photo:null, bio:'', li:'' },
+  { name:'William Iantorno',     role:'Add role', focus:'', photo:null, bio:'', li:'' },
+  { name:'Reaan Verma',          role:'Add role', focus:'', photo:null, bio:'', li:'' },
+  { name:'Jonathan Jebin Thomas',role:'Add role', focus:'', photo:null, bio:'', li:'' },
+  { name:'Rishit Dhanak',        role:'Add role', focus:'', photo:null, bio:'', li:'' },
+  { name:'Zafar Masud',          role:'Add role', focus:'', photo:null, bio:'', li:'' },
+  { name:'Yannick Dsouza',       role:'Add role', focus:'', photo:null, bio:'', li:'' },
+  { name:'Zaid Qadri',           role:'Add role', focus:'', photo:null, bio:'', li:'' },
+  { name:'Muhammad Suleman',     role:'Add role', focus:'', photo:null, bio:'', li:'' },
+  { name:'Aryaman Agarwalla',    role:'Add role', focus:'', photo:null, bio:'', li:'' },
+  { name:'Nikesh Patel',         role:'Add role', focus:'', photo:null, bio:'', li:'' },
 ];
+const ABOUT_KEY='lumera_about';
+function loadAbout(){
+  try{ const a=JSON.parse(localStorage.getItem(ABOUT_KEY)); if(a&&typeof a==='object') return a; }catch(e){}
+  return {};
+}
+function useAbout(){
+  const [about,setAbout]=useState(loadAbout);
+  useEffect(()=>{
+    const h=(e)=>{ if(!e||e.key===ABOUT_KEY) setAbout(loadAbout()); };
+    window.addEventListener('storage',h);
+    let bc; try{ bc=new BroadcastChannel(ABOUT_KEY); bc.onmessage=()=>setAbout(loadAbout()); }catch(e){}
+    return ()=>{ window.removeEventListener('storage',h); try{ bc&&bc.close(); }catch(e){} };
+  },[]);
+  return about;
+}
 const TEAM_HUES = ['#7C3AED','#2563EB','#0D9488','#DB2777','#D97706','#16A34A'];
 function FoundingTeam(){
-  const app=useApp();
+  const about=useAbout();
+  const team=(about.team&&about.team.length)?about.team:TEAM_DEFAULT;
   return <AppShell>
-    <PageHead eyebrow="Our team" title="The people building Lumera."
-      desc="A small team with one shared belief: financial understanding should not depend on who your parents are."/>
-    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 stagger">
-      {TEAM.map((p,i)=>{ const hue=TEAM_HUES[i%TEAM_HUES.length];
-        return <Card key={p.role} className="overflow-hidden !p-0">
-          {/* Photo slot: drop a real image URL into `photo` to replace the placeholder. */}
-          <div className="relative h-48 grid place-items-center" style={{background:`linear-gradient(135deg,${hue}22,${hue}0A)`}}>
+    <PageHead eyebrow={about.teamEyebrow||'Our team'} title={about.teamTitle||'The people building Lumera.'}
+      desc={about.teamDesc||'A small team with one shared belief: financial understanding should not depend on who your parents are.'}/>
+    {/* Three across, each a rectangular portrait above name, role and a short bio. */}
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 stagger">
+      {team.map((p,i)=>{ const hue=TEAM_HUES[i%TEAM_HUES.length];
+        return <div key={p.name+i} className="lux-card lift overflow-hidden !p-0 flex flex-col">
+          {/* Rectangular portrait, 4:3 */}
+          <div className="relative w-full" style={{aspectRatio:'4/3', background:`linear-gradient(135deg,${hue}26,${hue}0A)`}}>
             {p.photo
               ? <img src={p.photo} alt={p.name} className="absolute inset-0 h-full w-full object-cover"/>
-              : <div className="text-center">
-                  <span className="mx-auto grid place-items-center h-20 w-20 rounded-full text-white font-serif text-2xl" style={{background:`linear-gradient(135deg,${hue},${hue}AA)`}}>
+              : <div className="absolute inset-0 grid place-items-center">
+                  <span className="grid place-items-center h-20 w-20 rounded-full font-serif text-2xl text-white"
+                    style={{background:`linear-gradient(135deg,${hue},${hue}AA)`}}>
                     {p.name.split(' ').map(w=>w[0]).join('').slice(0,2)}</span>
-                  <div className="text-[11px] text-faint mt-2">Photo coming soon</div>
                 </div>}
+            <span className="absolute inset-x-0 bottom-0 h-1" style={{background:hue}}/>
           </div>
           <div className="p-5">
-            <div className="font-serif text-xl text-charcoal">{p.name}</div>
-            <div className="text-sm font-medium mt-0.5" style={{color:hue}}>{p.role}</div>
-            <div className="text-[11px] text-faint mt-0.5">{p.focus}</div>
-            <p className="text-sm text-muted mt-2.5 leading-relaxed">{p.bio}</p>
-            <a href={p.li} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold" style={{color:hue}}>
-              LinkedIn <Icon name="arrowR" size={11} className="-rotate-45"/></a>
+            {/* Name: large, in the Lumera face */}
+            <div className="font-serif text-2xl text-charcoal leading-tight">{p.name}</div>
+            {/* Role: smaller and faded */}
+            <div className="text-sm mt-1" style={{color:hue,opacity:.85}}>{p.role||'Role to be confirmed'}</div>
+            {p.focus && <div className="text-xs text-faint mt-0.5">{p.focus}</div>}
+            {/* Short description: smaller again */}
+            <p className="text-[13px] text-muted mt-3 leading-relaxed">
+              {p.bio || 'A short bio will appear here.'}</p>
+            {p.li && <a href={p.li} target="_blank" rel="noopener noreferrer"
+              className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold" style={{color:hue}}>
+              LinkedIn <Icon name="arrowR" size={11} className="-rotate-45"/></a>}
           </div>
-        </Card>; })}
+        </div>; })}
     </div>
-    <Card hover={false} className="mt-5 text-center py-8">
+    <Card hover={false} className="mt-6 text-center py-8">
       <div className="text-3xl mb-2">✉️</div>
-      <div className="font-serif text-xl text-charcoal">Want to join us?</div>
-      <p className="text-sm text-muted mt-1">We are always happy to hear from people who care about this problem.</p>
-      <a href="mailto:hello@lumera.app" className="btn btn-primary mt-4 px-5 py-2.5 text-sm">hello@lumera.app</a>
+      <div className="font-serif text-xl text-charcoal">{about.joinTitle||'Want to join us?'}</div>
+      <p className="text-sm text-muted mt-1">{about.joinDesc||'We are always happy to hear from people who care about this problem.'}</p>
+      <a href={`mailto:${about.email||'hello@lumera.app'}`} className="btn btn-primary mt-4 px-5 py-2.5 text-sm">{about.email||'hello@lumera.app'}</a>
     </Card>
   </AppShell>;
 }
 function AboutLumera(){
+  const about=useAbout();
   const gives=[
     ['Benchmark clarity','🎯','See every spending category against realistic ranges for your income and region.'],
     ['A learning engine','📚','Two-minute lessons, quizzes and a glossary that turn jargon into confidence.'],
@@ -5742,9 +5867,9 @@ function AboutLumera(){
     ['A community','🤝','Connect with others on the same path and share opportunities.'],
   ];
   return <AppShell>
-    <PageHead eyebrow="About Lumera" title="Built to make financial clarity accessible to everyone." desc="Lumera turns the financial intelligence once reserved for the wealthy into something anyone can use, clear, calm, and jargon-free."/>
+    <PageHead eyebrow="About Lumera" title={about.aboutTitle||"Built to make financial clarity accessible to everyone."} desc={about.aboutDesc||"Lumera turns the financial intelligence once reserved for the wealthy into something anyone can use, clear, calm, and jargon-free."}/>
     <Card className="mb-4 bg-gradient-to-br from-gold/8 to-transparent"><div className="flex items-start gap-3"><span className="grid place-items-center h-10 w-10 rounded-xl bg-charcoal text-gold shrink-0"><Icon name="spark" size={18}/></span>
-      <div><Eyebrow className="mb-1">Our mission</Eyebrow><p className="text-charcoal/85 leading-relaxed">Lumera exists to give students and early-career professionals the financial intelligence that used to be reserved for the wealthy. No jargon, no complexity, just clarity.</p></div></div></Card>
+      <div><Eyebrow className="mb-1">Our mission</Eyebrow><p className="text-charcoal/85 leading-relaxed">{about.mission||"Lumera exists to give students and early-career professionals the financial intelligence that used to be reserved for the wealthy. No jargon, no complexity, just clarity."}</p></div></div></Card>
     <div className="grid sm:grid-cols-2 gap-4 mb-4">
       <Card><Eyebrow className="mb-2">The problem we solve</Eyebrow><p className="text-sm text-charcoal/85 leading-relaxed">Most people don’t understand their money, not because they’re bad with it, but because no one ever taught them. Lumera closes that gap with tools that explain themselves.</p></Card>
       <Card><Eyebrow className="mb-2">Who it’s for</Eyebrow><div className="space-y-2 mt-1">{[['🎓','Students','Build money habits early, while the stakes are low and the upside is decades long.'],['💼','Young professionals','Turn your first real income into a foundation for lasting wealth.'],['✨','Anyone starting out','It’s never too late to start your financial journey.']].map(([e,t,d])=><div key={t} className="flex gap-2.5"><span className="text-lg">{e}</span><div><div className="text-sm font-medium text-charcoal">{t}</div><div className="text-xs text-muted">{d}</div></div></div>)}</div></Card>
