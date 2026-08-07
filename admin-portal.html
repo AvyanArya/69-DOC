@@ -574,17 +574,47 @@ const APP_FEATURES=[
   ['worldMonitor','World Monitor','Interactive global risk map'],
   ['globe','Global Markets','Spinnable globe of exchanges'],
 ];
+// Each feature has three states so you can preview before launching:
+//   off   - hidden from everyone
+//   beta  - visible only in beta preview (adds ?beta=1 to the app URL)
+//   live  - visible to everyone
+function featureState(flags,k){ const v=flags[k]; if(v==='beta') return 'beta'; if(v===false||v==='off') return 'off'; return 'live'; }
 function renderFeatures(){ const flags=loadJSON(FEATURES,{});
-  const on=(k)=> (k in flags)? !!flags[k] : true;
-  const live=APP_FEATURES.filter(f=>on(f[0])).length;
-  C.innerHTML=`${pageHead('Feature flags','Toggle features on or off for all Lumera users on this origin. Switching one off hides it from navigation and blocks its URL, so you can stage a rollout without shipping code.')}
-    <div class="card" style="margin-bottom:14px;"><div class="eyebrow">Live features</div>
-      <div style="font-size:30px;font-family:Fraunces,serif;">${live} <span class="faint" style="font-size:14px;">of ${APP_FEATURES.length} enabled</span></div></div>
-    <div class="card">${APP_FEATURES.map(([k,label,desc])=>`<label style="display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid var(--line);cursor:pointer;">
-      <input type="checkbox" ${on(k)?'checked':''} onchange="toggleFlag('${k}',this.checked)" style="width:auto;"/>
-      <span><span style="font-size:14px;font-weight:600;">${label}</span><span class="faint" style="display:block;font-size:12px;">${desc}</span></span>
-      <span class="faint" style="margin-left:auto;font-size:11px;">${on(k)?'enabled':'disabled'}</span></label>`).join('')}</div>`; }
-function toggleFlag(k,v){ const flags=loadJSON(FEATURES,{}); flags[k]=v; saveJSON(FEATURES,flags); broadcast(FEATURES); render(); }
+  const st=(k)=>featureState(flags,k);
+  const live=APP_FEATURES.filter(f=>st(f[0])==='live').length;
+  const beta=APP_FEATURES.filter(f=>st(f[0])==='beta').length;
+  const off=APP_FEATURES.filter(f=>st(f[0])==='off').length;
+  const chip=(k,val,label,colour)=>`<button onclick="setFlagState('${k}','${val}')"
+    style="border:1px solid ${st(k)===val?colour:'var(--line)'};background:${st(k)===val?colour:'transparent'};
+    color:${st(k)===val?'#fff':'var(--muted)'};border-radius:99px;padding:5px 12px;font-size:11.5px;font-weight:600;cursor:pointer;">${label}</button>`;
+  C.innerHTML=`${pageHead('Feature flags','Stage a rollout without shipping code. Off hides a feature entirely, Beta shows it only in beta preview, Live releases it to everyone.')}
+    <div class="row cols-4" style="margin-bottom:14px;">
+      <div class="card kpi"><div class="v" style="color:var(--saged)">${live}</div><div class="l">Live</div></div>
+      <div class="card kpi"><div class="v" style="color:var(--clayd)">${beta}</div><div class="l">In beta</div></div>
+      <div class="card kpi"><div class="v" style="color:var(--faint)">${off}</div><div class="l">Off</div></div>
+      <div class="card kpi"><div class="v">${APP_FEATURES.length}</div><div class="l">Total features</div></div>
+    </div>
+    <div class="card" style="margin-bottom:14px;">
+      <div class="eyebrow">Beta preview</div>
+      <p class="page-desc" style="margin-bottom:10px;">Open the app with beta preview to see everything marked Beta before it goes live. The link works on this origin.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <a class="btn gold" href="index.html?beta=1" target="_blank" rel="noopener">Open beta preview &rarr;</a>
+        <a class="btn ghost" href="index.html" target="_blank" rel="noopener">Open live site &rarr;</a>
+        <button class="btn ghost" onclick="allBetaLive()">Promote all beta to live</button>
+      </div>
+    </div>
+    <div class="card">${APP_FEATURES.map(([k,label,desc])=>`
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid var(--line);flex-wrap:wrap;">
+        <span style="flex:1;min-width:200px;"><span style="font-size:14px;font-weight:600;">${label}</span>
+          <span class="faint" style="display:block;font-size:12px;">${desc}</span></span>
+        <span style="display:flex;gap:6px;">${chip(k,'off','Off','#6E6F88')}${chip(k,'beta','Beta','#D97706')}${chip(k,'live','Live','#16A34A')}</span>
+      </div>`).join('')}</div>`; }
+function setFlagState(k,val){ const flags=loadJSON(FEATURES,{}); flags[k]=(val==='live')?true:(val==='off')?false:'beta';
+  saveJSON(FEATURES,flags); broadcast(FEATURES); render(); }
+function allBetaLive(){ const flags=loadJSON(FEATURES,{});
+  Object.keys(flags).forEach(k=>{ if(flags[k]==='beta') flags[k]=true; });
+  saveJSON(FEATURES,flags); broadcast(FEATURES); render(); }
+function toggleFlag(k,v){ setFlagState(k, v?'live':'off'); }
 
 function renderTrends(){ const news=loadJSON(NEWS,[]),updates=loadJSON(UPDATES,[]);
   const text=[...news.map(n=>n.title+' '+(n.body||n.summary||'')),...updates.map(u=>u.title+' '+u.body)].join(' ').toLowerCase();

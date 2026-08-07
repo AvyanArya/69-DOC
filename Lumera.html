@@ -161,6 +161,14 @@
   [data-product="forge"] { --c-gold:217 119 6;  --c-goldd:180 83 9;   --c-golddd:146 64 14;  --gold:#D97706; --goldd:#B45309; --glow:217,119,6;   --p1:#D97706; --p2:#92400E; --pshadow:180,83,9; }
   [data-product="lumera"]{ --p1:#8B5CF6; --p2:#6D28D9; --pshadow:109,40,217; }
 
+  /* On the near-black ground the mid-tone accents (e.g. #6D4FE6) are too dark:
+     gradient headings and gold labels stop reading. Lift them in dark mode. */
+  [data-theme="dark"][data-mode="spark"]{ --c-gold:167 139 250; --c-goldd:196 181 253; --gold:#A78BFA; --goldd:#C4B5FD; }
+  [data-theme="dark"][data-product="leaf"]  { --c-gold:74 222 128;  --c-goldd:134 239 172; --gold:#4ADE80; --goldd:#86EFAC; }
+  [data-theme="dark"][data-product="atlas"] { --c-gold:96 165 250;  --c-goldd:147 197 253; --gold:#60A5FA; --goldd:#93C5FD; }
+  [data-theme="dark"][data-product="shield"]{ --c-gold:148 163 184; --c-goldd:203 213 225; --gold:#94A3B8; --goldd:#CBD5E1; }
+  [data-theme="dark"][data-product="forge"] { --c-gold:251 191 36;  --c-goldd:253 224 71;  --gold:#FBBF24; --goldd:#FDE047; }
+
   /* ----- DARK base ("Nebula": black/grey) ----- */
   [data-mode="spark"][data-theme="dark"]{
     --c-ivory:14 14 19; --c-canvas:18 18 24; --c-cream:24 24 32; --c-card:26 26 35;
@@ -1211,11 +1219,17 @@ const RARITY_ORDER = ['Common','Uncommon','Rare','Epic','Legendary','Mythic'];
 // Live rarity from the share of users holding a badge.
 const rarityFromShare = (pct)=> pct>=50?'Common' : pct>=25?'Uncommon' : pct>=10?'Rare' : pct>=4?'Epic' : pct>=1?'Legendary' : 'Mythic';
 // Share of users holding each badge, read from stored accounts so it is real.
+// Share of members holding a badge. With almost no accounts the sample is
+// meaningless (one user makes everything 0% and therefore "Mythic"), so we only
+// report live rarity once enough people have signed up. Until then each badge
+// uses its designed baseline.
+const RARITY_MIN_SAMPLE = 25;
 function badgeHolderPct(id){
   try{
     const accts=JSON.parse(localStorage.getItem('lumera_accounts'))||{};
-    const users=Object.values(accts); if(!users.length) return null;
-    const held=users.filter(u=>u && u.badges && u.badges[id]).length;
+    const users=Object.values(accts).filter(Boolean);
+    if(users.length < RARITY_MIN_SAMPLE) return null;
+    const held=users.filter(u=>u.badges && u.badges[id]).length;
     return Math.round(held/users.length*100);
   }catch(e){ return null; }
 }
@@ -1420,16 +1434,17 @@ function ScoreRing({ value, size=180, stroke=14, label, sub, color=COLORS.gold, 
   return (
     <div className="relative inline-flex items-center justify-center" style={{width:size,height:size}}>
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#EDE6D9" strokeWidth={stroke}/>
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="currentColor" className="text-sand" strokeWidth={stroke}/>
         <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round"
           strokeDasharray={circ} style={{ '--circ':circ, '--off':off, animation:`ringdraw 1.5s cubic-bezier(.22,1,.36,1) ${delay}s both` }} />
         <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="url(#shine)" strokeWidth={stroke} strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={off} opacity="0.25"/>
         <defs><linearGradient id="shine" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#fff"/><stop offset="1" stopColor={color}/></linearGradient></defs>
       </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <div className="font-serif text-charcoal tnum" style={{fontSize:size*0.26}}>{shown}</div>
-        {label&&<div className="text-[10px] tracking-[.2em] uppercase text-faint mt-0.5">{label}</div>}
-        {sub&&<div className="text-xs text-muted mt-1">{sub}</div>}
+      {/* Inner text stays clear of the ring: padded by the stroke width and scaled down. */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center text-center" style={{padding:stroke+6}}>
+        <div className="font-serif text-charcoal tnum leading-none" style={{fontSize:Math.max(18,size*0.22)}}>{shown}</div>
+        {label&&<div className="uppercase text-faint mt-1 leading-none" style={{fontSize:Math.max(8,size*0.055), letterSpacing:size>=140?'.18em':'.08em'}}>{label}</div>}
+        {sub&&size>=120&&<div className="text-xs text-muted mt-1">{sub}</div>}
       </div>
     </div>
   );
@@ -1651,8 +1666,8 @@ const NAV = [
     {to:'/invest', k:'nav_invest', icon:'chart'},
     {to:'/market', k:'nav_market', icon:'gauge'},
     {to:'/globe', k:'nav_globe', icon:'globe'},
-    {to:'/world', k:'nav_world', icon:'globe'},
-    {to:'/news', k:'nav_news', icon:'globe'},
+    {to:'/world', k:'nav_world', icon:'eye'},
+    {to:'/news', k:'nav_news', icon:'bell'},
   ]},
   { section:'Grow', items:[
     {to:'/learn', k:'nav_learn', icon:'book'},
@@ -2202,7 +2217,7 @@ function Landing(){
         <div className="absolute inset-0 opacity-40" style={{background:'radial-gradient(500px 240px at 50% 0%, rgba(191,160,106,.5), transparent)'}}/>
         <div className="relative">
           <h2 className="font-serif text-3xl sm:text-5xl leading-tight">Understand the invisible patterns<br/><span className="gold-text">behind your spending.</span></h2>
-          <p className="text-cream/70 mt-4 max-w-xl mx-auto">Turn one month of financial behaviour into a clear action plan. It’s free, private, and takes minutes to begin.</p>
+          <p className="text-cream/80 text-lg sm:text-xl mt-5 max-w-2xl mx-auto leading-relaxed">Turn one month of financial behaviour into a clear action plan. It’s free, private, and takes minutes to begin.</p>
           <div className="flex flex-wrap justify-center gap-3 mt-8"><Btn variant="gold" iconR="arrowR" onClick={()=>app.nav('/signup')}>{t('cta_start')}</Btn>
             <Btn variant="ghost" className="!bg-cream/10 !text-cream !border-cream/20" onClick={()=>app.nav('/login')}>{t('cta_open')}</Btn></div>
           <div className="mt-8"><Disclaimer compact className="!bg-cream/5 !border-cream/15 text-left max-w-2xl mx-auto [&_p]:text-cream/60"/></div>
@@ -2670,7 +2685,7 @@ const SUBS = [
     routes:['/dashboard','/benchmarks','/recommendations','/budget','/goals','/emergency','/subscriptions','/networth','/simulator','/twin','/chats','/community'] },
   { key:'leaf', name:'Leaf', tag:'Learn & grow', accent:'#22C55E', emoji:'🌿', live:true,
     blurb:'Money education that doesn’t bore you, bite-size lessons and a deep knowledge hub.',
-    routes:['/learn','/quiz','/glossary','/challenges','/resources'] },
+    routes:['/learn','/quiz','/challenges','/resources'] },
   { key:'atlas', name:'Atlas', tag:'Markets & investing', accent:'#3B82F6', emoji:'🛰️', live:true,
     blurb:'Markets explained for humans, stocks, indices, a globe of exchanges and plain-English news.',
     routes:['/invest','/market','/exchanges','/globe','/world','/news'] },
@@ -2690,7 +2705,6 @@ Object.assign(NAV_BY_ROUTE, {
   '/exchanges':{ to:'/exchanges', k:'How Markets Work', icon:'cap' },
   '/about':{ to:'/about', k:'About Lumera', icon:'info' },
   '/quiz':{ to:'/quiz', k:'Money Quiz', icon:'trophy' },
-  '/glossary':{ to:'/glossary', k:'Word of the Day', icon:'book' },
   '/habits':{ to:'/habits', k:'Money Habits', icon:'check' },
   '/challenges':{ to:'/challenges', k:'Challenges', icon:'spark' },
   '/careers':{ to:'/careers', k:'Finance Careers', icon:'trend' },
@@ -3359,10 +3373,36 @@ function FinancialTwin(){
         </div>
 
         <div className="grid md:grid-cols-3 gap-4 mb-4 stagger">
-          <Card className="md:col-span-1"><Eyebrow className="mb-2">Biggest money leak</Eyebrow>
-            <div className="flex items-center gap-3"><span className="grid place-items-center h-11 w-11 rounded-xl bg-clay/12 text-clayd"><Icon name={m.topLeaks[0]?m.topLeaks[0].icon:'drop'}/></span>
-              <div><div className="font-serif text-xl text-charcoal">{m.topLeaks[0]?m.topLeaks[0].label:'Well controlled'}</div>
-                <div className="text-sm text-clayd tnum">{m.topLeaks[0]?`${fmt.money(m.topLeaks[0].over)} over /mo`:'No major leaks'}</div></div></div></Card>
+          {(()=>{
+            // The headline leak must agree with the archetype: a Subscription
+            // Leaker leads with subscriptions, even if another category is
+            // nominally a few dirhams higher.
+            const subsRow=m.topLeaks.find(r=>r.id==='subscriptions') || m.rows.find(r=>r.id==='subscriptions' && r.amount>0);
+            const lead=(a.key==='leaker' && subsRow) ? subsRow : m.topLeaks[0];
+            const rest=m.topLeaks.filter(r=>lead && r.id!==lead.id).slice(0,3);
+            const tool=lead && (lead.id==='subscriptions'?'/subscriptions':lead.id==='eatingOut'?'/budget':'/benchmarks');
+            return <Card className="md:col-span-1">
+              <Eyebrow className="mb-2">Biggest money leak</Eyebrow>
+              {!lead? <div className="text-sm text-muted">No major leaks, spending is inside benchmark. 👏</div> : <Fragment>
+                <div className="flex items-center gap-3">
+                  <span className="grid place-items-center h-11 w-11 rounded-xl bg-clay/12 text-clayd shrink-0"><Icon name={lead.icon||'drop'}/></span>
+                  <div className="min-w-0"><div className="font-serif text-xl text-charcoal truncate">{lead.label}</div>
+                    <div className="text-sm text-clayd tnum">{fmt.money(lead.over)} over /mo</div></div>
+                </div>
+                {a.key==='leaker' && lead.id==='subscriptions' && <p className="text-xs text-muted mt-2 leading-relaxed">This is what makes you {a.name.replace('The ','a ')}: quiet renewals, not big purchases.</p>}
+                <div className="grid grid-cols-2 gap-2 mt-3">
+                  <div className="rounded-xl bg-sand/60 px-2.5 py-2"><div className="text-[10px] uppercase tracking-wider text-faint">You spend</div><div className="text-sm font-semibold text-charcoal tnum">{fmt.money(lead.amount)}</div></div>
+                  <div className="rounded-xl bg-sand/60 px-2.5 py-2"><div className="text-[10px] uppercase tracking-wider text-faint">Typical</div><div className="text-sm font-semibold text-charcoal tnum">≤ {fmt.money(lead.hi)}</div></div>
+                  <div className="rounded-xl bg-clay/10 px-2.5 py-2"><div className="text-[10px] uppercase tracking-wider text-faint">Per year</div><div className="text-sm font-semibold text-clayd tnum">{fmt.money(lead.over*12)}</div></div>
+                  <div className="rounded-xl bg-clay/10 px-2.5 py-2"><div className="text-[10px] uppercase tracking-wider text-faint">Of income</div><div className="text-sm font-semibold text-clayd tnum">{round(lead.over/m.income*100,1)}%</div></div>
+                </div>
+                {rest.length>0 && <div className="mt-3 pt-3 border-t border-line">
+                  <div className="text-[10px] uppercase tracking-wider text-faint mb-1.5">Also leaking</div>
+                  {rest.map(r=><div key={r.id} className="flex items-center justify-between text-xs py-0.5"><span className="text-muted">{r.label}</span><span className="text-clayd tnum">{fmt.money(r.over)}/mo</span></div>)}
+                </div>}
+                <button onClick={()=>app.nav(tool)} className="btn btn-ghost w-full mt-3 py-2 text-xs justify-between">Fix it now <Icon name="arrowR" size={12}/></button>
+              </Fragment>}
+            </Card>; })()}
           <Card className="md:col-span-2 bg-gradient-to-br from-gold/10 to-transparent"><Eyebrow className="mb-2">Your best next move</Eyebrow>
             <p className="text-charcoal/85 leading-relaxed">Redirect roughly <b className="text-goldd">{fmt.money(target)}/month</b> from your top leaks into a dedicated savings or investment transfer. Automate it for the day after payday so the decision is made once, not every month.</p>
             <Btn variant="gold" className="mt-4" icon="sliders" to="/simulator">Model this in the simulator</Btn></Card>
@@ -4187,13 +4227,20 @@ function Emergency(){
           <Card hover={false} className="!p-4"><div className="text-xs text-muted">Target</div><div className="font-serif text-xl text-goldd tnum"><AnimatedNumber value={target} money/></div></Card>
           <Card hover={false} className="!p-4"><div className="text-xs text-muted">Gap</div><div className="font-serif text-xl text-clayd tnum"><AnimatedNumber value={gap} money/></div></Card>
         </div>
-        <Card><div className="flex flex-wrap items-center justify-between gap-5">
-          <div className="min-w-[190px] flex-1">
-            <div className="text-sm text-muted">To close the gap in 12 months</div>
-            <div className="font-serif text-3xl text-saged tnum mt-0.5">{fmt.money(perMonth)}<span className="text-base text-muted">/mo</span></div>
-            <div className="text-xs text-faint mt-2 leading-relaxed">Currently covers <b className="text-charcoal/70">{(current/(ess||1)).toFixed(1)} months</b> of essentials<br/>{round(clamp(current/target*100,0,100))}% of target</div>
+        <Card>
+          {/* Fixed two-column grid: copy left, ring right, both top-aligned. */}
+          <div className="grid grid-cols-[1fr_auto] items-start gap-4">
+            <div>
+              <Eyebrow className="mb-1">Monthly plan</Eyebrow>
+              <div className="text-sm text-muted">To close the gap in 12 months</div>
+              <div className="font-serif text-3xl text-saged tnum mt-1">{fmt.money(perMonth)}<span className="text-base text-muted">/mo</span></div>
+              <div className="grid grid-cols-2 gap-2 mt-3 max-w-[280px]">
+                <div className="rounded-xl bg-sand/60 px-3 py-2"><div className="text-[10px] uppercase tracking-wider text-faint">Covers now</div><div className="text-sm font-semibold text-charcoal tnum">{(current/(ess||1)).toFixed(1)} mo</div></div>
+                <div className="rounded-xl bg-sand/60 px-3 py-2"><div className="text-[10px] uppercase tracking-wider text-faint">Of target</div><div className="text-sm font-semibold text-charcoal tnum">{round(clamp(current/target*100,0,100))}%</div></div>
+              </div>
+            </div>
+            <ScoreRing value={clamp(current/target*100,0,100)} size={110} stroke={10} label="funded" color={COLORS.sage}/>
           </div>
-          <div className="shrink-0 mx-auto sm:mx-0"><ScoreRing value={clamp(current/target*100,0,100)} size={104} stroke={10} label="% funded" color={COLORS.sage}/></div></div>
           <p className="text-xs text-goldd mt-4 pt-4 border-t border-line flex items-start gap-1.5"><Icon name="spark" size={13} className="mt-0.5"/>{perMonth<=m.realistic?`Within reach, your savings opportunity is ${fmt.money(m.realistic)}/mo.`:`Stretch the timeline or combine with reclaimed spending of ${fmt.money(m.realistic)}/mo.`}</p>
           <p className="text-[11px] text-muted mt-2 flex items-start gap-1.5"><Icon name="info" size={12} className="mt-0.5 shrink-0"/>Cash can lose a little to <Term>Inflation</Term> over time, but an emergency fund’s job is safety and instant access, not growth. Keep it liquid.</p>
         </Card>
@@ -4443,28 +4490,64 @@ function Learn(){
   useEffect(()=>{ try{ localStorage.setItem('lumera_res_done', JSON.stringify(doneRes)); }catch(e){} },[doneRes]);
   const [shown,setShown]=useState(()=>resources.map(r=>({...r})));
   const completeRes=(title)=>{ setDoneRes(d=>d.includes(title)?d:[...d,title]); setShown(list=>{ const idx=list.findIndex(x=>x.title===title); if(idx<0) return list; const shownT=new Set(list.map(x=>x.title)); const repl=RES_RESERVE.find(rr=>!shownT.has(rr.title)&&!doneRes.includes(rr.title)); const nl=list.slice(); if(repl) nl[idx]={...repl,_new:true}; else nl.splice(idx,1); return nl; }); };
+  const PATH_STYLE={Beginner:{hue:'#22C55E',emoji:'🌱',grad:'linear-gradient(135deg,#22C55E,#0D9488)'},
+    Intermediate:{hue:'#0EA5E9',emoji:'🚀',grad:'linear-gradient(135deg,#0EA5E9,#2563EB)'},
+    Advanced:{hue:'#A855F7',emoji:'💎',grad:'linear-gradient(135deg,#A855F7,#6D28D9)'}};
+  const RES_STYLE={Video:{hue:'#DC2626',emoji:'🎬'},Article:{hue:'#2563EB',emoji:'📄'},Course:{hue:'#16A34A',emoji:'🎓'},Podcast:{hue:'#D97706',emoji:'🎧'}};
   return <AppShell>
-    <PageHead eyebrow="Learning hub" title="Financial fluency, one idea at a time."
-      desc="Short, clear lessons with a real example, the common mistake, and one action step. No jargon, no lectures."/>
-
-    <Card className="mb-4 bg-gradient-to-br from-gold/8 to-transparent"><div className="flex items-center gap-3"><span className="grid place-items-center h-9 w-9 rounded-lg bg-charcoal text-gold shrink-0"><Icon name="spark" size={17}/></span>
-      <div><Eyebrow>Personalised for you</Eyebrow><p className="text-sm text-charcoal/80 mt-1">Based on your “{app.profile.knowledge}” level, we suggest starting at <b>{lvl}</b>. Paths adapt as your knowledge and goals grow.</p></div></div></Card>
+    {/* Colourful hero: Leaf should feel bright, not like a document. */}
+    <div className="relative overflow-hidden rounded-xl3 mb-5 p-6 sm:p-8 text-white"
+      style={{background:'linear-gradient(135deg,#15A34A 0%,#22C55E 45%,#0D9488 100%)', boxShadow:'0 20px 60px rgba(22,163,74,.38)'}}>
+      <div className="absolute -top-16 -right-8 h-52 w-52 rounded-full bg-white/20 blur-3xl floaty"/>
+      <div className="absolute -bottom-20 left-10 h-40 w-40 rounded-full bg-white/10 blur-3xl"/>
+      <div className="relative flex flex-wrap items-center gap-6">
+        <div className="flex-1 min-w-[240px]">
+          <div className="text-[11px] font-bold uppercase tracking-[.24em]" style={{color:'rgba(255,255,255,.85)'}}>Leaf · Learning hub</div>
+          <h1 className="font-serif text-3xl sm:text-4xl mt-1">Financial fluency, one idea at a time.</h1>
+          <p className="text-sm mt-2 max-w-lg" style={{color:'rgba(255,255,255,.88)'}}>Short lessons with a real example, the common mistake, and one action step. Based on your “{app.profile.knowledge}” level we suggest starting at <b>{lvl}</b>.</p>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          {[['Lessons',LESSONS.length],['Paths',paths.length],['Done',doneRes.length]].map(([l,v])=>
+            <div key={l} className="rounded-xl2 px-4 py-3 text-center" style={{background:'rgba(255,255,255,.16)',border:'1px solid rgba(255,255,255,.22)'}}>
+              <div className="font-serif text-2xl" style={{color:'#fff'}}>{v}</div>
+              <div className="text-[10px] uppercase tracking-wider" style={{color:'rgba(255,255,255,.82)'}}>{l}</div></div>)}
+        </div>
+      </div>
+    </div>
 
     <Eyebrow className="mb-3">Guided learning paths</Eyebrow>
-    <div className="grid md:grid-cols-3 gap-4 mb-5">{paths.map(p=><Card key={p.level} className={cx(p.level===lvl&&'ring-1 ring-gold/40')}>
-      <div className="flex items-center justify-between"><span className="grid place-items-center h-10 w-10 rounded-xl bg-gold/12 text-goldd"><Icon name={p.icon}/></span>{p.level===lvl&&<Pill tone="gold">Recommended</Pill>}</div>
-      <h3 className="font-serif text-xl text-charcoal mt-3">{p.level}</h3><div className="text-xs text-faint">{p.time} · personalised by goal</div>
-      <ul className="mt-2 space-y-1.5">{p.topics.map(t=><li key={t} className="flex items-center gap-2 text-sm text-charcoal/80"><Icon name="check" size={14} className="text-saged"/>{t}</li>)}</ul>
-      <button onClick={()=>setActivePath(p)} className="btn btn-ghost w-full mt-4 py-2.5 text-sm">Start path <Icon name="arrowR" size={14}/></button>
-    </Card>)}</div>
+    <div className="grid md:grid-cols-3 gap-4 mb-6 stagger">{paths.map(p=>{ const st=PATH_STYLE[p.level]||PATH_STYLE.Beginner;
+      return <Card key={p.level} className="relative overflow-hidden !p-0" style={{borderColor:p.level===lvl?st.hue+'66':undefined}}>
+        <div className="px-5 py-4 text-white relative" style={{background:st.grad}}>
+          <div className="absolute -right-6 -top-8 h-20 w-20 rounded-full bg-white/15 blur-xl"/>
+          <div className="relative flex items-center justify-between">
+            <span className="text-3xl">{st.emoji}</span>
+            {p.level===lvl&&<span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2.5 py-1" style={{background:'rgba(255,255,255,.25)'}}>Recommended</span>}
+          </div>
+          <h3 className="relative font-serif text-2xl mt-2">{p.level}</h3>
+          <div className="relative text-[11px]" style={{color:'rgba(255,255,255,.85)'}}>{p.time}</div>
+        </div>
+        <div className="p-5">
+          <ul className="space-y-2">{p.topics.map((t,n)=><li key={t} className="flex items-center gap-2.5 text-sm text-charcoal/85">
+            <span className="grid place-items-center h-6 w-6 rounded-lg text-[11px] font-bold shrink-0" style={{background:st.hue+'1A',color:st.hue}}>{n+1}</span>{t}</li>)}</ul>
+          <button onClick={()=>setActivePath(p)} className="btn w-full mt-4 py-2.5 text-sm text-white" style={{background:st.grad}}>Start path <Icon name="arrowR" size={14}/></button>
+        </div>
+      </Card>; })}</div>
 
     <div className="flex items-center justify-between mb-3"><Eyebrow>Curated resources</Eyebrow>{doneRes.length>0&&<span className="text-xs text-saged flex items-center gap-1"><Icon name="check" size={13}/>{doneRes.length} completed</span>}</div>
-    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">{shown.map(r=><div key={r.title} className="lux-card lift p-4 flex flex-col">
-      <div className="flex items-center gap-2"><span className="grid place-items-center h-8 w-8 rounded-lg bg-sand text-goldd"><Icon name={r.icon} size={15}/></span><Pill tone="neutral">{r.type}</Pill>{r._new&&<Pill tone="gold">New</Pill>}</div>
-      <a href={r.url} target="_blank" rel="noopener noreferrer" className="block flex-1"><div className="font-medium text-charcoal text-sm mt-2 leading-snug">{r.title}</div><div className="text-xs text-faint mt-0.5">{r.src}</div></a>
-      <div className="flex items-center justify-between mt-2 pt-2 border-t border-line"><a href={r.url} target="_blank" rel="noopener noreferrer" className="text-xs text-goldd flex items-center gap-1">Open <Icon name="arrowR" size={12} className="-rotate-45"/></a>
-        <button onClick={()=>completeRes(r.title)} className="text-xs font-semibold text-saged flex items-center gap-1 hover:underline"><Icon name="check" size={13}/>Mark done</button></div></div>)}
-      {!shown.length && <div className="sm:col-span-2 lg:col-span-4 text-sm text-muted text-center py-4">You’ve completed every curated resource, superb. New ones will appear as we add them.</div>}</div>
+    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 stagger">{shown.map(r=>{ const st=RES_STYLE[r.type]||RES_STYLE.Article;
+      return <div key={r.title} className="lux-card lift p-5 flex flex-col text-center" style={{borderTop:`3px solid ${st.hue}`}}>
+        <span className="mx-auto grid place-items-center h-12 w-12 rounded-2xl text-2xl mb-2" style={{background:st.hue+'1A'}}>{st.emoji}</span>
+        <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2 py-0.5 mx-auto" style={{background:st.hue+'18',color:st.hue}}>{r.type}</span>
+        {r._new&&<span className="text-[10px] font-bold uppercase tracking-wider mt-1" style={{color:st.hue}}>New</span>}
+        <a href={r.url} target="_blank" rel="noopener noreferrer" className="block flex-1 mt-2">
+          <div className="font-medium text-charcoal text-sm leading-snug">{r.title}</div>
+          <div className="text-xs text-faint mt-0.5">{r.src}</div></a>
+        <div className="flex items-center justify-between mt-3 pt-3 border-t border-line">
+          <a href={r.url} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold flex items-center gap-1" style={{color:st.hue}}>Open <Icon name="arrowR" size={12} className="-rotate-45"/></a>
+          <button onClick={()=>completeRes(r.title)} className="text-xs font-semibold text-saged flex items-center gap-1 hover:underline"><Icon name="check" size={13}/>Done</button></div>
+      </div>; })}
+      {!shown.length && <div className="sm:col-span-2 lg:col-span-4 text-sm text-muted text-center py-4">You’ve completed every curated resource, superb. New ones appear as we add them.</div>}</div>
 
     <Eyebrow className="mb-3">Core concepts</Eyebrow>
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -4980,16 +5063,16 @@ function Credit(){
   return <AppShell>
     <PageHead eyebrow="Credit optimisation" title="Build a score lenders compete over."
       desc="Understand exactly what moves your credit score, model changes, and follow a personalised plan. Educational, not a credit-reporting service."/>
-    <div className="grid lg:grid-cols-3 gap-4 mb-4">
-      <Card className="lg:col-span-1 text-center">
+    <div className="grid lg:grid-cols-3 gap-4 mb-4 items-stretch">
+      <Card className="lg:col-span-1 text-center h-full flex flex-col justify-center">
         <Eyebrow className="mb-2 justify-center">Estimated score</Eyebrow>
         <div className="font-serif text-6xl text-charcoal tnum leading-none"><AnimatedNumber value={score}/></div>
         <div className="text-sm text-faint mt-1">range 300–850</div>
         <div className="mt-3"><Pill tone={band[1]}>{band[0]}</Pill></div>
         <div className="mt-3"><ProgressBar value={pct} tone={band[1]} height={10}/></div>
-        <div className="mt-4 rounded-xl bg-sage/8 p-3 text-sm"><span className="text-muted">Potential with the plan below</span><div className="font-serif text-2xl text-saged tnum">{potential} <span className="text-sm text-muted">(+{potential-score})</span></div></div>
+        <div className="mt-4 rounded-xl p-3 text-sm" style={{background:'linear-gradient(135deg,#15803D,#16A34A)'}}><span style={{color:'rgba(255,255,255,.85)'}}>Potential with the plan below</span><div className="font-serif text-2xl tnum" style={{color:'#fff'}}>{potential} <span className="text-sm" style={{color:'rgba(255,255,255,.75)'}}>(+{potential-score})</span></div></div>
       </Card>
-      <Card className="lg:col-span-2">
+      <Card className="lg:col-span-2 h-full">
         <Eyebrow className="mb-4">Model your profile</Eyebrow>
         <div className="space-y-5">
           <LuxSlider label={<>Credit utilisation</>} value={util} min={0} max={90} step={1} onChange={setUtil} fmt={v=>v+'%'}/>
@@ -5010,7 +5093,7 @@ function Credit(){
     </Card>
     {(()=>{ const c=CREDIT_CARDS[cardSel]; return <div className="mt-4">
       <Eyebrow className="mb-3">Top credit cards for your profile</Eyebrow>
-      <div className="grid lg:grid-cols-2 gap-4">
+      <div className="grid lg:grid-cols-2 gap-4 items-start">
         <div className="grid sm:grid-cols-2 gap-3">{CREDIT_CARDS.map((cc,i)=>{ const on=i===cardSel;
           return <button key={cc.name} onClick={()=>setCardSel(i)}
             className={cx('relative rounded-2xl p-4 text-left text-white overflow-hidden transition-all duration-300', on?'ring-2 ring-goldd scale-[1.02] shadow-2xl':'opacity-90 hover:opacity-100 hover:scale-[1.01]')}
@@ -5082,37 +5165,78 @@ function Badges(){
     }catch(e){}
   },[app.user, JSON.stringify(earned)]);
   const earnedCount=Object.values(earned).filter(Boolean).length;
+  const byRarity=(id,fallback)=>{ const pct=badgeHolderPct(id); return { pct, rar: pct==null?(fallback||'Common'):rarityFromShare(pct) }; };
+  const [filter,setFilter]=useState('All');
+  const tiers=['All','Earned','Locked',...RARITY_ORDER];
+  const decorated=BADGES.map(b=>{ const {pct,rar}=byRarity(b.id,b.rarity); return {...b, pct, rar, got:!!earned[b.id]}; });
+  const shown=decorated.filter(b=> filter==='All' ? true : filter==='Earned' ? b.got : filter==='Locked' ? !b.got : b.rar===filter);
+  const counts=RARITY_ORDER.map(r=>[r, decorated.filter(b=>b.rar===r&&b.got).length, decorated.filter(b=>b.rar===r).length]);
+  const nextUp=decorated.filter(b=>!b.got).slice(0,3);
   return <AppShell>
-    <PageHead eyebrow="Achievements" title="Your milestones."
-      desc="Professional milestones that mark real financial progress. Each shows what it means and exactly how to earn it, hover any badge for details."
-      action={<Pill tone="gold"><Icon name="trophy" size={13}/> {earnedCount}/{BADGES.length} earned</Pill>}/>
-    <Card className="mb-4"><div className="flex items-center justify-between mb-2"><Eyebrow>Collection progress</Eyebrow><span className="text-sm text-muted tnum">{round(earnedCount/BADGES.length*100)}%</span></div><ProgressBar value={earnedCount/BADGES.length*100} tone="gold" height={10}/></Card>
-    <div className="mb-4"><StreakRewards/></div>
-    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      {BADGES.map(b=>{ const got=earned[b.id];
-        const pct=badgeHolderPct(b.id);
-        const rar=pct==null? (b.rarity||'Common') : rarityFromShare(pct);
-        const R=RARITY[rar]||RARITY.Common;
+    {/* Colourful hero so the page feels like a trophy cabinet, not a table. */}
+    <div className="relative overflow-hidden rounded-xl3 mb-5 p-6 sm:p-8 text-white"
+      style={{background:'linear-gradient(135deg,#6D28D9 0%,#4F46E5 45%,#0EA5E9 100%)', boxShadow:'0 20px 60px rgba(79,70,229,.4)'}}>
+      <div className="absolute -top-16 -right-10 h-52 w-52 rounded-full bg-white/20 blur-3xl floaty"/>
+      <div className="relative flex flex-wrap items-center gap-6">
+        <div className="flex-1 min-w-[220px]">
+          <div className="text-[11px] font-bold uppercase tracking-[.24em]" style={{color:'rgba(255,255,255,.85)'}}>Achievements</div>
+          <h1 className="font-serif text-3xl sm:text-4xl mt-1">Your trophy cabinet.</h1>
+          <p className="text-sm mt-2 max-w-md" style={{color:'rgba(255,255,255,.85)'}}>Every badge marks real financial progress. Rarity reflects how many members have earned it.</p>
+          <div className="mt-4 max-w-sm">
+            <div className="flex justify-between text-xs mb-1" style={{color:'rgba(255,255,255,.9)'}}>
+              <span className="font-semibold">{earnedCount} of {BADGES.length} earned</span><span className="tnum">{round(earnedCount/BADGES.length*100)}%</span></div>
+            <div className="h-2.5 rounded-full overflow-hidden" style={{background:'rgba(255,255,255,.22)'}}>
+              <div className="h-full rounded-full transition-all duration-700" style={{width:Math.max(4,earnedCount/BADGES.length*100)+'%', background:'#fff', boxShadow:'0 0 14px rgba(255,255,255,.6)'}}/></div>
+          </div>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          {counts.map(([r,got,total])=><div key={r} className="rounded-xl2 px-3 py-2 text-center" style={{background:'rgba(255,255,255,.15)',border:'1px solid rgba(255,255,255,.22)'}}>
+            <div className="font-serif text-lg" style={{color:'#fff'}}>{got}<span className="text-xs" style={{color:'rgba(255,255,255,.7)'}}>/{total}</span></div>
+            <div className="text-[9px] uppercase tracking-wider" style={{color:'rgba(255,255,255,.8)'}}>{r}</div></div>)}
+        </div>
+      </div>
+    </div>
+
+    {nextUp.length>0 && <Card hover={false} className="mb-4">
+      <Eyebrow className="mb-3">Closest to unlocking</Eyebrow>
+      <div className="grid sm:grid-cols-3 gap-3">{nextUp.map(b=>{ const R=RARITY[b.rar]||RARITY.Common;
+        return <div key={b.id} className="flex items-start gap-3 rounded-xl2 border border-line p-3">
+          <span className="grid place-items-center h-10 w-10 rounded-xl text-xl shrink-0" style={{background:R.color+'1A'}}>{b.emoji||'🏅'}</span>
+          <div className="min-w-0"><div className="text-sm font-medium text-charcoal">{b.name}</div>
+            <div className="text-xs text-muted leading-snug mt-0.5">{req[b.id]}</div></div></div>; })}</div>
+    </Card>}
+
+    <div className="flex gap-2 mb-4 flex-wrap">{tiers.map(t=>{
+      const on=filter===t; const R=RARITY[t];
+      return <button key={t} onClick={()=>setFilter(t)} className={cx('chip',on&&'on')}
+        style={on&&R?{background:`linear-gradient(180deg,${R.color},${R.color}CC)`,borderColor:'transparent',color:'#fff'}:undefined}>{t}</button>; })}</div>
+
+    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 stagger">
+      {shown.map(b=>{ const got=b.got; const R=RARITY[b.rar]||RARITY.Common;
         const ring = R.rainbow
           ? 'conic-gradient(from 210deg,#EC4899,#F59E0B,#22C55E,#3B82F6,#A855F7,#EC4899)'
           : `linear-gradient(135deg,${R.color},${R.color}99)`;
-        return <Hint key={b.id} text={got?`Earned · ${b.desc}`:`Locked · ${req[b.id]}`}>
-          <div className={cx('lux-card lift p-5 text-center h-full w-full relative overflow-hidden', !got&&'opacity-70')}
-            style={got?{borderColor:R.color+'66', boxShadow:`0 0 0 1px ${R.color}33, 0 12px 30px ${R.glow}`}:undefined}>
-            {got && <span className="absolute inset-x-0 top-0 h-1" style={{background:ring}}/>}
-            <span className="mx-auto grid place-items-center h-16 w-16 rounded-2xl mb-3 text-3xl"
-              style={got?{background:ring, boxShadow:`0 6px 18px ${R.glow}`}:{background:'rgb(var(--c-sand))'}}>
+        return <div key={b.id} className={cx('lux-card p-5 text-center h-full relative overflow-hidden transition-transform duration-300', got?'lift':'opacity-75')}
+            style={got?{borderColor:R.color+'55', boxShadow:`0 0 0 1px ${R.color}22, 0 14px 34px ${R.glow}`}:undefined}>
+            {got && <span className="absolute inset-x-0 top-0 h-1.5" style={{background:ring}}/>}
+            {got && <span className="absolute -top-10 -right-10 h-24 w-24 rounded-full blur-2xl" style={{background:R.color+'33'}}/>}
+            <span className="relative mx-auto grid place-items-center h-20 w-20 rounded-full mb-3 text-4xl"
+              style={got?{background:ring, boxShadow:`0 8px 22px ${R.glow}`}:{background:'rgb(var(--c-sand))'}}>
               {got? (b.emoji||'🏅') : <Icon name="lock" size={26} className="text-taupe"/>}</span>
-            <div className="font-serif text-lg text-charcoal">{b.name}</div>
-            <div className="mt-1.5 flex items-center justify-center gap-1.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2 py-0.5"
+            <div className="font-serif text-lg text-charcoal leading-snug">{b.name}</div>
+            <div className="mt-2 flex items-center justify-center gap-1.5">
+              <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2.5 py-0.5"
                 style={{background:R.color+'22', color:R.color}}>{R.label}</span>
-              {got && <Icon name="check" size={13} className="text-saged"/>}
+              {got && <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2 py-0.5 bg-sage/15 text-saged">Earned</span>}
             </div>
-            <p className="text-[11px] text-muted mt-2 leading-relaxed">{got?b.desc:req[b.id]}</p>
-            <div className="text-[10px] text-faint mt-1.5">{pct==null? 'Rarity updates as the community grows' : `${pct}% of members have this`}</div>
-          </div></Hint>; })}
+            <p className="text-[11px] text-muted mt-2.5 leading-relaxed min-h-[32px]">{got?b.desc:req[b.id]}</p>
+            <div className="text-[10px] text-faint mt-2 pt-2 border-t border-line">
+              {b.pct==null? 'Rarity opens up as the community grows' : `${b.pct}% of members have this`}</div>
+          </div>; })}
+      {!shown.length && <div className="sm:col-span-2 lg:col-span-4 text-center text-sm text-muted py-10">No badges in this group yet.</div>}
     </div>
+
+    <div className="mt-5"><StreakRewards/></div>
   </AppShell>;
 }
 
@@ -5623,53 +5747,6 @@ function WorldGlobe({ cities, selected, onSelect, lit }){
     <div className="text-center text-[11px] text-faint mt-1">Drag to spin · tap a city to select</div>
   </div>;
 }
-// Photoreal 3D earth via globe.gl (lazy-loaded); falls back to the vector globe if unavailable.
-let _globeLibState='idle'; // idle | loading | ready | failed
-function loadGlobeLib(){
-  if(_globeLibState==='ready'||_globeLibState==='failed') return Promise.resolve(_globeLibState);
-  return new Promise(res=>{
-    if(typeof window!=='undefined' && window.Globe){ _globeLibState='ready'; return res('ready'); }
-    _globeLibState='loading';
-    const s=document.createElement('script'); s.src='https://unpkg.com/globe.gl@2.32.0/dist/globe.gl.min.js';
-    const done=(ok)=>{ _globeLibState=ok?'ready':'failed'; res(_globeLibState); };
-    s.onload=()=>done(!!window.Globe); s.onerror=()=>done(false);
-    // safety timeout so we never hang on the loader
-    setTimeout(()=>{ if(_globeLibState==='loading') done(!!window.Globe); }, 6000);
-    document.head.appendChild(s);
-  });
-}
-function PhotoGlobe({ cities, selected, onSelect, lit }){
-  const ref=useRef(null); const worldRef=useRef(null); const [status,setStatus]=useState('loading');
-  useEffect(()=>{ let alive=true;
-    loadGlobeLib().then(state=>{ if(!alive) return; if(state!=='ready'||!ref.current||!window.Globe){ setStatus('fallback'); return; }
-      try{
-        const w=ref.current.clientWidth||360;
-        const world=window.Globe()(ref.current)
-          .globeImageUrl('https://unpkg.com/three-globe@2.31.0/example/img/earth-blue-marble.jpg')
-          .bumpImageUrl('https://unpkg.com/three-globe@2.31.0/example/img/earth-topology.png')
-          .backgroundColor('rgba(0,0,0,0)')
-          .width(w).height(360)
-          .pointsData(cities.map(c=>({lat:c.lat,lng:c.lon,city:c.city})))
-          .pointLat('lat').pointLng('lng').pointAltitude(0.03).pointRadius(0.55)
-          .pointColor(p=> (lit&&lit[p.city])?'#34D399':'#FBBF24')
-          .labelsData(cities.map(c=>({lat:c.lat,lng:c.lon,city:c.city})))
-          .labelLat('lat').labelLng('lng').labelText('city').labelSize(1.1).labelColor(()=> 'rgba(255,255,255,.75)').labelResolution(2)
-          .onPointClick(p=> onSelect(p.city))
-          .onLabelClick(p=> onSelect(p.city));
-        world.controls().autoRotate=true; world.controls().autoRotateSpeed=0.55; world.controls().enableZoom=false;
-        worldRef.current=world; setStatus('ready');
-      }catch(e){ setStatus('fallback'); }
-    });
-    return ()=>{ alive=false; try{ if(worldRef.current&&worldRef.current._destructor) worldRef.current._destructor(); }catch(e){} if(ref.current) ref.current.innerHTML=''; };
-  },[]);
-  if(status==='fallback') return <WorldGlobe cities={cities} selected={selected} onSelect={onSelect} lit={lit}/>;
-  return <div>
-    <div ref={ref} style={{height:360,minHeight:360,cursor:'grab'}} className="grid place-items-center">
-      {status==='loading' && <div className="text-center text-white/70"><div className="flex items-center justify-center gap-1.5 mb-2"><span className="dot"/><span className="dot"/><span className="dot"/></div><div className="text-xs">Loading 3D globe…</div></div>}
-    </div>
-    <div className="text-center text-[11px] text-faint mt-1">Drag to spin · tap a city to select</div>
-  </div>;
-}
 function GlobalMarkets(){
   const [region,setRegion]=useState('All');
   const [selCity,setSelCity]=useState('New York');
@@ -5700,7 +5777,7 @@ function GlobalMarkets(){
     {(()=>{ const lit={}; data.forEach(d=>lit[d.city]=d.open); const sc=data.find(d=>d.city===selCity)||data[0]; const upc=sc.chg>=0;
       const q=encodeURIComponent(sc.mkt+' index'), nq=encodeURIComponent(sc.city+' stock market');
       return <div className="grid lg:grid-cols-2 gap-4 mb-5 items-center">
-        <Card hover={false} className="!p-4" style={{background:'linear-gradient(135deg,#0b1e46,#0b1020)'}}><PhotoGlobe cities={MARKET_CITIES} selected={selCity} onSelect={setSelCity} lit={lit}/></Card>
+        <Card hover={false} className="!p-4" style={{background:'linear-gradient(135deg,#0b1e46,#0b1020)'}}><WorldGlobe cities={MARKET_CITIES} selected={selCity} onSelect={setSelCity} lit={lit}/></Card>
         <Card hover={false}><div className="flex items-center justify-between"><Eyebrow>{sc.region} · financial centre</Eyebrow><Pill tone={sc.open?'sage':'neutral'}><span className={cx('h-1.5 w-1.5 rounded-full',sc.open?'bg-saged':'bg-faint')}/>{sc.open?'Open now':'Closed'}</Pill></div>
           <div className="font-serif text-3xl text-charcoal mt-1">{sc.city}</div><div className="text-sm text-muted">{sc.mkt}</div>
           <div className="flex items-end justify-between mt-3"><div className="font-serif text-3xl text-charcoal tnum">{sc.lvl.toLocaleString(undefined,{maximumFractionDigits:0})}</div>
@@ -5945,40 +6022,64 @@ function LeafQuiz(){
   const choose=(n)=>{ if(answered) return; setPick(n); if(n===q[2]) setScore(s=>s+1); };
   const next=()=>{ if(i+1>=bank.length){ setDone(true); if(app.awardXp) app.awardXp(20); } else { setI(i+1); setPick(null); } };
   const pct=Math.round(score/bank.length*100);
-  if(done) return <AppShell><PageHead eyebrow="Leaf · Money quiz" title="Quiz complete!" desc="Here’s how you did, retake any time to beat your score."/>
-    <Card className="flex flex-col items-center text-center py-8"><ScoreRing value={pct} size={150} label="score" color={LEAF_G}/>
-      <div className="font-serif text-2xl text-charcoal mt-4">{score} / {bank.length} correct</div>
-      <div className="text-sm text-muted mt-1">{pct>=80?'Money-smart! 🌟':pct>=50?'Solid, keep growing 🌱':'Great start, every pro began here.'}</div>
-      <button onClick={()=>{setI(0);setPick(null);setScore(0);setDone(false);}} className="btn btn-ghost mt-5">Retake quiz <Icon name="arrowR" size={14}/></button></Card></AppShell>;
-  return <AppShell>
-    <PageHead eyebrow="Leaf · Money quiz" title="Test what you know." desc="Eight quick questions. Instant explanations. +20 XP when you finish."/>
-    <div className="grid lg:grid-cols-3 gap-4 items-start">
-      {/* Progress rail fills the left so the page never looks half empty. */}
-      <Card hover={false} className="lg:sticky lg:top-24">
-        <Eyebrow className="mb-3">Progress</Eyebrow>
-        <div className="flex items-center gap-4">
-          <ScoreRing value={Math.round(i/bank.length*100)} size={92} stroke={9} label="done" color={LEAF_G}/>
-          <div><div className="font-serif text-3xl text-charcoal">{score}<span className="text-base text-muted">/{bank.length}</span></div>
-            <div className="text-xs text-muted">correct so far</div></div>
+  const QHUE=['#22C55E','#0EA5E9','#A855F7','#F59E0B','#EC4899','#0D9488','#6366F1','#DC2626'];
+  const hue=QHUE[i%QHUE.length];
+  if(done) return <AppShell>
+    <div className="relative overflow-hidden rounded-xl3 p-8 sm:p-12 text-center text-white"
+      style={{background:'linear-gradient(135deg,#15A34A 0%,#0D9488 50%,#0EA5E9 100%)', boxShadow:'0 24px 70px rgba(13,148,136,.45)'}}>
+      <div className="absolute -top-20 -right-10 h-60 w-60 rounded-full bg-white/20 blur-3xl floaty"/>
+      <div className="relative">
+        <div className="text-6xl mb-3">{pct>=80?'🌟':pct>=50?'🌱':'📚'}</div>
+        <h1 className="font-serif text-4xl sm:text-5xl">{score} / {bank.length}</h1>
+        <p className="text-lg mt-2" style={{color:'rgba(255,255,255,.9)'}}>{pct>=80?'Money-smart!':pct>=50?'Solid, keep growing':'Great start, every pro began here.'}</p>
+        <div className="h-3 rounded-full mx-auto max-w-sm mt-6 overflow-hidden" style={{background:'rgba(255,255,255,.25)'}}>
+          <div className="h-full rounded-full" style={{width:Math.max(4,pct)+'%',background:'#fff',boxShadow:'0 0 16px rgba(255,255,255,.7)'}}/></div>
+        <div className="flex flex-wrap justify-center gap-3 mt-7">
+          <button onClick={()=>{setI(0);setPick(null);setScore(0);setDone(false);}} className="btn px-6 py-3 text-sm" style={{background:'#fff',color:'#0D9488'}}>Retake quiz <Icon name="refresh" size={14}/></button>
+          <button onClick={()=>app.nav('/leaf')} className="btn px-6 py-3 text-sm" style={{background:'rgba(255,255,255,.2)',color:'#fff'}}>Back to Leaf <Icon name="arrowR" size={14}/></button>
         </div>
-        <div className="grid grid-cols-4 gap-1.5 mt-4">{bank.map((_,n)=>
-          <span key={n} className="h-8 rounded-lg grid place-items-center text-[11px] font-semibold"
-            style={n<i?{background:LEAF_G,color:'#fff'}:n===i?{background:LEAF_G+'26',color:LEAF_G,border:'1px solid '+LEAF_G}:{background:'rgb(var(--c-sand))',color:'rgb(var(--c-faint))'}}>{n+1}</span>)}</div>
-        <p className="text-xs text-faint mt-4 leading-relaxed">Answer honestly, the explanation after each question is where the learning happens.</p>
-      </Card>
-      <Card className="lg:col-span-2">
-        <div className="flex items-center justify-between mb-3"><Eyebrow>Question {i+1} of {bank.length}</Eyebrow><span className="text-sm text-muted">Score {score}</span></div>
-        <div className="h-1.5 rounded-full bg-sand mb-6"><div className="h-1.5 rounded-full transition-all" style={{width:((i+(answered?1:0))/bank.length*100)+'%',background:LEAF_G}}/></div>
-        <div className="font-serif text-2xl text-charcoal mb-5 leading-snug">{q[0]}</div>
-        <div className="grid gap-2.5">{q[1].map((opt,n)=>{ const correct=n===q[2]; const chosen=n===pick;
-          const cls=!answered?'border-line hover:border-[color:var(--lg)]':correct?'border-sage bg-sage/10':chosen?'border-berry/50 bg-berry/8':'border-line opacity-60';
-          return <button key={n} onClick={()=>choose(n)} className={cx('rounded-xl2 border p-4 text-left text-sm transition flex items-center gap-3',cls)} style={{'--lg':LEAF_G}}>
-            <span className={cx('grid place-items-center h-7 w-7 rounded-lg shrink-0 text-xs font-semibold',answered&&correct?'bg-sage text-white':answered&&chosen?'bg-berry text-white':'bg-sand text-muted')}>{answered&&correct?'✓':answered&&chosen?'✕':String.fromCharCode(65+n)}</span>
-            <span className="text-charcoal text-base">{opt}</span></button>; })}</div>
-        {answered && <div className="mt-4 rounded-xl2 bg-sage/8 border border-sage/25 p-4 text-sm text-charcoal/85 anim-pop leading-relaxed"><b>{pick===q[2]?'Correct! ':'Not quite. '}</b>{q[3]}</div>}
-        {answered && <button onClick={next} className="btn w-full mt-4 py-3 text-white" style={{background:LEAF_G}}>{i+1>=bank.length?'See my score':'Next question'} <Icon name="arrowR" size={14}/></button>}
-      </Card>
+      </div>
+    </div>
+    <div className="grid sm:grid-cols-3 gap-4 mt-4">
+      {[['Correct',score,'#16A34A'],['Missed',bank.length-score,'#DC2626'],['Score',pct+'%','#0EA5E9']].map(([l,v,c])=>
+        <Card key={l} hover={false} className="text-center"><div className="text-xs text-muted">{l}</div>
+          <div className="font-serif text-3xl mt-1" style={{color:c}}>{v}</div></Card>)}
     </div></AppShell>;
+  return <AppShell>
+    {/* Full-bleed colourful quiz: the question owns the page, no wasted space. */}
+    <div className="relative overflow-hidden rounded-xl3 mb-4 px-6 py-5 text-white" style={{background:`linear-gradient(135deg,${hue},${hue}AA)`}}>
+      <div className="absolute -top-12 -right-6 h-36 w-36 rounded-full bg-white/20 blur-2xl"/>
+      <div className="relative flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <div className="text-[11px] font-bold uppercase tracking-[.24em]" style={{color:'rgba(255,255,255,.85)'}}>Leaf · Money quiz</div>
+          <div className="font-serif text-2xl mt-0.5">Question {i+1} of {bank.length}</div>
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="text-center"><div className="font-serif text-3xl">{score}</div><div className="text-[10px] uppercase tracking-wider" style={{color:'rgba(255,255,255,.8)'}}>correct</div></div>
+          <div className="flex gap-1">{bank.map((_,n)=>
+            <span key={n} className="h-2.5 w-2.5 rounded-full" style={{background:n<i?'#fff':n===i?'rgba(255,255,255,.85)':'rgba(255,255,255,.3)'}}/>)}</div>
+        </div>
+      </div>
+      <div className="relative h-2 rounded-full mt-4 overflow-hidden" style={{background:'rgba(255,255,255,.25)'}}>
+        <div className="h-full rounded-full transition-all duration-500" style={{width:((i+(answered?1:0))/bank.length*100)+'%',background:'#fff'}}/></div>
+    </div>
+    <Card className="!p-6 sm:!p-8">
+      <div className="font-serif text-2xl sm:text-3xl text-charcoal mb-6 leading-snug text-center max-w-3xl mx-auto">{q[0]}</div>
+      <div className="grid sm:grid-cols-2 gap-3 max-w-4xl mx-auto">{q[1].map((opt,n)=>{ const correct=n===q[2]; const chosen=n===pick;
+        const base='rounded-xl2 border-2 p-4 text-left transition-all duration-200 flex items-start gap-3 h-full';
+        const style=!answered?{borderColor:'rgb(var(--c-line))'}
+          :correct?{borderColor:'#16A34A',background:'rgba(22,163,74,.10)'}
+          :chosen?{borderColor:'#DC2626',background:'rgba(220,38,38,.08)'}:{borderColor:'rgb(var(--c-line))',opacity:.5};
+        return <button key={n} onClick={()=>choose(n)} className={base} style={style}>
+          <span className="grid place-items-center h-8 w-8 rounded-xl shrink-0 text-sm font-bold"
+            style={answered&&correct?{background:'#16A34A',color:'#fff'}:answered&&chosen?{background:'#DC2626',color:'#fff'}:{background:hue+'1A',color:hue}}>
+            {answered&&correct?'✓':answered&&chosen?'✕':String.fromCharCode(65+n)}</span>
+          <span className="text-charcoal text-base leading-snug">{opt}</span></button>; })}</div>
+      {answered && <div className="mt-5 max-w-3xl mx-auto rounded-xl2 p-4 text-sm leading-relaxed anim-pop"
+        style={pick===q[2]?{background:'rgba(22,163,74,.10)',border:'1px solid rgba(22,163,74,.30)'}:{background:'rgba(220,38,38,.08)',border:'1px solid rgba(220,38,38,.28)'}}>
+        <b className="text-charcoal">{pick===q[2]?'Correct. ':'Not quite. '}</b><span className="text-charcoal/85">{q[3]}</span></div>}
+      {answered && <div className="max-w-3xl mx-auto"><button onClick={next} className="btn w-full mt-4 py-3.5 text-base text-white" style={{background:`linear-gradient(135deg,${hue},${hue}CC)`}}>{i+1>=bank.length?'See my score':'Next question'} <Icon name="arrowR" size={16}/></button></div>}
+    </Card></AppShell>;
 }
 /* Word of the Day with Anki-style spaced repetition.
    Each word carries a box (1-5). Correct answers promote it and push the next
@@ -6020,6 +6121,77 @@ function gradeWord(srs, word, correct){
   const box = correct ? Math.min(5,(cur.box||1)+1) : 1;
   return {...srs, [word]:{ box, due: todayNum()+BOX_DAYS[box], seen:(cur.seen||0)+1,
     right:(cur.right||0)+(correct?1:0), wrong:(cur.wrong||0)+(correct?0:1) }};
+}
+// Word of the Day, shown as a popup the first time you enter Leaf each day.
+// Three words, four options each. Wrong answers drop back to box 1 so the word
+// returns sooner (spaced repetition); right answers push it further out.
+function WordOfDayPopup(){
+  const app=useApp();
+  const today=new Date().toISOString().slice(0,10);
+  const [open,setOpen]=useState(false);
+  const [srs,setSrs]=useState(loadSrs);
+  const [queue,setQueue]=useState([]);
+  const [i,setI]=useState(0),[pick,setPick]=useState(null),[done,setDone]=useState(false),[score,setScore]=useState(0);
+  useEffect(()=>{
+    try{ if(localStorage.getItem('lumera_wotd_day')===today) return; }catch(e){}
+    const q=dueWords(loadSrs()).slice(0,3);
+    if(!q.length) return;
+    setQueue(q); const t=setTimeout(()=>setOpen(true),700); return ()=>clearTimeout(t);
+  },[today]);
+  const w=queue[i];
+  // One correct definition plus three decoys.
+  const options=useMemo(()=>{ if(!w) return [];
+    const others=WORDS.filter(x=>x[0]!==w[0]).sort((a,b)=>hashStr(a[0]+w[0])-hashStr(b[0]+w[0])).slice(0,3);
+    return [[w[2],true],...others.map(o=>[o[2],false])].sort((a,b)=>hashStr(a[0])-hashStr(b[0]));
+  },[w&&w[0]]);
+  const choose=(n)=>{ if(pick!==null||!w) return; setPick(n);
+    const correct=options[n][1]; if(correct) setScore(s=>s+1);
+    const ns=gradeWord(srs,w[0],correct); setSrs(ns); saveSrs(ns); };
+  const next=()=>{ if(i+1>=queue.length){ setDone(true);
+      try{ localStorage.setItem('lumera_wotd_day',today); }catch(e){}
+      if(app.awardXp) app.awardXp(15,true);
+    } else { setI(i+1); setPick(null); } };
+  const close=()=>{ try{ localStorage.setItem('lumera_wotd_day',today); }catch(e){} setOpen(false); };
+  if(!open||!w) return null;
+  const wrongOnes=queue.slice(0,i+1).filter(x=>(srs[x[0]]||{}).box===1);
+  return <div className="fixed inset-0 z-[175] grid place-items-center p-4">
+    <div className="absolute inset-0" style={{background:'rgba(6,20,12,.72)',backdropFilter:'blur(6px)'}} onClick={()=>done&&close()}/>
+    <div className="relative w-full max-w-lg lux-card !p-0 overflow-hidden anim-scaleIn">
+      <div className="px-6 py-4 text-white" style={{background:`linear-gradient(135deg,${LEAF_G},#0D9488)`}}>
+        <div className="flex items-center justify-between">
+          <div><div className="text-[11px] font-bold uppercase tracking-[.22em]" style={{color:'rgba(255,255,255,.85)'}}>Leaf · Word of the day</div>
+            <div className="font-serif text-2xl mt-0.5">{done?'Nice work!':'Three words to know'}</div></div>
+          <button onClick={close} className="grid place-items-center h-8 w-8 rounded-lg" style={{background:'rgba(255,255,255,.2)',color:'#fff'}}><Icon name="x" size={15}/></button>
+        </div>
+        {!done && <div className="flex gap-1.5 mt-3">{queue.map((_,n)=>
+          <span key={n} className="h-1.5 flex-1 rounded-full" style={{background:n<i?'#fff':n===i?'rgba(255,255,255,.65)':'rgba(255,255,255,.28)'}}/>)}</div>}
+      </div>
+      {done ? <div className="p-6 text-center">
+        <div className="text-5xl mb-2">{score===queue.length?'🌟':score>0?'🌱':'📚'}</div>
+        <div className="font-serif text-2xl text-charcoal">{score} of {queue.length} right</div>
+        <p className="text-sm text-muted mt-1.5 leading-relaxed">
+          {wrongOnes.length
+            ? `We’ll bring ${wrongOnes.length===1?'that word':'those words'} back sooner so ${wrongOnes.length===1?'it':'they'} stick. That’s spaced repetition: the ones you miss return quickly, the ones you know drift further away.`
+            : 'All correct, so these words move further down your review schedule. Come back tomorrow for three more.'}
+        </p>
+        <button onClick={close} className="btn w-full mt-5 py-3 text-white" style={{background:LEAF_G}}>Start exploring Leaf <Icon name="arrowR" size={14}/></button>
+      </div> : <div className="p-6">
+        <div className="text-center mb-4">
+          <Pill tone="neutral">{w[1]}</Pill>
+          <div className="font-serif text-4xl text-charcoal mt-2">{w[0]}</div>
+          <div className="text-sm text-muted mt-1">{srs[w[0]]?`Seen before · box ${srs[w[0]].box||1}/5`:'New word'} · what does it mean?</div>
+        </div>
+        <div className="space-y-2">{options.map(([text,isRight],n)=>{ const chosen=n===pick; const answered=pick!==null;
+          const cls=!answered?'border-line hover:border-[color:var(--lg)]':isRight?'border-sage bg-sage/10':chosen?'border-berry/50 bg-berry/8':'border-line opacity-55';
+          return <button key={n} onClick={()=>choose(n)} className={cx('w-full rounded-xl2 border p-3 text-left text-sm transition flex items-start gap-2.5',cls)} style={{'--lg':LEAF_G}}>
+            <span className={cx('grid place-items-center h-6 w-6 rounded-lg shrink-0 text-xs font-semibold mt-0.5',answered&&isRight?'bg-sage text-white':answered&&chosen?'bg-berry text-white':'bg-sand text-muted')}>{answered&&isRight?'✓':answered&&chosen?'✕':String.fromCharCode(65+n)}</span>
+            <span className="text-charcoal">{text}</span></button>; })}</div>
+        {pick!==null && <div className="mt-3 rounded-xl2 px-3 py-2.5 text-xs anim-pop"
+          style={options[pick][1]?{background:'rgba(34,197,94,.10)',color:'rgb(var(--c-charcoal))'}:{background:'rgba(166,83,74,.10)',color:'rgb(var(--c-charcoal))'}}>
+          {options[pick][1]?'Correct. This one moves further down your review schedule.':'Not quite, so this word comes back sooner until it sticks.'}</div>}
+        {pick!==null && <button onClick={next} className="btn w-full mt-3 py-2.5 text-white" style={{background:LEAF_G}}>{i+1>=queue.length?'Finish':'Next word'} <Icon name="arrowR" size={14}/></button>}
+      </div>}
+    </div></div>;
 }
 function LeafWordOfDay(){
   const app=useApp();
@@ -6990,13 +7162,30 @@ const FEATURES = [
   { key:'universities',label:'Universities',         routes:['/universities'],                   def:true },
   { key:'subjects',    label:'Subject Selection',    routes:['/subjects'],                       def:true },
   { key:'prep',        label:'Career Prep Hub',      routes:['/prep'],                           def:true },
-  { key:'wordOfDay',   label:'Word of the Day',      routes:['/glossary'],                        def:true },
+  { key:'wordOfDay',   label:'Word of the Day',      routes:[],                                   def:true },
   { key:'worldMonitor',label:'World Monitor',        routes:['/world'],                          def:true },
   { key:'globe',       label:'Global Markets',       routes:['/globe'],                          def:true },
 ];
 const FLAG_KEY='lumera_flags';
+// Flags are tri-state: true (live), 'beta' (preview only) or false (off).
+// Beta preview is opted into with ?beta=1 and remembered for the session.
+function isBetaPreview(){
+  try{
+    const p=new URLSearchParams(location.search);
+    if(p.get('beta')==='1'){ sessionStorage.setItem('lumera_beta','1'); return true; }
+    if(p.get('beta')==='0'){ sessionStorage.removeItem('lumera_beta'); return false; }
+    return sessionStorage.getItem('lumera_beta')==='1';
+  }catch(e){ return false; }
+}
 function loadFlags(){ let saved={}; try{ saved=JSON.parse(localStorage.getItem(FLAG_KEY))||{}; }catch(e){}
-  const out={}; FEATURES.forEach(f=>{ out[f.key] = (f.key in saved) ? !!saved[f.key] : f.def; }); return out; }
+  const beta=isBetaPreview();
+  const out={}; FEATURES.forEach(f=>{
+    const v = (f.key in saved) ? saved[f.key] : f.def;
+    out[f.key] = (v==='beta') ? beta : !!v;
+  });
+  return out;
+}
+
 function flagForRoute(flags, path){ const f=FEATURES.find(x=>x.routes.includes(path)); return f? !!flags[f.key] : true; }
 
 const ROUTES = {
@@ -7141,7 +7330,7 @@ function App(){
   // Daily-challenge VERIFICATION: completes (once/day) only when you visit its tool.
   useEffect(()=>{ const path=route.split('?')[0]; const ch=PRODUCT_CHALLENGE[product];
     if(ch && ch[3]===path){ const key='lumera_chal_'+product+'_'+todayKey();
-      try{ if(!localStorage.getItem(key)){ localStorage.setItem(key,'1'); awardXp(ch[2]); } }catch(e){} }
+      try{ if(!localStorage.getItem(key)){ localStorage.setItem(key,'1'); awardXp(ch[2],true); } }catch(e){} }
   },[route, product]);
 
   const value = { route, nav, user, signup, login, loginProvider, demo, logout:askLogout, askLogout, completeOnboarding, checkIn, onboarded,
@@ -7151,9 +7340,11 @@ function App(){
 
   const Page = redirect ? (()=> null) : (ROUTES[path]||Landing);
   return <AppCtx.Provider value={value}>
+    {isBetaPreview() && <div className="fixed top-0 inset-x-0 z-[200] text-center text-[11px] font-bold uppercase tracking-[.2em] py-1 pointer-events-none" style={{background:'linear-gradient(90deg,#D97706,#F59E0B)',color:'#fff'}}>Beta preview, unreleased features visible</div>}
     {mode==='spark' && <XPBurst fire={questBurst}/>}
     <div key={(redirect||path)+'::'+lang} className="anim-fadeIn"><Page/></div>
     {/* Both popups belong on the dashboard, not on whatever page you happen to land on. */}
+    {user && !redirect && product==='leaf' && <WordOfDayPopup/>}
     {user && !redirect && path==='/dashboard' && <DailyCheckIn/>}
     {user && !redirect && path==='/dashboard' && <WhatsNewPopup/>}
     {showLogout && <div className="fixed inset-0 z-[150] grid place-items-center p-4">
