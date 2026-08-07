@@ -8,10 +8,10 @@
 <title>Lumera, Your personal financial intelligence system</title>
 <meta name="description" content="Lumera turns one month of financial behaviour into a clear action plan. Benchmark your spending, understand the invisible patterns behind your money, and invest with confidence. Educational guidance, privacy-first." />
 
-<!-- Fonts: Fraunces (luxury serif display) + Inter (clean UI) -->
+<!-- Font: Fraunces, the wordmark face, used across the whole product -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=Inter:wght@300;400;500;600;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <!-- Tailwind (Play CDN) -->
 <script src="https://cdn.tailwindcss.com"></script>
@@ -21,8 +21,8 @@
       extend: {
         fontFamily: {
           serif: ['Fraunces', 'Noto Naskh Arabic', 'Georgia', 'serif'],
-          sans: ['Inter', 'Noto Sans Arabic', 'system-ui', 'sans-serif'],
-          mono: ['Inter', 'Noto Sans Arabic', 'system-ui', 'sans-serif'],
+          sans: ['Fraunces', 'Noto Naskh Arabic', 'Georgia', 'serif'],
+          mono: ['Fraunces', 'Noto Naskh Arabic', 'Georgia', 'serif'],
         },
         // Colors reference CSS variables (R G B channels) so light/dark is a
         // single variable flip and Tailwind opacity modifiers (e.g. bg-gold/15) still work.
@@ -118,7 +118,9 @@
   *{ -webkit-tap-highlight-color: transparent; }
   html{ scroll-behavior:smooth; }
   body{
-    font-family:'Inter','Noto Sans Arabic',system-ui,sans-serif; color:var(--charcoal); background:var(--ivory);
+    /* One face across the whole product: the same Fraunces as the wordmark. */
+    font-family:'Fraunces','Noto Naskh Arabic',Georgia,serif; font-optical-sizing:auto;
+    color:var(--charcoal); background:var(--ivory);
     -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; margin:0;
     transition:background-color .4s ease, color .4s ease;
     background-image:
@@ -229,6 +231,10 @@
   @keyframes capesway{ 0%,100%{ transform:rotate(-3deg) } 50%{ transform:rotate(3deg) } }
 
   h1,h2,h3,.serif{ font-family:'Fraunces','Noto Naskh Arabic',Georgia,serif; font-optical-sizing:auto; }
+  /* Small UI text gets a touch more weight and spacing so the serif stays crisp. */
+  body{ font-variation-settings:'SOFT' 0,'WONK' 0; letter-spacing:.002em; }
+  input,textarea,select,button{ font-family:inherit; }
+  .text-xs,.text-\[11px\],.text-\[10px\]{ letter-spacing:.012em; }
   /* Tabular figures use the body font so numbers never switch to a third family. */
   .tnum{ font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1; }
   ::selection{ background:rgba(191,160,106,.28); color:#1c1813; }
@@ -398,10 +404,10 @@ class ErrorBoundary extends React.Component {
   componentWillUnmount(){ window.removeEventListener('hashchange', this._onHash); }
   render(){
     if(this.state.err) return (
-      <div style={{minHeight:'100vh',display:'grid',placeItems:'center',padding:'24px',fontFamily:'Inter,sans-serif'}}>
+      <div style={{minHeight:'100vh',display:'grid',placeItems:'center',padding:'24px',fontFamily:'Fraunces,Georgia,serif'}}>
         <div style={{maxWidth:'400px',textAlign:'center'}}>
           <div style={{fontSize:'32px',marginBottom:'12px'}}>⚠️</div>
-          <h2 style={{fontFamily:'Fraunces,serif',fontSize:'22px',marginBottom:'8px'}}>Something went wrong</h2>
+          <h2 style={{fontFamily:'Fraunces,Georgia,serif',fontSize:'22px',marginBottom:'8px'}}>Something went wrong</h2>
           <p style={{color:'#7C7264',fontSize:'14px',marginBottom:'20px'}}>An unexpected error occurred. Your data is safe in localStorage.</p>
           <button onClick={()=>this.setState({err:null})} style={{background:'#272320',color:'#f7f1e6',border:'none',borderRadius:'999px',padding:'10px 24px',cursor:'pointer',fontWeight:600}}>Try again</button>
         </div>
@@ -2294,30 +2300,39 @@ function Landing(){
 function Onboarding(){
   const app = useApp(); const { t } = app;
   const [step,setStep]=useState(0);
-  const [d,setD]=useState({ goal:'Build wealth & invest', region:app.profile.region, currency:(REGIONS[app.profile.region]||{}).currency||'AED', ageBracket:'28–34', householdSize:1, dependents:0, status:'Employed full-time', housing:'Renting', knowledge:'Beginner+', risk:'Balanced', savingsGoal:'Emergency fund', city:'', stateProv:'' });
+  // Anything we no longer ask starts on a sensible default and stays editable in Settings.
+  const [d,setD]=useState({ goal:'Build wealth & invest', region:app.profile.region,
+    currency:(REGIONS[app.profile.region]||{}).currency||'AED', ageBracket:'25-27',
+    householdSize:1, dependents:0, status:'Employed full-time', housing:'Renting',
+    knowledge:'Beginner+', risk:'Balanced', savingsGoal:'Emergency fund',
+    motivations:[], heardFrom:[], city:'', stateProv:'' });
   const set=(k,v)=>setD(s=>({...s,[k]:v}));
+  // Kept deliberately short: only what changes your benchmarks or what we show
+  // you first. Everything else (city, household size, dependents, risk, display
+  // currency) is defaulted sensibly and editable any time in Settings.
   const Q = [
-    {k:'goal', q:'What brings you to Lumera?', why:'This shapes which insights we surface first.', opts:['Understand my spending','Save more each month','Get out of debt','Build wealth & invest','Just curious']},
-    {k:'region', q:'Where are you based?', why:'So we compare your spending against the right region.', kind:'region'},
-    {k:'stateProv', q:'State or province? (optional)', why:'Costs and taxes vary within a country. Skip if you prefer.', kind:'text', placeholder:'e.g. Dubai Emirate'},
-    {k:'city', q:'Which city? (optional)', why:'Cost of living varies within a country. You can skip this.', kind:'text', placeholder:'e.g. Dubai'},
-    {k:'currency', q:'Which currency should we use?', why:'We’ll record your income and spending in this currency. You can switch the display currency anytime, every value converts at live rates.', kind:'currency'},
+    {k:'region', q:'Where are you based?', why:'So we compare your spending against the right region, and set your currency.', kind:'region'},
     {k:'ageBracket', q:'Your age range?', why:'Benchmarks and priorities differ by life stage. Lumera is built for every age, including students.', opts:['Under 16','16-17','18-24','25-27','28-34','35-44','45-54','55+']},
     {k:'motivations', q:'What brings you to Lumera?', why:'We surface the tools that match your goals first. Pick as many as you like.', kind:'multi', other:true,
       opts:['Get on top of my spending','Start saving properly','Learn how money works','Start investing','Pay off debt','Build my credit','Plan my career','Find side income','Choose a university or subjects','Prepare for retirement']},
-    {k:'heardFrom', q:'How did you hear about us?', why:'It helps us know where our community is coming from. Pick any that apply.', kind:'multi', other:true,
-      opts:['A friend or family member','Instagram','TikTok','LinkedIn','YouTube','X (Twitter)','Search engine','School or university','A podcast','An event']},
-    {k:'householdSize', q:'How many people in your household?', why:'Per-person costs scale with household size.', kind:'stepper', min:1, max:8},
-    {k:'dependents', q:'How many dependents do you have?', why:'Dependents change your emergency-fund and savings targets.', term:'Dependent', kind:'stepper', min:0, max:8},
     {k:'status', q:'Your employment status?', why:'Income stability affects your recommended buffer.', opts:['Employed full-time','Self-employed','Part-time','Student','Between jobs']},
     {k:'housing', q:'Your housing situation?', why:'Housing is usually the largest line, we benchmark it carefully.', opts:['Renting','Mortgage','Live with family','Own outright']},
     {k:'knowledge', q:'How would you rate your financial knowledge?', why:'We tune explanations to your level, never condescending.', opts:['Just starting','Beginner+','Comfortable','Advanced']},
-    {k:'risk', q:'How do you feel about investment risk?', why:'Used only for educational guidance, never to sell products.', opts:['Very cautious','Balanced','Growth-seeking','Aggressive']},
-    {k:'savingsGoal', q:'What are you saving toward first?', why:'We’ll set this up as your priority goal.', opts:['Emergency fund','Home deposit','A big purchase','Travel','Investing','Retirement']},
+    {k:'heardFrom', q:'How did you hear about us?', why:'Optional, and it helps us know where our community is coming from.', kind:'multi', other:true,
+      opts:['A friend or family member','Instagram','TikTok','LinkedIn','YouTube','X (Twitter)','Search engine','School or university','A podcast','An event']},
   ];
   const total=Q.length; const cur=Q[step]; const progress=Math.round(((step)/total)*100);
   const next=()=>{ if(step<total-1) setStep(step+1); else finish(); };
-  const finish=()=>{ const R=REGIONS[d.region]||REGIONS.AE; const ccy=d.currency||R.currency; app.updateProfile({ ...d, region:d.region||'AE', currency:ccy, baseCurrency:ccy, city:d.city||R.city }); app.nav('/review'); };
+  const finish=()=>{ const R=REGIONS[d.region]||REGIONS.AE; const ccy=d.currency||R.currency;
+    // Infer the first savings goal from what they said brought them here.
+    const mo=d.motivations||[];
+    const goal = mo.some(x=>/university|subjects/i.test(x)) ? 'A big purchase'
+      : mo.some(x=>/retirement/i.test(x)) ? 'Retirement'
+      : mo.some(x=>/investing/i.test(x)) ? 'Investing'
+      : mo.some(x=>/debt/i.test(x)) ? 'Emergency fund' : 'Emergency fund';
+    app.updateProfile({ ...d, region:d.region||'AE', currency:ccy, baseCurrency:ccy,
+      city:d.city||R.city, savingsGoal:d.savingsGoal||goal });
+    app.nav('/review'); };
   return <div className="min-h-screen flex flex-col">
     <header className="px-4 sm:px-6 h-16 flex items-center gap-3 border-b border-line glass sticky top-0 z-20">
       <button onClick={()=>app.nav('/')}><Logo size={18}/></button><div className="flex-1"/><LanguageSwitcher compact/>
