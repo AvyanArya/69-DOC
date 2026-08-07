@@ -251,6 +251,29 @@
   @keyframes scaleIn{ from{opacity:0; transform:scale(.96)} to{opacity:1; transform:scale(1)} }
   @keyframes popIn{ 0%{opacity:0; transform:scale(.8)} 60%{transform:scale(1.04)} 100%{opacity:1; transform:scale(1)} }
   @keyframes floaty{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-9px)} }
+
+  /* ===== CV & LinkedIn Lab: laboratory motion ===== */
+  /* Bottles bob gently at different speeds so the bench feels alive. */
+  @keyframes labFloat{ 0%,100%{transform:translateY(0) rotate(-2deg)} 50%{transform:translateY(-14px) rotate(2deg)} }
+  .lab-float{ animation:labFloat 6s ease-in-out infinite; }
+  .lab-float-2{ animation:labFloat 7.5s ease-in-out infinite .6s; }
+  .lab-float-3{ animation:labFloat 8.5s ease-in-out infinite 1.2s; }
+  /* Liquid surface ripple inside the cylinder. */
+  @keyframes labWave{ 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+  .lab-wave{ animation:labWave 3.4s linear infinite; }
+  /* Bubbles rising through the measuring cylinder as it fills. */
+  @keyframes labBubble{ 0%{transform:translateY(0) scale(.6); opacity:0}
+    20%{opacity:.9} 100%{transform:translateY(-58px) scale(1.15); opacity:0} }
+  .lab-bubble{ animation:labBubble 2.6s ease-in infinite; }
+  /* A pulse of light when a reagent is added. */
+  @keyframes labGlow{ 0%{box-shadow:0 0 0 0 rgba(139,92,246,.55)} 70%{box-shadow:0 0 0 18px rgba(139,92,246,0)} 100%{box-shadow:0 0 0 0 rgba(139,92,246,0)} }
+  .lab-glow{ animation:labGlow .9s ease-out; }
+  /* Drifting particles in the lab background. */
+  @keyframes labDrift{ 0%{transform:translate(0,0)} 50%{transform:translate(14px,-22px)} 100%{transform:translate(0,0)} }
+  .lab-drift{ animation:labDrift 12s ease-in-out infinite; }
+  @media (prefers-reduced-motion: reduce){
+    .lab-float,.lab-float-2,.lab-float-3,.lab-wave,.lab-bubble,.lab-glow,.lab-drift{ animation:none; }
+  }
   @keyframes shimmer{ 0%{background-position:-200% 0} 100%{background-position:200% 0} }
   @keyframes skel{ 0%{background-position:-200% 0} 100%{background-position:200% 0} }
   @keyframes blink{ 0%,80%,100%{opacity:.2; transform:translateY(0)} 40%{opacity:1; transform:translateY(-3px)} }
@@ -6605,20 +6628,177 @@ const CV_COURSES=[
   ['Free','edX, Intro to Corporate Finance (Wharton)','Wharton’s free intro, strong if you want to stretch Wharton-style material.','https://www.edx.org/'],
   ['Free','Coursera, Yale: Financial Markets','Robert Shiller’s legendary undergraduate course, free to audit.','https://www.coursera.org/learn/financial-markets-global'],
 ];
+/* ============================================================
+   CV & LINKEDIN LAB
+   A working bench rather than a list: each best practice you apply is a
+   reagent that pours into the measuring cylinder, and your CV strength is
+   the level it reaches.
+   ============================================================ */
+const LAB_KEY='lumera_cv_lab';
+// A measuring cylinder that fills to `pct`, with liquid surface + rising bubbles.
+function LabCylinder({ pct, hue='#8B5CF6', label='CV strength' }){
+  const h=200, w=96, innerTop=18, innerH=h-innerTop-14;
+  const fill=Math.max(0,Math.min(100,pct));
+  const liquidH=(fill/100)*innerH;
+  const y=innerTop+innerH-liquidH;
+  return <div className="relative select-none" style={{width:w,height:h+26}}>
+    <svg viewBox={`0 0 ${w} ${h}`} width={w} height={h} className="overflow-visible">
+      <defs>
+        <clipPath id="cylClip"><rect x="16" y={innerTop} width={w-32} height={innerH} rx="6"/></clipPath>
+        <linearGradient id="cylLiquid" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor={hue} stopOpacity=".95"/><stop offset="1" stopColor={hue} stopOpacity=".65"/></linearGradient>
+        <linearGradient id="cylGlass" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stopColor="#fff" stopOpacity=".28"/><stop offset=".45" stopColor="#fff" stopOpacity=".04"/>
+          <stop offset="1" stopColor="#fff" stopOpacity=".22"/></linearGradient>
+      </defs>
+      {/* glass body */}
+      <rect x="14" y={innerTop-4} width={w-28} height={innerH+8} rx="8" fill="rgba(255,255,255,.05)" stroke="currentColor" className="text-line" strokeWidth="2"/>
+      <g clipPath="url(#cylClip)">
+        {/* liquid + animated surface */}
+        <rect x="16" y={y} width={w-32} height={liquidH+6} fill="url(#cylLiquid)" style={{transition:'y .8s cubic-bezier(.22,1,.36,1), height .8s cubic-bezier(.22,1,.36,1)'}}/>
+        {fill>0 && <path className="lab-wave" d={`M0 ${y} q 16 -6 32 0 t 32 0 t 32 0 t 32 0 t 32 0 V ${h} H0 Z`} fill={hue} opacity=".55" style={{transition:'d .8s'}}/>}
+        {/* bubbles only while there is liquid */}
+        {fill>4 && [0,1,2].map(i=><circle key={i} className="lab-bubble" cx={30+i*18} cy={innerTop+innerH-6} r={3-i*0.5}
+          fill="#fff" opacity=".7" style={{animationDelay:(i*0.7)+'s'}}/>)}
+      </g>
+      {/* graduation marks */}
+      {[25,50,75].map(m=>{ const my=innerTop+innerH-(m/100)*innerH;
+        return <g key={m}><line x1={w-30} x2={w-16} y1={my} y2={my} stroke="currentColor" className="text-faint" strokeWidth="1.5" opacity=".7"/>
+          <text x={w-34} y={my+3.5} textAnchor="end" fontSize="8" fill="currentColor" className="text-faint">{m}</text></g>; })}
+      <rect x="14" y={innerTop-4} width={w-28} height={innerH+8} rx="8" fill="url(#cylGlass)" pointerEvents="none"/>
+      {/* neck + spout */}
+      <path d={`M14 ${innerTop-4} q 0 -12 12 -12 h ${w-52} q 12 0 12 12`} fill="none" stroke="currentColor" className="text-line" strokeWidth="2"/>
+      <ellipse cx={w/2} cy={h-4} rx={w/2-10} ry="5" fill={hue} opacity=".14"/>
+    </svg>
+    <div className="absolute inset-x-0 text-center" style={{top:h*0.42}}>
+      <div className="font-serif text-2xl text-charcoal leading-none">{Math.round(fill)}%</div>
+      <div className="text-[9px] uppercase tracking-wider text-faint mt-0.5">{label}</div>
+    </div>
+  </div>;
+}
+// A reagent bottle you click to add that practice to your CV.
+function LabBottle({ item, on, onToggle, idx }){
+  const hue=item.hue;
+  const floatCls=['lab-float','lab-float-2','lab-float-3'][idx%3];
+  return <button onClick={onToggle}
+    className={cx('relative rounded-xl2 border p-4 text-left transition-all duration-300 group', on?'shadow-soft':'hover:-translate-y-0.5')}
+    style={on?{borderColor:hue,background:hue+'12'}:{borderColor:'rgb(var(--c-line))'}}>
+    <div className="flex items-start gap-3">
+      <span className={cx('shrink-0', !on&&floatCls)} style={{lineHeight:0}}>
+        {/* conical flask, fills up when applied */}
+        <svg width="42" height="48" viewBox="0 0 42 48">
+          <defs><clipPath id={'fl'+idx}><path d="M17 4 h8 v13 l11 22 a5 5 0 0 1 -4 8 H10 a5 5 0 0 1 -4 -8 l11 -22 Z"/></clipPath></defs>
+          <path d="M17 4 h8 v13 l11 22 a5 5 0 0 1 -4 8 H10 a5 5 0 0 1 -4 -8 l11 -22 Z"
+            fill={on?hue+'33':'rgba(255,255,255,.05)'} stroke={on?hue:'currentColor'} className={on?'':'text-line'} strokeWidth="2"/>
+          <g clipPath={`url(#fl${idx})`}>
+            <rect x="0" y={on?26:47} width="42" height="22" fill={hue} opacity=".85" style={{transition:'y .6s cubic-bezier(.22,1,.36,1)'}}/>
+            {on && <circle className="lab-bubble" cx="18" cy="44" r="2" fill="#fff" opacity=".8"/>}
+          </g>
+          <rect x="15" y="2" width="12" height="4" rx="2" fill={on?hue:'currentColor'} className={on?'':'text-line'}/>
+        </svg>
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="flex items-center gap-2">
+          <span className="text-sm font-semibold text-charcoal">{item.t}</span>
+          {on && <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-1.5 py-0.5" style={{background:hue+'22',color:hue}}>+{item.pts}</span>}
+        </span>
+        <span className="block text-xs text-muted mt-1 leading-relaxed">{item.d}</span>
+      </span>
+      <span className={cx('grid place-items-center h-6 w-6 rounded-lg shrink-0 transition', on?'text-white':'text-faint')}
+        style={on?{background:hue}:{background:'rgb(var(--c-sand))'}}>{on?<Icon name="check" size={13}/>:<span className="text-xs">+</span>}</span>
+    </div>
+  </button>;
+}
+const LAB_HUES=['#8B5CF6','#0EA5E9','#16A34A','#D97706','#DB2777','#0D9488','#6366F1','#DC2626'];
+const CV_REAGENTS=CV_BEST.map(([t,d],i)=>({ id:'r'+i, t, d, pts:Math.round(100/CV_BEST.length), hue:LAB_HUES[i%LAB_HUES.length] }));
+const LI_REAGENTS=CV_LINKEDIN.map(([t,d],i)=>({ id:'l'+i, t, d, pts:Math.round(100/CV_LINKEDIN.length), hue:LAB_HUES[(i+3)%LAB_HUES.length] }));
 function CVLab(){
+  const app=useApp();
   const [tab,setTab]=useState('CV Building');
+  const [applied,setApplied]=useState(()=>{ try{ return JSON.parse(localStorage.getItem(LAB_KEY))||{}; }catch(e){ return {}; } });
+  const [flash,setFlash]=useState(null);
+  const save=(next)=>{ setApplied(next); try{ localStorage.setItem(LAB_KEY, JSON.stringify(next)); }catch(e){} };
+  const toggle=(id)=>{ const next={...applied,[id]:!applied[id]}; save(next);
+    if(next[id]){ setFlash(id); setTimeout(()=>setFlash(null),900); } };
+  const reagents = tab==='LinkedIn Optimisation' ? LI_REAGENTS : CV_REAGENTS;
+  const done = reagents.filter(r=>applied[r.id]);
+  const pct = reagents.length ? Math.round(done.length/reagents.length*100) : 0;
+  const hue = tab==='LinkedIn Optimisation' ? '#0EA5E9' : '#8B5CF6';
+  const verdict = pct>=100?'Interview-ready' : pct>=75?'Nearly there' : pct>=40?'Taking shape' : pct>0?'Just started' : 'Empty bench';
   return <AppShell>
-    <PageHead eyebrow="CV & LinkedIn lab" title="Tools to make recruiters notice." desc="Templates, hand-picked tips and the best free resources to build a finance-ready CV, optimise your LinkedIn, and keep learning between applications."/>
-    <Card className="mb-4"><div className="flex gap-2 flex-wrap">{['CV Building','LinkedIn Optimisation','Opportunities'].map(t=><button key={t} onClick={()=>setTab(t)} className={cx('chip',tab===t&&'on')}>{t}</button>)}</div></Card>
-    {tab==='CV Building' && <Fragment>
-      <Eyebrow className="mb-3">Templates</Eyebrow>
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 stagger">{CV_TEMPLATES.map(([t,d])=><Card key={t}><Pill tone="neutral">Template</Pill><div className="font-serif text-base text-charcoal mt-2 leading-snug">{t}</div><p className="text-xs text-muted mt-1.5 leading-relaxed">{d}</p><a href="https://www.overleaf.com/gallery/tagged/cv" target="_blank" rel="noopener noreferrer" className="text-xs mt-2 inline-flex items-center gap-1" style={{color:FORGE_R}}>Open template <Icon name="arrowR" size={11} className="-rotate-45"/></a></Card>)}</div>
-      <Eyebrow className="mb-3">Best practices</Eyebrow>
-      <div className="grid sm:grid-cols-2 gap-3">{CV_BEST.map(([t,d])=><Card key={t} className="flex gap-3"><Icon name="check" size={16} className="mt-0.5 shrink-0" style={{color:LEAF_G}}/><div><div className="text-sm font-medium text-charcoal">{t}</div><div className="text-xs text-muted mt-0.5 leading-relaxed">{d}</div></div></Card>)}</div>
+    {/* Bench: dark glass surface with drifting particles */}
+    <div className="relative overflow-hidden rounded-xl3 mb-5 p-6 sm:p-8" style={{background:'linear-gradient(150deg,#0F172A 0%,#1E1B4B 55%,#0B1120 100%)'}}>
+      {[0,1,2,3,4].map(i=><span key={i} className="lab-drift absolute rounded-full"
+        style={{left:(8+i*19)+'%', top:(12+((i*29)%60))+'%', width:6+i*3, height:6+i*3,
+          background:LAB_HUES[i%LAB_HUES.length], opacity:.28, filter:'blur(6px)', animationDelay:(i*1.4)+'s'}}/>)}
+      <div className="relative flex flex-wrap items-center gap-8">
+        <div className="flex-1 min-w-[240px]">
+          <div className="text-[11px] font-bold uppercase tracking-[.24em]" style={{color:'rgba(255,255,255,.7)'}}>Forge · The lab</div>
+          <h1 className="font-serif text-3xl sm:text-4xl mt-1" style={{color:'#fff'}}>Mix a CV recruiters notice.</h1>
+          <p className="text-sm mt-2 max-w-lg" style={{color:'rgba(255,255,255,.8)'}}>
+            Every practice on the bench is a reagent. Add one and watch it pour into the cylinder, your CV strength is the level it reaches.</p>
+          <div className="flex flex-wrap gap-2 mt-4">
+            {['CV Building','LinkedIn Optimisation','Opportunities'].map(t=>
+              <button key={t} onClick={()=>setTab(t)} className="text-xs font-semibold rounded-full px-3.5 py-2 transition"
+                style={tab===t?{background:'#fff',color:'#0F172A'}:{background:'rgba(255,255,255,.12)',color:'rgba(255,255,255,.85)',border:'1px solid rgba(255,255,255,.18)'}}>{t}</button>)}
+          </div>
+        </div>
+        {tab!=='Opportunities' && <div className="flex items-end gap-5">
+          <div className={cx(flash&&'lab-glow','rounded-2xl')}><LabCylinder pct={pct} hue={hue} label={tab==='LinkedIn Optimisation'?'profile':'CV strength'}/></div>
+          <div className="pb-6">
+            <div className="text-[11px] uppercase tracking-wider" style={{color:'rgba(255,255,255,.6)'}}>Verdict</div>
+            <div className="font-serif text-2xl" style={{color:'#fff'}}>{verdict}</div>
+            <div className="text-xs mt-1" style={{color:'rgba(255,255,255,.7)'}}>{done.length} of {reagents.length} reagents added</div>
+            {pct>0 && <button onClick={()=>save({})} className="mt-3 text-[11px] font-semibold rounded-full px-3 py-1.5"
+              style={{background:'rgba(255,255,255,.14)',color:'#fff'}}>Empty the cylinder</button>}
+          </div>
+        </div>}
+      </div>
+    </div>
+
+    {tab==='Opportunities' ? <Fragment>
+      <Eyebrow className="mb-3">Free courses & certifications</Eyebrow>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">{CV_COURSES.map(([tag,t,d,url],i)=>{ const h=LAB_HUES[i%LAB_HUES.length];
+        return <Card key={t} className="flex flex-col" style={{borderTop:`3px solid ${h}`}}>
+          <div className="flex items-center justify-between">
+            <span className="grid place-items-center h-10 w-10 rounded-xl text-lg" style={{background:h+'1A'}}>🧪</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2 py-0.5" style={{background:h+'18',color:h}}>{tag}</span></div>
+          <a href={url} target="_blank" rel="noopener noreferrer" className="font-serif text-lg text-charcoal mt-3 leading-snug hover:underline">{t}</a>
+          <p className="text-sm text-muted mt-1.5 leading-relaxed flex-1">{d}</p>
+          <a href={url} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold" style={{color:h}}>Open <Icon name="arrowR" size={11} className="-rotate-45"/></a>
+        </Card>; })}</div>
+    </Fragment> : <Fragment>
+      <div className="grid lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2">
+          <Eyebrow className="mb-3">The bench · tap a flask to apply it</Eyebrow>
+          <div className="grid sm:grid-cols-2 gap-3">
+            {reagents.map((r,i)=><LabBottle key={r.id} item={r} idx={i} on={!!applied[r.id]} onToggle={()=>toggle(r.id)}/>)}
+          </div>
+          {pct===100 && <Card hover={false} className="mt-4 text-center" style={{background:`linear-gradient(135deg,${hue},${hue}AA)`,border:'none'}}>
+            <div className="text-3xl">🎉</div>
+            <div className="font-serif text-xl mt-1" style={{color:'#fff'}}>Formula complete</div>
+            <p className="text-sm mt-1" style={{color:'rgba(255,255,255,.85)'}}>Every reagent is in. Go and apply, then come back and tailor it for the next role.</p>
+          </Card>}
+        </div>
+        <div className="space-y-4">
+          <Card hover={false}>
+            <Eyebrow className="mb-3">Templates</Eyebrow>
+            <div className="space-y-2">{CV_TEMPLATES.map(([t,d],i)=>{ const h=LAB_HUES[i%LAB_HUES.length];
+              return <a key={t} href="https://www.overleaf.com/gallery/tagged/cv" target="_blank" rel="noopener noreferrer"
+                className="flex items-start gap-2.5 rounded-xl border border-line p-3 hover:border-taupe transition group">
+                <span className="grid place-items-center h-8 w-8 rounded-lg text-sm shrink-0" style={{background:h+'1A',color:h}}>📄</span>
+                <span className="min-w-0"><span className="block text-sm font-medium text-charcoal">{t}</span>
+                  <span className="block text-[11px] text-muted leading-snug mt-0.5">{d}</span></span></a>; })}</div>
+          </Card>
+          <Card hover={false}>
+            <Eyebrow className="mb-2">Lab notes</Eyebrow>
+            <p className="text-sm text-muted leading-relaxed">Recruiters spend about seven seconds on a first pass. Each reagent here is one thing that survives that scan. Aim to fill the cylinder before you apply anywhere.</p>
+            <div className="mt-3 rounded-xl px-3 py-2.5 text-xs" style={{background:hue+'12',color:'rgb(var(--c-charcoal))'}}>
+              Progress is saved on this device, so you can come back and finish the mixture later.</div>
+          </Card>
+        </div>
+      </div>
     </Fragment>}
-    {tab==='LinkedIn Optimisation' && <div className="grid sm:grid-cols-2 gap-3 stagger">{CV_LINKEDIN.map(([t,d])=><Card key={t}><div className="flex items-center gap-2"><span className="grid place-items-center h-8 w-8 rounded-lg bg-sky/15 text-sky"><Icon name="user" size={15}/></span><div className="text-sm font-medium text-charcoal">{t}</div></div><p className="text-sm text-muted mt-2 leading-relaxed">{d}</p></Card>)}</div>}
-    {tab==='Opportunities' && <Fragment><Eyebrow className="mb-3">Free online courses & certifications</Eyebrow>
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">{CV_COURSES.map(([tag,t,d,url])=><Card key={t} className="flex flex-col"><Pill tone={tag==='Free'?'gold':'neutral'}>{tag}</Pill><a href={url} target="_blank" rel="noopener noreferrer" className="font-serif text-base text-charcoal mt-2 leading-snug hover:underline">{t}</a><p className="text-xs text-muted mt-1.5 leading-relaxed flex-1">{d}</p><a href={url} target="_blank" rel="noopener noreferrer" className="text-xs mt-2 inline-flex items-center gap-1" style={{color:FORGE_R}}>Open <Icon name="arrowR" size={11} className="-rotate-45"/></a></Card>)}</div></Fragment>}
   </AppShell>;
 }
 
@@ -6773,18 +6953,81 @@ const PREP_SKILLS=[
      ['Intermediate',['Market sizing','Profitability & M&A cases','Hypothesis-driven approach'],[['PrepLounge','https://www.preplounge.com/']]],
      ['Advanced',['Live case partners','Firm-specific formats','Behavioural / fit prep'],[['Management Consulted','https://managementconsulted.com/']]]]],
 ];
+/* Career Prep Hub: each skill is a training module you can level up, with a
+   visible mastery bar so progress feels earned rather than listed. */
+const PREP_KEY='lumera_prep_tiers';
+const PREP_HUES=['#8B5CF6','#0EA5E9','#16A34A','#D97706','#DB2777'];
 function CareerPrepHub(){
+  const app=useApp();
   const [sel,setSel]=useState(null);
+  const [tiers,setTiers]=useState(()=>{ try{ return JSON.parse(localStorage.getItem(PREP_KEY))||{}; }catch(e){ return {}; } });
+  const setTier=(skill,tierIdx)=>{ const cur=tiers[skill]||0; const next={...tiers,[skill]: cur===tierIdx+1 ? tierIdx : tierIdx+1};
+    setTiers(next); try{ localStorage.setItem(PREP_KEY, JSON.stringify(next)); }catch(e){} };
+  const levelOf=(name)=>tiers[name]||0;
+  const totalPct=Math.round(PREP_SKILLS.reduce((a,s)=>a+levelOf(s[0]),0)/(PREP_SKILLS.length*3)*100);
+  const RANK = totalPct>=100?'Interview-ready' : totalPct>=67?'Advanced' : totalPct>=34?'Intermediate' : totalPct>0?'Foundational' : 'Not started';
   return <AppShell>
-    <PageHead eyebrow="Career prep hub" title="The skills finance interviews actually test." desc="Structured progression in the five highest-leverage skills for finance and consulting careers. Free resources where they exist; paid only where they materially outclass the free alternatives."/>
-    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">{PREP_SKILLS.map(s=>
-      <Card key={s[0]}><div className="text-2xl text-goldd">{s[1]}</div><div className="font-serif text-lg text-charcoal mt-1">{s[0]}</div><p className="text-sm text-muted mt-1 leading-relaxed">{s[2]}</p>
-        <div className="flex items-center justify-between mt-3 pt-3 border-t border-line"><span className="text-[11px] text-faint">3-tier progression</span><button onClick={()=>setSel(s)} className="text-xs font-semibold flex items-center gap-1" style={{color:FORGE_R}}>Open roadmap <Icon name="arrowR" size={12}/></button></div></Card>)}</div>
-    {sel && <CareerModal eyebrow="Skill roadmap" title={sel[0]} onClose={()=>setSel(null)}>
-      {sel[3].map(([tier,items,res],i)=><div key={tier}><div className="flex items-center gap-2 mb-2"><span className="grid place-items-center h-6 w-6 rounded-lg text-white text-xs font-semibold" style={{background:i===0?LEAF_G:i===1?'#D4A24E':FORGE_R}}>{i+1}</span><span className="text-sm font-semibold text-charcoal">{tier}</span></div>
-        <Ticks items={items} color={LEAF_G}/>
-        <div className="mt-2 mb-4"><div className="text-[10px] uppercase tracking-wider text-faint mb-1.5">Free resources</div><LinkRow items={res}/></div></div>)}
-    </CareerModal>}
+    {/* Training-floor hero with overall mastery */}
+    <div className="relative overflow-hidden rounded-xl3 mb-5 p-6 sm:p-8" style={{background:'linear-gradient(140deg,#1E1B4B 0%,#312E81 50%,#0F172A 100%)'}}>
+      {[0,1,2,3].map(i=><span key={i} className="lab-drift absolute rounded-full"
+        style={{left:(12+i*24)+'%', top:(16+((i*31)%56))+'%', width:8+i*4, height:8+i*4,
+          background:PREP_HUES[i%PREP_HUES.length], opacity:.3, filter:'blur(7px)', animationDelay:(i*1.7)+'s'}}/>)}
+      <div className="relative flex flex-wrap items-center gap-8">
+        <div className="flex-1 min-w-[250px]">
+          <div className="text-[11px] font-bold uppercase tracking-[.24em]" style={{color:'rgba(255,255,255,.7)'}}>Forge · Career prep hub</div>
+          <h1 className="font-serif text-3xl sm:text-4xl mt-1" style={{color:'#fff'}}>The skills interviews actually test.</h1>
+          <p className="text-sm mt-2 max-w-lg" style={{color:'rgba(255,255,255,.8)'}}>Five high-leverage skills, three tiers each. Tick a tier when you can genuinely do it and watch your mastery climb.</p>
+        </div>
+        <div className="text-center">
+          <ScoreRing value={totalPct} size={132} stroke={12} label="mastery" color="#A78BFA"/>
+          <div className="text-xs mt-2 font-semibold" style={{color:'rgba(255,255,255,.9)'}}>{RANK}</div>
+        </div>
+      </div>
+    </div>
+
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">{PREP_SKILLS.map((s,si)=>{
+      const hue=PREP_HUES[si%PREP_HUES.length]; const lvl=levelOf(s[0]); const pctS=Math.round(lvl/3*100);
+      return <Card key={s[0]} className="flex flex-col" style={{borderTop:`3px solid ${hue}`}}>
+        <div className="flex items-start justify-between">
+          <span className="grid place-items-center h-12 w-12 rounded-xl text-2xl" style={{background:hue+'1A',color:hue}}>{s[1]}</span>
+          <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2 py-1"
+            style={lvl===3?{background:hue,color:'#fff'}:{background:hue+'18',color:hue}}>{lvl===3?'Mastered':`Tier ${lvl}/3`}</span>
+        </div>
+        <div className="font-serif text-lg text-charcoal mt-3">{s[0]}</div>
+        <p className="text-sm text-muted mt-1 leading-relaxed flex-1">{s[2]}</p>
+        {/* three-segment mastery bar you can click */}
+        <div className="flex gap-1.5 mt-3">{[0,1,2].map(t=>
+          <button key={t} onClick={()=>setTier(s[0],t)} title={s[3][t][0]}
+            className="h-2.5 flex-1 rounded-full transition-all duration-300"
+            style={t<lvl?{background:hue}:{background:'rgb(var(--c-sand))'}}/>)}</div>
+        <div className="flex items-center justify-between mt-2">
+          <span className="text-[11px] text-faint">{pctS}% complete</span>
+          <button onClick={()=>setSel(s)} className="text-xs font-semibold flex items-center gap-1" style={{color:hue}}>
+            Open roadmap <Icon name="arrowR" size={12}/></button>
+        </div>
+      </Card>; })}</div>
+
+    {sel && (()=>{ const si=PREP_SKILLS.indexOf(sel); const hue=PREP_HUES[si%PREP_HUES.length]; const lvl=levelOf(sel[0]);
+      return <CareerModal eyebrow="Skill roadmap" title={sel[0]} onClose={()=>setSel(null)}
+        footer={<div className="flex items-center justify-between gap-3 flex-wrap">
+          <span className="text-sm text-muted">Tier {lvl} of 3 complete</span>
+          <div className="h-2 rounded-full bg-sand flex-1 min-w-[120px] overflow-hidden"><div className="h-full rounded-full transition-all duration-500" style={{width:(lvl/3*100)+'%',background:hue}}/></div>
+        </div>}>
+        {sel[3].map(([tier,items,res],i)=>{ const doneTier=i<lvl;
+          return <div key={tier} className="rounded-xl2 border p-4" style={{borderColor:doneTier?hue+'55':'rgb(var(--c-line))', background:doneTier?hue+'0D':'transparent'}}>
+            <div className="flex items-center justify-between mb-2.5">
+              <div className="flex items-center gap-2.5">
+                <span className="grid place-items-center h-7 w-7 rounded-lg text-white text-xs font-bold" style={{background:doneTier?hue:'rgb(var(--c-taupe))'}}>{i+1}</span>
+                <span className="text-sm font-semibold text-charcoal">{tier}</span>
+              </div>
+              <button onClick={()=>setTier(sel[0],i)} className="text-[11px] font-semibold rounded-full px-2.5 py-1 transition"
+                style={doneTier?{background:hue,color:'#fff'}:{background:'rgb(var(--c-sand))',color:'rgb(var(--c-muted))'}}>
+                {doneTier?'✓ Done':'Mark done'}</button>
+            </div>
+            <Ticks items={items} color={hue}/>
+            <div className="mt-3"><div className="text-[10px] uppercase tracking-wider text-faint mb-1.5">Free resources</div><LinkRow items={res}/></div>
+          </div>; })}
+      </CareerModal>; })()}
   </AppShell>;
 }
 
