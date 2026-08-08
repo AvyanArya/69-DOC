@@ -1,14 +1,19 @@
 # Eikon Luxury Salon — website
 
-A clean, static marketing site for Eikon Luxury Salon (Sector 23, Gurugram).
+A colourful, static marketing site for Eikon Luxury Salon (Sector 23, Gurugram).
 No build tooling, no dependencies — three files and a browser.
+
+The design is jewel-toned and colour-coded: an animated plum/rose/teal mesh in the
+hero, a gradient ticker and marquee, three gradient "signature" cards, and nine
+service cards that each carry their own accent colour through the top bar, icon
+tile, number and tag pills.
 
 ## Files
 
 | File | Purpose |
 | --- | --- |
 | `index.html` | The page — all copy, structure and schema.org markup |
-| `styles.css` | Full stylesheet (espresso / cream / champagne palette) |
+| `styles.css` | Full stylesheet — palette lives in the `:root` block at the top |
 | `script.js` | Sticky nav, mobile menu, service filters, scroll reveal, booking form |
 | `preview.html` | **Self-contained single file** — CSS and JS inlined, just double-click it |
 | `build-preview.py` | Regenerates `preview.html` from the three source files |
@@ -40,8 +45,10 @@ To swap in real pictures, add one rule per slot:
 [data-slot="g1"]       { background-image: url("assets/balayage.jpg");  background-size: cover; background-position: center; }
 ```
 
-Slots in use: `interior`, `prince`, `mahesh`, `ruby`, `shaan`, and `g1`–`g6`
-(gallery). Portraits look best at 3:4, gallery tiles at 4:5.
+Slots in use: `interior`, `colour`, `spa` (story collage), `prince`, `mahesh`,
+`ruby`, `shaan` (team), and `g1`–`g6` (gallery). Team portraits are square,
+gallery tiles 4:5. A photo replaces that element's gradient, so the layout
+holds either way.
 
 ## Booking form
 
@@ -61,9 +68,18 @@ call in `script.js` with a `fetch` to your endpoint.
 Update these in `index.html` (visible copy, the `<script type="application/ld+json">`
 block, and the footer) and in the `PHONE` constant in `script.js`.
 
+## Colour system
+
+All colours are CSS custom properties in `:root` — `--rose`, `--coral`,
+`--marigold`, `--teal`, `--lime`, `--sky`, `--violet`, `--indigo`, `--magenta`
+over `--plum` ink and the `--cream` / `--blush` / `--lav` / `--mint` surfaces.
+Change a value there and it propagates everywhere: chips, cards, tags, icon
+tiles, quote borders and the visit list all read their accent from a `--c`
+(and sometimes `--c2`) set inline in `index.html`.
+
 ## Notes
 
-- Fonts load from Google Fonts (Cormorant Garamond + Jost) with Georgia/system
+- Fonts load from Google Fonts (Fraunces + Outfit) with Georgia/system
   fallbacks, so the page degrades gracefully offline.
 - Responsive from 360 px up; no horizontal scroll at any width.
 - Respects `prefers-reduced-motion`; includes a print stylesheet.
