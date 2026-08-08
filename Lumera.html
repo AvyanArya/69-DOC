@@ -3023,6 +3023,15 @@ function Mascot({ kind='lumera', color='#8B5CF6', emoji='🦉', size=58 }){
 function hexToRgbList(hex){ const h=String(hex||'').replace('#',''); if(h.length!==6) return '139,92,246';
   return [0,2,4].map(i=>parseInt(h.slice(i,i+2),16)).join(','); }
 const GUIDE_CHAT_KEY='lumera_guide_chat';
+// A guide's opening line, shown pinned at the top of the panel for whichever
+// character you are talking to right now.
+const guideGreeting = (g)=> `${g.lines[0]} Ask me anything, I\u2019m ${g.name}. \uD83D\uDCAC`;
+// Older builds wrote every greeting into the shared thread. Drop them on read
+// and on write so existing conversations heal themselves.
+const GREETING_RE = /Ask me anything, I\u2019m /;
+function stripGreetings(list){
+  return (Array.isArray(list)?list:[]).filter(m=> !(m && m.role==='bot' && (m.intro || GREETING_RE.test(m.text||''))));
+}
 
 /* ============================================================
    Popup sequencer
@@ -3062,18 +3071,20 @@ function Guide(){
   const [open,setOpen]=useState(false); const [msgs,setMsgs]=useState([]); const [typing,setTyping]=useState(false); const [txt,setTxt]=useState('');
   const scroller=useRef(null);
   // One shared conversation across every world: the character changes, the
-  // history does not. Each guide just adds its own greeting when you arrive.
+  // history does not. Greetings are deliberately NOT part of that history,
+  // otherwise every guide's hello piles up and each new character opens with
+  // all the previous ones' introductions. The current guide's greeting is
+  // rendered as a pinned bubble instead, so you only ever see its own.
   useEffect(()=>{ setTi(0);
     let seen=false, anyTut=false;
     try{ seen=localStorage.getItem(sk); anyTut=localStorage.getItem('lumera_guide_tut_done'); }catch(e){}
     setShowTut(!seen && !anyTut); setIntro(!seen && !!anyTut); setOpen(false);
     let prior=[]; try{ prior=JSON.parse(localStorage.getItem(GUIDE_CHAT_KEY))||[]; }catch(e){}
-    const hello={role:'bot',text:`${g.lines[0]} Ask me anything, I’m ${g.name}. 💬`,who:g.name};
-    const last=prior[prior.length-1];
-    setMsgs(last && last.who===g.name ? prior : [...prior, hello].slice(-60));
+    setMsgs(stripGreetings(prior));
   },[p]);
-  // Persist the shared thread whenever it changes.
-  useEffect(()=>{ if(!msgs.length) return; try{ localStorage.setItem(GUIDE_CHAT_KEY, JSON.stringify(msgs.slice(-60))); }catch(e){} },[msgs]);
+  // Persist the shared thread whenever it changes, greetings excluded.
+  useEffect(()=>{ if(!msgs.length) return;
+    try{ localStorage.setItem(GUIDE_CHAT_KEY, JSON.stringify(stripGreetings(msgs).slice(-60))); }catch(e){} },[msgs]);
   useEffect(()=>{ if(scroller.current) scroller.current.scrollTop=scroller.current.scrollHeight; },[msgs,typing,open]);
   // The walkthrough goes first in the queue: meet your guide, then claim the
   // streak, then the word of the day, then what's new.
@@ -3133,6 +3144,15 @@ function Guide(){
         <button onClick={close} className="text-white/80 hover:text-white" aria-label="Close"><Icon name="x" size={16}/></button>
       </div>
       <div ref={scroller} className="flex-1 overflow-y-auto p-3 space-y-2.5 no-scrollbar" style={{minHeight:140}}>
+        {/* Only ever this guide's own greeting, never the other characters'. */}
+        <div className="flex gap-2 items-end"><span className="text-lg shrink-0 mb-0.5">{g.emoji}</span>
+          <div><div className="text-[10px] text-faint mb-0.5 ml-1">{g.name}</div>
+            <div className="rounded-2xl rounded-bl-sm px-3 py-2 text-sm text-charcoal max-w-[82%] whitespace-pre-wrap leading-relaxed"
+              style={{background:a+'1F', border:`1px solid ${a}33`}}>{guideGreeting(g)}</div></div></div>
+        {msgs.length>0 && <div className="flex items-center gap-2 pt-1">
+          <span className="h-px flex-1 bg-line"/>
+          <span className="text-[9px] uppercase tracking-[.18em] text-faint">Earlier in this chat</span>
+          <span className="h-px flex-1 bg-line"/></div>}
         {msgs.map((m,i)=>m.role==='bot'
           ? <div key={i} className="flex gap-2 items-end"><span className="text-lg shrink-0 mb-0.5">{(GUIDE[Object.keys(GUIDE).find(k=>GUIDE[k].name===m.who)]||g).emoji}</span><div><div className="text-[10px] text-faint mb-0.5 ml-1">{m.who||g.name}</div><div className="rounded-2xl rounded-bl-sm bg-sand px-3 py-2 text-sm text-charcoal max-w-[82%] whitespace-pre-wrap leading-relaxed">{m.text}</div></div></div>
           : <div key={i} className="flex justify-end"><div className="rounded-2xl rounded-br-sm px-3 py-2 text-sm text-white max-w-[82%]" style={{background:a}}>{m.text}</div></div>)}
