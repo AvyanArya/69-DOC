@@ -309,6 +309,8 @@
   .anim-scaleIn{ animation:scaleIn .6s cubic-bezier(.22,1,.36,1) both; }
   @keyframes slideIn{ from{opacity:0; transform:translateX(28px)} to{opacity:1; transform:translateX(0)} }
   .anim-slideIn{ animation:slideIn .34s cubic-bezier(.22,1,.36,1) both; }
+  @keyframes slideOutR{ from{opacity:1; transform:translateX(0)} to{opacity:0; transform:translateX(28px)} }
+  .anim-slideOutR{ animation:slideOutR .26s ease both; }
   .anim-pop{ animation:popIn .5s cubic-bezier(.22,1,.36,1) both; }
   .floaty{ animation:floaty 6s ease-in-out infinite; }
 
@@ -2091,9 +2093,10 @@ function TopBar(){
       <div className="flex-1"/>
       <Hint text={t('what_streak')}><button onClick={()=>app.nav('/badges')} className="hidden sm:flex items-center gap-1.5 rounded-full bg-sand px-3 py-1.5">
         <Icon name="flame" size={15} className="text-clay"/><span className="text-sm font-semibold tnum">{app.profile.streak}</span><span className="text-xs text-muted">day streak</span><Icon name="info" size={11} className="text-faint"/></button></Hint>
-      <button onClick={()=>app.nav('/analytics')} className="hidden sm:flex items-center gap-2 rounded-full bg-charcoal text-cream px-3 py-1.5">
+      <button onClick={()=>app.nav('/dashboard')} className="hidden sm:flex items-center gap-2 rounded-full bg-charcoal text-cream px-3 py-1.5"
+        title="See your score breakdown">
         <span className="text-xs text-gold">Score</span><span className="text-sm font-semibold tnum">{m.overall}</span></button>
-      {app.mode==='spark' && <Hint text="Your Spark level, earn XP by completing daily quests."><button onClick={()=>app.nav('/dashboard')} className="hidden sm:flex items-center gap-1.5 rounded-full bg-gold/15 px-3 py-1.5">
+      {app.mode==='spark' && <Hint text="Your Spark level, earn XP by completing daily quests."><button onClick={()=>app.nav('/badges')} className="hidden sm:flex items-center gap-1.5 rounded-full bg-gold/15 px-3 py-1.5" title="Your milestones and badges">
         <span className="grid place-items-center h-5 w-5 rounded-full text-white text-[10px] font-bold tnum" style={{background:'linear-gradient(135deg,#9B6CFF,#6366F1)'}}>{levelFromXp(app.xp)}</span><span className="text-xs font-semibold text-goldd tnum">{app.xp} XP</span></button></Hint>}
       <GlobalSearch/>
       <CurrencySwitcher/><LanguageSwitcher compact/>
@@ -2903,7 +2906,19 @@ Object.assign(NAV_BY_ROUTE, {
 // Which sub-product "world" a route belongs to (drives the per-product theme + shell).
 const ROUTE_PRODUCT = { '/lumera':'lumera','/leaf':'leaf','/atlas':'atlas','/shield':'shield','/forge':'forge' };
 SUBS.forEach(s=>s.routes.forEach(r=>{ if(s.key!=='lumera') ROUTE_PRODUCT[r]=s.key; }));
-const productOf = (path)=> ROUTE_PRODUCT[path] || 'lumera';
+// Pages that belong to no single world (the assistant, settings, badges...)
+// must STAY in whichever world you opened them from, otherwise clicking
+// "AI Assistant" inside Atlas throws you back to the Lumera shell.
+const SHARED_ROUTES = new Set(['/assistant','/settings','/badges','/chats','/updates','/about','/team','/privacy','/pricing','/community']);
+let _lastProduct = 'lumera';
+try{ _lastProduct = sessionStorage.getItem('lumera_world') || 'lumera'; }catch(e){}
+function productOf(path){
+  const own = ROUTE_PRODUCT[path];
+  if(own){ _lastProduct = own; try{ sessionStorage.setItem('lumera_world', own); }catch(e){} return own; }
+  if(SHARED_ROUTES.has(path)) return _lastProduct;   // inherit the world you came from
+  _lastProduct = 'lumera'; try{ sessionStorage.setItem('lumera_world','lumera'); }catch(e){}
+  return 'lumera';
+}
 const SITE = (typeof window!=='undefined' && window.__LUMERA_SITE) || 'lumera';
 const SITE_FILE = { lumera:'Lumera.html', leaf:'Leaf.html', atlas:'Atlas.html', shield:'Shield.html', forge:'Forge.html' };
 // Enter a product's world IN-APP (always the current build, never a stale file).
@@ -3040,7 +3055,7 @@ function stripGreetings(list){
    of each other on the same page load. They now queue: at most one is on
    screen, and they come in a fixed order of importance.
    ============================================================ */
-const POPUP_ORDER = ['guide','checkin','wotd','whatsnew'];
+const POPUP_ORDER = ['guide','wotd','whatsnew'];   // the streak is a side notification, not a modal
 const popupQueue = {
   want:{}, active:null, subs:new Set(),
   sub(fn){ this.subs.add(fn); return ()=>this.subs.delete(fn); },
@@ -4374,28 +4389,17 @@ function Budget(){
             <div className="flex items-center justify-between mb-1.5"><span className="text-sm font-medium text-charcoal flex items-center gap-1.5">{b.name}{!bad&&<Icon name="check" size={13} className="text-saged"/>}</span>
               <span className="text-sm tnum"><span className={cx('font-semibold', bad?'text-clayd':'text-saged')}>{fmt.money(b.actual)}</span><span className="text-faint"> / {fmt.money(b.limit)}</span></span></div>
             <div className="h-2.5 rounded-full bg-sand overflow-hidden"><div className="h-full rounded-full transition-all duration-700" style={{width:Math.min(100,pct)+'%', background:barC}}/></div>
-            {bad && <div className="text-[11px] text-clayd mt-1 flex items-center gap-1"><Icon name="info" size={12}/>{isSave?`${fmt.money(b.limit-b.actual)} below your savings target`:`${fmt.money(b.actual-b.limit)} over your ${b.name.toLowerCase()} limit`}</div>}
-            {!bad && isSave && <div className="text-[11px] text-saged mt-1 flex items-center gap-1"><Icon name="check" size={12}/>Saving at or above target, excellent.</div>}
+            {/* Fixed-height note slot keeps every bucket the same height. */}
+            <div className="min-h-[18px] mt-1">
+              {bad && <div className="text-[11px] text-clayd">{isSave?`${fmt.money(b.limit-b.actual)} below your savings target`:`${fmt.money(b.actual-b.limit)} over your ${b.name.toLowerCase()} limit`}</div>}
+              {!bad && isSave && <div className="text-[11px] text-saged">Saving at or above target, excellent.</div>}
+            </div>
           </div>; })}
       </div>
       <div className="mt-5 rounded-xl bg-charcoal text-cream text-sm px-4 py-3 flex items-start gap-2"><Icon name="spark" size={16} className="text-gold mt-0.5"/>
         {buckets.some(b=> b.name==='Savings'? b.actual<b.limit : b.actual>b.limit)
           ? `Attention on ${buckets.filter(b=> b.name==='Savings'? b.actual<b.limit : b.actual>b.limit).map(b=>b.name).join(' & ')}. ${buckets.some(b=>b.name==='Savings'&&b.actual<b.limit)?'Your savings are below target, redirect overspending to close the gap.':'Trim the over-budget buckets to grow savings faster.'}`
           : `Every bucket is on track this month. Consider nudging your savings target up by 2–3%.`}</div>
-    </Card>
-    <Card className="mt-4"><div className="flex items-center justify-between mb-3"><Eyebrow>Custom &amp; misc categories</Eyebrow><button onClick={()=>setShowC(s=>!s)} className="btn btn-gold px-3 py-1.5 text-xs"><Icon name="plus" size={14}/>Add category</button></div>
-      {showC && <div className="rounded-xl2 border border-line bg-cream/60 p-3 mb-3 anim-fadeUp grid sm:grid-cols-3 gap-3">
-        <label className="block"><span className="text-xs text-charcoal/85 mb-1 block">Name</span><input value={nc.name} onChange={e=>setNc(s=>({...s,name:e.target.value}))} placeholder="e.g. Pet care" className="w-full rounded-lg border border-line bg-card px-3 py-2 text-sm focus:border-gold focus:outline-none"/></label>
-        <NumberField id="amt" label="Amount / month" value={nc.amount} onChange={(k,v)=>setNc(s=>({...s,amount:v}))}/>
-        <label className="block"><span className="text-xs text-charcoal/85 mb-1 block">Counts toward</span><select value={nc.bucket} onChange={e=>setNc(s=>({...s,bucket:e.target.value}))} className="w-full rounded-lg border border-line bg-card px-3 py-2 text-sm focus:border-gold focus:outline-none">{['Needs','Wants','Savings','Debt'].map(o=><option key={o}>{o}</option>)}</select></label>
-        <div className="sm:col-span-3 flex gap-2"><Btn variant="gold" onClick={addCustom}>Add</Btn><Btn variant="ghost" onClick={()=>setShowC(false)}>Cancel</Btn></div>
-      </div>}
-      {custom.length? <div className="space-y-2">{custom.map(c=><div key={c.id} className="flex items-center gap-3 rounded-xl border border-line bg-cream/60 p-3">
-        <span className="grid place-items-center h-8 w-8 rounded-lg bg-sand text-goldd"><Icon name="wallet" size={15}/></span>
-        <div className="flex-1 min-w-0"><div className="text-sm font-medium text-charcoal">{c.name}</div><div className="text-xs text-faint">counts toward {c.bucket}</div></div>
-        <span className="font-serif text-base text-charcoal tnum">{fmt.money(c.amount)}</span>
-        <button onClick={()=>setCustom(x=>x.filter(z=>z.id!==c.id))} className="text-faint hover:text-clayd"><Icon name="x" size={14}/></button></div>)}</div>
-        : <p className="text-sm text-muted">Add your own line items, pet care, childcare, hobbies, tuition, and they’ll fold into the matching bucket above.</p>}
     </Card>
   </AppShell>;
 }
@@ -5678,94 +5682,82 @@ function DailyCheckIn(){
   const today=new Date().toISOString().slice(0,10);
   const already=app.profile.lastCheckin===today;
   const [claimed,setClaimed]=useState(false);
-  const [dismissed,setDismissed]=useState(false);
-  // Wants the screen until you have either claimed and closed it, or skipped.
-  const myTurn=usePopupSlot('checkin', !already && !dismissed);
-  if(!myTurn) return null;
+  // Dismissal is remembered for the rest of the day. Without this the card
+  // re-mounted and re-appeared every single time you navigated back to the
+  // dashboard, which is what made it feel relentless.
+  const [snoozed,setSnoozed]=useState(()=>{ try{ return localStorage.getItem('lumera_streak_snooze')===today; }catch(e){ return false; } });
+  const [leaving,setLeaving]=useState(false);
+  const dismiss=()=>{ setLeaving(true);
+    try{ localStorage.setItem('lumera_streak_snooze',today); }catch(e){}
+    setTimeout(()=>setSnoozed(true),260); };
+  // Not a modal any more: it never takes the screen, so it does not need a
+  // turn in the popup queue.
+  if(already || snoozed) return null;
 
   const streak=app.profile.streak||0;
-  const shown=claimed?streak:streak+1;          // what the card is counting to
+  const shown=claimed?streak:streak+1;
   const best=Math.max(app.profile.streakBest||0, shown);
   const tier=nextTier(claimed?streak:streak);
   const toGo=Math.max(0,tier.at-shown);
   const pct=Math.min(100, Math.round(shown/tier.at*100));
-  // The last seven days, with today as the final cell.
   const days=Array.from({length:7},(_,i)=>{
-    const back=6-i;
-    const d=new Date(); d.setDate(d.getDate()-back);
+    const back=6-i; const d=new Date(); d.setDate(d.getDate()-back);
     return { key:d.toISOString().slice(0,10), letter:'SMTWTFS'[d.getDay()],
              done: back===0 ? claimed : back < streak, isToday: back===0 };
   });
-  const claim=()=>{ app.checkIn(); if(app.awardXp) app.awardXp(10); setClaimed(true); };
+  const claim=()=>{ app.checkIn(); if(app.awardXp) app.awardXp(10); setClaimed(true);
+    try{ localStorage.setItem('lumera_streak_snooze',today); }catch(e){}
+    setTimeout(()=>dismiss(), 2600); };   // celebrate briefly, then get out of the way
 
-  return <div className="fixed inset-0 z-[170] grid place-items-center p-4">
-    <div className="absolute inset-0" style={{background:'rgba(8,8,16,.72)',backdropFilter:'blur(8px)'}}
-      onClick={()=>claimed&&setDismissed(true)}/>
-    <div className="relative w-full max-w-md lux-card !p-0 overflow-hidden anim-scaleIn">
-      {/* Ember header: the flame reacts to whether today is claimed yet */}
-      <div className="relative px-7 pt-7 pb-6 text-center overflow-hidden"
-        style={{background:'linear-gradient(160deg,#F59E0B,#EF4444 62%,#B91C1C)'}}>
+  return <div className={cx('fixed z-[125] right-3 sm:right-5 top-20 w-[min(92vw,330px)]',
+      leaving?'anim-slideOutR':'anim-slideIn')} role="status">
+    <div className="lux-card !p-0 overflow-hidden shadow-lift">
+      <div className="relative px-4 py-3 flex items-center gap-3 overflow-hidden"
+        style={{background:'linear-gradient(120deg,#F59E0B,#EF4444 70%,#B91C1C)'}}>
         <div className="ember-field" aria-hidden="true">
-          {Array.from({length:9},(_,i)=><span key={i} className="ember" style={{left:(6+i*10.5)+'%',
-            animationDelay:(i*0.42)+'s', animationDuration:(3.4+(i%4)*0.7)+'s'}}/>)}
+          {Array.from({length:5},(_,i)=><span key={i} className="ember" style={{left:(10+i*19)+'%',
+            animationDelay:(i*0.5)+'s', animationDuration:(3.2+(i%3)*0.6)+'s'}}/>)}
         </div>
-        <div className="relative">
-          <div className={cx('text-6xl inline-block', claimed?'anim-pop':'flame-pulse')}>{claimed?'🎉':'🔥'}</div>
-          <div className="font-serif text-4xl text-white mt-1 tnum">
-            {shown}<span className="text-lg font-sans opacity-85"> day{shown===1?'':'s'}</span></div>
-          <div className="text-[11px] uppercase tracking-[.22em] text-white/85 mt-1">
+        <span className={cx('relative text-3xl leading-none', claimed?'anim-pop':'flame-pulse')}>{claimed?'🎉':'🔥'}</span>
+        <div className="relative flex-1 leading-tight">
+          <div className="font-serif text-xl text-white tnum">{shown} day{shown===1?'':'s'}</div>
+          <div className="text-[10px] uppercase tracking-[.18em] text-white/85">
             {claimed?'Streak secured':'Streak on the line'}</div>
         </div>
+        <button onClick={dismiss} className="relative text-white/75 hover:text-white shrink-0"
+          aria-label="Dismiss"><Icon name="x" size={15}/></button>
       </div>
 
-      <div className="p-6">
-        {/* Seven-day ribbon, today highlighted */}
-        <div className="flex justify-between gap-1.5">{days.map(d=>
+      <div className="p-4">
+        <div className="flex justify-between gap-1">{days.map(d=>
           <div key={d.key} className="flex-1 text-center">
-            <div className={cx('grid place-items-center h-10 rounded-xl text-sm transition-all duration-500',
-              d.isToday&&!d.done&&'ring-2 ring-gold/60 animate-pulse')}
+            <div className={cx('grid place-items-center h-7 rounded-lg text-[11px] transition-all duration-500',
+              d.isToday&&!d.done&&'ring-2 ring-gold/60')}
               style={d.done
-                ? {background:'linear-gradient(135deg,#F59E0B,#EF4444)',color:'#fff',boxShadow:'0 4px 14px rgba(239,68,68,.35)'}
-                : {background:'rgb(var(--c-sand))',color:'rgb(var(--c-faint))'}}>
-              {d.done?'🔥':'·'}</div>
-            <div className="text-[10px] text-faint mt-1">{d.letter}</div>
+                ? {background:'linear-gradient(135deg,#F59E0B,#EF4444)',color:'#fff'}
+                : {background:'rgb(var(--c-sand))',color:'rgb(var(--c-faint))'}}>{d.done?'🔥':'·'}</div>
+            <div className="text-[9px] text-faint mt-0.5">{d.letter}</div>
           </div>)}
         </div>
 
-        {/* Progress to the next milestone */}
-        <div className="mt-5 rounded-xl2 border border-line p-4">
-          <div className="flex items-center gap-2">
-            <span className="text-xl">{tier.emoji}</span>
-            <div className="flex-1 leading-tight">
-              <div className="text-sm font-semibold text-charcoal">{tier.label} at {tier.at} days</div>
-              <div className="text-[11px] text-faint">{toGo===0?'Unlocked today':`${toGo} more day${toGo===1?'':'s'} · +${tier.xp} XP`}</div>
-            </div>
-            <div className="tnum text-sm font-semibold text-gold">{pct}%</div>
+        <div className="flex items-center gap-2 mt-3">
+          <span className="text-base">{tier.emoji}</span>
+          <div className="flex-1 leading-tight">
+            <div className="text-[12px] font-semibold text-charcoal">{tier.label} at {tier.at} days</div>
+            <div className="text-[10px] text-faint">{toGo===0?'Unlocked':`${toGo} to go · +${tier.xp} XP`} · best {best}</div>
           </div>
-          <div className="h-2 rounded-full bg-sand mt-3 overflow-hidden">
-            <div className="h-full rounded-full transition-all duration-[1200ms] shimmer-bar"
-              style={{width:pct+'%', background:'linear-gradient(90deg,#F59E0B,#EF4444)'}}/>
-          </div>
+          <div className="tnum text-[12px] font-semibold text-gold">{pct}%</div>
+        </div>
+        <div className="h-1.5 rounded-full bg-sand mt-2 overflow-hidden">
+          <div className="h-full rounded-full transition-all duration-[1200ms] shimmer-bar"
+            style={{width:pct+'%', background:'linear-gradient(90deg,#F59E0B,#EF4444)'}}/>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 mt-3">
-          <div className="rounded-xl2 bg-sand/60 px-3 py-2.5 text-center">
-            <div className="tnum font-serif text-xl text-charcoal">{best}</div>
-            <div className="text-[10px] uppercase tracking-wider text-faint">Best streak</div></div>
-          <div className="rounded-xl2 bg-sand/60 px-3 py-2.5 text-center">
-            <div className="tnum font-serif text-xl text-charcoal">{app.profile.checkins||streak}</div>
-            <div className="text-[10px] uppercase tracking-wider text-faint">Total check-ins</div></div>
-        </div>
-
-        {claimed
-          ? <button onClick={()=>setDismissed(true)} className="btn btn-primary w-full mt-4 py-2.5 text-sm">
-              Let’s go <Icon name="arrowR" size={14}/></button>
-          : <button onClick={claim} className="btn btn-gold w-full mt-4 py-3 text-sm">
-              Claim today’s check-in · +10 XP</button>}
-        {!claimed && <button onClick={()=>setDismissed(true)}
-          className="block mx-auto text-xs text-faint mt-3 hover:text-muted">Maybe later</button>}
+        {!claimed && <button onClick={claim} className="btn btn-gold w-full mt-3 py-2 text-[13px]">
+          Claim today · +10 XP</button>}
       </div>
-    </div></div>;
+    </div>
+  </div>;
 }
 // What's new appears as a popup on login rather than a page you must go find.
 function WhatsNewPopup(){
@@ -7955,7 +7947,7 @@ function App(){
     <div key={(redirect||path)+'::'+lang} className="anim-fadeIn"><Page/></div>
     {/* Both popups belong on the dashboard, not on whatever page you happen to land on. */}
     {user && !redirect && product==='leaf' && <WordOfDayPopup/>}
-    {user && !redirect && path==='/dashboard' && <DailyCheckIn/>}
+    {user && !redirect && !PUBLIC.includes(path) && <DailyCheckIn/>}
     {user && !redirect && path==='/dashboard' && <WhatsNewPopup/>}
     {showLogout && <div className="fixed inset-0 z-[150] grid place-items-center p-4">
       <div className="absolute inset-0 bg-charcoal/45" onClick={()=>setShowLogout(false)}/>
