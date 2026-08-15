@@ -7363,6 +7363,75 @@ function CareerModal({ eyebrow, title, onClose, children, footer }){
       {footer && <div className="mt-5 pt-4 border-t border-line">{footer}</div>}
     </div></div>;
 }
+// A modal that splits a long profile into tabs, so a career or a firm reads as
+// something you explore rather than a wall of headings to scroll past.
+function TabbedModal({ eyebrow, title, subtitle, hue='#8B5CF6', badge, stats, tabs, onClose, footer }){
+  const names=Object.keys(tabs);
+  const [tab,setTab]=useState(names[0]);
+  useEffect(()=>{ const h=(e)=>{ if(e.key==='Escape') onClose(); };
+    window.addEventListener('keydown',h); return ()=>window.removeEventListener('keydown',h); },[onClose]);
+  return <div className="fixed inset-0 z-50 grid place-items-center p-4">
+    <div className="absolute inset-0 bg-charcoal/55" style={{backdropFilter:'blur(4px)'}} onClick={onClose}/>
+    <div className="relative w-full max-w-3xl lux-card !p-0 max-h-[88vh] flex flex-col overflow-hidden anim-scaleIn">
+      {/* coloured header carrying the identity and the numbers that matter */}
+      <div className="relative px-6 pt-6 pb-5 shrink-0 overflow-hidden"
+        style={{background:`linear-gradient(150deg, ${hue}, ${hue}BB)`}}>
+        <div className="absolute inset-0 opacity-[.13] pointer-events-none"
+          style={{backgroundImage:'radial-gradient(circle,#fff 1.3px,transparent 1.4px)',backgroundSize:'20px 20px'}}/>
+        <div className="relative flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            {eyebrow && <div className="text-[10px] tracking-[.2em] uppercase" style={{color:'rgba(255,255,255,.8)'}}>{eyebrow}</div>}
+            <h3 className="font-serif text-3xl mt-1" style={{color:'#fff'}}>{title}</h3>
+            {subtitle && <p className="text-sm mt-1 max-w-xl" style={{color:'rgba(255,255,255,.85)'}}>{subtitle}</p>}
+          </div>
+          <div className="flex items-start gap-2 shrink-0">
+            {badge && <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2.5 py-1"
+              style={{background:'rgba(255,255,255,.22)',color:'#fff'}}>{badge}</span>}
+            <button onClick={onClose} className="grid place-items-center h-8 w-8 rounded-lg"
+              style={{background:'rgba(255,255,255,.18)',color:'#fff'}} aria-label="Close"><Icon name="x" size={15}/></button>
+          </div>
+        </div>
+        {stats && <div className="relative grid grid-cols-3 gap-2 mt-4">
+          {stats.map(([l,v])=><div key={l} className="rounded-xl px-3 py-2"
+            style={{background:'rgba(255,255,255,.16)',border:'1px solid rgba(255,255,255,.2)'}}>
+            <div className="text-[9px] uppercase tracking-wider" style={{color:'rgba(255,255,255,.8)'}}>{l}</div>
+            <div className="text-sm font-semibold leading-tight mt-0.5" style={{color:'#fff'}}>{v}</div></div>)}
+        </div>}
+      </div>
+      {/* tab rail */}
+      <div className="flex gap-1 px-4 pt-3 pb-2 border-b border-line overflow-x-auto no-scrollbar shrink-0">
+        {names.map(n=><button key={n} onClick={()=>setTab(n)}
+          className="rounded-full px-3.5 py-1.5 text-[12.5px] font-semibold whitespace-nowrap transition"
+          style={tab===n?{background:hue,color:'#fff'}:{color:'rgb(var(--c-muted))'}}>{n}</button>)}
+      </div>
+      <div className="flex-1 overflow-y-auto p-6 space-y-5 anim-fadeUp" key={tab}>{tabs[tab]}</div>
+      {footer && <div className="px-6 py-4 border-t border-line shrink-0">{footer}</div>}
+    </div></div>;
+}
+// A pay ladder drawn as proportional bars rather than three lines of prose.
+function PayLadder({ rows, hue }){
+  const nums=rows.map(([,v])=>{ const m=String(v).match(/[\d.]+/g)||['1']; return parseFloat(m[m.length-1])||1; });
+  const max=Math.max(...nums);
+  return <div className="space-y-3">{rows.map(([lvl,v],i)=>
+    <div key={lvl}>
+      <div className="flex items-baseline justify-between gap-3 mb-1">
+        <span className="text-sm font-semibold text-charcoal">{lvl}</span>
+        <span className="text-[12.5px] text-muted text-right">{v}</span></div>
+      <div className="h-2 rounded-full bg-sand overflow-hidden">
+        <div className="h-full rounded-full transition-all duration-700"
+          style={{width:Math.max(12,(nums[i]/max)*100)+'%', background:hue, opacity:.45+i*0.22}}/></div>
+    </div>)}</div>;
+}
+// Numbered vertical timeline for "how you actually get in".
+function RouteSteps({ items, hue }){
+  return <ol className="relative pl-7">
+    <span className="absolute left-[10px] top-2 bottom-2 w-px" style={{background:hue,opacity:.28}}/>
+    {items.map((t,i)=><li key={i} className="relative pb-4 last:pb-0">
+      <span className="absolute -left-7 grid place-items-center h-5 w-5 rounded-full text-[10px] font-bold text-white tnum"
+        style={{background:hue}}>{i+1}</span>
+      <span className="text-sm text-charcoal/85 leading-snug">{t}</span></li>)}
+  </ol>;
+}
 function MBlock({ title, children }){ return <div><div className="text-[11px] tracking-[.16em] uppercase text-faint mb-2">{title}</div>{children}</div>; }
 const Ticks=({items,color=FORGE_R})=><ul className="grid sm:grid-cols-2 gap-x-5 gap-y-1.5">{items.map((t,i)=><li key={i} className="flex items-start gap-2 text-sm text-charcoal/85"><Icon name="check" size={14} className="mt-0.5 shrink-0" style={{color}}/>{t}</li>)}</ul>;
 const LinkRow=({items})=><div className="grid sm:grid-cols-2 gap-2">{items.map(([label,url])=><a key={label} href={url} target="_blank" rel="noopener noreferrer" className="btn btn-ghost py-2 text-xs justify-between">{label} <Icon name="arrowR" size={11} className="-rotate-45"/></a>)}</div>;
@@ -7480,22 +7549,44 @@ function FinanceCareers(){
         <div className="flex items-start justify-between"><span className="grid place-items-center h-12 w-12 rounded-xl text-2xl" style={{background:hue+'1A'}}>{c.icon}</span><span className="text-[11px] font-semibold rounded-full px-2.5 py-1" style={{background:hue+'18',color:hue}}>{c.tag}</span></div>
         <div className="font-serif text-xl text-charcoal mt-3 group-hover:text-goldd transition">{c.name}</div><p className="text-sm text-muted mt-1 leading-relaxed flex-1">{c.blurb}</p>
         <div className="mt-3 pt-3 border-t border-line flex items-center gap-1 text-sm font-semibold" style={{color:hue}}>Explore this path <Icon name="arrowR" size={14} className="group-hover:translate-x-1 transition"/></div></Card>; })}</div>
-    {sel && <CareerModal eyebrow={`Finance career · ${sel.tag}`} title={sel.name} onClose={()=>setSel(null)}
-      footer={<a href="https://www.wallstreetoasis.com/" target="_blank" rel="noopener noreferrer" className="btn btn-gold text-sm">Explore the forums <Icon name="arrowR" size={13} className="-rotate-45"/></a>}>
-      <p className="text-sm text-charcoal/85 leading-relaxed">{sel.blurb}</p>
-      <MBlock title="A day in the role"><Ticks items={sel.day}/></MBlock>
-      <MBlock title="Required skills"><Ticks items={sel.skills}/></MBlock>
-      <MBlock title="Salary ranges"><div className="grid sm:grid-cols-3 gap-3">{sel.salary.map(([lvl,v])=><div key={lvl} className="rounded-xl border border-line bg-cream/60 p-3"><div className="text-[10px] uppercase tracking-wider text-faint">{lvl}</div><div className="text-sm text-charcoal mt-1">{v}</div></div>)}</div><div className="text-xs text-faint mt-2">Ranges reflect US/UK financial centres in 2025/26, meaningfully lower in smaller markets. Bonuses are highly variable.</div></MBlock>
-      <MBlock title="Career progression"><div className="text-sm text-charcoal/85">{sel.progression}</div></MBlock>
-      <div className="grid sm:grid-cols-2 gap-5">
-        <MBlock title="University targets"><div className="text-sm text-charcoal/85">{sel.unis}</div></MBlock>
-        <MBlock title="Subject requirements"><div className="text-sm text-charcoal/85">{sel.subjects}</div></MBlock>
-      </div>
-      <MBlock title="Degree recommendations"><div className="text-sm text-charcoal/85">{sel.degrees}</div></MBlock>
-      <MBlock title="Entry routes"><Ticks items={sel.routes}/></MBlock>
-      <MBlock title="Internships to target"><Ticks items={sel.interns}/></MBlock>
-      <MBlock title="Resources"><LinkRow items={sel.resources}/></MBlock>
-    </CareerModal>}
+    {sel && (()=>{ const hue=hueFor(CAREERS.indexOf(sel));
+      return <TabbedModal eyebrow="Finance career" title={sel.name} subtitle={sel.blurb} hue={hue} badge={sel.tag}
+        stats={[['Entry', (sel.salary[0]||[])[1]?String(sel.salary[0][1]).split('+')[0].trim():'—'],
+                ['Senior', (sel.salary[2]||sel.salary[sel.salary.length-1]||[])[1]||'—'],
+                ['Competition', sel.tag]]}
+        onClose={()=>setSel(null)}
+        footer={<div className="flex items-center justify-between gap-3 flex-wrap">
+          <span className="text-xs text-faint">Ranges reflect US/UK financial centres, meaningfully lower elsewhere.</span>
+          <a href="https://www.wallstreetoasis.com/" target="_blank" rel="noopener noreferrer" className="btn btn-gold text-sm">
+            Explore the forums <Icon name="arrowR" size={13} className="-rotate-45"/></a></div>}
+        tabs={{
+          'The role': <Fragment>
+            <MBlock title="A day in the role"><Ticks items={sel.day} color={hue}/></MBlock>
+            <MBlock title="Skills that actually matter"><Ticks items={sel.skills} color={hue}/></MBlock>
+          </Fragment>,
+          'Pay & progression': <Fragment>
+            <MBlock title="What it pays"><PayLadder rows={sel.salary} hue={hue}/></MBlock>
+            <MBlock title="How the ladder runs">
+              <div className="rounded-xl2 p-4 text-sm text-charcoal/85 leading-relaxed"
+                style={{background:hue+'12',border:`1px solid ${hue}2E`}}>{sel.progression}</div>
+            </MBlock>
+          </Fragment>,
+          'Getting in': <Fragment>
+            <MBlock title="Entry routes"><RouteSteps items={sel.routes} hue={hue}/></MBlock>
+            <MBlock title="Internships to target"><Ticks items={sel.interns} color={hue}/></MBlock>
+          </Fragment>,
+          'Study': <Fragment>
+            <div className="grid sm:grid-cols-2 gap-3">
+              {[['University targets',sel.unis,'🎓'],['Subject requirements',sel.subjects,'📘'],
+                ['Degree recommendations',sel.degrees,'🧭']].map(([t,v,e])=>
+                <div key={t} className={cx('rounded-xl2 border border-line p-4', t==='Degree recommendations'&&'sm:col-span-2')}>
+                  <div className="flex items-center gap-2 mb-1.5"><span className="text-lg">{e}</span>
+                    <span className="text-[11px] uppercase tracking-wider text-faint">{t}</span></div>
+                  <p className="text-sm text-charcoal/85 leading-relaxed">{v}</p></div>)}
+            </div>
+          </Fragment>,
+          'Resources': <MBlock title="Where to learn more"><LinkRow items={sel.resources}/></MBlock>,
+        }}/>; })()}
   </AppShell>;
 }
 
@@ -7533,24 +7624,38 @@ function TopFinanceFirms(){
         <div className="flex items-start justify-between"><span className="grid place-items-center h-11 w-11 rounded-xl font-serif text-lg" style={{background:hue+'1A',color:hue}}>{f[0].split(' ').map(w=>w[0]).join('').slice(0,2)}</span><span className="text-[11px] font-semibold rounded-full px-2.5 py-1" style={{background:hue+'18',color:hue}}>{f[1]}</span></div>
         <div className="font-serif text-lg text-charcoal mt-3 group-hover:text-goldd transition">{f[0]}</div><p className="text-sm text-muted mt-1 leading-relaxed flex-1">{f[3]}</p>
         <div className="flex items-center justify-between mt-3 pt-3 border-t border-line"><span className="text-[11px] text-faint">{f[2]}</span><span className="text-xs font-semibold flex items-center gap-1" style={{color:hue}}>View profile <Icon name="arrowR" size={12} className="group-hover:translate-x-1 transition"/></span></div></Card>; })}</div>
-    {sel && <CareerModal eyebrow={`${sel[2]} · ${sel[1]}`} title={sel[0]} onClose={()=>setSel(null)}
-      footer={<a href={sel[8]} target="_blank" rel="noopener noreferrer" className="btn btn-gold text-sm">Careers site <Icon name="arrowR" size={13} className="-rotate-45"/></a>}>
-      <p className="text-sm text-charcoal/85 leading-relaxed">{sel[3]}</p>
-      <MBlock title="What they look for"><p className="text-sm text-charcoal/85 leading-relaxed">{sel[4]}</p></MBlock>
-      <MBlock title="Skills they value"><Ticks items={sel[5]}/></MBlock>
-      {(()=>{ const x=FIRM_EXTRA[sel[2]]||FIRM_EXTRA['Investment Banking']; return <Fragment>
-        <MBlock title="Interview process"><Ticks items={x.interview}/></MBlock>
-        <div className="grid sm:grid-cols-2 gap-5">
-          <MBlock title="Compensation"><Ticks items={x.comp} color="#16A34A"/></MBlock>
-          <MBlock title="Culture & hours"><Ticks items={x.culture} color="#7C3AED"/></MBlock>
-        </div>
-        <MBlock title="Why it matters"><Ticks items={x.notable} color="#2563EB"/></MBlock>
-      </Fragment>; })()}
-      <div className="grid sm:grid-cols-2 gap-5">
-        <MBlock title="Subject preferences"><p className="text-sm text-charcoal/85">{sel[6]}</p></MBlock>
-        <MBlock title="Career progression"><p className="text-sm text-charcoal/85">{sel[7]}</p></MBlock>
-      </div>
-    </CareerModal>}
+    {sel && (()=>{ const hue=hueFor(FIRMS.indexOf(sel)); const x=FIRM_EXTRA[sel[2]]||FIRM_EXTRA['Investment Banking'];
+      return <TabbedModal eyebrow={sel[2]} title={sel[0]} subtitle={sel[3]} hue={hue} badge={sel[1]}
+        stats={[['Sector',sel[2]],['Tier',sel[1]],['Route','Grad + internship']]}
+        onClose={()=>setSel(null)}
+        footer={<div className="flex items-center justify-between gap-3 flex-wrap">
+          <span className="text-xs text-faint">Process details are typical, not guaranteed. Always check the firm's own page.</span>
+          <a href={sel[8]} target="_blank" rel="noopener noreferrer" className="btn btn-gold text-sm">
+            Careers site <Icon name="arrowR" size={13} className="-rotate-45"/></a></div>}
+        tabs={{
+          'What they want': <Fragment>
+            <div className="rounded-xl2 p-4 text-sm text-charcoal/85 leading-relaxed"
+              style={{background:hue+'12',border:`1px solid ${hue}2E`}}>{sel[4]}</div>
+            <MBlock title="Skills they screen for"><Ticks items={sel[5]} color={hue}/></MBlock>
+            <MBlock title="Subject preferences">
+              <p className="text-sm text-charcoal/85 leading-relaxed">{sel[6]}</p></MBlock>
+          </Fragment>,
+          'Interview process': <Fragment>
+            <MBlock title="Stage by stage"><RouteSteps items={x.interview} hue={hue}/></MBlock>
+            <div className="rounded-xl2 bg-sand/60 p-3 text-xs text-muted flex items-start gap-2">
+              <Icon name="bulb" size={13} className="text-goldd mt-0.5 shrink-0"/>
+              <span>Prepare in this order too. Most candidates fail on the technical round, not the fit round.</span></div>
+          </Fragment>,
+          'Pay & culture': <Fragment>
+            <MBlock title="Compensation"><Ticks items={x.comp} color="#16A34A"/></MBlock>
+            <MBlock title="Culture and hours"><Ticks items={x.culture} color="#7C3AED"/></MBlock>
+            <MBlock title="Progression">
+              <div className="rounded-xl2 p-4 text-sm text-charcoal/85 leading-relaxed"
+                style={{background:hue+'12',border:`1px solid ${hue}2E`}}>{sel[7]}</div></MBlock>
+          </Fragment>,
+          'Why it matters': <MBlock title="What makes this firm worth targeting">
+            <Ticks items={x.notable} color="#2563EB"/></MBlock>,
+        }}/>; })()}
   </AppShell>;
 }
 
@@ -7584,9 +7689,104 @@ const uniBarPct = (v)=> Math.max(6, Math.min(100, Math.round((v-UNI_SCORE_MIN)/(
 const UNI_REGIONS=['UK','US','Europe','Middle East','Asia'];
 const UNI_SUBJECTS=['Overall','Finance','Economics','Accounting','Computer Science','Mathematics','Engineering','Medicine','Law','Business / MBA'];
 const SHORTLIST_TAGS=['Reach','Target','Match','Safety'];
+/* ============================================================
+   ADMISSIONS TESTS
+   Which paper you actually have to sit, when, how it is scored, and what
+   score a given tier of university realistically wants.
+   ============================================================ */
+const ADMISSIONS_TESTS = {
+  TMUA:{ full:'Test of Mathematics for University Admission', region:'UK', when:'Sat in October, registration closes late September',
+    who:'Economics and some Maths/CS courses. Cambridge Economics requires it; LSE, Warwick, Durham, Bath and others accept or expect it.',
+    format:'Two 75-minute papers, 20 multiple-choice questions each. Paper 1 is applications of maths, Paper 2 is mathematical reasoning and logic.',
+    scale:'Reported 1.0–9.0 (each paper, then an overall). Around 6.0 is roughly the median applicant.',
+    bands:[['Tier 1','6.5 – 7.5+','Cambridge Economics applicants cluster here; 7.0+ is a genuinely strong signal.'],
+           ['Tier 2','5.5 – 6.5','Enough to keep you competitive at Warwick, Durham, Bath.'],
+           ['Tier 3','5.0+','Useful evidence even where it is optional.']],
+    tips:['No calculator, so drill mental arithmetic and algebraic manipulation.','Paper 2 is logic, not content: practise "must be true" reasoning.','Past papers are free from the official site, do them timed.'],
+    links:[['Official past papers','https://www.admissionstesting.org/'],['Cambridge admissions','https://www.undergraduate.study.cam.ac.uk/']] },
+  MAT:{ full:'Mathematics Admissions Test', region:'UK', when:'Sat in late October',
+    who:'Oxford Maths, Maths & Statistics, Computer Science and joint courses. Imperial uses it for some Maths courses.',
+    format:'2.5 hours, no calculator. One multiple-choice section then longer written questions.',
+    scale:'Marked out of 100.',
+    bands:[['Tier 1','70 – 90+','Oxford interview shortlists typically sit around the high 60s upward, course-dependent.'],
+           ['Tier 2','55 – 70','Competitive for Imperial and similar.'],
+           ['Tier 3','50+','Still a positive signal.']],
+    tips:['Only covers pure maths up to the start of A-level, depth over breadth.','The multiple-choice section is where marks are won cheaply.','Write full solutions, method carries marks.'],
+    links:[['Official MAT papers','https://www.maths.ox.ac.uk/study-here/undergraduate-study/maths-admissions-test']] },
+  STEP:{ full:'Sixth Term Examination Paper', region:'UK', when:'Sat in June, results with A-levels',
+    who:'Cambridge Maths (usually a condition of the offer), Warwick and Imperial use it as an alternative offer.',
+    format:'3-hour papers. STEP 2 and STEP 3 are the ones normally required.',
+    scale:'Graded S, 1, 2, 3, U.',
+    bands:[['Tier 1','1,1 or S,1','A typical Cambridge Maths offer is grade 1 in both STEP 2 and 3.'],
+           ['Tier 2','2,2','Common alternative-offer requirement.'],
+           ['Tier 3','—','Rarely required outside the top maths departments.']],
+    tips:['Much harder than A-level: expect long, multi-stage problems.','You only need to attempt a handful of questions well, not all of them.','The free STEP Support Programme is the best preparation available.'],
+    links:[['STEP Support Programme (free)','https://maths.org/step/'],['Past papers','https://www.admissionstesting.org/']] },
+  SAT:{ full:'Scholastic Assessment Test', region:'US', when:'Offered several times a year; sit it by autumn of your final year',
+    who:'US undergraduate applications. Many universities are test-optional, but a strong score still helps, especially for scholarships.',
+    format:'Digital, adaptive, about 2 hours 14 minutes. Reading & Writing plus Maths.',
+    scale:'400–1600 total (two sections of 200–800).',
+    bands:[['Tier 1','1500 – 1600','Ivy League, MIT, Stanford, Chicago. The middle 50% at these schools typically starts around 1500.'],
+           ['Tier 2','1400 – 1500','Strong for top-30 US universities and most scholarship consideration.'],
+           ['Tier 3','1300+','Solid for a wide range of good programmes.']],
+    tips:['Maths is the easier section to move quickly, target it first.','Official Bluebook practice tests are free and the closest to the real thing.','If a school is test-optional and your score is below their median, consider not submitting.'],
+    links:[['Official practice (free)','https://satsuite.collegeboard.org/sat'],['Khan Academy SAT','https://www.khanacademy.org/sat']] },
+  ACT:{ full:'American College Testing', region:'US', when:'Offered several times a year',
+    who:'Accepted interchangeably with the SAT by US universities. Some students score better on one than the other.',
+    format:'English, Maths, Reading, Science, plus optional Writing.',
+    scale:'1–36 composite.',
+    bands:[['Tier 1','34 – 36','Equivalent to a 1500+ SAT.'],['Tier 2','31 – 33','Top-30 range.'],['Tier 3','28+','Broadly competitive.']],
+    tips:['The Science section is data interpretation, not science knowledge.','Pacing is the main difficulty, practise strictly timed.','Sit a practice SAT and ACT, then commit to whichever suits you.'],
+    links:[['Official ACT prep','https://www.act.org/']] },
+  LNAT:{ full:'National Admissions Test for Law', region:'UK', when:'Register from August, sit between September and January',
+    who:'Law at Oxford, UCL, LSE, KCL, Bristol, Durham, Nottingham and others.',
+    format:'Section A: 42 multiple-choice comprehension questions. Section B: one essay.',
+    scale:'Section A marked out of 42; the essay is read by the university.',
+    bands:[['Tier 1','29 – 33+','Oxford and UCL applicants cluster in the high 20s upward.'],
+           ['Tier 2','25 – 28','Competitive at most LNAT universities.'],['Tier 3','22+','Reasonable.']],
+    tips:['It tests reading, not legal knowledge, so do not revise law.','Read broadsheet opinion pieces and argue back at them.','Plan the essay for five minutes before writing.'],
+    links:[['Official LNAT site','https://lnat.ac.uk/']] },
+  UCAT:{ full:'University Clinical Aptitude Test', region:'UK', when:'Sat between July and September',
+    who:'Medicine and dentistry at most UK universities.',
+    format:'Five timed sections including verbal reasoning, decision making, quantitative reasoning and situational judgement.',
+    scale:'1,200–3,600 across four sections, plus a band for situational judgement.',
+    bands:[['Tier 1','2,900+','Competitive for the most selective medical schools.'],['Tier 2','2,600 – 2,900','Broadly competitive.'],['Tier 3','2,400+','Viable at UCAT-lenient schools.']],
+    tips:['Speed is the whole test, practise against the clock from day one.','Quantitative reasoning rewards a good on-screen calculator technique.','Band 1 in situational judgement matters at some schools.'],
+    links:[['Official UCAT site','https://www.ucat.ac.uk/']] },
+  IELTS:{ full:'IELTS / TOEFL (English proficiency)', region:'Global', when:'Any time; results valid two years',
+    who:'Anyone whose first language is not English, or who was not taught in English.',
+    format:'Listening, reading, writing and speaking.',
+    scale:'IELTS 0–9. TOEFL iBT 0–120.',
+    bands:[['Tier 1','IELTS 7.5 (no band below 7.0) / TOEFL 110','Oxford, Cambridge, LSE, Imperial.'],
+           ['Tier 2','IELTS 7.0 / TOEFL 100','Most Russell Group and top US universities.'],
+           ['Tier 3','IELTS 6.5 / TOEFL 90','Common minimum.']],
+    tips:['The sub-score minimum catches people out more often than the overall.','Writing is usually the lowest band, practise task 2 essays.','Book early, test slots fill up.'],
+    links:[['IELTS official','https://www.ielts.org/'],['TOEFL official','https://www.ets.org/toefl']] },
+};
+// Which papers each university actually wants for a finance or economics route.
+const UNI_TESTS = {
+  'University of Cambridge':['TMUA','STEP','IELTS'],
+  'University of Oxford':['MAT','IELTS'],
+  'London School of Economics':['TMUA','IELTS'],
+  'Imperial College London':['MAT','IELTS'],
+  'University of Warwick':['TMUA','IELTS'],
+  'Harvard University':['SAT','ACT','IELTS'],
+  'Massachusetts Institute of Technology':['SAT','ACT','IELTS'],
+  'Stanford University':['SAT','ACT','IELTS'],
+  'University of Pennsylvania (Wharton)':['SAT','ACT','IELTS'],
+  'University of Chicago':['SAT','ACT','IELTS'],
+  'Columbia University':['SAT','ACT','IELTS'],
+  'New York University (Stern)':['SAT','ACT','IELTS'],
+  'University of California, Berkeley':['SAT','ACT','IELTS'],
+};
+const testsFor=(u)=> UNI_TESTS[u[0]] || (u[3]==='UK' ? ['TMUA','IELTS'] : u[3]==='US' ? ['SAT','ACT','IELTS'] : ['IELTS']);
+const tierIndex=(tier)=> tier==='Tier 1'?0 : tier==='Tier 2'?1 : 2;
+
 function UniversitiesRank(){
   const [region,setRegion]=useState(null),[subject,setSubject]=useState('Overall'),[q,setQ]=useState('');
   const [list,setList]=useState({}); // name -> tag
+  const [selU,setSelU]=useState(null);
+  const [selTest,setSelTest]=useState(null);
   const shown=UNIS.filter(u=>(!region||u[3]===region)&&(u[0].toLowerCase().includes(q.toLowerCase())));
   const setTag=(name,tag)=>setList(l=>{ const nl={...l}; if(l[name]===tag) delete nl[name]; else nl[name]=tag; return nl; });
   const TAG_HUE={Reach:'#DC2626',Target:'#D97706',Match:'#16A34A',Safety:'#2563EB'};
@@ -7601,19 +7801,130 @@ function UniversitiesRank(){
     <div className="grid lg:grid-cols-3 gap-4">
       <div className="lg:col-span-2 grid sm:grid-cols-2 gap-4 stagger">{shown.map((u,ui)=>{ const tag=list[u[0]]; const hue=hueFor(ui); const score=u[5];
         const grade=score>=97?'#16A34A':score>=92?'#2563EB':score>=88?'#D97706':'#9333EA';
-        return <Card key={u[0]} style={{borderTop:`3px solid ${hue}`}}><div className="flex items-start justify-between gap-2"><div><div className="flex items-center gap-2 flex-wrap"><span className="text-[11px] font-semibold rounded-full px-2 py-0.5" style={{background:hue+'18',color:hue}}>{u[4]}</span><span className="text-[10px] text-faint">{u[3]}</span></div><div className="font-serif text-lg text-charcoal mt-1.5">{u[0]}</div><div className="text-xs text-faint">{u[2]}</div></div>
+        return <Card key={u[0]} style={{borderTop:`3px solid ${hue}`}}><div onClick={()=>setSelU(u)} className="cursor-pointer"><div className="flex items-start justify-between gap-2"><div><div className="flex items-center gap-2 flex-wrap"><span className="text-[11px] font-semibold rounded-full px-2 py-0.5" style={{background:hue+'18',color:hue}}>{u[4]}</span><span className="text-[10px] text-faint">{u[3]}</span></div><div className="font-serif text-lg text-charcoal mt-1.5">{u[0]}</div><div className="text-xs text-faint">{u[2]}</div></div>
           <div className="grid place-items-center h-14 w-14 rounded-full shrink-0" style={{background:grade+'14'}}><div className="text-center leading-none"><div className="font-serif text-xl" style={{color:grade}}>{score}</div><div className="text-[8px] uppercase tracking-wider text-faint">score</div></div></div></div>
-          <p className="text-sm text-muted mt-2 leading-relaxed">{u[8]}</p>
+          <p className="text-sm text-muted mt-2 leading-relaxed">{u[7]}</p>
           <div className="mt-3 space-y-1.5">{UNI_SCORE_LABELS.map((lab,i)=><div key={lab} className="flex items-center gap-2"><span className="text-[11px] text-faint w-24 shrink-0">{lab}</span><div className="h-1.5 rounded-full bg-sand flex-1"><div className="h-1.5 rounded-full" style={{width:uniBarPct(u[6][i])+'%',background:hue}}/></div><span className="text-[11px] text-muted w-6 text-right">{u[6][i]}</span></div>)}</div>
-          <div className="mt-3 pt-3 border-t border-line"><div className="text-[10px] uppercase tracking-wider text-faint mb-1.5">My list · {u[9]}</div>
+          <div className="mt-2 flex items-center gap-1 text-xs font-semibold" style={{color:hue}}>What they look for <Icon name="arrowR" size={12}/></div>
+          </div>
+          <div className="mt-3 pt-3 border-t border-line"><div className="text-[10px] uppercase tracking-wider text-faint mb-1.5">My list</div>
             <div className="flex gap-1.5">{SHORTLIST_TAGS.map(t=><button key={t} onClick={()=>setTag(u[0],t)} className="flex-1 text-[11px] font-semibold rounded-lg py-1.5 border transition" style={tag===t?{background:TAG_HUE[t],color:'#fff',borderColor:TAG_HUE[t]}:{borderColor:'var(--c-line,#e5e5e5)',color:TAG_HUE[t]}}>{t}</button>)}</div></div></Card>; })}</div>
       <div className="space-y-4">
         <Card hover={false}><Eyebrow className="mb-2">★ My shortlist</Eyebrow>{Object.keys(list).length===0? <p className="text-sm text-muted">Tap “Add to shortlist” on any university to tag it Reach / Target / Match / Safety and build your list here.</p>
           : <div className="space-y-2.5">{SHORTLIST_TAGS.map(t=>{ const items=Object.entries(list).filter(([,v])=>v===t).map(([n])=>n); if(!items.length) return null; return <div key={t}><div className="text-[10px] font-semibold uppercase tracking-wider" style={{color:TAG_HUE[t]}}>{t} · {items.length}</div>{items.map(n=><div key={n} className="text-sm text-charcoal flex items-center gap-1.5"><span style={{color:TAG_HUE[t]}}>•</span>{n}</div>)}</div>; })}</div>}</Card>
+        {/* Which papers YOUR list actually needs, and the score to aim for */}
+        {(()=>{ const picked=UNIS.filter(u=>list[u[0]]);
+          const pool = picked.length?picked:UNIS.filter(u=>u[4]==='Tier 1').slice(0,3);
+          const need={}; pool.forEach(u=>testsFor(u).forEach(t=>{
+            const ti=tierIndex(u[4]); need[t]=Math.min(need[t]===undefined?9:need[t], ti); }));
+          const keys=Object.keys(need).sort((a,b)=>need[a]-need[b]);
+          return <Card hover={false}>
+            <div className="flex items-center justify-between gap-2 mb-1">
+              <Eyebrow>◎ Your test targets</Eyebrow>
+              <button onClick={()=>setSelTest(keys[0]||'TMUA')} className="text-[11px] font-semibold text-gold">Guides →</button>
+            </div>
+            <p className="text-xs text-muted mb-3">
+              {picked.length? `Based on the ${picked.length} universit${picked.length===1?'y':'ies'} on your list.`
+                : 'Shortlist a few universities and this becomes specific to them. Showing Tier 1 for now.'}</p>
+            <div className="space-y-2">{keys.map(k=>{ const t=ADMISSIONS_TESTS[k]; if(!t) return null;
+              const band=t.bands[need[k]]||t.bands[0];
+              return <button key={k} onClick={()=>setSelTest(k)}
+                className="w-full text-left rounded-xl2 border border-line p-3 hover:bg-sand/50 transition">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-semibold text-charcoal">{k}</span>
+                  <span className="text-sm font-bold tnum" style={{color:'#D97706'}}>{band[1]}</span></div>
+                <div className="text-[11px] text-faint mt-0.5">{t.when.split(';')[0]}</div>
+              </button>; })}</div>
+          </Card>; })()}
         <Card hover={false}><Eyebrow className="mb-2">▲ Top 5 by score</Eyebrow><ol className="space-y-1.5">{top5.map((u,i)=><li key={u[0]} className="flex items-center gap-2 text-sm text-charcoal/85"><span className="font-serif text-goldd w-4">{i+1}</span>{u[0]}<span className="ml-auto text-xs text-faint">{u[5]}</span></li>)}</ol></Card>
         <Card hover={false}><Eyebrow className="mb-2">What the scores mean</Eyebrow><div className="text-xs text-muted space-y-1.5"><div><b className="text-charcoal">Overall</b>, composite across all metrics, anchored to QS/THE/US-News plus finance recruiting strength.</div><div><b className="text-charcoal">Finance rep</b>, how aggressively top IB/PE/HF/consulting firms recruit on campus.</div><div><b className="text-charcoal">Employability</b>, graduate hire rate within 6 months and starting salary.</div><div><b className="text-charcoal">Teaching &amp; Outcomes</b>, course quality and long-run graduate success.</div></div></Card>
       </div>
     </div>
+    {selU && (()=>{ const u=selU; const hue=hueFor(UNIS.indexOf(u)); const ts=testsFor(u); const ti=tierIndex(u[4]);
+      return <TabbedModal eyebrow={`${u[2]} · ${u[3]}`} title={u[0]} subtitle={u[7]} hue={hue} badge={u[4]}
+        stats={[['Overall',u[5]],['Finance rep',u[6][1]],['Employability',u[6][2]]]}
+        onClose={()=>setSelU(null)}
+        footer={<div className="flex items-center justify-between gap-3 flex-wrap">
+          <span className="text-xs text-faint">Score bands are typical ranges, not official cut-offs.</span>
+          <a href={`https://www.google.com/search?q=${encodeURIComponent(u[0]+' undergraduate admissions')}`}
+            target="_blank" rel="noopener noreferrer" className="btn btn-gold text-sm">
+            Official admissions <Icon name="arrowR" size={13} className="-rotate-45"/></a></div>}
+        tabs={{
+          'What they look for': <Fragment>
+            <MBlock title="How they assess you">
+              <div className="rounded-xl2 p-4 text-sm text-charcoal/85 leading-relaxed"
+                style={{background:hue+'12',border:`1px solid ${hue}2E`}}>{u[8]}</div></MBlock>
+            <MBlock title="Where it is strong">
+              <div className="space-y-2">{UNI_SCORE_LABELS.map((lab,i)=>
+                <div key={lab} className="flex items-center gap-3">
+                  <span className="text-xs text-muted w-28 shrink-0">{lab}</span>
+                  <div className="h-2 rounded-full bg-sand flex-1 overflow-hidden">
+                    <div className="h-full rounded-full" style={{width:uniBarPct(u[6][i])+'%',background:hue}}/></div>
+                  <span className="text-xs tnum text-charcoal w-7 text-right">{u[6][i]}</span></div>)}</div></MBlock>
+          </Fragment>,
+          'Tests & scores': <Fragment>
+            <p className="text-sm text-muted leading-relaxed">
+              For a finance or economics route here, these are the papers that matter and the score band
+              a <b className="text-charcoal">{u[4]}</b> applicant is realistically aiming for.</p>
+            <div className="space-y-3">{ts.map(k=>{ const t=ADMISSIONS_TESTS[k]; if(!t) return null;
+              const band=t.bands[ti]||t.bands[0];
+              return <div key={k} className="rounded-xl2 border border-line p-4">
+                <div className="flex items-start justify-between gap-3 flex-wrap">
+                  <div><div className="font-serif text-lg text-charcoal">{k}</div>
+                    <div className="text-[11px] text-faint">{t.full}</div></div>
+                  <div className="text-right">
+                    <div className="font-serif text-2xl tnum" style={{color:hue}}>{band[1]}</div>
+                    <div className="text-[10px] uppercase tracking-wider text-faint">target</div></div>
+                </div>
+                <p className="text-[13px] text-charcoal/85 leading-relaxed mt-2">{band[2]}</p>
+                <div className="text-[11px] text-faint mt-2">{t.when}</div>
+                <button onClick={()=>{ setSelU(null); setSelTest(k); }}
+                  className="mt-2 text-xs font-semibold flex items-center gap-1" style={{color:hue}}>
+                  Full {k} guide <Icon name="arrowR" size={11}/></button>
+              </div>; })}</div>
+          </Fragment>,
+          'Shortlist it': <Fragment>
+            <p className="text-sm text-muted">Tag this one honestly. A list of five reaches is not a strategy.</p>
+            <div className="grid grid-cols-2 gap-2">{SHORTLIST_TAGS.map(t=>
+              <button key={t} onClick={()=>setTag(u[0],t)}
+                className="rounded-xl2 border p-3 text-left transition"
+                style={list[u[0]]===t?{background:TAG_HUE[t],color:'#fff',borderColor:TAG_HUE[t]}
+                  :{borderColor:'rgb(var(--c-line))',color:TAG_HUE[t]}}>
+                <div className="text-sm font-bold">{t}</div>
+                <div className="text-[11px] opacity-80 mt-0.5">
+                  {t==='Reach'?'A stretch on your current grades':t==='Target'?'Realistic with strong results'
+                    :t==='Match'?'In line with where you are now':'Very likely to admit you'}</div>
+              </button>)}</div>
+          </Fragment>,
+        }}/>; })()}
+
+    {selTest && (()=>{ const t=ADMISSIONS_TESTS[selTest]; const hue='#D97706';
+      return <TabbedModal eyebrow={`${t.region} admissions test`} title={selTest} subtitle={t.full} hue={hue}
+        badge={t.region}
+        stats={[['Scored on',t.scale.split('.')[0]],['Sat in',t.when.split(',')[0].replace('Sat in','').trim()],['Needed for',t.who.split('.')[0].slice(0,28)]]}
+        onClose={()=>setSelTest(null)}
+        footer={<div className="flex items-center justify-between gap-3 flex-wrap">
+          <span className="text-xs text-faint">Always confirm requirements on the university's own page, they change yearly.</span>
+        </div>}
+        tabs={{
+          'What it is': <Fragment>
+            <MBlock title="Who needs it"><p className="text-sm text-charcoal/85 leading-relaxed">{t.who}</p></MBlock>
+            <MBlock title="Format"><p className="text-sm text-charcoal/85 leading-relaxed">{t.format}</p></MBlock>
+            <MBlock title="How it is scored"><p className="text-sm text-charcoal/85 leading-relaxed">{t.scale}</p></MBlock>
+            <MBlock title="When"><p className="text-sm text-charcoal/85 leading-relaxed">{t.when}</p></MBlock>
+          </Fragment>,
+          'Target scores': <div className="space-y-3">{t.bands.map(([tier,score,note])=>
+            <div key={tier} className="rounded-xl2 border border-line p-4">
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-sm font-semibold text-charcoal">{tier}</span>
+                <span className="font-serif text-2xl tnum" style={{color:hue}}>{score}</span></div>
+              <p className="text-[13px] text-charcoal/85 leading-relaxed mt-1.5">{note}</p></div>)}</div>,
+          'How to prepare': <Fragment>
+            <MBlock title="What actually moves your score"><RouteSteps items={t.tips} hue={hue}/></MBlock>
+            <MBlock title="Official resources"><LinkRow items={t.links}/></MBlock>
+          </Fragment>,
+        }}/>; })()}
+
     <div className="mt-3"><Disclaimer compact/></div>
   </AppShell>;
 }
