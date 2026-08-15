@@ -1188,6 +1188,7 @@ function deriveMetrics(profile, exp, balances){
   return {
     region, income, essentialsTotal, lifestyleTotal, obligationsTotal, savingsTotal, debtTotal, consumption, leftover,
     savingsRate, efMonths, rows, realistic, conservative, aggressive, topLeaks, scores:sc, overall, alloc, archetype, balances,
+    expenses:exp,
   };
 }
 
@@ -3748,6 +3749,79 @@ function Dashboard(){
 /* ============================================================
    PAGE · AI FINANCIAL TWIN  (cinematic reveal)
    ============================================================ */
+/* Evidence-backed findings for the Financial Twin. Each one carries the number
+   that proves it, what "good" looks like, why it matters and what to do, so
+   the profile argues from the user's own data rather than adjectives. */
+function twinFindings(m, fmt){
+  const inc=Math.max(m.income,1);
+  const strengths=[], watch=[];
+  const pct=(x)=>Math.round(x*100);
+
+  // --- savings rate ---
+  const sr=m.savingsRate;
+  if(sr>=0.15) strengths.push({ t:'You save a real share of what you earn', val:pct(sr)+'%', good:'15%+',
+    bar:[pct(sr),15,35], why:`Saving ${pct(sr)}% puts you ahead of most people your age, and it is the single strongest predictor of where you end up.`,
+    act:'Protect it as your income grows. Send the whole of your next raise to savings before you feel it.',
+    impact:`At ${pct(sr)}% you are setting aside about ${fmt.money(m.savingsTotal)} a month.` });
+  else watch.push({ t:'Your savings rate is below where it needs to be', val:pct(sr)+'%', good:'15%+', sev:sr<0.05?'high':'medium',
+    bar:[pct(sr),15,35], why:`At ${pct(sr)}% the gap between what you earn and what you keep is doing most of the damage. Everything else on this page matters less than this number.`,
+    act:`Automate a transfer on payday rather than saving what is left at month end. Start at ${fmt.money(Math.max(m.conservative,200))}.`,
+    impact:`Reaching 15% would mean about ${fmt.money(inc*0.15 - m.savingsTotal)} more set aside every month.` });
+
+  // --- emergency fund ---
+  if(m.efMonths>=3) strengths.push({ t:'You have a real safety buffer', val:m.efMonths.toFixed(1)+' months', good:'3–6 months',
+    bar:[Math.min(100,m.efMonths/6*100),50,100], why:'A buffer is what stops a bad month becoming debt. Yours already covers a genuine shock.',
+    act: m.efMonths>=6?'You are covered. Anything beyond six months is better invested than held as cash.':'Push toward six months, then stop and invest the rest.',
+    impact:`Covers roughly ${m.efMonths.toFixed(1)} months of essentials at ${fmt.money(m.essentialsTotal||0)} a month.` });
+  else watch.push({ t:'Your emergency fund is thin', val:m.efMonths.toFixed(1)+' months', good:'3–6 months', sev:m.efMonths<1?'high':'medium',
+    bar:[Math.min(100,m.efMonths/6*100),50,100], why:'Without a buffer, an unexpected bill becomes credit-card debt, and that is how most people start going backwards.',
+    act:`Open a separate high-yield account and automate ${fmt.money(Math.max(m.conservative,200))} a month into it. Do not link a card to it.`,
+    impact:`You need roughly ${fmt.money(Math.max(0,(m.essentialsTotal||0)*3 - (m.balances&&m.balances.emergencyFund||0)))} more to reach three months.` });
+
+  // --- debt pressure ---
+  const dr=(m.debtTotal||0)/inc;
+  if(dr<0.10) strengths.push({ t:'Debt is not eating your income', val:pct(dr)+'% of income', good:'under 10%',
+    bar:[Math.min(100,dr*400),40,100], why:'Low debt service means your money is working for you rather than for a lender.',
+    act:'Keep it there. Treat any new borrowing as a decision, not a default.',
+    impact:`Debt costs you about ${fmt.money(m.debtTotal||0)} a month.` });
+  else watch.push({ t:'Debt is taking too much of your income', val:pct(dr)+'% of income', good:'under 10%', sev:dr>0.2?'high':'medium',
+    bar:[Math.min(100,dr*400),40,100], why:'Every dirham of interest is a guaranteed loss. Clearing high-interest debt beats almost any investment return available to you.',
+    act:'Attack the highest interest rate first, not the smallest balance. The maths favours the avalanche method.',
+    impact:`You are paying about ${fmt.money(m.debtTotal||0)} a month before you save anything.` });
+
+  // --- investing ---
+  const inv=(m.expenses&&m.expenses.investments)||0;
+  if(inv>0) strengths.push({ t:'You already invest, not just save', val:fmt.money(inv)+'/mo', good:'anything consistent',
+    bar:[Math.min(100,inv/inc*500),40,100], why:'Cash loses to inflation slowly and quietly. Investing consistently is what turns saving into wealth.',
+    act:'Consistency beats size. Keep the standing order running through bad months, that is when it matters.',
+    impact:`Around ${fmt.money(inv*12)} a year going into long-term growth.` });
+  else if(m.efMonths>=3) watch.push({ t:'Your buffer is set but nothing is invested', val:'0/mo', good:'start small', sev:'medium',
+    bar:[0,40,100], why:'You have done the hard part. Cash beyond six months of essentials is losing value to inflation every year it sits still.',
+    act:'Start with a small automatic amount into a broad index fund. The habit matters more than the sum.',
+    impact:'Even a modest monthly amount compounds over the decades you have ahead of you.' });
+
+  // --- lifestyle ratio ---
+  const lr=(m.lifestyleTotal||0)/inc;
+  if(lr<=0.18) strengths.push({ t:'Lifestyle spending is under control', val:pct(lr)+'% of income', good:'under 18%',
+    bar:[Math.min(100,lr*400),72,100], why:'Discretionary spend is where most income quietly disappears. Yours is not the problem.',
+    act:'Keep an eye on it as you earn more. Lifestyle creep is gradual and rarely noticed until it is fixed.',
+    impact:`About ${fmt.money(m.lifestyleTotal||0)} a month on discretionary categories.` });
+  else watch.push({ t:'Lifestyle spending is above benchmark', val:pct(lr)+'% of income', good:'under 18%', sev:lr>0.28?'high':'medium',
+    bar:[Math.min(100,lr*400),72,100], why:'Not about denying yourself, but this is the category with the most give in it, and it is capping how fast everything else grows.',
+    act:'Pick the two lines you would miss least and cut those only. Blanket austerity fails within a month.',
+    impact:`Bringing it to 18% would free about ${fmt.money(Math.max(0,(m.lifestyleTotal||0)-inc*0.18))} a month.` });
+
+  // --- per-category leaks, the specific evidence ---
+  (m.topLeaks||[]).slice(0,3).forEach(r=>{
+    watch.push({ t:`${r.label} is over its benchmark`, val:fmt.money(r.amount), good:`${fmt.money(r.lo)}–${fmt.money(r.hi)}`, sev:'low',
+      bar:[Math.min(100,r.amount/(r.hi||1)*60), 60, 100],
+      why:`For your income and region, this category usually lands between ${fmt.money(r.lo)} and ${fmt.money(r.hi)}. You are ${fmt.money(r.over)} above the top of that range.`,
+      act:`Set a hard monthly cap at ${fmt.money(r.hi)} and check it weekly rather than at month end.`,
+      impact:`Reclaiming this alone is about ${fmt.money(r.over*12)} a year.` });
+  });
+
+  return { strengths, watch };
+}
 function FinancialTwin(){
   const app = useApp(); const fmt = app.fmt; const m = app.metrics; const a = m.archetype;
   const [phase,setPhase]=useState(0); // 0 idle, 1 analysing, 2 revealed
@@ -3791,23 +3865,79 @@ function FinancialTwin(){
           </div>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-4 mb-4 stagger">
-          <Card><div className="flex items-center gap-2 mb-3"><Icon name="check" className="text-saged"/><Eyebrow>Strengths</Eyebrow></div>
-            <ul className="space-y-2">{a.strengths.map(s=><li key={s} className="flex items-start gap-2 text-sm text-charcoal/85"><span className="h-1.5 w-1.5 rounded-full bg-sage mt-1.5"/>{s}</li>)}</ul>
-            <details className="group mt-3 [&_summary]:cursor-pointer"><summary className="list-none text-xs font-semibold text-saged flex items-center gap-1">Explain more <Icon name="chevron" size={12} className="rotate-90 group-open:rotate-[270deg] transition"/></summary>
-              <p className="text-sm text-muted mt-2 leading-relaxed">These are the habits compounding in your favour. The key is protecting them as your income grows, letting raises flow to savings instead of lifestyle is what turns a good year into lasting wealth.</p></details>
-          </Card>
-          <Card><div className="flex items-center gap-2 mb-3"><Icon name="scale" className="text-clayd"/><Eyebrow>Watch-outs</Eyebrow></div>
-            <ul className="space-y-2">{a.weaknesses.map(s=><li key={s} className="flex items-start gap-2 text-sm text-charcoal/85"><span className="h-1.5 w-1.5 rounded-full bg-clay mt-1.5"/>{s}</li>)}</ul>
-            <details className="group mt-3 [&_summary]:cursor-pointer"><summary className="list-none text-xs font-semibold text-clayd flex items-center gap-1">Show improvement plan <Icon name="chevron" size={12} className="rotate-90 group-open:rotate-[270deg] transition"/></summary>
-              <div className="mt-2 space-y-2">{[
-                m.efMonths<3 && `Build your emergency fund to 3 months (currently ${m.efMonths.toFixed(1)}). Automate ${fmt.money(Math.max(m.conservative,200))}/mo into a separate account.`,
-                m.realistic>0 && `Trim ${m.topLeaks[0]?m.topLeaks[0].label.toLowerCase():'your top category'} toward benchmark to reclaim ~${fmt.money(m.realistic)}/mo.`,
-                m.savingsRate<0.15 && `Nudge your savings rate from ${round(m.savingsRate*100)}% toward 15% by automating the reclaimed amount on payday.`,
-                m.debtTotal/m.income>=0.12 && `Prioritise your highest-interest debt first, paying it down is effectively a guaranteed return.`
-              ].filter(Boolean).map((step,i)=><div key={i} className="flex items-start gap-2 text-sm"><span className="grid place-items-center h-5 w-5 rounded-full bg-clay/15 text-clayd text-[11px] font-bold shrink-0 mt-0.5">{i+1}</span><span className="text-charcoal/80">{step}</span></div>)}</div></details>
-          </Card>
-        </div>
+        {/* ===== THE FULL READ =====
+            Every line argues from a number the user can check, with what good
+            looks like, why it matters and what to do about it. ===== */}
+        {(()=>{ const f=twinFindings(m,fmt);
+          const Finding=({d,tone})=>{
+            const [open,setOpen]=useState(false);
+            const sev = d.sev==='high'?'#DC2626' : d.sev==='medium'?'#D97706' : tone;
+            return <div className="rounded-xl2 border overflow-hidden transition-all"
+              style={{borderColor:open?sev+'66':'rgb(var(--c-line))'}}>
+              <button onClick={()=>setOpen(o=>!o)} className="w-full text-left p-4 hover:bg-sand/40 transition">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-semibold text-charcoal leading-snug">{d.t}</div>
+                    <div className="text-[11px] text-faint mt-0.5">Benchmark {d.good}</div>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <div className="font-serif text-lg tnum" style={{color:sev}}>{d.val}</div>
+                    {d.sev && <div className="text-[9px] uppercase tracking-wider" style={{color:sev}}>
+                      {d.sev==='high'?'Priority':d.sev==='medium'?'Worth fixing':'Minor'}</div>}
+                  </div>
+                </div>
+                {/* you against the benchmark band */}
+                <div className="relative h-2 rounded-full bg-sand mt-3 overflow-visible">
+                  <div className="absolute inset-y-0 rounded-full" style={{left:0,width:Math.min(100,d.bar[1])+'%',background:'rgb(var(--c-sand))'}}/>
+                  <div className="absolute inset-y-0 rounded-full opacity-25" style={{left:Math.min(100,d.bar[1])+'%',right:0,background:tone}}/>
+                  <div className="absolute h-4 w-1 rounded -top-1" style={{left:`calc(${Math.min(100,Math.max(0,d.bar[0]))}% - 2px)`,background:sev}}/>
+                </div>
+              </button>
+              {open && <div className="px-4 pb-4 anim-fadeUp space-y-3">
+                <p className="text-[13px] text-charcoal/85 leading-relaxed border-t border-line pt-3">{d.why}</p>
+                <div className="rounded-xl px-3 py-2.5 text-[13px] leading-relaxed"
+                  style={{background:sev+'12',border:`1px solid ${sev}2E`}}>
+                  <b className="text-charcoal">Do this. </b><span className="text-charcoal/85">{d.act}</span></div>
+                <div className="flex items-start gap-2 text-[12px] text-muted">
+                  <Icon name="chart" size={12} className="mt-0.5 shrink-0" style={{color:sev}}/>{d.impact}</div>
+              </div>}
+            </div>;
+          };
+          return <Fragment>
+            <div className="flex items-end justify-between gap-3 flex-wrap mb-3">
+              <div><Eyebrow>The full read</Eyebrow>
+                <p className="text-sm text-muted mt-1">
+                  {f.strengths.length} thing{f.strengths.length===1?'':'s'} working for you,
+                  {' '}{f.watch.length} worth attention. Open any line to see the reasoning.</p></div>
+              <div className="flex gap-2">
+                <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full" style={{background:'rgba(22,163,74,.14)',color:'#16A34A'}}>
+                  {f.strengths.length} strengths</span>
+                <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full" style={{background:'rgba(220,38,38,.14)',color:'#DC2626'}}>
+                  {f.watch.filter(w=>w.sev==='high').length} priority</span>
+              </div>
+            </div>
+            <div className="grid md:grid-cols-2 gap-4 mb-5">
+              <div>
+                <div className="flex items-center gap-2 mb-3"><Icon name="check" className="text-saged"/><Eyebrow>What is working</Eyebrow></div>
+                <div className="space-y-2.5">
+                  {f.strengths.length? f.strengths.map((d,i)=><Finding key={i} d={d} tone="#16A34A"/>)
+                    : <div className="rounded-xl2 border border-line p-4 text-sm text-muted">
+                        Nothing has crossed a benchmark yet. That is a starting point, not a verdict, and the
+                        list on the right is where the fastest wins are.</div>}
+                </div>
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-3"><Icon name="scale" className="text-clayd"/><Eyebrow>What to fix, in order</Eyebrow></div>
+                <div className="space-y-2.5">
+                  {f.watch.length? f.watch
+                      .sort((x,y)=>({high:0,medium:1,low:2}[x.sev||'low'])-({high:0,medium:1,low:2}[y.sev||'low']))
+                      .map((d,i)=><Finding key={i} d={d} tone="#DC2626"/>)
+                    : <div className="rounded-xl2 border border-line p-4 text-sm text-muted">
+                        Nothing is over benchmark. Keep doing what you are doing.</div>}
+                </div>
+              </div>
+            </div>
+          </Fragment>; })()}
 
         <div className="grid md:grid-cols-3 gap-4 mb-4 stagger">
           {(()=>{
