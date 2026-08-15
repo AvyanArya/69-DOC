@@ -9061,20 +9061,152 @@ function SubjectSelection(){
   </AppShell>;
 }
 
+/* Finance vs Economics: a head-to-head plus a short "which suits you" tilt,
+   rather than two columns of prose to read in parallel. */
+const FVE_F={ key:'F', title:'Finance', icon:'📈', hue:'#8B5CF6',
+  sub:'How money moves through markets, companies and portfolios.',
+  question:'How do we deploy capital efficiently?',
+  desc:'Practical, applied and market-facing. You work with financial statements, asset prices, capital structure, deals and portfolios.',
+  careers:['Investment banking','Private equity','Hedge funds','Asset management','Corporate finance','Wealth management','Fintech'],
+  skills:['Modelling (LBO, DCF, comps)','Accounting fluency','Excel and PowerPoint','Sector specialism','Client communication'],
+  salaryJr:'$80–170k base + 30–100% bonus', salarySr:'$500k–$10m+ in deal-driven roles',
+  unis:'Wharton, LSE, Oxbridge, Bocconi, Stern, MIT Sloan, IIM-A',
+  study:'Maths, Economics, and any hard science or Further Maths.',
+  day:'Building a model, checking comparables, preparing client materials, running a live deal to close.',
+  fit:'You like markets, deals, structured thinking and fast feedback.' };
+const FVE_E={ key:'E', title:'Economics', icon:'📊', hue:'#0EA5E9',
+  sub:'How societies allocate scarce resources, from households to governments.',
+  question:'Why do prices move, and what does policy actually do?',
+  desc:'Theoretical and empirical. You work with data, models of behaviour, monetary and fiscal policy, and the evidence behind them.',
+  careers:['Central banks','Government and policy','Economic consulting','Sell-side research','Macro funds','Academia','Tech economics teams'],
+  skills:['Econometrics and statistics','Calculus and linear algebra','Programming (R, Stata, Python)','Reading academic literature','Writing policy memos'],
+  salaryJr:'$60–140k public sector, $90–200k private', salarySr:'PhD economists in tech: $300k–$1m+',
+  unis:'Harvard, MIT, LSE, Cambridge, Oxford, Princeton, Chicago, Stanford, TSE',
+  study:'Maths (essential), Economics, and an essay subject.',
+  day:'Cleaning a dataset, testing a hypothesis, reading papers, writing up what the evidence supports.',
+  fit:'You like ideas, data, policy and understanding why the world behaves as it does.' };
+const FVE_ROWS=[
+  ['The core question','question'],['What you actually study','desc'],['A day in it','day'],
+  ['Skills you build','skills'],['Where it leads','careers'],['Subjects to take','study'],
+  ['Strong universities','unis'],['Best fit if','fit'],
+];
+const FVE_QUIZ=[
+  ['A company is about to be bought. What interests you more?','Working out what it is worth','Why deals cluster in some years and not others'],
+  ['Pick the better afternoon.','Building a model until the numbers tie','Testing whether an effect is real in the data'],
+  ['Which sentence sounds more like you?','I want to be in the room when it happens','I want to understand why it happened'],
+  ['Choose a tool to master.','Excel, to the point of muscle memory','Python or R, for real analysis'],
+  ['What kind of feedback do you want?','Immediate: the deal closes or it does not','Considered: the evidence holds up or it does not'],
+  ['Which reading appeals more?','A company annual report','A central bank policy paper'],
+];
+
 function FinanceVsEcon(){
-  const F={title:'Finance',icon:'📈',sub:'The study of how money flows through capital markets, corporations and individuals.',desc:'Practical, applied, market-facing. Asks “how do we deploy capital efficiently?” Looks at corporate financial statements, asset prices, capital, M&A, portfolio construction.',careers:['Investment banking','Private equity','Hedge funds','Asset management','Corporate finance','Wealth management','Fintech'],skills:['Modelling (LBO, DCF, comps)','Accounting fluency','Excel + PowerPoint','Sector specialism','Client communication'],salary:'Junior $80–170k base + 30–100% bonus (NYC/London). Senior $500k–$10m+ in deal-driven roles.',unis:'Wharton, LSE, Oxbridge, Bocconi, Stern, MIT Sloan, IIM-A',fit:'Students who like markets, deals, structured thinking, working in teams, fast feedback loops.'};
-  const E={title:'Economics',icon:'📊',sub:'The study of how societies allocate scarce resources, at the household, firm, government and global level.',desc:'Theoretical and empirical. Asks “why do prices move? what causes inflation? how does policy affect outcomes?” Looks at supply/demand, GDP, employment, monetary and fiscal policy, behavioural patterns.',careers:['Central banks (Fed, BoE, ECB, BoJ)','Government policy (Treasury, IMF, World Bank)','Economic consulting (Brattle, NERA)','Sell-side research','Buy-side macro funds','Academia','Tech economics teams (Amazon, Google, Uber)'],skills:['Econometrics + statistics','Calculus + linear algebra','Programming (R, Stata, Python)','Reading academic literature','Writing policy memos'],salary:'Junior $60–140k (public sector & think tanks); $90–200k (private consulting + tech). PhD economists at tech: $300k–$1m+.',unis:'Harvard, MIT, LSE, Cambridge, Oxford, Princeton, Chicago, Stanford, TSE',fit:'Students who like ideas, data, policy, research, and understanding the “why” behind the world.'};
-  const Side=({d})=><Card className="flex-1"><div className="flex items-center gap-2"><span className="text-2xl">{d.icon}</span><span className="font-serif text-2xl text-charcoal">{d.title}</span></div>
-    <p className="text-sm text-muted mt-1 leading-relaxed">{d.sub}</p>
-    <p className="text-sm text-charcoal/85 mt-3 leading-relaxed">{d.desc}</p>
-    <MBlock title="Common careers"><div className="flex flex-wrap gap-1.5">{d.careers.map(c=><span key={c} className="text-[11px] rounded-full bg-sand px-2.5 py-1 text-muted">{c}</span>)}</div></MBlock>
-    <div className="mt-4"><MBlock title="Key skills"><Ticks items={d.skills} color={LEAF_G}/></MBlock></div>
-    <div className="mt-4 rounded-xl border border-line bg-cream/60 p-3"><div className="text-[10px] uppercase tracking-wider text-faint">Typical salary</div><div className="text-sm text-charcoal/85 mt-1">{d.salary}</div></div>
-    <div className="mt-2 rounded-xl border border-line bg-cream/60 p-3"><div className="text-[10px] uppercase tracking-wider text-faint">University strength</div><div className="text-sm text-charcoal/85 mt-1">{d.unis}</div></div>
-    <div className="mt-2 rounded-xl px-3 py-3" style={{background:'rgba(239,68,68,.06)'}}><div className="text-[10px] uppercase tracking-wider text-faint">Best fit if you…</div><div className="text-sm text-charcoal/85 mt-1">{d.fit}</div></div></Card>;
+  const [ans,setAns]=useState({});
+  const answered=Object.keys(ans).length;
+  const fScore=Object.values(ans).filter(v=>v==='F').length;
+  const eScore=answered-fScore;
+  const tilt=answered? Math.round(fScore/answered*100) : 50;
+  const lead = !answered? null : fScore===eScore? 'Both' : fScore>eScore? 'Finance' : 'Economics';
+
+  const Cellf=(d,key)=>{
+    const v=d[key];
+    if(Array.isArray(v)) return <div className="flex flex-wrap gap-1.5">{v.map(x=>
+      <span key={x} className="text-[11px] rounded-full px-2.5 py-1" style={{background:d.hue+'16',color:d.hue}}>{x}</span>)}</div>;
+    return <p className="text-[13.5px] text-charcoal/85 leading-relaxed">{v}</p>;
+  };
+
   return <AppShell>
-    <PageHead eyebrow="Compare" title="Finance vs Economics." desc="They sound similar and overlap in places, but they lead to different degrees, skills and careers. Here’s a side-by-side comparison."/>
-    <div className="flex flex-col lg:flex-row gap-4 items-stretch"><Side d={F}/><Side d={E}/></div>
+    <PageHead eyebrow="Compare" title="Finance vs Economics."
+      desc="They overlap, and they are not the same degree. Answer six questions to see which way you lean, then compare them line by line."/>
+
+    {/* ===== the tilt meter ===== */}
+    <Card hover={false} className="mb-4 !p-0 overflow-hidden">
+      <div className="grid grid-cols-2">
+        {[FVE_F,FVE_E].map((d,i)=>
+          <div key={d.key} className="p-5 text-center relative overflow-hidden"
+            style={{background:`linear-gradient(${i?'240deg':'120deg'}, ${d.hue}22, transparent 75%)`}}>
+            <div className="text-3xl">{d.icon}</div>
+            <div className="font-serif text-2xl text-charcoal mt-1">{d.title}</div>
+            <p className="text-xs text-muted mt-1 max-w-[240px] mx-auto leading-snug">{d.sub}</p>
+          </div>)}
+      </div>
+      <div className="px-5 pb-5">
+        <div className="relative h-3 rounded-full overflow-hidden" style={{background:'rgb(var(--c-sand))'}}>
+          <div className="absolute inset-y-0 left-0 transition-all duration-700" style={{width:tilt+'%',background:FVE_F.hue}}/>
+          <div className="absolute inset-y-0 right-0 transition-all duration-700" style={{width:(100-tilt)+'%',background:FVE_E.hue}}/>
+          <div className="absolute inset-y-0 w-0.5 bg-card" style={{left:'50%'}}/>
+        </div>
+        <div className="flex items-center justify-between mt-2 text-[11px]">
+          <span className="tnum font-semibold" style={{color:FVE_F.hue}}>{answered?fScore:'–'} Finance</span>
+          <span className="text-faint">{answered? (lead==='Both'?'Dead even so far':`Leaning ${lead}`) : 'Answer below to see your tilt'}</span>
+          <span className="tnum font-semibold" style={{color:FVE_E.hue}}>{answered?eScore:'–'} Economics</span>
+        </div>
+      </div>
+    </Card>
+
+    {/* ===== six either/or questions ===== */}
+    <Card className="mb-4">
+      <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
+        <Eyebrow>Which way do you lean?</Eyebrow>
+        {answered>0 && <button onClick={()=>setAns({})} className="text-xs font-semibold text-gold">Reset</button>}
+      </div>
+      <div className="space-y-3">{FVE_QUIZ.map(([q,a,b],i)=>
+        <div key={i}>
+          <div className="text-[13px] text-charcoal/85 mb-1.5">{i+1}. {q}</div>
+          <div className="grid sm:grid-cols-2 gap-2">
+            {[['F',a],['E',b]].map(([k,label])=>{ const d=k==='F'?FVE_F:FVE_E; const on=ans[i]===k;
+              return <button key={k} onClick={()=>setAns(s=>({...s,[i]:k}))}
+                className="rounded-xl2 border p-3 text-left text-[13px] transition"
+                style={on?{borderColor:d.hue,background:d.hue+'14',color:'rgb(var(--c-charcoal))'}
+                        :{borderColor:'rgb(var(--c-line))',color:'rgb(var(--c-muted))'}}>{label}</button>; })}
+          </div>
+        </div>)}</div>
+      {answered===FVE_QUIZ.length && <div className="mt-4 rounded-xl2 p-4 anim-pop"
+        style={{background:(lead==='Economics'?FVE_E.hue:FVE_F.hue)+'12',
+          border:`1px solid ${(lead==='Economics'?FVE_E.hue:FVE_F.hue)}33`}}>
+        <div className="font-serif text-lg text-charcoal">
+          {lead==='Both'?'You are genuinely split, and that is useful to know.':`You lean ${lead}.`}</div>
+        <p className="text-[13px] text-charcoal/85 mt-1 leading-relaxed">
+          {lead==='Both'
+            ? 'Look at joint degrees, or Economics with a quantitative focus: it keeps both doors open, and finance recruiters hire economists routinely.'
+            : lead==='Finance'
+              ? 'You are drawn to application over theory. Note that a finance career does not require a finance degree, economics and maths graduates fill those seats constantly.'
+              : 'You are drawn to the why. Economics keeps more doors open than finance does, including every finance career listed here.'}</p>
+      </div>}
+    </Card>
+
+    {/* ===== head to head ===== */}
+    <Card hover={false} className="!p-0 overflow-hidden">
+      <div className="grid grid-cols-[100px_1fr_1fr] sm:grid-cols-[160px_1fr_1fr] border-b border-line">
+        <span/>
+        {[FVE_F,FVE_E].map(d=><div key={d.key} className="px-4 py-3 text-center"
+          style={{background:d.hue+'12'}}>
+          <span className="font-serif text-lg" style={{color:d.hue}}>{d.icon} {d.title}</span></div>)}
+      </div>
+      {FVE_ROWS.map(([label,key],i)=>
+        <div key={key} className={cx('grid grid-cols-[100px_1fr_1fr] sm:grid-cols-[160px_1fr_1fr] border-b border-line last:border-0', i%2&&'bg-sand/25')}>
+          <div className="px-3 sm:px-4 py-4 text-[11px] uppercase tracking-wider text-faint">{label}</div>
+          <div className="px-3 sm:px-4 py-4 border-l border-line">{Cellf(FVE_F,key)}</div>
+          <div className="px-3 sm:px-4 py-4 border-l border-line">{Cellf(FVE_E,key)}</div>
+        </div>)}
+      {/* pay row gets its own treatment */}
+      <div className="grid grid-cols-[100px_1fr_1fr] sm:grid-cols-[160px_1fr_1fr] border-t border-line">
+        <div className="px-3 sm:px-4 py-4 text-[11px] uppercase tracking-wider text-faint">Typical pay</div>
+        {[FVE_F,FVE_E].map(d=><div key={d.key} className="px-3 sm:px-4 py-4 border-l border-line">
+          <div className="text-[12px] text-faint">Early career</div>
+          <div className="text-[13.5px] text-charcoal/85">{d.salaryJr}</div>
+          <div className="text-[12px] text-faint mt-2">Senior</div>
+          <div className="text-[13.5px] text-charcoal/85">{d.salarySr}</div>
+        </div>)}
+      </div>
+    </Card>
+
+    <Card hover={false} className="mt-4">
+      <Eyebrow className="mb-2">The honest answer</Eyebrow>
+      <p className="text-sm text-muted leading-relaxed">
+        For most finance careers the degree matters far less than the maths. Economics, Maths, Engineering and
+        Physics graduates all fill investment banking seats, and plenty of economists never work in finance at
+        all. Pick the one you will enjoy enough to do well in, then let the internships decide the rest.</p>
+    </Card>
   </AppShell>;
 }
 
@@ -9351,6 +9483,17 @@ function Opportunities(){
     <PageHead eyebrow="Opportunities" title="Ways to get your foot in the door."
       desc="Internships, competitions, access programmes and scholarships that move the needle, sorted by how soon they close."
       action={<Pill tone={live?'sage':'neutral'}>{live?'Live feed':'Curated list'}</Pill>}/>
+    {/* At-a-glance: what is urgent, before any reading */}
+    {(()=>{ const dls=rows.map(o=>daysLeft(o.applyBy)).filter(d=>d!=null&&d>=0);
+      const soon=dls.filter(d=>d<=30).length, quarter=dls.filter(d=>d<=90).length;
+      const rolling=rows.filter(o=>daysLeft(o.applyBy)==null).length;
+      return <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+        {[['Closing in 30 days',soon,'#DC2626'],['Within 3 months',quarter,'#D97706'],
+          ['Rolling entry',rolling,'#16A34A'],['Total listed',rows.length,'#7C3AED']].map(([l,v,c])=>
+          <Card key={l} hover={false} className="!p-4 text-center">
+            <div className="font-serif text-3xl tnum" style={{color:c}}>{v}</div>
+            <div className="text-[10px] uppercase tracking-wider text-faint mt-0.5">{l}</div></Card>)}
+      </div>; })()}
     <Card className="mb-4"><div className="flex gap-2 flex-wrap">{OPP_TABS.map(t=><button key={t} onClick={()=>setTab(t)} className={cx('chip',tab===t&&'on')}>{t}</button>)}</div></Card>
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">{shown.map(o=>{
       const hue=TONE[o.type]||'#7C3AED'; const dl=daysLeft(o.applyBy);
@@ -9362,9 +9505,15 @@ function Opportunities(){
             ? <span className="text-[11px] text-faint">Closed</span>
             : <span className={cx('text-[11px] font-semibold', urgent?'text-berry':'text-muted')}>{dl===0?'Closes today':`${dl} days left`}</span>)}
         </div>
-        <div className="font-serif text-lg text-charcoal mt-2">{o.title}</div>
+        {/* deadline as a bar, so urgency reads before the words do */}
+        {dl!=null && dl>=0 && <div className="h-1.5 rounded-full bg-sand mt-2.5 overflow-hidden">
+          <div className="h-full rounded-full transition-all duration-700"
+            style={{width:Math.max(4,100-Math.min(100,dl/180*100))+'%',
+              background: dl<=14?'#DC2626' : dl<=30?'#D97706' : hue}}/></div>}
+        <div className="font-serif text-lg text-charcoal mt-2.5 leading-snug">{o.title}</div>
         <div className="text-[11px] text-faint mt-0.5">{o.org}</div>
-        <p className="text-sm text-muted mt-2 leading-relaxed flex-1">{o.desc}</p>
+        <p className="text-[13px] text-muted mt-2 leading-relaxed flex-1"
+          style={{display:'-webkit-box',WebkitLineClamp:3,WebkitBoxOrient:'vertical',overflow:'hidden'}}>{o.desc}</p>
         <div className="mt-3 space-y-1 text-xs">
           {fmtDate(o.applyBy) && <div className="flex justify-between"><span className="text-faint">Apply by</span><span className="text-charcoal font-medium">{fmtDate(o.applyBy)}</span></div>}
           {fmtDate(o.starts) && <div className="flex justify-between"><span className="text-faint">Starts</span><span className="text-charcoal">{fmtDate(o.starts)}</span></div>}
