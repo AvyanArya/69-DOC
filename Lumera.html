@@ -6214,23 +6214,281 @@ function CommodityIntel(){
     </CareerModal>}
   </div>;
 }
-const FUNDAMENTALS=[
-  ['What is a stock?','◔','A stock (or share) is a unit of ownership in a company. Buying one share of Apple makes you one of millions of owners. You earn returns two ways: the share price rising over time, and dividends if the company pays them.'],
-  ['What is a stock exchange?','⇄','An exchange is a marketplace where buyers and sellers meet to trade shares. Modern exchanges (Nasdaq, LSE) are fully electronic, millions of orders match per second using order-book matching algorithms.'],
-  ['What is an index?','▦','An index tracks a basket of stocks to summarise a market. The S&P 500 = the 500 biggest US companies. When you hear “the market was up 1.2%”, that’s almost always a major index, not every stock.'],
-  ['Market capitalisation','⚖️','Market cap = share price × shares outstanding. It’s how investors size companies: Mega-cap > $200bn, Large-cap $10–200bn, Mid-cap $2–10bn, Small-cap under $2bn.'],
-  ['Trading volume','📊','Volume = how many shares change hands in a day. High volume means liquidity (you can buy/sell easily). Major US stocks trade tens of millions of shares daily; small companies might trade a few thousand.'],
-  ['Open vs close','🕒','Each exchange has fixed hours (e.g. NYSE 9:30am–4:00pm ET). The “opening auction” sets the day’s start price; the “closing auction” sets the official close. After-hours and pre-market trading are thinner and more volatile.'],
-  ['Primary vs secondary market','🔁','The primary market is when a company first sells shares (an IPO). The secondary market is where investors then trade those shares among themselves, that’s what “the stock market” usually means day to day.'],
-  ['Bull vs bear markets','🐂','A bull market is a sustained rise (optimism); a bear market is a sustained fall of ~20%+ (pessimism). Both are normal parts of the cycle, long-term investors ride through both.'],
-  ['Why prices move','⚡','Short term, prices move on news, rates, geopolitics and sentiment, often irrationally. Long term, they track a company’s earnings and cash flow. That’s why time in the market beats timing the market.'],
+/* ============================================================
+   HOW MARKETS WORK
+   Was nine paragraphs in a grid. Now a walkthrough: pick a stop, read the
+   short version, then actually play with the idea. Each stop can be ticked
+   off and the progress persists.
+   ============================================================ */
+const MKT_KEY='lumera_markets_learned';
+
+// --- Stop 1: what you actually own -----------------------------------------
+function OwnDemo(){
+  const [shares,setShares]=useState(10);
+  const TOTAL=15_000_000_000, PRICE=228.4;
+  const pct=(shares/TOTAL*100);
+  return <div>
+    <div className="flex items-end justify-between gap-4 flex-wrap">
+      <div><div className="text-[10px] uppercase tracking-wider text-faint">You own</div>
+        <div className="font-serif text-3xl text-charcoal tnum">{shares} <span className="text-base text-muted font-sans">share{shares===1?'':'s'}</span></div></div>
+      <div className="text-right"><div className="text-[10px] uppercase tracking-wider text-faint">That is worth</div>
+        <div className="font-serif text-3xl text-saged tnum">${(shares*PRICE).toLocaleString(undefined,{maximumFractionDigits:0})}</div></div>
+    </div>
+    <input type="range" className="lux w-full mt-4" min="1" max="500" value={shares}
+      onChange={e=>setShares(+e.target.value)} style={{'--p':((shares/500)*100)+'%'}}/>
+    <div className="mt-3 rounded-xl2 bg-sand/60 p-3 text-sm text-charcoal/85 leading-relaxed">
+      That is <b className="tnum">{pct.toExponential(2)}%</b> of the company. Tiny, and that is the point:
+      you are a real owner, entitled to your slice of the profits, without needing to run anything.
+    </div>
+  </div>;
+}
+
+// --- Stop 2: the order book ------------------------------------------------
+function BookDemo(){
+  const [tick,setTick]=useState(0);
+  useEffect(()=>{ const t=setInterval(()=>setTick(x=>x+1),1400); return ()=>clearInterval(t); },[]);
+  const jitter=(n,i)=>n+((hashStr('b'+tick+i)%7)-3)/100;
+  const bids=[0,1,2,3].map(i=>({p:jitter(228.38-i*0.02,i), q:120+((hashStr('q'+tick+i)%9)*40)}));
+  const asks=[0,1,2,3].map(i=>({p:jitter(228.44+i*0.02,i+9), q:120+((hashStr('a'+tick+i)%9)*40)}));
+  const spread=(asks[0].p-bids[0].p);
+  return <div>
+    <div className="grid grid-cols-2 gap-3">
+      {[['Buyers (bids)',bids,'#16A34A'],['Sellers (asks)',asks,'#DC2626']].map(([label,rows,col])=>
+        <div key={label}>
+          <div className="text-[10px] uppercase tracking-wider text-faint mb-1.5">{label}</div>
+          <div className="space-y-1">{rows.map((r,i)=>
+            <div key={i} className="relative rounded-md overflow-hidden">
+              <div className="absolute inset-y-0 left-0 transition-all duration-700"
+                style={{width:Math.min(100,r.q/6)+'%', background:col, opacity:.16}}/>
+              <div className="relative flex justify-between px-2 py-1 text-[11.5px] tnum">
+                <span style={{color:col}}>{r.p.toFixed(2)}</span><span className="text-faint">{r.q}</span></div>
+            </div>)}</div>
+        </div>)}
+    </div>
+    <div className="mt-3 rounded-xl2 bg-sand/60 p-3 text-sm text-charcoal/85 leading-relaxed">
+      Nobody sets the price. Buyers bid up, sellers ask down, and a trade happens where they meet.
+      The gap between the best bid and best ask is the <b>spread</b>, right now
+      <b className="tnum"> ${spread.toFixed(2)}</b>. Tighter spread = easier to trade.
+    </div>
+  </div>;
+}
+
+// --- Stop 3: an index is just a basket -------------------------------------
+const BASKET=[['Apple',3400],['Microsoft',3100],['NVIDIA',2900],['Amazon',1900],['Alphabet',1800],['Meta',1300]];
+function IndexDemo(){
+  const [inx,setInx]=useState(BASKET.map(()=>true));
+  const total=BASKET.reduce((a,b,i)=>a+(inx[i]?b[1]:0),0);
+  const full=BASKET.reduce((a,b)=>a+b[1],0);
+  return <div>
+    <div className="flex flex-wrap gap-2">{BASKET.map(([n,cap],i)=>
+      <button key={n} onClick={()=>setInx(v=>v.map((x,j)=>j===i?!x:x))}
+        className={cx('chip', inx[i]&&'on')}>{n} <span className="tnum opacity-70">${(cap/1000).toFixed(1)}T</span></button>)}</div>
+    <div className="mt-4 flex items-end justify-between">
+      <div><div className="text-[10px] uppercase tracking-wider text-faint">Basket value</div>
+        <div className="font-serif text-3xl text-charcoal tnum">${(total/1000).toFixed(1)}T</div></div>
+      <div className="text-right text-xs text-muted tnum">{Math.round(total/full*100)}% of the full basket</div>
+    </div>
+    <div className="h-3 rounded-full bg-sand mt-2 overflow-hidden">
+      <div className="h-full rounded-full transition-all duration-500 shimmer-bar"
+        style={{width:Math.max(2,total/full*100)+'%', background:'linear-gradient(90deg,#3B82F6,#8B5CF6)'}}/></div>
+    <div className="mt-3 rounded-xl2 bg-sand/60 p-3 text-sm text-charcoal/85 leading-relaxed">
+      Drop the biggest names and the whole index barely resembles itself. That is why "the market was
+      up 1%" usually means <b>a handful of giant companies</b> were up, not every company.
+    </div>
+  </div>;
+}
+
+// --- Stop 4: market cap ----------------------------------------------------
+function CapDemo(){
+  const [price,setPrice]=useState(50); const [sh,setSh]=useState(2000);
+  const cap=price*sh/1000; // $bn
+  const tier = cap>=200?['Mega-cap','#8B5CF6'] : cap>=10?['Large-cap','#3B82F6'] : cap>=2?['Mid-cap','#16A34A'] : ['Small-cap','#D97706'];
+  return <div>
+    <div className="grid sm:grid-cols-2 gap-4">
+      <label className="block"><span className="text-xs text-muted">Share price <b className="text-charcoal tnum">${price}</b></span>
+        <input type="range" className="lux w-full mt-2" min="1" max="500" value={price} onChange={e=>setPrice(+e.target.value)} style={{'--p':(price/500*100)+'%'}}/></label>
+      <label className="block"><span className="text-xs text-muted">Shares out <b className="text-charcoal tnum">{sh}m</b></span>
+        <input type="range" className="lux w-full mt-2" min="50" max="16000" step="50" value={sh} onChange={e=>setSh(+e.target.value)} style={{'--p':(sh/16000*100)+'%'}}/></label>
+    </div>
+    <div className="mt-4 flex items-center justify-between rounded-xl2 p-4" style={{background:tier[1]+'14',border:`1px solid ${tier[1]}33`}}>
+      <div><div className="text-[10px] uppercase tracking-wider text-faint">Market capitalisation</div>
+        <div className="font-serif text-3xl tnum" style={{color:tier[1]}}>${cap>=1000?(cap/1000).toFixed(2)+'T':cap.toFixed(1)+'bn'}</div></div>
+      <span className="text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-full text-white" style={{background:tier[1]}}>{tier[0]}</span>
+    </div>
+    <div className="mt-3 rounded-xl2 bg-sand/60 p-3 text-sm text-charcoal/85 leading-relaxed">
+      A $500 share price does not make a company big. Size is price <b>×</b> the number of shares,
+      which is why a $20 stock can be worth far more than a $2,000 one.
+    </div>
+  </div>;
+}
+
+// --- Stop 8: bull vs bear --------------------------------------------------
+function CycleDemo(){
+  const [mood,setMood]=useState('bull');
+  const bull=[0,8,5,16,12,26,22,38,34,50,58];
+  const bear=[58,50,54,40,44,30,33,20,24,10,6];
+  const pts=(mood==='bull'?bull:bear).map((v,i)=>`${i*30},${70-v}`).join(' ');
+  const col = mood==='bull'?'#16A34A':'#DC2626';
+  return <div>
+    <div className="flex gap-2 mb-3">
+      {[['bull','🐂 Bull market'],['bear','🐻 Bear market']].map(([k,l])=>
+        <button key={k} onClick={()=>setMood(k)} className={cx('chip', mood===k&&'on')}>{l}</button>)}
+    </div>
+    <svg viewBox="0 0 300 80" className="w-full h-28">
+      <polyline points={pts} fill="none" stroke={col} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+      <polyline points={`${pts} 300,80 0,80`} fill={col} opacity=".12" stroke="none"/>
+    </svg>
+    <div className="mt-1 rounded-xl2 bg-sand/60 p-3 text-sm text-charcoal/85 leading-relaxed">
+      {mood==='bull'
+        ? 'A sustained rise. Optimism feeds on itself and it feels like it will never stop, which is exactly when people overpay.'
+        : 'A sustained fall of roughly 20% or more. It feels permanent, and it never is. Every bear market in history has been followed by a recovery.'}
+      {' '}Both are normal. A long-term investor lives through many of each.
+    </div>
+  </div>;
+}
+
+// --- Stop 9: why prices move ----------------------------------------------
+function MoveDemo(){
+  const [horizon,setHorizon]=useState('short');
+  const short=[30,44,26,52,18,48,24,56,20,42,32];
+  const long=[8,12,18,22,28,31,38,44,49,56,62];
+  const pts=(horizon==='short'?short:long).map((v,i)=>`${i*30},${70-v}`).join(' ');
+  const col = horizon==='short'?'#D97706':'#16A34A';
+  return <div>
+    <div className="flex gap-2 mb-3">
+      {[['short','Days and weeks'],['long','Years']].map(([k,l])=>
+        <button key={k} onClick={()=>setHorizon(k)} className={cx('chip', horizon===k&&'on')}>{l}</button>)}
+    </div>
+    <svg viewBox="0 0 300 80" className="w-full h-28">
+      <polyline points={pts} fill="none" stroke={col} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+    <div className="mt-1 rounded-xl2 bg-sand/60 p-3 text-sm text-charcoal/85 leading-relaxed">
+      {horizon==='short'
+        ? 'Over days, prices move on news, interest rates, geopolitics and mood. Much of it is noise, and none of it is predictable.'
+        : 'Over years, prices follow earnings and cash flow. The line smooths out. This is the whole argument for time in the market over timing it.'}
+    </div>
+  </div>;
+}
+
+// The walkthrough itself: three chapters, nine stops.
+const MKT_STOPS = [
+  { ch:'What you are buying', id:'own',   n:'01', icon:'◔',  title:'What is a share?',
+    lede:'A share is a unit of ownership in a real company. Not a betting slip, an actual claim on its future profits.',
+    body:'You make money two ways: the share price rising over time, and dividends if the company chooses to pay them out.',
+    demo:<OwnDemo/> },
+  { ch:'What you are buying', id:'exch',  n:'02', icon:'⇄',  title:'What is an exchange?',
+    lede:'A marketplace where buyers and sellers meet. Modern exchanges are entirely electronic, matching millions of orders a second.',
+    body:'Watch the two sides move. Nobody decides the price, it is simply where the highest bid meets the lowest ask.',
+    demo:<BookDemo/> },
+  { ch:'What you are buying', id:'prim',  n:'03', icon:'🔁', title:'Primary vs secondary',
+    lede:'A company only sells shares to the public once, at its IPO. That is the primary market.',
+    body:'Everything after that is the secondary market: investors trading with each other. When you buy Apple shares, Apple gets nothing, you are buying from another investor. That is what "the stock market" means day to day.' },
+
+  { ch:'How the market is measured', id:'index', n:'04', icon:'▦', title:'What is an index?',
+    lede:'An index is a basket of companies tracked as a single number, so a whole market can be summed up in one figure.',
+    body:'Toggle companies in and out and watch how much a handful of giants dominate.',
+    demo:<IndexDemo/> },
+  { ch:'How the market is measured', id:'cap', n:'05', icon:'⚖️', title:'Market capitalisation',
+    lede:'How investors measure the size of a company: share price multiplied by the number of shares.',
+    body:'Drag both sliders and watch which one actually moves the answer.',
+    demo:<CapDemo/> },
+  { ch:'How the market is measured', id:'vol', n:'06', icon:'📊', title:'Volume and liquidity',
+    lede:'Volume is how many shares change hands in a day. High volume means you can buy or sell easily without moving the price.',
+    body:'Big US names trade tens of millions of shares daily. A small company might trade a few thousand, which is why getting out of one can be harder than getting in.' },
+
+  { ch:'How it behaves', id:'hours', n:'07', icon:'🕒', title:'Open, close and the bits between',
+    lede:'Every exchange has fixed hours. An opening auction sets the first price, a closing auction sets the official close.',
+    body:'Pre-market and after-hours trading exist, but they are thin: fewer participants, wider spreads and sharper moves. Most headline price changes you see quoted are measured close to close.' },
+  { ch:'How it behaves', id:'cycle', n:'08', icon:'🐂', title:'Bull and bear markets',
+    lede:'Markets run in cycles. Neither direction lasts forever, and both feel permanent while you are inside them.',
+    body:'Flip between the two shapes.',
+    demo:<CycleDemo/> },
+  { ch:'How it behaves', id:'why',  n:'09', icon:'⚡', title:'Why prices move',
+    lede:'The single most useful idea on this page: what drives a price depends entirely on the timescale you look at.',
+    body:'Switch the horizon and watch the same company look like two different stories.',
+    demo:<MoveDemo/> },
 ];
+
 function StockMarketsEdu(){
+  const app=useApp();
+  const [open,setOpen]=useState('own');
+  const [learned,setLearned]=useState(()=>{ try{ return JSON.parse(localStorage.getItem(MKT_KEY))||{}; }catch(e){ return {}; } });
+  const mark=(id)=>{ const next={...learned,[id]:!learned[id]}; setLearned(next);
+    try{ localStorage.setItem(MKT_KEY, JSON.stringify(next)); }catch(e){}
+    if(!learned[id] && app.awardXp) app.awardXp(5, true); };
+  const doneN=MKT_STOPS.filter(s=>learned[s.id]).length;
+  const pct=Math.round(doneN/MKT_STOPS.length*100);
+  const chapters=[...new Set(MKT_STOPS.map(s=>s.ch))];
+
   return <AppShell>
-    <PageHead eyebrow="Markets education" title="How the stock market actually works." desc="The fundamentals of every major exchange, opening hours, the biggest companies, indices and why investors follow it. Plain English, no jargon."/>
-    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">{FUNDAMENTALS.map(([t,ic,d])=><Card key={t}><div className="text-2xl text-goldd">{ic}</div><div className="font-serif text-lg text-charcoal mt-1">{t}</div><p className="text-sm text-muted mt-1.5 leading-relaxed">{d}</p></Card>)}</div>
-    <Card className="mt-4 bg-gradient-to-br from-gold/8 to-transparent"><div className="flex items-start gap-3"><span className="grid place-items-center h-9 w-9 rounded-lg bg-charcoal text-gold shrink-0"><Icon name="spark" size={17}/></span>
-      <div><Eyebrow className="mb-1">Ready to go deeper?</Eyebrow><p className="text-sm text-charcoal/85">Head to <b>Investing</b> for a matched allocation, <b>Stock Market</b> for live-style prices with AI insight, or <b>Global Markets</b> to spin the globe of exchanges.</p></div></div></Card>
+    <PageHead eyebrow="Markets education" title="How the stock market actually works."
+      desc="Nine short stops, most of them things you can poke at rather than read. Work through them in any order."/>
+
+    {/* progress rail */}
+    <Card hover={false} className="mb-5">
+      <div className="flex items-center gap-4 flex-wrap">
+        <ScoreRing value={pct} size={76} stroke={8} label="done" color="#3B82F6"/>
+        <div className="flex-1 min-w-[200px]">
+          <div className="font-serif text-xl text-charcoal">{doneN} of {MKT_STOPS.length} stops</div>
+          <p className="text-sm text-muted mt-0.5">
+            {pct===100?'You have the whole map. Nothing on the markets pages should read as jargon now.'
+              :'Tick a stop when it clicks. Five XP each.'}</p>
+        </div>
+        <div className="flex flex-wrap gap-1.5">{MKT_STOPS.map(st=>
+          <button key={st.id} onClick={()=>setOpen(st.id)} title={st.title}
+            className="h-8 w-8 rounded-lg text-[11px] font-bold tnum transition-all"
+            style={learned[st.id]?{background:'#3B82F6',color:'#fff'}
+              :open===st.id?{background:'rgb(var(--c-sand))',color:'rgb(var(--c-charcoal))',outline:'2px solid #3B82F6'}
+              :{background:'rgb(var(--c-sand))',color:'rgb(var(--c-faint))'}}>{st.n}</button>)}</div>
+      </div>
+    </Card>
+
+    {chapters.map((ch,ci)=><div key={ch} className="mb-5">
+      <div className="flex items-center gap-3 mb-3">
+        <span className="grid place-items-center h-7 w-7 rounded-lg text-[11px] font-bold text-white"
+          style={{background:['#3B82F6','#8B5CF6','#16A34A'][ci]}}>{ci+1}</span>
+        <h2 className="font-serif text-xl text-charcoal">{ch}</h2>
+        <span className="h-px flex-1 bg-line"/>
+      </div>
+      <div className="space-y-3">
+        {MKT_STOPS.filter(s=>s.ch===ch).map(st=>{ const isOpen=open===st.id; const hue=['#3B82F6','#8B5CF6','#16A34A'][ci];
+          return <div key={st.id} className="lux-card !p-0 overflow-hidden transition-all"
+            style={{borderColor:isOpen?hue+'66':undefined}}>
+            <button onClick={()=>setOpen(isOpen?null:st.id)}
+              className="w-full flex items-center gap-3 p-4 text-left hover:bg-sand/40 transition">
+              <span className="grid place-items-center h-11 w-11 rounded-xl2 text-xl shrink-0"
+                style={{background:learned[st.id]?hue:hue+'14', color:learned[st.id]?'#fff':hue}}>
+                {learned[st.id]?'✓':st.icon}</span>
+              <span className="flex-1 min-w-0">
+                <span className="block font-serif text-lg text-charcoal">{st.title}</span>
+                <span className="block text-sm text-muted truncate">{st.lede}</span>
+              </span>
+              <Icon name="chevron" size={16} className={cx('text-faint shrink-0 transition-transform', isOpen&&'rotate-90')}/>
+            </button>
+            {isOpen && <div className="px-4 pb-4 anim-fadeUp">
+              {/* The lede already shows in the closed header, so only the body
+                  is added here rather than repeating the same sentence twice. */}
+              <p className="lede text-[15px] text-charcoal/85 leading-relaxed border-t border-line pt-4">{st.body}</p>
+              {st.demo && <div className="mt-4 rounded-xl2 border border-line p-4"
+                style={{background:'rgb(var(--c-cream)/.5)'}}>{st.demo}</div>}
+              <div className="flex items-center justify-between gap-3 mt-4 flex-wrap">
+                <button onClick={()=>mark(st.id)}
+                  className={cx('btn px-4 py-2 text-sm', learned[st.id]?'btn-ghost':'btn-gold')}>
+                  {learned[st.id]?'✓ Got it':'Mark as understood · +5 XP'}</button>
+                <span className="text-[11px] text-faint">Stop {st.n} of 09</span>
+              </div>
+            </div>}
+          </div>; })}
+      </div>
+    </div>)}
+
+    <Card className="bg-gradient-to-br from-gold/8 to-transparent"><div className="flex items-start gap-3">
+      <span className="grid place-items-center h-9 w-9 rounded-lg bg-charcoal text-gold shrink-0"><Icon name="spark" size={17}/></span>
+      <div><Eyebrow className="mb-1">Ready to go deeper?</Eyebrow>
+        <p className="text-sm text-charcoal/85">Head to <button onClick={()=>app.nav('/invest')} className="font-semibold text-gold underline">Investing</button> for a matched allocation,
+          <button onClick={()=>app.nav('/market')} className="font-semibold text-gold underline mx-1">Stock Market</button> for live-style prices with AI insight, or
+          <button onClick={()=>app.nav('/globe')} className="font-semibold text-gold underline ml-1">Global Markets</button> to spin the globe of exchanges.</p></div>
+    </div></Card>
   </AppShell>;
 }
 // Founding team. Roles, bios and photos are editable from the admin portal
