@@ -2980,11 +2980,12 @@ const SUBS = [
     routes:['/credit','/debt','/insurance','/retirement'] },
   { key:'forge', name:'Forge', tag:'Career & income', accent:'#C0873A', emoji:'🔥', live:true,
     blurb:'Grow what you earn, not just what you save, side-income ideas, salary benchmarks and career moves.',
-    routes:['/careers','/firms','/universities','/subjects','/finance-vs-econ','/prep','/career-lab','/opportunities','/sideincome','/salary'] },
+    routes:['/careers','/firms','/universities','/tests','/subjects','/finance-vs-econ','/prep','/career-lab','/opportunities','/sideincome','/salary'] },
 ];
 const NAV_BY_ROUTE = {}; NAV.forEach(g=>g.items.forEach(it=>{ NAV_BY_ROUTE[it.to]=it; }));
 Object.assign(NAV_BY_ROUTE, {
   '/community':{ to:'/community', k:'Community', icon:'user' },
+  '/tests':{ to:'/tests', k:'Test Centre', icon:'gauge' },
   '/chats':{ to:'/chats', k:'Chat History', icon:'spark' },
   '/benchmarks':{ to:'/benchmarks', k:'Benchmarks', icon:'chart' },
   '/recommendations':{ to:'/recommendations', k:'AI Recommendations', icon:'bulb' },
@@ -3034,7 +3035,7 @@ const SUB_TOOL_DESC = {
   '/quiz':'Test your money knowledge, earn XP.', '/glossary':'Learn three money words a day.', '/habits':'Build daily money habits and streaks.', '/challenges':'Gamified saving challenges to join.', '/badges':'Track your wins and streaks.', '/updates':'What’s new in Lumera.',
   '/invest':'Start investing, explained simply.', '/market':'Live-style markets with the “why”.', '/exchanges':'The fundamentals, explained simply.', '/about':'The mission behind Lumera.', '/globe':'Spin the world’s exchanges.', '/world':'The big economic picture.', '/news':'Headlines in plain English.',
   '/credit':'Build a score you’re proud of.', '/debt':'A clear plan to clear what you owe.', '/insurance':'Cover what would actually hurt to lose.', '/retirement':'Tiny amounts now, huge later.',
-  '/careers':'14 finance paths, what they pay, how to get in.', '/firms':'Profiles of the firms that shape markets.', '/universities':'Ranked shortlist for finance recruiting.', '/subjects':'Pick subjects for your target career.', '/finance-vs-econ':'Which path is right for you.', '/prep':'Master the skills interviews test.', '/career-lab':'Build a CV recruiters notice.', '/opportunities':'Internships, comps and scholarships.', '/sideincome':'Earn more on the side.', '/salary':'Know what your role really pays.',
+  '/careers':'14 finance paths, what they pay, how to get in.', '/firms':'Profiles of the firms that shape markets.', '/universities':'Ranked shortlist for finance recruiting.', '/subjects':'Pick subjects for your target career.', '/tests':'Score targets, calculators and test tips.', '/finance-vs-econ':'Which path is right for you.', '/prep':'Master the skills interviews test.', '/career-lab':'Build a CV recruiters notice.', '/opportunities':'Internships, comps and scholarships.', '/sideincome':'Earn more on the side.', '/salary':'Know what your role really pays.',
 };
 // Each sub-product gets its own branded "site": a bold accent hero + its real
 // tools. Reached from the sidebar or the hub; opens the real Lumera tools.
@@ -3052,7 +3053,7 @@ const FORGE_FEATURES = [
   ['Raise & negotiation','🤝','Scripts and data to ask for (and get) more.'],
   ['Career roadmaps','🧭','Step-by-step moves to your next role.'],
 ];
-const TOOL_EMOJI = { '/dashboard':'🏠','/budget':'🧾','/goals':'🎯','/emergency':'🛟','/subscriptions':'📺','/networth':'📈','/simulator':'🪄','/twin':'🧬','/community':'🤝','/chats':'💬','/benchmarks':'📊','/recommendations':'💡',
+const TOOL_EMOJI = { '/tests':'📝', '/dashboard':'🏠','/budget':'🧾','/goals':'🎯','/emergency':'🛟','/subscriptions':'📺','/networth':'📈','/simulator':'🪄','/twin':'🧬','/community':'🤝','/chats':'💬','/benchmarks':'📊','/recommendations':'💡',
   '/learn':'📚','/resources':'🧠','/quiz':'🧩','/glossary':'🔤','/habits':'🌱','/challenges':'🎯','/badges':'🏅','/updates':'✨','/invest':'🌱','/market':'📊','/exchanges':'🎓','/globe':'🌍','/world':'🛰️','/news':'📰','/about':'💡',
   '/credit':'💳','/debt':'⛓️','/insurance':'☂️','/retirement':'🌅',
   '/careers':'📈','/firms':'🏦','/universities':'🎓','/subjects':'📝','/finance-vs-econ':'⚖️','/prep':'🧭','/career-lab':'📄','/opportunities':'🚀','/sideincome':'💡','/salary':'📊' };
@@ -8136,6 +8137,125 @@ function CVLab(){
   </AppShell>;
 }
 
+/* ============================================================
+   ADMISSIONS DATA (Common Data Set style)
+   US universities publish a Common Data Set each year with the 25th, 50th and
+   75th percentile of admitted students' test scores. UK and European
+   universities publish typical offers instead. Both are held here so the same
+   page can answer "where does my score put me" either way.
+   Figures are recent published ranges, rounded, and move year to year.
+   ============================================================ */
+const UNI_ADMIT = {
+  'Harvard University':{ sat:[1500,1540,1580], act:[34,35,36], accept:'~3.5%', region:'US' },
+  'MIT':{ sat:[1520,1550,1580], act:[35,35,36], accept:'~4%', region:'US' },
+  'Wharton (UPenn)':{ sat:[1500,1530,1560], act:[34,35,35], accept:'~6%', region:'US' },
+  'University of Chicago':{ sat:[1510,1540,1570], act:[34,35,35], accept:'~5%', region:'US' },
+  'NYU Stern':{ sat:[1470,1520,1570], act:[33,34,35], accept:'~8%', region:'US' },
+  'University of Oxford':{ alevel:'A*A*A', ib:'39–40 (766 HL)', accept:'~15% (course-dependent)', region:'UK',
+    note:'Economics & Management is among the most competitive courses in the country.' },
+  'University of Cambridge':{ alevel:'A*A*A', ib:'40–42 (776 HL)', accept:'~17% (course-dependent)', region:'UK',
+    note:'Economics requires the TMUA; Maths offers usually carry STEP conditions.' },
+  'London School of Economics':{ alevel:'A*AA', ib:'38 (766 HL)', accept:'~12%', region:'UK',
+    note:'Economics is effectively A*AA with an A* in Maths.' },
+  'Imperial College London':{ alevel:'A*A*A', ib:'39 (777 HL)', accept:'~11%', region:'UK',
+    note:'Maths is essential for almost every route here.' },
+  'University College London':{ alevel:'A*AA', ib:'39 (importantly 6 in HL Maths)', accept:'~30%', region:'UK' },
+  'University of Warwick':{ alevel:'A*AA', ib:'38 (766 HL)', accept:'~25%', region:'UK',
+    note:'WBS and Economics sit well above the university average.' },
+  'Bocconi University':{ alevel:'AAB', ib:'38', sat:[1400,1470,1530], accept:'~35%', region:'Europe',
+    note:'Selection runs through the Bocconi test, or SAT/IB/A-level early sessions.' },
+  'Bocconi BIEF':{ alevel:'AAB', ib:'38', sat:[1420,1480,1540], accept:'~25%', region:'Europe',
+    note:'The most quantitative and most competitive of the Bocconi bachelors.' },
+  'HEC Paris':{ alevel:'AAA', ib:'38', sat:[1420,1480,1540], accept:'~20%', region:'Europe',
+    note:'The bachelor route is separate from the grande école concours.' },
+  'ETH Zurich':{ alevel:'A*AA (subject-specific)', ib:'38', accept:'Open to Swiss Matura; entrance exam for others', region:'Europe',
+    note:'No SAT. International applicants usually sit the reduced entrance examination.' },
+  'University of St Gallen':{ alevel:'AAB', ib:'36', accept:'~50%', region:'Europe' },
+  'Technical University of Munich':{ alevel:'AAB', ib:'36', accept:'Aptitude assessment', region:'Europe' },
+  'National University of Singapore':{ alevel:'A*AA', ib:'40', sat:[1450,1500,1550], accept:'~10%', region:'Asia' },
+  'University of Hong Kong':{ alevel:'AAA', ib:'38', sat:[1400,1460,1520], accept:'~20%', region:'Asia' },
+  'IIM Ahmedabad':{ accept:'~1% (postgraduate)', region:'Asia',
+    note:'Postgraduate only. Entry runs through the CAT, where successful candidates sit above the 99th percentile.' },
+};
+// Where a score puts you against a published band.
+function bandVerdict(score, band){
+  if(!band||score==null) return null;
+  const [p25,p50,p75]=band;
+  if(score>=p75) return ['Above the 75th','#16A34A','Your score is at or above three quarters of admitted students.'];
+  if(score>=p50) return ['Upper half','#0EA5E9','Above the median of admitted students.'];
+  if(score>=p25) return ['In range','#D97706','Inside the published middle 50%. Competitive, not decisive.'];
+  return ['Below the 25th','#DC2626','Below where three quarters of admitted students sat. Not impossible, but the rest of your application has to carry more.'];
+}
+// Deep, test-specific preparation guidance.
+const TEST_TIPS = {
+  SAT:{ headline:'The SAT rewards technique as much as knowledge. Most of the gain comes from pacing and from not losing marks you already knew how to get.',
+    sections:[
+      { name:'Reading & Writing', time:'2 modules, 32 min each, 27 questions per module',
+        tips:['Every question has exactly one defensible answer. If two feel right, you have misread the question, not the passage.',
+              'Do the grammar questions first within a module. They are faster and the marks are identical.',
+              'For "which choice best supports", find the claim first, then read the options against it. Never the other way round.',
+              'Vocabulary in context is now a large share of the section. Read the sentence with each option substituted in.'] },
+      { name:'Maths', time:'2 modules, 35 min each, 22 questions per module',
+        tips:['Roughly a third of questions are solvable faster by substituting the answer choices than by doing the algebra.',
+              'Desmos is built into the test app. Learn to graph an equation and read intersections, it turns hard problems into easy ones.',
+              'Write down what the question actually asks before solving. Most errors are answering the wrong quantity.',
+              'The grid-in questions at the end of each module carry the same marks as the rest. Do not run out of time before them.'] },
+    ],
+    strategy:['The test is adaptive by module: doing well in module 1 unlocks a harder, higher-scoring module 2. Front-load your accuracy.',
+      'There is no penalty for a wrong answer. Never leave anything blank.',
+      'Sit full, timed, official practice tests in Bluebook. Nothing else predicts your score as well.',
+      'Review every wrong answer by writing why you got it wrong, not just what the right answer was. That log is where the improvement comes from.',
+      'Two or three real attempts is normal. Most people gain the most between their first and second sitting.'] },
+  ACT:{ headline:'The ACT is a speed test more than a difficulty test. If you can already do the questions, the work is doing them faster.',
+    sections:[
+      { name:'English', time:'45 min, 75 questions', tips:['Under 36 seconds per question. Trust your first instinct on tone.','Shorter is usually right when options mean the same thing.'] },
+      { name:'Maths', time:'60 min, 60 questions', tips:['Questions get harder in order. Bank the first 30 quickly.','A calculator is allowed throughout, unlike parts of other tests.'] },
+      { name:'Reading', time:'35 min, 40 questions', tips:['Roughly 8 minutes per passage including the questions.','Skim for structure first, then answer with line references.'] },
+      { name:'Science', time:'35 min, 40 questions', tips:['It tests reading graphs, not science knowledge.','Go to the figures before the text.'] },
+    ],
+    strategy:['Sit one practice SAT and one practice ACT before committing. Many people score materially better on one.',
+      'Superscoring is common: your best section across sittings may be what counts.',
+      'Pacing drills beat content review for most students above a 28.'] },
+  TMUA:{ headline:'Two papers, no calculator, and a heavy premium on speed and on recognising structure rather than grinding algebra.',
+    sections:[
+      { name:'Paper 1 · Applications of Mathematical Knowledge', time:'75 min, 20 questions',
+        tips:['Content stops around AS-level. Depth of application is what is tested.','Sketch the graph before manipulating the algebra, it usually collapses the problem.'] },
+      { name:'Paper 2 · Mathematical Reasoning', time:'75 min, 20 questions',
+        tips:['This is logic: necessary and sufficient conditions, counterexamples, proof structure.','Practise "which of these must be true" questions specifically, they are unlike A-level.'] },
+    ],
+    strategy:['No calculator at all. Drill mental arithmetic and surd manipulation until it is automatic.',
+      'All past papers are free from the official site. Do them strictly timed.',
+      'A 6.0 is roughly the median. Cambridge Economics applicants cluster from 6.5 upward.'] },
+  MAT:{ headline:'Depth over breadth. Only pure maths from the first year of A-level, but pushed much further than A-level ever goes.',
+    sections:[
+      { name:'Question 1 · Multiple choice', time:'Roughly the first hour, 10 parts',
+        tips:['Worth 40 of 100 marks. This is the cheapest section to gain on.','No working is marked here, so guess rather than leave blanks.'] },
+      { name:'Questions 2–5 · Long answers', time:'The remaining time, choose by course',
+        tips:['Method carries marks even when the final answer is wrong. Write everything down.','Answer the questions your course specifies, not all of them.'] },
+    ],
+    strategy:['No calculator. Everything is designed to be doable by hand.','Twenty-plus years of past papers are online with full solutions.'] },
+  STEP:{ headline:'Long, multi-stage problems. You are not expected to finish the paper: you are expected to do a few questions properly.',
+    sections:[{ name:'STEP 2 and STEP 3', time:'3 hours each',
+      tips:['Six well-answered questions is a very strong paper.','Read all questions first and choose deliberately, five minutes spent choosing saves an hour.'] }],
+    strategy:['The free STEP Support Programme is the single best resource and is designed for self-study.',
+      'Start in the spring of Year 12. It is not a term-long preparation.'] },
+  LNAT:{ headline:'A reading and argument test with a law-shaped label. Nothing about it requires legal knowledge.',
+    sections:[
+      { name:'Section A · Multiple choice', time:'95 min, 42 questions', tips:['Answer strictly from the passage, never from what you believe.','Watch for absolute words: always, never, only. They usually mark a wrong option.'] },
+      { name:'Section B · Essay', time:'40 min, one essay', tips:['Pick the question you can argue against yourself. Balance scores better than passion.','Plan for five minutes, write for thirty, leave five to read it back.'] },
+    ],
+    strategy:['Read broadsheet opinion columns daily and write a paragraph arguing the other side.',
+      'Only Section A produces a number. The essay is read by the university, so it matters most where scores are close.'] },
+  UCAT:{ headline:'A pure speed test. Almost nobody finishes comfortably, and the technique is knowing what to skip.',
+    sections:[{ name:'All five sections', time:'Two hours total',
+      tips:['Flag and move on. A question you cannot start in ten seconds is a question to guess.','Verbal reasoning is the hardest to improve; quantitative is the easiest.'] }],
+    strategy:['Practise on-screen only, never on paper. The interface is part of the difficulty.',
+      'Six to eight weeks of daily practice over the summer is the standard preparation.'] },
+  IELTS:{ headline:'The sub-score minimum catches more people than the overall band. Plan around your weakest skill.',
+    sections:[{ name:'Writing and Speaking', time:'The two that decide most bands',
+      tips:['Task 2 is worth twice Task 1. Spend forty of the sixty minutes on it.','In speaking, extend every answer to two or three sentences. One-word answers cap your band.'] }],
+    strategy:['Book early, slots fill months ahead in some cities.','Results are valid two years, so sitting it in Year 12 is fine.'] },
+};
 const SUBJECT_SYSTEMS=['A-Level (UK)','IB Diploma','AP / US High School','GCSE / IGCSE (Year 11)'];
 const SUBJECT_CAREERS=[
   {name:'Investment Banking', icon:'📈', field:'Finance', hue:'#2563EB',
@@ -8324,6 +8444,217 @@ function parseSubject(raw){
     else if(/stat/.test(lower)) key='Statistics';
   }
   return { raw, bare, grade, key, info: key?SUBJECT_INFO[key]:null };
+}
+
+/* ============================================================
+   TEST CENTRE
+   Record your scores, see where they place you against published admissions
+   data, work a target backwards with the calculator, and read the tips.
+   ============================================================ */
+const SCORES_KEY='lumera_test_scores';
+const SAT_PCTILE=[[1600,99],[1550,99],[1500,98],[1450,96],[1400,93],[1350,90],[1300,86],[1250,81],[1200,74],[1150,67],[1100,58],[1050,49],[1000,40],[950,31],[900,23],[800,11]];
+const satPercentile=(t)=>{ const row=SAT_PCTILE.find(r=>t>=r[0]); return row?row[1]:5; };
+
+function TestCentre(){
+  const app=useApp();
+  const [scores,setScores]=useState(()=>{ try{ return JSON.parse(localStorage.getItem(SCORES_KEY))||{}; }catch(e){ return {}; } });
+  const save=(next)=>{ setScores(next); try{ localStorage.setItem(SCORES_KEY, JSON.stringify(next)); }catch(e){} };
+  const set=(k,v)=>save({...scores,[k]:v});
+  const [tab,setTab]=useState('My scores');
+  const [tipTest,setTipTest]=useState('SAT');
+  // SAT planner
+  const [goal,setGoal]=useState(1500);
+  const rw=Number(scores.satRW)||0, mt=Number(scores.satMath)||0;
+  const satTotal=(rw&&mt)?rw+mt:(Number(scores.sat)||0);
+  const needOther=(have)=>Math.max(200,Math.min(800, goal-have));
+
+  const TESTS=[
+    ['sat','SAT total','400–1600'],['satRW','SAT · Reading & Writing','200–800'],['satMath','SAT · Maths','200–800'],
+    ['act','ACT composite','1–36'],['tmua','TMUA overall','1.0–9.0'],['mat','MAT','0–100'],
+    ['lnat','LNAT Section A','0–42'],['ucat','UCAT total','1200–3600'],['ielts','IELTS overall','0–9'],
+  ];
+
+  // Where the recorded SAT/ACT places you, university by university.
+  const matches=UNIS.map(u=>{
+    const a=UNI_ADMIT[u[0]]; if(!a) return null;
+    let verdict=null, basis=null;
+    if(a.sat && satTotal){ verdict=bandVerdict(satTotal,a.sat); basis=`SAT ${satTotal}`; }
+    else if(a.act && Number(scores.act)){ verdict=bandVerdict(Number(scores.act),a.act); basis=`ACT ${scores.act}`; }
+    return { u, a, verdict, basis };
+  }).filter(Boolean);
+  const scored=matches.filter(m=>m.verdict);
+
+  return <AppShell>
+    <PageHead eyebrow="Test centre" title="Your scores, and what they open."
+      desc="Record what you have scored, see where it places you against each university's published admissions data, and work backwards from the score you want."/>
+
+    <div className="flex gap-2 mb-4 flex-wrap">
+      {['My scores','Where I stand','SAT calculator','Tips by test'].map(t=>
+        <button key={t} onClick={()=>setTab(t)} className={cx('chip',tab===t&&'on')}>{t}</button>)}
+    </div>
+
+    {tab==='My scores' && <Fragment>
+      <Card className="mb-4">
+        <Eyebrow className="mb-3">Record what you have sat</Eyebrow>
+        <p className="text-sm text-muted mb-4">Leave anything blank that you have not taken. Everything is stored in this browser only.</p>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {TESTS.map(([k,label,range])=>
+            <label key={k} className="block">
+              <span className="text-xs text-charcoal/85 mb-1 flex items-baseline justify-between">
+                {label}<span className="text-faint">{range}</span></span>
+              <input value={scores[k]??''} onChange={e=>set(k,e.target.value)} inputMode="decimal" placeholder="—"
+                className="w-full rounded-xl border border-line bg-cream px-3 py-2.5 text-sm tnum focus:border-gold focus:outline-none"/>
+            </label>)}
+        </div>
+        {satTotal>0 && <div className="mt-4 rounded-xl2 p-4 flex items-center justify-between gap-4 flex-wrap"
+          style={{background:'rgba(217,119,6,.10)',border:'1px solid rgba(217,119,6,.3)'}}>
+          <div><div className="text-[10px] uppercase tracking-wider text-faint">SAT total</div>
+            <div className="font-serif text-3xl text-charcoal tnum">{satTotal}</div></div>
+          <div className="text-right"><div className="text-[10px] uppercase tracking-wider text-faint">Roughly the</div>
+            <div className="font-serif text-3xl tnum" style={{color:'#D97706'}}>{satPercentile(satTotal)}th</div>
+            <div className="text-[11px] text-faint">percentile of all test takers</div></div>
+        </div>}
+      </Card>
+    </Fragment>}
+
+    {tab==='Where I stand' && <Fragment>
+      {!scored.length && <Card hover={false} className="mb-4">
+        <Empty icon="gauge" title="No comparable score yet"
+          desc="Enter an SAT or ACT score under My scores and every university with published data will be ranked against it."/>
+      </Card>}
+      {scored.length>0 && <Card hover={false} className="mb-4">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div><Eyebrow>Measured on</Eyebrow>
+            <div className="font-serif text-2xl text-charcoal mt-1">{scored[0].basis}</div></div>
+          <div className="flex gap-2 flex-wrap">
+            {[['Above the 75th','#16A34A'],['Upper half','#0EA5E9'],['In range','#D97706'],['Below the 25th','#DC2626']].map(([l,c])=>
+              <span key={l} className="text-[11px] font-semibold px-2.5 py-1 rounded-full"
+                style={{background:c+'1A',color:c}}>{scored.filter(m=>m.verdict[0]===l).length} {l}</span>)}
+          </div>
+        </div>
+      </Card>}
+      <Card hover={false} className="!p-0 overflow-hidden">
+        <div className="hidden sm:grid grid-cols-[1fr_auto_auto_auto_auto] gap-3 px-4 py-2.5 border-b border-line text-[10px] uppercase tracking-wider text-faint">
+          <span>University</span><span className="w-20 text-right">25th</span><span className="w-20 text-right">Median</span>
+          <span className="w-20 text-right">75th</span><span className="w-32 text-right">You</span>
+        </div>
+        {UNIS.map(u=>{ const a=UNI_ADMIT[u[0]]; if(!a) return null;
+          const band=a.sat||a.act; const isAct=!a.sat&&!!a.act;
+          const mine=isAct?Number(scores.act):satTotal;
+          const v=band?bandVerdict(mine||null,band):null;
+          return <div key={u[0]} className="grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_auto_auto_auto_auto] gap-3 px-4 py-3 border-b border-line last:border-0 items-center">
+            <div className="min-w-0">
+              <div className="text-sm font-semibold text-charcoal truncate">{u[0]}</div>
+              <div className="text-[11px] text-faint">{u[3]} · {u[4]} · accept {a.accept||'—'}</div>
+              {!band && <div className="text-[11px] text-muted mt-0.5">
+                {a.alevel?`Typical offer ${a.alevel}${a.ib?` · IB ${a.ib}`:''}`:'No standardised test used'}</div>}
+              {a.note && <div className="text-[11px] text-muted mt-0.5">{a.note}</div>}
+            </div>
+            {band ? <Fragment>
+              <span className="hidden sm:block tnum text-sm text-muted w-20 text-right">{band[0]}</span>
+              <span className="hidden sm:block tnum text-sm text-charcoal font-semibold w-20 text-right">{band[1]}</span>
+              <span className="hidden sm:block tnum text-sm text-muted w-20 text-right">{band[2]}</span>
+              <span className="w-32 text-right">
+                {v ? <span className="text-[11px] font-semibold px-2 py-1 rounded-full whitespace-nowrap"
+                       style={{background:v[1]+'1A',color:v[1]}}>{v[0]}</span>
+                   : <span className="text-[11px] text-faint">enter a score</span>}
+              </span>
+            </Fragment> : <span className="hidden sm:block sm:col-span-4 text-right text-[11px] text-faint">
+              {a.alevel?`${a.alevel} · IB ${a.ib||'—'}`:'—'}</span>}
+          </div>; })}
+      </Card>
+      <p className="text-xs text-faint mt-3">
+        Percentiles come from each university's published admissions data and shift year to year. A score below the
+        25th does not rule you out, and one above the 75th does not admit you: at these acceptance rates the rest of
+        the application decides.</p>
+    </Fragment>}
+
+    {tab==='SAT calculator' && <Fragment>
+      <div className="grid lg:grid-cols-2 gap-4">
+        <Card>
+          <Eyebrow className="mb-3">Section totals</Eyebrow>
+          <div className="grid grid-cols-2 gap-3">
+            {[['satRW','Reading & Writing'],['satMath','Maths']].map(([k,l])=>
+              <label key={k} className="block"><span className="text-xs text-muted mb-1 block">{l}</span>
+                <input value={scores[k]??''} onChange={e=>set(k,e.target.value)} inputMode="numeric" placeholder="200–800"
+                  className="w-full rounded-xl border border-line bg-cream px-3 py-2.5 tnum focus:border-gold focus:outline-none"/></label>)}
+          </div>
+          <div className="mt-4 rounded-xl2 p-4 text-center" style={{background:'rgba(217,119,6,.10)'}}>
+            <div className="text-[10px] uppercase tracking-wider text-faint">Total</div>
+            <div className="font-serif text-5xl tnum" style={{color:'#D97706'}}>{(rw&&mt)?rw+mt:'—'}</div>
+            {(rw&&mt)>0 && <div className="text-xs text-muted mt-1">Around the {satPercentile(rw+mt)}th percentile nationally</div>}
+          </div>
+        </Card>
+
+        <Card>
+          <Eyebrow className="mb-3">Work a target backwards</Eyebrow>
+          <label className="block"><span className="text-xs text-muted mb-1 block">Target total <b className="text-charcoal tnum">{goal}</b></span>
+            <input type="range" className="lux w-full" min="1000" max="1600" step="10" value={goal}
+              onChange={e=>setGoal(+e.target.value)} style={{'--p':((goal-1000)/600*100)+'%'}}/></label>
+          <div className="grid grid-cols-2 gap-3 mt-4">
+            <div className="rounded-xl2 border border-line p-3 text-center">
+              <div className="text-[10px] uppercase tracking-wider text-faint">If R&amp;W is {rw||'—'}</div>
+              <div className="font-serif text-2xl tnum text-charcoal mt-1">{rw?needOther(rw):'—'}</div>
+              <div className="text-[11px] text-faint">needed in Maths</div></div>
+            <div className="rounded-xl2 border border-line p-3 text-center">
+              <div className="text-[10px] uppercase tracking-wider text-faint">If Maths is {mt||'—'}</div>
+              <div className="font-serif text-2xl tnum text-charcoal mt-1">{mt?needOther(mt):'—'}</div>
+              <div className="text-[11px] text-faint">needed in R&amp;W</div></div>
+          </div>
+          <div className="mt-4 rounded-xl2 bg-sand/60 p-3 text-sm text-charcoal/85 leading-relaxed">
+            An even split of <b className="tnum">{Math.round(goal/2/10)*10}</b> in each section reaches {goal}.
+            Most people find Maths the faster section to move, so it is usually worth pushing that side first.
+          </div>
+          <div className="mt-3 text-xs text-faint">
+            {goal>=1500?'This range is Ivy League and MIT territory. Expect several sittings.'
+             :goal>=1400?'Competitive for top-30 US universities and most scholarship consideration.'
+             :'Solid for a wide range of good programmes, and above the national median.'}
+          </div>
+        </Card>
+      </div>
+
+      <Card hover={false} className="mt-4">
+        <Eyebrow className="mb-3">Which universities that reaches</Eyebrow>
+        <div className="flex flex-wrap gap-2">
+          {UNIS.filter(u=>UNI_ADMIT[u[0]]&&UNI_ADMIT[u[0]].sat).map(u=>{ const a=UNI_ADMIT[u[0]];
+            const v=bandVerdict(goal,a.sat);
+            return <span key={u[0]} className="text-[11.5px] font-semibold px-2.5 py-1.5 rounded-full"
+              style={{background:v[1]+'1A',color:v[1]}}>{u[1]} · {v[0]}</span>; })}
+        </div>
+      </Card>
+    </Fragment>}
+
+    {tab==='Tips by test' && <Fragment>
+      <div className="flex gap-2 mb-4 flex-wrap">{Object.keys(TEST_TIPS).map(k=>
+        <button key={k} onClick={()=>setTipTest(k)} className={cx('chip',tipTest===k&&'on')}>{k}</button>)}</div>
+      {(()=>{ const t=TEST_TIPS[tipTest]; const meta=ADMISSIONS_TESTS[tipTest]||{}; const hue='#D97706';
+        return <Fragment>
+          <Card hover={false} className="mb-4" style={{borderTop:`3px solid ${hue}`}}>
+            <div className="flex items-start justify-between gap-3 flex-wrap">
+              <div><Eyebrow>{meta.region||''} admissions test</Eyebrow>
+                <div className="font-serif text-2xl text-charcoal mt-1">{tipTest}</div>
+                <div className="text-sm text-muted">{meta.full||''}</div></div>
+              {meta.scale && <span className="text-[11px] px-2.5 py-1 rounded-full" style={{background:hue+'18',color:hue}}>{meta.scale.split('.')[0]}</span>}
+            </div>
+            <p className="lede text-[15px] text-charcoal/85 leading-relaxed mt-3 pt-3 border-t border-line">{t.headline}</p>
+          </Card>
+          <div className="grid md:grid-cols-2 gap-4 mb-4">
+            {t.sections.map(sec=><Card key={sec.name}>
+              <div className="font-serif text-lg text-charcoal">{sec.name}</div>
+              <div className="text-[11px] text-faint mb-3">{sec.time}</div>
+              <ul className="space-y-2">{sec.tips.map((x,i)=>
+                <li key={i} className="flex items-start gap-2 text-[13px] text-charcoal/85 leading-snug">
+                  <Icon name="check" size={13} className="mt-0.5 shrink-0" style={{color:hue}}/>{x}</li>)}</ul>
+            </Card>)}
+          </div>
+          <Card hover={false}>
+            <Eyebrow className="mb-3">How to actually prepare</Eyebrow>
+            <RouteSteps items={t.strategy} hue={hue}/>
+            {meta.links && <div className="mt-4"><LinkRow items={meta.links}/></div>}
+          </Card>
+        </Fragment>; })()}
+    </Fragment>}
+  </AppShell>;
 }
 
 function SubjectSelection(){
@@ -9218,7 +9549,7 @@ const ROUTES = {
   '/lumera':()=><ProductPage k="lumera"/>, '/leaf':()=><ProductPage k="leaf"/>, '/atlas':()=><ProductPage k="atlas"/>,
   '/shield':()=><ProductPage k="shield"/>, '/forge':()=><ProductPage k="forge"/>,
   '/cv':ForgeCV, '/university':ForgeUniversity, '/career':ForgeCareer, '/sideincome':ForgeSideIncome, '/salary':ForgeSalary,
-  '/careers':FinanceCareers, '/firms':TopFinanceFirms, '/universities':UniversitiesRank, '/subjects':SubjectSelection,
+  '/careers':FinanceCareers, '/firms':TopFinanceFirms, '/universities':UniversitiesRank, '/subjects':SubjectSelection, '/tests':TestCentre,
   '/finance-vs-econ':FinanceVsEcon, '/prep':CareerPrepHub, '/career-lab':CVLab, '/opportunities':Opportunities,
   '/quiz':LeafQuiz, '/glossary':LeafWordOfDay, '/habits':LeafHabits, '/challenges':LeafChallenges,
   '/community':Community, '/exchanges':StockMarketsEdu, '/about':AboutLumera, '/team':FoundingTeam, '/chats':ChatHistory, '/benchmarks':Benchmarks, '/recommendations':Recommendations,
