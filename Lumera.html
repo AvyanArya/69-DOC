@@ -8212,23 +8212,161 @@ const SUBJECT_CAREERS=[
     tip:'Build a portfolio early. Evidence of real campaigns or work beats any subject list.'},
 ];
 const SUBJECT_FIELDS=['All','Finance','Business','Technology','Healthcare','Engineering','Law','Public','Creative'];
+/* ============================================================
+   SUBJECT LIBRARY
+   Per subject: which exam board to expect, what to take instead if your
+   school does not offer it, and the grade a given tier of university wants.
+   ============================================================ */
+const EXAM_BOARDS = {
+  'A-Level (UK)':['AQA','Edexcel','OCR','WJEC / Eduqas'],
+  'IB Diploma':['IBO (single board)'],
+  'AP / US High School':['College Board (single board)'],
+  'GCSE / IGCSE (Year 11)':['AQA','Edexcel / Pearson','OCR','Cambridge CAIE (IGCSE)'],
+};
+// Grades only mean something inside their own system, so A*/A/B is used for
+// A-level and each other system gets its own scale.
+const SYSTEM_GRADES = {
+  'A-Level (UK)':['A*','A','A / B'],
+  'IB Diploma':['7 (HL)','6 (HL)','5 (HL)'],
+  'AP / US High School':['5','4','3 / 4'],
+  'GCSE / IGCSE (Year 11)':['9','8','7'],
+};
+const SUBJECT_INFO = {
+  'Mathematics':{ why:'The single most valued subject for any finance, economics or quantitative route. Almost every competitive course lists it as essential.',
+    grades:['A*','A','A / B'],
+    boards:{'A-Level (UK)':'Content is nationally fixed, so board choice barely matters to universities. Edexcel is often felt to have the most predictable papers, OCR (MEI) the most problem-solving flavour, AQA sits in between.',
+      'IB Diploma':'Take Maths AA (Analysis & Approaches) at HL, not AI. Economics and finance courses at top universities frequently reject Maths AI HL.',
+      'AP / US High School':'AP Calculus BC rather than AB, plus AP Statistics if you can fit it.',
+      'GCSE / IGCSE (Year 11)':'Higher tier only. Cambridge IGCSE Additional Maths is an excellent bridge into A-level.'},
+    alts:['Further Mathematics counts as evidence if Maths itself is unavailable at your school','Statistics A-level, a weaker but accepted substitute for some Economics courses','Take Maths at a local college or via an online provider and sit it as a private candidate'] },
+  'Further Mathematics':{ why:'Strongly preferred for Maths, Economics at Cambridge, and anything quantitative. Rarely required, frequently decisive.',
+    grades:['A','A / B','B'],
+    boards:{'A-Level (UK)':'Optional modules differ by board. Decision Maths is the lighter route, Further Pure the one quantitative courses value most.',
+      'IB Diploma':'No direct equivalent. Maths AA HL plus a maths-heavy extended essay is the closest signal.',
+      'AP / US High School':'AP Calculus BC plus AP Statistics covers similar ground.',
+      'GCSE / IGCSE (Year 11)':'Additional Maths or Further Maths GCSE if your school runs it.'},
+    alts:['Physics, which universities read as similar mathematical evidence','An EPQ or extended essay with genuine mathematical content','MOOCs such as MIT OpenCourseWare, cited on your personal statement'] },
+  'Economics':{ why:'Useful and relevant, but almost never required. Universities care more that you can do the maths.',
+    grades:['A','A / B','B'],
+    boards:{'A-Level (UK)':'Edexcel A is theme-based and the most popular. AQA is more essay-driven. OCR is the most conceptual. All are accepted equally.',
+      'IB Diploma':'Economics HL. The internal assessment is a good place to show real analytical work.',
+      'AP / US High School':'Take both AP Microeconomics and AP Macroeconomics, they are half-courses.',
+      'GCSE / IGCSE (Year 11)':'Only some schools offer it. Business Studies is a fine stand-in.'},
+    alts:['Business Studies, close enough for most admissions purposes','History or Politics, both read as strong essay-and-argument subjects','Self-study with the Marginal Revolution University course and reference it in your personal statement'] },
+  'Physics':{ why:'Reads as hard mathematical evidence, and is the usual second science for quantitative routes.',
+    grades:['A','B','B / C'],
+    boards:{'A-Level (UK)':'Practical endorsement is separate from the grade. OCR B (Advancing Physics) is more context-led; AQA is the most traditional.',
+      'IB Diploma':'Physics HL if you are aiming quant, SL is adequate otherwise.',
+      'AP / US High School':'AP Physics C (Mechanics) is the one that carries weight.',
+      'GCSE / IGCSE (Year 11)':'Triple Science rather than Combined, where the option exists.'},
+    alts:['Chemistry, treated as broadly equivalent rigour','Computer Science, increasingly well regarded for quant routes','Further Maths, which covers the mechanics content directly'] },
+  'Chemistry':{ why:'A recognised hard science. Essential for medicine, useful evidence of rigour elsewhere.',
+    grades:['A','B','B / C'],
+    boards:{'A-Level (UK)':'All boards are accepted equally. OCR A is the most traditional, Salters (OCR B) is context-led.',
+      'IB Diploma':'Chemistry HL for medicine, SL otherwise.','AP / US High School':'AP Chemistry.',
+      'GCSE / IGCSE (Year 11)':'Triple Science where offered.'},
+    alts:['Physics or Biology as the alternative hard science','Geography, which carries quantitative and analytical content'] },
+  'Computer Science':{ why:'Increasingly valued for quant finance and fintech, and the clearest signal you can actually code.',
+    grades:['A','B','B / C'],
+    boards:{'A-Level (UK)':'AQA and OCR both include a programming project. OCR uses a more traditional written paper.',
+      'IB Diploma':'Computer Science HL, or Maths AA HL plus personal projects.',
+      'AP / US High School':'AP Computer Science A (Java) over Principles.',
+      'GCSE / IGCSE (Year 11)':'Any board. The project matters more than the board.'},
+    alts:['Build and publish projects on GitHub, which carries more weight than the qualification','Further Maths, especially with Decision modules','Free CS50 from Harvard, widely recognised'] },
+  'Business':{ why:'A reasonable substitute for Economics. Less analytical, so pair it with strong Maths.',
+    grades:['A','B','B / C'], boards:{'A-Level (UK)':'Edexcel and AQA are the common boards and are treated identically.',
+      'IB Diploma':'Business Management HL.','AP / US High School':'No direct AP. Use the economics pair instead.',
+      'GCSE / IGCSE (Year 11)':'Widely offered, a good early signal of interest.'},
+    alts:['Economics if it becomes available','An EPQ on a business or market topic','Run something real: a small venture beats the qualification on a personal statement'] },
+  'English':{ why:'Evidence you can construct an argument. Matters for law, PPE and any essay-based course.',
+    grades:['A','B','B / C'], boards:{'A-Level (UK)':'Literature is more highly regarded than Language for competitive courses.',
+      'IB Diploma':'English A Literature, HL if you are aiming at essay subjects.',
+      'AP / US High School':'AP English Literature or Language.',
+      'GCSE / IGCSE (Year 11)':'Grade 7+ in English Language is a common minimum requirement.'},
+    alts:['History, an equally strong essay subject','Politics or Philosophy','Sociology, accepted but read as softer'] },
+  'History':{ why:'A respected essay subject that proves you can build an argument from evidence.',
+    grades:['A','B','B / C'], boards:{'A-Level (UK)':'All boards accepted. The coursework component differs, check the topics.',
+      'IB Diploma':'History HL.','AP / US High School':'AP US or World History.',
+      'GCSE / IGCSE (Year 11)':'Any board.'},
+    alts:['English Literature','Politics or Government','Geography, which adds quantitative content'] },
+  'EPQ':{ why:'Not required anywhere, but a strong one gives you something real to talk about at interview. Some universities lower an offer for an A.',
+    grades:['A','A / B','B'], boards:{'A-Level (UK)':'AQA and Pearson both run it. Worth half an A-level in UCAS points.',
+      'IB Diploma':'The Extended Essay is the direct equivalent and is compulsory.',
+      'AP / US High School':'AP Capstone (Seminar and Research) is the closest analogue.',
+      'GCSE / IGCSE (Year 11)':'Not applicable at this stage.'},
+    alts:['IB Extended Essay if you are on the IB','A genuine independent project, competition entry or published writing','An Olympiad or essay competition, which carries similar weight'] },
+  'Statistics':{ why:'Useful for data-heavy routes, though weaker evidence than Further Maths.',
+    grades:['A','B','B / C'], boards:{'A-Level (UK)':'Edexcel is the common board. Less well regarded than Further Maths for quant courses.',
+      'IB Diploma':'Covered within Maths AA/AI.','AP / US High School':'AP Statistics.',
+      'GCSE / IGCSE (Year 11)':'Statistics GCSE where offered.'},
+    alts:['Further Mathematics, which universities prefer','Computer Science','Psychology, which carries a real statistics component'] },
+};
+// The strings in SUBJECT_CAREERS look like "Mathematics (A*)" or "Maths AA HL (6-7)".
+// Pull out the canonical subject and any grade already written into the text.
+function parseSubject(raw){
+  const gradeM = raw.match(/\(([^)]+)\)/);
+  const grade = gradeM ? gradeM[1] : null;
+  const bare = raw.replace(/\([^)]*\)/,'').trim();
+  const keys = Object.keys(SUBJECT_INFO);
+  const lower = bare.toLowerCase();
+  let key = keys.find(k=>lower.includes(k.toLowerCase()));
+  if(!key){
+    if(/further/.test(lower)) key='Further Mathematics';
+    else if(/math|calculus/.test(lower)) key='Mathematics';
+    else if(/econom/.test(lower)) key='Economics';
+    else if(/physic/.test(lower)) key='Physics';
+    else if(/chem/.test(lower)) key='Chemistry';
+    else if(/comput|cs\b/.test(lower)) key='Computer Science';
+    else if(/business/.test(lower)) key='Business';
+    else if(/english/.test(lower)) key='English';
+    else if(/histor/.test(lower)) key='History';
+    else if(/epq|extended essay/.test(lower)) key='EPQ';
+    else if(/stat/.test(lower)) key='Statistics';
+  }
+  return { raw, bare, grade, key, info: key?SUBJECT_INFO[key]:null };
+}
+
 function SubjectSelection(){
   const [sys,setSys]=useState(SUBJECT_SYSTEMS[0]);
+  const [board,setBoard]=useState(EXAM_BOARDS[SUBJECT_SYSTEMS[0]][0]);
+  const [tier,setTier]=useState(0);                 // 0 = Tier 1 target
   const [field,setField]=useState('All'); const [q,setQ]=useState('');
+  const [openSub,setOpenSub]=useState(null);        // "career|subject" being swapped
   const shown=SUBJECT_CAREERS.filter(c=>(field==='All'||c.field===field)&&c.name.toLowerCase().includes(q.toLowerCase()));
+  const boards=EXAM_BOARDS[sys]||[];
+  const pickSystem=(x)=>{ setSys(x); setBoard((EXAM_BOARDS[x]||[''])[0]); };
+  const TIERS=[['Tier 1','Oxbridge, LSE, Imperial, Ivy League'],['Tier 2','Russell Group, top-30 US'],['Tier 3','Solid, well-regarded courses']];
+
   return <AppShell>
     <PageHead eyebrow="Subject selection guide" title="Pick subjects with your future career in mind."
-      desc="Which A-Levels, IB courses, APs and GCSEs each career actually values. The fewer surprises later, the better."/>
+      desc="Which subjects each career actually values, the grade to aim for, what your exam board changes, and what to take instead if your school does not offer something."/>
+
     <Card className="mb-4">
       <div className="text-[10px] uppercase tracking-wider text-faint mb-1.5">Your exam system</div>
-      <div className="flex gap-2 flex-wrap">{SUBJECT_SYSTEMS.map(s=><button key={s} onClick={()=>setSys(s)} className={cx('chip',sys===s&&'on')}>{s}</button>)}</div>
+      <div className="flex gap-2 flex-wrap">{SUBJECT_SYSTEMS.map(x=>
+        <button key={x} onClick={()=>pickSystem(x)} className={cx('chip',sys===x&&'on')}>{x}</button>)}</div>
+
+      <div className="text-[10px] uppercase tracking-wider text-faint mb-1.5 mt-4">Your exam board</div>
+      <div className="flex gap-2 flex-wrap">{boards.map(x=>
+        <button key={x} onClick={()=>setBoard(x)} className={cx('chip',board===x&&'on')}>{x}</button>)}</div>
+
+      <div className="text-[10px] uppercase tracking-wider text-faint mb-1.5 mt-4">Where you are aiming</div>
+      <div className="grid sm:grid-cols-3 gap-2">{TIERS.map(([t,d],i)=>
+        <button key={t} onClick={()=>setTier(i)} className="rounded-xl2 border p-3 text-left transition"
+          style={tier===i?{borderColor:'#D97706',background:'rgba(217,119,6,.10)'}:{borderColor:'rgb(var(--c-line))'}}>
+          <div className={cx('text-sm font-semibold', tier===i?'text-charcoal':'text-muted')}>{t}</div>
+          <div className="text-[11px] text-faint mt-0.5">{d}</div></button>)}</div>
+
       <div className="text-[10px] uppercase tracking-wider text-faint mb-1.5 mt-4">Career field</div>
       <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
-        <div className="flex gap-2 flex-wrap flex-1">{SUBJECT_FIELDS.map(f=><button key={f} onClick={()=>setField(f)} className={cx('chip',field===f&&'on')}>{f}</button>)}</div>
+        <div className="flex gap-2 flex-wrap flex-1">{SUBJECT_FIELDS.map(f=>
+          <button key={f} onClick={()=>setField(f)} className={cx('chip',field===f&&'on')}>{f}</button>)}</div>
         <div className="relative sm:w-56"><Icon name="search" size={15} className="absolute left-3 top-3 text-faint"/>
-          <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Search a career…" className="w-full rounded-xl border border-line bg-cream pl-9 pr-3 py-2.5 focus:outline-none"/></div>
+          <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Search a career…"
+            className="w-full rounded-xl border border-line bg-cream pl-9 pr-3 py-2.5 focus:outline-none"/></div>
       </div>
     </Card>
+
     <div className="grid md:grid-cols-2 gap-4 stagger">{shown.map(c=>{ const list=c.subs[sys]||[];
       return <Card key={c.name} style={{borderTop:`3px solid ${c.hue}`}}>
         <div className="flex items-start gap-3">
@@ -8236,15 +8374,61 @@ function SubjectSelection(){
           <div className="min-w-0"><div className="font-serif text-lg text-charcoal">{c.name}</div>
             <span className="text-[11px] font-semibold rounded-full px-2 py-0.5" style={{background:c.hue+'18',color:c.hue}}>{c.field}</span></div>
         </div>
-        <div className="text-[10px] uppercase tracking-wider text-faint mt-4 mb-2">Recommended for {sys}</div>
-        <div className="space-y-1.5">{list.map((s,i)=>
-          <div key={i} className="flex items-center gap-2 text-sm text-charcoal/85">
-            <Icon name="check" size={13} style={{color:c.hue}} className="shrink-0"/>{s}</div>)}</div>
+        <div className="text-[10px] uppercase tracking-wider text-faint mt-4 mb-2">
+          Recommended for {sys} · aiming {TIERS[tier][0]}</div>
+
+        <div className="space-y-2">{list.map((raw,i)=>{
+          const p=parseSubject(raw);
+          const id=c.name+'|'+i;
+          const open=openSub===id;
+          // Grade already written into the entry wins; otherwise use the
+          // library's target for the tier being aimed at.
+          // Subject-specific bands are written on the A-level scale; every other
+          // system uses its own grading, so fall back to that system's scale.
+          const target = p.grade
+            || (sys==='A-Level (UK)' && p.info ? p.info.grades[tier] : (SYSTEM_GRADES[sys]||[])[tier])
+            || null;
+          return <div key={i} className="rounded-xl2 border border-line overflow-hidden">
+            <div className="flex items-center gap-2 px-3 py-2.5">
+              <Icon name="check" size={13} style={{color:c.hue}} className="shrink-0"/>
+              <span className="flex-1 text-sm text-charcoal/85 min-w-0">{p.bare}</span>
+              {target && <span className="text-[11px] font-bold rounded-full px-2 py-0.5 shrink-0 tnum"
+                style={{background:c.hue+'1A',color:c.hue}}>{target}</span>}
+              {p.info && <button onClick={()=>setOpenSub(open?null:id)}
+                className="text-[11px] font-semibold shrink-0 whitespace-nowrap" style={{color:c.hue}}>
+                {open?'Close':'Options'}</button>}
+            </div>
+            {open && p.info && <div className="px-3 pb-3 anim-fadeUp border-t border-line pt-3 space-y-3">
+              <div className="text-[12.5px] text-muted leading-relaxed">{p.info.why}</div>
+              {/* what the chosen board changes */}
+              <div>
+                <div className="text-[10px] uppercase tracking-wider text-faint mb-1">On {board}</div>
+                <div className="rounded-xl px-3 py-2 text-[12.5px] text-charcoal/85 leading-relaxed"
+                  style={{background:c.hue+'0F'}}>{p.info.boards[sys]||'No board-specific difference worth worrying about.'}</div>
+              </div>
+              {/* the swap-out list */}
+              <div>
+                <div className="text-[10px] uppercase tracking-wider text-faint mb-1">If your school does not offer it</div>
+                <ul className="space-y-1.5">{p.info.alts.map((a,j)=>
+                  <li key={j} className="flex items-start gap-2 text-[12.5px] text-charcoal/85 leading-snug">
+                    <Icon name="refresh" size={12} className="mt-0.5 shrink-0" style={{color:c.hue}}/>{a}</li>)}</ul>
+              </div>
+            </div>}
+          </div>; })}</div>
+
         <div className="mt-4 rounded-xl px-3 py-2.5 text-xs text-charcoal/80 flex gap-2" style={{background:c.hue+'0F'}}>
           <Icon name="bulb" size={13} className="mt-0.5 shrink-0" style={{color:c.hue}}/>{c.tip}</div>
       </Card>; })}
       {!shown.length && <div className="md:col-span-2 text-center text-sm text-muted py-8">No careers match that search.</div>}
     </div>
+
+    <Card hover={false} className="mt-4">
+      <Eyebrow className="mb-2">A word on grades</Eyebrow>
+      <p className="text-sm text-muted leading-relaxed">
+        The grades above are the level competitive applicants typically hold, not published cut-offs.
+        A grade below them does not close a door: contextual offers, foundation years and post-results
+        routes all exist. Check each university's own page, which is the only binding source.</p>
+    </Card>
   </AppShell>;
 }
 
