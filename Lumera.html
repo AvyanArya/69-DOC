@@ -494,6 +494,38 @@
 <script type="text/babel" data-presets="react">
 const { useState, useEffect, useRef, useMemo, useCallback, useReducer, createContext, useContext, Fragment } = React;
 
+/* ============================================================
+   Brand assets
+   Uploaded artwork (the logo and the five character illustrations) is stored
+   as data URLs under one key, editable from the admin portal. Anything not
+   uploaded falls back to the built-in SVG, so the app is never broken by a
+   missing file.
+   ============================================================ */
+const ASSET_KEY='lumera_assets';
+const ASSET_SLOTS = [
+  { k:'logo',           label:'Lumera logo',        hint:'The wave-and-star mark. Square or wide, transparent PNG or SVG.' },
+  { k:'logoWordmark',   label:'Full lockup',        hint:'Mark plus LUMERA wordmark plus tagline. Used on sign-in and the landing hero.' },
+  { k:'mascot_lumera',  label:'Lumi · Lumera',      hint:'Violet character with the halo.' },
+  { k:'mascot_leaf',    label:'Sprout · Leaf',      hint:'Seedling character.' },
+  { k:'mascot_atlas',   label:'Nova · Atlas',       hint:'Starfield character with the orbital ring.' },
+  { k:'mascot_shield',  label:'Sentinel · Shield',  hint:'Armoured character with the gold shield.' },
+  { k:'mascot_forge',   label:'Blaze · Forge',      hint:'Flame character.' },
+];
+function loadAssets(){
+  try{ const a=JSON.parse(localStorage.getItem(ASSET_KEY)); if(a&&typeof a==='object') return a; }catch(e){}
+  return {};
+}
+function useAssets(){
+  const [a,setA]=useState(loadAssets);
+  useEffect(()=>{
+    const h=(e)=>{ if(!e||e.key===ASSET_KEY) setA(loadAssets()); };
+    window.addEventListener('storage',h);
+    let bc; try{ bc=new BroadcastChannel(ASSET_KEY); bc.onmessage=()=>setA(loadAssets()); }catch(e){}
+    return ()=>{ window.removeEventListener('storage',h); try{ bc&&bc.close(); }catch(e){} };
+  },[]);
+  return a;
+}
+
 class ErrorBoundary extends React.Component {
   constructor(p){ super(p); this.state={err:null}; this._onHash=()=>{ if(this.state.err) this.setState({err:null}); }; }
   static getDerivedStateFromError(e){ return {err:e}; }
@@ -1472,6 +1504,12 @@ function Icon({ name, size=20, sw=1.7, className='', style }){
    the middle, rising into a four-point star. */
 const LUMERA_STRANDS = 10;
 function LumeraMark({ size=40, glow=true, idSuffix='' }){
+  const assets=useAssets();
+  // Uploaded artwork wins. The SVG below is the fallback so the brand never
+  // disappears just because nothing has been uploaded yet.
+  if(assets.logo) return <img src={assets.logo} alt="Lumera" width={size} height={size}
+    style={{width:size, height:size, objectFit:'contain', display:'block',
+      filter:glow?'drop-shadow(0 2px 10px rgba(139,92,246,.35))':undefined}}/>;
   const uid='lm'+idSuffix+size;
   const GAP=2.3;
   // Ten evenly spaced strands sweeping an S-curve: gold tails, violet body,
@@ -3013,9 +3051,17 @@ const GUIDE = {
 };
 // Individualised caped-superhero SVG, each product has a distinct head/silhouette.
 function Mascot({ kind='lumera', color='#8B5CF6', emoji='🦉', size=58 }){
+  const assets=useAssets();
+  // Uploaded character art replaces the drawn figure entirely, keeping the
+  // float animation and the world-coloured glow so it still sits in the shell.
+  const art=assets['mascot_'+kind];
+  if(art) return <span className="mascot inline-block" style={{width:size, height:size*110/80, lineHeight:0,
+      filter:`drop-shadow(0 8px 16px ${color}66)`}}>
+    <img src={art} alt="" aria-hidden="true" draggable="false"
+      style={{width:'100%', height:'100%', objectFit:'contain', display:'block'}}/>
+  </span>;
   const gid='mg'+color.replace('#','');
-  // Four distinct characters, one per world: Lumi the owl, Sprout the seedling,
-  // Nova the satellite, Sentinel the knight and Blaze the flame.
+  // Fallback figures, one per world: Lumi, Sprout, Nova, Sentinel and Blaze.
   const TOP = {
     lumera: <g><path d="M20 14 L23 -10 L35 12 Z" fill={`url(#${gid})`}/><path d="M52 14 L49 -10 L37 12 Z" fill={`url(#${gid})`}/>
       <path d="M23 -10 L25 -2 L29 4 Z" fill="#fff" opacity=".25"/><path d="M49 -10 L47 -2 L43 4 Z" fill="#fff" opacity=".25"/></g>,
@@ -3405,12 +3451,38 @@ function Benchmarks(){
     <div className="mt-4"><Disclaimer compact/></div>
   </AppShell>;
 }
+// A wide brand plate used at the top of the recommendations page. Uses the
+// full lockup if uploaded, then the mark, then a labelled empty slot.
+function BrandBanner(){
+  const assets=useAssets();
+  const art = assets.logoWordmark || assets.logo;
+  return <div className="relative overflow-hidden rounded-xl3 mb-5 px-6 py-7 text-center"
+    style={{background:'linear-gradient(135deg, rgb(var(--c-gold)/.16), transparent 65%), rgb(var(--c-card))',
+      border:'1px solid rgb(var(--c-line))'}}>
+    <div className="absolute inset-0 opacity-[.07] pointer-events-none"
+      style={{backgroundImage:'radial-gradient(circle,currentColor 1.2px,transparent 1.3px)',backgroundSize:'22px 22px'}}/>
+    <div className="relative">
+      {art
+        ? <img src={art} alt="Lumera" className="mx-auto max-h-24 object-contain"/>
+        : <div className="mx-auto max-w-sm rounded-xl2 border-2 border-dashed px-5 py-6"
+            style={{borderColor:'rgb(var(--c-gold)/.45)'}}>
+            <LumeraMark size={44}/>
+            <div className="text-[11px] uppercase tracking-[.2em] text-faint mt-3">Logo slot</div>
+            <div className="text-xs text-muted mt-1">Upload the Lumera lockup in Admin → Brand &amp; characters.</div>
+          </div>}
+      <p className="lede text-sm text-muted mt-3">Every recommendation below is built from your own figures.</p>
+    </div>
+  </div>;
+}
 function Recommendations(){
   const app=useApp(); const fmt=app.fmt; const m=app.metrics;
   const insights = useMemo(()=>deriveInsights(m, fmt),[m,fmt]);
   return <AppShell>
     <PageHead eyebrow="AI recommendations" title="What to do next, and why."
       desc="Prioritised actions built from your own numbers. Each one explains the reasoning, so you are never asked to trust a black box."/>
+    {/* Branded banner. Drops in the uploaded logo when there is one, and shows
+        a clearly-marked slot when there is not, so it never looks broken. */}
+    <BrandBanner/>
     <div className="grid md:grid-cols-2 gap-4">
       {insights.map((ins,i)=><Card key={i}>
         <div className="flex items-start gap-3">

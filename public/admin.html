@@ -163,6 +163,7 @@
       <button class="navi" data-tab="news">📰 News feed</button>
       <button class="navi" data-tab="offers">🎁 Discounts &amp; offers</button>
       <button class="navi" data-tab="about">👥 About &amp; team</button>
+      <button class="navi" data-tab="brand">🎨 Brand &amp; characters</button>
     </div>
     <div class="navg">
       <div class="label">Product</div>
@@ -206,8 +207,8 @@ const ROLE_KEY_HASHES = {
 };
 const ROLES = {
   founder:  { label:'Founder',                badge:'role-founder',  scope:['*'] },
-  ops:      { label:'Operations Associate',   badge:'role-ops',      scope:['dashboard','insights','usage','updates','news','about','permissions'] },
-  product:  { label:'Product Dev Associate',  badge:'role-product',  scope:['dashboard','feedback','features','updates','about','permissions'] },
+  ops:      { label:'Operations Associate',   badge:'role-ops',      scope:['dashboard','insights','usage','updates','news','about','brand','permissions'] },
+  product:  { label:'Product Dev Associate',  badge:'role-product',  scope:['dashboard','feedback','features','updates','about','brand','permissions'] },
   research: { label:'Innovation & Research',  badge:'role-research', scope:['dashboard','trends','market','news','offers','permissions'] },
   beta:     { label:'Beta Tester',            badge:'role-beta',     scope:[] },
 };
@@ -366,7 +367,7 @@ function render(){
   if(!ACTIVE_TAB) return;
   ({ dashboard:renderDashboard, insights:renderInsights, usage:renderUsage, updates:renderUpdates, news:renderNews,
      offers:renderOffers, feedback:renderFeedback, features:renderFeatures, trends:renderTrends, market:renderMarket,
-     about:renderAbout, permissions:renderPermissions }[ACTIVE_TAB] || renderDashboard)();
+     about:renderAbout, brand:renderBrand, permissions:renderPermissions }[ACTIVE_TAB] || renderDashboard)();
   document.getElementById('updatedAt').textContent = `Updated ${new Date().toLocaleTimeString()}`;
 }
 
@@ -629,7 +630,7 @@ function renderMarket(){
   C.innerHTML=`${pageHead('Market tracker','Quick-links into the live external dashboards Lumera surfaces.')}
     <div class="row cols-2">${[['Reuters Markets','https://www.reuters.com/markets/'],['Bloomberg Markets','https://www.bloomberg.com/markets'],['FRED','https://fred.stlouisfed.org/'],['Trading Economics','https://tradingeconomics.com/'],['CFR Conflict Tracker','https://www.cfr.org/global-conflict-tracker'],['Freightos FBX','https://fbx.freightos.com/'],['MarineTraffic','https://www.marinetraffic.com/'],['Zoom Earth','https://zoom.earth/']].map(([n,u])=>`<div class="card"><div class="eyebrow">${escapeHtml(n)}</div><a class="btn" href="${u}" target="_blank" rel="noopener noreferrer">Open ↗</a></div>`).join('')}</div>`; }
 
-function renderPermissions(){ const tabs=['dashboard','insights','usage','updates','news','offers','about','feedback','features','trends','market','permissions'];
+function renderPermissions(){ const tabs=['dashboard','insights','usage','updates','news','offers','about','brand','feedback','features','trends','market','permissions'];
   C.innerHTML=`${pageHead('Permissions','Matrix of which role can access which section. Founder-only edits.')}
     <div class="card" style="overflow-x:auto;"><table><thead><tr><th>Section</th>${Object.values(ROLES).map(r=>`<th style="text-align:center;">${r.label}</th>`).join('')}</tr></thead>
       <tbody>${tabs.map(tab=>`<tr><td style="font-weight:500;">${tab}</td>${Object.values(ROLES).map(r=>{const has=r.scope.includes('*')||r.scope.includes(tab);return `<td style="text-align:center;">${has?'<span style="color:var(--saged);font-size:18px;">✓</span>':'<span style="color:var(--faint);">·</span>'}</td>`;}).join('')}</tr>`).join('')}</tbody></table></div>
@@ -721,6 +722,68 @@ function uploadPhoto(i,input){ const f=input.files&&input.files[0]; if(!f) retur
   const r=new FileReader();
   r.onload=()=>{ const a=getAbout(); readMember(a,i); a.team[i].photo=r.result; putAbout(a); render(); };
   r.readAsDataURL(f); }
+
+
+/* ============================================================
+   Brand & characters — uploads the logo and the five character
+   illustrations into localStorage['lumera_assets'] as data URLs.
+   ============================================================ */
+const ASSETS='lumera_assets';
+const ASSET_SLOTS=[
+  ['logo','Lumera logo','The wave-and-star mark on its own. Square, transparent PNG or SVG. Used in the sidebar, header and sign-in.'],
+  ['logoWordmark','Full lockup','Mark + LUMERA + tagline. Used on the AI Recommendations banner.'],
+  ['mascot_lumera','Lumi · Lumera','Violet character with the halo. Transparent PNG works best.'],
+  ['mascot_leaf','Sprout · Leaf','Green seedling character.'],
+  ['mascot_atlas','Nova · Atlas','Blue starfield character with the orbital ring.'],
+  ['mascot_shield','Sentinel · Shield','Grey armoured character with the gold shield.'],
+  ['mascot_forge','Blaze · Forge','Orange flame character.'],
+];
+const ASSET_TINT={logo:'#8B5CF6',logoWordmark:'#8B5CF6',mascot_lumera:'#8B5CF6',mascot_leaf:'#22C55E',
+  mascot_atlas:'#3B82F6',mascot_shield:'#64748B',mascot_forge:'#D97706'};
+function getAssets(){ return loadJSON(ASSETS,{})||{}; }
+function putAssets(a){ saveJSON(ASSETS,a); broadcast(ASSETS); }
+function renderBrand(){ const a=getAssets();
+  const filled=ASSET_SLOTS.filter(([k])=>a[k]).length;
+  C.innerHTML=`${pageHead('Brand &amp; characters','Upload the logo and the five character illustrations. They replace the built-in drawings everywhere in the app the moment you save. Transparent PNGs look best; anything not uploaded keeps its fallback drawing.')}
+    <div class="row cols-4" style="margin-bottom:14px;">
+      <div class="card kpi"><div class="v" style="color:var(--saged)">${filled}</div><div class="l">Uploaded</div></div>
+      <div class="card kpi"><div class="v" style="color:var(--faint)">${ASSET_SLOTS.length-filled}</div><div class="l">Still placeholder</div></div>
+      <div class="card kpi"><div class="v">${ASSET_SLOTS.length}</div><div class="l">Total slots</div></div>
+      <div class="card kpi"><div class="v" style="font-size:15px;line-height:1.35">${Math.round(JSON.stringify(a).length/1024)} KB</div><div class="l">Stored size</div></div>
+    </div>
+    <div class="row cols-3">${ASSET_SLOTS.map(([k,label,hint])=>assetCard(a,k,label,hint)).join('')}</div>
+    <div class="card" style="margin-top:14px;">
+      <div class="eyebrow">Notes</div>
+      <p class="page-desc" style="margin:6px 0 0;">Artwork is stored in this browser as data URLs, so keep each file under about 400&nbsp;KB.
+      Square images with transparent backgrounds sit best in the app: the coloured tiles behind each character come from the product theme,
+      so art with its own solid background will show as a block.</p>
+    </div>`;
+}
+function assetCard(a,k,label,hint){
+  const tint=ASSET_TINT[k]||'#8B5CF6'; const src=a[k];
+  return `<div class="card" style="padding:14px;">
+    <div style="aspect-ratio:1/1;border-radius:12px;display:grid;place-items:center;margin-bottom:10px;overflow:hidden;
+      background:linear-gradient(140deg,${tint}22,${tint}08);border:${src?`1px solid var(--line)`:`2px dashed ${tint}77`};">
+      ${src?`<img src="${escapeHtml(src)}" alt="" style="max-width:88%;max-height:88%;object-fit:contain;"/>`
+           :`<div style="text-align:center;padding:12px;">
+               <div style="font-size:26px;opacity:.5;">🖼️</div>
+               <div class="faint" style="font-size:11px;margin-top:6px;">Placeholder</div></div>`}
+    </div>
+    <div style="font-weight:600;font-size:14px;">${escapeHtml(label)}</div>
+    <p class="faint" style="font-size:11.5px;margin:4px 0 10px;line-height:1.5;">${escapeHtml(hint)}</p>
+    <input type="file" accept="image/*" id="as_${k}" style="display:none" onchange="uploadAsset('${k}',this)"/>
+    <div style="display:flex;gap:8px;">
+      <button class="btn gold" style="flex:1" onclick="document.getElementById('as_${k}').click()">${src?'Replace':'Upload'}</button>
+      ${src?`<button class="btn ghost" onclick="clearAsset('${k}')">Remove</button>`:''}
+    </div>
+  </div>`;
+}
+function uploadAsset(k,input){ const f=input.files&&input.files[0]; if(!f) return;
+  if(f.size>600000){ alert('That image is '+Math.round(f.size/1024)+' KB. Please use one under 600 KB — artwork is stored in this browser.'); input.value=''; return; }
+  const r=new FileReader();
+  r.onload=()=>{ const a=getAssets(); a[k]=r.result; putAssets(a); render(); };
+  r.readAsDataURL(f); }
+function clearAsset(k){ const a=getAssets(); delete a[k]; putAssets(a); render(); }
 
 function closeModal(){ const m=document.getElementById('modal'); if(m) m.remove(); }
 function broadcast(ch){ try{ const bc=new BroadcastChannel(ch); bc.postMessage({}); bc.close(); }catch(e){} }
