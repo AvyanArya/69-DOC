@@ -6575,8 +6575,10 @@ function LeafQuiz(){
           <div className="font-serif text-3xl mt-1" style={{color:c}}>{v}</div></Card>)}
     </div></AppShell>;
   return <AppShell>
-    {/* Full-bleed colourful quiz: the question owns the page, no wasted space. */}
-    <div className="relative overflow-hidden rounded-xl3 mb-4 px-6 py-5 text-white" style={{background:`linear-gradient(135deg,${hue},${hue}AA)`}}>
+    {/* The card fills the viewport: one question owns the whole screen rather
+        than floating in a short box with dead space beneath it. */}
+    <div className="flex flex-col" style={{minHeight:'calc(100vh - 150px)'}}>
+    <div className="relative overflow-hidden rounded-xl3 mb-4 px-6 py-5 text-white shrink-0" style={{background:`linear-gradient(135deg,${hue},${hue}AA)`}}>
       <div className="absolute -top-12 -right-6 h-36 w-36 rounded-full bg-white/20 blur-2xl"/>
       <div className="relative flex flex-wrap items-center justify-between gap-4">
         <div>
@@ -6592,23 +6594,24 @@ function LeafQuiz(){
       <div className="relative h-2 rounded-full mt-4 overflow-hidden" style={{background:'rgba(255,255,255,.25)'}}>
         <div className="h-full rounded-full transition-all duration-500" style={{width:((i+(answered?1:0))/bank.length*100)+'%',background:'#fff'}}/></div>
     </div>
-    <Card className="!p-6 sm:!p-8">
-      <div className="font-serif text-2xl sm:text-3xl text-charcoal mb-6 leading-snug text-center max-w-3xl mx-auto">{q[0]}</div>
-      <div className="grid sm:grid-cols-2 gap-3 max-w-4xl mx-auto">{q[1].map((opt,n)=>{ const correct=n===q[2]; const chosen=n===pick;
-        const base='rounded-xl2 border-2 p-4 text-left transition-all duration-200 flex items-start gap-3 h-full';
+    <Card className="!p-6 sm:!p-10 flex-1 flex flex-col justify-center">
+      <div className="font-serif text-3xl sm:text-4xl text-charcoal mb-8 leading-snug text-center max-w-3xl mx-auto">{q[0]}</div>
+      <div className="grid sm:grid-cols-2 gap-4 max-w-4xl mx-auto w-full flex-1 content-stretch" style={{maxHeight:340}}>{q[1].map((opt,n)=>{ const correct=n===q[2]; const chosen=n===pick;
+        const base='rounded-xl2 border-2 p-5 sm:p-6 text-left transition-all duration-200 flex gap-3.5 h-full min-h-[110px] items-center lift halo';
         const style=!answered?{borderColor:'rgb(var(--c-line))'}
           :correct?{borderColor:'#16A34A',background:'rgba(22,163,74,.10)'}
           :chosen?{borderColor:'#DC2626',background:'rgba(220,38,38,.08)'}:{borderColor:'rgb(var(--c-line))',opacity:.5};
         return <button key={n} onClick={()=>choose(n)} className={base} style={style}>
-          <span className="grid place-items-center h-8 w-8 rounded-xl shrink-0 text-sm font-bold"
+          <span className="grid place-items-center h-11 w-11 rounded-xl2 shrink-0 text-base font-bold transition-all"
             style={answered&&correct?{background:'#16A34A',color:'#fff'}:answered&&chosen?{background:'#DC2626',color:'#fff'}:{background:hue+'1A',color:hue}}>
             {answered&&correct?'✓':answered&&chosen?'✕':String.fromCharCode(65+n)}</span>
-          <span className="text-charcoal text-base leading-snug">{opt}</span></button>; })}</div>
+          <span className="text-charcoal text-base sm:text-lg leading-snug">{opt}</span></button>; })}</div>
       {answered && <div className="mt-5 max-w-3xl mx-auto rounded-xl2 p-4 text-sm leading-relaxed anim-pop"
         style={pick===q[2]?{background:'rgba(22,163,74,.10)',border:'1px solid rgba(22,163,74,.30)'}:{background:'rgba(220,38,38,.08)',border:'1px solid rgba(220,38,38,.28)'}}>
         <b className="text-charcoal">{pick===q[2]?'Correct. ':'Not quite. '}</b><span className="text-charcoal/85">{q[3]}</span></div>}
-      {answered && <div className="max-w-3xl mx-auto"><button onClick={next} className="btn w-full mt-4 py-3.5 text-base text-white" style={{background:`linear-gradient(135deg,${hue},${hue}CC)`}}>{i+1>=bank.length?'See my score':'Next question'} <Icon name="arrowR" size={16}/></button></div>}
-    </Card></AppShell>;
+      {answered && <div className="max-w-3xl mx-auto w-full"><button onClick={next} className="btn w-full mt-5 py-4 text-base text-white nudge" style={{background:`linear-gradient(135deg,${hue},${hue}CC)`}}>{i+1>=bank.length?'See my score':'Next question'} <Icon name="arrowR" size={16}/></button></div>}
+    </Card>
+    </div></AppShell>;
 }
 /* Word of the Day with Anki-style spaced repetition.
    Each word carries a box (1-5). Correct answers promote it and push the next
@@ -7463,6 +7466,49 @@ const PREP_SKILLS=[
 ];
 /* Career Prep Hub: each skill is a training module you can level up, with a
    visible mastery bar so progress feels earned rather than listed. */
+// Each skill is a tool you forge onto the bench. Three tiers = three stages of
+// the tool being built, and a finished belt is an interview-ready kit.
+const PREP_TOOLS = [
+  { tool:'Calculator', verb:'Calibrated', shape:'calc' },
+  { tool:'Calipers',   verb:'Machined',   shape:'caliper' },
+  { tool:'Set square', verb:'Trued',      shape:'square' },
+  { tool:'Loupe',      verb:'Ground',     shape:'loupe' },
+  { tool:'Wrench',     verb:'Tempered',   shape:'wrench' },
+];
+// One SVG per tool. `fill` (0..1) is how much of it has been forged: unbuilt
+// parts stay as a faint outline, so a half-done tool reads as half-done.
+function PrepTool({ shape, hue='#8B5CF6', fill=0, size=54 }){
+  const uid='pt'+shape+size;
+  const on = fill>0 ? hue : 'currentColor';
+  const D = {
+    calc:   <g><rect x="16" y="8" width="32" height="48" rx="5"/><rect x="21" y="14" width="22" height="10" rx="2"/>
+              <circle cx="24" cy="32" r="2.6"/><circle cx="32" cy="32" r="2.6"/><circle cx="40" cy="32" r="2.6"/>
+              <circle cx="24" cy="41" r="2.6"/><circle cx="32" cy="41" r="2.6"/><circle cx="40" cy="41" r="2.6"/>
+              <circle cx="24" cy="50" r="2.6"/><circle cx="32" cy="50" r="2.6"/><circle cx="40" cy="50" r="2.6"/></g>,
+    caliper:<g><rect x="10" y="26" width="44" height="7" rx="2"/><rect x="14" y="16" width="7" height="12" rx="2"/>
+              <rect x="40" y="16" width="7" height="12" rx="2"/><rect x="17" y="33" width="6" height="20" rx="2"/>
+              <path d="M26 30 h14" strokeWidth="2"/></g>,
+    square: <g><path d="M14 12 L14 52 L52 52 Z"/><path d="M20 46 h6 M28 46 h6 M36 46 h6" strokeWidth="2"/>
+              <path d="M18 40 v-6 M18 30 v-6" strokeWidth="2"/></g>,
+    loupe:  <g><circle cx="28" cy="26" r="14"/><path d="M38 37 L52 52" strokeWidth="5" strokeLinecap="round"/>
+              <path d="M22 22 a8 8 0 0 1 7-4" strokeWidth="2"/></g>,
+    wrench: <g><path d="M44 12 a11 11 0 1 0 8 19 l-2 2 -20 20 a6 6 0 1 1-8-8 l20-20 2-2 a11 11 0 0 1 0-11 Z"/>
+              <circle cx="20" cy="48" r="2.4"/></g>,
+  };
+  return <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden="true"
+    style={{color:'rgb(var(--c-taupe))', filter:fill>0?`drop-shadow(0 3px 8px ${hue}55)`:'none'}}>
+    <defs>
+      {/* Reveal the forged part from the bottom up */}
+      <linearGradient id={uid} x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0" stopColor={hue}/><stop offset={fill} stopColor={hue}/>
+        <stop offset={Math.min(1,fill+0.001)} stopColor="rgb(var(--c-taupe))"/>
+        <stop offset="1" stopColor="rgb(var(--c-taupe))"/>
+      </linearGradient>
+    </defs>
+    <g fill="none" stroke={fill>0?`url(#${uid})`:'currentColor'} strokeWidth="2.6"
+       strokeLinejoin="round" opacity={fill>0?1:.45}>{D[shape]||D.wrench}</g>
+  </svg>;
+}
 const PREP_KEY='lumera_prep_tiers';
 const PREP_HUES=['#8B5CF6','#0EA5E9','#16A34A','#D97706','#DB2777'];
 function CareerPrepHub(){
@@ -7474,46 +7520,104 @@ function CareerPrepHub(){
   const levelOf=(name)=>tiers[name]||0;
   const totalPct=Math.round(PREP_SKILLS.reduce((a,s)=>a+levelOf(s[0]),0)/(PREP_SKILLS.length*3)*100);
   const RANK = totalPct>=100?'Interview-ready' : totalPct>=67?'Advanced' : totalPct>=34?'Intermediate' : totalPct>0?'Foundational' : 'Not started';
+  const forged = PREP_SKILLS.filter(s=>levelOf(s[0])===3).length;
   return <AppShell>
-    {/* Training-floor hero with overall mastery */}
-    <div className="relative overflow-hidden rounded-xl3 mb-5 p-6 sm:p-8" style={{background:'linear-gradient(140deg,#1E1B4B 0%,#312E81 50%,#0F172A 100%)'}}>
-      {[0,1,2,3].map(i=><span key={i} className="lab-drift absolute rounded-full"
-        style={{left:(12+i*24)+'%', top:(16+((i*31)%56))+'%', width:8+i*4, height:8+i*4,
-          background:PREP_HUES[i%PREP_HUES.length], opacity:.3, filter:'blur(7px)', animationDelay:(i*1.7)+'s'}}/>)}
-      <div className="relative flex flex-wrap items-center gap-8">
-        <div className="flex-1 min-w-[250px]">
-          <div className="text-[11px] font-bold uppercase tracking-[.24em]" style={{color:'rgba(255,255,255,.7)'}}>Forge · Career prep hub</div>
-          <h1 className="font-serif text-3xl sm:text-4xl mt-1" style={{color:'#fff'}}>The skills interviews actually test.</h1>
-          <p className="text-sm mt-2 max-w-lg" style={{color:'rgba(255,255,255,.8)'}}>Five high-leverage skills, three tiers each. Tick a tier when you can genuinely do it and watch your mastery climb.</p>
+    {/* ===== THE WORKBENCH =====
+        A pegboard wall with five tools hanging on it. Each tool fills in from
+        the bottom as you complete its tiers, and a full belt is a finished kit. */}
+    <div className="relative overflow-hidden rounded-xl3 mb-5 p-6 sm:p-8"
+      style={{background:'linear-gradient(160deg,#2A2118 0%,#1A1410 55%,#0E0B08 100%)'}}>
+      {/* pegboard holes */}
+      <div className="absolute inset-0 opacity-[.16] pointer-events-none"
+        style={{backgroundImage:'radial-gradient(circle, #E8D9BE 1.5px, transparent 1.6px)', backgroundSize:'26px 26px'}}/>
+      {/* warm lamp wash from the top-left of the bench */}
+      <div className="absolute -top-24 -left-16 h-72 w-72 rounded-full pointer-events-none"
+        style={{background:'radial-gradient(circle, rgba(251,191,36,.30), transparent 70%)', filter:'blur(18px)'}}/>
+
+      <div className="relative">
+        <div className="text-[11px] font-bold uppercase tracking-[.24em]" style={{color:'rgba(255,255,255,.65)'}}>Forge · Career prep hub</div>
+        <h1 className="font-serif text-3xl sm:text-4xl mt-1" style={{color:'#F7EFE0'}}>Build your kit, one tool at a time.</h1>
+        <p className="text-sm mt-2 max-w-xl" style={{color:'rgba(247,239,224,.75)'}}>
+          Five tools hang on this bench. Forge all three tiers of a tool and it is yours for good.
+          A full belt is what walks into the interview.</p>
+
+        {/* the rack */}
+        <div className="mt-7 flex flex-wrap items-end justify-center gap-6 sm:gap-9">
+          {PREP_SKILLS.map((sk,si)=>{ const hue=PREP_HUES[si%PREP_HUES.length]; const lvl=levelOf(sk[0]);
+            const t=PREP_TOOLS[si%PREP_TOOLS.length]; const f=lvl/3;
+            return <button key={sk[0]} onClick={()=>setSel(sk)} title={`${sk[0]} · tier ${lvl} of 3`}
+              className="group flex flex-col items-center gap-2 transition-transform hover:-translate-y-1">
+              {/* peg hook */}
+              <span className="h-4 w-px" style={{background:'rgba(247,239,224,.35)'}}/>
+              <span className={cx('grid place-items-center rounded-xl2 p-2 transition-all duration-500', lvl===3&&'floaty')}
+                style={{background:lvl?`linear-gradient(160deg, ${hue}26, transparent)`:'rgba(255,255,255,.03)',
+                  border:`1px solid ${lvl===3?hue:'rgba(247,239,224,.14)'}`,
+                  boxShadow:lvl===3?`0 8px 26px ${hue}44`:'none'}}>
+                <PrepTool shape={t.shape} hue={hue} fill={f} size={50}/>
+              </span>
+              <span className="text-[10px] font-semibold uppercase tracking-wider"
+                style={{color:lvl===3?hue:'rgba(247,239,224,.55)'}}>{t.tool}</span>
+              <span className="flex gap-1">{[0,1,2].map(n=>
+                <span key={n} className="h-1 w-4 rounded-full transition-all duration-300"
+                  style={{background:n<lvl?hue:'rgba(247,239,224,.18)'}}/>)}</span>
+            </button>; })}
         </div>
-        <div className="text-center">
-          <ScoreRing value={totalPct} size={132} stroke={12} label="mastery" color="#A78BFA"/>
-          <div className="text-xs mt-2 font-semibold" style={{color:'rgba(255,255,255,.9)'}}>{RANK}</div>
+
+        {/* the belt: one filling strap across the bench */}
+        <div className="mt-8 max-w-2xl mx-auto">
+          <div className="flex items-end justify-between mb-2">
+            <div>
+              <div className="text-[10px] uppercase tracking-[.2em]" style={{color:'rgba(247,239,224,.55)'}}>Toolbelt</div>
+              <div className="font-serif text-2xl" style={{color:'#F7EFE0'}}>{RANK}</div>
+            </div>
+            <div className="text-right">
+              <div className="font-serif text-3xl tnum" style={{color:'#FBBF24'}}>{totalPct}%</div>
+              <div className="text-[10px] uppercase tracking-wider" style={{color:'rgba(247,239,224,.55)'}}>
+                {forged} of {PREP_SKILLS.length} tools finished</div>
+            </div>
+          </div>
+          <div className="h-3 rounded-full overflow-hidden" style={{background:'rgba(247,239,224,.12)'}}>
+            <div className="h-full rounded-full transition-all duration-[1200ms] shimmer-bar"
+              style={{width:Math.max(2,totalPct)+'%', background:'linear-gradient(90deg,#8B5CF6,#0EA5E9,#16A34A,#D97706)'}}/>
+          </div>
+          {totalPct>=100 && <div className="text-center text-sm mt-3 anim-pop" style={{color:'#FBBF24'}}>
+            🔨 Kit complete. Every tool forged, go and use them.</div>}
         </div>
       </div>
     </div>
 
-    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">{PREP_SKILLS.map((s,si)=>{
-      const hue=PREP_HUES[si%PREP_HUES.length]; const lvl=levelOf(s[0]); const pctS=Math.round(lvl/3*100);
-      return <Card key={s[0]} className="flex flex-col" style={{borderTop:`3px solid ${hue}`}}>
-        <div className="flex items-start justify-between">
-          <span className="grid place-items-center h-12 w-12 rounded-xl text-2xl" style={{background:hue+'1A',color:hue}}>{s[1]}</span>
-          <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2 py-1"
-            style={lvl===3?{background:hue,color:'#fff'}:{background:hue+'18',color:hue}}>{lvl===3?'Mastered':`Tier ${lvl}/3`}</span>
-        </div>
-        <div className="font-serif text-lg text-charcoal mt-3">{s[0]}</div>
-        <p className="text-sm text-muted mt-1 leading-relaxed flex-1">{s[2]}</p>
-        {/* three-segment mastery bar you can click */}
-        <div className="flex gap-1.5 mt-3">{[0,1,2].map(t=>
-          <button key={t} onClick={()=>setTier(s[0],t)} title={s[3][t][0]}
-            className="h-2.5 flex-1 rounded-full transition-all duration-300"
-            style={t<lvl?{background:hue}:{background:'rgb(var(--c-sand))'}}/>)}</div>
-        <div className="flex items-center justify-between mt-2">
-          <span className="text-[11px] text-faint">{pctS}% complete</span>
-          <button onClick={()=>setSel(s)} className="text-xs font-semibold flex items-center gap-1" style={{color:hue}}>
-            Open roadmap <Icon name="arrowR" size={12}/></button>
-        </div>
-      </Card>; })}</div>
+    {/* ===== THE CRATES ===== one per tool, styled as a workshop crate ===== */}
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger row-center cols-3" style={{'--rg':'1rem'}}>
+      {PREP_SKILLS.map((sk,si)=>{
+        const hue=PREP_HUES[si%PREP_HUES.length]; const lvl=levelOf(sk[0]);
+        const t=PREP_TOOLS[si%PREP_TOOLS.length]; const pctS=Math.round(lvl/3*100);
+        return <Card key={sk[0]} className="flex flex-col halo tilt" style={{'--glow':hexToRgbList(hue), borderTop:`3px solid ${hue}`}}>
+          <div className="flex items-start justify-between gap-3">
+            <span className="grid place-items-center rounded-xl2 p-1.5 shrink-0"
+              style={{background:hue+'14', border:`1px solid ${hue}33`}}>
+              <PrepTool shape={t.shape} hue={hue} fill={lvl/3} size={44}/></span>
+            <div className="text-right">
+              <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2 py-1 inline-block"
+                style={lvl===3?{background:hue,color:'#fff'}:{background:hue+'18',color:hue}}>
+                {lvl===3?`${t.verb}`:`Tier ${lvl}/3`}</span>
+              <div className="text-[10px] text-faint mt-1.5">{t.tool}</div>
+            </div>
+          </div>
+          <div className="font-serif text-lg text-charcoal mt-3">{sk[0]}</div>
+          <p className="text-sm text-muted mt-1 leading-relaxed flex-1">{sk[2]}</p>
+
+          {/* three forge stages, clickable */}
+          <div className="flex gap-1.5 mt-3">{[0,1,2].map(n=>
+            <button key={n} onClick={()=>setTier(sk[0],n)} title={sk[3][n][0]}
+              className="h-2.5 flex-1 rounded-full transition-all duration-300"
+              style={n<lvl?{background:hue,boxShadow:`0 0 10px ${hue}66`}:{background:'rgb(var(--c-sand))'}}/>)}</div>
+          <div className="flex items-center justify-between mt-2">
+            <span className="text-[11px] text-faint tnum">{pctS}% forged</span>
+            <button onClick={()=>setSel(sk)} className="text-xs font-semibold flex items-center gap-1" style={{color:hue}}>
+              Open the plans <Icon name="arrowR" size={12}/></button>
+          </div>
+        </Card>; })}
+    </div>
 
     {sel && (()=>{ const si=PREP_SKILLS.indexOf(sel); const hue=PREP_HUES[si%PREP_HUES.length]; const lvl=levelOf(sel[0]);
       return <CareerModal eyebrow="Skill roadmap" title={sel[0]} onClose={()=>setSel(null)}
