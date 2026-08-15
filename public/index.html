@@ -6592,35 +6592,147 @@ function AboutLumera(){
   </AppShell>;
 }
 // Spinnable orthographic globe with selectable financial centres (no external libs).
-function WorldGlobe({ cities, selected, onSelect, lit }){
-  const R=150, cx=160, cy=160, tilt=18*Math.PI/180;
+/* Coarse continent outlines as [lon,lat] rings. Deliberately low-poly: enough
+   to read as the world at 380px, cheap enough to reproject every frame. */
+const LANDMASSES = [
+  // North America
+  [[-168,65],[-140,70],[-125,70],[-95,73],[-80,73],[-62,60],[-55,47],[-66,44],[-70,41],[-76,35],[-81,25],[-90,29],[-97,26],[-105,22],[-110,24],[-118,32],[-124,40],[-130,54],[-140,60],[-152,58],[-165,55],[-168,65]],
+  // Central + South America
+  [[-92,15],[-83,9],[-77,8],[-70,12],[-60,10],[-52,5],[-44,-2],[-35,-6],[-38,-13],[-48,-25],[-53,-34],[-58,-38],[-63,-42],[-68,-50],[-73,-53],[-75,-45],[-71,-33],[-70,-18],[-77,-6],[-80,0],[-84,10],[-92,15]],
+  // Europe
+  [[-10,36],[-9,43],[-2,48],[2,51],[5,53],[8,55],[11,58],[18,60],[24,60],[30,60],[38,56],[40,48],[36,45],[28,41],[23,40],[16,40],[12,38],[8,44],[3,42],[-2,37],[-10,36]],
+  // Africa
+  [[-17,15],[-16,22],[-10,30],[0,36],[10,34],[20,32],[32,31],[35,24],[38,16],[43,11],[51,12],[48,2],[41,-3],[40,-12],[35,-20],[32,-26],[27,-34],[19,-35],[15,-25],[12,-16],[9,-2],[3,5],[-5,5],[-13,9],[-17,15]],
+  // Asia
+  [[38,56],[50,55],[62,55],[75,58],[90,60],[105,62],[120,62],[135,60],[145,55],[142,48],[130,43],[126,37],[122,31],[119,24],[110,20],[104,10],[98,8],[93,17],[89,22],[81,16],[77,9],[70,20],[62,25],[57,30],[50,30],[44,38],[40,42],[38,48],[38,56]],
+  // Australia
+  [[113,-22],[118,-20],[126,-14],[133,-12],[142,-11],[146,-18],[151,-24],[153,-29],[150,-37],[143,-39],[136,-35],[130,-32],[123,-34],[115,-34],[113,-27],[113,-22]],
+];
+const REGION_HUE={ Americas:'#F59E0B', EMEA:'#8B5CF6', APAC:'#22D3EE' };
+/* What is actually going on where you clicked. Editorial context rather than a
+   price: what drives this market, what to watch, and the live risks around it.
+   Deliberately factual and non-alarmist, and clearly labelled as background. */
+const CITY_BRIEF = {
+  'New York':{ drivers:['Federal Reserve rate decisions','Mega-cap technology earnings','US consumer spending'],
+    watch:'The Fed sets the tone for borrowing costs worldwide, so US rate expectations move almost every other market on this globe.',
+    risks:['Concentration: a handful of tech names dominate the index','Federal debt and budget standoffs','Election-cycle policy swings'],
+    context:'The deepest, most liquid market in the world, and the default benchmark most portfolios are measured against.' },
+  'Toronto':{ drivers:['Energy and commodity prices','Canadian banking sector','US demand for exports'],
+    watch:'Heavily weighted to financials and resources, so it tracks oil and the health of Canadian banks more than technology.',
+    risks:['Commodity price swings','Household debt levels','Close tie to the US economic cycle'],
+    context:'A resource-and-banking market, useful as a contrast to the technology-heavy US indices.' },
+  'São Paulo':{ drivers:['Commodity exports (iron ore, soy, oil)','Domestic interest rates','Currency stability'],
+    watch:'Brazil runs high interest rates by developed-market standards, so local rate moves swing valuations sharply.',
+    risks:['Currency volatility against the dollar','Political and fiscal uncertainty','Commodity dependence'],
+    context:'Latin America’s largest exchange, and a textbook emerging market: higher potential returns, materially higher volatility.' },
+  'London':{ drivers:['Global commodity and energy prices','Sterling’s exchange rate','Bank of England policy'],
+    watch:'Most FTSE 100 revenue is earned abroad, so a weaker pound can lift the index even when the UK economy is soft.',
+    risks:['Light exposure to technology','Post-Brexit trade frictions','Ageing index composition'],
+    context:'An international index that happens to be listed in London, rather than a read on the UK economy itself.' },
+  'Frankfurt':{ drivers:['German industrial output','European Central Bank policy','Export demand from China'],
+    watch:'Heavy in carmakers, chemicals and industrials, so it is one of the cleanest reads on global manufacturing demand.',
+    risks:['Energy costs since the shift away from Russian gas','Exposure to a slowing China','Auto sector transition to electric'],
+    context:'The engine room of the eurozone market, and unusually sensitive to what happens in global trade.' },
+  'Dubai':{ drivers:['Regional real estate cycles','Oil revenue across the Gulf','Population and business inflows'],
+    watch:'Property developers and banks make up most of the index, so Dubai’s housing market is effectively the market.',
+    risks:['Narrow sector mix','Regional geopolitical tension affecting sentiment and shipping','Sensitivity to oil prices'],
+    context:'A fast-growing regional hub. Relevant if you live here, but concentrated enough that it is not a diversified core holding.' },
+  'Mumbai':{ drivers:['Domestic consumption and demographics','Reserve Bank of India policy','Foreign investor flows'],
+    watch:'One of the few large markets driven mainly by its own domestic demand rather than exports.',
+    risks:['High valuations relative to peers','Currency depreciation over long periods','Regulatory change'],
+    context:'India’s benchmark, and among the most-watched growth markets in the world.' },
+  'Shanghai':{ drivers:['Government policy and stimulus','Property sector health','Manufacturing and export demand'],
+    watch:'Policy matters more here than in most markets: a single announcement can reprice whole sectors.',
+    risks:['Property developer debt','Restrictions on foreign ownership','Trade tension and export controls'],
+    context:'Large, domestically driven, and only partly open to foreign investors, which is why it often moves independently.' },
+  'Hong Kong':{ drivers:['Mainland Chinese company earnings','Global risk appetite','US dollar peg and rates'],
+    watch:'The main gateway between international capital and Chinese companies, so it feels both sides at once.',
+    risks:['Political and regulatory uncertainty','Currency peg constrains local rate policy','Property market weakness'],
+    context:'A financial hub whose index is dominated by mainland companies rather than local ones.' },
+  'Tokyo':{ drivers:['Yen exchange rate','Bank of Japan policy','Global demand for industrial exports'],
+    watch:'The yen is the story. A weaker yen flatters exporter earnings and often lifts the index in local terms.',
+    risks:['Ageing, shrinking domestic population','Decades of low growth and deflation','Currency swings can erase foreign returns'],
+    context:'A developed market with governance reform under way, and the clearest example of why currency matters abroad.' },
+  'Sydney':{ drivers:['Iron ore and commodity exports to Asia','Australian banking sector','Reserve Bank of Australia policy'],
+    watch:'Miners and banks dominate, so Chinese construction demand shows up in Australian share prices.',
+    risks:['Heavy China dependence','Household debt and house prices','Narrow sector mix'],
+    context:'A resource market wearing a developed-market label, and the first major exchange to open each day.' },
+};
+
+
+function WorldGlobe({ cities, selected, onSelect, lit, regionOf }){
+  const R=150, cx=160, cy=160;
   const [rot,setRot]=useState(70);
+  const [tiltDeg,setTiltDeg]=useState(18);          // vertical pan, clamped
   const drag=useRef(null); const auto=useRef(true); const raf=useRef(0);
-  useEffect(()=>{ const step=()=>{ if(auto.current) setRot(r=>(r+0.18)%360); raf.current=requestAnimationFrame(step); }; raf.current=requestAnimationFrame(step); return ()=>cancelAnimationFrame(raf.current); },[]);
+  useEffect(()=>{ const step=()=>{ if(auto.current) setRot(r=>(r+0.18)%360); raf.current=requestAnimationFrame(step); };
+    raf.current=requestAnimationFrame(step); return ()=>cancelAnimationFrame(raf.current); },[]);
+  const tilt=tiltDeg*Math.PI/180;
   const project=(lat,lon)=>{ const l=(lon-rot)*Math.PI/180, p=lat*Math.PI/180;
     const cosc=Math.sin(tilt)*Math.sin(p)+Math.cos(tilt)*Math.cos(p)*Math.cos(l);
     const x=Math.cos(p)*Math.sin(l); const y=Math.cos(tilt)*Math.sin(p)-Math.sin(tilt)*Math.cos(p)*Math.cos(l);
     return { x:cx+R*x, y:cy-R*y, vis:cosc>0 }; };
-  // graticule
-  const grat=[]; for(let lon=-180;lon<180;lon+=30){ let seg=[]; for(let lat=-90;lat<=90;lat+=6){ const q=project(lat,lon); if(q.vis) seg.push(`${q.x.toFixed(1)},${q.y.toFixed(1)}`); else { if(seg.length>1) grat.push(seg.join(' ')); seg=[]; } } if(seg.length>1) grat.push(seg.join(' ')); }
-  for(let lat=-60;lat<=60;lat+=30){ let seg=[]; for(let lon=-180;lon<=180;lon+=6){ const q=project(lat,lon); if(q.vis) seg.push(`${q.x.toFixed(1)},${q.y.toFixed(1)}`); else { if(seg.length>1) grat.push(seg.join(' ')); seg=[]; } } if(seg.length>1) grat.push(seg.join(' ')); }
-  const down=(e)=>{ auto.current=false; drag.current={x:e.clientX??e.touches?.[0]?.clientX, r:rot}; };
-  const move=(e)=>{ if(!drag.current) return; const cxp=e.clientX??e.touches?.[0]?.clientX; setRot((drag.current.r-(cxp-drag.current.x)*0.5+360)%360); };
+
+  // Graticule
+  const grat=[];
+  const pushSegs=(pts)=>{ let seg=[]; pts.forEach(q=>{ if(q.vis) seg.push(`${q.x.toFixed(1)},${q.y.toFixed(1)}`);
+    else { if(seg.length>1) grat.push(seg.join(' ')); seg=[]; } }); if(seg.length>1) grat.push(seg.join(' ')); };
+  for(let lon=-180;lon<180;lon+=30){ const pts=[]; for(let lat=-90;lat<=90;lat+=6) pts.push(project(lat,lon)); pushSegs(pts); }
+  for(let lat=-60;lat<=60;lat+=30){ const pts=[]; for(let lon=-180;lon<=180;lon+=6) pts.push(project(lat,lon)); pushSegs(pts); }
+
+  // Landmasses: each ring becomes one or more visible polylines
+  const land=[];
+  LANDMASSES.forEach(ring=>{ let seg=[];
+    ring.forEach(([lon,lat])=>{ const q=project(lat,lon);
+      if(q.vis) seg.push(`${q.x.toFixed(1)},${q.y.toFixed(1)}`);
+      else { if(seg.length>2) land.push(seg.join(' ')); seg=[]; } });
+    if(seg.length>2) land.push(seg.join(' '));
+  });
+
+  // Drag: horizontal spins, vertical pans. Both axes, which is the point.
+  const pt=(e)=>({ x:e.clientX ?? e.touches?.[0]?.clientX, y:e.clientY ?? e.touches?.[0]?.clientY });
+  const down=(e)=>{ auto.current=false; const p=pt(e); drag.current={x:p.x, y:p.y, r:rot, t:tiltDeg}; };
+  const move=(e)=>{ if(!drag.current) return; const p=pt(e);
+    setRot((drag.current.r-(p.x-drag.current.x)*0.5+360)%360);
+    setTiltDeg(clamp(drag.current.t+(p.y-drag.current.y)*0.4, -75, 75)); };
   const up=()=>{ drag.current=null; };
-  useEffect(()=>{ window.addEventListener('mousemove',move); window.addEventListener('mouseup',up); window.addEventListener('touchmove',move); window.addEventListener('touchend',up); return ()=>{ window.removeEventListener('mousemove',move); window.removeEventListener('mouseup',up); window.removeEventListener('touchmove',move); window.removeEventListener('touchend',up); }; });
+  useEffect(()=>{ window.addEventListener('mousemove',move); window.addEventListener('mouseup',up);
+    window.addEventListener('touchmove',move); window.addEventListener('touchend',up);
+    return ()=>{ window.removeEventListener('mousemove',move); window.removeEventListener('mouseup',up);
+      window.removeEventListener('touchmove',move); window.removeEventListener('touchend',up); }; });
+
   return <div className="relative select-none" style={{touchAction:'none'}}>
-    <svg viewBox="0 0 320 320" width="100%" style={{maxWidth:380,margin:'0 auto',display:'block',cursor:'grab'}} onMouseDown={down} onTouchStart={down}>
-      <defs><radialGradient id="ocean" cx="38%" cy="34%" r="75%"><stop offset="0%" stopColor="#3b82f6"/><stop offset="55%" stopColor="#1d4ed8"/><stop offset="100%" stopColor="#0b1e46"/></radialGradient></defs>
+    <svg viewBox="0 0 320 320" width="100%" style={{maxWidth:400,margin:'0 auto',display:'block',cursor:'grab'}}
+      onMouseDown={down} onTouchStart={down}>
+      <defs>
+        <radialGradient id="ocean" cx="36%" cy="30%" r="78%">
+          <stop offset="0%" stopColor="#1E3A8A"/><stop offset="55%" stopColor="#12275E"/><stop offset="100%" stopColor="#060B1C"/></radialGradient>
+        <radialGradient id="atmo" cx="50%" cy="50%" r="50%">
+          <stop offset="82%" stopColor="rgba(56,189,248,0)"/><stop offset="100%" stopColor="rgba(56,189,248,.45)"/></radialGradient>
+      </defs>
+      <circle cx={cx} cy={cy} r={R+9} fill="url(#atmo)"/>
       <circle cx={cx} cy={cy} r={R} fill="url(#ocean)"/>
-      <circle cx={cx} cy={cy} r={R} fill="none" stroke="#93c5fd" strokeWidth="1" opacity=".35"/>
-      {grat.map((d,i)=><polyline key={i} points={d} fill="none" stroke="#93c5fd" strokeWidth=".7" opacity=".28"/>)}
-      {cities.map(c=>{ const q=project(c.lat,c.lon); if(!q.vis) return null; const on=selected===c.city; const openNow=lit&&lit[c.city];
+      {grat.map((d,i)=><polyline key={'g'+i} points={d} fill="none" stroke="#7DD3FC" strokeWidth=".6" opacity=".22"/>)}
+      {land.map((d,i)=><polyline key={'l'+i} points={d} fill="none" stroke="#4ADE80" strokeWidth="1.6"
+        strokeLinejoin="round" strokeLinecap="round" opacity=".85"/>)}
+      {/* terminator sheen */}
+      <circle cx={cx} cy={cy} r={R} fill="none" stroke="#93C5FD" strokeWidth="1" opacity=".35"/>
+      {cities.map(c=>{ const q=project(c.lat,c.lon); if(!q.vis) return null;
+        const on=selected===c.city; const openNow=lit&&lit[c.city];
+        const hue=REGION_HUE[(regionOf&&regionOf(c))||c.region]||'#FBBF24';
         return <g key={c.city} onClick={()=>onSelect(c.city)} style={{cursor:'pointer'}}>
-          <circle cx={q.x} cy={q.y} r={on?7:openNow?5:4} fill={openNow?'#34D399':'#FBBF24'} stroke="#fff" strokeWidth={on?2:1}/>
-          {on && <circle cx={q.x} cy={q.y} r={11} fill="none" stroke="#fff" strokeWidth="1.5" opacity=".7"/>}
+          {openNow && <circle cx={q.x} cy={q.y} r={on?13:9} fill={hue} opacity=".22"><animate attributeName="r"
+            values={`${on?9:6};${on?15:11};${on?9:6}`} dur="2.4s" repeatCount="indefinite"/></circle>}
+          <circle cx={q.x} cy={q.y} r={on?7:openNow?5.5:4} fill={hue} stroke="#fff" strokeWidth={on?2:1}/>
+          {on && <circle cx={q.x} cy={q.y} r={12} fill="none" stroke="#fff" strokeWidth="1.4" opacity=".75"/>}
+          {on && <text x={q.x} y={q.y-17} textAnchor="middle" fontSize="10" fill="#fff" fontWeight="700">{c.city}</text>}
         </g>; })}
     </svg>
-    <div className="text-center text-[11px] text-faint mt-1">Drag to spin · tap a city to select</div>
+    <div className="flex items-center justify-center gap-3 mt-2">
+      <button onClick={()=>{auto.current=!auto.current;}} className="text-[11px] text-faint hover:text-muted">drag to spin and tilt</button>
+      <button onClick={()=>{setTiltDeg(18); setRot(70); auto.current=true;}}
+        className="text-[11px] font-semibold text-gold">reset view</button>
+    </div>
   </div>;
 }
 function GlobalMarkets(){
@@ -6649,21 +6761,74 @@ function GlobalMarkets(){
             <div className="font-serif text-2xl" style={{color:'#fff'}}>{o}/{t}</div><div className="text-[11px]" style={{color:'rgba(255,255,255,.75)'}}>open</div></div>; })}
       </div>
     </div>
-    {/* Spinnable globe + selected centre */}
-    {(()=>{ const lit={}; data.forEach(d=>lit[d.city]=d.open); const sc=data.find(d=>d.city===selCity)||data[0]; const upc=sc.chg>=0;
+    {/* Globe you can spin AND tilt, plus a real briefing on whatever you pick */}
+    {(()=>{ const lit={}; data.forEach(d=>lit[d.city]=d.open);
+      const sc=data.find(d=>d.city===selCity)||data[0]; const upc=sc.chg>=0;
+      const hue=REGION_HUE[sc.region]||'#8B5CF6';
+      const br=CITY_BRIEF[sc.city]||{};
       const q=encodeURIComponent(sc.mkt+' index'), nq=encodeURIComponent(sc.city+' stock market');
-      return <div className="grid lg:grid-cols-2 gap-4 mb-5 items-center">
-        <Card hover={false} className="!p-4" style={{background:'linear-gradient(135deg,#0b1e46,#0b1020)'}}><WorldGlobe cities={MARKET_CITIES} selected={selCity} onSelect={setSelCity} lit={lit}/></Card>
-        <Card hover={false}><div className="flex items-center justify-between"><Eyebrow>{sc.region} · financial centre</Eyebrow><Pill tone={sc.open?'sage':'neutral'}><span className={cx('h-1.5 w-1.5 rounded-full',sc.open?'bg-saged':'bg-faint')}/>{sc.open?'Open now':'Closed'}</Pill></div>
-          <div className="font-serif text-3xl text-charcoal mt-1">{sc.city}</div><div className="text-sm text-muted">{sc.mkt}</div>
-          <div className="flex items-end justify-between mt-3"><div className="font-serif text-3xl text-charcoal tnum">{sc.lvl.toLocaleString(undefined,{maximumFractionDigits:0})}</div>
-            <Pill tone={upc?'sage':'berry'}><Icon name={upc?'arrowUp':'arrowDn'} size={12}/>{upc?'+':''}{sc.chg.toFixed(2)}%</Pill></div>
-          <div className="-mx-1 mt-2"><MiniSpark seed={sc.city+sc.mkt} up={upc} color={upc?GREEN:RED} h={40}/></div>
-          <div className="grid grid-cols-2 gap-2 mt-3">
-            <a href={`https://www.google.com/search?q=${q}`} target="_blank" rel="noopener noreferrer" className="btn btn-ghost py-2 text-xs">Live quote <Icon name="arrowR" size={11} className="-rotate-45"/></a>
-            <a href={`https://news.google.com/search?q=${nq}`} target="_blank" rel="noopener noreferrer" className="btn btn-ghost py-2 text-xs">Market news <Icon name="arrowR" size={11} className="-rotate-45"/></a>
-          </div></Card>
+      return <div className="grid lg:grid-cols-2 gap-4 mb-5 items-start">
+        <Card hover={false} className="!p-4 lg:sticky lg:top-24"
+          style={{background:'radial-gradient(120% 100% at 30% 0%, #10204A 0%, #070B18 60%, #04060F 100%)'}}>
+          <WorldGlobe cities={MARKET_CITIES} selected={selCity} onSelect={setSelCity} lit={lit}/>
+          <div className="flex items-center justify-center gap-4 mt-2 text-[10px]">
+            {Object.entries(REGION_HUE).map(([r,c])=>
+              <span key={r} className="flex items-center gap-1.5" style={{color:'rgba(255,255,255,.7)'}}>
+                <span className="h-2 w-2 rounded-full" style={{background:c}}/>{r}</span>)}
+          </div>
+        </Card>
+
+        <div className="space-y-4">
+          {/* the market itself */}
+          <Card hover={false} style={{borderTop:`3px solid ${hue}`}}>
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <Eyebrow>{sc.region} · financial centre</Eyebrow>
+              <Pill tone={sc.open?'sage':'neutral'}><span className={cx('h-1.5 w-1.5 rounded-full',sc.open?'bg-saged':'bg-faint')}/>{sc.open?'Open now':'Closed'}</Pill>
+            </div>
+            <div className="font-serif text-3xl text-charcoal mt-1">{sc.city}</div>
+            <div className="text-sm text-muted">{sc.mkt}</div>
+            <div className="flex items-end justify-between mt-3">
+              <div className="font-serif text-3xl text-charcoal tnum">{sc.lvl.toLocaleString(undefined,{maximumFractionDigits:0})}</div>
+              <Pill tone={upc?'sage':'berry'}><Icon name={upc?'arrowUp':'arrowDn'} size={12}/>{upc?'+':''}{sc.chg.toFixed(2)}%</Pill>
+            </div>
+            <div className="-mx-1 mt-2"><MiniSpark seed={sc.city+sc.mkt} up={upc} color={upc?GREEN:RED} h={40}/></div>
+            {br.context && <p className="lede text-sm text-charcoal/85 leading-relaxed mt-3 pt-3 border-t border-line">{br.context}</p>}
+            <div className="grid grid-cols-2 gap-2 mt-3">
+              <a href={`https://www.google.com/search?q=${q}`} target="_blank" rel="noopener noreferrer" className="btn btn-ghost py-2 text-xs">Live quote <Icon name="arrowR" size={11} className="-rotate-45"/></a>
+              <a href={`https://news.google.com/search?q=${nq}`} target="_blank" rel="noopener noreferrer" className="btn btn-ghost py-2 text-xs">Market news <Icon name="arrowR" size={11} className="-rotate-45"/></a>
+            </div>
+          </Card>
+
+          {/* what actually moves it */}
+          {br.drivers && <Card hover={false}>
+            <Eyebrow className="mb-3">What moves this market</Eyebrow>
+            <div className="space-y-2">{br.drivers.map((d,i)=>
+              <div key={i} className="flex items-start gap-2.5">
+                <span className="grid place-items-center h-6 w-6 rounded-lg text-[11px] font-bold shrink-0 tnum"
+                  style={{background:hue+'1A',color:hue}}>{i+1}</span>
+                <span className="text-sm text-charcoal/85 leading-snug">{d}</span></div>)}</div>
+            {br.watch && <div className="mt-3 rounded-xl2 p-3 text-sm leading-relaxed"
+              style={{background:hue+'12',border:`1px solid ${hue}2E`}}>
+              <b className="text-charcoal">Worth knowing. </b><span className="text-charcoal/85">{br.watch}</span></div>}
+          </Card>}
+
+          {/* risks and live tensions */}
+          {br.risks && <Card hover={false}>
+            <div className="flex items-center justify-between mb-3">
+              <Eyebrow>Risks and tensions</Eyebrow>
+              <span className="text-[10px] text-faint uppercase tracking-wider">Background, not advice</span>
+            </div>
+            <ul className="space-y-2">{br.risks.map((r,i)=>
+              <li key={i} className="flex items-start gap-2.5 text-sm text-charcoal/85 leading-snug">
+                <Icon name="info" size={13} className="text-clayd mt-0.5 shrink-0"/>{r}</li>)}</ul>
+            <a href={`https://news.google.com/search?q=${encodeURIComponent(sc.city+' economy news')}`}
+              target="_blank" rel="noopener noreferrer"
+              className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold" style={{color:hue}}>
+              Latest headlines for {sc.city} <Icon name="arrowR" size={11} className="-rotate-45"/></a>
+          </Card>}
+        </div>
       </div>; })()}
+
     <div className="flex gap-2 mb-4 flex-wrap">{['All','Americas','EMEA','APAC'].map(r=>
       <button key={r} onClick={()=>setRegion(r)} className={cx('rounded-full px-4 py-1.5 text-sm font-semibold border transition', region===r?'border-gold bg-gold/15 text-goldd':'border-line text-muted hover:bg-sand')}>{r}</button>)}</div>
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
