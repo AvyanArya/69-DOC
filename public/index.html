@@ -10,11 +10,11 @@
 <meta name="description" content="Lumera turns one month of financial behaviour into a clear action plan. Benchmark your spending, understand the invisible patterns behind your money, and invest with confidence. Educational guidance, privacy-first." />
 
 <!-- Fonts: Fraunces (the wordmark face) for titles and long-form copy;
-     Inter for small UI text, labels, numbers and controls, where a serif
+     Instrument Sans for small UI text, labels, numbers and controls, where a serif
      at 11-13px turns mushy. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=Inter:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=Instrument+Sans:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <!-- Tailwind (Play CDN) -->
 <script src="https://cdn.tailwindcss.com"></script>
@@ -24,8 +24,8 @@
       extend: {
         fontFamily: {
           serif: ['Fraunces', 'Noto Naskh Arabic', 'Georgia', 'serif'],
-          sans: ['Inter', 'Noto Naskh Arabic', 'system-ui', 'sans-serif'],
-          mono: ['Inter', 'Noto Naskh Arabic', 'system-ui', 'sans-serif'],
+          sans: ['Instrument Sans', 'Noto Naskh Arabic', 'system-ui', 'sans-serif'],
+          mono: ['Instrument Sans', 'Noto Naskh Arabic', 'system-ui', 'sans-serif'],
         },
         // Colors reference CSS variables (R G B channels) so light/dark is a
         // single variable flip and Tailwind opacity modifiers (e.g. bg-gold/15) still work.
@@ -123,7 +123,7 @@
   body{
     /* UI sans by default. Titles opt into Fraunces via h1-h3 / .font-serif,
        and long-form sub-copy opts in via .lede. */
-    font-family:'Inter','Noto Naskh Arabic',system-ui,sans-serif;
+    font-family:'Instrument Sans','Noto Naskh Arabic',system-ui,sans-serif;
     color:var(--charcoal); background:var(--ivory);
     -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; margin:0;
     transition:background-color .4s ease, color .4s ease;
@@ -377,6 +377,11 @@
     .row-center.cols-3 > *{ flex-basis:calc(33.333% - var(--rg,1rem)*0.667); }
     .row-center.cols-4 > *{ flex-basis:calc(25% - var(--rg,1rem)*0.75); }
   }
+
+  /* Grid and flex children default to min-width:auto, so a horizontal scroller
+     inside one stretches its track instead of scrolling, pushing the page wider
+     than the viewport. Zeroing the minimum lets overflow-x:auto do its job. */
+  .grid > *{ min-width:0; }
 
   /* Stagger helper */
   .stagger > *{ animation:fadeUp .6s cubic-bezier(.22,1,.36,1) both; }
