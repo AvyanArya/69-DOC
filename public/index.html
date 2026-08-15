@@ -1264,6 +1264,42 @@ const MARKET_INDICES = [
   {ticker:'NKY', name:'Nikkei 225', value:39115.3, chg:-0.44, region:'JP'},
   {ticker:'DFMGI', name:'DFM (Dubai)', value:4198.6, chg:0.37, region:'AE'},
 ];
+// Plain-English notes for each index, so clicking one explains what it IS
+// before it explains what it did today.
+const INDEX_NOTE = {
+  SPX:'The 500 largest US public companies, weighted by size. The default shorthand for "the US market".',
+  IXIC:'Every company listed on the Nasdaq exchange, heavily weighted toward technology.',
+  DJI:'Thirty large US companies, price-weighted. The oldest headline index, and the least representative.',
+  UKX:'The 100 largest companies on the London Stock Exchange, many of them global earners.',
+  NKY:'225 large Japanese companies, price-weighted like the Dow.',
+  DFMGI:'The main index of the Dubai Financial Market, weighted toward real estate and banking.',
+};
+const INDEX_DETAIL = {
+  SPX:{ perf:'The broadest single read on US equities. Because it is weighted by company size, the largest technology names move it more than the other several hundred combined.',
+    drivers:['Broad exposure in one number','Long track record for comparison','What most index funds actually track'],
+    risks:['Top-heavy: a handful of names dominate','US-only, so no international diversification','Falls hard in a broad downturn'],
+    analyst:'Educational note: most beginner portfolios use a fund tracking this index as their core holding, precisely because it requires no stock picking.' },
+  IXIC:{ perf:'Technology-dominated, so it tends to rise further in optimistic markets and fall further in nervous ones.',
+    drivers:['Concentrated exposure to growth and technology','Highly liquid and widely tracked'],
+    risks:['More volatile than a broad market index','Sector concentration cuts both ways'],
+    analyst:'Educational note: a useful barometer for risk appetite. When it moves much more than the S&P 500, sentiment is doing the talking.' },
+  DJI:{ perf:'Thirty companies, weighted by share price rather than company size, which makes it a quirky measure that persists mostly out of habit.',
+    drivers:['Long history','Household-name constituents'],
+    risks:['Price weighting distorts influence','Only thirty companies'],
+    analyst:'Educational note: quoted constantly in headlines, but the S&P 500 is the more meaningful read.' },
+  UKX:{ perf:'Large London-listed companies, many earning most of their revenue abroad, so it often tracks the pound and commodity prices as much as the UK economy.',
+    drivers:['Global revenue exposure','Historically higher dividend yields'],
+    risks:['Heavy in energy, mining and finance','Light in technology'],
+    analyst:'Educational note: a reminder that "the UK index" is not the same thing as "the UK economy".' },
+  NKY:{ perf:'Japan’s headline index, price-weighted, sensitive to the yen and to global export demand.',
+    drivers:['Exposure to global industrial demand','Corporate governance reform'],
+    risks:['Currency swings can dominate returns','Price weighting, like the Dow'],
+    analyst:'Educational note: a good example of why currency matters when you invest outside your home market.' },
+  DFMGI:{ perf:'The Dubai market, concentrated in real estate and banking, and closely tied to regional property cycles and oil.',
+    drivers:['Regional growth and population inflows','Dividend-paying constituents'],
+    risks:['Narrow sector mix','Smaller and less liquid than developed markets'],
+    analyst:'Educational note: useful if you live in the region, but it is a concentrated bet, not a diversified core.' },
+};
 const SECTORS = [
   {name:'Technology', chg:1.4, hot:true},{name:'Energy', chg:-0.8},{name:'Healthcare', chg:0.5},
   {name:'Financials', chg:0.9},{name:'Consumer', chg:0.2},{name:'Industrials', chg:0.6, hot:true},
@@ -4140,6 +4176,7 @@ function Market(){
   const app = useApp();
   const [watch,setWatch]=useState(['AAPL','VOO','NVDA']);
   const [openStock,setOpenStock]=useState(null); const [stockQ,setStockQ]=useState('');
+  const [stockFilter,setStockFilter]=useState('All');
   const [query,setQuery]=useState(''); const [newsCat,setNewsCat]=useState('All');
   const toggle=t=>setWatch(w=>w.includes(t)?w.filter(x=>x!==t):[...w,t]);
   const found = query? STOCKS.filter(s=> (s.ticker+' '+s.company).toLowerCase().includes(query.toLowerCase())) : [];
@@ -4172,10 +4209,13 @@ function Market(){
 
     {/* Indices */}
     <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
-      {MARKET_INDICES.map(ix=><Card key={ix.ticker} hover className="!p-4">
+      {/* Indices open the same detail panel as individual stocks. */}
+      {MARKET_INDICES.map(ix=><Card key={ix.ticker} hover onClick={()=>setOpenStock(ix.ticker)} className="!p-4 halo group">
         <div className="flex items-center justify-between"><div className="text-sm font-medium text-charcoal">{ix.name}</div><Pill tone={ix.chg>=0?'sage':'clay'}>{ix.chg>=0?'▲':'▼'} {Math.abs(ix.chg)}%</Pill></div>
         <div className="font-serif text-2xl text-charcoal mt-1 tnum">{ix.value.toLocaleString()}</div>
         <Spark seed={ix.value} up={ix.chg>=0}/>
+        <div className="mt-1 text-[11px] font-semibold text-gold opacity-0 group-hover:opacity-100 transition flex items-center gap-1">
+          Open detail <Icon name="arrowR" size={11}/></div>
       </Card>)}
     </div>
 
@@ -4194,47 +4234,95 @@ function Market(){
           <div className="text-xs text-muted mt-0.5">{ip.sector}</div>
           <div className="text-[11px] text-clayd mt-1 flex items-start gap-1"><Icon name="info" size={12} className="mt-0.5"/>{ip.note}</div></div>)}</div></Card>
 
-      {/* Watchlist */}
-      <Card><Eyebrow className="mb-3">Your watchlist</Eyebrow>
-        <div className="relative mb-2"><span className="absolute left-3 top-1/2 -translate-y-1/2 text-faint"><Icon name="search" size={15}/></span>
-          <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search ticker or company…" className="w-full rounded-lg border border-line bg-cream pl-9 pr-3 py-2 text-sm focus:border-gold focus:outline-none"/></div>
-        {query && <div className="mb-2 max-h-36 overflow-y-auto no-scrollbar space-y-1">
-          {found.length? found.map(s=><button key={s.ticker} onClick={()=>{toggle(s.ticker);setQuery('');}} className="w-full flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-sand text-left">
-            <span className="tnum text-xs font-bold w-12">{s.ticker}</span><span className="flex-1 text-sm text-muted truncate">{s.company}</span>
-            <Icon name={watch.includes(s.ticker)?'check':'plus'} size={14} className="text-goldd"/></button>) : <div className="text-xs text-faint px-2 py-1">No matches.</div>}
-        </div>}
-        {watch.length===0? <Empty icon="star" title="Empty watchlist" desc="Search above to add a stock."/> :
-        <div className="space-y-2">{watch.map(t=>{const st=STOCKS.find(x=>x.ticker===t); if(!st) return null; return <div key={t} className="flex items-center gap-2"><span className="tnum text-xs font-bold text-charcoal w-12">{t}</span><span className="flex-1 text-sm text-muted truncate">{st.company}</span><span className={cx('text-xs tnum', st.chg>=0?'text-saged':'text-clayd')}>{st.chg>=0?'+':''}{st.chg}%</span><button onClick={()=>toggle(t)} className="text-faint hover:text-clayd"><Icon name="x" size={14}/></button></div>;})}</div>}
+      {/* Watchlist summary. The full list lives below, this is the at-a-glance. */}
+      <Card><div className="flex items-center justify-between mb-3">
+          <Eyebrow>Your watchlist</Eyebrow>
+          <span className={cx('text-xs tnum font-semibold', watchChg>=0?'text-saged':'text-clayd')}>
+            {watchChg>=0?'▲':'▼'} {Math.abs(watchChg).toFixed(1)}%</span></div>
+        {watch.length===0
+          ? <Empty icon="star" title="Empty watchlist" desc="Star anything in the list below to follow it here."/>
+          : <div className="space-y-1.5">{watch.map(t=>{ const st=STOCKS.find(x=>x.ticker===t); if(!st) return null;
+              return <button key={t} onClick={()=>setOpenStock(t)}
+                className="w-full flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-sand text-left transition">
+                <span className="tnum text-xs font-bold text-charcoal w-12">{t}</span>
+                <span className="flex-1 text-sm text-muted truncate">{st.company}</span>
+                <span className={cx('text-xs tnum', st.chg>=0?'text-saged':'text-clayd')}>{st.chg>=0?'+':''}{st.chg}%</span>
+                <span onClick={(e)=>{e.stopPropagation();toggle(t);}} className="text-faint hover:text-clayd px-1"><Icon name="x" size={13}/></span>
+              </button>; })}</div>}
       </Card>
     </div>
 
-    {/* Stock cards */}
-    <div className="flex items-center justify-between mb-3 flex-wrap gap-2"><Eyebrow>Stock insights</Eyebrow><span className="text-[11px] text-faint flex items-center gap-1"><Icon name="info" size={11}/>Ratings are educational, not financial advice</span></div>
-    {/* Search by ticker or company, then open the full AI insight. */}
+    {/* ===== ONE LIST: every stock, watchlist first. Click a row for detail. ===== */}
+    <div className="flex items-end justify-between mb-3 flex-wrap gap-3">
+      <div>
+        <Eyebrow>Stocks</Eyebrow>
+        <p className="text-xs text-faint mt-1">Click any row for the full breakdown. Star to follow it.</p>
+      </div>
+      <div className="flex items-center gap-2">
+        {['All','Watchlist'].map(f=><button key={f} onClick={()=>setStockFilter(f)}
+          className={cx('chip', stockFilter===f&&'on')}>{f}</button>)}
+      </div>
+    </div>
     <div className="relative mb-3 max-w-md"><Icon name="search" size={16} className="absolute left-3.5 top-3.5 text-faint"/>
-      <input value={stockQ} onChange={e=>setStockQ(e.target.value)} placeholder="Search by ticker or company, e.g. AMZN or Amazon"
+      <input value={stockQ} onChange={e=>setStockQ(e.target.value)} placeholder="Search by ticker, company or sector"
         className="w-full rounded-xl2 border border-line bg-cream pl-10 pr-3 py-3 text-sm focus:border-gold focus:outline-none"/>
       {stockQ && <button onClick={()=>setStockQ('')} className="absolute right-3 top-3.5 text-faint hover:text-charcoal"><Icon name="x" size={15}/></button>}</div>
-    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-      {STOCKS.filter(st=>!stockQ || (st.ticker+' '+st.company+' '+st.sector).toLowerCase().includes(stockQ.toLowerCase())).map(st=>{ const rt=RATINGS[st.ticker]||['Hold','Medium']; return <Card key={st.ticker} onClick={()=>setOpenStock(st.ticker)} className="!p-5 cursor-pointer group">
-        <div className="flex items-start justify-between">
-          <div><div className="flex items-center gap-2"><span className="tnum font-bold text-charcoal">{st.ticker}</span><Pill tone={st.risk==='High'?'clay':st.risk==='Low'||st.risk==='Lower'?'sage':'neutral'}>{st.risk} risk</Pill></div>
-            <div className="text-sm text-muted">{st.company}</div></div>
-          <button onClick={(e)=>{e.stopPropagation();toggle(st.ticker);}} className={cx('grid place-items-center h-8 w-8 rounded-lg transition', watch.includes(st.ticker)?'text-gold bg-gold/12':'text-faint hover:bg-sand')}><Icon name="star" size={16}/></button>
-        </div>
-        <div className="flex items-end justify-between mt-3"><div className="font-serif text-2xl text-charcoal tnum">{st.price}</div><span className={cx('text-sm tnum', st.chg>=0?'text-saged':'text-clayd')}>{st.chg>=0?'▲':'▼'} {Math.abs(st.chg)}%</span></div>
-        <Spark seed={st.price*100} up={st.chg>=0}/>
-        <div className="flex items-center justify-between gap-2 mt-1">
-          <div className="text-xs text-faint">{st.sector} · {st.sentiment}</div>
-          <Hint text={`Educational analyst-style view · confidence: ${rt[1]}. Not financial advice.`}><span className={cx('inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold cursor-help', ratingTone(rt[0])==='sage'?'bg-sage/15 text-saged':ratingTone(rt[0])==='clay'?'bg-clay/15 text-clayd':'bg-sand text-muted')}><Icon name="gauge" size={12}/>{rt[0]}</span></Hint>
-        </div>
-        <p className="text-sm text-charcoal/80 leading-relaxed mt-2">{st.summary}</p>
-        <div className="mt-3 flex items-center gap-1 text-xs font-semibold text-goldd">Full AI insight <Icon name="arrowR" size={13} className="group-hover:translate-x-1 transition"/></div>
-      </Card>; })}
-    </div>
+
+    <Card hover={false} className="!p-0 overflow-hidden mb-4">
+      {/* header row, hidden on small screens where the layout collapses */}
+      <div className="hidden sm:grid grid-cols-[auto_1fr_auto_auto_auto_auto] items-center gap-3 px-4 py-2.5 border-b border-line text-[10px] uppercase tracking-wider text-faint">
+        <span className="w-6"/><span>Company</span><span className="w-24 text-right">Price</span>
+        <span className="w-20 text-right">Change</span><span className="w-24 text-center">Trend</span><span className="w-24 text-right">Rating</span>
+      </div>
+      {(()=>{ const q=stockQ.trim().toLowerCase();
+        let rows=STOCKS.filter(st=>!q || (st.ticker+' '+st.company+' '+st.sector).toLowerCase().includes(q));
+        if(stockFilter==='Watchlist') rows=rows.filter(st=>watch.includes(st.ticker));
+        // Followed names float to the top so the watchlist is part of this list,
+        // not a separate thing to keep in sync.
+        rows=[...rows].sort((a,b)=>(watch.includes(b.ticker)?1:0)-(watch.includes(a.ticker)?1:0));
+        if(!rows.length) return <div className="p-8"><Empty icon="search" title="No matches"
+          desc={stockFilter==='Watchlist'?'Nothing starred yet. Switch to All and star a few.':'Try a different ticker, company or sector.'}/></div>;
+        return rows.map(st=>{ const rt=RATINGS[st.ticker]||['Hold','Medium']; const on=watch.includes(st.ticker);
+          return <button key={st.ticker} onClick={()=>setOpenStock(st.ticker)}
+            className="w-full grid grid-cols-[auto_1fr_auto] sm:grid-cols-[auto_1fr_auto_auto_auto_auto] items-center gap-3 px-4 py-3 border-b border-line last:border-0 hover:bg-sand/60 transition text-left group">
+            <span onClick={(e)=>{e.stopPropagation();toggle(st.ticker);}}
+              className={cx('grid place-items-center h-7 w-7 rounded-lg shrink-0 transition', on?'text-gold bg-gold/12':'text-faint hover:bg-sand')}>
+              <Icon name="star" size={15}/></span>
+            <span className="min-w-0">
+              <span className="flex items-center gap-2">
+                <span className="tnum font-bold text-charcoal text-sm">{st.ticker}</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-sand text-faint">{st.sector}</span>
+              </span>
+              <span className="block text-xs text-muted truncate">{st.company}</span>
+            </span>
+            <span className="font-serif text-base text-charcoal tnum sm:w-24 sm:text-right">{st.price}</span>
+            <span className={cx('hidden sm:block text-sm tnum w-20 text-right', st.chg>=0?'text-saged':'text-clayd')}>
+              {st.chg>=0?'▲':'▼'} {Math.abs(st.chg)}%</span>
+            <span className="hidden sm:block w-24"><Spark seed={st.price*100} up={st.chg>=0}/></span>
+            <span className="hidden sm:flex w-24 justify-end">
+              <span className={cx('inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-semibold',
+                ratingTone(rt[0])==='sage'?'bg-sage/15 text-saged':ratingTone(rt[0])==='clay'?'bg-clay/15 text-clayd':'bg-sand text-muted')}>{rt[0]}</span>
+            </span>
+          </button>; });
+      })()}
+    </Card>
+    <p className="text-[11px] text-faint mb-4 flex items-center gap-1">
+      <Icon name="info" size={11}/>Ratings are educational, not financial advice.</p>
 
     {/* Full AI insight slide-in panel */}
-    {(()=>{ const st=STOCKS.find(x=>x.ticker===openStock); if(!st) return null; const d=STOCK_DETAIL[st.ticker]||{}; const rt=RATINGS[st.ticker]||['Hold','Medium']; const onW=watch.includes(st.ticker);
+    {(()=>{
+      // An index opens the same panel, described in index terms rather than
+      // company terms, so clicking the S&P 500 is not a dead end.
+      const ix=MARKET_INDICES.find(x=>x.ticker===openStock);
+      const st = ix ? { ticker:ix.ticker, company:ix.name, sector:'Index · '+ix.region, price:ix.value.toLocaleString(),
+                        chg:ix.chg, risk:'Diversified', sentiment:ix.chg>=0?'Positive':'Soft',
+                        summary:INDEX_NOTE[ix.ticker]||'A basket of companies tracked as one number.',
+                        why:'Indices show the direction of a whole market, which matters far more to a long-term plan than any single share.' }
+                    : STOCKS.find(x=>x.ticker===openStock);
+      if(!st) return null;
+      const d = ix ? (INDEX_DETAIL[ix.ticker]||{}) : (STOCK_DETAIL[st.ticker]||{});
+      const rt = ix ? ['Track it','High'] : (RATINGS[st.ticker]||['Hold','Medium']);
+      const onW = !ix && watch.includes(st.ticker);
       const cell=(label,val,tone)=><div className="rounded-xl border border-line bg-cream/60 p-3"><div className="text-[10px] uppercase tracking-wider text-faint">{label}</div><div className={cx('text-sm font-semibold mt-0.5',tone||'text-charcoal')}>{val}</div></div>;
       return <div className="fixed inset-0 z-[120]"><div className="absolute inset-0 bg-charcoal/45" onClick={()=>setOpenStock(null)}/>
         <div className="absolute right-0 top-0 h-full w-full max-w-md bg-card shadow-2xl overflow-y-auto anim-slideIn border-l border-line">
@@ -4256,7 +4344,8 @@ function Market(){
             <MBlock title="Analyst summary"><div className="rounded-xl bg-gold/8 border border-gold/20 p-3 text-sm text-charcoal/85 leading-relaxed">{d.analyst||`Educational analyst-style view · confidence ${rt[1]}.`}</div></MBlock>
             <div className="rounded-lg bg-sand/70 text-xs text-muted px-3 py-2 flex items-start gap-1.5"><Icon name="bulb" size={13} className="text-goldd mt-0.5"/><span><b className="text-charcoal/80">Why it matters:</b> {st.why}</span></div>
             <div className="flex gap-2">
-              <button onClick={()=>toggle(st.ticker)} className={cx('btn flex-1 text-sm',onW?'btn-ghost':'btn-primary')}><Icon name="star" size={14}/>{onW?'In watchlist':'Add to watchlist'}</button>
+              {!ix && <button onClick={()=>toggle(st.ticker)} className={cx('btn flex-1 text-sm',onW?'btn-ghost':'btn-primary')}><Icon name="star" size={14}/>{onW?'In watchlist':'Add to watchlist'}</button>}
+              {ix && <button onClick={()=>setOpenStock(null)} className="btn btn-primary flex-1 text-sm">Got it</button>}
               <a href={`https://news.google.com/search?q=${encodeURIComponent(st.company+' stock')}`} target="_blank" rel="noopener noreferrer" className="btn btn-ghost text-sm px-3"><Icon name="arrowR" size={14} className="-rotate-45"/></a>
             </div>
             <p className="text-[11px] text-faint">Educational, analyst-style insight on simulated data, not financial advice.</p>
