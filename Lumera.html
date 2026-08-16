@@ -507,6 +507,8 @@ const { useState, useEffect, useRef, useMemo, useCallback, useReducer, createCon
    missing file.
    ============================================================ */
 const ASSET_KEY='lumera_assets';
+// Stable slug for a knowledge-hub source, used as its upload slot key.
+const srcKey=(name)=>String(name).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,32);
 const ASSET_SLOTS = [
   { k:'logo',           label:'Lumera logo',        hint:'The wave-and-star mark. Square or wide, transparent PNG or SVG.' },
   { k:'logoWordmark',   label:'Full lockup',        hint:'Mark plus LUMERA wordmark plus tagline. Used on sign-in and the landing hero.' },
@@ -2036,7 +2038,14 @@ function Sidebar(){
     </nav>
     <div className="p-3 space-y-2">
       <button onClick={()=>app.nav('/assistant')} className="w-full btn btn-gold px-4 py-3 text-sm"><Icon name="spark" size={16}/>{t('nav_assistant')}</button>
-      {app.user&&app.user.isAdmin&&<button onClick={()=>app.nav('/analytics')} className={cx('w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-300', route==='/analytics'?'bg-charcoal text-cream shadow-soft':'text-charcoal/80 hover:bg-sand')}><Icon name="chart" size={18} className={route==='/analytics'?'text-gold':'text-muted'}/>Analytics</button>}
+      {app.user&&app.user.isAdmin&&<Fragment>
+        <button onClick={()=>app.nav('/analytics')} className={cx('w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-300', route==='/analytics'?'bg-charcoal text-cream shadow-soft':'text-charcoal/80 hover:bg-sand')}><Icon name="chart" size={18} className={route==='/analytics'?'text-gold':'text-muted'}/>Analytics</button>
+        {/* The standalone portal is otherwise only reachable by typing the URL. */}
+        <a href="admin-portal.html" target="_blank" rel="noopener noreferrer"
+          className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-charcoal/80 hover:bg-sand transition-all duration-300">
+          <Icon name="lock" size={18} className="text-muted"/>Admin portal
+          <Icon name="arrowR" size={12} className="-rotate-45 ml-auto text-faint"/></a>
+      </Fragment>}
       {app.user && <button onClick={()=>app.logout()} className="w-full text-xs text-muted hover:text-charcoal py-1.5">Log out</button>}
       {/* Milestone badges sit below log out, out of the main navigation flow. */}
       {app.user && <button onClick={()=>app.nav('/badges')} className={cx('w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs transition border border-line', route==='/badges'?'bg-sand text-charcoal':'text-muted hover:bg-sand')}>
@@ -6050,6 +6059,7 @@ function Analytics(){
 }
 
 function KnowledgeHub(){
+  const assets=useAssets();
   const groups=[
     {h:'Featured, Recommended by Lumera', items:[
       {n:'Bulls, Bears & Beyond', d:'Markets, investing and economics broken down on YouTube.', u:'https://www.youtube.com/@BullsBearsBeyond', tag:'YouTube'},
@@ -6099,8 +6109,12 @@ function KnowledgeHub(){
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
         {g.items.map(it=><a key={it.n} href={it.u} target="_blank" rel="noopener noreferrer"
           className="lux-card lift p-5 flex flex-col items-center text-center group" style={{borderTop:`3px solid ${st.hue}`}}>
-          <span className="grid place-items-center h-12 w-12 rounded-2xl text-xl mb-3" style={{background:`linear-gradient(135deg,${st.hue},${st.hue}AA)`,color:'#fff'}}>
-            {it.n.trim()[0]}</span>
+          {/* Uploaded logo if there is one, otherwise the initial tile. */}
+          {assets['src_'+srcKey(it.n)]
+            ? <span className="grid place-items-center h-12 w-12 rounded-2xl mb-3 overflow-hidden bg-card border border-line">
+                <img src={assets['src_'+srcKey(it.n)]} alt="" className="h-9 w-9 object-contain"/></span>
+            : <span className="grid place-items-center h-12 w-12 rounded-2xl text-xl mb-3" style={{background:`linear-gradient(135deg,${st.hue},${st.hue}AA)`,color:'#fff'}}>
+                {it.n.trim()[0]}</span>}
           <span className="font-serif text-lg text-charcoal group-hover:text-goldd transition leading-snug">{it.n}</span>
           {it.tag&&<span className="text-[10px] font-semibold rounded-full px-2 py-0.5 mt-1.5" style={{background:st.hue+'18',color:st.hue}}>{it.tag}</span>}
           <p className="text-sm text-muted mt-2 leading-relaxed flex-1">{it.d}</p>
@@ -9615,24 +9629,56 @@ function ForgeCareer(){
   </AppShell>;
 }
 function ForgeSideIncome(){
-  const [time,setTime]=useState('Any');
-  const ideas=[
-    ['Freelance your skill','💻','$200–2k/mo','5–15h/wk','Design, writing, code, tutoring, sell what you already do.'],
-    ['Tutoring','📚','$20–40/hr','3–10h/wk','Teach a subject you know to students online.'],
-    ['Sell digital products','🧩','$0–1k/mo','Flexible','Templates, presets, guides, make once, sell many.'],
-    ['Local services','🔧','$100–600/mo','Weekends','Pet-sitting, cleaning, handyman, gardening.'],
-    ['Content / creator','🎬','$0–∞','Flexible','Slow to start, but compounding upside.'],
-    ['Reselling / flipping','📦','$100–800/mo','Flexible','Buy underpriced, sell at market.'],
-  ];
-  const times=['Any','Weekends','5–15h/wk','Flexible'];
-  const shown=time==='Any'?ideas:ideas.filter(i=>i[3]===time||i[3]==='Flexible');
+  const app=useApp();
+  // Deliberately a placeholder. Side income moves fast enough that a static
+  // list ages badly, so the page states that plainly rather than shipping
+  // stale advice, and the whole route can be switched off from the admin hub.
   return <AppShell>
-    <PageHead eyebrow="Forge · Side income" title="Grow income on the side." desc="Realistic ways to earn more, matched to the time you’ve got. Ranges are illustrative." />
-    <div className="flex gap-2 mb-4 flex-wrap">{times.map(tm=><button key={tm} onClick={()=>setTime(tm)} className={cx('chip', time===tm&&'on')}>{tm}</button>)}</div>
-    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">{shown.map(([t,e,pay,tm,d])=>
-      <Card key={t}><div className="flex items-center justify-between"><span className="text-3xl">{e}</span><Pill tone="gold">{pay}</Pill></div>
-        <div className="font-serif text-lg text-charcoal mt-2">{t}</div><p className="text-sm text-muted mt-1 leading-relaxed">{d}</p>
-        <div className="mt-3 text-[11px] text-faint">⏱ {tm}</div></Card>)}</div>
+    <PageHead eyebrow="Forge · Side income" title="Earn more, not just spend less."
+      desc="This one is still being built. Side income changes faster than any other part of Forge, so it is being wired to a live source rather than shipped as a fixed list."/>
+    <Card hover={false} className="relative overflow-hidden !p-0 mb-4">
+      <div className="relative px-6 py-10 text-center overflow-hidden"
+        style={{background:'linear-gradient(150deg,#D97706,#92400E)'}}>
+        <div className="absolute inset-0 opacity-[.13] pointer-events-none"
+          style={{backgroundImage:'radial-gradient(circle,#fff 1.3px,transparent 1.4px)',backgroundSize:'20px 20px'}}/>
+        <div className="relative">
+          <div className="text-5xl mb-2">🚧</div>
+          <div className="font-serif text-3xl" style={{color:'#fff'}}>Coming soon</div>
+          <p className="text-sm mt-2 max-w-md mx-auto leading-relaxed" style={{color:'rgba(255,255,255,.85)'}}>
+            Everything else in Forge is built on things that change slowly: careers, firms, universities,
+            exams. Side income is the opposite, so this page is waiting on a live feed rather than a list
+            that would be wrong within a term.</p>
+        </div>
+      </div>
+      <div className="p-6">
+        <Eyebrow className="mb-3">What will be here</Eyebrow>
+        <div className="grid sm:grid-cols-2 gap-3">
+          {[['Ideas matched to your hours','⏱️','Filtered by how much time you actually have, not a generic list.'],
+            ['Realistic earnings','💷','What people genuinely make, with the ramp-up time stated honestly.'],
+            ['Skills you already have','🧰','Built from your profile rather than assuming you can code.'],
+            ['Tax and admin basics','📋','What to register, what to declare, and when it starts to matter.']].map(([t,e,d])=>
+            <div key={t} className="rounded-xl2 border border-line p-4">
+              <div className="text-2xl">{e}</div>
+              <div className="font-serif text-base text-charcoal mt-1.5">{t}</div>
+              <p className="text-[13px] text-muted mt-1 leading-relaxed">{d}</p>
+            </div>)}
+        </div>
+      </div>
+    </Card>
+    <Card hover={false}>
+      <div className="flex items-start gap-3">
+        <span className="grid place-items-center h-9 w-9 rounded-lg bg-charcoal text-gold shrink-0"><Icon name="spark" size={17}/></span>
+        <div className="flex-1">
+          <Eyebrow className="mb-1">In the meantime</Eyebrow>
+          <p className="text-sm text-charcoal/85 leading-relaxed">
+            The fastest lever most people have is not a side hustle, it is the leaks already in their spending.
+            Check <button onClick={()=>app.nav('/subscriptions')} className="font-semibold text-gold underline">Subscriptions</button> and
+            {' '}<button onClick={()=>app.nav('/benchmarks')} className="font-semibold text-gold underline">Benchmarks</button> first,
+            then <button onClick={()=>app.nav('/salary')} className="font-semibold text-gold underline">Salary Check</button> to
+            see whether your main income is where it should be.</p>
+        </div>
+      </div>
+    </Card>
   </AppShell>;
 }
 /* ============================================================
@@ -9954,6 +10000,7 @@ const FEATURES = [
   { key:'community',   label:'Community',            routes:['/community'],                      def:true },
   { key:'careerLab',   label:'CV & LinkedIn Lab',    routes:['/career-lab'],                     def:true },
   { key:'sideIncome',  label:'Side Income',          routes:['/sideincome'],                     def:true },
+  { key:'testCentre',  label:'Test Centre',          routes:['/tests'],                          def:true },
   { key:'opportunities',label:'Opportunities',       routes:['/opportunities'],                  def:true },
   { key:'salary',      label:'Salary Check',         routes:['/salary'],                         def:true },
   { key:'universities',label:'Universities',         routes:['/universities'],                   def:true },

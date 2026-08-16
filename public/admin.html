@@ -566,7 +566,8 @@ function renderFeedback(){ const list=loadJSON(FEEDBACK,[]);
 const APP_FEATURES=[
   ['community','Community','Member feed, connections and shared opportunities'],
   ['careerLab','CV & LinkedIn Lab','CV templates, best practices and free courses'],
-  ['sideIncome','Side Income','Side-income ideas matched to available time'],
+  ['sideIncome','Side Income','Placeholder page, awaiting a live source. Safe to switch off.'],
+  ['testCentre','Test Centre','Score tracking, admissions percentiles, SAT calculator and test tips'],
   ['opportunities','Opportunities','Internships, competitions, programmes and scholarships'],
   ['salary','Salary Check','Benchmark pay by role and level'],
   ['universities','Universities','Ranked university shortlist and comparison'],
@@ -740,6 +741,35 @@ const ASSET_SLOTS=[
 ];
 const ASSET_TINT={logo:'#8B5CF6',logoWordmark:'#8B5CF6',mascot_lumera:'#8B5CF6',mascot_leaf:'#22C55E',
   mascot_atlas:'#3B82F6',mascot_shield:'#64748B',mascot_forge:'#D97706'};
+
+// The sources listed on the app's Knowledge Hub, so each can carry a real logo.
+const HUB_SOURCES=[
+  ['Bulls, Bears & Beyond','YouTube'],['The Headliner','Newsletter'],
+  ['Investopedia','Reference'],['Khan Academy, Personal Finance','Course'],
+  ['Bogleheads','Community'],['Morningstar','Research'],
+  ['Coursera, Finance','Course'],['edX, Finance','Course'],['SEC Investor.gov','Official'],
+  ['World Bank Data','Data'],['IMF Data','Data'],['OECD Data','Data'],['FRED','Data'],
+  ['Financial Times','News'],['Bloomberg','News'],['Reuters Markets','News'],
+];
+// Must match srcKey() in the app so the uploaded slot is found at render time.
+const srcKey=(name)=>String(name).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,32);
+function srcCard(a,name,tag){
+  const k='src_'+srcKey(name); const src=a[k];
+  return `<div class="card" style="padding:12px;">
+    <div style="aspect-ratio:1/1;border-radius:10px;display:grid;place-items:center;margin-bottom:8px;overflow:hidden;
+      background:var(--cream);border:${src?'1px solid var(--line)':'2px dashed var(--line)'};">
+      ${src?`<img src="${escapeHtml(src)}" alt="" style="max-width:80%;max-height:80%;object-fit:contain;"/>`
+           :`<span class="faint" style="font-size:22px;font-weight:700;">${escapeHtml(name.trim()[0])}</span>`}
+    </div>
+    <div style="font-weight:600;font-size:12.5px;line-height:1.3;">${escapeHtml(name)}</div>
+    <div class="faint" style="font-size:10.5px;margin:2px 0 8px;">${escapeHtml(tag)}</div>
+    <input type="file" accept="image/*" id="as_${k}" style="display:none" onchange="uploadAsset('${k}',this)"/>
+    <div style="display:flex;gap:6px;">
+      <button class="btn ghost" style="flex:1;font-size:11.5px;padding:6px 8px;" onclick="document.getElementById('as_${k}').click()">${src?'Replace':'Upload'}</button>
+      ${src?`<button class="btn ghost" style="font-size:11.5px;padding:6px 8px;" onclick="clearAsset('${k}')">&times;</button>`:''}
+    </div>
+  </div>`;
+}
 function getAssets(){ return loadJSON(ASSETS,{})||{}; }
 function putAssets(a){ saveJSON(ASSETS,a); broadcast(ASSETS); }
 function renderBrand(){ const a=getAssets();
@@ -752,6 +782,12 @@ function renderBrand(){ const a=getAssets();
       <div class="card kpi"><div class="v" style="font-size:15px;line-height:1.35">${Math.round(JSON.stringify(a).length/1024)} KB</div><div class="l">Stored size</div></div>
     </div>
     <div class="row cols-3">${ASSET_SLOTS.map(([k,label,hint])=>assetCard(a,k,label,hint)).join('')}</div>
+    <div class="card" style="margin-top:14px;">
+      <div class="eyebrow">Knowledge hub source logos</div>
+      <p class="page-desc" style="margin:6px 0 12px;">Each source on the app's Knowledge Hub shows a coloured
+      initial until you upload its logo here. Square, transparent PNGs work best.</p>
+      <div class="row cols-4">${HUB_SOURCES.map(([name,tag])=>srcCard(a,name,tag)).join('')}</div>
+    </div>
     <div class="card" style="margin-top:14px;">
       <div class="eyebrow">Notes</div>
       <p class="page-desc" style="margin:6px 0 0;">Artwork is stored in this browser as data URLs, so keep each file under about 400&nbsp;KB.
