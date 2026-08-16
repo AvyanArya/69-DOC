@@ -2354,7 +2354,7 @@ function Landing(){
         <div className="flex-1"/>
         <ThemeToggle/>
         <span className="hidden sm:inline-flex"><LanguageSwitcher compact/></span>
-        <Btn variant="ghost" className="hidden sm:inline-flex shrink-0" onClick={()=>app.nav('/login')}>{t('Log in')}</Btn>
+        <Btn variant="ghost" className="hidden sm:inline-flex lg:hidden xl:inline-flex shrink-0" onClick={()=>app.nav('/login')}>{t('Log in')}</Btn>
         <Btn variant="primary" className="shrink-0 whitespace-nowrap !px-3 !text-xs sm:!px-5 sm:!text-sm" onClick={()=>app.nav('/signup')}>{t('Get started')}</Btn>
       </div>
     </header>
@@ -2584,12 +2584,14 @@ function Onboarding(){
   const next=()=>{ if(step<total-1) setStep(step+1); else finish(); };
   const finish=()=>{ const R=REGIONS[d.region]||REGIONS.AE; const ccy=d.currency||R.currency;
     // Infer the first savings goal from what they said brought them here.
-    const mo=d.motivations||[];
+    const asList=(v)=> Array.isArray(v) ? v : (v ? [v] : []);
+    const mo=asList(d.motivations);
     const goal = mo.some(x=>/university|subjects/i.test(x)) ? 'A big purchase'
       : mo.some(x=>/retirement/i.test(x)) ? 'Retirement'
       : mo.some(x=>/investing/i.test(x)) ? 'Investing'
       : mo.some(x=>/debt/i.test(x)) ? 'Emergency fund' : 'Emergency fund';
-    app.updateProfile({ ...d, region:d.region||'AE', currency:ccy, baseCurrency:ccy,
+    app.updateProfile({ ...d, motivations:mo, heardFrom:asList(d.heardFrom),
+      region:d.region||'AE', currency:ccy, baseCurrency:ccy,
       city:d.city||R.city, savingsGoal:d.savingsGoal||goal });
     app.nav('/review'); };
   return <div className="min-h-screen flex flex-col">
@@ -2606,7 +2608,7 @@ function Onboarding(){
           <p className="text-muted mt-2 flex items-center gap-2"><Icon name="info" size={15} className="text-goldd"/>{cur.why}</p>
           {cur.term && <p className="mt-1 text-sm"><Term k={cur.term}><span className="text-goldd font-medium">What does “{cur.term.toLowerCase()}” mean?</span></Term></p>}
           <div className="mt-7">
-            {cur.opts && <div className="grid sm:grid-cols-2 gap-3">
+            {cur.opts && cur.kind!=='multi' && <div className="grid sm:grid-cols-2 gap-3">
               {cur.opts.map(o=><button key={o} onClick={()=>{set(cur.k,o);}} className={cx('text-left rounded-xl2 border px-4 py-3.5 transition-all duration-300',
                 d[cur.k]===o?'border-gold bg-gold/10 shadow-soft':'border-line bg-cream hover:border-taupe hover:bg-sand/60')}>
                 <span className="flex items-center justify-between"><span className="font-medium text-charcoal">{o}</span>{d[cur.k]===o&&<Icon name="check" size={18} className="text-goldd"/>}</span></button>)}
