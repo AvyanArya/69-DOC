@@ -770,6 +770,31 @@ function srcCard(a,name,tag){
     </div>
   </div>`;
 }
+
+// Card products shown on the app's Credit page.
+const CARD_PRODUCTS=[
+  ['Emirates NBD Skywards Signature','Emirates NBD'],
+  ['ADCB Traveller','ADCB'],
+  ['First Abu Dhabi Bank Cashback','FAB'],
+  ['Mashreq Solitaire','Mashreq'],
+];
+function cardArtCard(a,name,bank){
+  const k='card_'+srcKey(name); const src=a[k];
+  return `<div class="card" style="padding:12px;">
+    <div style="aspect-ratio:1.586/1;border-radius:10px;display:grid;place-items:center;margin-bottom:8px;overflow:hidden;
+      background:var(--cream);border:${src?'1px solid var(--line)':'2px dashed var(--line)'};">
+      ${src?`<img src="${escapeHtml(src)}" alt="" style="width:100%;height:100%;object-fit:cover;"/>`
+           :`<span class="faint" style="font-size:11px;">Drawn face in use</span>`}
+    </div>
+    <div style="font-weight:600;font-size:12.5px;line-height:1.3;">${escapeHtml(name)}</div>
+    <div class="faint" style="font-size:10.5px;margin:2px 0 8px;">${escapeHtml(bank)}</div>
+    <input type="file" accept="image/*" id="as_${k}" style="display:none" onchange="uploadAsset('${k}',this)"/>
+    <div style="display:flex;gap:6px;">
+      <button class="btn ghost" style="flex:1;font-size:11.5px;padding:6px 8px;" onclick="document.getElementById('as_${k}').click()">${src?'Replace':'Upload'}</button>
+      ${src?`<button class="btn ghost" style="font-size:11.5px;padding:6px 8px;" onclick="clearAsset('${k}')">&times;</button>`:''}
+    </div>
+  </div>`;
+}
 function getAssets(){ return loadJSON(ASSETS,{})||{}; }
 function putAssets(a){ saveJSON(ASSETS,a); broadcast(ASSETS); }
 function renderBrand(){ const a=getAssets();
@@ -787,6 +812,12 @@ function renderBrand(){ const a=getAssets();
       <p class="page-desc" style="margin:6px 0 12px;">Each source on the app's Knowledge Hub shows a coloured
       initial until you upload its logo here. Square, transparent PNGs work best.</p>
       <div class="row cols-4">${HUB_SOURCES.map(([name,tag])=>srcCard(a,name,tag)).join('')}</div>
+    </div>
+    <div class="card" style="margin-top:14px;">
+      <div class="eyebrow">Credit card artwork</div>
+      <p class="page-desc" style="margin:6px 0 12px;">The app draws a realistic card face by default. Upload the
+      real product shot here to replace it. Landscape, roughly 1.586:1, the standard card ratio.</p>
+      <div class="row cols-4">${CARD_PRODUCTS.map(([name,bank])=>cardArtCard(a,name,bank)).join('')}</div>
     </div>
     <div class="card" style="margin-top:14px;">
       <div class="eyebrow">Notes</div>

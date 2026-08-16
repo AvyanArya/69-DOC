@@ -509,6 +509,7 @@ const { useState, useEffect, useRef, useMemo, useCallback, useReducer, createCon
 const ASSET_KEY='lumera_assets';
 // Stable slug for a knowledge-hub source, used as its upload slot key.
 const srcKey=(name)=>String(name).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,32);
+const cardKey=srcKey;
 const ASSET_SLOTS = [
   { k:'logo',           label:'Lumera logo',        hint:'The wave-and-star mark. Square or wide, transparent PNG or SVG.' },
   { k:'logoWordmark',   label:'Full lockup',        hint:'Mark plus LUMERA wordmark plus tagline. Used on sign-in and the landing hero.' },
@@ -5798,6 +5799,7 @@ const CREDIT_CARDS=[
 ];
 function Credit(){
   const app=useApp();
+  const assets=useAssets();
   const [cardSel,setCardSel]=useState(0);
   const [util,setUtil]=useState(34); const [onTime,setOnTime]=useState(96); const [ageY,setAgeY]=useState(5); const [inq,setInq]=useState(2);
   const score = clamp(Math.round(300 + (1-util/100)*170 + (onTime/100)*250 + clamp(ageY/12,0,1)*110 + (4-clamp(inq,0,6))*12),300,850);
@@ -5843,29 +5845,35 @@ function Credit(){
     </Card>
     {(()=>{ const c=CREDIT_CARDS[cardSel]; return <div className="mt-4">
       <Eyebrow className="mb-3">Top credit cards for your profile</Eyebrow>
-      <div className="grid lg:grid-cols-2 gap-4 items-start">
-        <div className="grid sm:grid-cols-2 gap-3">{CREDIT_CARDS.map((cc,i)=>{ const on=i===cardSel;
+      {/* Both columns stretch so the card wall matches the detail panel. */}
+      <div className="grid lg:grid-cols-2 gap-4 items-stretch">
+        <div className="grid sm:grid-cols-2 gap-3 auto-rows-fr content-start">{CREDIT_CARDS.map((cc,i)=>{ const on=i===cardSel;
           return <button key={cc.name} onClick={()=>setCardSel(i)}
             className={cx('relative rounded-2xl p-4 text-left text-white overflow-hidden transition-all duration-300', on?'ring-2 ring-goldd scale-[1.02] shadow-2xl':'opacity-90 hover:opacity-100 hover:scale-[1.01]')}
             style={{background:`linear-gradient(135deg,${cc.hue} 0%,${cc.hue}DD 55%,${cc.hue}AA 100%)`, aspectRatio:'1.586/1', minHeight:150,
               boxShadow:on?`0 18px 40px ${cc.hue}88`:'0 8px 22px rgba(0,0,0,.28)'}}>
+            {/* Real card artwork when it has been uploaded, in which case the
+                drawn face below is hidden behind it. */}
+            {assets['card_'+cardKey(cc.name)] && <img src={assets['card_'+cardKey(cc.name)]} alt=""
+              className="absolute inset-0 h-full w-full object-cover" style={{zIndex:1}}/>}
             {/* holographic sheen */}
             <span className="absolute inset-0 pointer-events-none" style={{background:'linear-gradient(115deg, rgba(255,255,255,.28) 0%, rgba(255,255,255,0) 38%, rgba(255,255,255,.14) 62%, rgba(255,255,255,0) 100%)'}}/>
             <span className="absolute -right-8 -top-10 h-28 w-28 rounded-full" style={{background:'rgba(255,255,255,.10)'}}/>
             <span className="absolute -right-2 top-10 h-20 w-20 rounded-full" style={{background:'rgba(255,255,255,.07)'}}/>
-            <div className="relative flex items-start justify-between">
-              <span className="text-[11px] font-semibold tracking-wide opacity-90">{cc.bank}</span>
-              <span className="text-[10px] font-semibold rounded-full px-2 py-0.5" style={{background:'rgba(255,255,255,.22)'}}>#{i+1}</span>
+            <div className="relative flex items-start justify-between" style={{zIndex:2}}>
+              <span className="text-[11px] font-semibold tracking-wide opacity-90"
+                style={assets['card_'+cardKey(cc.name)]?{textShadow:'0 1px 4px rgba(0,0,0,.7)'}:undefined}>{cc.bank}</span>
+              <span className="text-[10px] font-semibold rounded-full px-2 py-0.5" style={{background:'rgba(0,0,0,.35)'}}>#{i+1}</span>
             </div>
-            {/* EMV chip + contactless */}
-            <div className="relative flex items-center gap-2 mt-4">
+            {/* EMV chip + contactless, only on the drawn face */}
+            {!assets['card_'+cardKey(cc.name)] && <div className="relative flex items-center gap-2 mt-4">
               <span className="h-7 w-9 rounded-[5px] grid place-items-center" style={{background:'linear-gradient(135deg,#F4D27A,#C9A24A)'}}>
                 <span className="block h-4 w-6 rounded-[3px]" style={{background:'linear-gradient(135deg,#E6C173,#B4913F)',boxShadow:'inset 0 0 0 1px rgba(0,0,0,.18)'}}/></span>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" opacity=".85">
                 <path d="M8.5 8.5a5 5 0 0 1 0 7M12 6a9 9 0 0 1 0 12M5 11a2 2 0 0 1 0 2"/></svg>
-            </div>
-            <div className="relative text-[12px] tracking-[.22em] mt-4 opacity-95">•••• •••• •••• {cc.num}</div>
-            <div className="relative flex items-end justify-between mt-2">
+            </div>}
+            {!assets['card_'+cardKey(cc.name)] && <div className="relative text-[12px] tracking-[.22em] mt-4 opacity-95">•••• •••• •••• {cc.num}</div>}
+            {!assets['card_'+cardKey(cc.name)] && <div className="relative flex items-end justify-between mt-2">
               <div className="min-w-0"><div className="text-[9px] uppercase tracking-wider opacity-70">Card holder</div>
                 <div className="text-[11px] font-medium truncate">{(app.profile.name||'Your name').toUpperCase()}</div></div>
               {/* network mark */}
@@ -5873,7 +5881,7 @@ function Credit(){
                 <span className="h-5 w-5 rounded-full" style={{background:'rgba(255,255,255,.85)'}}/>
                 <span className="h-5 w-5 rounded-full -ml-2" style={{background:'rgba(255,255,255,.55)'}}/>
               </span>
-            </div>
+            </div>}
           </button>; })}</div>
         <Card hover={false}><div className="flex items-start justify-between"><div><Eyebrow>{c.bank}</Eyebrow><div className="font-serif text-xl text-charcoal mt-1">{c.name}</div></div><Pill tone="gold">#{cardSel+1}</Pill></div>
           <div className="grid grid-cols-2 gap-3 mt-3">
@@ -9915,17 +9923,50 @@ function Community(){
   const Avatar=({name,size=44})=><span className="grid place-items-center rounded-full text-white font-semibold shrink-0" style={{width:size,height:size,background:`linear-gradient(135deg,${avatarHue(name)},${avatarHue(name)}AA)`,fontSize:size*0.36}}>{initialsOf(name)}</span>;
   return <AppShell>
     <PageHead eyebrow="Community" title="Connect with the Lumera community." desc="Share what you’re working on, drop your LinkedIn, find people on the same path, and swap opportunities. Real people, real momentum."/>
-    <div className="rounded-2xl p-5 mb-4 text-white flex flex-wrap items-center gap-6" style={{background:'linear-gradient(135deg,#7C3AED 0%,#4F46E5 50%,#0D9488 100%)'}}>
-      {[['Members',SEED_MEMBERS.length+1],['Your connections',connected.length],['Posts',allPosts.length],['Opportunities',SEED_OPPS.length]].map(([l,n])=><div key={l}><div className="font-serif text-3xl">{n}</div><div className="text-xs opacity-85">{l}</div></div>)}
-      <a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" className="ml-auto btn bg-white/15 hover:bg-white/25 text-white text-sm">Add your LinkedIn <Icon name="arrowR" size={13} className="-rotate-45"/></a>
+    <div className="relative overflow-hidden rounded-xl3 p-6 mb-4 text-white"
+      style={{background:'linear-gradient(135deg,#7C3AED 0%,#4F46E5 50%,#0D9488 100%)'}}>
+      <div className="absolute inset-0 opacity-[.12] pointer-events-none"
+        style={{backgroundImage:'radial-gradient(circle,#fff 1.3px,transparent 1.4px)',backgroundSize:'22px 22px'}}/>
+      <div className="relative flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <div className="text-[11px] uppercase tracking-[.2em]" style={{color:'rgba(255,255,255,.8)'}}>The Lumera community</div>
+          <div className="font-serif text-2xl mt-1">{connected.length? `You are connected to ${connected.length} member${connected.length===1?'':'s'}.` : 'Start with one connection.'}</div>
+        </div>
+        <a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer"
+          className="btn text-sm shrink-0" style={{background:'rgba(255,255,255,.18)',color:'#fff'}}>
+          Add your LinkedIn <Icon name="arrowR" size={13} className="-rotate-45"/></a>
+      </div>
+      <div className="relative grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5">
+        {[['Members',SEED_MEMBERS.length+1,'👥'],['Your connections',connected.length,'🤝'],
+          ['Posts',allPosts.length,'💬'],['Opportunities',SEED_OPPS.length,'🎯']].map(([l,n,e])=>
+          <div key={l} className="rounded-xl2 px-3 py-2.5"
+            style={{background:'rgba(255,255,255,.15)',border:'1px solid rgba(255,255,255,.2)'}}>
+            <div className="flex items-baseline gap-2"><span className="text-base">{e}</span>
+              <span className="font-serif text-2xl tnum">{n}</span></div>
+            <div className="text-[10px] uppercase tracking-wider mt-0.5" style={{color:'rgba(255,255,255,.8)'}}>{l}</div>
+          </div>)}
+      </div>
     </div>
     <div className="flex gap-2 mb-4 flex-wrap">{['Feed','Members','Opportunities'].map(t=><button key={t} onClick={()=>setTab(t)} className={cx('chip',tab===t&&'on')}>{t}</button>)}</div>
     {tab==='Feed' && <div className="grid lg:grid-cols-3 gap-4">
       <div className="lg:col-span-2 space-y-3">
-        <Card hover={false}><div className="flex gap-3"><Avatar name={me}/><div className="flex-1">
-          <textarea value={draft} onChange={e=>setDraft(e.target.value)} placeholder={`Share an update, a win, or what you’re looking for, ${me}…`} rows={2} className="w-full rounded-xl border border-line bg-cream px-3 py-2.5 text-sm focus:outline-none resize-none"/>
-          <div className="flex items-center gap-2 mt-2"><div className="flex-1 relative"><Icon name="user" size={14} className="absolute left-2.5 top-2.5 text-faint"/><input value={draftLi} onChange={e=>setDraftLi(e.target.value)} placeholder="Link to your LinkedIn post (optional)" className="w-full rounded-xl border border-line bg-cream pl-8 pr-3 py-2 text-xs focus:outline-none"/></div>
-            <button onClick={post} className="btn btn-primary text-sm px-4 py-2">Post</button></div></div></div></Card>
+        <Card hover={false}>
+          <div className="flex gap-3"><Avatar name={me}/>
+            <div className="flex-1 min-w-0">
+              <textarea value={draft} onChange={e=>setDraft(e.target.value)}
+                placeholder={`Share an update, a win, or what you’re looking for, ${me}…`} rows={3}
+                className="w-full rounded-xl2 border border-line bg-cream px-3.5 py-3 text-sm focus:border-gold focus:outline-none resize-none"/>
+              <div className="flex items-center gap-2 mt-2 flex-wrap">
+                <div className="flex-1 min-w-[200px] relative">
+                  <Icon name="user" size={14} className="absolute left-2.5 top-2.5 text-faint"/>
+                  <input value={draftLi} onChange={e=>setDraftLi(e.target.value)}
+                    placeholder="Link to a LinkedIn post (optional)"
+                    className="w-full rounded-xl border border-line bg-cream pl-8 pr-3 py-2 text-xs focus:border-gold focus:outline-none"/></div>
+                <button onClick={post} disabled={!draft.trim()}
+                  className={cx('btn text-sm px-5 py-2 shrink-0', draft.trim()?'btn-primary':'btn-ghost opacity-50 cursor-default')}>Post</button>
+              </div>
+            </div></div>
+        </Card>
         {allPosts.map((p,i)=><Card key={i}><div className="flex gap-3"><Avatar name={p.name}/><div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap"><span className="font-semibold text-charcoal text-sm">{p.name}</span>{p.mine&&<Pill tone="gold">You</Pill>}<span className="text-xs text-faint">· {p.ago}</span><span className="ml-auto text-[11px] rounded-full px-2 py-0.5" style={{background:avatarHue(p.name)+'18',color:avatarHue(p.name)}}>{p.tag}</span></div>
           <div className="text-xs text-faint">{p.head}</div>
@@ -9936,19 +9977,25 @@ function Community(){
           </div></div></div></Card>)}
       </div>
       <div className="space-y-4">
-        <Card hover={false}><Eyebrow className="mb-2">People to connect with</Eyebrow><div className="space-y-2.5">{SEED_MEMBERS.slice(0,4).map(mem=>{ const on=connected.includes(mem.name);
+        {connected.length>0 && <Card hover={false}>
+          <Eyebrow className="mb-2">Your connections</Eyebrow>
+          <div className="flex flex-wrap gap-2">{connected.map(n=>
+            <span key={n} className="flex items-center gap-1.5 rounded-full bg-sand pl-1 pr-2.5 py-1">
+              <Avatar name={n} size={22}/><span className="text-[11.5px] text-charcoal">{n}</span></span>)}</div>
+        </Card>}
+        <Card hover={false}><Eyebrow className="mb-2">People to connect with</Eyebrow><div className="space-y-2.5">{SEED_MEMBERS.filter(mm=>!connected.includes(mm.name)).slice(0,5).map(mem=>{ const on=connected.includes(mem.name);
           return <div key={mem.name} className="flex items-center gap-2.5"><Avatar name={mem.name} size={34}/><div className="min-w-0 flex-1"><div className="text-sm font-medium text-charcoal truncate">{mem.name}</div><div className="text-[11px] text-faint truncate">{mem.head}</div></div>
             <button onClick={()=>toggleConn(mem.name)} className={cx('text-[11px] font-semibold rounded-lg px-2.5 py-1 shrink-0',on?'bg-sage/12 text-saged':'btn-primary text-white')}>{on?'✓':'Connect'}</button></div>; })}</div></Card>
         <Card hover={false}><Eyebrow className="mb-2">Trending tags</Eyebrow><div className="flex flex-wrap gap-1.5">{['Investment Banking','Quant','Consulting','Fintech','CFA','Cases','Startups','Economics'].map(t=><span key={t} className="text-[11px] rounded-full bg-sand px-2.5 py-1 text-muted">#{t.replace(/\s/g,'')}</span>)}</div></Card>
       </div>
     </div>}
-    {tab==='Members' && <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">{SEED_MEMBERS.map(mem=>{ const on=connected.includes(mem.name);
+    {tab==='Members' && <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger row-center cols-3" style={{'--rg':'1rem'}}>{SEED_MEMBERS.map(mem=>{ const on=connected.includes(mem.name);
       return <Card key={mem.name}><div className="flex items-center gap-3"><Avatar name={mem.name} size={52}/><div className="min-w-0"><div className="font-serif text-lg text-charcoal truncate">{mem.name}</div><div className="text-xs text-faint">{mem.loc}</div></div></div>
         <p className="text-sm text-charcoal/85 mt-2">{mem.head}</p>
         <div className="flex flex-wrap gap-1.5 mt-2">{mem.tags.map(t=><span key={t} className="text-[11px] rounded-full px-2 py-0.5" style={{background:avatarHue(mem.name)+'15',color:avatarHue(mem.name)}}>{t}</span>)}</div>
         <div className="flex items-center gap-2 mt-3 pt-3 border-t border-line"><button onClick={()=>toggleConn(mem.name)} className={cx('btn text-sm flex-1',on?'btn-ghost':'btn-primary')}>{on?'✓ Connected':'Connect'}</button>
           <a href={mem.li} target="_blank" rel="noopener noreferrer" className="btn btn-ghost text-sm px-3"><Icon name="user" size={14}/></a></div></Card>; })}</div>}
-    {tab==='Opportunities' && <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">{SEED_OPPS.map(o=>
+    {tab==='Opportunities' && <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger row-center cols-3" style={{'--rg':'1rem'}}>{SEED_OPPS.map(o=>
       <Card key={o.title} className="flex flex-col"><Pill tone="gold">{o.type}</Pill><div className="font-serif text-lg text-charcoal mt-2">{o.title}</div><div className="text-[11px] text-faint mt-0.5">{o.org}</div>
         <p className="text-sm text-muted mt-2 leading-relaxed flex-1">{o.text}</p>
         <a href={o.li} target="_blank" rel="noopener noreferrer" className="btn btn-ghost mt-3 py-2 text-xs justify-between">Connect on LinkedIn <Icon name="arrowR" size={11} className="-rotate-45"/></a></Card>)}</div>}
