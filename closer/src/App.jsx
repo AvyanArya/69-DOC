@@ -6,6 +6,7 @@ import Pricing from './pages/Pricing.jsx'
 import AppShell from './components/AppShell.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import Simulator from './pages/Simulator.jsx'
+import Arena from './pages/Arena.jsx'
 import Characters from './pages/Characters.jsx'
 import Challenges from './pages/Challenges.jsx'
 import Scenarios from './pages/Scenarios.jsx'
@@ -36,6 +37,7 @@ export default function App() {
         <Route path="/app" element={<AppShell />}>
           <Route index element={<Dashboard />} />
           <Route path="simulator" element={<Simulator />} />
+          <Route path="arena" element={<Arena />} />
           <Route path="characters" element={<Characters />} />
           <Route path="challenges" element={<Challenges />} />
           <Route path="scenarios" element={<Scenarios />} />

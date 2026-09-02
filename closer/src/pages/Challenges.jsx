@@ -1,4 +1,4 @@
-// Challenge modes grid.
+// Challenge modes — compact, visual, minimal text.
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { CHALLENGES } from '../data/challenges.js'
@@ -22,38 +22,37 @@ export default function Challenges() {
   return (
     <div className="page-enter">
       <div className="main-header">
-        <h1>Challenge Modes</h1>
-        <p>Structured missions with a clear objective. Beat the objective, bank the XP.</p>
+        <h1>Challenges</h1>
+        <p>Pick a mission. Beat the objective. Bank the XP.</p>
       </div>
 
-      <div className="row wrap" style={{ marginBottom: 20 }}>
+      <div className="row wrap" style={{ marginBottom: 18 }}>
         {CATS.map((c) => (
           <button key={c} className={`chip ${cat === c ? 'gold' : ''}`} style={{ cursor: 'pointer' }} onClick={() => setCat(c)}>{c}</button>
         ))}
       </div>
 
-      <div className="grid grid-3">
-        {list.map((c, i) => {
+      <div className="chal-grid">
+        {list.map((c) => {
           const opp = getCharacter(c.characterId)
           const best = bestFor(c.id)
           return (
             <button
-              key={c.id} className={`card char-card card-hover anim-up d${(i % 3) + 1}`}
+              key={c.id} className="chal-card card card-hover"
               onClick={() => nav('/app/simulator', { state: { characterId: c.characterId, challengeId: c.id } })}
+              title={c.objective}
             >
-              <div className="char-top">
-                <span className="char-emoji">{c.emoji}</span>
-                <div>
-                  <h3>{c.name}</h3>
-                  <span className="char-title">{c.category} · ~{c.minutes} min</span>
+              <span className="chal-emoji">{c.emoji}</span>
+              <div className="chal-body">
+                <div className="row between">
+                  <b className="chal-name">{c.name}</b>
+                  {best != null && <span className="chip good" style={{ fontSize: 10.5 }}>{best}</span>}
                 </div>
-              </div>
-              <Difficulty level={c.difficulty} showLabel />
-              <p className="char-desc">{c.brief}</p>
-              <div style={{ fontSize: 12.5, color: 'var(--gold-bright)' }}>🎯 {c.objective}</div>
-              <div className="char-meta">
-                <span className="chip">vs {opp.emoji} {opp.name}</span>
-                {best != null && <span className="chip good">Best: {best}</span>}
+                <div className="chal-meta">
+                  <Difficulty level={c.difficulty} />
+                  <span>·</span><span>{c.minutes}m</span>
+                  <span>·</span><span>{opp.emoji}</span>
+                </div>
               </div>
             </button>
           )

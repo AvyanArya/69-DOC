@@ -218,15 +218,29 @@ async function elevenSpeak(text, character, settings) {
   return playAudioResponse(res)
 }
 
+/** True when a genuinely human voice can play (user key or site proxy). */
+export function premiumVoiceAvailable(settings = {}) {
+  return Boolean(settings.elevenLabsKey) || proxyConfigured === true
+}
+
+/** Roughly how long a spoken line would take, so caption-only mode paces
+ *  turns like a real conversation. ~13 chars/sec at a natural rate. */
+function estimateDuration(text, settings = {}) {
+  return Math.max(1100, Math.min(9000, (text.length / 13) * 1000 / (settings.voiceRate || 1)))
+}
+
 /**
- * Speak a line AS a character: premium ElevenLabs voice when a key is set,
- * otherwise the pinned browser voice. Single call site for calls + replay.
+ * Speak a line AS a character.
+ * - Premium voice (user key or site proxy) → real human audio.
+ * - Otherwise, browser TTS is OFF by default (it sounds robotic); the line
+ *   is delivered via captions and we just wait a natural beat. Users who
+ *   want the system voice can opt in with settings.browserVoice.
  */
 export function speakAs(text, character, settings = {}) {
   let cancelled = false
   let inner = null
+  let timer = null
   const promise = (async () => {
-    // Ladder: user's own key → site-wide /api/tts proxy → browser voice.
     if (settings.elevenLabsKey) {
       try {
         inner = await elevenSpeak(text, character, settings)
@@ -241,18 +255,21 @@ export function speakAs(text, character, settings = {}) {
         if (cancelled) { inner.cancel(); return }
         await inner.promise
         return
-      } catch { /* fall through to browser voice */ }
+      } catch { /* fall through */ }
     }
     if (cancelled) return
-    const browserTuning = personaVoiceTuning(character.id).browser || {}
-    // Keep persona shaping subtle on system voices, big pitch shifts make
-    // them sound warped, which reads as MORE robotic, not less.
-    const rate = Math.max(0.85, Math.min(1.18, browserTuning.rate ?? character.speakingSpeed ?? 1)) * (settings.voiceRate || 1)
-    const pitch = Math.max(0.9, Math.min(1.12, browserTuning.pitch ?? character.voice?.pitch ?? 1))
-    inner = speak(text, { rate, pitch, voice: resolveCharacterVoice(character) })
-    await inner.promise
+    if (settings.browserVoice) {
+      const browserTuning = personaVoiceTuning(character.id).browser || {}
+      const rate = Math.max(0.85, Math.min(1.18, browserTuning.rate ?? character.speakingSpeed ?? 1)) * (settings.voiceRate || 1)
+      const pitch = Math.max(0.9, Math.min(1.12, browserTuning.pitch ?? character.voice?.pitch ?? 1))
+      inner = speak(text, { rate, pitch, voice: resolveCharacterVoice(character) })
+      await inner.promise
+      return
+    }
+    // Caption-only: no robotic voice, just pace the turn naturally.
+    await new Promise((res) => { timer = setTimeout(res, estimateDuration(text, settings)) })
   })()
-  return { promise, cancel: () => { cancelled = true; inner?.cancel?.() } }
+  return { promise, cancel: () => { cancelled = true; clearTimeout(timer); inner?.cancel?.() } }
 }
 
 /** Text prep for the synthesizer: strip what engines mangle (emoji, em-dashes

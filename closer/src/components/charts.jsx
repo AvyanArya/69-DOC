@@ -169,7 +169,16 @@ export function BarRows({ items, max = 100, unit = '', color = SERIES[0] }) {
 }
 
 /* ── Heatmap: activity calendar (sequential gold ramp) ────── */
-const HEAT_RAMP = ['#1d1d24', '#33290f', '#54400f', '#7a5c10', '#a37a14', '#c98500']
+// Gold opacity ramp over the card surface — reads correctly in both themes
+// (empty = a faint surface tint, not a hardcoded dark square).
+const HEAT_RAMP = [
+  'var(--bg-4)',
+  'rgba(201,133,0,.28)',
+  'rgba(201,133,0,.46)',
+  'rgba(201,133,0,.66)',
+  'rgba(201,133,0,.85)',
+  'var(--series-1)',
+]
 export function ActivityHeatmap({ days, weeks = 16 }) {
   // days: Map(dayKey → count)
   const [tip, setTip] = useState(null)

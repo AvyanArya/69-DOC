@@ -4,10 +4,12 @@ import { useProfile } from '../components/AppShell.jsx'
 import { Card, Toggle } from '../components/ui.jsx'
 import { updateProfile, resetProfile } from '../lib/storage.js'
 import { speechSupport, speak, pickVoice, speakAs } from '../lib/speech.js'
+import { useTheme } from '../lib/theme.js'
 
 export default function Settings() {
   const profile = useProfile()
   const s = profile.settings
+  const { theme, setTheme } = useTheme()
   const [testing, setTesting] = useState(false)
   const [micLevel, setMicLevel] = useState(null)
 
@@ -97,6 +99,13 @@ export default function Settings() {
             <input type="range" min="0.1" max="1" step="0.1" value={s.speechSensitivity} onChange={(e) => set('speechSensitivity', Number(e.target.value))} />
           </div>
         </div>
+        <div className="settings-row">
+          <div style={{ maxWidth: 360 }}>
+            <b>Speak with my browser voice</b>
+            <small>Off by default because browser voices sound robotic. When off, characters reply in text captions. Turn on only if you want the system voice.</small>
+          </div>
+          <Toggle checked={!!s.browserVoice} onChange={(v) => set('browserVoice', v)} label="Browser voice" />
+        </div>
         <div className="settings-row" style={{ borderBottom: 'none', alignItems: 'flex-start' }}>
           <div style={{ maxWidth: 340 }}>
             <b>Premium AI voices {s.elevenLabsKey ? <span className="chip good" style={{ marginLeft: 6 }}>active</span> : <span className="chip" style={{ marginLeft: 6 }}>optional</span>}</b>
@@ -129,6 +138,26 @@ export default function Settings() {
       </Card>
 
       <Card className="pad" style={{ marginBottom: 16 }}>
+        <h3 style={{ fontSize: 15.5, marginBottom: 4 }}>🧠 Live AI conversations {s.llmKey ? <span className="chip good" style={{ marginLeft: 6 }}>on</span> : <span className="chip" style={{ marginLeft: 6 }}>optional</span>}</h3>
+        <p className="muted" style={{ fontSize: 12.5, marginBottom: 6 }}>
+          Add an OpenAI-compatible key and characters reply with a live model that actually adapts to what you
+          say (instead of the built-in script). Scoring still runs locally. The key stays in this browser.
+        </p>
+        <div className="settings-row">
+          <div><b>API key</b><small>OpenAI or any compatible endpoint</small></div>
+          <input type="password" className="input" style={{ width: 220 }} placeholder="sk-…" value={s.llmKey || ''} onChange={(e) => set('llmKey', e.target.value.trim())} aria-label="LLM API key" />
+        </div>
+        <div className="settings-row">
+          <div><b>Model</b></div>
+          <input className="input" style={{ width: 220 }} value={s.llmModel || ''} onChange={(e) => set('llmModel', e.target.value.trim())} placeholder="gpt-4o-mini" />
+        </div>
+        <div className="settings-row" style={{ borderBottom: 'none' }}>
+          <div><b>API base URL</b><small>Change for Azure, OpenRouter, local models, etc.</small></div>
+          <input className="input" style={{ width: 220 }} value={s.llmBase || ''} onChange={(e) => set('llmBase', e.target.value.trim())} placeholder="https://api.openai.com/v1" />
+        </div>
+      </Card>
+
+      <Card className="pad" style={{ marginBottom: 16 }}>
         <h3 style={{ fontSize: 15.5, marginBottom: 4 }}>🎧 Coaching</h3>
         <div className="settings-row">
           <div><b>Whisper coach</b><small>Live suggestions during calls, quietly, in the pauses</small></div>
@@ -155,8 +184,11 @@ export default function Settings() {
           </select>
         </div>
         <div className="settings-row" style={{ borderBottom: 'none' }}>
-          <div><b>Theme</b><small>Closer is built dark-first, light theme is on the roadmap</small></div>
-          <span className="chip gold">🌙 Premium dark</span>
+          <div><b>Theme</b><small>Deep warm brown, or a light gold-on-cream mode</small></div>
+          <div className="row" style={{ gap: 8 }}>
+            <button className={`btn btn-sm ${theme === 'dark' ? 'btn-gold' : 'btn-ghost'}`} onClick={() => setTheme('dark')}>🌙 Dark</button>
+            <button className={`btn btn-sm ${theme === 'light' ? 'btn-gold' : 'btn-ghost'}`} onClick={() => setTheme('light')}>☀️ Light</button>
+          </div>
         </div>
       </Card>
 

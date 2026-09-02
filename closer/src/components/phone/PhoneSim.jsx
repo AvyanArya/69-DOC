@@ -5,6 +5,7 @@ import { CHARACTERS, DIFFICULTY_LABELS, getCharacter } from '../../data/characte
 import { createConversation } from '../../lib/conversation.js'
 import { scoreCall } from '../../lib/scoring.js'
 import { speechSupport, stopSpeaking, listenOnce, speakAs, voicesReady } from '../../lib/speech.js'
+import { llmEnabled, generateLine } from '../../lib/llm.js'
 import { getProfile } from '../../lib/storage.js'
 import { fmtDuration } from '../../lib/format.js'
 import { Difficulty } from '../ui.jsx'
@@ -119,25 +120,43 @@ function HomeScreen({ onOpen }) {
   )
 }
 
-/* ── Contacts ─────────────────────────────────────────────── */
+/* ── Contacts (iOS-style) ─────────────────────────────────── */
 function ContactsScreen({ onBack, onCall }) {
+  const [q, setQ] = useState('')
+  const list = CHARACTERS
+    .filter((c) => c.name.toLowerCase().includes(q.toLowerCase()) || c.industry.toLowerCase().includes(q.toLowerCase()))
+    .slice()
+    .sort((a, b) => a.name.localeCompare(b.name))
+  // Group alphabetically like the iOS Contacts app
+  const groups = {}
+  for (const c of list) { const k = c.name[0].toUpperCase(); (groups[k] ||= []).push(c) }
   return (
-    <div className="pscreen contacts-screen">
-      <div className="papp-header">
-        <button className="papp-back" onClick={onBack}>‹ Home</button>
-        <h4>Contacts</h4>
-        <span style={{ fontSize: 12, color: 'rgba(255,255,255,.45)' }}>{CHARACTERS.length}</span>
+    <div className="pscreen ios-app">
+      <div className="ios-nav">
+        <button className="ios-back" onClick={onBack}>‹ Phone</button>
+        <span className="ios-nav-title">Contacts</span>
+        <span style={{ width: 44 }} />
       </div>
-      <div className="contacts-list">
-        {CHARACTERS.map((c) => (
-          <button key={c.id} className="contact-row" onClick={() => onCall(c)}>
-            <span className="contact-avatar">{c.emoji}</span>
-            <span>
-              <b>{c.name}</b>
-              <small>{c.title} · {c.industry}</small>
-            </span>
-            <span className="contact-diff"><Difficulty level={c.difficulty} /></span>
-          </button>
+      <div className="ios-largetitle">Contacts</div>
+      <div className="ios-search">
+        <span aria-hidden="true">🔍</span>
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search" aria-label="Search contacts" />
+      </div>
+      <div className="ios-list">
+        {Object.keys(groups).map((letter) => (
+          <div key={letter}>
+            <div className="ios-section">{letter}</div>
+            {groups[letter].map((c) => (
+              <button key={c.id} className="ios-row" onClick={() => onCall(c)}>
+                <span className="ios-avatar">{c.emoji}</span>
+                <span className="ios-row-main">
+                  <b>{c.name}</b>
+                  <small>{c.title}</small>
+                </span>
+                <span className="ios-row-diff"><Difficulty level={c.difficulty} /></span>
+              </button>
+            ))}
+          </div>
         ))}
       </div>
     </div>
@@ -146,24 +165,28 @@ function ContactsScreen({ onBack, onCall }) {
 
 /* ── Recents ──────────────────────────────────────────────── */
 function RecentsScreen({ onBack, onCall }) {
-  const calls = [...getProfile().calls].reverse().slice(0, 12)
+  const calls = [...getProfile().calls].reverse().slice(0, 14)
   return (
-    <div className="pscreen contacts-screen">
-      <div className="papp-header">
-        <button className="papp-back" onClick={onBack}>‹ Home</button>
-        <h4>Recents</h4>
+    <div className="pscreen ios-app">
+      <div className="ios-nav">
+        <button className="ios-back" onClick={onBack}>‹ Phone</button>
+        <span className="ios-nav-title">Recents</span>
+        <span style={{ width: 44 }} />
       </div>
-      <div className="contacts-list">
+      <div className="ios-largetitle">Recents</div>
+      <div className="ios-list">
+        {calls.length === 0 && <div className="ios-empty">No calls yet. Pick a contact to start.</div>}
         {calls.map((call) => {
           const c = getCharacter(call.characterId)
+          const missed = call.outcome === 'hangup'
           return (
-            <button key={call.id} className="contact-row" onClick={() => onCall(c)}>
-              <span className="contact-avatar">{c.emoji}</span>
-              <span>
-                <b>{c.name}</b>
-                <small>{call.outcome === 'hangup' ? '📵 Hung up on you' : `✓ Scored ${call.overall}`} · {fmtDuration(call.durationSec)}</small>
+            <button key={call.id} className="ios-row" onClick={() => onCall(c)}>
+              <span className="ios-avatar">{c.emoji}</span>
+              <span className="ios-row-main">
+                <b style={missed ? { color: '#ff6b6b' } : undefined}>{missed ? '↙ ' : ''}{c.name}</b>
+                <small>{missed ? 'Hung up on you' : `Scored ${call.overall}`} · {fmtDuration(call.durationSec)}</small>
               </span>
-              <span style={{ marginLeft: 'auto', color: 'var(--gold-bright)', fontSize: 16 }}>📞</span>
+              <span className="ios-call-glyph" aria-hidden="true">ⓘ</span>
             </button>
           )
         })}
@@ -290,14 +313,27 @@ function CallScreen({ character, challenge, scenario, incoming, whisperEnabled, 
     setCaption({ speaker: 'You', text, user: true })
     transcriptRef.current.push({ speaker: 'user', text, t: startRef.current ? (Date.now() - startRef.current) / 1000 : 0 })
     setTurn('processing')
-    await new Promise((r) => setTimeout(r, 350 + Math.random() * 500)) // natural beat
+    await new Promise((r) => setTimeout(r, 300 + Math.random() * 350)) // natural beat
     const conv = convRef.current
     const res = conv.reply(text)
     if (whisperEnabled && res.coach) {
       setWhisper(res.coach)
       setTimeout(() => setWhisper(null), 4200)
     }
-    await aiSay(res.text, res.emotion)
+    // Live LLM (optional): generate a genuinely adaptive line in-character,
+    // while the local engine keeps scoring + outcome. Falls back to the
+    // engine's own line on any error or when no key is set.
+    let line = res.text
+    if (llmEnabled(settings)) {
+      try {
+        line = await generateLine({
+          character, scenario, transcript: transcriptRef.current,
+          hint: { emotion: res.emotion, outcome: res.outcome, phase: conv.state.phase },
+          settings,
+        })
+      } catch { /* keep engine line */ }
+    }
+    await aiSay(line, res.emotion)
     if (res.done) {
       finishCall(res.outcome)
     } else {
@@ -321,17 +357,17 @@ function CallScreen({ character, challenge, scenario, incoming, whisperEnabled, 
         setNeedsTyping(true)
       }
     }
-    // Let the browser's voice list finish loading so the character keeps
-    // one consistent voice from the very first word.
-    await Promise.all([voicesReady(), new Promise((r) => setTimeout(r, 600))])
+    // Only wait for the browser voice list when we'll actually use it.
+    if (settings.browserVoice && !settings.elevenLabsKey) await voicesReady(900)
+    else await new Promise((r) => setTimeout(r, 250))
     await aiSay(open.text, open.emotion)
     userTurn()
-  }, [aiSay, character, challenge, scenario, userTurn])
+  }, [aiSay, character, challenge, scenario, userTurn, settings])
 
-  // Outgoing: ring then connect
+  // Outgoing: a short, realistic ring then connect
   useEffect(() => {
     if (stage !== 'ringing') return
-    const t = setTimeout(beginCall, 2200 + Math.random() * 1200)
+    const t = setTimeout(beginCall, 1100 + Math.random() * 500)
     return () => clearTimeout(t)
   }, [stage, beginCall])
 

@@ -4,6 +4,7 @@ import { useSyncExternalStore } from 'react'
 import { getProfile, subscribe } from '../lib/storage.js'
 import { levelFromXp, rankForLevel } from '../lib/xp.js'
 import { APP_VERSION } from '../lib/version.js'
+import { useTheme } from '../lib/theme.js'
 
 export function useProfile() {
   return useSyncExternalStore(subscribe, getProfile, getProfile)
@@ -13,6 +14,7 @@ const NAV = [
   { group: 'Train', items: [
     { to: '/app', label: 'Dashboard', icon: '◈', end: true },
     { to: '/app/simulator', label: 'Phone Simulator', icon: '📞' },
+    { to: '/app/arena', label: 'Live Arena', icon: '🎙️' },
     { to: '/app/challenges', label: 'Challenges', icon: '🏁' },
     { to: '/app/scenarios', label: 'Scenario Lab', icon: '🧪' },
     { to: '/app/daily', label: 'Daily Practice', icon: '⚡' },
@@ -30,6 +32,16 @@ const NAV = [
     { to: '/app/settings', label: 'Settings', icon: '⚙' },
   ]},
 ]
+
+function ThemeToggle() {
+  const { theme, toggle } = useTheme()
+  return (
+    <button className="theme-toggle" onClick={toggle} aria-label="Toggle light or dark theme" title={theme === 'dark' ? 'Switch to light' : 'Switch to dark'}>
+      <span className={theme === 'dark' ? 'on' : ''}>🌙</span>
+      <span className={theme === 'light' ? 'on' : ''}>☀️</span>
+    </button>
+  )
+}
 
 const MOBILE_NAV = [
   { to: '/app', label: 'Home', icon: '◈', end: true },
@@ -64,10 +76,11 @@ export default function AppShell() {
         ))}
         <div className="sidebar-user">
           <span className="avatar">{profile.user.avatar}</span>
-          <div>
+          <div style={{ flex: 1, minWidth: 0 }}>
             <b>{profile.user.name}</b>
             <small>{rank.icon} {rank.name} · Lv {level}</small>
           </div>
+          <ThemeToggle />
         </div>
         <div style={{ textAlign: 'center', fontSize: 10.5, color: 'var(--ink-3)', paddingTop: 8 }}>
           Closer v{APP_VERSION}
@@ -76,11 +89,14 @@ export default function AppShell() {
 
       <div className="mobile-topbar">
         <Link to="/" className="row" style={{ gap: 8 }}>
-          <span className="logo-mark" style={{ width: 28, height: 28, fontSize: 14 }}>C</span>
+          <span className="logo-mark sm">C</span>
           <b>Closer</b>
           <span style={{ fontSize: 10, color: 'var(--ink-3)' }}>v{APP_VERSION}</span>
         </Link>
-        <span className="chip gold">{rank.icon} Lv {level}</span>
+        <div className="row" style={{ gap: 8 }}>
+          <ThemeToggle />
+          <span className="chip gold">{rank.icon} Lv {level}</span>
+        </div>
       </div>
 
       <main className="main">

@@ -6,6 +6,7 @@ import { LEADERBOARD, WEEKLY_CHALLENGE, TOURNAMENT, PRACTICE_ROOMS, FRIEND_FEED 
 import { ACHIEVEMENTS, TIER_COLORS } from '../data/achievements.js'
 import { levelFromXp, rankForLevel } from '../lib/xp.js'
 import { getCharacter } from '../data/characters.js'
+import { LIVE_PEERS } from '../data/arena.js'
 
 export default function Community() {
   const profile = useProfile()
@@ -16,6 +17,7 @@ export default function Community() {
 
   const myRow = { name: profile.user.name, avatar: profile.user.avatar, level, xp: profile.xp, streak: profile.streak.current, badge: rank.name }
   const position = LEADERBOARD.filter((r) => r.xp > profile.xp).length + 1
+  const liveTotal = PRACTICE_ROOMS.reduce((s, r) => s + r.live, 0)
 
   return (
     <div className="page-enter">
@@ -23,6 +25,26 @@ export default function Community() {
         <h1>Community</h1>
         <p>Iron sharpens iron. See where you stand, then climb.</p>
       </div>
+
+      {/* Live right now */}
+      <Card className="pad" style={{ marginBottom: 16, background: 'linear-gradient(120deg, var(--gold-soft), transparent 65%), var(--bg-3)' }}>
+        <div className="row between wrap" style={{ marginBottom: 12 }}>
+          <div className="row" style={{ gap: 9 }}>
+            <span className="live-dot" />
+            <h3 style={{ fontSize: 15.5 }}>Live right now</h3>
+            <span className="chip good" style={{ fontSize: 11 }}>{liveTotal} in rooms · {LIVE_PEERS.length} open to pitch</span>
+          </div>
+          <button className="btn btn-gold btn-sm" onClick={() => nav('/app/arena')}>Enter the Arena →</button>
+        </div>
+        <div className="live-strip">
+          {LIVE_PEERS.slice(0, 6).map((p) => (
+            <button key={p.id} className="live-chip" onClick={() => nav('/app/arena')} title={p.wants}>
+              <span className="live-chip-av">{p.avatar}<i /></span>
+              <span><b>{p.name}</b><small>{p.role}</small></span>
+            </button>
+          ))}
+        </div>
+      </Card>
 
       <div className="grid grid-2" style={{ marginBottom: 16 }}>
         <Card className="pad card-hover" style={{ borderColor: 'rgba(211,169,78,.35)' }}>

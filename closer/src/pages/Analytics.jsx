@@ -11,6 +11,8 @@ const SKILLS = [
   ['listening', 'Listening'], ['confidence', 'Confidence'], ['rapport', 'Rapport'],
   ['control', 'Control'], ['tonality', 'Tonality'],
 ]
+// Cycle the validated series palette so the charts aren't one flat gold.
+const HUES = ['#c98500', '#3987e5', '#199e70', '#e66767', '#9085e9', '#e87ba4', '#d95926', '#eda100']
 
 export default function Analytics() {
   const profile = useProfile()
@@ -50,6 +52,7 @@ export default function Analytics() {
       .map(([id, { n, total }]) => ({ label: `${getCharacter(id).emoji} ${getCharacter(id).name}`, value: Math.round(total / n), n }))
       .sort((a, b) => b.value - a.value)
       .slice(0, 8)
+      .map((it, i) => ({ ...it, color: HUES[i % HUES.length] }))
   }, [calls])
 
   const radar = SKILLS.map(([k, label]) => ({
@@ -67,7 +70,7 @@ export default function Analytics() {
       <div className="grid grid-4" style={{ marginBottom: 16 }}>
         <Stat label="Calls analyzed" value={calls.length} icon="📼" />
         <Stat label="Hours on the phone" value={fmtHours(calls.reduce((s, c) => s + c.durationSec, 0)) + 'h'} icon="⏱️" />
-        <Stat label="Weakest skill" value={weakness?.label ?? ', '} sub={`avg ${weakness?.now ?? ', '} · train it this week`} icon="🎯" />
+        <Stat label="Weakest skill" value={weakness?.label ?? 'None yet'} sub={`avg ${weakness?.now ?? 0} · train it this week`} icon="🎯" />
         <Stat label="Projected score" value={prediction} sub="in ~4 more calls at current pace" icon="🔮" accent />
       </div>
 
@@ -87,11 +90,11 @@ export default function Analytics() {
           <h3 style={{ fontSize: 15.5, marginBottom: 4 }}>Skill progression</h3>
           <p className="muted" style={{ fontSize: 12, marginBottom: 14 }}>Recent average vs your first calls, Δ shows growth</p>
           <div className="col" style={{ gap: 10 }}>
-            {skillAvgs.map((s) => (
+            {skillAvgs.map((s, i) => (
               <div key={s.label} className="bar-row">
                 <span className="bar-label">{s.label}</span>
                 <div className="bar-track">
-                  <div className="bar-fill" style={{ width: `${s.now}%`, background: '#c98500' }} />
+                  <div className="bar-fill" style={{ width: `${s.now}%`, background: HUES[i % HUES.length] }} />
                 </div>
                 <span className={`bar-value mono ${s.delta >= 0 ? 'score-good' : 'score-low'}`}>
                   {s.delta >= 0 ? `+${s.delta}` : s.delta}

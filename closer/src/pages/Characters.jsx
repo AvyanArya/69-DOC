@@ -1,10 +1,11 @@
-// Character roster + custom character builder.
+// Character roster — visual, minimal text, quick to scan.
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { CHARACTERS } from '../data/characters.js'
-import { Card, Difficulty, Modal, Meter } from '../components/ui.jsx'
+import { Difficulty, Modal } from '../components/ui.jsx'
 
 const FILTERS = ['All', 'Legends', 'Brutal', 'Hard', 'Medium', 'Easy']
+const LEGENDS = ['jordan-belfort', 'grant-cardone', 'steve-jobs', 'elon-musk', 'warren-buffett', 'mark-cuban', 'barbara-corcoran']
 
 export default function Characters() {
   const nav = useNavigate()
@@ -12,15 +13,13 @@ export default function Characters() {
   const [builderOpen, setBuilderOpen] = useState(false)
   const [custom, setCustom] = useState({ name: '', industry: 'SaaS', difficulty: 3, style: 'skeptical' })
 
-  const legends = ['jordan-belfort', 'grant-cardone', 'steve-jobs', 'elon-musk', 'warren-buffett', 'mark-cuban', 'barbara-corcoran']
   const list = CHARACTERS.filter((c) => {
     if (filter === 'All') return true
-    if (filter === 'Legends') return legends.includes(c.id)
+    if (filter === 'Legends') return LEGENDS.includes(c.id)
     return { Brutal: 5, Hard: 4, Medium: 3, Easy: 2 }[filter] === c.difficulty
   })
 
   const startCustom = () => {
-    // Custom builder maps to the closest archetype for the engine.
     const archetype = { skeptical: 'skeptical-customer', aggressive: 'angry-prospect', analytical: 'cold-cfo', warm: 'budget-buyer' }[custom.style]
     setBuilderOpen(false)
     nav('/app/simulator', { state: { characterId: archetype, scenario: {
@@ -35,47 +34,34 @@ export default function Characters() {
       <div className="main-header row between wrap">
         <div>
           <h1>Characters</h1>
-          <p>{CHARACTERS.length} AI opponents, each with their own temperament, objection style, and breaking point.</p>
+          <p>{CHARACTERS.length} AI opponents. Tap one to call.</p>
         </div>
-        <button className="btn btn-gold" onClick={() => setBuilderOpen(true)}>＋ Build custom character</button>
+        <button className="btn btn-gold" onClick={() => setBuilderOpen(true)}>＋ Build your own</button>
       </div>
 
-      <div className="row wrap" style={{ marginBottom: 20 }}>
+      <div className="row wrap" style={{ marginBottom: 18 }}>
         {FILTERS.map((f) => (
           <button key={f} className={`chip ${filter === f ? 'gold' : ''}`} style={{ cursor: 'pointer' }} onClick={() => setFilter(f)}>{f}</button>
         ))}
       </div>
 
-      <div className="grid grid-3">
-        {list.map((c, i) => (
+      <div className="roster-grid">
+        {list.map((c) => (
           <button
-            key={c.id} className={`card char-card card-hover anim-up d${(i % 3) + 1}`}
+            key={c.id} className="roster-card card card-hover"
             onClick={() => nav('/app/simulator', { state: { characterId: c.id } })}
           >
-            <div className="char-top">
-              <span className="char-emoji">{c.emoji}</span>
-              <div>
-                <h3>{c.name}</h3>
-                <span className="char-title">{c.title}</span>
-              </div>
-            </div>
-            <Difficulty level={c.difficulty} showLabel />
-            <p className="char-desc">{c.personality}</p>
-            <div className="trait-bars">
-              <div className="trait"><b>Speed</b><Meter value={c.speakingSpeed * 60} thin /></div>
-              <div className="trait"><b>Interrupts</b><Meter value={c.interruptiveness * 100} thin /></div>
-            </div>
-            <div className="char-meta">
-              <span className="chip">{c.industry}</span>
-              <span className="chip">{c.objectionStyle}</span>
-            </div>
-            <span className="btn btn-dark btn-sm btn-block" style={{ marginTop: 8 }}>📞 Call {c.name.split(' ')[0]}</span>
+            <span className="roster-emoji">{c.emoji}</span>
+            <b className="roster-name">{c.name}</b>
+            <span className="roster-title">{c.title}</span>
+            <Difficulty level={c.difficulty} />
+            <span className="chip" style={{ fontSize: 10.5, marginTop: 2 }}>{c.industry}</span>
           </button>
         ))}
       </div>
 
       <Modal open={builderOpen} onClose={() => setBuilderOpen(false)}>
-        <h2 style={{ fontSize: 20, marginBottom: 4 }} className="display">Custom character builder</h2>
+        <h2 style={{ fontSize: 20, marginBottom: 4 }} className="display">Build a character</h2>
         <p className="muted" style={{ fontSize: 13, marginBottom: 20 }}>Design the exact prospect you keep losing to.</p>
         <div className="col" style={{ gap: 14 }}>
           <div className="field">
@@ -91,10 +77,10 @@ export default function Characters() {
           <div className="field">
             <label>Temperament</label>
             <select className="select" value={custom.style} onChange={(e) => setCustom({ ...custom, style: e.target.value })}>
-              <option value="skeptical">Skeptical, demands proof</option>
-              <option value="aggressive">Aggressive, hostile from hello</option>
-              <option value="analytical">Analytical, only numbers matter</option>
-              <option value="warm">Warm, friendly but price-sensitive</option>
+              <option value="skeptical">Skeptical — demands proof</option>
+              <option value="aggressive">Aggressive — hostile from hello</option>
+              <option value="analytical">Analytical — only numbers matter</option>
+              <option value="warm">Warm — friendly but price-sensitive</option>
             </select>
           </div>
           <div className="field">
