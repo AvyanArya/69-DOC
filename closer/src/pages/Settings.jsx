@@ -101,10 +101,10 @@ export default function Settings() {
         </div>
         <div className="settings-row">
           <div style={{ maxWidth: 360 }}>
-            <b>Speak with my browser voice</b>
-            <small>Off by default because browser voices sound robotic. When off, characters reply in text captions. Turn on only if you want the system voice.</small>
+            <b>Character voices</b>
+            <small>On by default — characters speak out loud using your browser's best voice, with captions alongside. For genuinely human voices add a studio key below. Turn this off to train silently on captions only.</small>
           </div>
-          <Toggle checked={!!s.browserVoice} onChange={(v) => set('browserVoice', v)} label="Browser voice" />
+          <Toggle checked={!s.muteVoice} onChange={(v) => set('muteVoice', !v)} label="Character voices" />
         </div>
         <div className="settings-row" style={{ borderBottom: 'none', alignItems: 'flex-start' }}>
           <div style={{ maxWidth: 340 }}>

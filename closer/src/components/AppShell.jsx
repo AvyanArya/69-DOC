@@ -14,7 +14,7 @@ const NAV = [
   { group: 'Train', items: [
     { to: '/app', label: 'Dashboard', icon: '◈', end: true },
     { to: '/app/simulator', label: 'Phone Simulator', icon: '📞' },
-    { to: '/app/arena', label: 'Live Arena', icon: '🎙️' },
+    { to: '/app/arena', label: 'Live Arena', icon: '🎥' },
     { to: '/app/challenges', label: 'Challenges', icon: '🏁' },
     { to: '/app/scenarios', label: 'Scenario Lab', icon: '🧪' },
     { to: '/app/daily', label: 'Daily Practice', icon: '⚡' },

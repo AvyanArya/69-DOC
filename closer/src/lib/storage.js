@@ -56,6 +56,7 @@ function defaults() {
     calls,
     streak: { current: 6, best: 11, lastDay: dayKey(Date.now() - 86400000) },
     academy: {},          // moduleId -> { lessonsDone: [], quizBest: n, drillsDone: [] }
+    certificates: {},     // moduleId -> { earnedAt, score, name, course, level }
     achievements: ['first-call', 'streak-3', 'ten-calls', 'objection-slayer'],
     unlockedCharacters: [],
     goals: [
@@ -72,7 +73,7 @@ function defaults() {
       voice: 'auto', voiceRate: 1, accent: 'us',
       whisperCoach: true, notifications: true, dailyReminder: '08:30',
       micSensitivity: 0.6, speechSensitivity: 0.5, language: 'en',
-      browserVoice: false, elevenLabsKey: '',
+      muteVoice: false, elevenLabsKey: '',
       llmKey: '', llmModel: 'gpt-4o-mini', llmBase: 'https://api.openai.com/v1',
     },
     dailyDone: {},        // dayKey -> [drillIds]
@@ -126,6 +127,17 @@ export function recordCall(call) {
       p.streak.current = p.streak.lastDay === yesterday ? p.streak.current + 1 : 1
       p.streak.best = Math.max(p.streak.best, p.streak.current)
       p.streak.lastDay = today
+    }
+  })
+}
+
+export function awardCertificate(moduleId, data) {
+  return updateProfile((p) => {
+    if (!p.certificates) p.certificates = {}
+    if (!p.certificates[moduleId]) {
+      p.certificates[moduleId] = { earnedAt: Date.now(), ...data }
+      p.xp += 150 // certificate bonus
+      if (!p.achievements.includes('first-certificate')) p.achievements.push('first-certificate')
     }
   })
 }

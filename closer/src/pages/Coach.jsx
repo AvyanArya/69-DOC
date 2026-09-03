@@ -107,25 +107,28 @@ export default function Coach() {
         <p>Your persistent mentor. Remembers every call, tracks recurring mistakes, and assigns the work.</p>
       </div>
 
-      <div className="grid" style={{ gridTemplateColumns: '1.5fr 1fr' }}>
-        <Card className="pad">
+      <div className="grid coach-grid" style={{ gridTemplateColumns: '1.5fr 1fr' }}>
+        <Card className="pad coach-panel">
           <div className="coach-chat" ref={chatRef}>
             {messages.map((m, i) => (
               <div key={i} className={`coach-msg ${m.who} anim-up`}>{m.text}</div>
             ))}
-            {thinking && <div className="coach-msg ai">…</div>}
+            {thinking && <div className="coach-msg ai typing"><i /><i /><i /></div>}
           </div>
-          <form onSubmit={send} className="row" style={{ marginTop: 14, gap: 8 }}>
-            <input
-              className="input" placeholder="Ask about openers, objections, closing, nerves…"
-              value={input} onChange={(e) => setInput(e.target.value)} aria-label="Message the coach"
-            />
-            <button className="btn btn-gold" type="submit" disabled={!input.trim() || thinking}>Send</button>
-          </form>
-          <div className="row wrap" style={{ gap: 6, marginTop: 10 }}>
-            {['How do I handle price objections?', 'Build me a training plan', 'Why did my last call fail?'].map((s) => (
-              <button key={s} className="chip" style={{ cursor: 'pointer' }} onClick={() => setInput(s)}>{s}</button>
-            ))}
+          {/* Composer pinned to the bottom of the box: suggestions then input */}
+          <div className="coach-composer">
+            <div className="coach-suggests">
+              {['How do I handle price objections?', 'Build me a training plan', 'Why did my last call fail?', 'Fix my opener', 'Calm my nerves'].map((s) => (
+                <button key={s} className="chip" style={{ cursor: 'pointer' }} onClick={() => setInput(s)}>{s}</button>
+              ))}
+            </div>
+            <form onSubmit={send} className="row" style={{ gap: 8 }}>
+              <input
+                className="input" placeholder="Ask about openers, objections, closing, nerves…"
+                value={input} onChange={(e) => setInput(e.target.value)} aria-label="Message the coach"
+              />
+              <button className="btn btn-gold" type="submit" disabled={!input.trim() || thinking}>Send</button>
+            </form>
           </div>
         </Card>
 

@@ -343,3 +343,13 @@ input[type="range"]::-webkit-slider-thumb {
 .score-good { color: #4ec44e; }
 .score-mid { color: var(--warning); }
 .score-low { color: #ee8a8a; }
+
+/* ── Print: when a certificate is on screen, print only it ─── */
+@media print {
+  body { background: #fff; }
+  body:has(.certificate) * { visibility: hidden; }
+  body:has(.certificate) .certificate, body:has(.certificate) .certificate * { visibility: visible; }
+  .certificate { position: absolute; inset: 0; margin: auto; width: 100%; max-width: 680px; }
+  .modal-backdrop { position: static; background: none; backdrop-filter: none; padding: 0; }
+  .modal { box-shadow: none; max-height: none; border: none; overflow: visible; }
+}

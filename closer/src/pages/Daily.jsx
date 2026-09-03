@@ -45,10 +45,28 @@ export default function Daily() {
       <div className="main-header row between wrap">
         <div>
           <h1>Daily Practice ⚡</h1>
-          <p>Five minutes a day keeps the streak, and the skills, alive.</p>
+          <p>Short spoken warm-ups — no full call needed. They keep your streak alive and sharpen one skill at a time.</p>
         </div>
         <span className="chip gold">🔥 {profile.streak.current}-day streak · {doneToday.length}/{drills.length} today</span>
       </div>
+
+      {/* Plain explainer so it's obvious what this page is for */}
+      <Card className="pad" style={{ marginBottom: 16, background: 'linear-gradient(110deg, var(--gold-soft), transparent 60%), var(--bg-3)' }}>
+        <div className="row between wrap" style={{ gap: 12, marginBottom: 12 }}>
+          <b style={{ fontSize: 14.5 }}>What is Daily Practice?</b>
+          <span className="chip">🔄 New drills every day</span>
+        </div>
+        <p className="muted" style={{ fontSize: 13, marginBottom: 14, maxWidth: 640 }}>
+          Athletes drill before they play. Each day you get {drills.length} bite-sized reps you say out loud — an opener,
+          an objection comeback, a one-line close. They take a minute or two each, bank XP, and protect your streak
+          even on days you don't have time for a full simulator call.
+        </p>
+        <div className="daily-how">
+          <div><span>1</span><div><b>Read the prompt</b><small>A real situation you'll face on calls</small></div></div>
+          <div><span>2</span><div><b>Say your answer out loud</b><small>The timer keeps you sharp — no typing</small></div></div>
+          <div><span>3</span><div><b>Bank it</b><small>+25 XP each, streak stays alive</small></div></div>
+        </div>
+      </Card>
 
       {allDone && (
         <Card className="pad anim-scale" style={{ marginBottom: 16, borderColor: 'rgba(12,163,12,.4)' }}>

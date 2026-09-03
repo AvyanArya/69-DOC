@@ -404,8 +404,24 @@ export const ACADEMY = [
   },
 ]
 
+// Decorate each module as either a comprehensive "Certified" course (longer /
+// harder — awards a personalised certificate on completion) or a "Quick"
+// course (short foundation reps, no certificate). Outcomes are derived from
+// each lesson's core takeaway so every course reads like a real syllabus.
+for (const m of ACADEMY) {
+  m.certificate = m.level !== 'Foundation' || m.minutes >= 30
+  m.track = m.certificate ? 'Certified' : 'Quick'
+  m.outcomes = m.lessons.map((l) => {
+    const first = l.takeaway.split(/(?<=[.!?])\s/)[0].replace(/[.!?]+$/, '').trim()
+    return first.length > 96 ? first.slice(0, 93).trim() + '…' : first
+  })
+  m.hours = Math.max(0.5, Math.round((m.minutes / 60) * 2) / 2) // rounded to nearest half-hour
+}
+
 export function getModule(id) {
   return ACADEMY.find((m) => m.id === id)
 }
 
 export const ACADEMY_CATEGORIES = [...new Set(ACADEMY.map((m) => m.category))]
+export const CERTIFIED_COURSES = ACADEMY.filter((m) => m.certificate)
+export const QUICK_COURSES = ACADEMY.filter((m) => !m.certificate)

@@ -42,7 +42,7 @@ export function Meter({ value, max = 100, tone = '', thin = false }) {
   )
 }
 
-export function Ring({ value, size = 120, stroke = 9, label, sublabel, color = 'var(--series-1)' }) {
+export function Ring({ value, size = 120, stroke = 9, label, sublabel, color = 'var(--series-1)', labelClassName = 'mono' }) {
   const r = (size - stroke) / 2
   const c = 2 * Math.PI * r
   const [animated, setAnimated] = useState(0)
@@ -63,7 +63,7 @@ export function Ring({ value, size = 120, stroke = 9, label, sublabel, color = '
         />
       </svg>
       <div className="ring-center">
-        <span className="ring-value mono">{label ?? Math.round(value)}</span>
+        <span className={`ring-value ${labelClassName}`}>{label ?? Math.round(value)}</span>
         {sublabel && <span className="ring-sub">{sublabel}</span>}
       </div>
     </div>
@@ -124,6 +124,46 @@ export function EmptyState({ icon = '📂', title, sub, action }) {
       <h3>{title}</h3>
       {sub && <p className="muted">{sub}</p>}
       {action}
+    </div>
+  )
+}
+
+/* A personalised certificate of completion for a comprehensive course. */
+export function Certificate({ name, course, emoji = '🎓', level, score, date, id }) {
+  const when = new Date(date || Date.now()).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
+  const serial = (id || course || 'CL').toString().toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6).padEnd(6, '0')
+  return (
+    <div className="certificate">
+      <div className="cert-frame">
+        <div className="cert-corner tl" /><div className="cert-corner tr" />
+        <div className="cert-corner bl" /><div className="cert-corner br" />
+        <div className="cert-head">
+          <span className="logo-mark sm" aria-hidden="true">C</span>
+          <span className="cert-brand">CLOSER ACADEMY</span>
+        </div>
+        <div className="cert-eyebrow">Certificate of Completion</div>
+        <div className="cert-emoji">{emoji}</div>
+        <p className="cert-presented">This certifies that</p>
+        <h2 className="cert-name serif">{name}</h2>
+        <p className="cert-presented">has successfully completed the certified course</p>
+        <h3 className="cert-course display">{course}</h3>
+        <div className="cert-meta">
+          {level && <span><b>Level</b>{level}</span>}
+          {score != null && <span><b>Final assessment</b>{score}%</span>}
+          <span><b>Date</b>{when}</span>
+        </div>
+        <div className="cert-foot">
+          <div className="cert-sig">
+            <span className="serif">Closer</span>
+            <small>Head of Sales Training</small>
+          </div>
+          <div className="cert-seal" aria-hidden="true">★</div>
+          <div className="cert-sig">
+            <span className="mono">CL-{serial}</span>
+            <small>Credential ID</small>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

@@ -26,13 +26,13 @@ export default function Scenarios() {
   const character = scenario ? getCharacter(scenario.characterId) : null
 
   return (
-    <div className="page-enter">
-      <div className="main-header">
+    <div className="page-enter" style={{ maxWidth: 820, margin: '0 auto' }}>
+      <div className="main-header" style={{ textAlign: 'center' }}>
         <h1>Scenario Lab 🧪</h1>
         <p>Describe any sale in plain language. The lab builds the prospect, the stakes, and the objectives.</p>
       </div>
 
-      <Card className="pad" style={{ maxWidth: 760, marginBottom: 18 }}>
+      <Card className="pad" style={{ marginBottom: 18 }}>
         <form onSubmit={(e) => { e.preventDefault(); generate() }} className="col" style={{ gap: 12 }}>
           <div className="field">
             <label htmlFor="scenario-input">What do you need to sell, and to whom?</label>
@@ -56,7 +56,7 @@ export default function Scenarios() {
       </Card>
 
       {generating && (
-        <Card className="pad" style={{ maxWidth: 760 }}>
+        <Card className="pad">
           <div className="col" style={{ gap: 12 }}>
             <Skeleton w="40%" h={22} />
             <Skeleton w="90%" h={14} />
@@ -70,7 +70,7 @@ export default function Scenarios() {
       )}
 
       {scenario && !generating && (
-        <Card className="pad anim-scale" style={{ maxWidth: 760, borderColor: 'rgba(211,169,78,.4)' }}>
+        <Card className="pad anim-scale" style={{ borderColor: 'rgba(211,169,78,.4)' }}>
           <span className="chip gold" style={{ marginBottom: 12 }}>🧪 Generated scenario</span>
           <h2 style={{ fontSize: 21, marginBottom: 8 }} className="display">{scenario.title}</h2>
           <p className="sub" style={{ fontSize: 14, marginBottom: 16 }}>{scenario.openingContext}</p>
@@ -106,9 +106,9 @@ export default function Scenarios() {
       )}
 
       {!scenario && !generating && (
-        <div style={{ maxWidth: 760 }}>
-          <h4 style={{ fontSize: 13, margin: '8px 0 10px', color: 'var(--ink-2)' }}>More ideas</h4>
-          <div className="row wrap" style={{ gap: 8 }}>
+        <div>
+          <h4 style={{ fontSize: 13, margin: '8px 0 10px', color: 'var(--ink-2)', textAlign: 'center' }}>More ideas</h4>
+          <div className="row wrap" style={{ gap: 8, justifyContent: 'center' }}>
             {SCENARIO_EXAMPLES.slice(3).map((ex) => (
               <button key={ex} className="chip" style={{ cursor: 'pointer' }} onClick={() => generate(ex)}>{ex}</button>
             ))}

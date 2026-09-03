@@ -232,9 +232,10 @@ function estimateDuration(text, settings = {}) {
 /**
  * Speak a line AS a character.
  * - Premium voice (user key or site proxy) → real human audio.
- * - Otherwise, browser TTS is OFF by default (it sounds robotic); the line
- *   is delivered via captions and we just wait a natural beat. Users who
- *   want the system voice can opt in with settings.browserVoice.
+ * - Otherwise the best available browser voice speaks (persona-tuned, with the
+ *   accent/novelty filtering in resolveCharacterVoice), so there is always
+ *   audible speech to hear. Captions render alongside regardless. Users who
+ *   truly want silence can set settings.muteVoice.
  */
 export function speakAs(text, character, settings = {}) {
   let cancelled = false
@@ -258,7 +259,9 @@ export function speakAs(text, character, settings = {}) {
       } catch { /* fall through */ }
     }
     if (cancelled) return
-    if (settings.browserVoice) {
+    // Default: speak with the best available browser voice so there is always
+    // audio. Only stay silent (caption-only, paced) if the user muted voices.
+    if (!settings.muteVoice && speechSupport.synthesis) {
       const browserTuning = personaVoiceTuning(character.id).browser || {}
       const rate = Math.max(0.85, Math.min(1.18, browserTuning.rate ?? character.speakingSpeed ?? 1)) * (settings.voiceRate || 1)
       const pitch = Math.max(0.9, Math.min(1.12, browserTuning.pitch ?? character.voice?.pitch ?? 1))
@@ -266,7 +269,7 @@ export function speakAs(text, character, settings = {}) {
       await inner.promise
       return
     }
-    // Caption-only: no robotic voice, just pace the turn naturally.
+    // Muted (or no synthesis): pace the turn naturally on the caption alone.
     await new Promise((res) => { timer = setTimeout(res, estimateDuration(text, settings)) })
   })()
   return { promise, cancel: () => { cancelled = true; clearTimeout(timer); inner?.cancel?.() } }

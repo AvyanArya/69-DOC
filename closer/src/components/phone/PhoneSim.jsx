@@ -357,8 +357,8 @@ function CallScreen({ character, challenge, scenario, incoming, whisperEnabled, 
         setNeedsTyping(true)
       }
     }
-    // Only wait for the browser voice list when we'll actually use it.
-    if (settings.browserVoice && !settings.elevenLabsKey) await voicesReady(900)
+    // Wait for the browser voice list when we'll actually use it (default on).
+    if (!settings.muteVoice && !settings.elevenLabsKey) await voicesReady(900)
     else await new Promise((r) => setTimeout(r, 250))
     await aiSay(open.text, open.emotion)
     userTurn()

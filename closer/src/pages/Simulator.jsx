@@ -122,8 +122,10 @@ export default function Simulator() {
 
           <div className="sim-note">
             {premium
-              ? '🎙️ Studio voices are on — the AI speaks in real voices.'
-              : '💬 The AI replies in text (captions). Add a voice key in Settings for real spoken voices.'}
+              ? '🎙️ Studio voices are on — the AI speaks in real human voices.'
+              : getProfile().settings.muteVoice
+                ? '💬 Voice is muted — the AI replies in captions. Turn Character voices back on in Settings to hear them.'
+                : '🔊 The AI speaks out loud in your browser voice, with captions. Add a studio key in Settings for genuinely human voices.'}
           </div>
         </div>
       </div>
