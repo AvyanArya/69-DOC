@@ -77,6 +77,7 @@ function defaults() {
       llmKey: '', llmModel: 'gpt-4o-mini', llmBase: 'https://api.openai.com/v1',
     },
     dailyDone: {},        // dayKey -> [drillIds]
+    debriefs: [],         // real-meeting debriefs: { id, ts, title, source, report, transcript, meta }
   }
 }
 
@@ -140,6 +141,18 @@ export function awardCertificate(moduleId, data) {
       if (!p.achievements.includes('first-certificate')) p.achievements.push('first-certificate')
     }
   })
+}
+
+export function saveDebrief(debrief) {
+  return updateProfile((p) => {
+    if (!p.debriefs) p.debriefs = []
+    p.debriefs.unshift(debrief)
+    p.xp += 40 // small reward for reviewing a real meeting
+  })
+}
+
+export function deleteDebrief(id) {
+  return updateProfile((p) => { p.debriefs = (p.debriefs || []).filter((d) => d.id !== id) })
 }
 
 export function saveNote(text) {

@@ -11,6 +11,7 @@ import Characters from './pages/Characters.jsx'
 import Challenges from './pages/Challenges.jsx'
 import Scenarios from './pages/Scenarios.jsx'
 import Review from './pages/Review.jsx'
+import Debrief from './pages/Debrief.jsx'
 import Academy from './pages/Academy.jsx'
 import AcademyModule from './pages/AcademyModule.jsx'
 import Coach from './pages/Coach.jsx'
@@ -43,6 +44,7 @@ export default function App() {
           <Route path="scenarios" element={<Scenarios />} />
           <Route path="review" element={<Review />} />
           <Route path="review/:callId" element={<Review />} />
+          <Route path="debrief" element={<Debrief />} />
           <Route path="academy" element={<Academy />} />
           <Route path="academy/:moduleId" element={<AcademyModule />} />
           <Route path="coach" element={<Coach />} />

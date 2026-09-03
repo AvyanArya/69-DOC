@@ -28,6 +28,7 @@ const NAV = [
   { group: 'Track', items: [
     { to: '/app/analytics', label: 'Analytics', icon: '📊' },
     { to: '/app/review', label: 'Call Review', icon: '🎧' },
+    { to: '/app/debrief', label: 'Meeting Debrief', icon: '📝' },
     { to: '/app/community', label: 'Community', icon: '🏆' },
     { to: '/app/settings', label: 'Settings', icon: '⚙' },
   ]},
