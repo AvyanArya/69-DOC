@@ -1,0 +1,2167 @@
+<title>KEPT</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Onest:wght@300;400;500;600&display=swap">
+<style>
+/* ============================================================
+   KEPT — design tokens
+   ============================================================ */
+:root{
+  --paper:#F1F0EA; --surface:#FBFAF7; --surface2:#E7E6DE; --sunken:#E2E1D8;
+  --ink:#191C1A; --ink2:#4C534D; --ink3:#7E857E;
+  --line:rgba(25,28,26,.11); --line2:rgba(25,28,26,.06);
+  --accent:#5E8B6C; --accent-ink:#FBFAF7; --accent-soft:rgba(94,139,108,.13);
+  --brass:#B0812F; --brass-soft:rgba(176,129,47,.13);
+  --dusk:#5E77A2; --dusk-soft:rgba(94,119,162,.13);
+  --clay:#B0644C; --clay-soft:rgba(176,100,76,.12);
+  --shadow:0 1px 2px rgba(25,28,26,.05), 0 8px 24px -12px rgba(25,28,26,.16);
+  --shadow-lift:0 2px 6px rgba(25,28,26,.06), 0 24px 48px -20px rgba(25,28,26,.28);
+  --backdrop:#DCDBD2; --backdrop2:#CFCEC4;
+  --r-lg:28px; --r-md:20px; --r-sm:13px;
+  --f-display:"Familjen Grotesk","Onest",system-ui,sans-serif;
+  --f-body:"Onest",system-ui,-apple-system,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,monospace;
+  --ease:cubic-bezier(.22,1,.36,1);
+  --spring:cubic-bezier(.34,1.56,.64,1);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#101311; --surface:#171B18; --surface2:#1E2420; --sunken:#0B0E0C;
+    --ink:#ECEFE9; --ink2:#A5ADA5; --ink3:#6F776F;
+    --line:rgba(236,239,233,.11); --line2:rgba(236,239,233,.055);
+    --accent:#8FBF9C; --accent-ink:#0D110E; --accent-soft:rgba(143,191,156,.14);
+    --brass:#DDA85C; --brass-soft:rgba(221,168,92,.14);
+    --dusk:#93A9D1; --dusk-soft:rgba(147,169,209,.14);
+    --clay:#D68A72; --clay-soft:rgba(214,138,114,.13);
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -14px rgba(0,0,0,.7);
+    --shadow-lift:0 2px 8px rgba(0,0,0,.45), 0 30px 60px -24px rgba(0,0,0,.85);
+    --backdrop:#080A09; --backdrop2:#050706;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#101311; --surface:#171B18; --surface2:#1E2420; --sunken:#0B0E0C;
+  --ink:#ECEFE9; --ink2:#A5ADA5; --ink3:#6F776F;
+  --line:rgba(236,239,233,.11); --line2:rgba(236,239,233,.055);
+  --accent:#8FBF9C; --accent-ink:#0D110E; --accent-soft:rgba(143,191,156,.14);
+  --brass:#DDA85C; --brass-soft:rgba(221,168,92,.14);
+  --dusk:#93A9D1; --dusk-soft:rgba(147,169,209,.14);
+  --clay:#D68A72; --clay-soft:rgba(214,138,114,.13);
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -14px rgba(0,0,0,.7);
+  --shadow-lift:0 2px 8px rgba(0,0,0,.45), 0 30px 60px -24px rgba(0,0,0,.85);
+  --backdrop:#080A09; --backdrop2:#050706;
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--backdrop); color:var(--ink);
+  font-family:var(--f-body); font-size:15px; line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+html{overflow-x:clip}
+svg{fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+svg:not([width]){width:20px;height:20px;flex:none}
+input,textarea,select{font:inherit;color:inherit}
+h1,h2,h3,h4{margin:0;font-family:var(--f-display);font-weight:600;letter-spacing:-.02em;text-wrap:balance}
+p{margin:0}
+ul{margin:0;padding:0;list-style:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+.mono{font-family:var(--f-mono)}
+.tnum{font-variant-numeric:tabular-nums}
+
+/* ============================================================
+   Studio chrome (outside the device)
+   ============================================================ */
+.studio{min-height:100vh;background:
+   radial-gradient(120% 90% at 50% -10%, color-mix(in srgb,var(--backdrop) 82%, var(--accent)) 0%, var(--backdrop) 45%, var(--backdrop2) 100%);
+   display:flex;flex-direction:column}
+.bar{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:16px;
+  padding:14px 20px;border-bottom:1px solid var(--line2);
+  background:color-mix(in srgb,var(--backdrop) 86%, transparent);backdrop-filter:blur(14px)}
+.brand{display:flex;align-items:center;gap:10px;margin-right:auto}
+.brand .wm{font-family:var(--f-display);font-weight:700;font-size:15px;letter-spacing:.30em;text-transform:uppercase}
+.brand .sub{font-family:var(--f-mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink3);border-left:1px solid var(--line);padding-left:10px}
+@media (max-width:700px){.brand .sub{display:none}}
+.seg{display:flex;background:var(--surface2);border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}
+.seg button{font-size:12.5px;font-weight:500;padding:6px 14px;border-radius:999px;color:var(--ink2);transition:.22s var(--ease)}
+.seg button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.iconbtn{width:36px;height:36px;border-radius:11px;border:1px solid var(--line);background:var(--surface2);
+  display:grid;place-items:center;color:var(--ink2);transition:.2s var(--ease)}
+.iconbtn:hover{color:var(--ink);border-color:var(--ink3)}
+.iconbtn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+
+.stage{flex:1;display:grid;place-items:center;padding:34px 20px 46px}
+.stagehint{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);text-align:center;margin-top:20px}
+.stagehint b{color:var(--ink2);font-weight:500}
+
+/* device */
+.device{position:relative;width:390px;height:844px;border-radius:52px;padding:11px;
+  background:linear-gradient(160deg,#3a3e3b,#17191a 40%,#26292a);
+  box-shadow:var(--shadow-lift), 0 0 0 1px rgba(255,255,255,.06) inset;flex:none}
+.screen{position:relative;width:100%;height:100%;border-radius:42px;overflow:hidden;background:var(--paper);
+  isolation:isolate;display:flex;flex-direction:column}
+.notch{position:absolute;top:9px;left:50%;transform:translateX(-50%);width:112px;height:29px;border-radius:999px;background:#0b0d0c;z-index:50}
+.statusbar{position:relative;z-index:40;flex:none;height:50px;display:flex;align-items:center;justify-content:space-between;
+  padding:14px 26px 0;font-family:var(--f-mono);font-size:11.5px;font-weight:500;color:var(--ink);letter-spacing:.02em}
+.statusbar .sbr{display:flex;align-items:center;gap:5px}
+.statusbar svg{width:15px;height:11px;stroke:currentColor;fill:none;stroke-width:1.4}
+@media (max-width:470px){
+  .stage{padding:0}
+  .device{width:100%;height:calc(100vh - 66px);border-radius:0;padding:0;box-shadow:none;background:var(--paper)}
+  .screen{border-radius:0}
+  .notch{display:none}
+  .stagehint{display:none}
+}
+
+/* ============================================================
+   App frame
+   ============================================================ */
+.viewport{position:relative;flex:1;min-height:0;overflow:hidden}
+.view{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;
+  padding:6px 22px 108px;scrollbar-width:none}
+.view::-webkit-scrollbar{display:none}
+.view.flush{padding:0}
+.enter{animation:viewIn .42s var(--ease) both}
+@keyframes viewIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.enter-up{animation:upIn .5s var(--ease) both}
+@keyframes upIn{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+.stagger>*{animation:upIn .5s var(--ease) both}
+.stagger>*:nth-child(1){animation-delay:.02s}.stagger>*:nth-child(2){animation-delay:.06s}
+.stagger>*:nth-child(3){animation-delay:.10s}.stagger>*:nth-child(4){animation-delay:.14s}
+.stagger>*:nth-child(5){animation-delay:.18s}.stagger>*:nth-child(6){animation-delay:.22s}
+.stagger>*:nth-child(7){animation-delay:.26s}.stagger>*:nth-child(8){animation-delay:.30s}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+}
+</style>
+<style>
+/* ============================================================
+   Component library
+   ============================================================ */
+.eyebrow{font-family:var(--f-mono);font-size:10px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:var(--ink3)}
+.h-xl{font-size:31px;line-height:1.1;letter-spacing:-.035em}
+.h-lg{font-size:24px;line-height:1.15;letter-spacing:-.03em}
+.h-md{font-size:18px;line-height:1.25;letter-spacing:-.02em}
+.body{font-size:14.5px;color:var(--ink2);line-height:1.55}
+.small{font-size:12.5px;color:var(--ink3)}
+.stack{display:flex;flex-direction:column}
+.row{display:flex;align-items:center}
+.between{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.g4{gap:4px}.g6{gap:6px}.g8{gap:8px}.g10{gap:10px}.g12{gap:12px}.g14{gap:14px}.g16{gap:16px}.g20{gap:20px}.g24{gap:24px}
+.grow{flex:1;min-width:0}
+
+/* header */
+.head{padding:12px 0 18px}
+.head .back{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;color:var(--ink2);margin-bottom:14px;font-weight:500}
+.head .back svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+
+/* card */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:18px;box-shadow:var(--shadow)}
+.card.flat{box-shadow:none;background:var(--surface2);border-color:transparent}
+.card.quiet{background:transparent;border-style:dashed;box-shadow:none}
+.card.tap{transition:transform .18s var(--ease),border-color .18s}
+.card.tap:active{transform:scale(.985)}
+
+/* button */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:52px;padding:0 22px;
+  border-radius:16px;font-weight:600;font-size:15.5px;letter-spacing:-.01em;
+  background:var(--accent);color:var(--accent-ink);transition:transform .16s var(--ease),filter .2s,opacity .2s;width:100%}
+.btn:active{transform:scale(.972)}
+.btn:disabled{opacity:.35;pointer-events:none}
+.btn.lg{min-height:60px;font-size:16.5px;border-radius:19px}
+.btn.ghost{background:var(--surface2);color:var(--ink);border:1px solid var(--line)}
+.btn.line{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.dark{background:var(--ink);color:var(--paper)}
+.btn.slim{min-height:42px;font-size:14px;border-radius:13px;width:auto;padding:0 16px}
+.btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* chips */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:9px 15px;border-radius:999px;border:1px solid var(--line);background:var(--surface);
+  font-size:13.5px;font-weight:500;color:var(--ink2);transition:.2s var(--ease)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip.sel{background:var(--accent-soft);border-color:var(--accent);color:var(--ink)}
+.chip:active{transform:scale(.95)}
+.chips.equal{flex-wrap:nowrap;gap:7px}
+.chips.equal .chip{flex:1;padding:9px 0;text-align:center;font-size:13px}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;
+  font-family:var(--f-mono);font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;font-weight:500;
+  background:var(--surface2);color:var(--ink2);border:1px solid var(--line2);white-space:nowrap}
+.pill.acc{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.pill.brass{background:var(--brass-soft);color:var(--brass);border-color:transparent}
+.pill.dusk{background:var(--dusk-soft);color:var(--dusk);border-color:transparent}
+.pill.clay{background:var(--clay-soft);color:var(--clay);border-color:transparent}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+
+/* progress */
+.track{height:7px;border-radius:999px;background:var(--sunken);overflow:hidden}
+.fill{height:100%;border-radius:999px;background:var(--accent);transition:width .9s var(--ease)}
+.fill.brass{background:var(--brass)} .fill.dusk{background:var(--dusk)}
+.bignum{font-family:var(--f-display);font-weight:600;letter-spacing:-.045em;font-variant-numeric:tabular-nums;line-height:.92}
+
+/* list rows */
+.rows{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;box-shadow:var(--shadow)}
+.lrow{display:flex;align-items:center;gap:13px;padding:15px 17px;border-bottom:1px solid var(--line2);text-align:left;width:100%}
+.lrow:last-child{border-bottom:0}
+.lrow:active{background:var(--surface2)}
+.lrow .ic{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;flex:none;background:var(--surface2)}
+.lrow .ic svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.chev{width:16px;height:16px;stroke:var(--ink3);stroke-width:1.9;flex:none}
+
+/* toggle */
+.tog{width:46px;height:28px;border-radius:999px;background:var(--sunken);position:relative;flex:none;transition:.25s var(--ease);border:1px solid var(--line2)}
+.tog::after{content:"";position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:var(--surface);
+  box-shadow:0 1px 3px rgba(0,0,0,.28);transition:.3s var(--spring)}
+.tog[aria-checked="true"]{background:var(--accent);border-color:transparent}
+.tog[aria-checked="true"]::after{transform:translateX(18px);background:#fff}
+
+/* input */
+.field{width:100%;background:var(--surface2);border:1px solid var(--line);border-radius:14px;padding:14px 15px;font-size:15px;outline:none;transition:.2s}
+.field:focus{border-color:var(--accent);background:var(--surface)}
+.field::placeholder{color:var(--ink3)}
+
+/* tab bar */
+.tabbar{position:absolute;left:0;right:0;bottom:0;z-index:45;height:88px;padding:0 14px 22px;
+  display:flex;align-items:flex-start;gap:2px;
+  background:linear-gradient(to top,var(--paper) 58%, color-mix(in srgb,var(--paper) 0%, transparent));
+  backdrop-filter:blur(12px);border-top:1px solid var(--line2)}
+.tabbar::before{content:"";position:absolute;inset:0 0 auto;height:1px;background:var(--line2)}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding-top:11px;color:var(--ink3);transition:color .2s}
+.tab svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;transition:transform .3s var(--spring)}
+.tab span{font-size:9.5px;font-family:var(--f-mono);letter-spacing:.06em;text-transform:uppercase}
+.tab[aria-current="true"]{color:var(--ink)}
+.tab[aria-current="true"] svg{transform:translateY(-1px) scale(1.06)}
+.tab.center{flex:none;width:66px}
+.tab.center .orbtn{width:54px;height:54px;border-radius:19px;background:var(--ink);color:var(--paper);display:grid;place-items:center;
+  margin-top:-8px;box-shadow:0 8px 20px -8px rgba(0,0,0,.5);transition:transform .3s var(--spring)}
+.tab.center:active .orbtn{transform:scale(.92)}
+.tab.center .orbtn svg{width:24px;height:24px;stroke-width:1.9}
+.homebar{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:999px;background:var(--ink);opacity:.24;z-index:60;pointer-events:none}
+
+/* sheets & modals */
+.scrim{position:absolute;inset:0;z-index:70;background:rgba(6,8,7,.5);backdrop-filter:blur(3px);animation:fade .28s var(--ease) both}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.sheet{position:absolute;left:0;right:0;bottom:0;z-index:71;background:var(--surface);
+  border-radius:30px 30px 42px 42px;padding:12px 22px 30px;box-shadow:0 -20px 60px -20px rgba(0,0,0,.5);
+  animation:sheetIn .46s var(--ease) both;max-height:88%;overflow-y:auto;scrollbar-width:none}
+.sheet::-webkit-scrollbar{display:none}
+@keyframes sheetIn{from{transform:translateY(102%)}to{transform:none}}
+.grab{width:38px;height:4px;border-radius:999px;background:var(--line);margin:0 auto 16px}
+.modal{position:absolute;z-index:71;left:22px;right:22px;top:50%;transform:translateY(-50%);
+  background:var(--surface);border-radius:26px;padding:26px 22px;box-shadow:var(--shadow-lift);animation:popIn .4s var(--spring) both}
+@keyframes popIn{from{opacity:0;transform:translateY(-50%) scale(.9)}to{opacity:1;transform:translateY(-50%) scale(1)}}
+
+/* toast */
+.toast{position:absolute;z-index:90;left:22px;right:22px;bottom:104px;background:var(--ink);color:var(--paper);
+  border-radius:16px;padding:13px 16px;font-size:13.5px;font-weight:500;display:flex;align-items:center;gap:10px;
+  box-shadow:var(--shadow-lift);animation:toastIn .45s var(--spring) both}
+.toast svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+@keyframes toastIn{from{opacity:0;transform:translateY(22px) scale(.94)}to{opacity:1;transform:none}}
+.toast.out{animation:toastOut .3s var(--ease) both}
+@keyframes toastOut{to{opacity:0;transform:translateY(12px) scale(.97)}}
+
+/* avatar */
+.av{width:38px;height:38px;border-radius:13px;display:grid;place-items:center;flex:none;
+  background:linear-gradient(150deg,var(--accent),color-mix(in srgb,var(--accent) 55%, var(--dusk)));
+  color:var(--accent-ink);font-family:var(--f-display);font-weight:600;font-size:15px}
+
+/* empty state */
+.empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:40px 18px}
+.empty .glyph{width:72px;height:72px;border-radius:24px;border:1px dashed var(--line);display:grid;place-items:center;color:var(--ink3);margin-bottom:6px}
+.empty .glyph svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+</style>
+<style>
+/* ============================================================
+   Focus Mode — a different environment, not a screen
+   ============================================================ */
+.env{position:absolute;inset:0;z-index:55;display:flex;flex-direction:column;
+  background:#080B0A;color:#E9EDE8;animation:envIn .7s var(--ease) both;overflow:hidden}
+@keyframes envIn{from{opacity:0;transform:scale(1.06)}to{opacity:1;transform:none}}
+.env.leaving{animation:envOut .45s var(--ease) both}
+@keyframes envOut{to{opacity:0;transform:scale(1.04)}}
+.env .aura{position:absolute;left:50%;top:38%;width:520px;height:520px;transform:translate(-50%,-50%);
+  border-radius:50%;pointer-events:none;filter:blur(46px);opacity:var(--auraO,.28);
+  background:radial-gradient(circle, var(--auraC,#4E8F6B) 0%, transparent 66%);
+  transition:opacity 1.6s linear, background 3s linear;animation:breathe 9s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.11)}}
+.env .grain{position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background:radial-gradient(110% 80% at 50% 108%, rgba(120,160,135,.14), transparent 62%)}
+.env .envtop{position:relative;z-index:3;display:flex;align-items:center;justify-content:space-between;padding:16px 24px 0}
+.env .envbody{position:relative;z-index:3;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:0 24px}
+.env .envfoot{position:relative;z-index:3;padding:0 24px 40px;display:flex;flex-direction:column;gap:12px}
+.timernum{font-family:var(--f-display);font-weight:500;font-size:88px;letter-spacing:-.055em;line-height:1;
+  font-variant-numeric:tabular-nums;color:#F2F5F0}
+.env .phase{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.19em;text-transform:uppercase;color:rgba(233,237,232,.5);transition:.6s}
+.ring{position:relative;width:274px;height:274px;margin:2px 0 4px;display:grid;place-items:center}
+.ring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.ring .bg{fill:none;stroke:rgba(233,237,232,.10);stroke-width:2}
+.ring .pg{fill:none;stroke:var(--auraC,#7FBF97);stroke-width:2.5;stroke-linecap:round;
+  transition:stroke-dashoffset 1s linear, stroke 3s linear;filter:drop-shadow(0 0 7px var(--auraC,#7FBF97))}
+.ring .tick{stroke:rgba(233,237,232,.16);stroke-width:1}
+.motes{position:absolute;inset:0;pointer-events:none;z-index:2;overflow:hidden}
+.mote{position:absolute;width:2.5px;height:2.5px;border-radius:50%;background:rgba(200,225,205,.55);
+  animation:rise linear infinite}
+@keyframes rise{from{transform:translateY(0);opacity:0}12%{opacity:.75}to{transform:translateY(-620px);opacity:0}}
+.envbtn{min-height:52px;border-radius:16px;font-weight:600;font-size:15px;display:flex;align-items:center;justify-content:center;gap:9px;
+  border:1px solid rgba(233,237,232,.16);color:#E9EDE8;background:rgba(233,237,232,.05);transition:.2s var(--ease)}
+.envbtn:active{transform:scale(.97)}
+.envbtn.solid{background:#E9EDE8;color:#0A0D0C;border-color:transparent}
+.envbtn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.envghost{font-size:13px;color:rgba(233,237,232,.48);text-align:center;padding:8px}
+.speed{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.12em;padding:5px 9px;border-radius:999px;
+  border:1px solid rgba(233,237,232,.18);color:rgba(233,237,232,.55)}
+
+/* intervention */
+.interv{position:absolute;inset:0;z-index:80;background:rgba(6,9,8,.93);backdrop-filter:blur(18px);
+  display:flex;flex-direction:column;justify-content:center;padding:34px 26px;color:#E9EDE8;gap:8px;
+  animation:blurIn .6s var(--ease) both}
+@keyframes blurIn{from{opacity:0;backdrop-filter:blur(0)}to{opacity:1}}
+.interv h2{font-size:44px;letter-spacing:-.04em;animation:upIn .6s .1s var(--ease) both}
+.interv .q{font-size:17px;color:rgba(233,237,232,.62);line-height:1.45;margin-top:6px;animation:upIn .6s .2s var(--ease) both}
+.interv .acts{margin-top:30px;display:flex;flex-direction:column;gap:10px;animation:upIn .6s .32s var(--ease) both}
+.optbtn{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border-radius:16px;
+  border:1px solid rgba(233,237,232,.14);background:rgba(233,237,232,.04);color:#E9EDE8;font-size:15px;font-weight:500;text-align:left}
+.optbtn:active{transform:scale(.98)}
+.optbtn svg{width:16px;height:16px;fill:none;stroke:rgba(233,237,232,.45);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* completion */
+.done{position:absolute;inset:0;z-index:78;background:#080B0A;color:#E9EDE8;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;padding:30px 26px;gap:4px;text-align:center;overflow:hidden}
+.done canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.burst{position:relative;z-index:2;width:96px;height:96px;border-radius:50%;display:grid;place-items:center;margin-bottom:20px;
+  background:radial-gradient(circle,rgba(127,191,151,.32),transparent 70%);animation:pop .8s var(--spring) both}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+.burst svg{width:38px;height:38px;fill:none;stroke:#9BD3AE;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:60;stroke-dashoffset:60;animation:draw .8s .3s var(--ease) forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+
+/* detox */
+.detox{position:absolute;inset:0;z-index:56;background:#070A0D;color:#E4EAF2;display:flex;flex-direction:column;overflow:hidden}
+.detox canvas{position:absolute;inset:0;width:100%;height:100%}
+.detox .dtop,.detox .dmid,.detox .dbot{position:relative;z-index:3}
+.detox .dmid{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+
+/* Keep (focus world) */
+.keepwrap{position:relative;border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow)}
+.keepwrap canvas{display:block;width:100%;height:100%}
+.keepover{position:absolute;inset:auto 0 0;padding:16px 18px;display:flex;align-items:flex-end;justify-content:space-between;gap:10px;
+  background:linear-gradient(to top,rgba(4,7,6,.82),transparent);color:#EDF1EA}
+
+/* charts */
+.bars{display:flex;align-items:flex-end;gap:9px;height:126px}
+.barcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;justify-content:flex-end}
+.barstack{width:100%;max-width:26px;display:flex;flex-direction:column;justify-content:flex-end;gap:3px;flex:1}
+.bseg{border-radius:5px;min-height:3px;transition:height .8s var(--ease)}
+.bseg.f{background:var(--accent)} .bseg.d{background:var(--clay-soft);border:1px solid var(--clay-soft)}
+.barlbl{font-family:var(--f-mono);font-size:9.5px;color:var(--ink3);letter-spacing:.06em}
+.barcol.on .barlbl{color:var(--ink)}
+.heat{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.hcell{aspect-ratio:1;border-radius:6px;background:var(--sunken)}
+.donut{width:118px;height:118px;flex:none}
+.legend{display:flex;flex-direction:column;gap:9px;flex:1}
+.lgrow{display:flex;align-items:center;gap:9px;font-size:13px}
+.lgsw{width:9px;height:9px;border-radius:3px;flex:none}
+
+/* index drawer */
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(340px,86vw);z-index:100;background:var(--surface);
+  border-left:1px solid var(--line);box-shadow:-30px 0 60px -30px rgba(0,0,0,.5);
+  display:flex;flex-direction:column;transform:translateX(100%);transition:transform .42s var(--ease)}
+.drawer.open{transform:none}
+.drawer .dh{padding:18px 20px 14px;border-bottom:1px solid var(--line2);display:flex;align-items:center;justify-content:space-between}
+.drawer .dl{flex:1;overflow-y:auto;padding:12px 12px 30px}
+.drawer h5{margin:16px 8px 7px;font-family:var(--f-mono);font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink3);font-weight:500}
+.drawer button.jump{display:flex;width:100%;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;font-size:13.5px;color:var(--ink2);text-align:left}
+.drawer button.jump:hover{background:var(--surface2);color:var(--ink)}
+.drawer button.jump .n{font-family:var(--f-mono);font-size:10px;color:var(--ink3);width:20px;flex:none}
+.drawerscrim{position:fixed;inset:0;z-index:99;background:rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .35s}
+.drawerscrim.on{opacity:1;pointer-events:auto}
+
+/* system view */
+.sys{width:100%;max-width:1080px;margin:0 auto;padding:8px 4px 60px;display:flex;flex-direction:column;gap:46px}
+.sys section{display:flex;flex-direction:column;gap:16px}
+.sys .sh{display:flex;align-items:baseline;gap:14px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.sys .sh h2{font-size:22px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(auto-fit,minmax(210px,1fr));align-items:start}
+.g4c{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.sw{border-radius:16px;border:1px solid var(--line);overflow:hidden;background:var(--surface)}
+.sw .chipc{height:74px}
+.sw .meta{padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.sw .meta b{font-size:13px;font-weight:600}
+.sw .meta span{font-family:var(--f-mono);font-size:10.5px;color:var(--ink3);text-transform:uppercase;letter-spacing:.07em}
+.specimen{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:20px 22px;display:flex;flex-direction:column;gap:6px}
+.specimen .note{font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3)}
+.iconbox{aspect-ratio:1;border-radius:23%;display:grid;place-items:center;box-shadow:var(--shadow)}
+.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
+.tbl th{text-align:left;font-family:var(--f-mono);font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink3);font-weight:500;padding:0 12px 8px 0}
+.tbl td{padding:9px 12px 9px 0;border-top:1px solid var(--line2);color:var(--ink2);vertical-align:top}
+.tbl td b{color:var(--ink);font-weight:600}
+.flowmap{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.flowmap .node{padding:8px 13px;border-radius:11px;background:var(--surface);border:1px solid var(--line);font-size:12.5px;font-weight:500}
+.flowmap .arr{color:var(--ink3);font-size:13px}
+</style>
+<div class="studio">
+  <header class="bar">
+    <div class="brand">
+      <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 2.6a9.4 9.4 0 1 1-6.9 3" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+        <circle cx="12" cy="12" r="3.5" fill="currentColor"/>
+      </svg>
+      <span class="wm">Kept</span>
+      <span class="sub">Attention, kept · Prototype v1</span>
+    </div>
+    <div class="seg" role="tablist" aria-label="View">
+      <button role="tab" aria-selected="true" data-view="proto">Prototype</button>
+      <button role="tab" aria-selected="false" data-view="system">Design System</button>
+    </div>
+    <button class="iconbtn" id="themeBtn" title="Toggle light / dark" aria-label="Toggle light or dark theme">
+      <svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+    </button>
+    <button class="iconbtn" id="idxBtn" title="Screen index" aria-label="Open screen index">
+      <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+    </button>
+  </header>
+
+  <main class="stage" id="stage">
+    <div id="protoWrap" class="stack" style="align-items:center">
+      <div class="device">
+        <div class="screen" id="screen">
+          <div class="notch"></div>
+          <div class="statusbar">
+            <span class="tnum" id="clock">21:04</span>
+            <span class="sbr">
+              <svg viewBox="0 0 24 16"><path d="M2 11h2v3H2zM7 8h2v6H7zM12 5h2v9h-2zM17 2h2v12h-2z" fill="currentColor" stroke="none"/></svg>
+              <svg viewBox="0 0 26 16"><rect x="1" y="3" width="19" height="10" rx="3"/><rect x="3" y="5" width="13" height="6" rx="1.5" fill="currentColor" stroke="none"/><path d="M22 6.5v3"/></svg>
+            </span>
+          </div>
+          <div class="viewport" id="viewport"></div>
+          <div class="homebar"></div>
+        </div>
+      </div>
+      <p class="stagehint">Fully interactive — tap anything. <b>Sessions run at demo speed</b> so a 45-minute focus finishes in 45 seconds.</p>
+    </div>
+    <div id="sysWrap" hidden></div>
+  </main>
+</div>
+
+<div class="drawerscrim" id="dscrim"></div>
+<aside class="drawer" id="drawer" aria-label="Screen index">
+  <div class="dh">
+    <div class="stack">
+      <strong style="font-family:var(--f-display);font-size:15px">Screen index</strong>
+      <span class="small">32 designed states</span>
+    </div>
+    <button class="iconbtn" id="dclose" aria-label="Close index"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+  </div>
+  <div class="dl" id="dlist"></div>
+</aside>
+<script>
+"use strict";
+/* ============================================================
+   1. STATE — one realistic student, populated
+   ============================================================ */
+const day = n => Date.now() + n*864e5;
+const S = {
+  view:"proto", screen:"home", tab:"home", opts:{}, overlay:null, toast:null,
+  onboarded:true, simTime:null, reduceMotion:false, sound:"rain", haptics:true,
+  user:{name:"Alex", initials:"A", year:"Year 12", school:"Sixth form", goal:"University admissions"},
+  goalMin:180, todayMin:122, streak:12, streakHours:18.7, weekMin:522,
+  lifetimeMin:2480, sessionsDone:63, pickupsAvoided:47, attention:82,
+  protectedWeek:504, distractedWeek:258,
+  attentionParts:[["Focus consistency",88],["Distraction control",74],["Screen-time reduction",79],["Session completion",91],["Recovery after distraction",78]],
+  week:[{d:"Mon",f:88,x:62},{d:"Tue",f:142,x:38},{d:"Wed",f:74,x:71},{d:"Thu",f:96,x:56},{d:"Fri",f:122,x:31},{d:"Sat",f:0,x:0},{d:"Sun",f:0,x:0}],
+  today:4,
+  heat:[1,3,2,4,1,0,0, 2,4,3,2,3,1,0, 3,2,4,4,2,1,1, 4,3,4,2,4,2,0, 3,4,2,3,4,0,0],
+  distractions:[["Instagram",34,"clay"],["Messages",26,"brass"],["YouTube",18,"dusk"],["Something important",12,"accent"],["I don't know",10,"ink3"]],
+  subjects:[
+    {id:"math", name:"Mathematics", tone:"accent", targetH:40, minutes:842, topics:[
+      {n:"Integration", m:150, t:220, done:false},{n:"Complex numbers", m:180, t:180, done:true},
+      {n:"Vectors", m:96, t:180, done:false},{n:"Differential equations", m:0, t:200, done:false}],
+     tasks:[{n:"Past paper — June 2024 Q1–6", done:true},{n:"Integration by parts drills", done:false},{n:"Mark scheme review", done:false}]},
+    {id:"econ", name:"Economics", tone:"brass", targetH:30, minutes:604, topics:[
+      {n:"Market failure", m:210, t:210, done:true},{n:"Macro policy", m:164, t:240, done:false},
+      {n:"Elasticity", m:120, t:150, done:false}],
+     tasks:[{n:"Essay plan — monetary policy", done:false},{n:"Read Ch. 14", done:true}]},
+    {id:"phys", name:"Physics", tone:"dusk", targetH:35, minutes:488, topics:[
+      {n:"Circular motion", m:188, t:200, done:false},{n:"Fields", m:140, t:260, done:false},
+      {n:"Capacitors", m:60, t:160, done:false}],
+     tasks:[{n:"Required practical 8 writeup", done:false},{n:"Fields flashcards", done:false}]}
+  ],
+  exams:[
+    {sub:"phys", title:"Physics Paper 2", date:day(12)},
+    {sub:"econ", title:"Economics Mock", date:day(26)},
+    {sub:"math", title:"Mathematics A-Level Paper 1", date:day(42)}
+  ],
+  recent:[
+    {sub:"math", topic:"Integration", m:45, ok:true, when:"Today · 19:10"},
+    {sub:"phys", topic:"Circular motion", m:52, ok:true, when:"Today · 16:40"},
+    {sub:"econ", topic:"Macro policy", m:25, ok:false, when:"Today · 14:05"},
+    {sub:"math", topic:"Vectors", m:60, ok:true, when:"Yesterday · 20:20"}
+  ],
+  badges:[
+    {n:"First Focus", d:"Your first 25 minutes", got:true, p:1},
+    {n:"Getting Serious", d:"5 hours kept", got:true, p:1},
+    {n:"Momentum", d:"10 sessions without leaving", got:true, p:1},
+    {n:"Night Keeper", d:"5 sessions after 9pm", got:true, p:1},
+    {n:"Deep Worker", d:"50 hours kept", got:false, p:.83, sub:"41h 20m / 50h"},
+    {n:"Unbroken", d:"30 intentional days", got:false, p:.4, sub:"12 / 30 days"},
+    {n:"Lightkeeper", d:"100 sessions", got:false, p:.63, sub:"63 / 100"},
+    {n:"Sunset", d:"10 wind-downs", got:false, p:.6, sub:"6 / 10"}
+  ],
+  friends:[{n:"Maya", s:"Focusing · 38m", on:true},{n:"Idris", s:"Focusing · 12m", on:true},{n:"Zoë", s:"On a break", on:false}],
+  rooms:[{n:"Night Library",c:23,d:"Silent. Lamps on."},{n:"Rainy Café",c:11,d:"Soft rain, low chatter"},{n:"Silent Desk",c:47,d:"No sound at all"},{n:"Exam Room",c:8,d:"90-minute blocks only"}],
+  reflect:{mood:null, proud:"", distraction:null},
+  detox:{active:false, endAt:0, total:0, label:""},
+  sess:null, speed:60,
+  newSub:{name:"", tone:"accent"}
+};
+
+/* ============================================================
+   2. HELPERS
+   ============================================================ */
+const el = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt = m => { m=Math.max(0,Math.round(m)); const h=Math.floor(m/60), r=m%60;
+  return h ? (r ? `${h}h ${String(r).padStart(2,"0")}m` : `${h}h`) : `${r}m`; };
+const fmtShort = m => { const h=Math.floor(m/60), r=Math.round(m%60); return h?`${h}h ${r}m`:`${r}m`; };
+const clock = s => `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,"0")}`;
+const subj = id => S.subjects.find(x=>x.id===id) || S.subjects[0];
+const daysTo = t => Math.max(0, Math.ceil((t-Date.now())/864e5));
+const pct = (a,b) => Math.min(100, Math.round(a/b*100));
+const buzz = ms => { if(S.haptics && navigator.vibrate) try{navigator.vibrate(ms)}catch(e){} };
+function hour(){ const m={morning:8,afternoon:14,evening:20,night:23}; return S.simTime? m[S.simTime] : new Date().getHours(); }
+function nowLabel(){ const m={morning:"08:12",afternoon:"14:37",evening:"20:04",night:"23:41"};
+  if(S.simTime) return m[S.simTime]; const d=new Date();
+  return `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`; }
+
+const I = {
+  back:'<path d="M15 18l-6-6 6-6"/>', chev:'<path d="M9 18l6-6-6-6"/>',
+  play:'<path d="M7 4.5v15l13-7.5z" stroke-linejoin="round"/>', pause:'<path d="M9 5v14M15 5v14"/>',
+  check:'<path d="M4 12.5l5.2 5.2L20 7"/>', x:'<path d="M18 6 6 18M6 6l12 12"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>', home:'<path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/>',
+  book:'<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H19v3H6.5A2.5 2.5 0 0 1 4 20.5z"/>',
+  chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  keep:'<path d="M5 21V9l3-2 4 2.5L16 7l3 2v12z"/><path d="M10 21v-4h4v4"/>',
+  aperture:'<path d="M12 2.6a9.4 9.4 0 1 1-6.9 3"/><circle cx="12" cy="12" r="3.4" fill="currentColor" stroke="none"/>',
+  moon:'<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>',
+  bell:'<path d="M6 9a6 6 0 1 1 12 0c0 5 2 6 2 6H4s2-1 2-6"/><path d="M10 20a2 2 0 0 0 4 0"/>',
+  flame:'<path d="M12 3s5 4.2 5 9a5 5 0 0 1-10 0c0-2 1-3.4 1-3.4S9 11 10.5 11C12 11 12 8 12 3Z"/>',
+  cal:'<rect x="3.5" y="5" width="17" height="16" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/>',
+  users:'<path d="M16 20v-1.5a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4V20"/><circle cx="9.5" cy="7" r="3.2"/><path d="M17 11a3 3 0 1 0-1.5-5.6M21 20v-1.5a4 4 0 0 0-3-3.8"/>',
+  gear:'<circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 7 19.4a1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 3 15H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 7a1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 9 3V3a2 2 0 1 1 4 0v.1A1.7 1.7 0 0 0 15 4.6"/>',
+  leaf:'<path d="M20 4C10 4 4 9 4 16v4"/><path d="M20 4c0 9-5 13-12 13H4"/>',
+  wave:'<path d="M2 12c2.5-4 5-4 7.5 0s5 4 7.5 0 5-4 5 0"/>',
+  drop:'<path d="M12 3s6 6.5 6 10.5a6 6 0 0 1-12 0C6 9.5 12 3 12 3Z"/>',
+  eye:'<path d="M2 12s3.8-6.5 10-6.5S22 12 22 12s-3.8 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="2.6"/>',
+  lock:'<rect x="4.5" y="10" width="15" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
+  trophy:'<path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3M9 20h6M12 14v6"/>',
+  alert:'<path d="M12 8v5M12 17h.01"/><circle cx="12" cy="12" r="9"/>',
+  spark:'<path d="M12 3l1.9 5.6L19.5 10l-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.4z"/>',
+  arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+  clockI:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.2 2"/>',
+  phone:'<rect x="6" y="2.5" width="12" height="19" rx="3.2"/><path d="M11 18.5h2"/>',
+  trash:'<path d="M4 7h16M9.5 7V5h5v2M6.5 7l1 13h9l1-13"/>'
+};
+const svg = (p,c="") => `<svg viewBox="0 0 24 24" class="${c}" aria-hidden="true">${p}</svg>`;
+const toneVar = t => t==="ink3" ? "var(--ink3)" : `var(--${t})`;
+</script>
+<script>
+/* ============================================================
+   3. ROUTER + SHELL
+   ============================================================ */
+const IMMERSIVE = new Set(["splash","welcome","onboard","focus","detoxactive","complete","break","winddown","intervention"]);
+const TABOF = {home:"home",plan:"plan",subject:"plan",topic:"plan",exam:"plan",empty:"plan",
+  insights:"insights",weekly:"insights",dailyprogress:"insights",keep:"keep",rewards:"keep",
+  profile:"home",settings:"home",notifications:"home",together:"home",modes:"focus",detoxsetup:"focus",error:"home",success:"home"};
+
+function go(id, opts){ S.screen=id; S.opts=opts||{}; S.overlay=null; S.tab=TABOF[id]||S.tab; render(); }
+function open(o){ S.overlay=o; render(); }
+function close(){ S.overlay=null; render(); }
+function toast(msg, icon){ S.toast={msg,icon:icon||I.check}; render();
+  clearTimeout(toast._t); toast._t=setTimeout(()=>{ S.toast=null; render(); }, 2600); }
+
+function tabbar(){
+  const t=(id,label,icon)=>`<button class="tab" data-act="tab" data-a="${id}" aria-current="${S.tab===id}">${svg(icon)}<span>${label}</span></button>`;
+  return `<nav class="tabbar">
+    ${t("home","Home",I.home)}${t("plan","Plan",I.book)}
+    <button class="tab center" data-act="focushub" aria-label="Start a focus session"><div class="orbtn">${svg(I.aperture)}</div></button>
+    ${t("insights","Insights",I.chart)}${t("keep","Keep",I.keep)}</nav>`;
+}
+
+function render(){
+  const vp=el("viewport"); if(!vp) return;
+  const sc=SCREENS[S.screen]; if(!sc) return;
+  let html = sc.html();
+  if(!IMMERSIVE.has(S.screen)) html += tabbar();
+  if(S.overlay) html += OVERLAY[S.overlay.type](S.overlay);
+  if(S.toast) html += `<div class="toast">${svg(S.toast.icon)}<span>${S.toast.msg}</span></div>`;
+  vp.innerHTML = html;
+  el("clock").textContent = nowLabel();
+  document.querySelector(".homebar").style.opacity = IMMERSIVE.has(S.screen) ? ".14" : ".24";
+  if(sc.after) sc.after();
+  if(S.sess) syncTimer();
+}
+
+/* delegated events */
+document.addEventListener("click", e=>{
+  const n = e.target.closest("[data-act]"); if(!n) return;
+  const f = ACT[n.dataset.act]; if(!f) return;
+  e.preventDefault(); f(n.dataset.a, n.dataset.b, n);
+});
+document.addEventListener("input", e=>{
+  const n=e.target.closest("[data-in]"); if(!n) return;
+  const f=INP[n.dataset.in]; if(f) f(n.value, n.dataset.a, n);
+});
+
+/* ============================================================
+   4. HOME — adaptive command centre
+   ============================================================ */
+function greeting(){
+  const h=hour(), done=S.todayMin>=S.goalMin;
+  if(h>=22||h<4) return {hi:"It's late.", msg:"You're here now. That's enough.", cta:"Start 10 minutes", quick:10, tone:"night"};
+  if(done) return {hi:"You're done for today.", msg:"Go live. The Keep will be here tomorrow.", cta:"One more anyway", quick:25, tone:"done"};
+  if(h<12) return {hi:"Good morning.", msg:"What's worth your attention today?", cta:"Start focus", quick:45, tone:"am"};
+  if(h<17) return {hi:"Good afternoon.", msg:"Your attention is yours.", cta:"Start focus", quick:45, tone:"pm"};
+  return {hi:"Good evening.", msg:"One more focused session?", cta:"Start focus", quick:45, tone:"eve"};
+}
+
+function nextExam(){ return [...S.exams].sort((a,b)=>a.date-b.date)[0]; }
+function focusRing(p){
+  const r=26, c=2*Math.PI*r;
+  return `<svg width="62" height="62" viewBox="0 0 62 62" style="transform:rotate(-90deg)">
+    <circle cx="31" cy="31" r="${r}" fill="none" stroke="var(--sunken)" stroke-width="5"/>
+    <circle cx="31" cy="31" r="${r}" fill="none" stroke="var(--accent)" stroke-width="5" stroke-linecap="round"
+      stroke-dasharray="${c}" stroke-dashoffset="${c*(1-p/100)}" style="transition:stroke-dashoffset 1s var(--ease)"/></svg>`;
+}
+
+SCREENS_INIT();
+function SCREENS_INIT(){ window.SCREENS = {}; }
+
+SCREENS.home = { html(){
+  const g=greeting(), p=pct(S.todayMin,S.goalMin), ex=nextExam(), sb=subj("math");
+  const topic=sb.topics.find(t=>!t.done);
+  return `<div class="view enter"><div class="stack g20 stagger">
+
+  <div class="between" style="padding:14px 0 4px">
+    <div class="stack">
+      <span class="eyebrow">${["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"][S.today]} · ${S.user.year}</span>
+      <h1 class="h-xl" style="margin-top:5px">${g.hi}</h1>
+      <p class="body" style="margin-top:3px">${g.msg}</p>
+    </div>
+    <button class="av" data-act="go" data-a="profile" aria-label="Your profile">${S.user.initials}</button>
+  </div>
+
+  ${S.detox.active?`<button class="card tap" data-act="go" data-a="detoxactive" style="border-color:var(--dusk);background:var(--dusk-soft);text-align:left;width:100%">
+    <div class="between"><div class="stack g4"><span class="pill dusk">${svg(I.moon)} Detox running</span>
+    <strong style="font-family:var(--f-display);font-size:17px">${S.detox.label}</strong></div>
+    <span class="bignum tnum" style="font-size:26px;color:var(--dusk)">${clock(Math.max(0,(S.detox.endAt-Date.now())/1000))}</span></div></button>`:""}
+
+  <div class="card" style="padding:22px 20px">
+    <div class="between" style="align-items:flex-start">
+      <div class="stack g6">
+        <span class="eyebrow">Kept today</span>
+        <div class="row g8" style="align-items:baseline">
+          <span class="bignum" style="font-size:46px">${fmt(S.todayMin).split(" ")[0]}</span>
+          <span class="bignum" style="font-size:30px;color:var(--ink2)">${fmt(S.todayMin).split(" ")[1]||""}</span>
+        </div>
+        <span class="small">${p}% of your ${fmt(S.goalMin)} goal</span>
+      </div>
+      <div style="position:relative;display:grid;place-items:center">${focusRing(p)}
+        <span class="mono tnum" style="position:absolute;font-size:11px;font-weight:500">${p}%</span></div>
+    </div>
+    <div class="track" style="margin:18px 0 16px"><div class="fill" style="width:${p}%"></div></div>
+    <button class="btn lg" data-act="quick" data-a="${g.quick}">${svg(I.aperture)} ${g.cta.toUpperCase()}</button>
+    <div class="chips equal" style="margin-top:12px">
+      ${[15,25,45,60,90].map(m=>`<button class="chip" data-act="rapid" data-a="${m}">${m}m</button>`).join("")}
+    </div>
+  </div>
+
+  <button class="card tap" data-act="topic" data-a="${sb.id}" data-b="0" style="text-align:left;width:100%">
+    <div class="between">
+      <div class="stack g6">
+        <span class="eyebrow" style="color:var(--accent)">Pick up where you left off</span>
+        <strong style="font-family:var(--f-display);font-size:19px;letter-spacing:-.02em">${sb.name} · ${topic.n}</strong>
+        <div class="row g8"><span class="pill">45 min</span><span class="pill clay">Exam in ${daysTo(S.exams.find(e=>e.sub==="math").date)} days</span></div>
+      </div>${svg(I.chev,"chev")}
+    </div>
+    <div class="track" style="margin-top:14px"><div class="fill" style="width:${pct(topic.m,topic.t)}%"></div></div>
+  </button>
+
+  <div class="grid" style="grid-template-columns:1fr 1fr">
+    <button class="card tap stack g8" data-act="go" data-a="insights" style="text-align:left">
+      <span style="color:var(--accent)">${svg(I.phone)}</span>
+      <span class="bignum" style="font-size:30px">${S.pickupsAvoided}</span>
+      <span class="small" style="line-height:1.35">pickups you didn't need today</span>
+    </button>
+    <button class="card tap stack g8" data-act="go" data-a="keep" style="text-align:left">
+      <span style="color:var(--brass)">${svg(I.flame)}</span>
+      <span class="bignum" style="font-size:30px">${S.streak} <span style="font-size:15px;letter-spacing:0">days</span></span>
+      <span class="small" style="line-height:1.35">${S.streakHours}h kept in a row</span>
+    </button>
+  </div>
+
+  ${hour()>=20?`<button class="card tap between" data-act="go" data-a="winddown" style="width:100%;text-align:left;background:var(--dusk-soft);border-color:transparent">
+    <div class="stack g4"><span class="eyebrow" style="color:var(--dusk)">Digital sunset · 22:00</span>
+    <strong style="font-family:var(--f-display);font-size:16px">Wind down when you're ready</strong></div>
+    <span style="color:var(--dusk)">${svg(I.moon)}</span></button>`:
+   `<button class="card tap between" data-act="go" data-a="together" style="width:100%;text-align:left">
+    <div class="stack g4"><span class="eyebrow" style="color:var(--dusk)">Focus together</span>
+    <strong style="font-family:var(--f-display);font-size:16px">Maya and Idris are focusing</strong></div>
+    <span style="color:var(--dusk)">${svg(I.users)}</span></button>`}
+
+  <p class="small" style="text-align:center;padding:4px 20px 0;line-height:1.5">The best version of this app is the one you stop needing.</p>
+  </div></div>`;
+}};
+</script>
+<script>
+/* ============================================================
+   5. FOCUS ENGINE
+   ============================================================ */
+const MODES = [
+  {id:"deep",   n:"Deep Focus",   d:"25–180 min, one unbroken block", def:45, icon:I.aperture},
+  {id:"pomo",   n:"Pomodoro",     d:"25 on, 5 off, repeat",           def:25, icon:I.clockI},
+  {id:"sprint", n:"Short Sprint", d:"10–15 min. For starting when starting is hard", def:15, icon:I.spark},
+  {id:"exam",   n:"Exam Mode",    d:"Full paper length. No pause.",   def:90, icon:I.book},
+  {id:"custom", n:"Custom",       d:"You choose",                     def:60, icon:I.gear},
+  {id:"open",   n:"Open Focus",   d:"No timer. We just count how long you stay.", def:0, icon:I.wave}
+];
+const PHASES=[[0,"Beginning","#3E6E55",.22],[.25,"Settling in","#4E8F6B",.30],[.5,"Deep focus","#6FB489",.40],[.75,"Momentum","#8FD3A6",.52]];
+
+function startSession(min, subId, topicIdx, mode){
+  S.sess = {mode:mode||"deep", min, total:min*60, left:min*60, up:0, open:min===0,
+    sub:subId||"math", topic:(topicIdx==null?0:topicIdx), paused:false, leaves:0, checked:[]};
+  buzz(18); go("focus");
+  clearInterval(S.sess.t);
+  S._t = setInterval(tickSession, 1000);
+}
+function tickSession(){
+  const s=S.sess; if(!s||s.paused) return;
+  if(s.open){ s.up += S.speed; }
+  else { s.left -= S.speed; if(s.left<=0){ s.left=0; return finishSession(true); } }
+  if(S.screen==="focus") syncTimer();
+}
+function endSession(){ clearInterval(S._t); S._t=null; }
+function finishSession(complete){
+  endSession();
+  const s=S.sess; const done = s.open ? Math.round(s.up/60) : Math.round((s.total-s.left)/60);
+  S.lastSession = {min:done, planned:s.min, sub:s.sub, topic:s.topic, complete, leaves:s.leaves};
+  if(complete && done>0){
+    S.todayMin += done; S.lifetimeMin += done; S.sessionsDone++; S.weekMin += done;
+    S.week[S.today].f += done;
+    const sb=subj(s.sub); sb.minutes += done;
+    if(sb.topics[s.topic]) sb.topics[s.topic].m = Math.min(sb.topics[s.topic].t, sb.topics[s.topic].m+done);
+    S.recent.unshift({sub:s.sub, topic:sb.topics[s.topic]?sb.topics[s.topic].n:"General", m:done, ok:s.leaves===0, when:"Just now"});
+    S.badges[4].p=Math.min(1,S.lifetimeMin/3000); S.badges[6].p=Math.min(1,S.sessionsDone/100);
+    S.badges[4].sub=`${fmt(S.lifetimeMin)} / 50h`; S.badges[6].sub=`${S.sessionsDone} / 100`;
+    buzz([14,60,26]);
+  }
+  S.sess=null; go("complete");
+}
+function phaseOf(p){ let cur=PHASES[0]; for(const ph of PHASES) if(p>=ph[0]) cur=ph; return cur; }
+
+function syncTimer(){
+  const s=S.sess; if(!s) return;
+  const t=el("tnum"); if(!t) return;
+  const secs = s.open ? s.up : s.left;
+  t.textContent = clock(secs);
+  const p = s.open ? Math.min(1, s.up/5400) : (s.total-s.left)/s.total;
+  const ph = phaseOf(p);
+  const pg=el("ringpg");
+  if(pg){ const C=823.1; pg.style.strokeDashoffset = C*(1-p); pg.style.stroke=ph[2]; }
+  const ap=el("aura"); if(ap){ ap.style.setProperty("--auraC",ph[2]); ap.style.setProperty("--auraO",ph[3]); }
+  const phn=el("phase"); if(phn) phn.textContent = s.open ? "Open focus · no timer" : ph[1];
+  const el2=el("sesspct"); if(el2) el2.textContent = `${Math.round(p*100)}%`;
+}
+
+SCREENS.focus = { html(){
+  const s=S.sess; if(!s) return SCREENS.home.html();
+  const sb=subj(s.sub), tp=sb.topics[s.topic];
+  const motes = Array.from({length:14},(_,i)=>`<span class="mote" style="left:${(i*7.3+4)%96}%;bottom:-8px;animation-duration:${13+i%7*3}s;animation-delay:${-i*1.9}s"></span>`).join("");
+  return `<div class="env" id="env">
+    <div class="aura" id="aura"></div><div class="grain"></div>
+    <div class="motes">${motes}</div>
+    <div class="envtop">
+      <button class="speed" data-act="speed">DEMO ×${S.speed}</button>
+      <span class="pill" style="background:rgba(233,237,232,.07);color:rgba(233,237,232,.6);border-color:transparent">${svg(I.lock)} Focus mode on</span>
+    </div>
+    <div class="envbody">
+      <div class="stack g4" style="align-items:center;margin-bottom:2px">
+        <span class="eyebrow" style="color:rgba(233,237,232,.42)">${esc(sb.name)}</span>
+        <strong style="font-family:var(--f-display);font-size:17px;letter-spacing:-.02em">${esc(tp?tp.n:"Open session")}</strong>
+      </div>
+      <div class="ring">
+        <svg viewBox="0 0 274 274">
+          <circle class="bg" cx="137" cy="137" r="131"/>
+          <circle class="pg" id="ringpg" cx="137" cy="137" r="131" stroke-dasharray="823.1" stroke-dashoffset="823.1"/>
+        </svg>
+        <div class="stack" style="align-items:center;gap:10px">
+          <span class="timernum" id="tnum">${clock(s.open?s.up:s.left)}</span>
+          <span class="phase" id="phase">Beginning</span>
+        </div>
+      </div>
+      <p style="font-size:13.5px;color:rgba(233,237,232,.44);text-align:center;max-width:230px;line-height:1.5;margin-top:6px">
+        ${s.open?"Stay as long as it's working.":"Notifications are held. Your phone can wait."}</p>
+    </div>
+    <div class="envfoot">
+      <div class="row g10">
+        <button class="envbtn grow" data-act="pause">${svg(I.pause)} Pause</button>
+        <button class="envbtn grow solid" data-act="leave">${s.open?"End & keep":"I need to leave"}</button>
+      </div>
+      <button class="envghost" data-act="rooms">${S.friends.filter(f=>f.on).length} friends are focusing too</button>
+    </div></div>`;
+}, after(){ syncTimer(); }};
+
+SCREENS.pause = { html(){
+  const s=S.sess; const sb=subj(s.sub);
+  return `<div class="env" style="justify-content:center">
+    <div class="aura" id="aura" style="--auraO:.14"></div>
+    <div class="envbody" style="justify-content:center">
+      <span class="eyebrow" style="color:rgba(233,237,232,.4)">Paused · ${esc(sb.name)}</span>
+      <span class="timernum" style="font-size:74px;margin:14px 0 6px" id="tnum">${clock(s.open?s.up:s.left)}</span>
+      <p style="font-size:15.5px;color:rgba(233,237,232,.6);text-align:center;max-width:250px;line-height:1.5">
+        Take the breath. The timer is holding, not running out.</p>
+    </div>
+    <div class="envfoot">
+      <button class="envbtn solid" data-act="resume">${svg(I.play)} Back to focus</button>
+      <button class="envbtn" data-act="leave">End session</button>
+    </div></div>`;
+}};
+
+SCREENS.intervention = { html(){
+  const st=S.opts.step||1;
+  if(st===1) return `<div class="interv">
+    <h2>Wait.</h2>
+    <p class="q">Is this what you want to be doing right now?<br>You're ${Math.round(((S.sess.total-S.sess.left)/S.sess.total)*100)}% into this session.</p>
+    <div class="acts">
+      <button class="envbtn solid" data-act="resume">Return to focus</button>
+      <button class="optbtn" data-act="interv" data-a="2"><span>I need a break</span>${svg(I.chev)}</button>
+    </div>
+    <p class="envghost" style="margin-top:22px">No penalty either way. We're just asking.</p></div>`;
+  if(st===2) return `<div class="interv">
+    <h2 style="font-size:34px">What are you checking?</h2>
+    <p class="q">One tap. It teaches the app your pattern.</p>
+    <div class="acts">
+      ${["A message","Social media","Something important","Just a quick break","I don't know"].map(o=>
+        `<button class="optbtn" data-act="interv" data-a="3" data-b="${esc(o)}"><span>${o}</span>${svg(I.arrow)}</button>`).join("")}
+    </div></div>`;
+  return `<div class="interv">
+    <h2 style="font-size:34px">Noted.</h2>
+    <p class="q">“${esc(S.opts.reason||"")}” — that's your third this week around this hour. We'll suggest a detox for it later.</p>
+    <div class="acts">
+      <button class="envbtn solid" data-act="resume">Go back in — I'm fine</button>
+      <button class="optbtn" data-act="takebreak"><span>Take a 5-minute break instead</span>${svg(I.chev)}</button>
+      <button class="optbtn" data-act="leave2"><span>End the session here</span>${svg(I.chev)}</button>
+    </div></div>`;
+}};
+</script>
+<script>
+/* ============================================================
+   6. COMPLETION · BREAK · DETOX · WIND-DOWN · REFLECTION
+   ============================================================ */
+SCREENS.complete = { html(){
+  const L=S.lastSession||{min:45,complete:true,sub:"math",topic:0,leaves:0};
+  const sb=subj(L.sub), tp=sb.topics[L.topic];
+  if(!L.complete||L.min<1) return `<div class="done" style="justify-content:center">
+    <div class="burst" style="background:radial-gradient(circle,rgba(214,138,114,.26),transparent 70%)">${svg(I.wave)}</div>
+    <h2 class="h-lg" style="color:#EDF1EA">That didn't go as planned.</h2>
+    <p style="color:rgba(233,237,232,.6);font-size:15px;max-width:260px;line-height:1.55;margin-top:8px">
+      That's okay — it happens to everyone at ${nowLabel()}. The ${L.min||0} minutes you did do still count.</p>
+    <div class="stack g10" style="width:100%;margin-top:32px">
+      <button class="envbtn solid" data-act="quick" data-a="10">Try 10 minutes instead</button>
+      <button class="envbtn" data-act="takebreak">Take a proper break</button>
+      <button class="envghost" data-act="go" data-a="home">Back to home</button>
+    </div></div>`;
+  return `<div class="done"><canvas id="conf"></canvas>
+    <div class="burst">${svg(I.check)}</div>
+    <span class="eyebrow" style="color:rgba(233,237,232,.45)">Session complete</span>
+    <div class="row g8" style="align-items:baseline;margin:10px 0 4px">
+      <span class="bignum" style="font-size:62px;color:#F2F5F0">${L.min}</span>
+      <span style="font-size:20px;color:rgba(233,237,232,.6);font-family:var(--f-display)">minutes kept</span>
+    </div>
+    <p style="color:rgba(233,237,232,.55);font-size:14.5px">${esc(sb.name)} · ${esc(tp?tp.n:"Open focus")}${L.leaves===0?" · never left":""}</p>
+    <div class="row g20" style="margin:30px 0 6px;width:100%;justify-content:center">
+      ${[["Today",fmt(S.todayMin)],["Streak",S.streak+" days"],["The Keep","+"+Math.max(1,Math.round(L.min/15))+" lights"]]
+        .map(([k,v])=>`<div class="stack g4" style="align-items:center">
+          <span class="mono" style="font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:rgba(233,237,232,.4)">${k}</span>
+          <strong style="font-family:var(--f-display);font-size:18px">${v}</strong></div>`).join("")}
+    </div>
+    <div class="stack g10" style="width:100%;margin-top:32px">
+      <button class="envbtn solid" data-act="quick" data-a="45">Start another</button>
+      <button class="envbtn" data-act="go" data-a="keep">See what it built</button>
+      <button class="envghost" data-act="go" data-a="home">You're done. Go live.</button>
+    </div></div>`;
+}, after(){ confetti(); }};
+
+function confetti(){
+  const c=el("conf"); if(!c) return;
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const dpr=Math.min(2,devicePixelRatio||1); const w=c.clientWidth,h=c.clientHeight;
+  c.width=w*dpr; c.height=h*dpr; const x=c.getContext("2d"); x.scale(dpr,dpr);
+  const cols=["#9BD3AE","#7FBF97","#DDA85C","#E9EDE8"];
+  const ps=Array.from({length:46},()=>({x:w/2,y:h*0.34,a:Math.random()*Math.PI*2,
+    v:1.6+Math.random()*4.4,r:1+Math.random()*2.2,c:cols[(Math.random()*4)|0],l:1}));
+  let f=0;
+  (function loop(){ f++; x.clearRect(0,0,w,h);
+    ps.forEach(p=>{ p.x+=Math.cos(p.a)*p.v; p.y+=Math.sin(p.a)*p.v+f*0.028; p.v*=0.965; p.l-=0.012;
+      if(p.l>0){ x.globalAlpha=Math.max(0,p.l); x.fillStyle=p.c; x.beginPath(); x.arc(p.x,p.y,p.r,0,7); x.fill(); }});
+    if(f<130 && el("conf")===c) requestAnimationFrame(loop); else x.clearRect(0,0,w,h);
+  })();
+}
+
+const BREAKS=[["Stand and walk",I.arrow],["Drink water",I.drop],["Look out a window",I.eye],["Stretch your neck",I.wave],["Close your eyes",I.moon],["Say something to someone",I.users]];
+SCREENS.break = { html(){
+  const b=BREAKS[(S.breakIdx||0)%BREAKS.length];
+  return `<div class="env" style="background:#0A0D0F">
+    <div class="aura" style="--auraC:#5E77A2;--auraO:.24"></div>
+    <div class="envtop"><span class="eyebrow" style="color:rgba(233,237,232,.4)">Break</span>
+      <button class="speed" data-act="go" data-a="home">Skip</button></div>
+    <div class="envbody">
+      <span class="timernum" id="btnum" style="font-size:70px">05:00</span>
+      <p style="color:rgba(233,237,232,.5);font-size:14px;margin-top:4px">You are allowed to rest.</p>
+      <div class="card" style="background:rgba(233,237,232,.05);border-color:rgba(233,237,232,.12);margin-top:34px;width:100%;color:#E9EDE8">
+        <span class="eyebrow" style="color:rgba(233,237,232,.4)">Try this instead of scrolling</span>
+        <div class="row g12" style="margin-top:12px">
+          <span style="color:#9BD3AE">${svg(b[1])}</span>
+          <strong style="font-family:var(--f-display);font-size:19px;letter-spacing:-.02em">${b[0]}</strong>
+        </div>
+        <button class="envbtn" style="margin-top:16px;min-height:42px;font-size:13.5px" data-act="nextbreak">Something else</button>
+      </div>
+    </div>
+    <div class="envfoot"><button class="envbtn solid" data-act="quick" data-a="25">Back to focus</button></div></div>`;
+}, after(){ let left=300; const n=el("btnum");
+  clearInterval(S._b); S._b=setInterval(()=>{ if(!el("btnum")) return clearInterval(S._b);
+    left-=5; if(left<=0){ clearInterval(S._b); left=0; } n.textContent=clock(left); },1000); }};
+
+/* ---------- Detox ---------- */
+const DETOX=[{n:"15 min",m:15,d:"Quick reset"},{n:"30 min",m:30,d:"Study sprint"},{n:"60 min",m:60,d:"Deep work"},
+  {n:"2 hours",m:120,d:"Serious focus"},{n:"Until bedtime",m:0,d:"Digital shutdown"},{n:"Custom",m:-1,d:"You choose"}];
+SCREENS.detoxsetup = { html(){
+  return `<div class="view enter"><div class="head">
+    <button class="back" data-act="back">${svg(I.back)} Back</button>
+    <span class="eyebrow" style="color:var(--dusk)">Disconnect</span>
+    <h1 class="h-xl" style="margin-top:6px">Put the phone down<br>on purpose.</h1>
+    <p class="body" style="margin-top:8px;max-width:290px">Distracting apps stop opening. Calls and alarms still get through. You can always end it — we just make you mean it.</p>
+  </div>
+  <div class="grid g4c stagger" style="grid-template-columns:1fr 1fr">
+    ${DETOX.map((d,i)=>`<button class="card tap stack g6" data-act="detox" data-a="${d.m}" data-b="${esc(d.n)}" style="text-align:left;padding:18px 16px">
+      <span class="bignum" style="font-size:23px">${d.n}</span>
+      <span class="small">${d.d}</span></button>`).join("")}
+  </div>
+  <div class="card flat stack g10" style="margin-top:18px">
+    <div class="between"><div class="stack g4"><strong style="font-size:14.5px">Allow calls & alarms</strong>
+      <span class="small">Someone can still reach you</span></div><span class="tog" aria-checked="true"></span></div>
+    <div class="between" style="border-top:1px solid var(--line2);padding-top:12px"><div class="stack g4"><strong style="font-size:14.5px">Blocked: 9 apps</strong>
+      <span class="small">Instagram, TikTok, YouTube, Snapchat +5</span></div>${svg(I.chev,"chev")}</div>
+  </div>
+  <p class="small" style="text-align:center;margin-top:18px;line-height:1.5">Blocking is enforced on-device. KEPT never sees which apps you open.</p>
+  </div>`;
+}};
+
+SCREENS.detoxactive = { html(){
+  const left=Math.max(0,(S.detox.endAt-Date.now())/1000);
+  return `<div class="detox"><canvas id="dcanvas"></canvas>
+    <div class="dtop" style="padding:18px 24px 0;display:flex;justify-content:space-between;align-items:center">
+      <span class="eyebrow" style="color:rgba(228,234,242,.45)">${esc(S.detox.label)}</span>
+      <button class="speed" data-act="speed">DEMO ×${S.speed}</button>
+    </div>
+    <div class="dmid">
+      <span class="timernum tnum" id="dnum" style="font-size:80px;color:#EAF0F8">${clock(left)}</span>
+      <span class="eyebrow" style="color:rgba(228,234,242,.42)">remaining</span>
+      <p style="font-family:var(--f-display);font-size:26px;letter-spacing:-.03em;color:#EAF0F8;margin-top:26px">Stay here.</p>
+      <p style="color:rgba(228,234,242,.45);font-size:14px;max-width:230px;text-align:center;line-height:1.5;margin-top:6px">
+        Your phone is not in control of this hour.</p>
+    </div>
+    <div class="dbot" style="padding:0 24px 40px;display:flex;flex-direction:column;gap:10px">
+      <button class="envbtn" data-act="enddetox">End early</button>
+      <p class="envghost">${S.pickupsAvoided} pickups avoided today</p>
+    </div></div>`;
+}, after(){ detoxCanvas(); clearInterval(S._d);
+  S._d=setInterval(()=>{ const n=el("dnum"); if(!n) return clearInterval(S._d);
+    S.detox.endAt -= (S.speed-1)*1000;
+    const left=(S.detox.endAt-Date.now())/1000;
+    if(left<=0){ clearInterval(S._d); S.detox.active=false; toast("Detox complete. "+fmtShort(S.detox.total)+" offline.",I.check); return go("home"); }
+    n.textContent=clock(left); },1000); }};
+
+function detoxCanvas(){
+  const c=el("dcanvas"); if(!c) return;
+  const dpr=Math.min(2,devicePixelRatio||1), w=c.clientWidth, h=c.clientHeight;
+  c.width=w*dpr; c.height=h*dpr; const x=c.getContext("2d"); x.scale(dpr,dpr);
+  const still=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let t=0;
+  (function loop(){
+    if(el("dcanvas")!==c) return;
+    t+=still?0:0.0045;
+    const g=x.createLinearGradient(0,0,0,h);
+    g.addColorStop(0,"#070A0D"); g.addColorStop(1,"#0C1219"); x.fillStyle=g; x.fillRect(0,0,w,h);
+    for(let i=0;i<3;i++){
+      const cx=w*(0.5+0.30*Math.sin(t*(0.6+i*0.27)+i*2.1));
+      const cy=h*(0.46+0.20*Math.cos(t*(0.5+i*0.19)+i));
+      const r=h*(0.30+0.10*Math.sin(t*0.8+i));
+      const rg=x.createRadialGradient(cx,cy,0,cx,cy,r);
+      rg.addColorStop(0,["rgba(94,119,162,.30)","rgba(120,150,190,.20)","rgba(70,110,120,.20)"][i]);
+      rg.addColorStop(1,"rgba(0,0,0,0)");
+      x.fillStyle=rg; x.beginPath(); x.arc(cx,cy,r,0,7); x.fill();
+    }
+    if(!still) requestAnimationFrame(loop);
+  })();
+}
+</script>
+<script>
+/* ============================================================
+   7. PLAN — subjects, topics, exams
+   ============================================================ */
+SCREENS.plan = { html(){
+  if(!S.subjects.length) return SCREENS.empty.html();
+  const ex=[...S.exams].sort((a,b)=>a.date-b.date);
+  return `<div class="view enter"><div class="stack g20 stagger">
+    <div class="between" style="padding:14px 0 0">
+      <div class="stack"><span class="eyebrow">Plan</span><h1 class="h-xl" style="margin-top:5px">What you're<br>working on.</h1></div>
+      <button class="iconbtn" data-act="addsub" aria-label="Add subject" style="width:40px;height:40px">${svg(I.plus)}</button>
+    </div>
+
+    <div class="stack g10">
+      <span class="eyebrow">On the horizon</span>
+      ${ex.slice(0,1).map(e=>{ const d=daysTo(e.date), sb=subj(e.sub);
+        return `<button class="card tap" data-act="exam" data-a="${esc(e.title)}" style="text-align:left;width:100%;background:linear-gradient(150deg,var(--surface),color-mix(in srgb,var(--surface) 88%, ${toneVar(sb.tone)}))">
+        <div class="between" style="align-items:flex-start">
+          <div class="stack g4"><span class="eyebrow" style="color:${toneVar(sb.tone)}">${esc(sb.name)}</span>
+            <strong style="font-family:var(--f-display);font-size:19px;letter-spacing:-.025em">${esc(e.title)}</strong></div>
+          <div class="stack g4" style="align-items:flex-end">
+            <span class="bignum" style="font-size:38px;color:${toneVar(sb.tone)}">${d}</span>
+            <span class="eyebrow">days</span></div>
+        </div>
+        <div class="row g8" style="margin-top:14px"><span class="pill">${fmt(sb.minutes)} kept</span>
+        <span class="pill">${sb.topics.filter(t=>!t.done).length} topics left</span></div></button>`;}).join("")}
+      ${ex.length>1?`<div class="rows">${ex.slice(1).map(e=>{const d=daysTo(e.date),sb=subj(e.sub);
+        return `<button class="lrow" data-act="exam" data-a="${esc(e.title)}">
+          <span class="ic" style="color:${toneVar(sb.tone)}">${svg(I.cal)}</span>
+          <span class="grow stack g4"><strong style="font-size:14.5px">${esc(e.title)}</strong>
+          <span class="small">${esc(sb.name)}</span></span>
+          <span class="stack g4" style="align-items:flex-end"><strong class="tnum" style="font-family:var(--f-display);font-size:16px">${d}</strong>
+          <span class="eyebrow">days</span></span></button>`;}).join("")}</div>`:""}
+    </div>
+
+    <div class="stack g10">
+      <div class="between"><span class="eyebrow">Subjects</span><button class="small" data-act="addexam" style="color:var(--accent);font-weight:500">+ Add exam</button></div>
+      ${S.subjects.map(s=>`<button class="card tap" data-act="subject" data-a="${s.id}" style="text-align:left;width:100%">
+        <div class="between">
+          <div class="row g10"><span class="dot" style="background:${toneVar(s.tone)};width:9px;height:9px"></span>
+            <strong style="font-family:var(--f-display);font-size:18px;letter-spacing:-.02em">${esc(s.name)}</strong></div>
+          ${svg(I.chev,"chev")}
+        </div>
+        <div class="between" style="margin-top:12px">
+          <span class="small">${fmt(s.minutes)} of ${s.targetH}h target</span>
+          <span class="mono tnum" style="font-size:11.5px;color:${toneVar(s.tone)}">${pct(s.minutes,s.targetH*60)}%</span>
+        </div>
+        <div class="track" style="margin-top:8px"><div class="fill" style="width:${pct(s.minutes,s.targetH*60)}%;background:${toneVar(s.tone)}"></div></div>
+      </button>`).join("")}
+      <button class="card quiet tap row g10" data-act="addsub" style="justify-content:center;color:var(--ink2);font-weight:500;padding:16px">
+        ${svg(I.plus)} Add a subject</button>
+    </div>
+  </div></div>`;
+}};
+
+SCREENS.subject = { html(){
+  const s=subj(S.opts.id||"math"), ex=S.exams.find(e=>e.sub===s.id);
+  return `<div class="view enter"><div class="head">
+    <button class="back" data-act="go" data-a="plan">${svg(I.back)} Plan</button>
+    <div class="between" style="align-items:flex-start">
+      <div class="stack g6"><span class="eyebrow" style="color:${toneVar(s.tone)}">Subject</span>
+        <h1 class="h-xl">${esc(s.name)}</h1></div>
+      <button class="iconbtn" data-act="delsub" data-a="${s.id}" aria-label="Remove subject" style="width:38px;height:38px">${svg(I.trash)}</button>
+    </div>
+  </div>
+  <div class="stack g20 stagger">
+    <div class="card">
+      <div class="row g20">
+        <div class="stack g4 grow"><span class="eyebrow">Kept</span><span class="bignum" style="font-size:32px">${fmt(s.minutes)}</span></div>
+        <div class="stack g4 grow"><span class="eyebrow">Target</span><span class="bignum" style="font-size:32px;color:var(--ink3)">${s.targetH}h</span></div>
+        ${ex?`<div class="stack g4 grow"><span class="eyebrow">Exam</span><span class="bignum" style="font-size:32px;color:${toneVar(s.tone)}">${daysTo(ex.date)}d</span></div>`:""}
+      </div>
+      <div class="track" style="margin-top:16px"><div class="fill" style="width:${pct(s.minutes,s.targetH*60)}%;background:${toneVar(s.tone)}"></div></div>
+      <button class="btn" style="margin-top:16px;background:${toneVar(s.tone)};color:var(--accent-ink)" data-act="quicksub" data-a="${s.id}">${svg(I.aperture)} START SESSION</button>
+    </div>
+
+    <div class="stack g10"><span class="eyebrow">Topics</span>
+      <div class="rows">${s.topics.map((t,i)=>`<button class="lrow" data-act="topic" data-a="${s.id}" data-b="${i}">
+        <span class="ic" style="color:${t.done?"var(--accent)":"var(--ink3)"}">${svg(t.done?I.check:I.book)}</span>
+        <span class="grow stack g6"><strong style="font-size:14.5px">${esc(t.n)}</strong>
+          <span class="track" style="height:5px"><span class="fill" style="display:block;width:${pct(t.m,t.t)}%;background:${toneVar(s.tone)}"></span></span></span>
+        <span class="stack g4" style="align-items:flex-end;flex:none">
+          <span class="mono tnum" style="font-size:11px;color:var(--ink2)">${fmt(t.m)}</span>
+          <span class="eyebrow">${pct(t.m,t.t)}%</span></span></button>`).join("")}</div>
+    </div>
+
+    <div class="stack g10"><span class="eyebrow">Tasks</span>
+      <div class="rows">${s.tasks.map((t,i)=>`<button class="lrow" data-act="task" data-a="${s.id}" data-b="${i}">
+        <span class="ic" style="color:${t.done?"var(--accent)":"var(--ink3)"};background:${t.done?"var(--accent-soft)":"var(--surface2)"}">${svg(t.done?I.check:I.plus)}</span>
+        <span class="grow" style="font-size:14.5px;${t.done?"color:var(--ink3);text-decoration:line-through":""}">${esc(t.n)}</span></button>`).join("")}
+      </div>
+    </div>
+  </div></div>`;
+}};
+
+SCREENS.topic = { html(){
+  const s=subj(S.opts.id||"math"), i=S.opts.i||0, t=s.topics[i]||s.topics[0];
+  return `<div class="view enter"><div class="head">
+    <button class="back" data-act="subject" data-a="${s.id}">${svg(I.back)} ${esc(s.name)}</button>
+    <span class="eyebrow" style="color:${toneVar(s.tone)}">Topic</span>
+    <h1 class="h-xl" style="margin-top:6px">${esc(t.n)}</h1></div>
+  <div class="stack g20 stagger">
+    <div class="card stack g16">
+      <div class="between" style="align-items:flex-end">
+        <div class="stack g4"><span class="eyebrow">Kept on this topic</span>
+          <span class="bignum" style="font-size:40px">${fmt(t.m)}</span></div>
+        <div class="stack g4" style="align-items:flex-end"><span class="eyebrow">Target</span>
+          <span class="bignum" style="font-size:22px;color:var(--ink3)">${fmt(t.t)}</span></div>
+      </div>
+      <div class="track" style="height:9px"><div class="fill" style="width:${pct(t.m,t.t)}%;background:${toneVar(s.tone)}"></div></div>
+      <p class="small">${t.done?"You've marked this one finished. Nice.":`${fmt(Math.max(0,t.t-t.m))} to go — about ${Math.max(1,Math.ceil((t.t-t.m)/45))} more sessions.`}</p>
+    </div>
+    <div class="stack g10"><span class="eyebrow">Start here</span>
+      <div class="chips">${[25,45,60,90].map(m=>`<button class="chip" data-act="startnow" data-a="${s.id}" data-b="${i}|${m}">${m} min</button>`).join("")}</div>
+      <button class="btn lg" style="margin-top:6px;background:${toneVar(s.tone)};color:var(--accent-ink)" data-act="startnow" data-a="${s.id}" data-b="${i}|45">${svg(I.aperture)} START 45 MINUTES</button>
+      <button class="btn line" data-act="marktopic" data-a="${s.id}" data-b="${i}">${svg(I.check)} ${t.done?"Reopen topic":"Mark topic finished"}</button>
+    </div>
+    <div class="stack g10"><span class="eyebrow">Recent sessions here</span>
+      <div class="rows">${S.recent.filter(r=>r.topic===t.n).slice(0,3).map(r=>`<div class="lrow">
+        <span class="ic" style="color:${r.ok?"var(--accent)":"var(--clay)"}">${svg(r.ok?I.check:I.wave)}</span>
+        <span class="grow stack g4"><strong style="font-size:14px">${fmt(r.m)} kept</strong><span class="small">${esc(r.when)}</span></span>
+        ${r.ok?'<span class="pill acc">Never left</span>':'<span class="pill clay">1 distraction</span>'}</div>`).join("")
+        ||`<div class="empty" style="padding:26px"><span class="small">No sessions on this topic yet. The first one starts above.</span></div>`}</div>
+    </div>
+  </div></div>`;
+}};
+
+SCREENS.exam = { html(){
+  const e=S.exams.find(x=>x.title===S.opts.title)||S.exams[0], s=subj(e.sub), d=daysTo(e.date);
+  const left=s.topics.filter(t=>!t.done), weekly=Math.round((s.targetH*60-s.minutes)/Math.max(1,d/7)/60*10)/10;
+  return `<div class="view enter"><div class="head">
+    <button class="back" data-act="go" data-a="plan">${svg(I.back)} Plan</button></div>
+  <div class="stack g20 stagger">
+    <div class="card" style="padding:26px 22px;text-align:center;background:linear-gradient(170deg,var(--surface),color-mix(in srgb,var(--surface) 86%, ${toneVar(s.tone)}))">
+      <span class="eyebrow" style="color:${toneVar(s.tone)}">${esc(s.name)}</span>
+      <h2 class="h-md" style="margin-top:8px">${esc(e.title)}</h2>
+      <div class="bignum" style="font-size:78px;margin:14px 0 2px;color:${toneVar(s.tone)}">${d}</div>
+      <span class="eyebrow">days remaining</span>
+      <p class="small" style="margin-top:14px">${new Date(e.date).toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"long"})}</p>
+    </div>
+    <div class="grid" style="grid-template-columns:1fr 1fr">
+      <div class="card stack g6"><span class="eyebrow">Hours kept</span><span class="bignum" style="font-size:27px">${fmt(s.minutes)}</span><span class="small">of ${s.targetH}h planned</span></div>
+      <div class="card stack g6"><span class="eyebrow">Topics left</span><span class="bignum" style="font-size:27px">${left.length}</span><span class="small">of ${s.topics.length}</span></div>
+    </div>
+    <div class="card stack g12">
+      <div class="between"><span class="eyebrow">Recommended pace</span><span class="pill acc">On track</span></div>
+      <div class="row g8" style="align-items:baseline"><span class="bignum" style="font-size:30px">${Math.max(1,weekly)}h</span>
+        <span class="body">per week to finish the plan in time</span></div>
+      <p class="small">You averaged ${Math.round(S.weekMin/60*10)/10}h a week so far. Keep that up and you'll land ${Math.max(1,Math.round(d/9))} days early.</p>
+    </div>
+    <div class="stack g10"><span class="eyebrow">What's left</span>
+      <div class="rows">${left.map(t=>`<div class="lrow"><span class="ic" style="color:${toneVar(s.tone)}">${svg(I.book)}</span>
+        <span class="grow stack g4"><strong style="font-size:14.5px">${esc(t.n)}</strong><span class="small">${fmt(Math.max(0,t.t-t.m))} remaining</span></span>
+        <span class="mono" style="font-size:11px;color:var(--ink3)">${pct(t.m,t.t)}%</span></div>`).join("")}</div>
+    </div>
+    <button class="btn lg" data-act="quicksub" data-a="${s.id}">${svg(I.aperture)} STUDY FOR THIS NOW</button>
+  </div></div>`;
+}};
+</script>
+<script>
+/* ============================================================
+   8. INSIGHTS
+   ============================================================ */
+function weekBars(){
+  const max=Math.max(...S.week.map(w=>w.f+w.x),1);
+  return `<div class="bars">${S.week.map((w,i)=>`<div class="barcol ${i===S.today?"on":""}">
+    <div class="barstack">
+      <div class="bseg d" style="height:${w.x/max*100}%" title="${w.x}m distracted"></div>
+      <div class="bseg f" style="height:${w.f/max*100}%" title="${w.f}m kept"></div>
+    </div><span class="barlbl">${w.d[0]}</span></div>`).join("")}</div>`;
+}
+SCREENS.insights = { html(){
+  const best=[...S.week].sort((a,b)=>b.f-a.f)[0];
+  const avg=Math.round(S.weekMin/Math.max(1,S.week.filter(w=>w.f>0).length)/ (S.sessionsDone/ Math.max(1,S.sessionsDone)) /2.5);
+  return `<div class="view enter"><div class="stack g20 stagger">
+    <div class="between" style="padding:14px 0 0">
+      <div class="stack"><span class="eyebrow">This week</span><h1 class="h-xl" style="margin-top:5px">Your attention.</h1></div>
+      <button class="iconbtn" data-act="go" data-a="weekly" aria-label="Weekly report" style="width:40px;height:40px">${svg(I.chart)}</button>
+    </div>
+
+    <div class="card stack g16">
+      <div class="row g12">
+        ${[["Kept",fmt(S.weekMin),"var(--accent)"],["Distracted",fmt(S.distractedWeek),"var(--clay)"],["Protected",fmt(S.protectedWeek),"var(--ink2)"]]
+        .map(([k,v,c])=>`<div class="stack g4 grow"><span class="eyebrow">${k}</span>
+          <span class="bignum" style="font-size:20px;color:${c};white-space:nowrap">${v}</span></div>`).join("")}
+      </div>
+      ${weekBars()}
+      <div class="row g16" style="justify-content:center;padding-top:4px">
+        <span class="row g6 small"><span class="lgsw" style="background:var(--accent);width:9px;height:9px;border-radius:3px"></span>Kept</span>
+        <span class="row g6 small"><span class="lgsw" style="background:var(--clay-soft);border:1px solid var(--clay);width:9px;height:9px;border-radius:3px"></span>Distracted</span>
+      </div>
+      <p class="small" style="border-top:1px solid var(--line2);padding-top:13px;line-height:1.5">
+        “Protected” is time your old phone habits would have taken, based on your first week here. It's an estimate, not a measurement.</p>
+    </div>
+
+    <button class="card tap between" data-act="go" data-a="dailyprogress" style="width:100%;text-align:left">
+      <div class="stack g6"><span class="eyebrow" style="color:var(--brass)">Attention score</span>
+        <div class="row g8" style="align-items:baseline"><span class="bignum" style="font-size:40px">${S.attention}</span>
+          <span class="pill brass">+6 this week</span></div>
+        <span class="small">Five habits, one number. Not a diagnosis.</span></div>
+      ${svg(I.chev,"chev")}</button>
+
+    <div class="grid" style="grid-template-columns:1fr 1fr">
+      <div class="card stack g6"><span class="eyebrow">Biggest pull</span>
+        <strong style="font-family:var(--f-display);font-size:20px;letter-spacing:-.02em">Instagram</strong>
+        <span class="small">34% of the times you left</span></div>
+      <div class="card stack g6"><span class="eyebrow">Sharpest hours</span>
+        <strong style="font-family:var(--f-display);font-size:20px;letter-spacing:-.02em">7–9 PM</strong>
+        <span class="small">Your longest sessions live here</span></div>
+      <div class="card stack g6"><span class="eyebrow">Best day</span>
+        <strong style="font-family:var(--f-display);font-size:20px;letter-spacing:-.02em">${best.d}day</strong>
+        <span class="small">${fmt(best.f)} kept</span></div>
+      <div class="card stack g6"><span class="eyebrow">Average session</span>
+        <strong style="font-family:var(--f-display);font-size:20px;letter-spacing:-.02em">47 min</strong>
+        <span class="small">Up from 22 in week one</span></div>
+    </div>
+
+    <div class="card stack g14">
+      <span class="eyebrow">Where your attention goes when it leaves</span>
+      <div class="row g16">
+        <svg class="donut" width="118" height="118" viewBox="0 0 42 42" aria-hidden="true">${donut()}</svg>
+        <div class="legend">${S.distractions.map(([n,v,t])=>`<div class="lgrow">
+          <span class="lgsw" style="background:${toneVar(t)}"></span>
+          <span class="grow">${n}</span><span class="mono tnum" style="color:var(--ink3);font-size:11.5px">${v}%</span></div>`).join("")}</div>
+      </div>
+      <p class="small" style="border-top:1px solid var(--line2);padding-top:12px">You logged this yourself, one tap at a time. Nothing is read off your phone.</p>
+    </div>
+
+    <div class="card stack g12">
+      <div class="between"><span class="eyebrow">Last 5 weeks</span><span class="small">Darker = more kept</span></div>
+      <div class="heat">${S.heat.map(v=>`<div class="hcell" style="background:${v?`color-mix(in srgb, var(--accent) ${v*24}%, var(--sunken))`:"var(--sunken)"}"></div>`).join("")}</div>
+      <div class="between"><span class="eyebrow">M T W T F S S</span><span class="pill acc">${S.streak}-day run</span></div>
+    </div>
+  </div></div>`;
+}};
+function donut(){
+  let off=25, out="";
+  S.distractions.forEach(([n,v,t])=>{ out+=`<circle cx="21" cy="21" r="15.9" fill="none" stroke="${toneVar(t)}" stroke-width="6"
+    stroke-dasharray="${v} ${100-v}" stroke-dashoffset="${off}"/>`; off-=v; });
+  return out+`<circle cx="21" cy="21" r="12.2" fill="var(--surface)"/>
+    <text x="21" y="20.6" text-anchor="middle" font-size="6.4" font-family="Familjen Grotesk" font-weight="600" fill="var(--ink)">${S.distractions.reduce((a,b)=>a+b[1],0)}</text>
+    <text x="21" y="25.2" text-anchor="middle" font-size="2.7" font-family="IBM Plex Mono" fill="var(--ink3)" letter-spacing="0.3">EXITS</text>`;
+}
+
+SCREENS.dailyprogress = { html(){
+  return `<div class="view enter"><div class="head">
+    <button class="back" data-act="go" data-a="insights">${svg(I.back)} Insights</button>
+    <span class="eyebrow" style="color:var(--brass)">Attention score</span>
+    <h1 class="h-xl" style="margin-top:6px">${S.attention}<span style="font-size:22px;color:var(--ink3);letter-spacing:0"> / 100</span></h1>
+    <p class="body" style="margin-top:8px">A progress metric, not a measurement of you. It moves with five habits.</p></div>
+  <div class="stack g14 stagger">
+    ${S.attentionParts.map(([n,v])=>`<div class="card stack g10">
+      <div class="between"><strong style="font-size:14.5px">${n}</strong><span class="mono tnum" style="font-size:12px;color:var(--ink2)">${v}</span></div>
+      <div class="track"><div class="fill ${v<78?"brass":""}" style="width:${v}%"></div></div>
+      <span class="small">${{
+        "Focus consistency":"You focused on 6 of the last 7 days.",
+        "Distraction control":"You left 4 sessions early this week. That's the one to work on.",
+        "Screen-time reduction":"Down 1h 12m a day since you started.",
+        "Session completion":"29 of 32 sessions finished.",
+        "Recovery after distraction":"You came back within 5 minutes, 7 times out of 9."}[n]}</span></div>`).join("")}
+    <div class="card flat stack g10">
+      <span class="eyebrow">Today</span>
+      <div class="between"><span class="body">Kept</span><strong class="tnum">${fmt(S.todayMin)}</strong></div>
+      <div class="between"><span class="body">Sessions</span><strong class="tnum">${S.recent.filter(r=>r.when.startsWith("Today")||r.when==="Just now").length}</strong></div>
+      <div class="between"><span class="body">Pickups avoided</span><strong class="tnum">${S.pickupsAvoided}</strong></div>
+      <div class="between"><span class="body">Goal</span><strong class="tnum">${pct(S.todayMin,S.goalMin)}%</strong></div>
+    </div>
+  </div></div>`;
+}};
+
+SCREENS.weekly = { html(){
+  return `<div class="view enter"><div class="head">
+    <button class="back" data-act="go" data-a="insights">${svg(I.back)} Insights</button>
+    <span class="eyebrow">Week 6 · Mon–Sun</span>
+    <h1 class="h-xl" style="margin-top:6px">You kept<br>8h 42m.</h1>
+    <p class="body" style="margin-top:8px">That's 1h 04m more than last week, and your most consistent week so far.</p></div>
+  <div class="stack g20 stagger">
+    <div class="card">${weekBars()}</div>
+    <div class="stack g10"><span class="eyebrow">What changed</span>
+      <div class="rows">
+        ${[["Sessions finished","29 of 32","+4",I.check,"accent"],
+           ["Average session","47 min","+9 min",I.clockI,"accent"],
+           ["Times you left","9","−5",I.wave,"accent"],
+           ["Late-night scrolling","24 min","−48 min",I.moon,"accent"]].map(([a,b,c,ic,t])=>`
+        <div class="lrow"><span class="ic" style="color:${toneVar(t)}">${svg(ic)}</span>
+          <span class="grow stack g4"><strong style="font-size:14.5px">${a}</strong><span class="small">${b}</span></span>
+          <span class="pill acc">${c}</span></div>`).join("")}
+      </div></div>
+    <div class="card stack g10" style="background:var(--accent-soft);border-color:transparent">
+      <span class="eyebrow" style="color:var(--accent)">One thing for next week</span>
+      <p style="font-family:var(--f-display);font-size:19px;letter-spacing:-.02em;line-height:1.3">Your Wednesday keeps collapsing. Try one 25-minute sprint before school instead of a 90 after it.</p>
+      <button class="btn slim" style="margin-top:4px;width:auto;align-self:flex-start" data-act="go" data-a="detoxsetup">Schedule it</button>
+    </div>
+    <p class="small" style="text-align:center;line-height:1.5">Weekly reports arrive Sunday at 6pm. One notification, then nothing.</p>
+  </div></div>`;
+}};
+</script>
+<script>
+/* ============================================================
+   9. THE KEEP — attention builds something
+   ============================================================ */
+function keepLevel(){ return Math.max(1, Math.floor(S.lifetimeMin/300)); }
+function drawKeep(id, tall){
+  const c=el(id); if(!c) return;
+  const dpr=Math.min(2,devicePixelRatio||1), w=c.clientWidth, h=c.clientHeight;
+  c.width=w*dpr; c.height=h*dpr; const x=c.getContext("2d"); x.scale(dpr,dpr);
+  const still=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let seed=7; const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+  const tiers=Math.min(11,keepLevel()), lit=S.sessionsDone, trees=Math.min(14,Math.floor(S.sessionsDone/6));
+  const stars=Array.from({length:70},()=>({x:rnd()*w,y:rnd()*h*0.62,r:rnd()*1.1+0.25,p:rnd()*6}));
+  const tw=Array.from({length:trees},()=>({x:rnd()*w,s:0.6+rnd()*0.7,side:rnd()>.5?1:-1}));
+  const gy=h*0.84, tx=w*0.5, tW=tall?54:40, th=tall?23:19;
+  let t=0;
+  (function loop(){
+    if(el(id)!==c) return;
+    t+=still?0:0.012;
+    const g=x.createLinearGradient(0,0,0,h);
+    g.addColorStop(0,"#070C10"); g.addColorStop(.55,"#0D1620"); g.addColorStop(1,"#101A16");
+    x.fillStyle=g; x.fillRect(0,0,w,h);
+    stars.forEach(s=>{ x.globalAlpha=0.28+0.42*Math.abs(Math.sin(t*0.6+s.p));
+      x.fillStyle="#DCE7DE"; x.beginPath(); x.arc(s.x,s.y,s.r,0,7); x.fill(); });
+    x.globalAlpha=1;
+    /* moon */
+    x.fillStyle="rgba(226,235,224,.16)"; x.beginPath(); x.arc(w*0.82,h*0.16,tall?20:15,0,7); x.fill();
+    x.fillStyle="rgba(232,240,230,.62)"; x.beginPath(); x.arc(w*0.82,h*0.16,tall?13:10,0,7); x.fill();
+    /* hills */
+    x.fillStyle="#0A1219"; x.beginPath(); x.moveTo(0,h);
+    for(let i=0;i<=w;i+=8) x.lineTo(i, gy-16-Math.sin(i/95)*15-Math.sin(i/33)*5);
+    x.lineTo(w,h); x.fill();
+    /* headland */
+    x.fillStyle="#0C1712"; x.beginPath(); x.moveTo(0,h);
+    for(let i=0;i<=w;i+=8) x.lineTo(i, gy+Math.sin(i/60+1.4)*6);
+    x.lineTo(w,h); x.fill();
+    /* glow */
+    const gl=x.createRadialGradient(tx,gy-tiers*th-18,0,tx,gy-tiers*th-18, (tall?120:92)*(0.7+S.streak/40));
+    gl.addColorStop(0,`rgba(226,176,96,${0.24+0.05*Math.sin(t*1.4)})`); gl.addColorStop(1,"rgba(226,176,96,0)");
+    x.fillStyle=gl; x.beginPath(); x.arc(tx,gy-tiers*th-18,(tall?120:92)*(0.7+S.streak/40),0,7); x.fill();
+    /* tower tiers */
+    let remaining=lit;
+    for(let i=0;i<tiers;i++){
+      const wdt=tW-i*(tW*0.032), y=gy-(i+1)*th, xx=tx-wdt/2;
+      x.fillStyle= i%2 ? "#1B2A24" : "#182520";
+      x.beginPath(); x.roundRect(xx,y,wdt,th+1,2); x.fill();
+      x.strokeStyle="rgba(200,220,205,.09)"; x.lineWidth=1; x.stroke();
+      const slots=3;
+      for(let k=0;k<slots;k++){
+        const on=remaining>0; remaining-=2;
+        const wx=xx+wdt*(0.22+k*0.28), wy=y+th*0.34;
+        x.fillStyle= on ? `rgba(232,186,110,${0.55+0.30*Math.abs(Math.sin(t*0.9+i+k))})` : "rgba(210,225,215,.07)";
+        x.beginPath(); x.roundRect(wx-2,wy-3.2,4,6.4,1.4); x.fill();
+      }
+    }
+    /* lantern room */
+    const ly=gy-tiers*th-14;
+    x.fillStyle="#22322A"; x.beginPath(); x.roundRect(tx-tW*0.36,ly,tW*0.72,15,3); x.fill();
+    x.fillStyle=`rgba(240,203,128,${0.72+0.2*Math.sin(t*1.6)})`; x.beginPath(); x.roundRect(tx-tW*0.24,ly+3.5,tW*0.48,8,2); x.fill();
+    x.fillStyle="#1B2A24"; x.beginPath(); x.moveTo(tx-tW*0.42,ly); x.lineTo(tx,ly-13); x.lineTo(tx+tW*0.42,ly); x.closePath(); x.fill();
+    /* beam */
+    if(S.streak>0){ const a=(t*0.32)%(Math.PI*2);
+      x.save(); x.globalAlpha=0.10+0.05*Math.sin(t*2); x.translate(tx,ly+7);
+      const grd=x.createLinearGradient(0,0,Math.cos(a)*w,Math.sin(a)*0.25*h);
+      grd.addColorStop(0,"rgba(240,205,135,.9)"); grd.addColorStop(1,"rgba(240,205,135,0)");
+      x.fillStyle=grd; x.beginPath(); x.moveTo(0,0);
+      x.lineTo(Math.cos(a-0.10)*w, Math.sin(a-0.10)*0.3*h); x.lineTo(Math.cos(a+0.10)*w, Math.sin(a+0.10)*0.3*h);
+      x.closePath(); x.fill(); x.restore(); }
+    /* trees */
+    tw.forEach(tr=>{ const bx=tr.x, by=gy+Math.sin(bx/60+1.4)*6+4, s=tr.s*(tall?1:0.8);
+      x.fillStyle="#0F1D17"; x.beginPath(); x.moveTo(bx,by-26*s); x.lineTo(bx-7*s,by); x.lineTo(bx+7*s,by); x.closePath(); x.fill(); });
+    /* streak stones */
+    for(let i=0;i<Math.min(S.streak,16);i++){
+      const sx=6+i*(w-12)/16, sy=h-8-Math.sin(i/2)*2;
+      x.fillStyle="rgba(226,176,96,.5)"; x.beginPath(); x.arc(sx,sy,1.8,0,7); x.fill(); }
+    if(!still) requestAnimationFrame(loop);
+  })();
+}
+
+SCREENS.keep = { html(){
+  const lv=keepLevel(), next=(lv+1)*300, prog=pct(S.lifetimeMin-(lv*300), 300);
+  return `<div class="view enter"><div class="stack g20 stagger">
+    <div class="between" style="padding:14px 0 0">
+      <div class="stack"><span class="eyebrow">Level ${lv} · The Keep</span><h1 class="h-xl" style="margin-top:5px">Attention<br>builds this.</h1></div>
+      <button class="iconbtn" data-act="go" data-a="rewards" aria-label="Rewards" style="width:40px;height:40px">${svg(I.trophy)}</button>
+    </div>
+    <div class="keepwrap" style="height:340px"><canvas id="keepc"></canvas>
+      <div class="keepover">
+        <div class="stack g4"><span class="eyebrow" style="color:rgba(237,241,234,.55)">Lit windows</span>
+          <strong style="font-family:var(--f-display);font-size:17px;white-space:nowrap">${S.sessionsDone} sessions</strong></div>
+        <div class="stack g4" style="align-items:flex-end"><span class="eyebrow" style="color:rgba(237,241,234,.55)">Lantern</span>
+          <strong style="font-family:var(--f-display);font-size:17px;white-space:nowrap">${S.streak}-day flame</strong></div>
+      </div>
+    </div>
+    <div class="card stack g12">
+      <div class="between"><span class="eyebrow">Next tier</span><span class="mono tnum" style="font-size:11.5px;color:var(--ink3)">${fmt(next-S.lifetimeMin)} to go</span></div>
+      <div class="track" style="height:9px"><div class="fill brass" style="width:${prog}%"></div></div>
+      <p class="small">Every 5 hours kept adds a floor. Every session lights two windows. A 60-minute session builds six times what a 10-minute one does — but the 10 still counts.</p>
+    </div>
+    <div class="grid" style="grid-template-columns:1fr 1fr">
+      <div class="card stack g6"><span class="eyebrow">Lifetime kept</span><span class="bignum" style="font-size:26px">${fmt(S.lifetimeMin)}</span></div>
+      <div class="card stack g6"><span class="eyebrow">Longest session</span><span class="bignum" style="font-size:26px">1h 52m</span></div>
+    </div>
+    <div class="card stack g12" style="background:var(--brass-soft);border-color:transparent">
+      <div class="row g10"><span style="color:var(--brass)">${svg(I.flame)}</span>
+        <strong style="font-family:var(--f-display);font-size:18px;letter-spacing:-.02em">${S.streak} days of intentional focus</strong></div>
+      <p class="body" style="font-size:14px">You've kept ${S.streakHours}h in that run. Miss a day and the lantern dims — it doesn't go out. One 10-minute session relights it.</p>
+    </div>
+  </div></div>`;
+}, after(){ drawKeep("keepc", true); }};
+
+SCREENS.rewards = { html(){
+  const got=S.badges.filter(b=>b.got).length;
+  return `<div class="view enter"><div class="head">
+    <button class="back" data-act="go" data-a="keep">${svg(I.back)} The Keep</button>
+    <span class="eyebrow">${got} of ${S.badges.length} earned</span>
+    <h1 class="h-xl" style="margin-top:6px">Milestones.</h1>
+    <p class="body" style="margin-top:8px">No daily chests, no surprise rewards. These only move when you actually focus.</p></div>
+  <div class="grid" style="grid-template-columns:1fr 1fr">
+    ${S.badges.map(b=>`<div class="card stack g8" style="${b.got?"":"opacity:.72"}">
+      <div style="width:38px;height:38px;border-radius:13px;display:grid;place-items:center;
+        background:${b.got?"var(--brass-soft)":"var(--surface2)"};color:${b.got?"var(--brass)":"var(--ink3)"}">
+        ${svg(b.got?I.trophy:I.lock)}</div>
+      <strong style="font-family:var(--f-display);font-size:16px;letter-spacing:-.02em">${b.n}</strong>
+      <span class="small" style="line-height:1.35">${b.d}</span>
+      ${b.got?'<span class="pill brass" style="margin-top:2px">Earned</span>':
+        `<div class="stack g6" style="margin-top:2px"><div class="track" style="height:5px"><div class="fill brass" style="width:${b.p*100}%"></div></div>
+        <span class="mono" style="font-size:10px;color:var(--ink3)">${b.sub}</span></div>`}
+    </div>`).join("")}
+  </div>
+  <div class="card flat stack g8" style="margin-top:18px">
+    <span class="eyebrow">Unlocked environments</span>
+    <div class="chips">${["Night Keep","Rain","Low Fire","Winter"].map(e=>`<span class="chip sel">${e}</span>`).join("")}
+      <span class="chip">${"Coast · 50h"}</span></div>
+  </div></div>`;
+}};
+</script>
+<script>
+/* ============================================================
+   10. TIMER SELECTION · EVENING · SOCIAL · ACCOUNT
+   ============================================================ */
+SCREENS.modes = { html(){
+  const sel=S.opts.mode||"deep", m=MODES.find(x=>x.id===sel);
+  return `<div class="view enter"><div class="head">
+    <button class="back" data-act="back">${svg(I.back)} Back</button>
+    <span class="eyebrow">Focus</span><h1 class="h-xl" style="margin-top:6px">How do you<br>want to work?</h1></div>
+  <div class="stack g10 stagger">
+    ${MODES.map(x=>`<button class="card tap between" data-act="mode" data-a="${x.id}" style="width:100%;text-align:left;${x.id===sel?"border-color:var(--accent);background:var(--accent-soft)":""}">
+      <div class="row g12"><span class="ic" style="width:36px;height:36px;border-radius:12px;display:grid;place-items:center;background:var(--surface2);color:${x.id===sel?"var(--accent)":"var(--ink2)"}">${svg(x.icon)}</span>
+        <span class="stack g4"><strong style="font-family:var(--f-display);font-size:16.5px;letter-spacing:-.02em">${x.n}</strong>
+        <span class="small">${x.d}</span></span></div>
+      ${x.id===sel?`<span class="pill acc">${x.def?x.def+"m":"Open"}</span>`:svg(I.chev,"chev")}</button>`).join("")}
+  </div>
+  <div class="card stack g12" style="margin-top:18px">
+    <span class="eyebrow">Length</span>
+    <div class="chips">${[10,15,25,45,60,90,120].map(d=>`<button class="chip ${(S.opts.min||m.def)===d?"sel":""}" data-act="setmin" data-a="${d}">${d>=60?(d/60)+"h":d+"m"}</button>`).join("")}</div>
+    <span class="eyebrow" style="margin-top:6px">Subject</span>
+    <div class="chips">${S.subjects.map(s=>`<button class="chip ${(S.opts.sub||"math")===s.id?"sel":""}" data-act="setsub" data-a="${s.id}">${esc(s.name)}</button>`).join("")}</div>
+    <span class="eyebrow" style="margin-top:6px">Sound</span>
+    <div class="chips">${["Silence","Rain","Brown noise","Library","Fireplace","Café"].map(s=>`<button class="chip ${S.sound===s.toLowerCase()?"sel":""}" data-act="setsound" data-a="${esc(s)}">${s}</button>`).join("")}</div>
+  </div>
+  <button class="btn lg" style="margin-top:18px" data-act="startmode">${svg(I.aperture)} START ${(S.opts.min||m.def)?((S.opts.min||m.def)+" MINUTES"):"OPEN FOCUS"}</button>
+  </div>`;
+}};
+
+SCREENS.winddown = { html(){
+  return `<div class="env" style="background:#080B10">
+    <div class="aura" style="--auraC:#5E77A2;--auraO:.26"></div>
+    <div class="envtop"><span class="eyebrow" style="color:rgba(228,234,242,.42)">Digital sunset · 22:00</span>
+      <button class="speed" data-act="go" data-a="home">Not yet</button></div>
+    <div class="envbody" style="justify-content:center;align-items:flex-start">
+      <h2 style="font-family:var(--f-display);font-size:38px;letter-spacing:-.035em;line-height:1.08;color:#EAF0F8">You've done<br>enough today.</h2>
+      <p style="color:rgba(228,234,242,.55);font-size:15px;line-height:1.55;margin-top:14px;max-width:280px">
+        ${fmt(S.todayMin)} kept across ${S.recent.filter(r=>r.when.startsWith("Today")||r.when==="Just now").length} sessions. Screen time down 41 minutes on yesterday.</p>
+      <div class="stack g10" style="width:100%;margin-top:28px">
+        ${[["Tomorrow's first thing","Integration — 45 min, 08:30"],["Phone goes quiet","22:00 → 07:00"],["Alarms & calls","Still get through"]]
+        .map(([a,b])=>`<div class="between" style="padding:14px 0;border-bottom:1px solid rgba(233,237,232,.09)">
+          <span style="font-size:14.5px;color:rgba(233,237,232,.85)">${a}</span>
+          <span class="mono" style="font-size:11.5px;color:rgba(233,237,232,.5)">${b}</span></div>`).join("")}
+      </div>
+    </div>
+    <div class="envfoot">
+      <button class="envbtn solid" data-act="go" data-a="reflect">Two questions, then done</button>
+      <button class="envbtn" data-act="detox" data-a="0" data-b="Until bedtime">Shut the phone down now</button>
+    </div></div>`;
+}};
+
+const RQ=[{q:"How focused did you feel today?",k:"mood",o:["Scattered","Patchy","Steady","Sharp"]},
+          {q:"What pulled hardest?",k:"distraction",o:["Instagram","Messages","YouTube","Nothing much"]},
+          {q:"One thing you're proud of.",k:"proud",input:true}];
+SCREENS.reflect = { html(){
+  const i=S.opts.i||0, c=RQ[i];
+  return `<div class="view enter" style="display:flex;flex-direction:column;padding-bottom:40px">
+    <div class="head" style="padding-top:16px">
+      <div class="row g6">${RQ.map((_,k)=>`<span style="height:3px;flex:1;border-radius:999px;background:${k<=i?"var(--accent)":"var(--sunken)"}"></span>`).join("")}</div>
+      <p class="eyebrow" style="margin-top:14px">Daily reflection · ${i+1} of ${RQ.length}</p>
+    </div>
+    <div class="grow stack g20" style="justify-content:center;padding-bottom:60px">
+      <h1 class="h-xl">${c.q}</h1>
+      ${c.input?`<textarea class="field" rows="4" placeholder="Kept going after I wanted to stop." data-in="proud">${esc(S.reflect.proud)}</textarea>`
+        :`<div class="stack g10">${c.o.map(o=>`<button class="card tap between" data-act="reflect" data-a="${i}" data-b="${esc(o)}"
+          style="width:100%;text-align:left;${S.reflect[c.k]===o?"border-color:var(--accent);background:var(--accent-soft)":""}">
+          <span style="font-size:15.5px;font-weight:500">${o}</span>
+          ${S.reflect[c.k]===o?`<span style="color:var(--accent)">${svg(I.check)}</span>`:""}</button>`).join("")}</div>`}
+    </div>
+    <div class="stack g10">
+      <button class="btn lg" data-act="reflectnext" data-a="${i}">${i===RQ.length-1?"Finish the day":"Next"}</button>
+      <button class="small" data-act="go" data-a="home" style="padding:8px">Skip tonight</button>
+    </div></div>`;
+}};
+
+SCREENS.together = { html(){
+  return `<div class="view enter"><div class="head">
+    <button class="back" data-act="go" data-a="home">${svg(I.back)} Home</button>
+    <span class="eyebrow" style="color:var(--dusk)">Focus together</span>
+    <h1 class="h-xl" style="margin-top:6px">Company,<br>not an audience.</h1>
+    <p class="body" style="margin-top:8px">No feed, no likes, no messages. You can see that people are working. That's the whole feature.</p></div>
+  <div class="stack g20 stagger">
+    <div class="stack g10"><span class="eyebrow">Friends</span>
+      <div class="rows">${S.friends.map(f=>`<div class="lrow">
+        <span class="av" style="width:34px;height:34px;font-size:13px;border-radius:11px">${f.n[0]}</span>
+        <span class="grow stack g4"><strong style="font-size:14.5px">${f.n}</strong><span class="small">${f.s}</span></span>
+        <span class="pill ${f.on?"acc":""}">${f.on?"Focusing":"Resting"}</span></div>`).join("")}</div></div>
+    <div class="stack g10"><span class="eyebrow">Rooms</span>
+      ${S.rooms.map(r=>`<button class="card tap between" data-act="room" data-a="${esc(r.n)}" style="width:100%;text-align:left">
+        <div class="stack g4"><strong style="font-family:var(--f-display);font-size:17px;letter-spacing:-.02em">${r.n}</strong>
+          <span class="small">${r.d}</span></div>
+        <div class="stack g4" style="align-items:flex-end"><span class="bignum" style="font-size:22px;color:var(--dusk)">${r.c}</span>
+          <span class="eyebrow">here now</span></div></button>`).join("")}
+    </div>
+    <p class="small" style="text-align:center;line-height:1.5">Rooms show a count and nothing else. You can't message anyone from inside a session — that's the point.</p>
+  </div></div>`;
+}};
+
+SCREENS.profile = { html(){
+  return `<div class="view enter"><div class="head">
+    <button class="back" data-act="go" data-a="home">${svg(I.back)} Home</button></div>
+  <div class="stack g20 stagger">
+    <div class="stack g12" style="align-items:center;text-align:center;padding:6px 0 4px">
+      <span class="av" style="width:74px;height:74px;border-radius:26px;font-size:29px">${S.user.initials}</span>
+      <div class="stack g4"><h1 class="h-lg">${esc(S.user.name)}</h1>
+        <span class="small">${S.user.year} · ${S.user.goal}</span></div>
+      <div class="row g8"><span class="pill brass">${svg(I.flame)} ${S.streak} days</span><span class="pill acc">Level ${keepLevel()}</span></div>
+    </div>
+    <div class="card"><div class="row g20">
+      ${[["Kept",fmt(S.lifetimeMin)],["Sessions",S.sessionsDone],["Score",S.attention]].map(([k,v])=>
+      `<div class="stack g4 grow" style="align-items:center"><span class="bignum" style="font-size:24px">${v}</span><span class="eyebrow">${k}</span></div>`).join("")}
+    </div></div>
+    <div class="rows">
+      ${[["Settings","gear","settings"],["Notifications","bell","notifications"],["Rewards","trophy","rewards"],["Focus together","users","together"],["Weekly report","chart","weekly"]]
+      .map(([n,ic,to])=>`<button class="lrow" data-act="go" data-a="${to}"><span class="ic">${svg(I[ic])}</span>
+        <span class="grow" style="font-size:14.5px;font-weight:500">${n}</span>${svg(I.chev,"chev")}</button>`).join("")}
+    </div>
+    <div class="card flat stack g10">
+      <span class="eyebrow">Your data</span>
+      <p class="body" style="font-size:14px">Sessions, subjects and reflections live on this phone. Nothing is uploaded unless you turn on sync. We never see which apps you open — blocking happens on-device.</p>
+      <div class="row g8"><button class="btn slim ghost" data-act="toastonly" data-a="Export ready — 41 KB">Export my data</button>
+        <button class="btn slim ghost" data-act="toastonly" data-a="Deleted. Nothing kept.">Delete everything</button></div>
+    </div>
+    <div class="rows"><button class="lrow" data-act="restart"><span class="ic" style="color:var(--ink3)">${svg(I.arrow)}</span>
+      <span class="grow" style="font-size:14.5px;font-weight:500">Replay onboarding</span>${svg(I.chev,"chev")}</button></div>
+  </div></div>`;
+}};
+
+SCREENS.settings = { html(){
+  const rows=(title,items)=>`<div class="stack g10"><span class="eyebrow">${title}</span><div class="rows">${items}</div></div>`;
+  const tog=(n,d,k)=>`<button class="lrow" data-act="tog" data-a="${k}"><span class="grow stack g4">
+    <strong style="font-size:14.5px">${n}</strong><span class="small">${d}</span></span>
+    <span class="tog" aria-checked="${!!S[k]}"></span></button>`;
+  return `<div class="view enter"><div class="head">
+    <button class="back" data-act="go" data-a="profile">${svg(I.back)} Profile</button>
+    <h1 class="h-xl" style="margin-top:6px">Settings</h1></div>
+  <div class="stack g20 stagger">
+    ${rows("Appearance",`
+      <div class="lrow"><span class="grow stack g4"><strong style="font-size:14.5px">Theme</strong><span class="small">Dark is the default after 8pm</span></span>
+        <span class="chips"><button class="chip ${document.documentElement.dataset.theme==="light"?"sel":""}" data-act="theme" data-a="light">Light</button>
+        <button class="chip ${document.documentElement.dataset.theme!=="light"?"sel":""}" data-act="theme" data-a="dark">Dark</button></span></div>
+      <div class="lrow"><span class="grow stack g4"><strong style="font-size:14.5px">Simulate time of day</strong>
+        <span class="small">Watch the home screen change</span></span></div>
+      <div class="lrow" style="padding-top:0"><span class="chips">${[["Morning","morning"],["Afternoon","afternoon"],["Evening","evening"],["Late night","night"],["Real time",""]]
+        .map(([n,v])=>`<button class="chip ${(S.simTime||"")===v?"sel":""}" data-act="simtime" data-a="${v}">${n}</button>`).join("")}</span></div>`)}
+    ${rows("Focus",`
+      <div class="lrow"><span class="grow stack g4"><strong style="font-size:14.5px">Daily goal</strong><span class="small">${fmt(S.goalMin)}</span></span>
+        <span class="chips">${[60,120,180,240].map(m=>`<button class="chip ${S.goalMin===m?"sel":""}" data-act="setgoal" data-a="${m}">${m/60}h</button>`).join("")}</span></div>
+      ${tog("Haptics","A tap when a session starts, ends, or you drift","haptics")}
+      ${tog("Reduce motion","Stills instead of ambient animation","reduceMotion")}`)}
+    ${rows("Privacy",`
+      <div class="lrow"><span class="ic" style="color:var(--accent)">${svg(I.lock)}</span><span class="grow stack g4">
+        <strong style="font-size:14.5px">On-device only</strong><span class="small">App blocking never leaves your phone</span></span></div>
+      <div class="lrow"><span class="ic" style="color:var(--ink3)">${svg(I.eye)}</span><span class="grow stack g4">
+        <strong style="font-size:14.5px">What we store</strong><span class="small">Session lengths, subjects, your own distraction taps</span></span>${svg(I.chev,"chev")}</div>`)}
+    <p class="small" style="text-align:center">KEPT 1.0 · Made to be uninstalled eventually.</p>
+  </div></div>`;
+}};
+
+SCREENS.notifications = { html(){
+  const N=[["Your focus session starts in 10 minutes","Integration · 45 min","18:20",I.clockI,"accent"],
+    ["You've kept 90 minutes today","Two-thirds of your goal. No rush.","16:02",I.check,"accent"],
+    ["The Keep gained a floor","Level 8 — 40 hours kept.","Yesterday",I.keep,"brass"],
+    ["Digital sunset in 30 minutes","Phone goes quiet at 22:00.","Yesterday",I.moon,"dusk"],
+    ["Your week is ready","8h 42m kept. One thing to try.","Sunday",I.chart,"ink3"]];
+  return `<div class="view enter"><div class="head">
+    <button class="back" data-act="go" data-a="profile">${svg(I.back)} Profile</button>
+    <h1 class="h-xl" style="margin-top:6px">Notifications</h1>
+    <p class="body" style="margin-top:8px">Five a day, maximum. None of them shout, and none arrive during a session.</p></div>
+  <div class="stack g10 stagger">
+    ${N.map(([t,b,w,ic,tone])=>`<div class="card row g12" style="align-items:flex-start">
+      <span class="ic" style="width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:var(--surface2);color:${toneVar(tone)}">${svg(ic)}</span>
+      <span class="grow stack g4"><strong style="font-size:14.5px">${t}</strong><span class="small">${b}</span></span>
+      <span class="mono" style="font-size:10px;color:var(--ink3);flex:none">${w}</span></div>`).join("")}
+    <div class="card flat stack g10" style="margin-top:8px">
+      <span class="eyebrow">We will never send</span>
+      ${["🔥 YOU'RE LOSING YOUR STREAK!!!","Your friends are beating you","Come back — you haven't opened us in 3 days"]
+        .map(x=>`<div class="row g8"><span style="color:var(--clay)">${svg(I.x)}</span><span class="small" style="color:var(--ink2)">${x}</span></div>`).join("")}
+    </div>
+  </div></div>`;
+}};
+</script>
+<script>
+/* ============================================================
+   11. ONBOARDING + STATE SCREENS
+   ============================================================ */
+SCREENS.splash = { html(){
+  return `<div class="env" style="background:#070A08;align-items:center;justify-content:center">
+    <div class="aura" style="--auraO:.30;--auraC:#4E8F6B;top:50%"></div>
+    <div class="envbody" style="justify-content:center;gap:18px">
+      <div style="animation:pop 1.1s var(--spring) both;color:#9BD3AE">
+        <svg width="58" height="58" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 2.6a9.4 9.4 0 1 1-6.9 3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+            stroke-dasharray="60" stroke-dashoffset="60" style="animation:draw 1.2s .2s var(--ease) forwards"/>
+          <circle cx="12" cy="12" r="3.2" fill="currentColor" style="animation:pop .8s .8s var(--spring) both"/></svg></div>
+      <span style="font-family:var(--f-display);font-weight:700;font-size:22px;letter-spacing:.42em;text-indent:.42em;color:#EDF1EA;animation:upIn .8s .5s var(--ease) both">KEPT</span>
+      <span class="eyebrow" style="color:rgba(233,237,232,.4);animation:upIn .8s .8s var(--ease) both">Attention, kept</span>
+    </div>
+    <div class="envfoot"><button class="envghost" data-act="go" data-a="welcome">Tap to continue</button></div></div>`;
+}, after(){ clearTimeout(S._sp); S._sp=setTimeout(()=>{ if(S.screen==="splash") go("welcome"); },2200); }};
+
+SCREENS.welcome = { html(){
+  return `<div class="env" style="background:#070A08">
+    <div class="aura" style="--auraO:.20;--auraC:#4E8F6B;top:26%"></div>
+    <div class="envbody" style="justify-content:flex-end;align-items:flex-start;padding-bottom:20px">
+      <h1 style="font-family:var(--f-display);font-size:42px;line-height:1.04;letter-spacing:-.04em;color:#EDF1EA;animation:upIn .7s .1s var(--ease) both">
+        Your attention<br>is valuable.</h1>
+      <p style="color:rgba(233,237,232,.55);font-size:16px;line-height:1.55;margin-top:16px;max-width:290px;animation:upIn .7s .25s var(--ease) both">
+        Everything on your phone was built by people who want it. This is the one thing built to give it back.</p>
+    </div>
+    <div class="envfoot" style="animation:upIn .7s .4s var(--ease) both">
+      <button class="envbtn solid" data-act="onboard" data-a="1">Get started</button>
+      <button class="envghost" data-act="go" data-a="home">I've used KEPT before</button>
+    </div></div>`;
+}};
+
+const OB=[
+ {q:"What brings you here?", k:"why", o:["I procrastinate","I use my phone too much","I can't focus","I want to study better","I want healthier habits"]},
+ {q:"When do you struggle most?", k:"when", o:["Morning","Afternoon","Evening","Late night"]},
+ {q:"What are you working toward?", k:"goal", o:["An exam","Better grades","University","A personal goal","Just focusing better"]},
+ {q:"How much focus do you want a day?", k:"target", o:["30 minutes","1 hour","2 hours","3+ hours"], note:"You can change this any time. Start lower than you think."}
+];
+S.ob={};
+SCREENS.onboard = { html(){
+  const i=(S.opts.step||1)-1;
+  if(i>=OB.length) return `<div class="env" style="background:#070A08">
+    <div class="aura" style="--auraO:.28;--auraC:#4E8F6B;top:38%"></div>
+    <div class="envbody" style="justify-content:center;text-align:center">
+      <span class="eyebrow" style="color:rgba(233,237,232,.4)">You're set</span>
+      <h1 style="font-family:var(--f-display);font-size:38px;line-height:1.08;letter-spacing:-.04em;color:#EDF1EA;margin-top:12px;animation:upIn .7s var(--ease) both">
+        Let's protect<br>your attention.</h1>
+      <p style="color:rgba(233,237,232,.55);font-size:15px;margin-top:14px;max-width:270px;line-height:1.55;animation:upIn .7s .15s var(--ease) both">
+        Goal set to ${S.ob.target||"2 hours"} a day. We'll nudge you once, around ${(S.ob.when||"Evening").toLowerCase()} — the hour you said is hardest.</p>
+    </div>
+    <div class="envfoot"><button class="envbtn solid" data-act="finishob">Start my first session</button>
+      <button class="envghost" data-act="go" data-a="home">Look around first</button></div></div>`;
+  const c=OB[i];
+  return `<div class="env" style="background:#070A08">
+    <div class="envtop"><div class="row g6" style="flex:1">${OB.map((_,k)=>`<span style="height:3px;flex:1;border-radius:999px;background:${k<=i?"#8FBF9C":"rgba(233,237,232,.14)"}"></span>`).join("")}</div></div>
+    <div class="envbody" style="justify-content:center;align-items:flex-start;gap:20px">
+      <h1 style="font-family:var(--f-display);font-size:32px;line-height:1.12;letter-spacing:-.035em;color:#EDF1EA">${c.q}</h1>
+      <div class="stack g10" style="width:100%">
+        ${c.o.map(o=>`<button class="optbtn" data-act="obpick" data-a="${c.k}" data-b="${esc(o)}"
+          style="${S.ob[c.k]===o?"background:rgba(143,191,156,.14);border-color:#8FBF9C":""}">
+          <span>${o}</span>${S.ob[c.k]===o?svg(I.check):svg(I.chev)}</button>`).join("")}</div>
+      ${c.note?`<p style="color:rgba(233,237,232,.4);font-size:13px">${c.note}</p>`:""}
+    </div>
+    <div class="envfoot">
+      <button class="envbtn solid" data-act="onboard" data-a="${i+2}" ${S.ob[c.k]?"":"style=opacity:.35"}>Continue</button>
+      <button class="envghost" data-act="onboard" data-a="${i+2}">Skip</button></div></div>`;
+}};
+
+SCREENS.empty = { html(){
+  return `<div class="view enter"><div class="head" style="padding-top:14px">
+    <span class="eyebrow">Plan</span><h1 class="h-xl" style="margin-top:5px">Nothing here yet.</h1></div>
+  <div class="stack g16 stagger">
+    <div class="card"><div class="empty">
+      <span class="glyph">${svg(I.book)}</span>
+      <strong style="font-family:var(--f-display);font-size:19px;letter-spacing:-.02em">Add what you're studying.</strong>
+      <p class="small" style="max-width:230px;line-height:1.5">Subjects give your sessions somewhere to go. Two is plenty to start.</p>
+      <button class="btn slim" style="margin-top:10px" data-act="addsub">${svg(I.plus)} Add a subject</button></div></div>
+    <div class="card"><div class="empty">
+      <span class="glyph">${svg(I.cal)}</span>
+      <strong style="font-family:var(--f-display);font-size:19px;letter-spacing:-.02em">Nothing on the horizon.</strong>
+      <p class="small" style="max-width:230px;line-height:1.5">Add an exam and every session starts counting toward it.</p>
+      <button class="btn slim ghost" style="margin-top:10px" data-act="addexam">Add an exam</button></div></div>
+    <div class="card"><div class="empty">
+      <span class="glyph">${svg(I.aperture)}</span>
+      <strong style="font-family:var(--f-display);font-size:19px;letter-spacing:-.02em">Your first focused hour starts here.</strong>
+      <p class="small" style="max-width:230px;line-height:1.5">The Keep is dark until you do. Ten minutes lights the first window.</p>
+      <button class="btn slim ghost" style="margin-top:10px" data-act="quick" data-a="10">Start 10 minutes</button></div></div>
+    <button class="small" data-act="reset" style="padding:10px;text-align:center">Restore Alex's sample data</button>
+  </div></div>`;
+}};
+
+SCREENS.error = { html(){
+  return `<div class="view enter"><div class="head"><button class="back" data-act="go" data-a="home">${svg(I.back)} Home</button></div>
+  <div class="stack g16 stagger">
+    <div class="card stack g10" style="border-color:var(--clay)">
+      <span style="color:var(--clay)">${svg(I.alert)}</span>
+      <strong style="font-family:var(--f-display);font-size:19px;letter-spacing:-.02em">Blocking needs one permission.</strong>
+      <p class="body" style="font-size:14px">iOS asks before any app can hold others closed. It takes one tap and nothing leaves your phone.</p>
+      <button class="btn" style="margin-top:6px" data-act="toastonly" data-a="Permission granted. Detox is armed.">Grant Screen Time access</button>
+      <button class="small" data-act="go" data-a="home" style="padding:6px">Use KEPT without blocking</button>
+    </div>
+    <div class="card stack g10">
+      <span style="color:var(--ink3)">${svg(I.wave)}</span>
+      <strong style="font-family:var(--f-display);font-size:19px;letter-spacing:-.02em">We couldn't sync.</strong>
+      <p class="body" style="font-size:14px">Your sessions are safe on this phone. We'll try again when you're back online — nothing is lost.</p>
+      <button class="btn ghost" style="margin-top:6px" data-act="toastonly" data-a="Synced. 3 sessions uploaded.">Try again</button>
+    </div>
+    <div class="card stack g10">
+      <span style="color:var(--brass)">${svg(I.clockI)}</span>
+      <strong style="font-family:var(--f-display);font-size:19px;letter-spacing:-.02em">That session was cut short.</strong>
+      <p class="body" style="font-size:14px">Your phone restarted at 19:42. We kept the 23 minutes you'd already done.</p>
+      <button class="btn ghost" style="margin-top:6px" data-act="quick" data-a="25">Pick it back up</button>
+    </div>
+  </div></div>`;
+}};
+
+SCREENS.success = { html(){
+  return `<div class="view enter"><div class="head"><button class="back" data-act="go" data-a="home">${svg(I.back)} Home</button></div>
+  <div class="stack g16 stagger">
+    <div class="card stack g10" style="background:var(--accent-soft);border-color:transparent">
+      <span style="color:var(--accent)">${svg(I.check)}</span>
+      <strong style="font-family:var(--f-display);font-size:21px;letter-spacing:-.025em">Goal met. ${fmt(S.goalMin)} kept.</strong>
+      <p class="body" style="font-size:14px">That's the day. Close the app — the Keep will still be standing tomorrow.</p>
+      <button class="btn" style="margin-top:6px" data-act="go" data-a="keep">See what it built</button>
+    </div>
+    <div class="card stack g10" style="background:var(--brass-soft);border-color:transparent">
+      <span style="color:var(--brass)">${svg(I.trophy)}</span>
+      <strong style="font-family:var(--f-display);font-size:21px;letter-spacing:-.025em">Deep Worker unlocked.</strong>
+      <p class="body" style="font-size:14px">50 hours kept since you started. Average session up from 22 minutes to 47.</p>
+      <button class="btn ghost" style="margin-top:6px" data-act="go" data-a="rewards">See milestones</button>
+    </div>
+    <div class="card stack g10">
+      <span style="color:var(--accent)">${svg(I.flame)}</span>
+      <strong style="font-family:var(--f-display);font-size:21px;letter-spacing:-.025em">You didn't lose everything.</strong>
+      <p class="body" style="font-size:14px">You missed yesterday, so the streak reset to 1. Your 18h 42m of focus still count, and the lantern relights tonight.</p>
+      <button class="btn ghost" style="margin-top:6px" data-act="quick" data-a="10">Relight it — 10 minutes</button>
+    </div>
+  </div></div>`;
+}};
+</script>
+<script>
+/* ============================================================
+   12. OVERLAYS
+   ============================================================ */
+const OVERLAY = {
+  quick(o){
+    const min=o.min||45, sb=o.sub||"math";
+    return `<div class="scrim" data-act="closeov"></div><div class="sheet">
+      <div class="grab"></div>
+      <div class="stack g6" style="margin-bottom:16px">
+        <span class="eyebrow">Quick focus</span>
+        <h2 class="h-lg">Start in two taps.</h2></div>
+      <span class="eyebrow">How long</span>
+      <div class="chips" style="margin:10px 0 18px">${[10,15,25,45,60,90].map(m=>
+        `<button class="chip ${m===min?"sel":""}" data-act="quick" data-a="${m}" data-b="${sb}">${m>=60?(m/60)+" hr":m+" min"}</button>`).join("")}</div>
+      <span class="eyebrow">On what</span>
+      <div class="chips" style="margin:10px 0 20px">${S.subjects.map(s=>
+        `<button class="chip ${s.id===sb?"sel":""}" data-act="quick" data-a="${min}" data-b="${s.id}">${esc(s.name)}</button>`).join("")}</div>
+      <button class="btn lg" data-act="startnow" data-a="${sb}" data-b="0|${min}">${svg(I.aperture)} START FOCUS</button>
+      <button class="small" style="width:100%;padding:14px 0 2px" data-act="go" data-a="modes">Other modes — Pomodoro, Exam, Open focus</button>
+    </div>`;
+  },
+  addsub(){
+    const tones=[["accent","Lichen"],["brass","Brass"],["dusk","Dusk"],["clay","Clay"]];
+    return `<div class="scrim" data-act="closeov"></div><div class="sheet">
+      <div class="grab"></div>
+      <h2 class="h-lg" style="margin-bottom:16px">Add a subject</h2>
+      <input class="field" placeholder="Chemistry" data-in="subname" value="${esc(S.newSub.name)}" autofocus>
+      <span class="eyebrow" style="display:block;margin:18px 0 10px">Colour</span>
+      <div class="chips">${tones.map(([t,n])=>`<button class="chip ${S.newSub.tone===t?"sel":""}" data-act="settone" data-a="${t}">
+        <span class="dot" style="background:${toneVar(t)}"></span> ${n}</button>`).join("")}</div>
+      <button class="btn lg" style="margin-top:22px" data-act="savesub" ${S.newSub.name.trim()?"":"disabled"}>Add subject</button>
+      <button class="small" style="width:100%;padding:12px 0 0" data-act="closeov">Cancel</button></div>`;
+  },
+  addexam(){
+    return `<div class="scrim" data-act="closeov"></div><div class="sheet">
+      <div class="grab"></div>
+      <h2 class="h-lg" style="margin-bottom:16px">Add an exam</h2>
+      <input class="field" placeholder="Chemistry Paper 1" data-in="examtitle" value="${esc(S.newExam?.title||"")}">
+      <span class="eyebrow" style="display:block;margin:18px 0 10px">Subject</span>
+      <div class="chips">${S.subjects.map(s=>`<button class="chip ${(S.newExam?.sub||"math")===s.id?"sel":""}" data-act="setexsub" data-a="${s.id}">${esc(s.name)}</button>`).join("")}</div>
+      <span class="eyebrow" style="display:block;margin:18px 0 10px">How far away</span>
+      <div class="chips">${[7,14,30,60,90].map(d=>`<button class="chip ${(S.newExam?.days||30)===d?"sel":""}" data-act="setexdays" data-a="${d}">${d} days</button>`).join("")}</div>
+      <button class="btn lg" style="margin-top:22px" data-act="saveexam" ${(S.newExam?.title||"").trim()?"":"disabled"}>Add exam</button>
+      <button class="small" style="width:100%;padding:12px 0 0" data-act="closeov">Cancel</button></div>`;
+  },
+  room(o){
+    return `<div class="scrim" data-act="closeov"></div><div class="modal">
+      <span class="eyebrow" style="color:var(--dusk)">Room</span>
+      <h2 class="h-lg" style="margin:8px 0 8px">${esc(o.name)}</h2>
+      <p class="body" style="font-size:14px">${o.count} people are focusing here right now. You'll see the number change and nothing else — no chat, no names, no feed.</p>
+      <div class="stack g10" style="margin-top:20px">
+        <button class="btn" data-act="startnow" data-a="math" data-b="0|45">Join for 45 minutes</button>
+        <button class="btn line" data-act="closeov">Not now</button></div></div>`;
+  }
+};
+
+/* ============================================================
+   13. ACTIONS
+   ============================================================ */
+const ACT = {
+  go:a=>go(a),
+  back:()=>go(S.tab||"home"),
+  tab:a=>go(a),
+  closeov:()=>close(),
+  focushub:()=>{ buzz(10); open({type:"quick",min:45,sub:"math"}); },
+  quick:(a,b)=>open({type:"quick",min:+a,sub:b||(S.overlay&&S.overlay.sub)||"math"}),
+  rapid:(a)=>startSession(+a,"math",0,"deep"),
+  quicksub:a=>open({type:"quick",min:45,sub:a}),
+  startnow:(a,b)=>{ const [i,m]=b.split("|"); startSession(+m,a,+i,"deep"); },
+  subject:a=>go("subject",{id:a}),
+  topic:(a,b)=>go("topic",{id:a,i:+b}),
+  exam:a=>go("exam",{title:a}),
+  mode:a=>{ const m=MODES.find(x=>x.id===a); go("modes",{mode:a,min:m.def,sub:S.opts.sub||"math"}); },
+  setmin:a=>go("modes",{...S.opts,min:+a}),
+  setsub:a=>go("modes",{...S.opts,sub:a}),
+  setsound:a=>{ S.sound=a.toLowerCase(); render(); toast(a==="Silence"?"Silence it is.":a+" on",I.wave); },
+  startmode:()=>{ const m=MODES.find(x=>x.id===(S.opts.mode||"deep"));
+    startSession(S.opts.min!=null?S.opts.min:m.def, S.opts.sub||"math", 0, S.opts.mode||"deep"); },
+  pause:()=>{ S.sess.paused=true; buzz(10); go("pause"); },
+  resume:()=>{ S.sess.paused=false; buzz(10); go("focus"); },
+  leave:()=>{ if(S.sess.open) return finishSession(true);
+    S.sess.paused=true; S.sess.leaves++; go("intervention",{step:1}); },
+  leave2:()=>finishSession(false),
+  interv:(a,b)=>{ if(b) S.sess.checked.push(b); go("intervention",{step:+a, reason:b||S.opts.reason}); },
+  takebreak:()=>{ S.breakIdx=(S.breakIdx||0); if(S.sess) finishSessionSoft(); go("break"); },
+  nextbreak:()=>{ S.breakIdx=(S.breakIdx||0)+1; render(); },
+  speed:()=>{ S.speed = S.speed===60?300:(S.speed===300?1:60); render(); toast("Demo speed ×"+S.speed,I.clockI); },
+  detox:(a,b)=>{ const m = +a===0 ? Math.max(20,(24-hour())*60-40) : +a;
+    S.detox={active:true,endAt:Date.now()+m*60000,total:m,label:b||"Detox"}; buzz(20); go("detoxactive"); },
+  enddetox:()=>{ clearInterval(S._d); S.detox.active=false; toast("Detox ended. No judgement.",I.check); go("home"); },
+  task:(a,b)=>{ const s=subj(a); s.tasks[+b].done=!s.tasks[+b].done; buzz(8); render();
+    if(s.tasks[+b].done) toast("Done. One less thing.",I.check); },
+  marktopic:(a,b)=>{ const s=subj(a); s.topics[+b].done=!s.topics[+b].done; buzz(12); render();
+    toast(s.topics[+b].done?"Topic finished.":"Reopened.",I.check); },
+  delsub:a=>{ S.subjects=S.subjects.filter(s=>s.id!==a); S.exams=S.exams.filter(e=>e.sub!==a);
+    toast("Subject removed.",I.trash); go(S.subjects.length?"plan":"empty"); },
+  addsub:()=>{ S.newSub={name:"",tone:"accent"}; open({type:"addsub"}); },
+  settone:a=>{ S.newSub.tone=a; render(); },
+  savesub:()=>{ const n=S.newSub.name.trim(); if(!n) return;
+    S.subjects.push({id:"s"+Date.now(), name:n, tone:S.newSub.tone, targetH:20, minutes:0,
+      topics:[{n:"First topic", m:0, t:180, done:false}], tasks:[{n:"Plan what to cover", done:false}]});
+    buzz(14); close(); go("plan"); toast(n+" added.",I.check); },
+  addexam:()=>{ S.newExam={title:"",sub:S.subjects[0]?.id||"math",days:30}; open({type:"addexam"}); },
+  setexsub:a=>{ S.newExam.sub=a; render(); },
+  setexdays:a=>{ S.newExam.days=+a; render(); },
+  saveexam:()=>{ const e=S.newExam; if(!e.title.trim()) return;
+    S.exams.push({sub:e.sub,title:e.title.trim(),date:day(e.days)}); buzz(14); close(); go("plan");
+    toast(e.title.trim()+" — "+e.days+" days out.",I.cal); },
+  room:a=>{ const r=S.rooms.find(x=>x.n===a); open({type:"room",name:r.n,count:r.c}); },
+  rooms:()=>go("together"),
+  reflect:(a,b)=>{ S.reflect[RQ[+a].k]=b; render(); setTimeout(()=>ACT.reflectnext(a),260); },
+  reflectnext:a=>{ const i=+a; if(i<RQ.length-1) return go("reflect",{i:i+1});
+    toast("Logged. Sleep well.",I.moon); go("home"); },
+  theme:a=>{ document.documentElement.dataset.theme=a; render(); },
+  simtime:a=>{ S.simTime=a||null; render(); },
+  setgoal:a=>{ S.goalMin=+a; render(); toast("Goal set to "+fmt(+a)+".",I.check); },
+  tog:a=>{ S[a]=!S[a]; render(); },
+  toastonly:a=>toast(a,I.check),
+  restart:()=>{ S.ob={}; go("splash"); },
+  reset:()=>location.reload(),
+  onboard:a=>go("onboard",{step:+a}),
+  obpick:(a,b)=>{ S.ob[a]=b; buzz(8); const i=OB.findIndex(x=>x.k===a);
+    if(a==="target") S.goalMin={"30 minutes":30,"1 hour":60,"2 hours":120,"3+ hours":180}[b]||120;
+    render(); setTimeout(()=>go("onboard",{step:i+2}),240); },
+  finishob:()=>{ S.todayMin=0; S.streak=0; S.sessionsDone=0; S.lifetimeMin=0; S.weekMin=0;
+    S.week=S.week.map(w=>({...w,f:0,x:0})); S.recent=[]; S.badges.forEach(b=>{b.got=false;b.p=0;});
+    go("home"); open({type:"quick",min:25,sub:"math"}); }
+};
+function finishSessionSoft(){ endSession(); const s=S.sess; if(!s) return;
+  const done=Math.round((s.total-s.left)/60); if(done>0){ S.todayMin+=done; S.week[S.today].f+=done; S.lifetimeMin+=done; }
+  S.sess=null; }
+const INP = {
+  proud:v=>{ S.reflect.proud=v; },
+  subname:v=>{ S.newSub.name=v; const b=document.querySelector('[data-act="savesub"]'); if(b) b.disabled=!v.trim(); },
+  examtitle:v=>{ S.newExam.title=v; const b=document.querySelector('[data-act="saveexam"]'); if(b) b.disabled=!v.trim(); }
+};
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden && S.sess && !S.sess.paused && S.screen==="focus"){
+    S.sess.paused=true; S.sess.leaves++; S.screen="intervention"; S.opts={step:1};
+  }
+});
+</script>
+<script>
+/* ============================================================
+   14. SCREEN INDEX
+   ============================================================ */
+function demoSess(left){ S.sess={mode:"deep",min:45,total:2700,left:left,up:0,open:false,sub:"math",topic:0,paused:true,leaves:1,checked:[]}; }
+const INDEX=[
+ ["Onboarding",[
+  ["Splash",()=>go("splash")],
+  ["Welcome",()=>go("welcome")],
+  ["Onboarding questions",()=>go("onboard",{step:1})],
+  ["Goal selection",()=>go("onboard",{step:4})]]],
+ ["Core focus loop",[
+  ["Home dashboard",()=>go("home")],
+  ["Quick Focus",()=>{go("home");open({type:"quick",min:45,sub:"math"});}],
+  ["Timer selection",()=>go("modes",{mode:"deep",min:45,sub:"math"})],
+  ["Active focus timer",()=>startSession(45,"math",0,"deep")],
+  ["Pause screen",()=>{demoSess(1622);go("pause");}],
+  ["Distraction intervention",()=>{demoSess(1622);go("intervention",{step:1});}],
+  ["Completed session",()=>{S.lastSession={min:45,planned:45,sub:"math",topic:0,complete:true,leaves:0};go("complete");}],
+  ["Break screen",()=>go("break")]]],
+ ["Detox",[
+  ["Detox setup",()=>go("detoxsetup")],
+  ["Active detox",()=>ACT.detox(30,"30 min · Study sprint")]]],
+ ["Study planning",[
+  ["Study planner",()=>go("plan")],
+  ["Subject page",()=>go("subject",{id:"math"})],
+  ["Topic page",()=>go("topic",{id:"math",i:0})],
+  ["Exam countdown",()=>go("exam",{title:"Physics Paper 2"})]]],
+ ["Progress",[
+  ["Daily progress & score",()=>go("dailyprogress")],
+  ["Insights dashboard",()=>go("insights")],
+  ["Weekly report",()=>go("weekly")],
+  ["The Keep",()=>go("keep")],
+  ["Rewards",()=>go("rewards")]]],
+ ["Evening",[
+  ["Wind-down",()=>go("winddown")],
+  ["Daily reflection",()=>go("reflect",{i:0})]]],
+ ["Social & account",[
+  ["Focus Together",()=>go("together")],
+  ["Settings",()=>go("settings")],
+  ["Profile",()=>go("profile")],
+  ["Notifications",()=>go("notifications")]]],
+ ["States",[
+  ["Empty states",()=>go("empty")],
+  ["Error states",()=>go("error")],
+  ["Success states",()=>go("success")]]]
+];
+(function buildIndex(){
+  let n=0, out="";
+  INDEX.forEach(([g,items])=>{ out+=`<h5>${g}</h5>`;
+    items.forEach(([label])=>{ n++; out+=`<button class="jump" data-jump="${n-1}"><span class="n">${String(n).padStart(2,"0")}</span>${label}</button>`; }); });
+  el("dlist").innerHTML=out;
+})();
+const FLAT=INDEX.flatMap(([,items])=>items);
+el("dlist").addEventListener("click",e=>{
+  const b=e.target.closest("[data-jump]"); if(!b) return;
+  endSession(); clearInterval(S._d); clearInterval(S._b);
+  if(S.view!=="proto") switchView("proto");
+  FLAT[+b.dataset.jump][1]();
+  drawerOpen(false);
+});
+function drawerOpen(v){ el("drawer").classList.toggle("open",v); el("dscrim").classList.toggle("on",v); }
+el("idxBtn").onclick=()=>drawerOpen(true);
+el("dclose").onclick=()=>drawerOpen(false);
+el("dscrim").onclick=()=>drawerOpen(false);
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ drawerOpen(false); if(S.overlay) close(); }});
+
+/* theme + view */
+el("themeBtn").onclick=()=>{
+  const cur=document.documentElement.dataset.theme
+    || (matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");
+  document.documentElement.dataset.theme = cur==="dark"?"light":"dark";
+  if(S.view==="proto") render(); else renderSystem();
+};
+document.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>switchView(b.dataset.view));
+function switchView(v){
+  S.view=v;
+  document.querySelectorAll(".seg button").forEach(b=>b.setAttribute("aria-selected", b.dataset.view===v));
+  el("protoWrap").hidden = v!=="proto";
+  el("sysWrap").hidden = v!=="system";
+  el("stage").style.alignItems = v==="system"?"flex-start":"center";
+  el("stage").style.display = v==="system"?"block":"grid";
+  if(v==="system") renderSystem(); else render();
+}
+</script>
+<script>
+/* ============================================================
+   15. DESIGN SYSTEM VIEW
+   ============================================================ */
+const PALETTE=[
+ ["Paper","#F1F0EA","Light ground","--paper"],["Ink","#191C1A","Light text / dark ground inverse","--ink"],
+ ["Lichen","#5E8B6C","Primary accent — focus, growth, go","--accent"],
+ ["Brass","#B0812F","Streaks, milestones, lamplight","--brass"],
+ ["Dusk","#5E77A2","Detox, night, wind-down","--dusk"],
+ ["Clay","#B0644C","Distraction data. Never used to scold.","--clay"]];
+const PALETTE_D=[["Night","#101311"],["Bone","#ECEFE9"],["Lichen 40","#8FBF9C"],["Brass 40","#DDA85C"],["Dusk 40","#93A9D1"],["Clay 40","#D68A72"]];
+const MOTION=[
+ ["Screen change","420 ms","cubic-bezier(.22,1,.36,1)","Content lifts 10px and fades. Never slides sideways."],
+ ["Entering Focus Mode","700 ms","ease-out + 1.06 → 1 scale","The room changes. Everything else dissolves."],
+ ["Bottom sheet","460 ms","cubic-bezier(.22,1,.36,1)","Springless — a sheet should feel heavy."],
+ ["Button press","160 ms","scale .972","Plus one 8–14 ms haptic tick."],
+ ["Timer ring","1000 ms linear","linear","Matched to the second. Any easing here reads as a lie."],
+ ["Completion","800 ms","spring(.34,1.56,.64,1)","46 particles, one draw-on check, then stillness."],
+ ["Ambient (aura, detox)","9 s loop","ease-in-out","Slow enough that you stop noticing it."]];
+const IA=[["Home","Adaptive command centre"],["Plan","Subjects · topics · tasks · exams"],["Focus","Quick start · modes · detox"],["Insights","Week · score · distractions"],["Keep","World · streak · milestones"]];
+
+function renderSystem(){
+  const sw=(n,hex,role)=>`<div class="sw"><div class="chipc" style="background:${hex}"></div>
+    <div class="meta"><b>${n}</b><span>${hex}</span>${role?`<span style="text-transform:none;letter-spacing:0;font-family:var(--f-body);font-size:11.5px;color:var(--ink2);margin-top:3px">${role}</span>`:""}</div></div>`;
+  const icon=(bg,fg,label)=>`<div class="stack g8" style="align-items:center">
+    <div class="iconbox" style="background:${bg};width:74px">
+      <svg width="40" height="40" viewBox="0 0 24 24"><path d="M12 2.6a9.4 9.4 0 1 1-6.9 3" fill="none" stroke="${fg}" stroke-width="1.9" stroke-linecap="round"/>
+      <circle cx="12" cy="12" r="3.4" fill="${fg}"/></svg></div>
+    <span class="eyebrow">${label}</span></div>`;
+  el("sysWrap").innerHTML = `<div class="sys">
+
+  <section>
+    <div class="sh"><h2>Brand</h2><span class="small">Name, mark, voice</span></div>
+    <div class="grid g3">
+      <div class="specimen">
+        <span class="note">Wordmark</span>
+        <span style="font-family:var(--f-display);font-weight:700;font-size:30px;letter-spacing:.34em;text-indent:.34em">KEPT</span>
+        <p class="small" style="margin-top:8px;line-height:1.5">Set in Familjen Grotesk 700 at 0.34em tracking. The tracking is the logo — it reads as held space.</p>
+      </div>
+      <div class="specimen"><span class="note">Why this name</span>
+        <p class="body" style="font-size:14px">Two meanings, one word. <b style="color:var(--ink)">Kept time</b> — the minutes you protected. <b style="color:var(--ink)">A keep</b> — the stronghold you build with them. The app's only metric and its only world share a name.</p></div>
+      <div class="specimen"><span class="note">Voice</span>
+        <p class="body" style="font-size:14px">Short. Confident. Never impressed with itself. It says <b style="color:var(--ink)">“You kept 2h 14m”</b>, never “You wasted 5 hours.” It ends the day by telling you to leave.</p></div>
+    </div>
+    <div class="grid g3" style="margin-top:6px">
+      <div class="specimen"><span class="note">App icon</span>
+        <div class="row g16" style="margin-top:10px;flex-wrap:wrap">
+          ${icon("#101311","#8FBF9C","Default")}${icon("#F1F0EA","#19241C","Light / tinted")}${icon("#191C1A","#ECEFE9","Monochrome")}
+        </div>
+        <p class="small" style="margin-top:12px;line-height:1.5">An aperture that hasn't quite closed, holding one point of light. Legible at 40px; the gap survives the squircle mask.</p></div>
+      <div class="specimen"><span class="note">Tagline</span>
+        <span style="font-family:var(--f-display);font-size:23px;letter-spacing:-.025em">Attention, kept.</span>
+        <p class="small" style="margin-top:8px">Alternates: “Your phone can wait.” · “Stay here.” · “You're done. Go live.”</p></div>
+      <div class="specimen"><span class="note">Not this</span>
+        <p class="body" style="font-size:14px">No leaf mascot, no tree that dies, no shame counter, no red. Killing a plant to punish a teenager for opening Instagram is the mechanic we're replacing.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sh"><h2>Colour</h2><span class="small">Ink and lichen. Light values shown; dark theme shifts every accent up in value, never in hue.</span></div>
+    <div class="grid g4c">${PALETTE.map(p=>sw(p[0],p[1],p[2])).join("")}</div>
+    <span class="eyebrow" style="margin-top:6px">Dark theme</span>
+    <div class="grid g4c">${PALETTE_D.map(p=>sw(p[0],p[1])).join("")}</div>
+    <p class="small" style="max-width:62ch;line-height:1.6">Semantic use is fixed: lichen means focus and forward motion, brass means duration and reward, dusk means night and disconnection, clay means a distraction was logged. Clay is data, never a warning — nothing in KEPT turns red.</p>
+  </section>
+
+  <section>
+    <div class="sh"><h2>Typography</h2><span class="small">Three roles, three faces</span></div>
+    <div class="grid g3">
+      <div class="specimen"><span class="note">Display · Familjen Grotesk</span>
+        <span style="font-family:var(--f-display);font-size:52px;font-weight:500;letter-spacing:-.05em;font-variant-numeric:tabular-nums">24:59</span>
+        <span style="font-family:var(--f-display);font-size:26px;font-weight:600;letter-spacing:-.03em">Your attention is yours.</span>
+        <p class="small" style="margin-top:6px">Timer 88px/500 · H1 31px/600 · tabular numerals everywhere a figure changes.</p></div>
+      <div class="specimen"><span class="note">Body · Onest</span>
+        <p style="font-size:15px;line-height:1.55;max-width:34ch">You got distracted. That's information, not a failure. The 23 minutes you did do still count toward today.</p>
+        <p class="small" style="margin-top:6px">Body 15/1.55 · Secondary 14.5 · Small 12.5</p></div>
+      <div class="specimen"><span class="note">Utility · IBM Plex Mono</span>
+        <span class="eyebrow">KEPT TODAY · 0.15EM · UPPERCASE</span>
+        <span class="mono tnum" style="font-size:20px">08:42 · 63 · 82</span>
+        <p class="small" style="margin-top:6px">Labels 10px/.15em · data readouts 11.5px. Mono signals “instrument”, never “code”.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sh"><h2>Components</h2><span class="small">Live — these are the same nodes the prototype renders</span></div>
+    <div class="grid g3">
+      <div class="specimen"><span class="note">Buttons · 52px, 60px primary</span>
+        <div class="stack g10" style="margin-top:8px"><button class="btn">${svg(I.aperture)} START FOCUS</button>
+        <button class="btn ghost">Secondary</button><button class="btn line">Tertiary</button>
+        <button class="btn" disabled>Disabled</button></div></div>
+      <div class="specimen"><span class="note">Chips & pills</span>
+        <div class="chips" style="margin-top:8px"><span class="chip sel">45 min</span><span class="chip">60 min</span><span class="chip">90 min</span></div>
+        <div class="row g8" style="margin-top:12px;flex-wrap:wrap"><span class="pill acc">Never left</span><span class="pill brass">12 days</span>
+        <span class="pill dusk">Detox</span><span class="pill clay">1 distraction</span></div></div>
+      <div class="specimen"><span class="note">Progress</span>
+        <div class="track" style="margin-top:10px"><div class="fill" style="width:68%"></div></div>
+        <div class="track" style="margin-top:10px"><div class="fill brass" style="width:40%"></div></div>
+        <div class="row g12" style="margin-top:14px;align-items:center">${focusRing(68)}
+        <span class="stack g4"><span class="bignum" style="font-size:24px">2h 02m</span><span class="eyebrow">68% of goal</span></span></div></div>
+      <div class="specimen"><span class="note">Rows, toggle, input</span>
+        <div class="rows" style="margin-top:8px"><div class="lrow"><span class="ic">${svg(I.bell)}</span>
+          <span class="grow stack g4"><strong style="font-size:14.5px">Haptics</strong><span class="small">A tap when you drift</span></span>
+          <span class="tog" aria-checked="true"></span></div>
+          <div class="lrow"><span class="ic">${svg(I.book)}</span><span class="grow" style="font-size:14.5px">Mathematics</span>${svg(I.chev,"chev")}</div></div>
+        <input class="field" style="margin-top:12px" placeholder="Chemistry"></div>
+      <div class="specimen"><span class="note">Cards — border, no stacking</span>
+        <div class="card stack g6" style="margin-top:8px"><span class="eyebrow">Kept today</span>
+          <span class="bignum" style="font-size:30px">2h 02m</span><span class="small">68% of your 3h goal</span></div>
+        <p class="small" style="margin-top:10px">20px radius, 1px border, one soft shadow. A card only appears where something is genuinely a separate object.</p></div>
+      <div class="specimen"><span class="note">Empty state</span>
+        <div class="empty" style="padding:20px 0"><span class="glyph">${svg(I.cal)}</span>
+        <strong style="font-family:var(--f-display);font-size:17px">Nothing on the horizon yet.</strong>
+        <span class="small">Never “No data available.”</span></div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sh"><h2>Motion</h2><span class="small">Every value is in the prototype</span></div>
+    <table class="tbl"><thead><tr><th>Moment</th><th>Duration</th><th>Curve</th><th>Intent</th></tr></thead>
+    <tbody>${MOTION.map(m=>`<tr><td><b>${m[0]}</b></td><td class="mono" style="font-size:12px">${m[1]}</td><td class="mono" style="font-size:12px">${m[2]}</td><td>${m[3]}</td></tr>`).join("")}</tbody></table>
+    <p class="small" style="max-width:62ch;line-height:1.6">Everything above collapses to 0.01ms under <code class="mono">prefers-reduced-motion</code>; ambient canvases render one still frame instead of animating.</p>
+  </section>
+
+  <section>
+    <div class="sh"><h2>Information architecture</h2><span class="small">Five destinations, Focus in the centre</span></div>
+    <div class="grid g4c">${IA.map(([n,d])=>`<div class="specimen" style="gap:4px"><b style="font-family:var(--f-display);font-size:17px">${n}</b><span class="small">${d}</span></div>`).join("")}</div>
+    <span class="eyebrow" style="margin-top:6px">The one journey that has to be perfect</span>
+    <div class="flowmap">${["Open","45 minutes","Mathematics","Start focus","Focus Mode","Tries to leave","Wait.","Returns","Complete","+45 kept","The Keep grows","You're done. Go live."]
+      .map((n,i)=>`${i?'<span class="arr">→</span>':""}<span class="node"${i===11?' style="background:var(--accent-soft);border-color:var(--accent)"':""}>${n}</span>`).join("")}</div>
+  </section>
+
+  <section>
+    <div class="sh"><h2>Copy</h2><span class="small">The product is mostly words</span></div>
+    <table class="tbl"><thead><tr><th>Moment</th><th>We say</th><th>We never say</th></tr></thead><tbody>
+    ${[["Daily summary","You protected 2h 18m of your attention.","You wasted 5 hours today."],
+      ["Abandoned session","That didn't go as planned. Want 10 minutes instead?","Session failed."],
+      ["Broken streak","You didn't lose everything. Your 14 hours still count.","🔥 Streak lost!"],
+      ["11:30pm, after two hours of scrolling","You're here now. That's enough. Start with 10.","You've been on your phone for 127 minutes."],
+      ["Goal reached","You're done for today. Go live.","Keep going — set a new goal!"],
+      ["Leaving a session","Wait. Is this what you want to be doing?","You'll lose your progress!"]]
+      .map(r=>`<tr><td><b>${r[0]}</b></td><td style="color:var(--accent)">${r[1]}</td><td style="color:var(--ink3)">${r[2]}</td></tr>`).join("")}
+    </tbody></table>
+  </section>
+
+  <section>
+    <div class="sh"><h2>Sample data</h2><span class="small">The prototype runs on this, and every number moves when you use it</span></div>
+    <div class="grid g3">
+      <div class="specimen"><span class="note">Student</span><p class="body" style="font-size:14px">Alex · Year 12 · Mathematics, Economics, Physics · working toward university admissions. Daily goal 3h; 2h 02m kept today; 12-day run; attention score 82.</p></div>
+      <div class="specimen"><span class="note">Live state</span><p class="body" style="font-size:14px">Finishing a session writes to today's total, the week bars, the subject and topic progress, the Keep's tiers and lit windows, the recent list, and two milestone bars.</p></div>
+      <div class="specimen"><span class="note">Demo speed</span><p class="body" style="font-size:14px">Sessions run at ×60 so a 45-minute block finishes in 45 seconds. Tap the <span class="mono" style="font-size:11px">DEMO ×60</span> pill inside Focus Mode to switch to ×300 or real time.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sh"><h2>Accessibility &amp; privacy</h2><span class="small">Non-negotiable</span></div>
+    <div class="grid g3">
+      <div class="specimen"><span class="note">Contrast &amp; targets</span><p class="body" style="font-size:14px">Body text clears 4.5:1 in both themes; the 88px timer clears 7:1. Every tappable target is at least 44×44. Focus rings are visible on keyboard navigation.</p></div>
+      <div class="specimen"><span class="note">Colour is never the only signal</span><p class="body" style="font-size:14px">Distraction bars carry a border as well as a fill; “Never left” is a word, not a green dot; the streak shows a number beside the flame.</p></div>
+      <div class="specimen"><span class="note">What KEPT stores</span><p class="body" style="font-size:14px">Session lengths, subjects, and the distraction reasons you tap yourself. App blocking is enforced on-device — we never receive a list of what you opened. Sync is off by default.</p></div>
+    </div>
+  </section>
+
+  <p class="small" style="text-align:center;padding-top:10px">KEPT · a complete attention system for students · prototype and design system, single file, no dependencies</p>
+  </div>`;
+}
+
+/* ============================================================
+   16. INIT
+   ============================================================ */
+if(!document.documentElement.dataset.theme && !matchMedia("(prefers-color-scheme: dark)").matches){
+  /* leave system light; dark is the hero but we respect the viewer */
+}
+render();
+setInterval(()=>{ const c=el("clock"); if(c && S.view==="proto") c.textContent=nowLabel(); }, 20000);
+</script>
