@@ -1550,11 +1550,21 @@ function Icon({ name, size=20, sw=1.7, className='', style }){
 const LUMERA_STRANDS = 10;
 function LumeraMark({ size=40, glow=true, idSuffix='' }){
   const assets=useAssets();
-  // Uploaded artwork wins. The SVG below is the fallback so the brand never
-  // disappears just because nothing has been uploaded yet.
+  // Uploaded artwork wins.
   if(assets.logo) return <img src={assets.logo} alt="Lumera" width={size} height={size}
     style={{width:size, height:size, objectFit:'contain', display:'block',
       filter:glow?'drop-shadow(0 2px 10px rgba(139,92,246,.35))':undefined}}/>;
+  // Otherwise show a deliberate placeholder rather than a drawn stand-in
+  // pretending to be the brand. Upload the real mark in
+  // Admin, Brand and characters, and it replaces this everywhere.
+  return <span aria-label="Lumera logo placeholder" title="Logo placeholder, upload in Admin"
+    style={{width:size, height:size, display:'inline-grid', placeItems:'center', flexShrink:0,
+      borderRadius:Math.max(6,size*0.22), border:'1.5px dashed rgb(var(--c-gold)/.55)',
+      background:'rgb(var(--c-gold)/.10)'}}>
+    <svg width={size*0.5} height={size*0.5} viewBox="0 0 10 10" aria-hidden="true">
+      <path d="M5 0 L6 4 L10 5 L6 6 L5 10 L4 6 L0 5 L4 4 Z" fill="rgb(var(--c-gold))" opacity=".75"/></svg>
+  </span>;
+  /* eslint-disable no-unreachable */
   const uid='lm'+idSuffix+size;
   const GAP=2.3;
   // Ten evenly spaced strands sweeping an S-curve: gold tails, violet body,
@@ -1593,12 +1603,7 @@ function Logo({ size=22, light=false, sub=false, stacked=false, tagline=false })
     <div className="flex flex-col items-center select-none">
       {mark}
       <div className="mt-1">{word}</div>
-      {(sub||tagline) && <div className="flex items-center gap-2 mt-2 w-full">
-        <span className="h-px flex-1" style={{background:'linear-gradient(90deg,transparent,#C9A45F)'}}/>
-        <svg width="9" height="9" viewBox="0 0 10 10" aria-hidden="true"><path d="M5 0 L6 4 L10 5 L6 6 L5 10 L4 6 L0 5 L4 4 Z" fill="#D9B45F"/></svg>
-        <span className="h-px flex-1" style={{background:'linear-gradient(270deg,transparent,#C9A45F)'}}/>
-      </div>}
-      {(sub||tagline) && <div className={cx('text-[9px] tracking-[.3em] uppercase mt-1.5 text-center', light?'text-cream/70':'text-faint')}>
+      {(sub||tagline) && <div className={cx('text-[9px] tracking-[.3em] uppercase mt-2.5 text-center', light?'text-cream/70':'text-faint')}>
         All financial intelligence. One place.</div>}
     </div>
   );
@@ -1608,14 +1613,9 @@ function Logo({ size=22, light=false, sub=false, stacked=false, tagline=false })
       <div className="leading-none min-w-0">
         {word}
         {sub && <div className="mt-1.5">
-          <div className="flex items-center gap-1.5">
-            <span className="h-px w-3.5 shrink-0" style={{background:'linear-gradient(90deg,transparent,rgb(var(--c-gold)))'}}/>
-            <svg width="7" height="7" viewBox="0 0 10 10" aria-hidden="true" className="shrink-0">
-              <path d="M5 0 L6 4 L10 5 L6 6 L5 10 L4 6 L0 5 L4 4 Z" fill="rgb(var(--c-gold))"/></svg>
-            <span className={cx('text-[8px] tracking-[.2em] uppercase whitespace-nowrap', light?'text-cream/70':'text-faint')}>
-              All financial intelligence</span>
-          </div>
-          <div className={cx('text-[8px] tracking-[.34em] uppercase whitespace-nowrap mt-0.5 ml-[22px]', light?'text-cream/55':'text-faint/80')}>
+          <div className={cx('text-[8px] tracking-[.22em] uppercase whitespace-nowrap', light?'text-cream/70':'text-faint')}>
+            All financial intelligence</div>
+          <div className={cx('text-[8px] tracking-[.34em] uppercase whitespace-nowrap mt-0.5', light?'text-cream/55':'text-faint/80')}>
             One place</div>
         </div>}
       </div>
@@ -3469,11 +3469,11 @@ function Benchmarks(){
   const app=useApp(); const fmt=app.fmt; const m=app.metrics;
   const [tab,setTab]=useState('All'); const [showAll,setShowAll]=useState(false);
   const rows = m.rows.filter(r=>!r.good && r.amount>0 && (tab==='All' || r.g===tab.toLowerCase()));
-  const shownRows = showAll? rows : rows.slice(0,10);
+  const shownRows = showAll? rows : rows.slice(0,6);
   return <AppShell>
     <PageHead eyebrow="Benchmark comparison" title="How your spending compares."
       desc="Every category measured against realistic ranges for your income and region, with the leaks worth fixing first."/>
-    <div className="grid lg:grid-cols-3 gap-4">
+    <div className="grid lg:grid-cols-3 gap-4 items-start">
       <Card className="lg:col-span-2">
         <div className="flex items-center justify-between mb-4 flex-wrap gap-2"><Eyebrow>By category</Eyebrow>
           <div className="flex gap-1 rounded-full bg-sand p-1">{['All','Essentials','Lifestyle','Obligations'].map(tt=>
@@ -3482,9 +3482,9 @@ function Benchmarks(){
           {shownRows.map(r=><BenchmarkBar key={r.id} label={r.label} icon={r.icon} value={r.amount} lo={r.lo} hi={r.hi} status={r.status} fmt={fmt}/>)}
           {!rows.length && <div className="text-sm text-muted text-center py-8">Every category is inside its benchmark range. Excellent work.</div>}
         </div>
-        {rows.length>10 && <button onClick={()=>setShowAll(s=>!s)} className="mt-4 text-sm font-semibold text-goldd flex items-center gap-1">{showAll?'Show less':`Show all ${rows.length}`}<Icon name="chevron" size={14} className="rotate-90"/></button>}
+        {rows.length>6 && <button onClick={()=>setShowAll(s=>!s)} className="mt-4 text-sm font-semibold text-goldd flex items-center gap-1">{showAll?'Show less':`Show all ${rows.length}`}<Icon name="chevron" size={14} className="rotate-90"/></button>}
       </Card>
-      <Card hover={false}>
+      <Card hover={false} className="lg:sticky lg:top-24">
         <Eyebrow className="mb-3">Money leak detector</Eyebrow>
         <div className="grid grid-cols-3 gap-2 mb-3">
           <div className="rounded-xl bg-clay/8 p-2.5 text-center"><div className="font-serif text-lg text-clayd tnum">{fmt.compact(m.realistic)}</div><div className="text-[10px] text-faint">/mo waste</div></div>
@@ -3492,7 +3492,7 @@ function Benchmarks(){
           <div className="rounded-xl bg-clay/8 p-2.5 text-center"><div className="font-serif text-lg text-clayd tnum">{fmt.compact(m.realistic*12)}</div><div className="text-[10px] text-faint">/year</div></div>
         </div>
         <div className="space-y-2.5">
-          {m.topLeaks.slice(0,6).map((r,i)=>{ const ease=r.disc?'Easy':'Medium'; const prio=i===0?'High':i<2?'Medium':'Low';
+          {m.topLeaks.slice(0,5).map((r,i)=>{ const ease=r.disc?'Easy':'Medium'; const prio=i===0?'High':i<2?'Medium':'Low';
             return <div key={r.id} className="flex items-center gap-3 rounded-xl border border-line bg-cream/60 p-3">
             <span className="grid place-items-center h-8 w-8 rounded-lg bg-clay/12 text-clayd text-xs font-bold tnum">#{i+1}</span>
             <div className="flex-1 min-w-0"><div className="text-sm font-medium text-charcoal truncate">{r.label}</div><div className="text-[11px] text-faint">{fmt.money(r.over)} over · {ease} fix</div></div>
@@ -4889,6 +4889,7 @@ function Subscriptions(){
   const removeSub=(id)=>setSubs(s=>s.filter(x=>x.id!==id));
   const SUB_CATS=['Streaming','Music','Software','News','Fitness','Gaming','Cloud','Other'];
   const [showAdd,setShowAdd]=useState(false);
+  const [openSub,setOpenSub]=useState(null);
   const [nsub,setNsub]=useState({name:'',cost:0,freq:'Monthly',category:'Streaming'});
   const addSub=()=>{ if(!nsub.name||!Number(nsub.cost)) return; setSubs(s=>[...s,{id:'s'+Date.now(), name:nsub.name, cost:Number(nsub.cost), freq:nsub.freq, category:nsub.category, verdict:'active'}]); setNsub({name:'',cost:0,freq:'Monthly',category:'Streaming'}); setShowAdd(false); };
   const total=sum(subs.map(s=>s.cost));
@@ -4909,58 +4910,43 @@ function Subscriptions(){
       </div>
       <div className="flex gap-2 mt-3"><Btn variant="gold" onClick={addSub}>Add subscription</Btn><Btn variant="ghost" onClick={()=>setShowAdd(false)}>Cancel</Btn></div>
     </Card>}
-    {/* A grid of cards rather than stacked rows: each subscription is a tile
-        you can scan at a glance, colour-keyed by how much you actually use it. */}
+    {/* Each subscription is a big brand square, the price, and the verdict.
+        Everything else lives behind a click so the wall stays scannable. */}
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
       {subs.map(s=>{
-        const save=s.alt?Math.max(0,s.cost-s.alt.cost):0;
         const dead = s.freq==='Never'||s.freq==='Rarely';
         const hue = s.verdict==='cancelled' ? '#E0505A' : s.verdict==='paused' ? '#6E86A0'
                   : dead ? '#D97706' : '#16A34A';
-        const usage = {Daily:100,Weekly:75,Monthly:50,Rarely:22,Never:6}[s.freq] ?? 50;
         return <div key={s.id} className="lux-card lift halo !p-0 overflow-hidden flex flex-col"
           style={{'--glow':hexToRgbList(hue), borderColor:hue+'44'}}>
-          {/* Header strip carries the brand mark, the price and the state */}
-          <div className="relative p-4 pb-3" style={{background:`linear-gradient(140deg, ${hue}22, transparent 70%)`}}>
-            <div className="flex items-start gap-3">
-              <span className="grid place-items-center h-11 w-11 rounded-xl bg-card border border-line shrink-0 overflow-hidden">
-                {s.domain ? <img src={`https://logo.clearbit.com/${s.domain}`} alt="" className="h-6 w-6 object-contain"
+          <button onClick={()=>setOpenSub(s.id)} className="text-left w-full">
+            {/* big brand square */}
+            <div className="relative grid place-items-center aspect-square"
+              style={{background:`linear-gradient(150deg, ${hue}1F, transparent 72%)`}}>
+              <span className="grid place-items-center rounded-2xl bg-card border border-line overflow-hidden"
+                style={{width:'56%', height:'56%'}}>
+                {s.domain ? <img src={`https://logo.clearbit.com/${s.domain}`} alt={s.name}
+                  className="h-2/3 w-2/3 object-contain"
                   onError={e=>{ e.target.style.display='none'; if(e.target.nextSibling) e.target.nextSibling.style.display='block'; }}/> : null}
-                <Icon name="tv" size={16} style={{display:s.domain?'none':'block', color:hue}}/></span>
-              <div className="flex-1 min-w-0">
-                <div className="font-serif text-lg text-charcoal leading-tight truncate">{s.name}</div>
-                <div className="text-[11px] text-faint mt-0.5">{s.category||'Subscription'}{s.renew?` · renews ${s.renew}`:''}</div>
+                <Icon name="tv" size={34} style={{display:s.domain?'none':'block', color:hue}}/>
+              </span>
+              <span className="absolute top-3 right-3 text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded-full"
+                style={{background:hue+'26', color:hue}}>{s.verdict}</span>
+              {dead && <span className="absolute top-3 left-3 text-[10px] font-semibold px-2 py-1 rounded-full"
+                style={{background:'rgba(217,119,6,.22)',color:'#D97706'}}>Barely used</span>}
+            </div>
+            {/* name + price only */}
+            <div className="px-4 pt-3 pb-2">
+              <div className="font-serif text-lg text-charcoal leading-tight truncate">{s.name}</div>
+              <div className="flex items-baseline justify-between gap-2 mt-1">
+                <span className="font-serif text-2xl text-charcoal tnum">{fmt.money(s.cost)}</span>
+                <span className="text-[11px] text-faint">per month</span>
               </div>
-              <button onClick={()=>removeSub(s.id)} title="Remove"
-                className="grid place-items-center h-7 w-7 rounded-lg text-faint hover:text-clayd hover:bg-sand shrink-0"><Icon name="x" size={13}/></button>
+              <div className="mt-1.5 text-[11px] font-semibold flex items-center gap-1" style={{color:hue}}>
+                Details <Icon name="arrowR" size={11}/></div>
             </div>
-            <div className="flex items-end justify-between mt-3">
-              <div><div className="font-serif text-3xl text-charcoal tnum leading-none">{fmt.money(s.cost)}</div>
-                <div className="text-[10px] uppercase tracking-wider text-faint mt-1">per month · {fmt.money(s.cost*12)}/yr</div></div>
-              <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded-full"
-                style={{background:hue+'1F', color:hue}}>{s.verdict}</span>
-            </div>
-          </div>
-
-          {/* How much you actually use it, as a bar rather than a word */}
-          <div className="px-4 pb-3">
-            <div className="flex items-center justify-between text-[11px] mb-1">
-              <span className="text-faint uppercase tracking-wider">Usage</span>
-              <span className="font-semibold" style={{color:hue}}>{s.freq}</span></div>
-            <div className="h-1.5 rounded-full bg-sand overflow-hidden">
-              <div className="h-full rounded-full transition-all duration-700" style={{width:usage+'%', background:hue}}/></div>
-            {dead && <div className="text-[11px] text-clayd mt-2 flex items-center gap-1">
-              <Icon name="eye" size={11}/>You are paying for something you barely open.</div>}
-          </div>
-
-          {s.alt && <div className="mx-4 mb-3 rounded-xl px-3 py-2 text-[11.5px] leading-snug"
-            style={{background:'rgb(var(--c-gold)/.10)'}}>
-            <div className="flex items-start gap-1.5"><Icon name="bulb" size={12} className="text-gold mt-0.5 shrink-0"/>
-              <span className="text-charcoal/85"><b>Cheaper:</b> {s.alt.name}, {s.alt.cost>0?`${fmt.money(s.alt.cost)}/mo`:'free'}
-                {save>0&&<> · save <b className="text-saged">{fmt.money(save*12)}/yr</b></>}</span></div>
-          </div>}
-
-          {/* Verdict switch pinned to the bottom so every card ends the same way */}
+          </button>
+          {/* verdict switch, the one thing worth doing without opening it */}
           <div className="mt-auto grid grid-cols-4 gap-1 p-2 border-t border-line">
             {['active','review','paused','cancelled'].map(v=>
               <button key={v} onClick={()=>setVerdict(s.id,v)} title={v}
@@ -4969,6 +4955,78 @@ function Subscriptions(){
           </div>
         </div>; })}
     </div>
+
+    {/* Detail panel: monthly, yearly, usage and the cheaper alternative */}
+    {(()=>{ const s=subs.find(x=>x.id===openSub); if(!s) return null;
+      const dead=s.freq==='Never'||s.freq==='Rarely';
+      const hue = s.verdict==='cancelled' ? '#E0505A' : s.verdict==='paused' ? '#6E86A0' : dead ? '#D97706' : '#16A34A';
+      const usage={Daily:100,Weekly:75,Monthly:50,Rarely:22,Never:6}[s.freq] ?? 50;
+      const save=s.alt?Math.max(0,s.cost-s.alt.cost):0;
+      const perDay=s.cost/30.4;
+      return <TabbedModal eyebrow={s.category||'Subscription'} title={s.name} hue={hue} badge={s.verdict}
+        subtitle={s.renew?`Renews ${s.renew}`:undefined}
+        stats={[['Per month',fmt.money(s.cost)],['Per year',fmt.money(s.cost*12)],['Usage',s.freq]]}
+        onClose={()=>setOpenSub(null)}
+        footer={<div className="grid grid-cols-4 gap-2">
+          {['active','review','paused','cancelled'].map(v=>
+            <button key={v} onClick={()=>setVerdict(s.id,v)}
+              className={cx('rounded-xl py-2 text-xs font-semibold capitalize border transition', s.verdict===v?'':'border-line text-muted hover:bg-sand')}
+              style={s.verdict===v?{borderColor:hue,background:hue+'1A',color:hue}:undefined}>{v}</button>)}
+        </div>}
+        tabs={{
+          'Cost': <Fragment>
+            <div className="grid grid-cols-3 gap-3">
+              {[['Per day',fmt.money(perDay)],['Per month',fmt.money(s.cost)],['Per year',fmt.money(s.cost*12)]].map(([l,v])=>
+                <div key={l} className="rounded-xl2 border border-line p-4 text-center">
+                  <div className="font-serif text-2xl text-charcoal tnum">{v}</div>
+                  <div className="text-[10px] uppercase tracking-wider text-faint mt-0.5">{l}</div></div>)}
+            </div>
+            <div className="rounded-xl2 p-4 text-sm text-charcoal/85 leading-relaxed"
+              style={{background:hue+'12',border:`1px solid ${hue}2E`}}>
+              Over five years this costs <b>{fmt.money(s.cost*60)}</b>. Invested instead at a 7% return
+              it would be worth roughly <b>{fmt.money(s.cost*12*5*1.4)}</b>. That is the real price of a
+              subscription you do not use.
+            </div>
+          </Fragment>,
+          'Usage': <Fragment>
+            <MBlock title="How often you open it">
+              <div className="flex items-center justify-between text-sm mb-1.5">
+                <span className="text-muted">{s.freq}</span>
+                <span className="font-semibold tnum" style={{color:hue}}>{usage}%</span></div>
+              <div className="h-2.5 rounded-full bg-sand overflow-hidden">
+                <div className="h-full rounded-full transition-all duration-700" style={{width:usage+'%',background:hue}}/></div>
+            </MBlock>
+            <div className="rounded-xl2 p-4 text-sm leading-relaxed"
+              style={dead?{background:'rgba(217,119,6,.12)',border:'1px solid rgba(217,119,6,.3)'}
+                :{background:'rgba(22,163,74,.10)',border:'1px solid rgba(22,163,74,.28)'}}>
+              {dead ? <span className="text-charcoal/85">You barely open this. At {fmt.money(s.cost*12)} a year
+                it is the clearest saving on this page, and cancelling costs you nothing you actually use.</span>
+                : <span className="text-charcoal/85">You use this regularly, so it is earning its place.
+                  Worth keeping unless the price rises.</span>}
+            </div>
+          </Fragment>,
+          'Alternatives': s.alt
+            ? <Fragment>
+                <div className="rounded-xl2 border border-line p-4">
+                  <div className="text-[10px] uppercase tracking-wider text-faint">Cheaper option</div>
+                  <div className="font-serif text-xl text-charcoal mt-1">{s.alt.name}</div>
+                  <div className="flex items-baseline gap-2 mt-2">
+                    <span className="font-serif text-2xl tnum" style={{color:'#16A34A'}}>
+                      {s.alt.cost>0?fmt.money(s.alt.cost):'Free'}</span>
+                    <span className="text-xs text-faint">per month</span></div>
+                </div>
+                {save>0 && <div className="grid grid-cols-2 gap-3">
+                  {[['Saved per month',fmt.money(save)],['Saved per year',fmt.money(save*12)]].map(([l,v])=>
+                    <div key={l} className="rounded-xl2 p-4 text-center"
+                      style={{background:'rgba(22,163,74,.10)',border:'1px solid rgba(22,163,74,.28)'}}>
+                      <div className="font-serif text-2xl tnum" style={{color:'#16A34A'}}>{v}</div>
+                      <div className="text-[10px] uppercase tracking-wider text-faint mt-0.5">{l}</div></div>)}
+                </div>}
+              </Fragment>
+            : <p className="text-sm text-muted leading-relaxed">
+                No cheaper equivalent worth recommending. If you want to cut this one, the option is
+                cancelling rather than switching.</p>,
+        }}/>; })()}
     {/* Totals sit below the list, where you expect them. */}
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-4">
       {[['Current / month',total,'charcoal'],['After your changes',kept,'sage'],['Monthly saved',cancelSum,'berry'],['Annual saved',cancelSum*12,'gold']].map(([l,v,t])=>
