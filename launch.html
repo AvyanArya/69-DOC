@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lumera — All financial intelligence. One place.</title>
+<meta name="description" content="Lumera turns one month of your behaviour into a clear, benchmarked plan. Four worlds, one financial life.">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://unpkg.com; base-uri 'none'; object-src 'none'">
+<style>
+  /* Lumera's own faces: Fraunces for display, Manrope for everything else. */
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=Manrope:wght@300;400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+
+  html, body {
+    width: 100%;
+    margin: 0; padding: 0;
+    background-color: #06060B;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  body {
+    /* A very tall page: scroll position drives the whole scene. */
+    min-height: 1100vh;
+    font-family: 'Manrope', system-ui, sans-serif;
+    color: #ffffff;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  * { cursor: none !important; }
+  ::-webkit-scrollbar { display: none; width: 0; }
+
+  #webgl {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 1;
+    outline: none;
+  }
+
+  /* ===== custom double-ring cursor ===== */
+  .cursor-inner {
+    position: fixed; top: 0; left: 0;
+    width: 6px; height: 6px;
+    border: 2px solid rgba(255,255,255,1);
+    border-radius: 50%;
+    transform: translate(-50%,-50%);
+    pointer-events: none; z-index: 9999;
+  }
+  .cursor-outer {
+    position: fixed; top: 0; left: 0;
+    width: 40px; height: 40px;
+    border: 1.5px solid rgba(255,255,255,0.7);
+    border-radius: 50%;
+    transform: translate(-50%,-50%);
+    pointer-events: none; z-index: 9998;
+    transition: width .3s, height .3s, background .3s, border-color .3s;
+  }
+  @media (hover: none) { .cursor-inner, .cursor-outer { display: none; } body, * { cursor: auto !important; } }
+
+  /* ===== overlay layer ===== */
+  .cinematic-container {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 10;
+    pointer-events: none;
+    display: flex; flex-direction: column; justify-content: space-between;
+    padding: 0 60px 40px 60px;
+  }
+
+  .main-header {
+    display: flex; justify-content: space-between; align-items: center;
+    width: 100%; z-index: 20; pointer-events: auto; padding: 20px 0;
+  }
+  .brand-lockup { display: flex; align-items: center; gap: 12px; }
+  .brand-mark {
+    width: 26px; height: 26px; flex-shrink: 0;
+    display: grid; place-items: center;
+    border-radius: 7px;
+    border: 1.5px dashed rgba(201,164,95,.55);
+    background: rgba(201,164,95,.10);
+  }
+  .brand { font-family: 'Fraunces', Georgia, serif; font-size: 15px; letter-spacing: 6px; text-transform: uppercase; }
+  .header-nav { display: flex; align-items: center; gap: 24px; }
+  .nav-link {
+    color: rgba(255,255,255,.75); text-decoration: none;
+    font-size: 10px; text-transform: uppercase; letter-spacing: 2px; font-weight: 600;
+    transition: color .3s;
+  }
+  .nav-link:hover { color: #fff; }
+  .nav-dot { width: 3px; height: 3px; background: rgba(255,255,255,.2); border-radius: 50%; }
+  .header-actions { display: flex; align-items: center; gap: 12px; }
+  .ghost-btn {
+    color: rgba(255,255,255,.8); text-decoration: none;
+    font-size: 10px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;
+    padding: 10px 4px; transition: color .3s;
+  }
+  .ghost-btn:hover { color: #fff; }
+  .contact-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 22px;
+    background: #ffffff; color: #06060B; text-decoration: none;
+    font-size: 10px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;
+    border-radius: 20px;
+    transition: transform .3s, background .3s;
+  }
+  .btn-circle { display: inline-block; width: 6px; height: 6px; border: 1px solid #06060B; border-radius: 50%; }
+  .contact-btn:hover { transform: scale(1.05); background: #efeafe; }
+
+  /* ===== slides ===== */
+  .slide { position: absolute; bottom: 12%; pointer-events: none; }
+
+  #slide-1 { left: 0; width: 100%; }
+  #slide-1 .slide-title { margin-left: 60px; }
+  #slide-1 .desc-row { position: relative; display: flex; width: 100%; }
+  #slide-1 .col-1 { margin-left: 60px; width: calc(25vw - 60px); max-width: calc(25vw - 60px); }
+  #slide-1 .col-2 { position: absolute; left: calc(25vw + 40px); width: calc(25vw - 60px); max-width: calc(25vw - 60px); }
+
+  #slide-2 { left: 0; width: 100%; }
+  #slide-2 .slide-title { margin-left: calc(25vw + 40px); }
+  #slide-2 .slide-desc { margin-left: calc(50vw + 20px); width: calc(25vw - 60px); max-width: calc(25vw - 60px); }
+
+  #slide-3 { left: calc(50vw + 20px); width: calc(25vw - 60px); max-width: calc(25vw - 60px); }
+  #slide-3 .slide-title { white-space: nowrap; }
+
+  #slide-4 { left: calc(25% + 40px); max-width: 620px; }
+
+  #slide-5 { left: calc(25% + 40px); max-width: 620px; }
+
+  /* the stat panel that stands in for the editorial image */
+  .slide-panel {
+    position: fixed; top: 90px; left: 60px;
+    width: calc(25vw - 60px); aspect-ratio: 1 / 1;
+    overflow: hidden; z-index: 2; pointer-events: none;
+    border: 1px solid rgba(255,255,255,.14);
+    border-radius: 18px;
+    background: rgba(10,10,20,.42);
+    backdrop-filter: blur(10px);
+    clip-path: inset(0 0 100% 0);
+    transition: clip-path 1.8s cubic-bezier(.16,1,.3,1), opacity .8s ease;
+    opacity: 0;
+    display: flex; flex-direction: column; justify-content: center; gap: 18px;
+    padding: 28px;
+  }
+  .slide-panel.active { clip-path: inset(0 0 0 0); opacity: 1; }
+  .panel-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+  .panel-num { font-family: 'Fraunces', Georgia, serif; font-size: 34px; line-height: 1; }
+  .panel-lbl { font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: rgba(255,255,255,.55); }
+  .panel-rule { height: 1px; background: rgba(255,255,255,.12); }
+
+  .slide-title {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 116px; line-height: 1.0; font-weight: 400; letter-spacing: 1px;
+    margin-bottom: 20px; color: #F7F3FF;
+    text-shadow: 0 2px 30px rgba(4,4,10,.55);
+  }
+  .slide-desc {
+    font-size: 16px; line-height: 1.7; font-weight: 300;
+    color: #d3d2e0; letter-spacing: .3px;
+    text-shadow: 0 1px 12px rgba(4,4,10,.7);
+    opacity: 0; transform: translateY(30px);
+    transition: opacity .8s cubic-bezier(.25,1,.5,1), transform .8s cubic-bezier(.25,1,.5,1);
+    transition-delay: .4s;
+  }
+  .slide.active .slide-desc { opacity: 1; transform: translateY(0); }
+
+  .slide-title .char {
+    display: inline-block; opacity: 0;
+    transform: translateY(50px); filter: blur(12px);
+    transition: opacity .8s cubic-bezier(.25,1,.5,1),
+                transform .8s cubic-bezier(.25,1,.5,1),
+                filter .8s cubic-bezier(.25,1,.5,1);
+  }
+  .slide.active .slide-title .char { opacity: 1; transform: translateY(0); filter: blur(0); }
+  .slide.active { pointer-events: auto; }
+
+  .slide-eyebrow {
+    font-size: 10px; letter-spacing: .24em; text-transform: uppercase;
+    font-weight: 700; margin-bottom: 14px;
+    text-shadow: 0 1px 10px rgba(4,4,10,.85);
+    opacity: 0; transform: translateY(16px);
+    transition: opacity .7s ease .2s, transform .7s ease .2s;
+  }
+  .slide.active .slide-eyebrow { opacity: 1; transform: translateY(0); }
+  #slide-1 .slide-eyebrow { margin-left: 60px; }
+  #slide-2 .slide-eyebrow { margin-left: calc(25vw + 40px); }
+
+  .slide-cta {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-top: 22px; padding: 12px 26px;
+    background: #fff; color: #06060B; text-decoration: none;
+    font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    border-radius: 22px;
+    opacity: 0; transform: translateY(20px);
+    transition: opacity .8s ease .7s, transform .8s ease .7s, background .3s;
+  }
+  .slide.active .slide-cta { opacity: 1; transform: translateY(0); }
+  .slide-cta:hover { background: #efeafe; }
+  #slide-5 .slide-cta { margin-left: 0; }
+
+  /* ===== grid overlay ===== */
+  .grid-horizontal-line {
+    position: fixed; top: 70px; left: 0; right: 0;
+    width: 100%; height: 1px; background: rgba(255,255,255,.12);
+    z-index: 5; pointer-events: none;
+  }
+  .grid-lines {
+    position: fixed; top: 0; left: 40px; right: 40px;
+    width: calc(100% - 80px); height: 100vh;
+    display: flex; justify-content: space-between;
+    z-index: 5; pointer-events: none;
+  }
+  .grid-line { position: relative; width: 1px; height: 100%; background: rgba(255,255,255,.12); }
+  .grid-line:nth-child(3) { margin-top: 70px; height: calc(100vh - 70px); }
+  .grid-dot {
+    position: absolute; left: 50%;
+    transform: translate(-50%,-50%);
+    width: 6px; height: 6px; border-radius: 50%;
+    background: rgba(255,255,255,.35);
+    box-shadow: 0 0 4px rgba(255,255,255,.15);
+  }
+  .story-dashes {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .story-dash { width: 2px; height: 40px; background: rgba(255,255,255,.15); border-radius: 2px; }
+  .story-dash-fill { width: 100%; height: 0%; background: #fff; border-radius: 2px; }
+
+  .scroll-hint {
+    position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%);
+    font-size: 9px; letter-spacing: .3em; text-transform: uppercase;
+    color: rgba(255,255,255,.4); z-index: 12; pointer-events: none;
+    transition: opacity .6s ease;
+  }
+
+  /* ===== narrow screens: the scene stays, the editorial grid collapses ===== */
+  @media (max-width: 900px) {
+    .cinematic-container { padding: 0 24px 28px 24px; }
+    .slide-title { font-size: 54px; }
+    .slide { bottom: 9%; }
+    #slide-1 .slide-title, #slide-1 .col-1, #slide-1 .slide-eyebrow { margin-left: 0; }
+    #slide-1 .col-1 { width: 100%; max-width: 460px; }
+    #slide-1 .col-2 { display: none; }
+    #slide-2 .slide-title, #slide-2 .slide-desc, #slide-2 .slide-eyebrow { margin-left: 0; }
+    #slide-2 .slide-desc { width: 100%; max-width: 460px; }
+    #slide-3, #slide-4, #slide-5 { left: 0; width: 100%; max-width: 460px; }
+    #slide-3 .slide-title { white-space: normal; }
+    .slide-panel { display: none; }
+    .header-nav { display: none; }
+    .grid-lines { left: 16px; right: 16px; width: calc(100% - 32px); }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor-inner"></div>
+<div class="cursor-outer"></div>
+
+<div class="cinematic-container">
+  <div class="main-header">
+    <div class="brand-lockup">
+      <!-- Logo placeholder: swap this block for the real mark. -->
+      <span class="brand-mark" title="Logo placeholder">
+        <svg width="13" height="13" viewBox="0 0 10 10" aria-hidden="true">
+          <path d="M5 0 L6 4 L10 5 L6 6 L5 10 L4 6 L0 5 L4 4 Z" fill="rgba(201,164,95,.85)"/></svg>
+      </span>
+      <div class="brand">Lumera</div>
+    </div>
+    <nav class="header-nav">
+      <a href="#slide-2" class="nav-link">Leaf</a>
+      <span class="nav-dot"></span>
+      <a href="#slide-3" class="nav-link">Atlas</a>
+      <span class="nav-dot"></span>
+      <a href="#slide-4" class="nav-link">Shield</a>
+      <span class="nav-dot"></span>
+      <a href="#slide-5" class="nav-link">Forge</a>
+    </nav>
+    <div class="header-actions">
+      <a href="index.html" class="ghost-btn">Log in</a>
+      <a href="index.html#/signup" class="contact-btn">Get started <span class="btn-circle"></span></a>
+    </div>
+  </div>
+
+  <div class="slide" id="slide-1">
+    <div class="slide-eyebrow" style="color:#A78BFA">Lumera &middot; All financial intelligence. One place.</div>
+    <h2 class="slide-title">Four worlds, <br>one financial life</h2>
+    <div class="desc-row">
+      <p class="slide-desc col-1">Most people do not have a money problem. They have a visibility problem. You earn, you spend, and the month disappears, and nobody ever tells you whether any of it was normal.</p>
+      <p class="slide-desc col-2">Lumera turns one month of behaviour into a health score, a benchmark against people like you, and a 30-day plan you can actually follow. No bank login. Educational, never advisory.</p>
+    </div>
+  </div>
+
+  <div class="slide" id="slide-2">
+    <div class="slide-eyebrow" style="color:#4ADE80">Leaf &middot; Learn &amp; grow</div>
+    <h2 class="slide-title">Money, <br>finally clear</h2>
+    <p class="slide-desc">Money education that does not bore you. Two-minute lessons, a daily word, flashcards that stick and a knowledge hub that goes as deep as you want. No lectures, no assumed head start.</p>
+  </div>
+
+  <div class="slide-panel" id="slide-3-panel">
+    <div>
+      <div class="panel-lbl">Health score</div>
+      <div class="panel-row"><span class="panel-num" style="color:#A78BFA">67</span><span class="panel-lbl">/ 100</span></div>
+    </div>
+    <div class="panel-rule"></div>
+    <div>
+      <div class="panel-lbl">Savings opportunity</div>
+      <div class="panel-row"><span class="panel-num" style="color:#4ADE80">791</span><span class="panel-lbl">per month</span></div>
+    </div>
+    <div class="panel-rule"></div>
+    <div>
+      <div class="panel-lbl">Biggest leak</div>
+      <div class="panel-row"><span class="panel-num" style="font-size:22px">Subscriptions</span></div>
+    </div>
+  </div>
+
+  <div class="slide" id="slide-3">
+    <div class="slide-eyebrow" style="color:#60A5FA">Atlas &middot; Markets &amp; investing</div>
+    <h2 class="slide-title">Markets, <br>decoded</h2>
+    <p class="slide-desc">Every index, sector and stock with a plain-English read on why it moved. Spin the globe, watch the exchanges wake, and learn the language of money while you watch it.</p>
+  </div>
+
+  <div class="slide" id="slide-4">
+    <div class="slide-eyebrow" style="color:#94A3B8">Shield &middot; Protect &amp; plan</div>
+    <h2 class="slide-title">Nothing <br>catches you</h2>
+    <p class="slide-desc">Credit building, debt payoff, insurance and the long horizon. The grown-up decisions, on your terms and sized to the life you actually have.</p>
+  </div>
+
+  <div class="slide" id="slide-5">
+    <div class="slide-eyebrow" style="color:#E0A94E">Forge &middot; Career &amp; income</div>
+    <h2 class="slide-title">Earn more, <br>not just spend less</h2>
+    <p class="slide-desc">Careers, firms, universities, admissions tests and what roles really pay. The fastest way to change your finances at nineteen is not a budget, it is a decision about what you do next.</p>
+    <a href="index.html#/signup" class="slide-cta">Start your 30-day review <span class="btn-circle"></span></a>
+  </div>
+</div>
+
+<div class="grid-horizontal-line"></div>
+<div class="grid-lines">
+  <div class="grid-line"><div class="grid-dot top"></div><div class="grid-dot bottom"></div></div>
+  <div class="grid-line"><div class="grid-dot top"></div><div class="grid-dot bottom"></div></div>
+  <div class="grid-line"><div class="grid-dot top"></div><div class="grid-dot bottom"></div></div>
+  <div class="grid-line"><div class="grid-dot top"></div><div class="grid-dot bottom"></div></div>
+  <div class="grid-line story-progress-container">
+    <div class="grid-dot top"></div><div class="grid-dot bottom"></div>
+    <div class="story-dashes">
+      <div class="story-dash"><div class="story-dash-fill" id="dash-fill-1"></div></div>
+      <div class="story-dash"><div class="story-dash-fill" id="dash-fill-2"></div></div>
+      <div class="story-dash"><div class="story-dash-fill" id="dash-fill-3"></div></div>
+      <div class="story-dash"><div class="story-dash-fill" id="dash-fill-4"></div></div>
+      <div class="story-dash"><div class="story-dash-fill" id="dash-fill-5"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="scroll-hint" id="scrollHint">Scroll</div>
+
+<canvas id="webgl"></canvas>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+
+/* ============================================================
+   Lumera — cinematic scroll page.
+   The sculpture is the Lumera mark itself, built procedurally: ten ribbon
+   strands sweeping an S-curve into a four-point star. Nothing is loaded from
+   an external asset bucket, so there is no third-party dependency to break.
+   ============================================================ */
+
+const canvas = document.querySelector('#webgl');
+let scene, camera, renderer;
+let markPivot;                 // pivot so the mark rotates about its own centre
+const clock = new THREE.Clock();
+let currentScroll = 0;
+
+let mouseX = 0, mouseY = 0, targetMouseX = 0, targetMouseY = 0;
+let cursorX = window.innerWidth / 2,  cursorY = window.innerHeight / 2;
+let outerCursorX = cursorX, outerCursorY = cursorY;
+
+let sparkParticles;
+const sparkCount = 450;
+const sparkData = [];
+
+const shaderUniforms = {
+  uTime:       { value: 0 },
+  uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+  uMouse:      { value: new THREE.Vector2(0, 0) },
+  uScroll:     { value: 0 }
+};
+
+const sizes = { width: window.innerWidth, height: window.innerHeight };
+
+/* ---------- the mark, in three dimensions ---------- */
+const STRANDS = 10;
+function buildMark() {
+  markPivot = new THREE.Group();
+  scene.add(markPivot);
+
+  const group = new THREE.Group();
+  markPivot.add(group);
+
+  // Gold at the tails, violet through the body: the brand sweep.
+  const cGoldA  = new THREE.Color('#E7C87A');
+  const cViolet = new THREE.Color('#8B5CF6');
+  const cGoldB  = new THREE.Color('#F0D289');
+
+  for (let i = 0; i < STRANDS; i++) {
+    const t    = i / (STRANDS - 1);        // 0 = top strand, 1 = bottom
+    const drop = t * 0.62;                 // vertical fan
+    const tail = t * 0.28;                 // tails splay outward
+
+    const curve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(-1.85 - tail, -0.55 - drop * 0.55, 0),
+      new THREE.Vector3(-1.05,         0.32 - drop * 0.50, 0.10),
+      new THREE.Vector3(-0.10,         0.62 - drop * 1.00, 0),
+      new THREE.Vector3( 0.85,        -0.18 - drop * 1.00, -0.10),
+      new THREE.Vector3( 1.55,        -0.05 - drop * 0.50, 0),
+      new THREE.Vector3( 1.95 + tail,  0.95 - drop * 0.25, 0),
+    ]);
+
+    const radius = 0.036 - (i / STRANDS) * 0.012;
+    const geo = new THREE.TubeGeometry(curve, 120, radius, 10, false);
+
+    // Colour each strand along its own length so the sweep reads in 3D.
+    const colors = [];
+    const pos = geo.attributes.position;
+    for (let v = 0; v < pos.count; v++) {
+      const u = (v / pos.count);
+      const c = u < 0.5
+        ? cGoldA.clone().lerp(cViolet, u * 2)
+        : cViolet.clone().lerp(cGoldB, (u - 0.5) * 2);
+      colors.push(c.r, c.g, c.b);
+    }
+    geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+    const mat = new THREE.MeshStandardMaterial({
+      vertexColors: true,
+      roughness: 0.42,          // semi-matte, noble highlights
+      metalness: 0.92,          // high satin sheen
+      flatShading: false,
+      emissive: new THREE.Color('#2A1560'),
+      emissiveIntensity: 0.35,
+    });
+    group.add(new THREE.Mesh(geo, mat));
+  }
+
+  // The four-point star at the crest, as two crossed elongated octahedra.
+  const starMat = new THREE.MeshStandardMaterial({
+    color: new THREE.Color('#F5DFA0'),
+    roughness: 0.28, metalness: 0.95,
+    emissive: new THREE.Color('#8A6A21'), emissiveIntensity: 0.5,
+  });
+  const starGroup = new THREE.Group();
+  const spikeV = new THREE.OctahedronGeometry(0.30, 0);
+  const a = new THREE.Mesh(spikeV, starMat); a.scale.set(0.16, 1.0, 0.16);
+  const b = new THREE.Mesh(spikeV, starMat); b.scale.set(1.0, 0.16, 0.16);
+  starGroup.add(a, b);
+  starGroup.position.set(2.05, 1.05, 0);
+  group.add(starGroup);
+
+  // Centre the whole mark on the pivot so it orbits cleanly.
+  const box = new THREE.Box3().setFromObject(group);
+  const centre = box.getCenter(new THREE.Vector3());
+  group.position.sub(centre);
+
+  markPivot.userData.star = starGroup;
+}
+
+/* ---------- forge sparks ---------- */
+function createSparkTexture() {
+  const c = document.createElement('canvas');
+  c.width = 16; c.height = 16;
+  const ctx = c.getContext('2d');
+  const g = ctx.createRadialGradient(8, 8, 0, 8, 8, 8);
+  g.addColorStop(0,    'rgba(255,255,255,1)');
+  g.addColorStop(0.25, 'rgba(255,255,255,0.85)');
+  g.addColorStop(0.6,  'rgba(255,255,255,0.3)');
+  g.addColorStop(1,    'rgba(0,0,0,0)');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, 16, 16);
+  return new THREE.CanvasTexture(c);
+}
+
+function createSparks() {
+  const geometry = new THREE.BufferGeometry();
+  const positions = new Float32Array(sparkCount * 3);
+  const colors    = new Float32Array(sparkCount * 3);
+
+  // Sparks carry the family palette rather than one colour.
+  const palette = [
+    [0.65, 0.36, 0.98],   // Lumera violet
+    [0.29, 0.87, 0.50],   // Leaf green
+    [0.38, 0.65, 0.98],   // Atlas blue
+    [0.98, 0.75, 0.14],   // Forge amber
+  ];
+
+  for (let i = 0; i < sparkCount; i++) {
+    positions[i * 3]     = (Math.random() - 0.5) * 6.5;
+    positions[i * 3 + 1] = (Math.random() - 0.5) * 5.0 - 0.5;
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 6.5;
+
+    const p = palette[Math.floor(Math.random() * palette.length)];
+    const j = 0.85 + Math.random() * 0.3;
+    colors[i * 3]     = Math.min(1, p[0] * j);
+    colors[i * 3 + 1] = Math.min(1, p[1] * j);
+    colors[i * 3 + 2] = Math.min(1, p[2] * j);
+
+    sparkData.push({
+      speedX: (Math.random() - 0.5) * 0.4,
+      speedY: 0.15 + Math.random() * 0.3,
+      speedZ: (Math.random() - 0.5) * 0.4,
+      swaySpeed: 0.5 + Math.random() * 1.5,
+      swayRadius: 0.05 + Math.random() * 0.15,
+      phase: Math.random() * Math.PI * 2
+    });
+  }
+
+  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  geometry.setAttribute('color',    new THREE.BufferAttribute(colors, 3));
+
+  sparkParticles = new THREE.Points(geometry, new THREE.PointsMaterial({
+    size: 0.025, vertexColors: true, transparent: true, opacity: 0.85,
+    blending: THREE.AdditiveBlending, depthWrite: false, map: createSparkTexture()
+  }));
+  scene.add(sparkParticles);
+}
+
+/* ---------- background wave shader ---------- */
+function createBackgroundShader() {
+  const vertexShader = `
+    varying vec2 vUv;
+    void main() {
+      vUv = uv;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `;
+
+  // The palette marches through the four worlds as you scroll:
+  // violet (Lumera) to green (Leaf) to blue (Atlas) to amber (Forge).
+  const fragmentShader = `
+    varying vec2 vUv;
+    uniform float uTime;
+    uniform vec2  uResolution;
+    uniform vec2  uMouse;
+    uniform float uScroll;
+
+    void main() {
+      vec2 uv = (gl_FragCoord.xy - 0.5 * uResolution.xy) / uResolution.y;
+      float aspect = uResolution.x / uResolution.y;
+
+      float time   = uTime * 0.08;
+      float scroll = uScroll;
+
+      float angle1 = 0.6, angle2 = -0.7, angle3 = 1.2;
+      float freq1  = 2.4, freq2  =  3.2, freq3  = 4.0;
+
+      vec2 warpedUv = uv;
+      float scrollDeform = scroll * 5.0;
+
+      warpedUv.x += sin(uv.y * 2.5 + time * 0.20 + scrollDeform)        * 0.35;
+      warpedUv.y += cos(uv.x * 2.5 - time * 0.15 - scrollDeform * 0.8)  * 0.35;
+      warpedUv.x += sin(uv.y * 1.2 - time * 0.10 - scrollDeform * 1.5)  * 0.25;
+      warpedUv.y += cos(uv.x * 1.2 + time * 0.18 + scrollDeform * 1.2)  * 0.25;
+
+      warpedUv += vec2(scroll * 0.04, -scroll * 0.02)
+                + vec2(uMouse.x * aspect * 0.05, uMouse.y * 0.05);
+
+      vec2 dir1 = vec2(cos(angle1), sin(angle1));
+      vec2 dir2 = vec2(cos(angle2), sin(angle2));
+      vec2 dir3 = vec2(cos(angle3), sin(angle3));
+
+      float w1 = sin(dot(warpedUv, dir1) * freq1 + time * 1.0);
+      float w2 = cos(dot(warpedUv, dir2) * freq2 - time * 1.4 + w1 * 0.4);
+      float w3 = sin(dot(warpedUv, dir3) * freq3 + time * 1.8 + w2 * 0.5);
+
+      float waveField = w1 * 0.50 + w2 * 0.35 + w3 * 0.15;
+
+      float wideSheen     = pow(max(0.0, 1.0 - abs(waveField - 0.10)), 2.5);
+      float crispSpecular = pow(max(0.0, 1.0 - abs(waveField - 0.15)), 8.0);
+      float crest = wideSheen * 0.5 + crispSpecular * 0.9;
+
+      // four stops, one per world
+      vec3 sA_w1 = vec3(0.055, 0.030, 0.115);  vec3 sA_w2 = vec3(0.030, 0.016, 0.070); vec3 sA_c = vec3(0.42, 0.30, 0.72);
+      vec3 sB_w1 = vec3(0.015, 0.075, 0.038);  vec3 sB_w2 = vec3(0.008, 0.042, 0.022); vec3 sB_c = vec3(0.22, 0.62, 0.36);
+      vec3 sC_w1 = vec3(0.014, 0.040, 0.090);  vec3 sC_w2 = vec3(0.007, 0.022, 0.055); vec3 sC_c = vec3(0.20, 0.42, 0.78);
+      vec3 sD_w1 = vec3(0.090, 0.052, 0.012);  vec3 sD_w2 = vec3(0.052, 0.028, 0.006); vec3 sD_c = vec3(0.62, 0.42, 0.14);
+
+      float f = clamp(scroll, 0.0, 1.0) * 3.0;
+      vec3 cw1, cw2, cc;
+      if (f < 1.0)      { float k = smoothstep(0.0,1.0,f);       cw1=mix(sA_w1,sB_w1,k); cw2=mix(sA_w2,sB_w2,k); cc=mix(sA_c,sB_c,k); }
+      else if (f < 2.0) { float k = smoothstep(0.0,1.0,f-1.0);   cw1=mix(sB_w1,sC_w1,k); cw2=mix(sB_w2,sC_w2,k); cc=mix(sB_c,sC_c,k); }
+      else              { float k = smoothstep(0.0,1.0,f-2.0);   cw1=mix(sC_w1,sD_w1,k); cw2=mix(sC_w2,sD_w2,k); cc=mix(sC_c,sD_c,k); }
+
+      vec3 colShadow = vec3(0.0025, 0.0022, 0.0045);
+
+      vec3 color = colShadow;
+      color = mix(color, cw2, smoothstep(-0.6, 0.2, waveField));
+      color = mix(color, cw1, smoothstep( 0.0, 0.8, waveField));
+      color += cc * crest * 1.4;
+
+      color *= 1.0 - dot(uv, uv) * 0.12;   // vignette
+
+      gl_FragColor = vec4(color, 1.0);
+    }
+  `;
+
+  const bgMaterial = new THREE.ShaderMaterial({
+    vertexShader, fragmentShader, uniforms: shaderUniforms,
+    depthWrite: false, depthTest: false
+  });
+  const bgMesh = new THREE.Mesh(new THREE.PlaneGeometry(30, 30), bgMaterial);
+  bgMesh.position.set(0, 0, -8);
+  bgMesh.renderOrder = -10;
+  camera.add(bgMesh);
+}
+
+/* ---------- scene ---------- */
+function initScene() {
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color('#06060B');
+  scene.fog = new THREE.FogExp2('#06060B', 0.01);
+
+  camera = new THREE.PerspectiveCamera(50, sizes.width / sizes.height, 0.1, 100);
+  camera.position.set(0, 0.2, 3.0);
+  scene.add(camera);
+
+  createBackgroundShader();
+
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
+  renderer.setSize(sizes.width, sizes.height);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 2.2;
+
+  scene.add(new THREE.AmbientLight('#ffffff', 0.12));
+
+  const keyLight = new THREE.SpotLight('#ffffff', 18.0);
+  keyLight.position.set(4, 6, 3);
+  keyLight.angle = Math.PI / 4;
+  keyLight.penumbra = 0.9;
+  keyLight.castShadow = true;
+  keyLight.shadow.mapSize.set(2048, 2048);
+  keyLight.shadow.camera.near = 1.0;
+  keyLight.shadow.camera.far = 15;
+  keyLight.shadow.bias = -0.001;
+  scene.add(keyLight);
+
+  const rimLight = new THREE.DirectionalLight('#c9b6ff', 10.0);
+  rimLight.position.set(-5, 3, -4);
+  scene.add(rimLight);
+
+  const fillLight = new THREE.DirectionalLight('#fff3e6', 0.9);
+  fillLight.position.set(-2, -4, 2);
+  scene.add(fillLight);
+
+  buildMark();
+  createSparks();
+}
+
+function onWindowResize() {
+  sizes.width  = window.innerWidth;
+  sizes.height = window.innerHeight;
+  camera.aspect = sizes.width / sizes.height;
+  camera.updateProjectionMatrix();
+  renderer.setSize(sizes.width, sizes.height);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  shaderUniforms.uResolution.value.set(sizes.width, sizes.height);
+}
+
+/* ---------- per-letter title split ---------- */
+function splitTitlesIntoChars() {
+  document.querySelectorAll('.slide-title').forEach(title => {
+    const parts = title.innerHTML.split(/(<br\s*\/?>)/i);
+    let html = '', delay = 0;
+    parts.forEach(part => {
+      if (part.toLowerCase().startsWith('<br')) { html += part; return; }
+      for (let i = 0; i < part.length; i++) {
+        if (part[i] === ' ') { html += ' '; }
+        else { html += `<span class="char" style="transition-delay:${(delay * 0.035).toFixed(3)}s">${part[i]}</span>`; delay++; }
+      }
+    });
+    title.innerHTML = html;
+  });
+}
+
+/* ---------- scroll-driven UI ---------- */
+function updateGridDots(scroll) {
+  document.querySelectorAll('.grid-dot').forEach((dot, i) => {
+    const startY = (i * 17) % 80 + 10;
+    let speed = 90 + (i * 55) % 180;
+    if (i % 2 === 0) speed = -speed;
+    let y = startY + scroll * speed;
+    y = ((y % 100) + 100) % 100;
+    dot.style.top = `${y}%`;
+  });
+}
+
+function updateSlides(scroll) {
+  const N = 5, step = 1 / N;
+  for (let i = 1; i <= N; i++) {
+    const fill = document.getElementById(`dash-fill-${i}`);
+    if (!fill) continue;
+    const p = (scroll - (i - 1) * step) / step;
+    fill.style.height = `${Math.max(0, Math.min(1, p)) * 100}%`;
+  }
+  // Each slide holds the frame for the middle of its band, then hands over.
+  for (let i = 1; i <= N; i++) {
+    const el = document.getElementById(`slide-${i}`);
+    if (!el) continue;
+    const mid = (i - 1) * step;
+    const lo = i === 1 ? -0.10 : mid - 0.02;
+    const hi = i === N ? 1.05 : mid + step * 0.62;
+    const active = scroll >= lo && scroll <= hi;
+    el.classList.toggle('active', active);
+    if (i === 3) {
+      const panel = document.getElementById('slide-3-panel');
+      if (panel) panel.classList.toggle('active', active);
+    }
+  }
+
+  const hint = document.getElementById('scrollHint');
+  if (hint) hint.style.opacity = scroll > 0.04 ? '0' : '1';
+}
+
+/* ---------- nav jumps to a slide's band ---------- */
+document.querySelectorAll('.header-nav .nav-link').forEach(link => {
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+    const i = parseInt((link.getAttribute('href') || '').replace('#slide-', ''), 10);
+    if (!i) return;
+    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    window.scrollTo({ top: maxScroll * ((i - 1) / 5 + 0.02), behavior: 'smooth' });
+  });
+});
+
+/* ---------- loop ---------- */
+function animate() {
+  requestAnimationFrame(animate);
+  const dt = clock.getDelta();
+
+  const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+  const scrollTop = window.scrollY !== undefined ? window.scrollY
+    : (window.pageYOffset !== undefined ? window.pageYOffset : document.documentElement.scrollTop);
+  const targetScroll = maxScroll > 0 ? scrollTop / maxScroll : 0;
+
+  currentScroll += (targetScroll - currentScroll) * 0.025;
+  mouseX += (targetMouseX - mouseX) * 0.05;
+  mouseY += (targetMouseY - mouseY) * 0.05;
+
+  outerCursorX += (cursorX - outerCursorX) * 0.2;
+  outerCursorY += (cursorY - outerCursorY) * 0.2;
+  const co = document.querySelector('.cursor-outer');
+  if (co) { co.style.left = `${outerCursorX}px`; co.style.top = `${outerCursorY}px`; }
+
+  if (markPivot) {
+    markPivot.rotation.y = mouseX * 0.25;
+    markPivot.rotation.x = mouseY * 0.15;
+    const star = markPivot.userData.star;
+    if (star) star.rotation.z += dt * 0.6;   // the star keeps turning
+  }
+
+  if (sparkParticles) {
+    const pos = sparkParticles.geometry.attributes.position.array;
+    const time = clock.getElapsedTime();
+    const velocity = Math.abs(targetScroll - currentScroll);
+    const speedMul = 1.0 + velocity * 9.0;
+    const turbulence = velocity * 0.8;
+    for (let i = 0; i < sparkCount; i++) {
+      const idx = i * 3, d = sparkData[i];
+      pos[idx]     += d.speedX * dt * speedMul;
+      pos[idx + 1] += d.speedY * dt * speedMul;
+      pos[idx + 2] += d.speedZ * dt * speedMul;
+      const sway = d.swayRadius * (1.0 + turbulence * 4.0);
+      pos[idx]     += Math.sin(time * d.swaySpeed + d.phase) * sway * dt;
+      pos[idx + 2] += Math.cos(time * d.swaySpeed + d.phase) * sway * dt;
+      if (pos[idx + 1] > 3.0 || Math.abs(pos[idx]) > 3.5 || Math.abs(pos[idx + 2]) > 3.5) {
+        pos[idx + 1] = -2.5;
+        pos[idx]     = (Math.random() - 0.5) * 3.0;
+        pos[idx + 2] = (Math.random() - 0.5) * 3.0;
+      }
+    }
+    sparkParticles.geometry.attributes.position.needsUpdate = true;
+  }
+
+  const phi    = currentScroll * Math.PI * 2.0;
+  const y      = 0.35 + Math.sin(currentScroll * Math.PI) * 0.8;
+  const radius = 4.2 - Math.sin(currentScroll * Math.PI) * 0.6;
+
+  const ease = (Math.cos(Math.min(1.0, currentScroll / 0.28) * Math.PI) + 1.0) * 0.5;
+  const targetLookAt = new THREE.Vector3(-0.9 * ease, -0.15, 0);
+  camera.position.lerp(new THREE.Vector3(radius * Math.sin(phi), y, radius * Math.cos(phi)), 0.025);
+  camera.lookAt(targetLookAt);
+
+  shaderUniforms.uTime.value = clock.getElapsedTime();
+  shaderUniforms.uMouse.value.set(mouseX, -mouseY);
+  shaderUniforms.uScroll.value = currentScroll;
+
+  updateSlides(currentScroll);
+  updateGridDots(currentScroll);
+  renderer.render(scene, camera);
+}
+
+/* ---------- input ---------- */
+window.addEventListener('mousemove', (e) => {
+  cursorX = e.clientX; cursorY = e.clientY;
+  const ci = document.querySelector('.cursor-inner');
+  if (ci) { ci.style.left = `${cursorX}px`; ci.style.top = `${cursorY}px`; }
+  targetMouseX = (e.clientX / window.innerWidth)  * 2 - 1;
+  targetMouseY = (e.clientY / window.innerHeight) * 2 - 1;
+});
+window.addEventListener('resize', onWindowResize);
+
+function setupNavigation() {
+  const targets = [0.0, 0.34, 0.62, 0.94];
+  document.querySelectorAll('.nav-link').forEach((link, i) => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      window.scrollTo({ top: max * targets[i], behavior: 'smooth' });
+    });
+  });
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  splitTitlesIntoChars();
+  initScene();
+  onWindowResize();
+  animate();
+  setupNavigation();
+});
+</script>
+</body>
+</html>
