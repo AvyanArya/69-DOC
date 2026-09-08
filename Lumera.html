@@ -1946,6 +1946,86 @@ const NAV = [
   ]},
 ];
 
+
+/* ============================================================
+   SECTION LAYOUT
+   The admin portal owns the shape of the app's navigation: which
+   sections exist, what order their pages sit in, and whether a whole
+   world (Leaf, Atlas, Shield, Forge) is switched on at all.
+   Stored in localStorage under 'lumera_layout' and shared with the
+   admin portal, the same way feature flags are.
+   ============================================================ */
+const LAYOUT_KEY = 'lumera_layout';
+const WORLD_KEYS = ['leaf','atlas','shield','forge'];
+
+function defaultLayout(){
+  return {
+    worlds: WORLD_KEYS.reduce((o,k)=>{ o[k]=true; return o; }, {}),
+    sections: NAV.map(g=>({ name:g.section, on:true, items:g.items.map(i=>i.to) }))
+  };
+}
+
+/* Merge what was saved with the defaults, so a page added in code still
+   shows up for someone whose layout was saved before it existed. */
+function loadLayout(){
+  const def = defaultLayout();
+  let saved = null;
+  try{ saved = JSON.parse(localStorage.getItem(LAYOUT_KEY)); }catch(e){}
+  if(!saved || typeof saved!=='object') return def;
+
+  const worlds = {};
+  WORLD_KEYS.forEach(k=>{ worlds[k] = (saved.worlds && k in saved.worlds) ? !!saved.worlds[k] : true; });
+
+  const known = {}; def.sections.forEach(sec=>{ known[sec.name]=sec; });
+  const seenSec = {}, seenItem = {};
+  const sections = [];
+
+  (Array.isArray(saved.sections)?saved.sections:[]).forEach(sec=>{
+    if(!sec || !known[sec.name] || seenSec[sec.name]) return;
+    seenSec[sec.name] = 1;
+    const valid = known[sec.name].items;
+    const items = (Array.isArray(sec.items)?sec.items:[])
+      .filter(r=> valid.includes(r) && !seenItem[r] && (seenItem[r]=1));
+    sections.push({ name:sec.name, on: sec.on!==false, items });
+  });
+
+  // Anything the saved layout never mentioned is appended in code order.
+  def.sections.forEach(sec=>{
+    const existing = sections.find(x=>x.name===sec.name);
+    const missing = sec.items.filter(r=>!seenItem[r]);
+    if(existing) existing.items = existing.items.concat(missing);
+    else if(!seenSec[sec.name]) sections.push({ name:sec.name, on:true, items:missing.length?missing:sec.items.slice() });
+    missing.forEach(r=>{ seenItem[r]=1; });
+  });
+
+  return { worlds, sections };
+}
+
+/* Which world does a route belong to? Lumera's own routes belong to nobody,
+   so they can never be switched off by a world toggle. */
+let _worldOfRoute = null;
+function worldOfRoute(path){
+  if(!_worldOfRoute){
+    if(typeof SUBS==='undefined') return null;   // SUBS is declared further down
+    _worldOfRoute = {};
+    SUBS.forEach(sub=>{ if(sub.key!=='lumera') sub.routes.forEach(r=>{ _worldOfRoute[r]=sub.key; }); });
+  }
+  return _worldOfRoute[path] || null;
+}
+function worldOn(layout, key){ return !key || !layout || !layout.worlds || layout.worlds[key]!==false; }
+function routeAllowed(layout, path){ return worldOn(layout, worldOfRoute(path)); }
+
+/* The nav, as the admin portal arranged it. */
+function navFrom(layout){
+  if(!layout || !Array.isArray(layout.sections)) return NAV;
+  return layout.sections.filter(sec=>sec.on!==false).map(sec=>({
+    section: sec.name,
+    items: sec.items.map(r=>NAV_BY_ROUTE_LAZY(r)).filter(Boolean)
+  })).filter(g=>g.items.length);
+}
+/* NAV_BY_ROUTE is built further down the file, so reach it lazily. */
+function NAV_BY_ROUTE_LAZY(r){ return (typeof NAV_BY_ROUTE!=='undefined') ? NAV_BY_ROUTE[r] : null; }
+
 /* Age-targeting (Spark mode): map the profile age bracket to a life-stage band,
    then feature the tools that matter at that stage. Everything else still
    exists, it just moves under a "More tools" reveal so the app feels calmer. */
@@ -1991,9 +2071,9 @@ function Sidebar(){
             className={cx('w-full flex items-center gap-3 rounded-xl px-3 py-2.5 mb-0.5 text-sm transition-all duration-300',
               active?'bg-charcoal text-cream shadow-soft':'text-charcoal/80 hover:bg-sand')}>
             <Icon name={it.icon} size={18} className={active?'text-gold':'text-muted'}/>{t(it.k)}</button>; };
-        if(!spark) return NAV.map(grp=><div key={grp.section} className="mb-4">
+        if(!spark) return navFrom(app.layout).map(grp=><div key={grp.section} className="mb-4">
           <div className="px-3 mb-1.5 text-[10px] tracking-[.22em] uppercase text-faint">{grp.section}</div>
-          {grp.items.map(navBtn)}</div>);
+          {grp.items.filter(it=>routeAllowed(app.layout,it.to)).map(navBtn)}</div>);
         // Inside a sub-product: show only that product's tools + a way back to Lumera.
         if(inProduct){ const tools=curSub.routes.filter(r=>flagForRoute(app.flags,r)).map(r=>NAV_BY_ROUTE[r]).filter(Boolean);
           return <>
@@ -2006,7 +2086,7 @@ function Sidebar(){
         // Lumera home (Spark): core tools, then one link per sub-product.
         const lumeraSub=SUBS.find(s=>s.key==='lumera');
         const core=lumeraSub.routes.filter(r=>isFeatured(r,band)&&flagForRoute(app.flags,r)).map(r=>NAV_BY_ROUTE[r]).filter(Boolean);
-        const products=SUBS.filter(s=>s.key!=='lumera');
+        const products=SUBS.filter(s=>s.key!=='lumera' && worldOn(app.layout,s.key));
         return <>
           <div className="mb-4">
             <div className="px-3 mb-1.5 text-[10px] tracking-[.22em] uppercase text-faint">Lumera</div>
@@ -2240,9 +2320,9 @@ function MobileMenu(){
     <div className="absolute inset-0 bg-charcoal/40 anim-fadeIn" onClick={()=>app.setMobileMenu(false)}/>
     <div className="absolute left-0 top-0 bottom-0 w-72 bg-cream shadow-lift p-4 overflow-y-auto anim-scaleIn">
       <div className="flex items-center justify-between mb-4"><Logo size={20}/><button onClick={()=>app.setMobileMenu(false)} className="grid place-items-center h-9 w-9 rounded-lg hover:bg-sand"><Icon name="x"/></button></div>
-      {NAV.map(grp=><div key={grp.section} className="mb-3">
+      {navFrom(app.layout).map(grp=><div key={grp.section} className="mb-3">
         <div className="px-2 mb-1 text-[10px] tracking-[.2em] uppercase text-faint">{grp.section}</div>
-        {grp.items.map(it=><button key={it.to} onClick={()=>{app.nav(it.to); app.setMobileMenu(false);}} className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm hover:bg-sand"><Icon name={it.icon} size={18} className="text-muted"/>{t(it.k)}</button>)}
+        {grp.items.filter(it=>routeAllowed(app.layout,it.to)).map(it=><button key={it.to} onClick={()=>{app.nav(it.to); app.setMobileMenu(false);}} className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm hover:bg-sand"><Icon name={it.icon} size={18} className="text-muted"/>{t(it.k)}</button>)}
       </div>)}
       <button onClick={()=>{app.nav('/assistant');app.setMobileMenu(false);}} className="w-full btn btn-gold px-4 py-3 text-sm mt-2"><Icon name="spark" size={16}/>{t('nav_assistant')}</button>
     </div>
@@ -2405,7 +2485,7 @@ function Landing(){
           <h2 className="font-serif text-3xl sm:text-4xl text-charcoal">Four worlds, one financial life.</h2>
           <p className="lede text-muted mt-3 text-lg">Lumera is the hub. Each product below is its own space with its own tools.</p></div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 stagger">
-          {SUBS.filter(s=>s.key!=='lumera').map(s=>
+          {SUBS.filter(s=>s.key!=='lumera' && worldOn(app.layout,s.key)).map(s=>
             <div key={s.key} className="reveal rounded-xl3 overflow-hidden lift tilt halo cursor-pointer" onClick={()=>app.nav('/signup')} style={{border:`1px solid ${s.accent}44`}}>
               <div className="p-5 text-white" style={{background:HERO_GRAD[s.key]}}>
                 <div className="text-3xl">{s.emoji}</div>
@@ -3448,7 +3528,7 @@ function ProductHub(){
     <PageHead eyebrow="Lumera Group" title="The Lumera family."
       desc="Lumera is the parent company. Each product is its own focused world, open one to enter its site and tools." />
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
-      {SUBS.map(s=>{ const tools=s.routes.filter(r=>flagForRoute(app.flags,r)).map(r=>NAV_BY_ROUTE[r]).filter(Boolean);
+      {SUBS.filter(s=>worldOn(app.layout,s.key)).map(s=>{ const tools=s.routes.filter(r=>flagForRoute(app.flags,r)).map(r=>NAV_BY_ROUTE[r]).filter(Boolean);
         return <Card key={s.key} hover={s.live} onClick={s.live?()=>openProduct(app,s.key):undefined} className="relative overflow-hidden sweep-wrap">
           <div className="absolute -top-10 -right-10 h-28 w-28 rounded-full blur-2xl opacity-40" style={{background:s.accent}}/>
           <div className="relative">
@@ -3621,7 +3701,7 @@ function Dashboard(){
       </div>
       {/* The Lumera family, front and centre */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-4 stagger">
-        {SUBS.filter(s=>s.key!=='lumera').map(s=>
+        {SUBS.filter(s=>s.key!=='lumera' && worldOn(app.layout,s.key)).map(s=>
           <button key={s.key} onClick={()=>app.nav('/'+s.key)} className="rounded-xl3 overflow-hidden lift text-left" style={{border:`1px solid ${s.accent}55`}}>
             <div className="px-4 py-3 text-white" style={{background:HERO_GRAD[s.key]}}>
               <div className="flex items-center justify-between"><span className="text-2xl">{s.emoji}</span><Icon name="arrowR" size={15}/></div>
@@ -10239,9 +10319,13 @@ function App(){
     const h=location.hash.replace('#',''); if(!h||h==='/'||h==='/dashboard') location.hash='/'+SITE;
   },[]);
   const [flags,setFlagsState] = useState(loadFlags);
+  const [layout,setLayoutState] = useState(loadLayout);
   const setFlag = useCallback((key,on)=>{ setFlagsState(f=>{ const nf={...f,[key]:on}; try{ localStorage.setItem(FLAG_KEY, JSON.stringify(nf)); }catch(e){} return nf; }); },[]);
   // Re-read flags if the admin portal changes them in another tab.
-  useEffect(()=>{ const h=(e)=>{ if(e.key===FLAG_KEY) setFlagsState(loadFlags()); }; window.addEventListener('storage',h); return ()=>window.removeEventListener('storage',h); },[]);
+  useEffect(()=>{ const h=(e)=>{ if(e.key===FLAG_KEY) setFlagsState(loadFlags()); if(e.key===LAYOUT_KEY) setLayoutState(loadLayout()); }; window.addEventListener('storage',h); return ()=>window.removeEventListener('storage',h); },[]);
+  // The admin portal may be open in another tab; pick its changes up live.
+  useEffect(()=>{ let ch=null; try{ ch=new BroadcastChannel(LAYOUT_KEY); ch.onmessage=()=>setLayoutState(loadLayout()); }catch(e){}
+    return ()=>{ try{ ch && ch.close(); }catch(e){} }; },[]);
   // silent=true skips the confetti (used when simply visiting a page completes a quest).
   const awardXp = useCallback((n,silent)=>{ setXp(x=>{ const v=x+(n||0); try{ localStorage.setItem('lumera_spark_xp', JSON.stringify(v)); }catch(e){} return v; }); if(!silent) setQuestBurst(b=>b+1); },[]);
   const completeQuest = useCallback((id,silent)=>{ setQuests(qs=>{ const next=qs.map(q=>{ if(q.id===id&&!q.done){ awardXp(q.xp,silent); return {...q,done:true}; } return q; });
@@ -10271,6 +10355,8 @@ function App(){
   else if(user && !onboarded && NEEDS_FIGURES.includes(path)) redirect='/onboarding';
   // A feature switched off in the admin portal is not reachable by URL either.
   else if(!flagForRoute(flags, path)) redirect='/hub';
+  // A world switched off in the admin portal is closed, by link and by URL.
+  else if(!routeAllowed(layout, path)) redirect = user ? '/dashboard' : '/';
   // Redirect synchronously so there is no blank-frame flash before navigation fires
   if(redirect && redirect!==route){ location.hash=redirect; }
 
@@ -10286,7 +10372,7 @@ function App(){
 
   const value = { route, nav, user, signup, login, loginProvider, demo, logout:askLogout, askLogout, completeOnboarding, checkIn, onboarded,
     profile, updateProfile, setProfile, expenses, setExpenses, balances, setBalances,
-    lang, setLang, theme, setTheme, mode, setMode, product, xp, quests, awardXp, completeQuest, flags, setFlag,
+    lang, setLang, theme, setTheme, mode, setMode, product, xp, quests, awardXp, completeQuest, flags, setFlag, layout,
     setRegion, resetAll, fmt, metrics, mobileMenu, setMobileMenu, t: tfn(lang) };
 
   const Page = redirect ? (()=> null) : (ROUTES[path]||Landing);

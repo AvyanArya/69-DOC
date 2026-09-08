@@ -24,7 +24,7 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-html, body { height: 100%; }
+html { scroll-behavior: smooth; }
 
 body {
     background: hsl(var(--background));
@@ -360,6 +360,278 @@ img, video { display: block; max-width: 100%; }
 @media (prefers-reduced-motion: reduce) {
     .marquee-track { animation: none; }
 }
+
+/* ============================================================
+   The rest of the page
+   ============================================================ */
+.rest { position: relative; z-index: 5; }
+
+.section { max-width: 1180px; margin: 0 auto; padding: 7rem 2rem; }
+.section + .section { padding-top: 0; }
+
+.sec-head { max-width: 46rem; margin: 0 auto 3rem; text-align: center; }
+
+.eyebrow {
+    font-size: .7rem;
+    letter-spacing: .24em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: hsl(var(--foreground) / 0.45);
+    margin-bottom: .9rem;
+}
+
+.sec-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 4vw, 3.1rem);
+    font-weight: 400;
+    line-height: 1.08;
+    letter-spacing: -0.022em;
+}
+
+.sec-title .grad {
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    background-image: linear-gradient(to left, #6366f1, #a855f7, #fcd34d);
+}
+
+.sec-sub {
+    color: hsl(var(--hero-sub));
+    opacity: .75;
+    font-size: 1.05rem;
+    line-height: 1.75;
+    margin-top: 1rem;
+}
+
+.grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 1.25rem; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 1.25rem; }
+.grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 1.25rem; }
+
+.panel {
+    border-radius: 20px;
+    padding: 1.6rem;
+    background: rgba(255,255,255,0.012);
+    transition: transform .45s cubic-bezier(.2,.8,.2,1), background .45s ease;
+}
+
+.panel:hover { transform: translateY(-4px); background: rgba(255,255,255,0.04); }
+
+.panel h3 {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 500;
+    margin-bottom: .45rem;
+}
+
+.panel p {
+    color: hsl(var(--hero-sub));
+    opacity: .72;
+    font-size: .93rem;
+    line-height: 1.65;
+}
+
+.panel .badge {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    display: grid; place-items: center;
+    margin-bottom: 1rem;
+    font-weight: 700;
+    font-size: .85rem;
+}
+
+.world-card { position: relative; overflow: hidden; }
+
+.world-card .wash {
+    position: absolute;
+    inset: -40% -30% auto -30%;
+    height: 220px;
+    filter: blur(58px);
+    opacity: .5;
+    pointer-events: none;
+}
+
+.world-card .tag {
+    font-size: .68rem;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: .8rem;
+    display: block;
+}
+
+.world-card .link {
+    margin-top: 1.1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.step-n {
+    font-family: var(--font-display);
+    font-size: 2.4rem;
+    font-weight: 400;
+    line-height: 1;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    background-image: linear-gradient(to left, #6366f1, #a855f7, #fcd34d);
+    margin-bottom: .9rem;
+    display: block;
+}
+
+.plan-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: .3rem; }
+
+.pill {
+    font-size: .65rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: .3rem .6rem;
+    border-radius: 999px;
+    background: rgba(255,255,255,.07);
+    color: hsl(var(--foreground) / .7);
+    white-space: nowrap;
+}
+
+.pill.now { background: rgba(252, 211, 77, .16); color: #fcd34d; }
+
+.plan-list { list-style: none; margin-top: 1.1rem; display: flex; flex-direction: column; gap: .55rem; }
+
+.plan-list li {
+    display: flex;
+    gap: .55rem;
+    align-items: flex-start;
+    font-size: .9rem;
+    color: hsl(var(--hero-sub));
+    opacity: .78;
+    line-height: 1.5;
+}
+
+.plan-list li::before {
+    content: "";
+    flex: 0 0 auto;
+    width: 6px; height: 6px;
+    margin-top: .5rem;
+    border-radius: 50%;
+    background: linear-gradient(to left, #6366f1, #a855f7, #fcd34d);
+}
+
+.final-cta {
+    border-radius: 28px;
+    padding: 4.5rem 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.final-cta .wash {
+    position: absolute;
+    top: -60%; left: 50%;
+    transform: translateX(-50%);
+    width: 900px; height: 480px;
+    background: radial-gradient(circle, rgba(139,92,246,.5), transparent 70%);
+    filter: blur(70px);
+    pointer-events: none;
+}
+
+.final-cta .inner { position: relative; }
+
+.cta-row { display: flex; flex-wrap: wrap; gap: .8rem; justify-content: center; margin-top: 2rem; }
+
+.btn-solid {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 1.9rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: .95rem;
+    text-decoration: none;
+    color: #17110a;
+    background: linear-gradient(to left, #fcd34d, #f5b642);
+    transition: transform .3s ease, filter .3s ease;
+}
+
+.btn-solid:hover { transform: translateY(-2px); filter: brightness(1.06); }
+
+.disclaimer {
+    margin: 2.2rem auto 0;
+    max-width: 44rem;
+    border-radius: 16px;
+    padding: 1rem 1.2rem;
+    font-size: .8rem;
+    line-height: 1.6;
+    color: hsl(var(--foreground) / .55);
+    text-align: left;
+}
+
+.site-footer {
+    border-top: 1px solid hsl(var(--foreground) / .08);
+    margin-top: 5rem;
+}
+
+.footer-inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+    display: grid;
+    grid-template-columns: 1.4fr repeat(3, 1fr);
+    gap: 2rem;
+}
+
+.footer-inner h4 {
+    font-size: .7rem;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: hsl(var(--foreground) / .45);
+    margin-bottom: .9rem;
+    font-weight: 600;
+}
+
+.footer-inner a {
+    display: block;
+    color: hsl(var(--foreground) / .75);
+    text-decoration: none;
+    font-size: .9rem;
+    padding: .22rem 0;
+    transition: color .25s ease;
+}
+
+.footer-inner a:hover { color: hsl(var(--foreground)); }
+
+.footer-bar {
+    border-top: 1px solid hsl(var(--foreground) / .08);
+    padding: 1.3rem 2rem;
+    text-align: center;
+    font-size: .78rem;
+    color: hsl(var(--foreground) / .4);
+}
+
+/* scroll reveal */
+.reveal { opacity: 0; transform: translateY(26px); transition: opacity .8s cubic-bezier(.25,1,.5,1), transform .8s cubic-bezier(.25,1,.5,1); }
+.reveal.in { opacity: 1; transform: none; }
+
+@media (max-width: 1000px) {
+    .grid-4 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .grid-3 { grid-template-columns: 1fr; }
+    .footer-inner { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 720px) {
+    .section { padding: 4.5rem 1.25rem; }
+    .grid-4, .grid-2 { grid-template-columns: 1fr; }
+    .footer-inner { grid-template-columns: 1fr; padding: 2rem 1.25rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+}
+
 </style>
 </head>
 <body>
@@ -387,16 +659,16 @@ img, video { display: block; max-width: 100%; }
                     </a>
 
                     <div class="nav-center">
-                        <button class="nav-btn" type="button">
+                        <a class="nav-btn" href="#worlds">
                             Worlds
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-                        </button>
-                        <button class="nav-btn" type="button">Features</button>
-                        <button class="nav-btn" type="button">Pricing</button>
-                        <button class="nav-btn" type="button">
-                            Learning
+                        </a>
+                        <a class="nav-btn" href="#features">Features</a>
+                        <a class="nav-btn" href="#pricing">Pricing</a>
+                        <a class="nav-btn" href="#how">
+                            How it works
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-                        </button>
+                        </a>
                     </div>
 
                     <a class="hero-secondary liquid-glass nav-signup" href="index.html#/signup">Sign Up</a>
@@ -406,13 +678,8 @@ img, video { display: block; max-width: 100%; }
 
             <div class="hero-body">
                 <div class="hero-inner">
-                    <h1 class="headline">
-                        <span>Clear </span><span class="grad">Money</span>
-                    </h1>
-                    <p class="hero-sub">
-                        The clearest view of your money ever built<br>
-                        for people starting out
-                    </p>
+                    <h1 class="headline"><span class="grad">Lumera</span></h1>
+                    <p class="hero-sub">Your Financial Intelligence</p>
                     <a class="hero-secondary liquid-glass hero-cta" href="index.html#/signup">Start Your 30-Day Review</a>
                 </div>
             </div>
@@ -429,6 +696,118 @@ img, video { display: block; max-width: 100%; }
         </section>
     </div>
 </div>
+
+<main class="rest">
+
+    <!-- ===== The family ===== -->
+    <section class="section" id="worlds">
+        <div class="sec-head reveal">
+            <div class="eyebrow">The Lumera family</div>
+            <h2 class="sec-title">Four worlds, <span class="grad">one financial life</span></h2>
+            <p class="sec-sub">Lumera is the hub. Each world below is its own space, with its own tools, colour and guide.</p>
+        </div>
+        <div class="grid-4" id="worldGrid"></div>
+    </section>
+
+    <!-- ===== Features ===== -->
+    <section class="section" id="features">
+        <div class="sec-head reveal">
+            <div class="eyebrow">What you get</div>
+            <h2 class="sec-title">Everything your money needs, <span class="grad">in one calm place</span></h2>
+            <p class="sec-sub">Not another budgeting tab. A financial operating system that understands the invisible patterns behind your spending.</p>
+        </div>
+        <div class="grid-4" id="featureGrid"></div>
+    </section>
+
+    <!-- ===== How it works ===== -->
+    <section class="section" id="how">
+        <div class="sec-head reveal">
+            <div class="eyebrow">How it works</div>
+            <h2 class="sec-title">Three steps, <span class="grad">thirty days</span></h2>
+        </div>
+        <div class="grid-3" id="stepGrid"></div>
+    </section>
+
+    <!-- ===== Trust ===== -->
+    <section class="section" id="trust">
+        <div class="sec-head reveal">
+            <div class="eyebrow">Built on trust</div>
+            <h2 class="sec-title">Private by design, <span class="grad">educational never advisory</span></h2>
+            <p class="sec-sub">Your figures stay in your browser. Lumera never asks for a bank login and never tells you what to buy.</p>
+        </div>
+        <div class="grid-3" id="trustGrid"></div>
+    </section>
+
+    <!-- ===== Pricing ===== -->
+    <section class="section" id="pricing">
+        <div class="sec-head reveal">
+            <div class="eyebrow">Pricing</div>
+            <h2 class="sec-title">Free today. <span class="grad">Built for what is next.</span></h2>
+        </div>
+        <div class="grid-3" id="planGrid"></div>
+    </section>
+
+    <!-- ===== Final CTA ===== -->
+    <section class="section">
+        <div class="final-cta liquid-glass reveal">
+            <div class="wash"></div>
+            <div class="inner">
+                <h2 class="sec-title">Understand the invisible patterns<br><span class="grad">behind your spending.</span></h2>
+                <p class="sec-sub" style="max-width:40rem;margin-left:auto;margin-right:auto">Turn one month of financial behaviour into a clear action plan. It is free, private, and takes minutes to begin.</p>
+                <div class="cta-row">
+                    <a class="btn-solid" href="index.html#/signup">Start your 30-day review</a>
+                    <a class="hero-secondary liquid-glass" style="padding:1rem 1.9rem" href="index.html#/login">Open the app</a>
+                </div>
+                <div class="disclaimer liquid-glass">
+                    Lumera is an educational tool, not a financial adviser. Figures are estimates based on what you enter, and nothing here is a recommendation to buy, sell or hold any product.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== Footer ===== -->
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div>
+                <a class="nav-logo" href="index.html" style="margin-bottom:.9rem">
+                    <!-- Logo placeholder: swap this block for the real mark. -->
+                    <span class="mark" title="Logo placeholder, upload in Admin">
+                        <svg width="15" height="15" viewBox="0 0 10 10" aria-hidden="true">
+                            <path d="M5 0 L6 4 L10 5 L6 6 L5 10 L4 6 L0 5 L4 4 Z" fill="#E7C87A" opacity=".85"/>
+                        </svg>
+                    </span>
+                    <span class="wordmark">Lumera</span>
+                </a>
+                <p style="color:hsl(var(--foreground)/.45);font-size:.85rem;line-height:1.6;max-width:22rem">
+                    All financial intelligence. One place.
+                </p>
+            </div>
+            <div>
+                <h4>Worlds</h4>
+                <a href="index.html#/leaf">Leaf</a>
+                <a href="index.html#/atlas">Atlas</a>
+                <a href="index.html#/shield">Shield</a>
+                <a href="index.html#/forge">Forge</a>
+            </div>
+            <div>
+                <h4>Product</h4>
+                <a href="index.html#/dashboard">Dashboard</a>
+                <a href="index.html#/twin">Financial Twin</a>
+                <a href="index.html#/simulator">Wealth Simulator</a>
+                <a href="index.html#/market">Market Intelligence</a>
+            </div>
+            <div>
+                <h4>Company</h4>
+                <a href="index.html#/about">About</a>
+                <a href="index.html#/team">Founding team</a>
+                <a href="index.html#/pricing">Pricing</a>
+                <a href="index.html#/privacy">Privacy</a>
+            </div>
+        </div>
+        <div class="footer-bar">&copy; <span id="year"></span> Lumera. Educational only, never financial advice.</div>
+    </footer>
+
+</main>
 
 <script>
 /* ============================================================
@@ -477,14 +856,13 @@ img, video { display: block; max-width: 100%; }
     const track = document.getElementById('marqueeTrack');
     if (!track) return;
 
-    // The Lumera family, plus the two tools people arrive for.
+    // The Lumera family.
     const LOGOS = [
         { name: 'Lumera',  c1: '#8B5CF6', c2: '#4C1D95' },
         { name: 'Leaf',    c1: '#22C55E', c2: '#14532D' },
         { name: 'Atlas',   c1: '#3B82F6', c2: '#1E3A8A' },
         { name: 'Shield',  c1: '#64748B', c2: '#1E293B' },
-        { name: 'Forge',   c1: '#C0873A', c2: '#5C3A12' },
-        { name: 'Twin',    c1: '#A855F7', c2: '#581C87' }
+        { name: 'Forge',   c1: '#C0873A', c2: '#5C3A12' }
     ];
 
     const row = LOGOS.map(l => `
@@ -495,6 +873,112 @@ img, video { display: block; max-width: 100%; }
 
     track.innerHTML = row + row;   // duplicated for the -50% loop
 })();
+
+/* ============================================================
+   The rest of the page: content is data, rendered once.
+   ============================================================ */
+(function () {
+    const WORLDS = [
+        { name:'Leaf',   tag:'Learn & grow',        c:'#4ADE80', href:'index.html#/leaf',
+          blurb:'Money education that does not bore you. Bite-size lessons, a daily word and a deep knowledge hub.' },
+        { name:'Atlas',  tag:'Markets & investing', c:'#60A5FA', href:'index.html#/atlas',
+          blurb:'Markets explained for humans. Stocks, indices, a globe of exchanges and plain-English news.' },
+        { name:'Shield', tag:'Protect & plan',      c:'#94A3B8', href:'index.html#/shield',
+          blurb:'The grown-up stuff on your terms. Credit building, insurance, debt payoff and long-term planning.' },
+        { name:'Forge',  tag:'Career & income',     c:'#E0A94E', href:'index.html#/forge',
+          blurb:'Grow what you earn, not just what you save. Side income, salary benchmarks and career moves.' }
+    ];
+
+    const FEATURES = [
+        ['AI Financial Twin',      'A cinematic profile of your money personality, strengths and biggest leak.', 'index.html#/twin'],
+        ['Wealth Simulator',       'Drag a few habits and watch your 10-year future recalculate in real time.',  'index.html#/simulator'],
+        ['Benchmark Dashboard',    'See every category against realistic ranges for your region and income.',    'index.html#/dashboard'],
+        ['Investment Guidance',    'Educational pathways from emergency fund to diversified portfolio.',         'index.html#/invest'],
+        ['Market Intelligence',    'Indices, sectors and stock insights, explained for humans.',                 'index.html#/market'],
+        ['AI Assistant',           'Ask anything about your money and get calm, contextual answers.',            'index.html#/assistant'],
+        ['Subscription Detector',  'Surface the quiet recurring spend draining your account.',                   'index.html#/subscriptions'],
+        ['Emergency Fund',         'Know your true safety number and the fastest way to reach it.',              'index.html#/emergency']
+    ];
+
+    const STEPS = [
+        ['01', 'Track one month',  'Spend 30 days noticing where money actually goes. No spreadsheets, no judgement.'],
+        ['02', 'Enter & compare',  'Input income and spending. Lumera benchmarks you against real ranges for people like you.'],
+        ['03', 'Get your plan',    'Receive AI insights, a health score, and a 30-day action plan you can actually follow.']
+    ];
+
+    const TRUST = [
+        ['Privacy-first',          'Your figures live in your browser. Nothing is sold, shared or brokered.'],
+        ['No bank login required', 'Lumera never asks for banking credentials. You stay in control of what it sees.'],
+        ['Educational only',       'Explanations and benchmarks, never a recommendation to buy, sell or hold.']
+    ];
+
+    const PLANS = [
+        ['Free', 'Available now', true,
+         ['Monthly expense review','Financial health score','Budget & savings tools','Market news','Limited AI assistant']],
+        ['Pro', 'Coming soon', false,
+         ['Advanced AI coach','Unlimited simulations','Full benchmark analytics','Monthly reports','Subscription & debt tools']],
+        ['Premium', 'Coming soon', false,
+         ['Portfolio analytics','Family budgeting','Tax optimisation','Priority AI','Advisor-ready summaries']]
+    ];
+
+    const esc = (v) => String(v).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+    document.getElementById('worldGrid').innerHTML = WORLDS.map(w => `
+        <a class="panel liquid-glass world-card reveal" href="${w.href}" style="text-decoration:none;color:inherit">
+            <span class="wash" style="background:${w.c}"></span>
+            <span class="badge" style="background:${w.c}22;color:${w.c}">${w.name[0]}</span>
+            <span class="tag" style="color:${w.c}">${esc(w.tag)}</span>
+            <h3>${esc(w.name)}</h3>
+            <p>${esc(w.blurb)}</p>
+            <span class="link" style="color:${w.c}">Explore ${esc(w.name)} &rarr;</span>
+        </a>`).join('');
+
+    document.getElementById('featureGrid').innerHTML = FEATURES.map(([t, d, href]) => `
+        <a class="panel liquid-glass reveal" href="${href}" style="text-decoration:none;color:inherit">
+            <h3>${esc(t)}</h3>
+            <p>${esc(d)}</p>
+        </a>`).join('');
+
+    document.getElementById('stepGrid').innerHTML = STEPS.map(([n, t, d]) => `
+        <div class="panel liquid-glass reveal">
+            <span class="step-n">${n}</span>
+            <h3>${esc(t)}</h3>
+            <p>${esc(d)}</p>
+        </div>`).join('');
+
+    document.getElementById('trustGrid').innerHTML = TRUST.map(([t, d]) => `
+        <div class="panel liquid-glass reveal">
+            <h3>${esc(t)}</h3>
+            <p>${esc(d)}</p>
+        </div>`).join('');
+
+    document.getElementById('planGrid').innerHTML = PLANS.map(([n, b, now, feats]) => `
+        <div class="panel liquid-glass reveal">
+            <div class="plan-head">
+                <h3 style="margin:0">${esc(n)}</h3>
+                <span class="pill${now ? ' now' : ''}">${now ? 'Current' : 'Future'}</span>
+            </div>
+            <p>${esc(b)}</p>
+            <ul class="plan-list">${feats.map(f => `<li>${esc(f)}</li>`).join('')}</ul>
+        </div>`).join('');
+
+    const y = document.getElementById('year');
+    if (y) y.textContent = new Date().getFullYear();
+
+    // Reveal on scroll, one pass, then the observer lets go.
+    const io = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+            if (!e.isIntersecting) return;
+            e.target.classList.add('in');
+            io.unobserve(e.target);
+        });
+    }, { rootMargin: '0px 0px -12% 0px' });
+    document.querySelectorAll('.reveal').forEach((el, i) => {
+        el.style.transitionDelay = `${(i % 4) * 0.07}s`;
+        io.observe(el);
+    });
+})();
+
 </script>
 </body>
 </html>

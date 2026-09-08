@@ -169,6 +169,7 @@
       <div class="label">Product</div>
       <button class="navi" data-tab="feedback">💬 User feedback</button>
       <button class="navi" data-tab="features">🧰 Feature flags</button>
+      <button class="navi" data-tab="sections">🗂️ Sections &amp; layout</button>
     </div>
     <div class="navg">
       <div class="label">Research</div>
@@ -208,7 +209,7 @@ const ROLE_KEY_HASHES = {
 const ROLES = {
   founder:  { label:'Founder',                badge:'role-founder',  scope:['*'] },
   ops:      { label:'Operations Associate',   badge:'role-ops',      scope:['dashboard','insights','usage','updates','news','about','brand','permissions'] },
-  product:  { label:'Product Dev Associate',  badge:'role-product',  scope:['dashboard','feedback','features','updates','about','brand','permissions'] },
+  product:  { label:'Product Dev Associate',  badge:'role-product',  scope:['dashboard','feedback','features','sections','updates','about','brand','permissions'] },
   research: { label:'Innovation & Research',  badge:'role-research', scope:['dashboard','trends','market','news','offers','permissions'] },
   beta:     { label:'Beta Tester',            badge:'role-beta',     scope:[] },
 };
@@ -367,7 +368,7 @@ function render(){
   if(!ACTIVE_TAB) return;
   ({ dashboard:renderDashboard, insights:renderInsights, usage:renderUsage, updates:renderUpdates, news:renderNews,
      offers:renderOffers, feedback:renderFeedback, features:renderFeatures, trends:renderTrends, market:renderMarket,
-     about:renderAbout, brand:renderBrand, permissions:renderPermissions }[ACTIVE_TAB] || renderDashboard)();
+     about:renderAbout, brand:renderBrand, sections:renderSections, permissions:renderPermissions }[ACTIVE_TAB] || renderDashboard)();
   document.getElementById('updatedAt').textContent = `Updated ${new Date().toLocaleTimeString()}`;
 }
 
@@ -618,6 +619,149 @@ function allBetaLive(){ const flags=loadJSON(FEATURES,{});
   Object.keys(flags).forEach(k=>{ if(flags[k]==='beta') flags[k]=true; });
   saveJSON(FEATURES,flags); broadcast(FEATURES); render(); }
 function toggleFlag(k,v){ setFlagState(k, v?'live':'off'); }
+
+
+/* ============================================================
+   SECTIONS & LAYOUT
+   Owns the shape of the app's navigation: the order of sections and of
+   the pages inside them, whether a section is shown at all, and whether
+   a whole world (Leaf, Atlas, Shield, Forge) is switched on.
+   Mirrors NAV and SUBS in Lumera.html; written to 'lumera_layout'.
+   ============================================================ */
+const LAYOUT='lumera_layout';
+const WORLDS=[
+  ['leaf','Leaf','Learn & grow','#22C55E','Lessons, quizzes, challenges and the knowledge hub'],
+  ['atlas','Atlas','Markets & investing','#3B82F6','Investing, markets, exchanges, the globe and news'],
+  ['shield','Shield','Protect & plan','#64748B','Credit, debt, insurance and retirement'],
+  ['forge','Forge','Career & income','#C0873A','Careers, firms, universities, tests, prep and salary'],
+];
+// Must mirror NAV in Lumera.html (same section names, same routes).
+const APP_NAV=[
+  ['Overview',[['/dashboard','Dashboard'],['/twin','Financial Twin'],['/simulator','Wealth Simulator']]],
+  ['Money',[['/budget','Budget'],['/goals','Goals'],['/emergency','Emergency Fund'],['/subscriptions','Subscriptions'],['/debt','Debt'],['/networth','Net Worth'],['/retirement','Retirement']]],
+  ['Optimise',[['/insurance','Insurance'],['/credit','Credit']]],
+  ['Markets',[['/invest','Investing'],['/market','Markets'],['/globe','Global Markets'],['/world','World Monitor'],['/news','News']]],
+  ['Grow',[['/learn','Learn'],['/resources','Knowledge Hub'],['/badges','Badges'],['/updates','Updates'],['/pricing','Pricing'],['/privacy','Privacy']]],
+];
+// Which world each route belongs to, so a world toggle can grey out its pages.
+const ROUTE_WORLD={};
+[['leaf',['/learn','/quiz','/challenges','/resources']],
+ ['atlas',['/invest','/market','/exchanges','/globe','/world','/news']],
+ ['shield',['/credit','/debt','/insurance','/retirement']],
+ ['forge',['/careers','/firms','/universities','/tests','/subjects','/finance-vs-econ','/prep','/career-lab','/opportunities','/sideincome','/salary']]
+].forEach(([k,rs])=>rs.forEach(r=>{ ROUTE_WORLD[r]=k; }));
+
+const NAV_LABEL={}; APP_NAV.forEach(([,items])=>items.forEach(([to,label])=>{ NAV_LABEL[to]=label; }));
+
+function defaultLayout(){
+  return { worlds:WORLDS.reduce((o,w)=>{ o[w[0]]=true; return o; },{}),
+           sections:APP_NAV.map(([name,items])=>({ name, on:true, items:items.map(i=>i[0]) })) };
+}
+
+/* Saved layout merged over the defaults, so a page added in code still appears. */
+function getLayout(){
+  const def=defaultLayout(); const saved=loadJSON(LAYOUT,null);
+  if(!saved || typeof saved!=='object') return def;
+  const worlds={}; WORLDS.forEach(w=>{ worlds[w[0]] = (saved.worlds && w[0] in saved.worlds) ? !!saved.worlds[w[0]] : true; });
+  const known={}; def.sections.forEach(sec=>{ known[sec.name]=sec; });
+  const seenSec={}, seenItem={}; const sections=[];
+  (Array.isArray(saved.sections)?saved.sections:[]).forEach(sec=>{
+    if(!sec || !known[sec.name] || seenSec[sec.name]) return;
+    seenSec[sec.name]=1;
+    const valid=known[sec.name].items;
+    const items=(Array.isArray(sec.items)?sec.items:[]).filter(r=> valid.includes(r) && !seenItem[r] && (seenItem[r]=1));
+    sections.push({ name:sec.name, on:sec.on!==false, items });
+  });
+  def.sections.forEach(sec=>{
+    const existing=sections.find(x=>x.name===sec.name);
+    const missing=sec.items.filter(r=>!seenItem[r]);
+    if(existing) existing.items=existing.items.concat(missing);
+    else if(!seenSec[sec.name]) sections.push({ name:sec.name, on:true, items:missing.length?missing:sec.items.slice() });
+    missing.forEach(r=>{ seenItem[r]=1; });
+  });
+  return { worlds, sections };
+}
+
+function putLayout(l){ saveJSON(LAYOUT,l); broadcast(LAYOUT); render(); }
+
+function renderSections(){
+  const L=getLayout();
+  const worldsOff=WORLDS.filter(w=>!L.worlds[w[0]]).length;
+  const secsOff=L.sections.filter(s=>!s.on).length;
+  const pages=L.sections.reduce((n,s)=>n+s.items.length,0);
+
+  const worldCard=([k,name,tag,colour,desc])=>{
+    const on=L.worlds[k]!==false;
+    return `<div style="display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid var(--line);flex-wrap:wrap;">
+      <span style="width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-weight:700;
+        background:${colour}22;color:${colour};">${name[0]}</span>
+      <span style="flex:1;min-width:200px;">
+        <span style="font-size:14px;font-weight:600;">${escapeHtml(name)}</span>
+        <span class="faint" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-left:8px;">${escapeHtml(tag)}</span>
+        <span class="faint" style="display:block;font-size:12px;">${escapeHtml(desc)}</span></span>
+      <span style="display:flex;gap:6px;">
+        <button onclick="setWorld('${k}',false)" style="border:1px solid ${!on?'#6E6F88':'var(--line)'};background:${!on?'#6E6F88':'transparent'};color:${!on?'#fff':'var(--muted)'};border-radius:99px;padding:5px 12px;font-size:11.5px;font-weight:600;cursor:pointer;">Off</button>
+        <button onclick="setWorld('${k}',true)" style="border:1px solid ${on?'#16A34A':'var(--line)'};background:${on?'#16A34A':'transparent'};color:${on?'#fff':'var(--muted)'};border-radius:99px;padding:5px 12px;font-size:11.5px;font-weight:600;cursor:pointer;">On</button>
+      </span></div>`;
+  };
+
+  const sectionCard=(sec,si)=>{
+    const rows=sec.items.map((to,ii)=>{
+      const w=ROUTE_WORLD[to];
+      const dimmed = w && L.worlds[w]===false;
+      return `<div style="display:flex;align-items:center;gap:8px;padding:7px 4px;border-bottom:1px solid var(--line);opacity:${dimmed?.45:1};">
+        <span style="flex:1;min-width:0;font-size:13px;">${escapeHtml(NAV_LABEL[to]||to)}
+          <span class="faint" style="font-size:11px;margin-left:6px;">${escapeHtml(to)}</span>
+          ${dimmed?`<span class="faint" style="font-size:11px;margin-left:6px;">${escapeHtml(w)} is off</span>`:''}</span>
+        <button class="btn ghost" style="padding:2px 8px;" onclick="moveItem(${si},${ii},-1)" ${ii===0?'disabled':''}>&uarr;</button>
+        <button class="btn ghost" style="padding:2px 8px;" onclick="moveItem(${si},${ii},1)" ${ii===sec.items.length-1?'disabled':''}>&darr;</button>
+      </div>`;
+    }).join('') || '<p class="empty">No pages in this section.</p>';
+
+    return `<div class="card" style="margin-bottom:12px;opacity:${sec.on?1:.6};">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
+        <span style="flex:1;min-width:160px;font-size:15px;font-weight:700;">${escapeHtml(sec.name)}
+          <span class="faint" style="font-weight:400;font-size:12px;margin-left:8px;">${sec.items.length} page${sec.items.length===1?'':'s'}</span></span>
+        <button class="btn ghost" style="padding:3px 10px;" onclick="moveSection(${si},-1)" ${si===0?'disabled':''}>&uarr; Up</button>
+        <button class="btn ghost" style="padding:3px 10px;" onclick="moveSection(${si},1)" ${si===L.sections.length-1?'disabled':''}>&darr; Down</button>
+        <button class="btn ${sec.on?'ghost':'gold'}" style="padding:3px 10px;" onclick="toggleSection(${si})">${sec.on?'Hide section':'Show section'}</button>
+      </div>
+      ${rows}</div>`;
+  };
+
+  C.innerHTML=`${pageHead('Sections & layout','Rearrange the navigation and switch whole worlds off. Changes reach every open Lumera tab straight away.')}
+    <div class="row cols-4" style="margin-bottom:14px;">
+      <div class="card kpi"><div class="v">${L.sections.length - secsOff}</div><div class="l">Sections shown</div></div>
+      <div class="card kpi"><div class="v" style="color:var(--faint)">${secsOff}</div><div class="l">Sections hidden</div></div>
+      <div class="card kpi"><div class="v" style="color:var(--saged)">${WORLDS.length - worldsOff}</div><div class="l">Worlds on</div></div>
+      <div class="card kpi"><div class="v">${pages}</div><div class="l">Pages arranged</div></div>
+    </div>
+
+    <div class="card" style="margin-bottom:14px;">
+      <div class="eyebrow">Worlds</div>
+      <p class="page-desc" style="margin-bottom:6px;">Switching a world off removes it from the family grid, the sidebar and the landing page, and closes its pages by URL as well.</p>
+      ${WORLDS.map(worldCard).join('')}
+    </div>
+
+    <div class="card" style="margin-bottom:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      <span style="flex:1;min-width:200px;font-size:13px;" class="faint">Move sections and pages with the arrows. The app reads this order live.</span>
+      <a class="btn ghost" href="index.html" target="_blank" rel="noopener">Open the app &rarr;</a>
+      <button class="btn ghost" onclick="resetLayout()">Reset to default order</button>
+    </div>
+
+    ${L.sections.map(sectionCard).join('')}`;
+}
+
+function setWorld(k,on){ const L=getLayout(); L.worlds[k]=!!on; putLayout(L); }
+function toggleSection(si){ const L=getLayout(); if(!L.sections[si]) return; L.sections[si].on=!L.sections[si].on; putLayout(L); }
+function moveSection(si,dir){ const L=getLayout(); const j=si+dir;
+  if(j<0 || j>=L.sections.length) return;
+  const [row]=L.sections.splice(si,1); L.sections.splice(j,0,row); putLayout(L); }
+function moveItem(si,ii,dir){ const L=getLayout(); const sec=L.sections[si]; if(!sec) return;
+  const j=ii+dir; if(j<0 || j>=sec.items.length) return;
+  const [row]=sec.items.splice(ii,1); sec.items.splice(j,0,row); putLayout(L); }
+function resetLayout(){ if(!confirm('Reset every section, page order and world switch to the default?')) return;
+  putLayout(defaultLayout()); }
 
 function renderTrends(){ const news=loadJSON(NEWS,[]),updates=loadJSON(UPDATES,[]);
   const text=[...news.map(n=>n.title+' '+(n.body||n.summary||'')),...updates.map(u=>u.title+' '+u.body)].join(' ').toLowerCase();
