@@ -12,6 +12,17 @@ folder to keep together. Run after build-site.py:
 import base64
 import os
 import re
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# The page content lives in one place, next door, so the single file and the
+# multi-file site can never disagree about what the sections say.
+import importlib.util as _ilu
+_spec = _ilu.spec_from_file_location('lumera_content',
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), 'build-site.py'))
+_content = _ilu.module_from_spec(_spec)
+_spec.loader.exec_module(_content)
+WORLDS, FEATURES, STEPS = _content.WORLDS, _content.FEATURES, _content.STEPS
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 
@@ -61,12 +72,64 @@ def body_of(key):
             + '<div class="rest">' + main + '</div>')
 
 
+def landing_grids(html):
+    """The landing filled its worlds, features, steps, trust and pricing grids
+    from its own script. That script does not travel into this file, so the
+    grids arrived empty and each section showed only its heading. Render the
+    same markup here instead, so the content is in the document."""
+    esc = lambda v: (str(v).replace('&', '&amp;').replace('<', '&lt;')
+                     .replace('>', '&gt;').replace('"', '&quot;'))
+
+    worlds = ''.join(
+        '<a class="panel liquid-glass world-card reveal" href="#/%s" style="text-decoration:none;color:inherit">'
+        '<span class="wash" style="background:%s"></span>'
+        '<span class="badge" style="background:%s22;color:%s">%s</span>'
+        '<span class="tag" style="color:%s">%s</span><h3>%s</h3><p>%s</p>'
+        '<span class="link" style="color:%s">Explore %s &rarr;</span></a>'
+        % (w['key'], w['accents'][1], w['accents'][1], w['accents'][1], w['name'][0],
+           w['accents'][1], w['tag'], w['name'], esc(w['lede'].split('.')[0] + '.'),
+           w['accents'][1], w['name'])
+        for w in WORLDS)
+
+    features = ''.join(
+        '<a class="panel liquid-glass reveal" href="#/app" style="text-decoration:none;color:inherit">'
+        '<h3>%s</h3><p>%s</p></a>' % (esc(t), esc(d)) for t, d in FEATURES[:8])
+
+    steps = ''.join(
+        '<div class="panel liquid-glass reveal"><span class="step-n">%02d</span><h3>%s</h3><p>%s</p></div>'
+        % (i + 1, esc(t), esc(d)) for i, (t, d) in enumerate(STEPS))
+
+    trust = ''.join(
+        '<div class="panel liquid-glass reveal"><h3>%s</h3><p>%s</p></div>' % (esc(t), esc(d))
+        for t, d in [('Privacy-first', 'Your figures live in your browser. Nothing is sold, shared or brokered.'),
+                     ('No bank login required', 'Lumera never asks for banking credentials. You stay in control of what it sees.'),
+                     ('Educational only', 'Explanations and benchmarks, never a recommendation to buy, sell or hold.')])
+
+    plans = ''.join(
+        '<div class="panel liquid-glass reveal"><div class="plan-head"><h3 style="margin:0">%s</h3>'
+        '<span class="pill%s">%s</span></div><p>%s</p><ul class="plan-list">%s</ul></div>'
+        % (n, ' now' if now else '', 'Current' if now else 'Future', b,
+           ''.join('<li>%s</li>' % f for f in feats))
+        for n, b, now, feats in
+        [('Free', 'Available now', True,
+          ['Monthly expense review', 'Financial health score', 'Budget &amp; savings tools', 'Market news', 'Limited AI assistant']),
+         ('Pro', 'Coming soon', False,
+          ['Advanced AI coach', 'Unlimited simulations', 'Full benchmark analytics', 'Monthly reports', 'Subscription &amp; debt tools']),
+         ('Premium', 'Coming soon', False,
+          ['Portfolio analytics', 'Family budgeting', 'Tax optimisation', 'Priority AI', 'Advisor-ready summaries'])])
+
+    for grid_id, markup in [('worldGrid', worlds), ('featureGrid', features), ('stepGrid', steps),
+                            ('trustGrid', trust), ('planGrid', plans)]:
+        html = html.replace('id="%s"></div>' % grid_id, 'id="%s">%s</div>' % (grid_id, markup))
+    return html
+
+
 def home_body():
     """The landing: video hero, marquee, and its own sections."""
     s = landing
     wrap = s[s.index('<div class="page-wrap">'):s.index('<main class="rest">')]
     main = s[s.index('<main class="rest">') + len('<main class="rest">'):s.index('    <footer class="site-footer">')]
-    return wrap + '<div class="rest">' + main + '</div>'
+    return landing_grids(wrap + '<div class="rest">' + main + '</div>')
 
 
 # nav + footer links become hash routes; the app stays an outside link
@@ -107,6 +170,31 @@ NAV = hashify('''            <header>
                 <div class="nav-divider"></div>
             </header>''')
 
+def compile_jsx(source):
+    """Run the app's JSX through Babel once, at build time, using node."""
+    import json
+    import subprocess
+    import tempfile
+    with tempfile.NamedTemporaryFile('w', suffix='.jsx', delete=False) as fh:
+        fh.write(source)
+        src_path = fh.name
+    out_path = src_path + '.out'
+    script = (
+        "const babel=require(%s);const fs=require('fs');"
+        "const code=fs.readFileSync(%s,'utf8');"
+        "const out=babel.transform(code,{presets:['react'],compact:false,comments:false}).code;"
+        "fs.writeFileSync(%s,out);"
+        % (json.dumps(os.path.join(ROOT, '_vendor', 'babel.js')),
+           json.dumps(src_path), json.dumps(out_path))
+    )
+    subprocess.run(['node', '-e', script], check=True, cwd=ROOT,
+                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    out = open(out_path).read()
+    os.unlink(src_path)
+    os.unlink(out_path)
+    return out
+
+
 def payload(fname):
     """The app and the portal, parked in the document as inert text.
 
@@ -123,6 +211,75 @@ def payload(fname):
     doc = re.sub(r'href="(app|admin-portal|index)\.html[^"]*"', 'href="#"', doc)
     doc = re.sub(r"'(app|admin-portal|index)\.html'", "'#'", doc)
 
+    # A framed document has an opaque origin, where even *reading*
+    # window.localStorage throws SecurityError, and the property cannot be
+    # redefined. So the payload's own references are pointed at a shim that
+    # uses the real storage when it works and memory when it does not.
+    shim = '''<script>
+window.__LS = (function () {
+  function memory() {
+    var map = {};
+    return {
+      getItem: function (k) { return Object.prototype.hasOwnProperty.call(map, k) ? map[k] : null; },
+      setItem: function (k, v) { map[k] = String(v); },
+      removeItem: function (k) { delete map[k]; },
+      clear: function () { map = {}; },
+      key: function (i) { return Object.keys(map)[i] || null; },
+      get length() { return Object.keys(map).length; }
+    };
+  }
+  try {
+    var s = window.localStorage;
+    s.setItem('__probe', '1'); s.removeItem('__probe');
+    return s;
+  } catch (e) { return memory(); }
+})();
+/* Fragment navigation does nothing in a framed document, so the app's route
+   lives here instead. The frame's name carries the page to open on. */
+window.__hash = (window.name && window.name.charAt(0) === '/') ? '#' + window.name : '#/';
+window.__go = function (to) {
+  var next = (String(to).charAt(0) === '#') ? String(to) : '#' + String(to);
+  if (next === window.__hash) return;
+  window.__hash = next;
+  try { window.dispatchEvent(new HashChangeEvent('hashchange')); }
+  catch (e) { var ev = document.createEvent('Event'); ev.initEvent('hashchange', true, true); window.dispatchEvent(ev); }
+  try { window.scrollTo(0, 0); } catch (e) {}
+};
+
+window.__SS = (function () {
+  try {
+    var s = window.sessionStorage;
+    s.setItem('__probe', '1'); s.removeItem('__probe');
+    return s;
+  } catch (e) { return window.__LS; }
+})();
+</script>
+'''
+    # A blob: document ignores fragment navigation: setting location.hash is a
+    # no-op there, so every button in the app did nothing. Route in memory
+    # instead, and let the frame's name carry the page to open on.
+    doc = doc.replace("useState(()=> (location.hash.replace('#','')||'/'))",
+                      "useState(()=> (window.__hash.replace('#','')||'/'))")
+    doc = doc.replace("setRoute(location.hash.replace('#','')||'/')",
+                      "setRoute(window.__hash.replace('#','')||'/')")
+    doc = doc.replace("const nav = useCallback((to)=>{ location.hash = to; },[]);",
+                      "const nav = useCallback((to)=>{ window.__go(to); },[]);")
+    doc = doc.replace("location.hash=redirect;", "window.__go(redirect);")
+    doc = re.sub(r"location\.replace\('[^']*'\);", "window.__go('/');", doc)
+
+    doc = re.sub(r'\blocalStorage\b', '__LS', doc)
+    doc = re.sub(r'\bsessionStorage\b', '__SS', doc)
+    doc = doc.replace('<head>', '<head>\n' + shim, 1)
+
+    # Compile the JSX here rather than in the browser. Babel-in-the-page took
+    # twenty seconds or more on a big file and needed a 2.9MB compiler along
+    # for the ride; precompiled, the app paints almost immediately.
+    m = re.search(r'<script type="text/babel"[^>]*>(.*?)</script>', doc, re.S)
+    if m:
+        compiled = compile_jsx(m.group(1))
+        doc = doc[:m.start()] + '<script>' + compiled + '</script>' + doc[m.end():]
+        doc = re.sub(r'<script src="https://unpkg\.com/@babel/standalone[^"]*"[^>]*></script>', '', doc, count=1)
+
     # Inline the runtime the app loads from a CDN. A file opened from disk
     # cannot always reach the network, and a blob: document has no base URL
     # to resolve a relative fallback against, so the libraries travel with it.
@@ -136,7 +293,13 @@ def payload(fname):
         path = os.path.join(ROOT, '_vendor', lib)
         if not os.path.exists(path):
             continue
-        code = open(path).read().replace('</script>', '<\\/script>')
+        # Library sources contain both "</script>" and "<script>" inside string
+        # literals. Either one ends the tag they are inlined into as far as the
+        # HTML parser is concerned, which silently drops the rest of the file.
+        # \x3c is a valid JS escape for "<", so the strings keep their meaning.
+        code = (open(path).read()
+                .replace('</script', '<\\/script')
+                .replace('<script', '\\x3cscript'))
         doc = re.sub(pattern, lambda m, c=code: '<script>' + c + '</script>', doc, count=1)
 
     # Base64, not raw text. A payload holding HTML comments and the string
@@ -176,19 +339,6 @@ body.on-home .site-nav { display: none; }
 /* The app and the portal run in their own document, framed full-bleed. */
 .app-frame { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; z-index: 40; background: #080610; }
 body.on-app .site-nav, body.on-app .atmo, body.on-app .site-footer { display: none; }
-.frame-bar {
-    position: fixed; z-index: 41; left: 50%; transform: translateX(-50%); bottom: 18px;
-    display: flex; gap: .5rem; align-items: center;
-    background: rgba(8,6,16,.86); backdrop-filter: blur(18px);
-    border: 1px solid rgba(255,255,255,.14); border-radius: 999px; padding: .4rem .5rem;
-    box-shadow: 0 18px 40px -20px rgba(0,0,0,.9);
-}
-.frame-bar a {
-    font-size: .8rem; font-weight: 600; text-decoration: none; padding: .4rem .9rem; border-radius: 999px;
-    color: hsl(var(--foreground) / .8);
-}
-.frame-bar a:hover { background: rgba(255,255,255,.08); color: hsl(var(--foreground)); }
-.frame-bar a.on { background: linear-gradient(to left, #6366f1, #a855f7, #fcd34d); color: #17110a; }
 </style>
 '''
 
@@ -212,6 +362,10 @@ ROUTER = '''<script>
     /* The app and the portal are whole documents. Each is turned into a Blob
        URL once, then framed, so their styles and scripts never touch this page. */
     var frames = {};
+    function deepLink() {
+        var rest = (location.hash || '').replace(/^#\/(app|admin)\/?/, '');
+        return rest ? '/' + rest : '/';
+    }
     function frameFor(which) {
         if (frames[which]) return frames[which];
         var node = document.getElementById('payload-' + which);
@@ -223,6 +377,8 @@ ROUTER = '''<script>
         var url = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
         var f = document.createElement('iframe');
         f.className = 'app-frame';
+        /* The page to open on, read by the payload before it boots. */
+        f.name = deepLink();
         f.setAttribute('title', which === 'app' ? 'Lumera app' : 'Admin portal');
         f.src = url;
         f.hidden = true;
@@ -248,18 +404,13 @@ ROUTER = '''<script>
             f.src = target;
         }
         document.title = which === 'app' ? 'Lumera app' : 'Lumera admin portal';
-        document.querySelectorAll('.frame-bar a').forEach(function (a) {
-            a.classList.toggle('on', a.getAttribute('href') === '#/' + which);
-        });
-        var bar = document.querySelector('.frame-bar');
-        if (bar) bar.hidden = false;
+
     }
 
     function hideFrames() {
         document.body.classList.remove('on-app');
         ['app', 'admin'].forEach(function (w) { if (frames[w]) frames[w].hidden = true; });
-        var bar = document.querySelector('.frame-bar');
-        if (bar) bar.hidden = true;
+
     }
 
     function reveal(scope) {
@@ -401,12 +552,6 @@ out = '''<!DOCTYPE html>
 %s
 
 %s
-
-<div class="frame-bar" hidden>
-    <a href="#/">&larr; Site</a>
-    <a href="#/app">The app</a>
-    <a href="#/admin">Admin portal</a>
-</div>
 
 %s
 
