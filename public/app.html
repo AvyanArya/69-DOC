@@ -506,6 +506,98 @@
   html[data-skin="nova"][data-theme][data-mode] #loader{ background:#080610; }
   html[data-skin="nova"][data-theme][data-mode] ::selection{ background:rgba(168,85,247,.35); }
 
+  /* ============================================================
+     NOVA, PART TWO: the landing page's own surfaces, applied to the app.
+     Atmosphere behind everything, glass panels with a lit rim, section
+     rhythm with horizons, and the landing's formats for lists, numbers
+     and tables, so the same content reads the way the site does.
+     ============================================================ */
+  html[data-skin="nova"] .atmo{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+  html[data-skin="nova"] .atmo .aurora{ position:absolute; border-radius:50%; filter:blur(90px); opacity:.42; will-change:transform; }
+  html[data-skin="nova"] .atmo .a1{ width:46vw; height:46vw; min-width:420px; min-height:420px; top:-14vw; left:-8vw;
+    background:radial-gradient(circle, rgb(var(--c-gold)), transparent 68%); animation:drift-a 26s ease-in-out infinite alternate; }
+  html[data-skin="nova"] .atmo .a2{ width:40vw; height:40vw; min-width:380px; min-height:380px; top:24vh; right:-12vw;
+    background:radial-gradient(circle, var(--p1,#8B5CF6), transparent 68%); animation:drift-b 32s ease-in-out infinite alternate; }
+  html[data-skin="nova"] .atmo .a3{ width:34vw; height:34vw; min-width:300px; min-height:300px; bottom:-12vw; left:26vw;
+    background:radial-gradient(circle, var(--p2,#6D28D9), transparent 70%); opacity:.2; animation:drift-c 38s ease-in-out infinite alternate; }
+  @keyframes drift-a{ to{ transform:translate3d(7vw,5vh,0) scale(1.12); } }
+  @keyframes drift-b{ to{ transform:translate3d(-6vw,-7vh,0) scale(1.08); } }
+  @keyframes drift-c{ to{ transform:translate3d(4vw,-4vh,0) scale(1.16); } }
+  html[data-skin="nova"] .atmo .atmo-grid{ position:absolute; inset:0;
+    background-image:linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px),
+                     linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px);
+    background-size:88px 88px;
+    -webkit-mask-image:radial-gradient(ellipse 90% 70% at 50% 30%, #000 20%, transparent 78%);
+    mask-image:radial-gradient(ellipse 90% 70% at 50% 30%, #000 20%, transparent 78%); }
+  html[data-skin="nova"] .atmo .grain{ position:absolute; inset:-50%; opacity:.14;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+    animation:grain 8s steps(6) infinite; }
+  @keyframes grain{ 0%,100%{transform:translate(0,0)} 20%{transform:translate(-4%,3%)} 40%{transform:translate(3%,-5%)}
+    60%{transform:translate(-2%,6%)} 80%{transform:translate(5%,2%)} }
+
+  /* the shell floats above the backdrop */
+  html[data-skin="nova"] aside, html[data-skin="nova"] header, html[data-skin="nova"] main,
+  html[data-skin="nova"] nav{ position:relative; z-index:1; }
+
+  /* Panels: the landing's lit rim, not just a border. */
+  html[data-skin="nova"][data-theme][data-mode] .lux-card{
+    border:1px solid transparent;
+    background:rgba(255,255,255,.022) !important;
+    box-shadow:0 18px 44px -26px rgba(0,0,0,.95);
+  }
+  html[data-skin="nova"] .lux-card::before{
+    content:""; position:absolute; inset:0; border-radius:inherit; padding:1.4px;
+    background:linear-gradient(180deg, rgba(255,255,255,.42) 0%, rgba(255,255,255,.14) 20%,
+      rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%, rgba(255,255,255,.14) 80%, rgba(255,255,255,.42) 100%);
+    -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite:xor; mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite:exclude; pointer-events:none; z-index:0;
+  }
+  html[data-skin="nova"] .lux-card::after{
+    content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+    background:radial-gradient(420px 200px at 50% -30%, var(--p1,#8B5CF6), transparent 70%);
+    opacity:0; transition:opacity .5s ease;
+  }
+  html[data-skin="nova"] .lux-card:hover::after{ opacity:.13; }
+  html[data-skin="nova"] .lux-card > *{ position:relative; z-index:1; }
+
+  /* Section rhythm: the landing breathes, so the app does too. */
+  html[data-skin="nova"] main > section, html[data-skin="nova"] main > div{ scroll-margin-top:5rem; }
+  html[data-skin="nova"] .page-head{ padding-bottom:1.6rem; border-bottom:1px solid rgba(255,255,255,.07); }
+
+  /* Content formats lifted from the landing page ------------------ */
+
+  /* Lists inside panels: gradient bullets instead of discs. */
+  html[data-skin="nova"] .lux-card ul:not(.no-bullet) > li{ list-style:none; }
+  html[data-skin="nova"] .lux-card ul.plan-list > li{ display:flex; gap:.55rem; align-items:flex-start; }
+  html[data-skin="nova"] .lux-card ul.plan-list > li::before{
+    content:""; flex:0 0 auto; width:6px; height:6px; margin-top:.52rem; border-radius:50%;
+    background:var(--nova-grad);
+  }
+
+  /* Numbers get the display face and the landing's stat-tile shape. */
+  html[data-skin="nova"] .tnum{ font-variant-numeric:tabular-nums; }
+  html[data-skin="nova"] .stat-tile{ border-radius:20px; padding:1.3rem; }
+  html[data-skin="nova"] .stat-tile .v{ font-family:'General Sans','Geist Sans',system-ui,sans-serif;
+    font-size:2.4rem; line-height:1; letter-spacing:-.024em; }
+  html[data-skin="nova"] .stat-tile .l{ font-size:.66rem; letter-spacing:.2em; text-transform:uppercase;
+    color:rgb(var(--c-faint)); margin-top:.5rem; }
+
+  /* Tables read as rows of glass rather than ruled paper. */
+  html[data-skin="nova"] table{ border-collapse:separate; border-spacing:0 6px; }
+  html[data-skin="nova"] table tbody tr{ background:rgba(255,255,255,.02); }
+  html[data-skin="nova"] table tbody tr > *:first-child{ border-top-left-radius:12px; border-bottom-left-radius:12px; }
+  html[data-skin="nova"] table tbody tr > *:last-child{ border-top-right-radius:12px; border-bottom-right-radius:12px; }
+  html[data-skin="nova"] table th{ font-size:.66rem; letter-spacing:.18em; text-transform:uppercase; color:rgb(var(--c-faint)); }
+
+  /* A horizon between blocks, the same one the marketing pages use. */
+  html[data-skin="nova"] .rule{ height:1px; margin:2.4rem 0;
+    background:linear-gradient(to right, transparent, rgba(255,255,255,.14), transparent); }
+
+  @media (prefers-reduced-motion: reduce){
+    html[data-skin="nova"] .atmo .aurora, html[data-skin="nova"] .atmo .grain{ animation:none; }
+  }
+
   /* ---- Nova shell: the pieces the redesign added ---- */
   html[data-skin="nova"][data-theme][data-mode] .topbar-pill{
     background:rgba(255,255,255,.05);
@@ -2505,9 +2597,19 @@ function MobileMenu(){
   </div>;
 }
 
+/* The landing page's backdrop, so the app sits on the same ground: two drifting
+   aurora masses in the current world's colour, a hairline grid and a fine grain. */
+function Atmosphere(){
+  return <div className="atmo" aria-hidden="true">
+    <span className="aurora a1"/><span className="aurora a2"/><span className="aurora a3"/>
+    <span className="atmo-grid"/><span className="grain"/>
+  </div>;
+}
+
 function AppShell({ children }){
   const ref = useReveal();
   return <div className="min-h-screen flex">
+    <Atmosphere/>
     <Sidebar/>
     <div className="flex-1 min-w-0 flex flex-col">
       <TopBar/>
@@ -3882,13 +3984,22 @@ function Dashboard(){
           <h1 className="font-serif text-[2.2rem] sm:text-[3rem] text-charcoal leading-[1.04] mt-1">Your money, <span className="gold-text">today</span>.</h1></div>
         <Btn variant="gold" icon="refresh" to="/review">Update my data</Btn>
       </div>
-      <div className="mt-5 rounded-xl2 border border-line bg-cream/60 p-4">
-        <div className="flex items-center gap-2 mb-2"><Icon name="spark" size={15} className="text-goldd"/><span className="text-xs tracking-[.18em] uppercase text-faint">Today at a glance</span></div>
-        <div className="grid sm:grid-cols-3 gap-3 text-sm">
-          <div className="flex items-start gap-2"><Icon name="pig" size={15} className="text-saged mt-0.5 shrink-0"/><span className="text-charcoal/80">You’re saving <b>{round(m.savingsRate*100)}%</b> of income, {m.savingsRate>=0.15?'ahead of the 15% target.':'just below the 15% target.'}</span></div>
-          <div className="flex items-start gap-2"><Icon name="shield" size={15} className="text-goldd mt-0.5 shrink-0"/><span className="text-charcoal/80">Emergency fund covers <b>{m.efMonths.toFixed(1)} months</b> of essentials.</span></div>
-          <div className="flex items-start gap-2"><Icon name="drop" size={15} className="text-clayd mt-0.5 shrink-0"/><span className="text-charcoal/80">About <b>{fmt.money(m.realistic)}/mo</b> is above benchmark, your biggest quick win.</span></div>
-        </div>
+      {/* The same four facts, in the format the landing page uses for numbers:
+          the figure first, the label under it, one line of meaning below. */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-5">
+        {[['Health score', String(m.overall), 'of 100', scoreLabel, 'gold'],
+          ['Savings rate', round(m.savingsRate*100)+'%', 'of income', m.savingsRate>=0.15?'Ahead of the 15% target':'Just below the 15% target', 'sage'],
+          ['Safety net', m.efMonths.toFixed(1), 'months covered', m.efMonths>=3?'Past the three-month mark':'Building toward three months', 'sky'],
+          ['Biggest win', fmt.money(m.realistic), 'a month', 'Above benchmark, and reachable', 'clay']
+        ].map(([label,value,unit,note,tone])=>
+          <Card key={label} hover={false} className="stat-tile !p-4">
+            <div className="l">{label}</div>
+            <div className="flex items-baseline gap-1.5 mt-1">
+              <span className={cx('v tnum', tone==='gold'&&'gold-text', tone==='sage'&&'text-saged', tone==='sky'&&'text-sky', tone==='clay'&&'text-clayd')}>{value}</span>
+              <span className="text-[11px] text-faint">{unit}</span>
+            </div>
+            <p className="text-[11.5px] text-muted leading-snug mt-2">{note}</p>
+          </Card>)}
       </div>
       {/* Then the Spark hero and today's quests. */}
       {app.mode==='spark' && <div className="mt-5"><SparkBanner/></div>}
@@ -3906,6 +4017,7 @@ function Dashboard(){
       </div>
     </div>
 
+    <div className="rule"/>
     {app.mode==='spark' && <AchievementsStrip/>}
     <HabitsStrip/>
     <HeadlinesPanel/>
@@ -3938,8 +4050,8 @@ function Dashboard(){
           <ScoreChip label="Invest readiness" value={m.scores.investmentReadiness}/>
           <ScoreChip label="Income stability" value={m.scores.incomeStability}/>
           <ScoreChip label="Lifestyle control" value={m.scores.lifestyleControl}/>
-          <div className="rounded-xl2 bg-charcoal text-cream p-3.5 flex flex-col justify-center">
-            <span className="text-xs text-gold">Monthly income</span><span className="font-serif text-xl tnum">{fmt.money(m.income)}</span></div>
+          <div className="stat-tile rounded-xl2 bg-charcoal text-cream p-3.5 flex flex-col justify-center">
+            <span className="l !mt-0">Monthly income</span><span className="v tnum !text-[1.6rem] mt-1">{fmt.money(m.income)}</span></div>
         </div>
       </Card>
     </div>
