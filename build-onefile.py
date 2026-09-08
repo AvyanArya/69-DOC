@@ -9,6 +9,7 @@ folder to keep together. Run after build-site.py:
     python3 build-site.py && python3 build-onefile.py
 """
 
+import base64
 import os
 import re
 
@@ -74,6 +75,10 @@ def hashify(html):
         target = '#/' if key == 'home' else '#/' + key
         html = html.replace('href="%s"' % fname, 'href="%s"' % target)
     html = html.replace('href="index.html"', 'href="#/"')
+    # the app and the portal live in this file too, as framed routes
+    html = re.sub(r'href="app\.html#/([a-z-]+)"', r'href="#/app/\1"', html)
+    html = html.replace('href="app.html"', 'href="#/app"')
+    html = html.replace('href="admin.html"', 'href="#/admin"')
     return html
 
 
@@ -102,6 +107,50 @@ NAV = hashify('''            <header>
                 <div class="nav-divider"></div>
             </header>''')
 
+def payload(fname):
+    """The app and the portal, parked in the document as inert text.
+
+    They are full HTML documents with their own stylesheets and React
+    runtime, so they cannot share this page's DOM. Kept in a
+    <script type="text/plain"> they parse as nothing, and the router
+    turns one into a Blob URL for an iframe when you open that route.
+    Their meta CSP is dropped because a blob: document has no origin of
+    its own for 'self' to resolve against."""
+    doc = open(os.path.join(ROOT, fname)).read()
+    doc = re.sub(r'<meta http-equiv="Content-Security-Policy".*?>\n', '', doc, flags=re.S)
+    # Inside the frame there is no sibling file to open, so links between the
+    # app and the portal are neutralised; the bar at the bottom switches them.
+    doc = re.sub(r'href="(app|admin-portal|index)\.html[^"]*"', 'href="#"', doc)
+    doc = re.sub(r"'(app|admin-portal|index)\.html'", "'#'", doc)
+
+    # Inline the runtime the app loads from a CDN. A file opened from disk
+    # cannot always reach the network, and a blob: document has no base URL
+    # to resolve a relative fallback against, so the libraries travel with it.
+    vendor = [
+        (r'<script crossorigin src="https://unpkg\.com/react@[^"]*"[^>]*></script>', 'react.js'),
+        (r'<script crossorigin src="https://unpkg\.com/react-dom@[^"]*"[^>]*></script>', 'react-dom.js'),
+        (r'<script src="https://unpkg\.com/@babel/standalone[^"]*"[^>]*></script>', 'babel.js'),
+        (r'<script src="https://cdn\.tailwindcss\.com[^"]*"></script>', 'tailwind.js'),
+    ]
+    for pattern, lib in vendor:
+        path = os.path.join(ROOT, '_vendor', lib)
+        if not os.path.exists(path):
+            continue
+        code = open(path).read().replace('</script>', '<\\/script>')
+        doc = re.sub(pattern, lambda m, c=code: '<script>' + c + '</script>', doc, count=1)
+
+    # Base64, not raw text. A payload holding HTML comments and the string
+    # "<script" pushes the parser into its double-escaped state, where the
+    # container never closes and every script after it is swallowed, which is
+    # exactly what happened. Base64 has no characters the parser reacts to.
+    return base64.b64encode(doc.encode('utf-8')).decode('ascii')
+
+
+PAYLOADS = '''
+<script id="payload-app" type="text/plain">%s</script>
+<script id="payload-admin" type="text/plain">%s</script>
+''' % (payload('Lumera.html'), payload('admin-portal.html'))
+
 sections = []
 for key, fname, title in PAGES:
     body = home_body() if key == 'home' else body_of(key)
@@ -121,9 +170,25 @@ EXTRA_CSS = '''
     content: ""; display: block; height: 2px; margin-top: 4px; border-radius: 2px;
     background: linear-gradient(to left, #6366f1, #a855f7, #fcd34d);
 }
-/* The landing keeps its own header inside the video hero, so the shared one
-   only shows on the other pages. */
-#route-home .site-nav { display: none; }
+/* The landing carries its own header inside the video hero, so the shared bar
+   is hidden while the landing is on screen. */
+body.on-home .site-nav { display: none; }
+/* The app and the portal run in their own document, framed full-bleed. */
+.app-frame { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; z-index: 40; background: #080610; }
+body.on-app .site-nav, body.on-app .atmo, body.on-app .site-footer { display: none; }
+.frame-bar {
+    position: fixed; z-index: 41; left: 50%; transform: translateX(-50%); bottom: 18px;
+    display: flex; gap: .5rem; align-items: center;
+    background: rgba(8,6,16,.86); backdrop-filter: blur(18px);
+    border: 1px solid rgba(255,255,255,.14); border-radius: 999px; padding: .4rem .5rem;
+    box-shadow: 0 18px 40px -20px rgba(0,0,0,.9);
+}
+.frame-bar a {
+    font-size: .8rem; font-weight: 600; text-decoration: none; padding: .4rem .9rem; border-radius: 999px;
+    color: hsl(var(--foreground) / .8);
+}
+.frame-bar a:hover { background: rgba(255,255,255,.08); color: hsl(var(--foreground)); }
+.frame-bar a.on { background: linear-gradient(to left, #6366f1, #a855f7, #fcd34d); color: #17110a; }
 </style>
 '''
 
@@ -139,7 +204,62 @@ ROUTER = '''<script>
     function keyFromHash() {
         var h = (location.hash || '').replace(/^#\\/?/, '').trim();
         if (!h) return 'home';
+        if (h === 'app' || h.indexOf('app/') === 0) return 'app';
+        if (h === 'admin') return 'admin';
         return routes.some(function (r) { return r.dataset.route === h; }) ? h : 'home';
+    }
+
+    /* The app and the portal are whole documents. Each is turned into a Blob
+       URL once, then framed, so their styles and scripts never touch this page. */
+    var frames = {};
+    function frameFor(which) {
+        if (frames[which]) return frames[which];
+        var node = document.getElementById('payload-' + which);
+        if (!node) return null;
+        var bin = atob(node.textContent.trim());
+        var bytes = new Uint8Array(bin.length);
+        for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        var html = new TextDecoder('utf-8').decode(bytes);
+        var url = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+        var f = document.createElement('iframe');
+        f.className = 'app-frame';
+        f.setAttribute('title', which === 'app' ? 'Lumera app' : 'Admin portal');
+        f.src = url;
+        f.hidden = true;
+        document.body.appendChild(f);
+        frames[which] = f;
+        return f;
+    }
+
+    function showFrame(which) {
+        document.body.classList.add('on-app');
+        ['app', 'admin'].forEach(function (w) {
+            var f = frames[w];
+            if (f && w !== which) f.hidden = true;
+        });
+        var f = frameFor(which);
+        if (!f) return;
+        f.hidden = false;
+        /* Carry a deep link through: #/app/signup opens the app on signup. */
+        var deep = (location.hash || '').replace(/^#\\/(app|admin)\\/?/, '');
+        var target = f.src.split('#')[0] + (deep ? '#/' + deep : '');
+        if (f.getAttribute('data-at') !== target) {
+            f.setAttribute('data-at', target);
+            f.src = target;
+        }
+        document.title = which === 'app' ? 'Lumera app' : 'Lumera admin portal';
+        document.querySelectorAll('.frame-bar a').forEach(function (a) {
+            a.classList.toggle('on', a.getAttribute('href') === '#/' + which);
+        });
+        var bar = document.querySelector('.frame-bar');
+        if (bar) bar.hidden = false;
+    }
+
+    function hideFrames() {
+        document.body.classList.remove('on-app');
+        ['app', 'admin'].forEach(function (w) { if (frames[w]) frames[w].hidden = true; });
+        var bar = document.querySelector('.frame-bar');
+        if (bar) bar.hidden = true;
     }
 
     function reveal(scope) {
@@ -154,6 +274,13 @@ ROUTER = '''<script>
 
     var observed = null;
     function show(key) {
+        if (key === 'app' || key === 'admin') { 
+            routes.forEach(function (r) { r.hidden = true; });
+            showFrame(key);
+            return;
+        }
+        hideFrames();
+        document.body.classList.toggle('on-home', key === 'home');
         var current = null;
         routes.forEach(function (r) {
             var on = r.dataset.route === key;
@@ -275,11 +402,19 @@ out = '''<!DOCTYPE html>
 
 %s
 
+<div class="frame-bar" hidden>
+    <a href="#/">&larr; Site</a>
+    <a href="#/app">The app</a>
+    <a href="#/admin">Admin portal</a>
+</div>
+
+%s
+
 %s
 </body>
 </html>
 ''' % (head_links, style, sub_style, EXTRA_CSS, atmo, NAV,
-       '\n\n'.join(sections), hashify(footer), ROUTER)
+       '\n\n'.join(sections), hashify(footer), PAYLOADS, ROUTER)
 
 path = os.path.join(ROOT, 'lumera.html')
 open(path, 'w').write(out)
