@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lumera | All financial intelligence. One place.</title>
+<meta name="description" content="Lumera turns one month of your behaviour into a clear, benchmarked plan. Four worlds, one financial life.">
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@fontsource/geist-sans@5.0.3/index.css" rel="stylesheet">
+<style>
+/* ============================================================
+   Theme tokens
+   ============================================================ */
+:root {
+    --background: 260 87% 3%;      /* deep dark blue-purple */
+    --foreground: 40 6% 95%;       /* off-white */
+    --hero-sub: 40 6% 82%;
+
+    --font-body: 'Geist Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-display: 'General Sans', 'Geist Sans', system-ui, sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+}
+
+img, video { display: block; max-width: 100%; }
+
+/* ============================================================
+   Liquid glass
+   ============================================================ */
+.liquid-glass {
+    background: rgba(255, 255, 255, 0.01);
+    background-blend-mode: luminosity;
+    backdrop-filter: blur(4px);
+    border: none;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.liquid-glass::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.4px;
+    background: linear-gradient(180deg,
+        rgba(255,255,255,0.45) 0%,
+        rgba(255,255,255,0.15) 20%,
+        rgba(255,255,255,0) 40%,
+        rgba(255,255,255,0) 60%,
+        rgba(255,255,255,0.15) 80%,
+        rgba(255,255,255,0.45) 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+}
+
+/* ============================================================
+   Page wrapper + background video
+   ============================================================ */
+.page-wrap {
+    position: relative;
+    overflow: hidden;
+    min-height: 100vh;
+}
+
+.bg-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;            /* the fade loop drives this */
+    z-index: 0;
+    pointer-events: none;
+}
+
+.page-content {
+    position: relative;
+    z-index: 10;
+}
+
+/* ============================================================
+   Hero shell
+   ============================================================ */
+.hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: visible;      /* so the blur shape is never clipped */
+    position: relative;
+}
+
+/* The soft mass sitting behind the headline */
+.hero-blur {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 984px;
+    height: 527px;
+    opacity: 0.9;
+    background: #030712;    /* gray-950 */
+    filter: blur(82px);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ============================================================
+   Navbar
+   ============================================================ */
+.navbar {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    padding: 1.25rem 2rem;      /* py-5 px-8 */
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+}
+
+.nav-logo {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    text-decoration: none;
+    color: hsl(var(--foreground));
+}
+
+/* Logo placeholder: swap this block for the real mark. */
+.nav-logo .mark {
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    border-radius: 9px;
+    border: 1.5px dashed rgba(231, 200, 122, .55);
+    background: rgba(231, 200, 122, .10);
+}
+
+.nav-logo .wordmark {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.05rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+}
+
+.nav-center {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: .95rem;
+    color: hsl(var(--foreground) / 0.9);
+    transition: color .25s ease, opacity .25s ease;
+    text-decoration: none;
+}
+
+.nav-btn:hover { color: hsl(var(--foreground)); opacity: .75; }
+.nav-btn svg { opacity: .8; }
+
+.hero-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    font-family: inherit;
+    font-weight: 500;
+    font-size: .95rem;
+    color: hsl(var(--foreground));
+    background: rgba(255, 255, 255, 0.01);
+    border-radius: 9999px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background .3s ease, transform .3s ease;
+}
+
+.hero-secondary:hover {
+    background: rgba(255, 255, 255, 0.06);
+    transform: translateY(-1px);
+}
+
+.nav-signup { padding: .5rem 1rem; }   /* rounded-full px-4 py-2 */
+
+.nav-divider {
+    position: relative;
+    z-index: 2;
+    height: 1px;
+    margin-top: 3px;
+    background: linear-gradient(to right,
+        transparent,
+        hsl(var(--foreground) / 0.2),
+        transparent);
+}
+
+/* ============================================================
+   Hero content
+   ============================================================ */
+.hero-body {
+    position: relative;
+    z-index: 2;
+    flex: 1 1 0%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.hero-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.headline {
+    font-family: var(--font-display);
+    font-size: 220px;
+    font-weight: 400;
+    line-height: 1.02;
+    letter-spacing: -0.024em;
+    white-space: nowrap;
+}
+
+.headline .grad {
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    background-image: linear-gradient(to left, #6366f1, #a855f7, #fcd34d);
+}
+
+.hero-sub {
+    color: hsl(var(--hero-sub));
+    font-size: 1.125rem;
+    line-height: 2rem;
+    max-width: 28rem;
+    margin-top: 9px;
+    opacity: 0.8;
+}
+
+.hero-cta {
+    padding: 24px 29px;
+    margin-top: 25px;
+    font-size: 1rem;
+}
+
+/* ============================================================
+   Logo marquee
+   ============================================================ */
+.marquee-wrap {
+    position: relative;
+    z-index: 2;
+    padding-bottom: 2.5rem;    /* pb-10 */
+}
+
+.marquee-inner {
+    max-width: 64rem;          /* max-w-5xl */
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 3rem;                 /* gap-12 */
+    padding: 0 2rem;
+}
+
+.marquee-label {
+    color: hsl(var(--foreground) / 0.5);
+    font-size: .875rem;
+    line-height: 1.4;
+    flex-shrink: 0;
+}
+
+.marquee {
+    flex: 1 1 0%;
+    overflow: hidden;
+    mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+}
+
+.marquee-track {
+    display: flex;
+    align-items: center;
+    gap: 4rem;                 /* gap-16 */
+    width: max-content;
+    animation: marquee 20s linear infinite;
+}
+
+@keyframes marquee {
+    from { transform: translateX(0%); }
+    to   { transform: translateX(-50%); }
+}
+
+.logo-item {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    flex-shrink: 0;
+}
+
+.logo-item .icon {
+    width: 24px;
+    height: 24px;
+    border-radius: .5rem;      /* rounded-lg */
+    display: grid;
+    place-items: center;
+    font-size: .7rem;
+    font-weight: 700;
+    color: hsl(var(--foreground));
+}
+
+.logo-item .name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: hsl(var(--foreground));
+    white-space: nowrap;
+}
+
+/* ============================================================
+   Narrow screens
+   ============================================================ */
+@media (max-width: 1100px) {
+    .headline { font-size: 15vw; }
+    .nav-center { display: none; }
+}
+
+@media (max-width: 720px) {
+    .navbar { padding: 1rem 1.25rem; }
+    .headline { font-size: 17vw; white-space: normal; }
+    .hero-blur { width: 90vw; height: 60vw; }
+    .marquee-inner { flex-direction: column; align-items: flex-start; gap: 1.25rem; padding: 0 1.25rem; }
+    .marquee { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .marquee-track { animation: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+    <video class="bg-video" id="bgVideo" playsinline muted preload="auto"
+        src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260328_065045_c44942da-53c6-4804-b734-f9e07fc22e08.mp4"></video>
+
+    <div class="page-content">
+        <section class="hero">
+
+            <div class="hero-blur"></div>
+
+            <header>
+                <nav class="navbar">
+                    <a class="nav-logo" href="index.html">
+                        <!-- Logo placeholder: swap this block for the real mark. -->
+                        <span class="mark" title="Logo placeholder, upload in Admin">
+                            <svg width="15" height="15" viewBox="0 0 10 10" aria-hidden="true">
+                                <path d="M5 0 L6 4 L10 5 L6 6 L5 10 L4 6 L0 5 L4 4 Z" fill="#E7C87A" opacity=".85"/>
+                            </svg>
+                        </span>
+                        <span class="wordmark">Lumera</span>
+                    </a>
+
+                    <div class="nav-center">
+                        <button class="nav-btn" type="button">
+                            Worlds
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+                        </button>
+                        <button class="nav-btn" type="button">Features</button>
+                        <button class="nav-btn" type="button">Pricing</button>
+                        <button class="nav-btn" type="button">
+                            Learning
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+                        </button>
+                    </div>
+
+                    <a class="hero-secondary liquid-glass nav-signup" href="index.html#/signup">Sign Up</a>
+                </nav>
+                <div class="nav-divider"></div>
+            </header>
+
+            <div class="hero-body">
+                <div class="hero-inner">
+                    <h1 class="headline">
+                        <span>Clear </span><span class="grad">Money</span>
+                    </h1>
+                    <p class="hero-sub">
+                        The clearest view of your money ever built<br>
+                        for people starting out
+                    </p>
+                    <a class="hero-secondary liquid-glass hero-cta" href="index.html#/signup">Start Your 30-Day Review</a>
+                </div>
+            </div>
+
+            <div class="marquee-wrap">
+                <div class="marquee-inner">
+                    <div class="marquee-label">One family<br>five worlds</div>
+                    <div class="marquee">
+                        <div class="marquee-track" id="marqueeTrack"></div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </div>
+</div>
+
+<script>
+/* ============================================================
+   Background video: a hand-driven fade loop.
+   0.5s in at the start, 0.5s out at the end, then a clean restart.
+   ============================================================ */
+(function () {
+    const video = document.getElementById('bgVideo');
+    if (!video) return;
+
+    const FADE = 0.5;   // seconds
+    let raf = null;
+
+    function tick() {
+        const d = video.duration;
+        if (d && isFinite(d)) {
+            const t = video.currentTime;
+            let o = 1;
+            if (t < FADE) o = t / FADE;
+            else if (t > d - FADE) o = Math.max(0, (d - t) / FADE);
+            video.style.opacity = String(o);
+        }
+        raf = requestAnimationFrame(tick);
+    }
+
+    function start() {
+        video.currentTime = 0;
+        video.style.opacity = '0';
+        const p = video.play();
+        if (p && p.catch) p.catch(() => {});
+        if (raf === null) raf = requestAnimationFrame(tick);
+    }
+
+    video.addEventListener('loadedmetadata', start);
+    video.addEventListener('ended', () => {
+        video.style.opacity = '0';
+        setTimeout(start, 100);
+    });
+    if (video.readyState >= 1) start();
+})();
+
+/* ============================================================
+   Logo marquee. The row is written twice so the loop is seamless.
+   ============================================================ */
+(function () {
+    const track = document.getElementById('marqueeTrack');
+    if (!track) return;
+
+    // The Lumera family, plus the two tools people arrive for.
+    const LOGOS = [
+        { name: 'Lumera',  c1: '#8B5CF6', c2: '#4C1D95' },
+        { name: 'Leaf',    c1: '#22C55E', c2: '#14532D' },
+        { name: 'Atlas',   c1: '#3B82F6', c2: '#1E3A8A' },
+        { name: 'Shield',  c1: '#64748B', c2: '#1E293B' },
+        { name: 'Forge',   c1: '#C0873A', c2: '#5C3A12' },
+        { name: 'Twin',    c1: '#A855F7', c2: '#581C87' }
+    ];
+
+    const row = LOGOS.map(l => `
+        <div class="logo-item">
+            <span class="icon liquid-glass" style="background-image:linear-gradient(160deg, ${l.c1}, ${l.c2})">${l.name[0]}</span>
+            <span class="name">${l.name}</span>
+        </div>`).join('');
+
+    track.innerHTML = row + row;   // duplicated for the -50% loop
+})();
+</script>
+</body>
+</html>
