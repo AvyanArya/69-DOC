@@ -13,6 +13,9 @@
      Manrope for small UI text, labels, numbers and controls, where a serif
      at 11-13px turns mushy. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@fontsource/geist-sans@5.0.3/index.css" rel="stylesheet">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=Manrope:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 
@@ -74,6 +77,11 @@
       document.documentElement.setAttribute('data-theme-pref', saved);
       // Sub-product sites (Leaf.html etc.) set window.__LUMERA_SITE and always boot in Spark.
       var site = window.__LUMERA_SITE;
+      // Nova is the house design language, matching the landing page. Classic
+      // keeps the original warm-paper look for anyone who prefers it.
+      var skin = localStorage.getItem('lumera_skin') || 'nova';
+      document.documentElement.setAttribute('data-skin', skin);
+      if(skin==='nova'){ dark = true; document.documentElement.setAttribute('data-theme','dark'); }
       var mode = (site && site!=='lumera') ? 'spark' : (localStorage.getItem('lumera_mode') || 'spark');
       document.documentElement.setAttribute('data-mode', mode==='spark'?'spark':'classic');
       if(site) document.documentElement.setAttribute('data-product', site);
@@ -382,6 +390,121 @@
      inside one stretches its track instead of scrolling, pushing the page wider
      than the viewport. Zeroing the minimum lets overflow-x:auto do its job. */
   .grid > *{ min-width:0; }
+
+
+  /* ============================================================
+     NOVA SKIN
+     The design language of the landing page, applied to the whole app:
+     a deep blue-purple ground, glass panels with a lit top edge, the
+     indigo -> purple -> amber gradient on accents, General Sans for
+     display and Geist for body copy. Every page inherits it, because it
+     repaints the tokens the components already read.
+     ============================================================ */
+  html[data-skin="nova"][data-theme]{
+    --c-ivory:8 6 16; --c-canvas:11 8 20; --c-cream:17 14 28; --c-card:20 16 33;
+    --c-sand:30 25 46; --c-stone:44 37 64; --c-taupe:66 57 92; --c-line:44 38 66;
+    --c-charcoal:242 240 249; --c-ink:250 249 253; --c-muted:174 172 198; --c-faint:132 130 158;
+    --c-gold:252 211 77; --c-goldd:250 200 60; --c-golddd:230 178 46;
+    --c-sage:74 222 128; --c-saged:110 231 160; --c-clay:244 158 94; --c-clayd:246 176 122;
+    --c-berry:244 114 130; --c-sky:96 165 250;
+
+    --ivory:#080610; --cream:#110E1C; --card:#141021; --line:#2C2642;
+    --charcoal:#F2F0F9; --muted:#AEACC6; --gold:#FCD34D; --goldd:#FAC83C;
+    --sage:#4ADE80; --clay:#F49E5E;
+    --page-grad-a:rgba(139,92,246,.16); --page-grad-b:rgba(99,102,241,.10);
+
+    /* the landing page's signature sweep */
+    --nova-grad:linear-gradient(to left, #6366f1, #a855f7, #fcd34d);
+    color-scheme:dark;
+  }
+
+  html[data-skin="nova"][data-theme][data-mode] body{
+    font-family:'Geist Sans','Noto Naskh Arabic',system-ui,sans-serif;
+    background:#080610;
+    background-image:
+      radial-gradient(1100px 620px at 100% -12%, rgba(139,92,246,.20), transparent 62%),
+      radial-gradient(880px 560px at -12% 108%, rgba(99,102,241,.14), transparent 60%);
+    background-attachment:fixed;
+  }
+
+  html[data-skin="nova"][data-theme][data-mode] h1, html[data-skin="nova"][data-theme][data-mode] h2, html[data-skin="nova"][data-theme][data-mode] h3,
+  html[data-skin="nova"][data-theme][data-mode] .serif, html[data-skin="nova"][data-theme][data-mode] .font-serif, html[data-skin="nova"][data-theme][data-mode] .lede{
+    font-family:'General Sans','Geist Sans',system-ui,sans-serif;
+    font-weight:400; letter-spacing:-.022em;
+  }
+
+  /* Panels: glass, with the lit top edge the landing page uses. */
+  html[data-skin="nova"][data-theme][data-mode] .lux-card{
+    background:rgba(255,255,255,.028) !important;
+    border:1px solid rgba(255,255,255,.09);
+    border-radius:20px;
+    box-shadow:inset 0 1px 1px rgba(255,255,255,.10), 0 18px 40px -24px rgba(0,0,0,.9);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  }
+  html[data-skin="nova"][data-theme][data-mode] .lift:hover{
+    transform:translateY(-4px);
+    border-color:rgba(255,255,255,.20);
+    box-shadow:inset 0 1px 1px rgba(255,255,255,.14), 0 26px 60px -26px rgba(0,0,0,.95);
+  }
+
+  /* Surfaces that were paper white in the classic skin. */
+  html[data-skin="nova"][data-theme][data-mode] .bg-white{ background-color:rgba(255,255,255,.03) !important; }
+  /* Deep panels stay solid: they carry light text, so a gradient behind them would swallow it. */
+  html[data-skin="nova"][data-theme][data-mode] .bg-charcoal{ background-color:#1A1533 !important; }
+  html[data-skin="nova"][data-theme][data-mode] .bg-ink{ background-color:#05040C !important; }
+  html[data-skin="nova"][data-theme][data-mode] .skeleton{ background:linear-gradient(90deg,#171327 25%,#221c39 37%,#171327 63%); background-size:200% 100%; }
+
+  /* Accents ride the landing gradient rather than the gold sweep. */
+  html[data-skin="nova"][data-theme][data-mode] .gold-text,
+  html[data-skin="nova"][data-theme][data-mode] .gold-text{
+    background:var(--nova-grad); background-size:auto;
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    animation:none;
+  }
+
+  html[data-skin="nova"][data-theme][data-mode] .btn{ border-radius:9999px; }
+  html[data-skin="nova"][data-theme][data-mode] .btn-gold,
+  html[data-skin="nova"][data-theme][data-mode] .btn-gold{
+    background:var(--nova-grad) !important; color:#17110A !important;
+    box-shadow:0 10px 30px -12px rgba(168,85,247,.75) !important;
+  }
+  html[data-skin="nova"][data-theme][data-mode] .btn-primary{
+    background:linear-gradient(180deg,#7C6CF5,#5B3FE0); color:#fff;
+    box-shadow:0 10px 28px -12px rgba(99,102,241,.9);
+  }
+  html[data-skin="nova"][data-theme][data-mode] .btn-ghost{
+    background:rgba(255,255,255,.02); border-color:rgba(255,255,255,.14); color:rgb(var(--c-charcoal));
+    box-shadow:inset 0 1px 1px rgba(255,255,255,.09);
+  }
+  html[data-skin="nova"][data-theme][data-mode] .btn-ghost:hover{ background:rgba(255,255,255,.07); border-color:rgba(255,255,255,.26); }
+
+  html[data-skin="nova"][data-theme][data-mode] .chip{
+    background:rgba(255,255,255,.03); border-color:rgba(255,255,255,.12);
+    box-shadow:inset 0 1px 1px rgba(255,255,255,.07);
+  }
+  html[data-skin="nova"][data-theme][data-mode] .chip.on{ background:var(--nova-grad); color:#17110A; box-shadow:0 6px 18px -8px rgba(168,85,247,.8); }
+
+  /* Text that the dark themes force light: keep it readable here too. */
+  html[data-skin="nova"][data-theme][data-mode] .text-cream, html[data-skin="nova"][data-theme][data-mode] .text-ivory{ color:#F2F0F9 !important; }
+  html[data-skin="nova"][data-theme][data-mode] [class*="text-cream/"], html[data-skin="nova"][data-theme][data-mode] [class*="text-ivory/"]{ color:rgba(242,240,249,.74) !important; }
+  html[data-skin="nova"][data-theme][data-mode] .hairline, html[data-skin="nova"][data-theme][data-mode] .border-line{ border-color:rgba(255,255,255,.09) !important; }
+
+  /* The sidebar and top bar read as one piece of glass. */
+  html[data-skin="nova"][data-theme][data-mode] aside{ background:rgba(10,8,20,.72) !important; border-color:rgba(255,255,255,.08) !important; }
+  html[data-skin="nova"][data-theme][data-mode] .glass{
+    background:rgba(10,8,20,.90) !important;
+    border-color:rgba(255,255,255,.09);
+    box-shadow:inset 0 1px 1px rgba(255,255,255,.08), 0 18px 40px -24px rgba(0,0,0,.9);
+    backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+  }
+
+  html[data-skin="nova"][data-theme][data-mode] input, html[data-skin="nova"][data-theme][data-mode] select, html[data-skin="nova"][data-theme][data-mode] textarea{
+    background:rgba(255,255,255,.03); border-color:rgba(255,255,255,.13); color:rgb(var(--c-charcoal));
+  }
+  html[data-skin="nova"][data-theme][data-mode] input::placeholder, html[data-skin="nova"][data-theme][data-mode] textarea::placeholder{ color:rgba(242,240,249,.38); }
+
+  html[data-skin="nova"][data-theme][data-mode] #loader{ background:#080610; }
+  html[data-skin="nova"][data-theme][data-mode] ::selection{ background:rgba(168,85,247,.35); }
 
   /* Stagger helper */
   .stagger > *{ animation:fadeUp .6s cubic-bezier(.22,1,.36,1) both; }
@@ -5556,6 +5679,19 @@ function Settings(){
         </Card>
 
         <Card><Eyebrow className="mb-4">Appearance</Eyebrow>
+          <div className="mb-5 pb-5 border-b border-line">
+            <div className="text-sm font-medium text-charcoal mb-2">Design</div>
+            <div className="grid grid-cols-2 gap-2.5">
+              {[['nova','Nova','The current look: deep space, glass panels, gradient accents.'],
+                ['classic','Classic','The original warm paper look, in light or dark.']].map(([val,label,desc])=>
+                <button key={val} onClick={()=>app.setSkin(val)}
+                  className={cx('text-left rounded-xl2 border px-4 py-3 transition', app.skin===val?'border-gold bg-gold/10':'border-line bg-cream hover:bg-sand')}>
+                  <div className="flex items-center gap-2"><span className="text-lg">{val==='nova'?'✧':'🕮'}</span><span className="text-sm font-semibold text-charcoal">{label}</span>{app.skin===val&&<Icon name="check" size={14} className="text-goldd ml-auto"/>}</div>
+                  <div className="text-[11px] text-muted mt-1 leading-relaxed">{desc}</div>
+                </button>)}
+            </div>
+            {app.skin==='nova' && <p className="text-[11px] text-faint mt-2">Nova is a dark design language, so the light/dark switch below applies to Classic.</p>}
+          </div>
           <p className="text-sm text-muted mb-3">Switch between light and dark, or follow your device automatically.</p>
           <div className="grid grid-cols-3 gap-2.5">
             {[['light','Light','sun'],['dark','Dark','moon'],['system','System','gauge']].map(([val,label,icon])=>
@@ -10254,6 +10390,12 @@ function App(){
   const [lang,setLang] = useState(persisted.lang||'en');
   const [theme,setThemeState] = useState(()=>{ try{ return localStorage.getItem('lumera_theme')||'dark'; }catch(e){ return 'dark'; } });
   const [mode,setModeState] = useState(()=>{ try{ return localStorage.getItem('lumera_mode')||'spark'; }catch(e){ return 'spark'; } });
+  const [skin,setSkinState] = useState(()=>{ try{ return localStorage.getItem('lumera_skin')||'nova'; }catch(e){ return 'nova'; } });
+  const setSkin = useCallback((v)=>{ setSkinState(v); try{ localStorage.setItem('lumera_skin', v); }catch(e){}
+    document.documentElement.setAttribute('data-skin', v);
+    // Nova is a dark design language, so it carries the dark theme with it.
+    if(v==='nova'){ try{ localStorage.setItem('lumera_theme','dark'); }catch(e){} document.documentElement.setAttribute('data-theme','dark'); }
+  },[]);
   // Spark-mode gamification (only surfaced when mode==='spark'; harmless otherwise)
   const [xp,setXp] = useState(()=>{ try{ return JSON.parse(localStorage.getItem('lumera_spark_xp'))||0; }catch(e){ return 0; } });
   const [quests,setQuests] = useState(()=>{ try{ const s=JSON.parse(localStorage.getItem('lumera_spark_quests'))||{}; const today=new Date().toISOString().slice(0,10); return (s.day===today&&s.list)?s.list:DEFAULT_QUESTS; }catch(e){ return DEFAULT_QUESTS; } });
@@ -10372,7 +10514,7 @@ function App(){
 
   const value = { route, nav, user, signup, login, loginProvider, demo, logout:askLogout, askLogout, completeOnboarding, checkIn, onboarded,
     profile, updateProfile, setProfile, expenses, setExpenses, balances, setBalances,
-    lang, setLang, theme, setTheme, mode, setMode, product, xp, quests, awardXp, completeQuest, flags, setFlag, layout,
+    lang, setLang, theme, setTheme, mode, setMode, skin, setSkin, product, xp, quests, awardXp, completeQuest, flags, setFlag, layout,
     setRegion, resetAll, fmt, metrics, mobileMenu, setMobileMenu, t: tfn(lang) };
 
   const Page = redirect ? (()=> null) : (ROUTES[path]||Landing);
