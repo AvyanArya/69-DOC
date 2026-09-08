@@ -9,7 +9,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-pairs=("Lumera.html:public/index.html" "admin-portal.html:public/admin.html" "launch.html:public/launch.html" "hero.html:public/hero.html" "hero-video.html:public/hero-video.html")
+pairs=("landing.html:public/index.html" "Lumera.html:public/app.html" "admin-portal.html:public/admin.html" "about.html:public/about.html" "pricing.html:public/pricing.html" "privacy.html:public/privacy.html" "launch.html:public/launch.html" "hero.html:public/hero.html")
 
 if [[ "${1:-}" == "--check" ]]; then
   status=0
