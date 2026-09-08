@@ -636,7 +636,7 @@ img, video { display: block; max-width: 100%; }
 
 <style>
 /* Sub-pages share the landing's system; only the header band differs. */
-.page-top { position: relative; overflow: hidden; padding-bottom: 1rem; }
+.page-top { position: relative; z-index: 1; overflow: hidden; padding-bottom: 1rem; }
 .page-top .wash {
     position: absolute; top: -320px; left: 50%; transform: translateX(-50%);
     width: 1100px; height: 620px; pointer-events: none;
@@ -667,10 +667,112 @@ img, video { display: block; max-width: 100%; }
 }
 .person .role { font-size: .72rem; letter-spacing: .18em; text-transform: uppercase; color: hsl(var(--foreground)/.5); margin-top: .15rem; }
 @media (max-width: 720px) { .page-hero { padding: 3.5rem 1.25rem 0.5rem; } }
+
+:root { --accent-a: #b45309; --accent-b: #f59e0b; --accent-c: #fcd34d; }
+
+/* ============================================================
+   Atmosphere
+   A fixed backdrop under every page: two slow aurora masses in the
+   page's own accent, a hairline grid for structure, and a fine grain
+   so the flat ground stops reading as flat.
+   ============================================================ */
+.atmo { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+
+.atmo .aurora {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: .5;
+    will-change: transform;
+}
+
+.atmo .a1 {
+    width: 46vw; height: 46vw; min-width: 420px; min-height: 420px;
+    top: -14vw; left: -8vw;
+    background: radial-gradient(circle, var(--accent-a, #6366f1), transparent 68%);
+    animation: drift-a 26s ease-in-out infinite alternate;
+}
+
+.atmo .a2 {
+    width: 40vw; height: 40vw; min-width: 380px; min-height: 380px;
+    top: 24vh; right: -12vw;
+    background: radial-gradient(circle, var(--accent-b, #a855f7), transparent 68%);
+    animation: drift-b 32s ease-in-out infinite alternate;
+}
+
+.atmo .a3 {
+    width: 34vw; height: 34vw; min-width: 300px; min-height: 300px;
+    bottom: -12vw; left: 26vw;
+    background: radial-gradient(circle, var(--accent-c, #fcd34d), transparent 70%);
+    opacity: .22;
+    animation: drift-c 38s ease-in-out infinite alternate;
+}
+
+@keyframes drift-a { to { transform: translate3d(7vw, 5vh, 0) scale(1.12); } }
+@keyframes drift-b { to { transform: translate3d(-6vw, -7vh, 0) scale(1.08); } }
+@keyframes drift-c { to { transform: translate3d(4vw, -4vh, 0) scale(1.16); } }
+
+/* Hairline grid: structure without weight. */
+.atmo .grid {
+    position: absolute; inset: 0;
+    background-image:
+        linear-gradient(hsl(var(--foreground) / .045) 1px, transparent 1px),
+        linear-gradient(90deg, hsl(var(--foreground) / .045) 1px, transparent 1px);
+    background-size: 88px 88px;
+    mask-image: radial-gradient(ellipse 90% 70% at 50% 30%, #000 20%, transparent 78%);
+    -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 30%, #000 20%, transparent 78%);
+}
+
+/* Grain, drawn once as an SVG data URI rather than fetched. */
+.atmo .grain {
+    position: absolute; inset: -50%;
+    opacity: .16;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+    animation: grain 8s steps(6) infinite;
+}
+
+@keyframes grain {
+    0%,100% { transform: translate(0,0); }
+    20% { transform: translate(-4%, 3%); }
+    40% { transform: translate(3%, -5%); }
+    60% { transform: translate(-2%, 6%); }
+    80% { transform: translate(5%, 2%); }
+}
+
+/* A soft horizon between sections, so the page has joints. */
+.rule {
+    max-width: 1180px; margin: 0 auto;
+    height: 1px;
+    background: linear-gradient(to right, transparent, hsl(var(--foreground) / .14), transparent);
+}
+
+/* Panels gain depth: a lit rim, a hover glow in the page accent. */
+.panel { position: relative; }
+.panel::after {
+    content: ""; position: absolute; inset: 0; border-radius: inherit;
+    background: radial-gradient(420px 200px at 50% -30%, var(--accent-b, #a855f7), transparent 70%);
+    opacity: 0; transition: opacity .5s ease; pointer-events: none;
+}
+.panel:hover::after { opacity: .14; }
+
+.sec-title { text-shadow: 0 2px 40px rgba(4,2,12,.55); }
+
+@media (prefers-reduced-motion: reduce) {
+    .atmo .aurora, .atmo .grain { animation: none; }
+}
+
 </style>
 
 </head>
 <body>
+
+<div class="atmo" aria-hidden="true">
+    <span class="aurora a1"></span>
+    <span class="aurora a2"></span>
+    <span class="aurora a3"></span>
+    <span class="grid"></span>
+    <span class="grain"></span>
+</div>
 
 <div class="page-top">
     <div class="wash"></div>

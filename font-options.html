@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lumera | Font options</title>
+<meta name="description" content="Five typeface pairings shown on real Lumera page content.">
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&f[]=clash-display@400,500,600&f[]=satoshi@400,500,700&f[]=cabinet-grotesk@400,500,800&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@fontsource/geist-sans@5.0.3/index.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400;500;700&family=Fraunces:opsz,wght@9..144,300..700&family=Manrope:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+    --background: 260 87% 3%;
+    --foreground: 40 6% 95%;
+    --hero-sub: 40 6% 82%;
+    --accent-a: #6366f1; --accent-b: #a855f7; --accent-c: #fcd34d;
+
+    /* swapped live by the switcher */
+    --font-display: 'General Sans', system-ui, sans-serif;
+    --font-body: 'Geist Sans', system-ui, sans-serif;
+    --display-weight: 400;
+    --display-tracking: -0.024em;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+}
+
+/* ===== atmosphere, same as the site ===== */
+.atmo { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.atmo .aurora { position: absolute; border-radius: 50%; filter: blur(90px); opacity: .5; }
+.atmo .a1 { width: 46vw; height: 46vw; min-width: 420px; min-height: 420px; top: -14vw; left: -8vw;
+    background: radial-gradient(circle, var(--accent-a), transparent 68%); }
+.atmo .a2 { width: 40vw; height: 40vw; min-width: 380px; min-height: 380px; top: 24vh; right: -12vw;
+    background: radial-gradient(circle, var(--accent-b), transparent 68%); }
+.atmo .grid { position: absolute; inset: 0;
+    background-image: linear-gradient(hsl(var(--foreground)/.045) 1px, transparent 1px),
+                      linear-gradient(90deg, hsl(var(--foreground)/.045) 1px, transparent 1px);
+    background-size: 88px 88px;
+    mask-image: radial-gradient(ellipse 90% 70% at 50% 30%, #000 20%, transparent 78%);
+    -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 30%, #000 20%, transparent 78%); }
+
+.liquid-glass {
+    background: rgba(255,255,255,.01);
+    backdrop-filter: blur(4px);
+    box-shadow: inset 0 1px 1px rgba(255,255,255,.1);
+    position: relative; overflow: hidden;
+}
+.liquid-glass::before {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1.4px;
+    background: linear-gradient(180deg, rgba(255,255,255,.45) 0%, rgba(255,255,255,.15) 20%,
+        rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%, rgba(255,255,255,.15) 80%, rgba(255,255,255,.45) 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude; pointer-events: none;
+}
+
+/* ===== switcher ===== */
+.bar {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(8,6,16,.86);
+    backdrop-filter: blur(18px);
+    border-bottom: 1px solid hsl(var(--foreground)/.10);
+}
+.bar-inner {
+    max-width: 1180px; margin: 0 auto; padding: .9rem 2rem;
+    display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+}
+.bar .label { font-size: .68rem; letter-spacing: .24em; text-transform: uppercase; color: hsl(var(--foreground)/.45); }
+.opts { display: flex; gap: .5rem; flex-wrap: wrap; }
+.opt {
+    font-family: inherit; font-size: .85rem; font-weight: 500;
+    color: hsl(var(--foreground)/.75);
+    background: rgba(255,255,255,.03);
+    border: 1px solid rgba(255,255,255,.13);
+    border-radius: 999px; padding: .45rem 1rem; cursor: pointer;
+    transition: all .25s ease;
+}
+.opt:hover { background: rgba(255,255,255,.08); color: hsl(var(--foreground)); }
+.opt.on {
+    background: linear-gradient(to left, #6366f1, #a855f7, #fcd34d);
+    color: #17110a; border-color: transparent; font-weight: 600;
+}
+.spec { margin-left: auto; font-size: .78rem; color: hsl(var(--foreground)/.5); }
+.spec b { color: hsl(var(--foreground)/.8); font-weight: 600; }
+
+/* ===== the specimen ===== */
+.wrap { position: relative; z-index: 1; max-width: 1180px; margin: 0 auto; padding: 4rem 2rem 6rem; }
+
+.eyebrow { font-size: .7rem; letter-spacing: .24em; text-transform: uppercase; font-weight: 600;
+    color: hsl(var(--foreground)/.45); margin-bottom: .9rem; }
+
+.hero-title {
+    font-family: var(--font-display);
+    font-weight: var(--display-weight);
+    letter-spacing: var(--display-tracking);
+    font-size: clamp(3.4rem, 9vw, 7.5rem);
+    line-height: 1.02;
+}
+.grad {
+    background-clip: text; -webkit-background-clip: text;
+    color: transparent; -webkit-text-fill-color: transparent;
+    background-image: linear-gradient(to left, #6366f1, #a855f7, #fcd34d);
+}
+.hero-sub { color: hsl(var(--hero-sub)); opacity: .8; font-size: 1.125rem; line-height: 2rem; margin-top: .6rem; }
+
+.sec-title {
+    font-family: var(--font-display);
+    font-weight: var(--display-weight);
+    letter-spacing: var(--display-tracking);
+    font-size: clamp(2rem, 4vw, 3.1rem); line-height: 1.08;
+}
+
+.rule { height: 1px; margin: 3.5rem 0; background: linear-gradient(to right, transparent, hsl(var(--foreground)/.14), transparent); }
+
+.grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 1.25rem; margin-top: 2rem; }
+.panel { border-radius: 20px; padding: 1.6rem; background: rgba(255,255,255,.012); }
+.panel h3 { font-family: var(--font-display); font-weight: 500; font-size: 1.25rem; margin-bottom: .45rem; letter-spacing: var(--display-tracking); }
+.panel p { color: hsl(var(--hero-sub)); opacity: .72; font-size: .93rem; line-height: 1.65; }
+
+.stat-row { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 1.25rem; margin-top: 2rem; }
+.stat { border-radius: 20px; padding: 1.4rem; background: rgba(255,255,255,.012); }
+.stat .v { font-family: var(--font-display); font-weight: var(--display-weight); font-size: 2.6rem; line-height: 1;
+    letter-spacing: var(--display-tracking); }
+.stat .l { font-size: .68rem; letter-spacing: .2em; text-transform: uppercase; color: hsl(var(--foreground)/.5); margin-top: .5rem; }
+
+.body-demo { max-width: 44rem; margin-top: 1.6rem; }
+.body-demo p { color: hsl(var(--hero-sub)); opacity: .8; line-height: 1.8; font-size: 1rem; }
+.body-demo p + p { margin-top: 1rem; }
+.tnum { font-variant-numeric: tabular-nums; }
+
+.note { margin-top: 3rem; border-radius: 18px; padding: 1.2rem 1.4rem; font-size: .86rem; line-height: 1.7;
+    color: hsl(var(--foreground)/.6); }
+.note code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .8rem; color: hsl(var(--foreground)/.85); }
+
+@media (max-width: 900px) {
+    .grid-3, .stat-row { grid-template-columns: 1fr 1fr; }
+    .wrap { padding: 2.5rem 1.25rem 4rem; }
+    .bar-inner { padding: .8rem 1.25rem; }
+    .spec { margin-left: 0; width: 100%; }
+}
+@media (max-width: 560px) { .grid-3, .stat-row { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="atmo" aria-hidden="true">
+    <span class="aurora a1"></span>
+    <span class="aurora a2"></span>
+    <span class="grid"></span>
+</div>
+
+<div class="bar">
+    <div class="bar-inner">
+        <span class="label">Font options</span>
+        <div class="opts" id="opts"></div>
+        <div class="spec" id="spec"></div>
+    </div>
+</div>
+
+<div class="wrap">
+
+    <div class="eyebrow">Option preview &middot; real page content</div>
+    <h1 class="hero-title"><span class="grad">Lumera</span></h1>
+    <p class="hero-sub">Your Financial Intelligence</p>
+
+    <div class="rule"></div>
+
+    <div class="eyebrow">The Lumera family</div>
+    <h2 class="sec-title">Four worlds, <span class="grad">one financial life</span></h2>
+
+    <div class="grid-3">
+        <div class="panel liquid-glass">
+            <h3>AI Financial Twin</h3>
+            <p>A cinematic profile of your money personality, strengths and biggest leak.</p>
+        </div>
+        <div class="panel liquid-glass">
+            <h3>Wealth Simulator</h3>
+            <p>Drag a few habits and watch your 10-year future recalculate in real time.</p>
+        </div>
+        <div class="panel liquid-glass">
+            <h3>Benchmark Dashboard</h3>
+            <p>See every category against realistic ranges for your region and income.</p>
+        </div>
+    </div>
+
+    <div class="stat-row">
+        <div class="stat liquid-glass"><div class="v tnum">67</div><div class="l">Health score</div></div>
+        <div class="stat liquid-glass"><div class="v tnum">791</div><div class="l">A month in reach</div></div>
+        <div class="stat liquid-glass"><div class="v tnum">30</div><div class="l">Day review</div></div>
+        <div class="stat liquid-glass"><div class="v tnum">5,621.4</div><div class="l">S&amp;P 500</div></div>
+    </div>
+
+    <div class="rule"></div>
+
+    <div class="eyebrow">Body copy at length</div>
+    <div class="body-demo">
+        <p>Most people do not have a money problem. They have a visibility problem. You earn, you spend, and the month disappears, and nobody ever tells you whether any of it was normal.</p>
+        <p>Lumera turns one month of behaviour into a health score, a benchmark against people like you, and a 30-day plan you can actually follow. No bank login. Educational, never advisory.</p>
+        <p class="tnum">Figures render as tabular numerals: 1,284.50 &middot; 67/100 &middot; +0.62% &middot; &pound;2,499 &middot; 15% &middot; 2026.</p>
+    </div>
+
+    <div class="note liquid-glass" id="note"></div>
+</div>
+
+<script>
+/* Each option is the two families plus the weight and tracking that make the
+   display face sit right, since a serif at 400 needs different air to a
+   grotesk at 600. */
+const OPTIONS = [
+    {
+        key: 'current',
+        name: 'General Sans + Geist',
+        display: "'General Sans', system-ui, sans-serif",
+        body: "'Geist Sans', system-ui, sans-serif",
+        weight: 400, tracking: '-0.024em',
+        note: 'What the site uses now. Neutral, modern, quiet. The safest of the five and the least distinctive.'
+    },
+    {
+        key: 'clash',
+        name: 'Clash Display + Satoshi',
+        display: "'Clash Display', system-ui, sans-serif",
+        body: "'Satoshi', system-ui, sans-serif",
+        weight: 500, tracking: '-0.018em',
+        note: 'The most confident. Clash has real character in the headline sizes, Satoshi keeps the body warm and readable. Best fit if you want it to stop looking generic.'
+    },
+    {
+        key: 'instrument',
+        name: 'Instrument Serif + Geist',
+        display: "'Instrument Serif', Georgia, serif",
+        body: "'Geist Sans', system-ui, sans-serif",
+        weight: 400, tracking: '-0.012em',
+        note: 'Editorial contrast: a high-contrast serif against a plain grotesk. Reads premium and grown-up rather than techy.'
+    },
+    {
+        key: 'cabinet',
+        name: 'Cabinet Grotesk + Inter',
+        display: "'Cabinet Grotesk', system-ui, sans-serif",
+        body: "'Inter', system-ui, sans-serif",
+        weight: 800, tracking: '-0.03em',
+        note: 'Heavy and graphic. Big tight headlines, workmanlike body. The most startup-looking option.'
+    },
+    {
+        key: 'space',
+        name: 'Space Grotesk + Inter',
+        display: "'Space Grotesk', system-ui, sans-serif",
+        body: "'Inter', system-ui, sans-serif",
+        weight: 500, tracking: '-0.02em',
+        note: 'Technical and slightly quirky. Suits the data-heavy pages; the numerals are the best of the five.'
+    }
+];
+
+const root = document.documentElement;
+const optsEl = document.getElementById('opts');
+const specEl = document.getElementById('spec');
+const noteEl = document.getElementById('note');
+
+function apply(o) {
+    root.style.setProperty('--font-display', o.display);
+    root.style.setProperty('--font-body', o.body);
+    root.style.setProperty('--display-weight', o.weight);
+    root.style.setProperty('--display-tracking', o.tracking);
+
+    [...optsEl.children].forEach(b => b.classList.toggle('on', b.dataset.key === o.key));
+    specEl.innerHTML = 'Display <b>' + o.display.split(',')[0].replace(/'/g, '') + '</b> &middot; body <b>' +
+        o.body.split(',')[0].replace(/'/g, '') + '</b>';
+    noteEl.innerHTML = '<p style="margin-bottom:.7rem">' + o.note + '</p>' +
+        '<code>--font-display: ' + o.display + ';<br>--font-body: ' + o.body + ';<br>' +
+        'display weight ' + o.weight + ' &middot; tracking ' + o.tracking + '</code>' +
+        '<p style="margin-top:.7rem">Tell me the option name and I will apply it across the landing page, the sub-pages, the app and the admin portal.</p>';
+
+    try { localStorage.setItem('lumera_font_preview', o.key); } catch (e) {}
+}
+
+OPTIONS.forEach(o => {
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.dataset.key = o.key;
+    b.textContent = o.name;
+    b.addEventListener('click', () => apply(o));
+    optsEl.appendChild(b);
+});
+
+let start = OPTIONS[0];
+try {
+    const saved = localStorage.getItem('lumera_font_preview');
+    const found = OPTIONS.find(o => o.key === saved);
+    if (found) start = found;
+} catch (e) {}
+apply(start);
+</script>
+</body>
+</html>
