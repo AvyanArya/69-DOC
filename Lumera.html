@@ -10531,23 +10531,8 @@ function loadFlags(){ let saved={}; try{ saved=JSON.parse(localStorage.getItem(F
 
 function flagForRoute(flags, path){ const f=FEATURES.find(x=>x.routes.includes(path)); return f? !!flags[f.key] : true; }
 
-/* The static marketing site is the landing page. The app keeps the old
-   Landing component for the beta preview flag and for anyone who lands on
-   /?app, but the plain root hands over to index.html. */
-function LandingRedirect(){
-  useEffect(()=>{
-    try{
-      const p=new URLSearchParams(location.search);
-      if(p.get('app')==='1') return;              // escape hatch: app.html?app=1#/
-      location.replace('index.html');
-    }catch(e){}
-  },[]);
-  const p = (()=>{ try{ return new URLSearchParams(location.search).get('app')==='1'; }catch(e){ return false; } })();
-  return p ? <Landing/> : null;
-}
-
 const ROUTES = {
-  '/':LandingRedirect, '/login':Login, '/signup':Signup, '/forgot':Forgot,
+  '/':Landing, '/login':Login, '/signup':Signup, '/forgot':Forgot,
   '/insurance':Insurance, '/credit':Credit, '/badges':Badges, '/analytics':Analytics,
   '/onboarding':Onboarding, '/review':Review, '/dashboard':Dashboard, '/twin':FinancialTwin,
   '/simulator':WealthSimulator, '/invest':Investment, '/market':Market, '/news':News, '/assistant':AIAssistant,
