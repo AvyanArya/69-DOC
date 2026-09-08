@@ -632,43 +632,8 @@ img, video { display: block; max-width: 100%; }
     .reveal { opacity: 1; transform: none; transition: none; }
 }
 
-</style>
 
-<style>
-/* Sub-pages share the landing's system; only the header band differs. */
-.page-top { position: relative; z-index: 1; overflow: hidden; padding-bottom: 1rem; }
-.page-top .wash {
-    position: absolute; top: -320px; left: 50%; transform: translateX(-50%);
-    width: 1100px; height: 620px; pointer-events: none;
-    background: radial-gradient(circle, rgba(139,92,246,.34), transparent 68%);
-    filter: blur(70px);
-}
-.page-hero { position: relative; max-width: 1180px; margin: 0 auto; padding: 5rem 2rem 1rem; }
-.page-title {
-    font-family: var(--font-display);
-    font-size: clamp(2.6rem, 6vw, 4.6rem);
-    font-weight: 400; line-height: 1.04; letter-spacing: -.026em;
-}
-.page-title .grad {
-    background-clip: text; -webkit-background-clip: text;
-    color: transparent; -webkit-text-fill-color: transparent;
-    background-image: linear-gradient(to left, #6366f1, #a855f7, #fcd34d);
-}
-.page-lede { color: hsl(var(--hero-sub)); opacity: .8; font-size: 1.1rem; line-height: 1.75; max-width: 40rem; margin-top: 1.1rem; }
-.section.tight { padding-top: 3.5rem; }
-.sec-head.left { margin-left: 0; text-align: left; }
-.prose p { color: hsl(var(--hero-sub)); opacity: .78; line-height: 1.75; font-size: .97rem; }
-.prose p + p { margin-top: .9rem; }
-.person { display: flex; gap: 1rem; align-items: flex-start; }
-.person .avatar {
-    width: 56px; height: 56px; border-radius: 16px; flex: 0 0 auto;
-    display: grid; place-items: center; font-weight: 700; font-size: 1.1rem;
-    background-image: linear-gradient(160deg, #8B5CF6, #4C1D95);
-}
-.person .role { font-size: .72rem; letter-spacing: .18em; text-transform: uppercase; color: hsl(var(--foreground)/.5); margin-top: .15rem; }
-@media (max-width: 720px) { .page-hero { padding: 3.5rem 1.25rem 0.5rem; } }
-
-:root { --accent-a: #7c3aed; --accent-b: #a855f7; --accent-c: #f0abfc; }
+:root { --accent-a: #6366f1; --accent-b: #a855f7; --accent-c: #fcd34d; }
 
 /* ============================================================
    Atmosphere
@@ -762,6 +727,49 @@ img, video { display: block; max-width: 100%; }
 }
 
 </style>
+<style>:root { --accent-a: #7c3aed; --accent-b: #a855f7; --accent-c: #f0abfc; }</style>
+
+<style>
+/* Sub-pages share the landing's system; only the header band differs. */
+.page-top { position: relative; z-index: 1; overflow: hidden; padding-bottom: 1rem; }
+.page-top .wash {
+    position: absolute; top: -320px; left: 50%; transform: translateX(-50%);
+    width: 1100px; height: 620px; pointer-events: none;
+    background: radial-gradient(circle, var(--accent-b), transparent 68%);
+    filter: blur(70px); opacity: .55;
+}
+.page-hero { position: relative; max-width: 1180px; margin: 0 auto; padding: 5rem 2rem 1rem; }
+.page-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.6rem, 6vw, 4.6rem);
+    font-weight: 400; line-height: 1.04; letter-spacing: -.026em;
+}
+.page-title .grad {
+    background-clip: text; -webkit-background-clip: text;
+    color: transparent; -webkit-text-fill-color: transparent;
+    background-image: linear-gradient(to left, #6366f1, #a855f7, #fcd34d);
+}
+.page-lede { color: hsl(var(--hero-sub)); opacity: .8; font-size: 1.1rem; line-height: 1.75; max-width: 40rem; margin-top: 1.1rem; }
+.page-actions { display: flex; flex-wrap: wrap; gap: .8rem; margin-top: 2rem; }
+.section.tight { padding-top: 3.5rem; }
+.sec-head.left { margin-left: 0; text-align: left; }
+.prose p { color: hsl(var(--hero-sub)); opacity: .78; line-height: 1.75; font-size: .97rem; }
+.prose p + p { margin-top: .9rem; }
+.person { display: flex; gap: 1rem; align-items: flex-start; }
+.person .avatar {
+    width: 56px; height: 56px; border-radius: 16px; flex: 0 0 auto;
+    display: grid; place-items: center; font-weight: 700; font-size: 1.1rem;
+    background-image: linear-gradient(160deg, var(--accent-b), var(--accent-a));
+}
+.person .role { font-size: .72rem; letter-spacing: .18em; text-transform: uppercase; color: hsl(var(--foreground)/.5); margin-top: .15rem; }
+.tool-list { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: .6rem 1.5rem; margin-top: 1.4rem; }
+.tool-list li { display: flex; gap: .6rem; align-items: flex-start; font-size: .95rem; color: hsl(var(--hero-sub)); opacity: .82; line-height: 1.6; }
+.tool-list li::before { content: ""; flex: 0 0 auto; width: 6px; height: 6px; margin-top: .58rem; border-radius: 50%; background: var(--accent-b); }
+@media (max-width: 720px) {
+    .page-hero { padding: 3.5rem 1.25rem .5rem; }
+    .tool-list { grid-template-columns: 1fr; }
+}
+</style>
 
 </head>
 <body>
@@ -789,8 +797,9 @@ img, video { display: block; max-width: 100%; }
                     </a>
 
                     <div class="nav-center">
-                        <a class="nav-btn" href="index.html#worlds">Worlds</a>
-                        <a class="nav-btn" href="index.html#features">Features</a>
+                        <a class="nav-btn" href="worlds.html">Worlds</a>
+                        <a class="nav-btn" href="features.html">Features</a>
+                        <a class="nav-btn" href="how-it-works.html">How it works</a>
                         <a class="nav-btn" href="pricing.html">Pricing</a>
                         <a class="nav-btn" href="about.html">About</a>
                     </div>
@@ -802,62 +811,42 @@ img, video { display: block; max-width: 100%; }
     <div class="page-hero">
         <h1 class="page-title">Financial clarity, <span class="grad">made accessible</span></h1>
         <p class="page-lede">Lumera turns the financial intelligence once reserved for the wealthy into something anyone can use. Clear, calm, and jargon-free.</p>
+        <div class="page-actions"><a class="btn-solid" href="app.html#/signup">Start free</a><a class="hero-secondary liquid-glass" style="padding:1rem 1.9rem" href="features.html">See the features</a></div>
     </div>
 </div>
 
 <main class="rest">
-    <section class="section tight">
-        <div class="grid-2">
-            <div class="panel liquid-glass reveal">
-                <div class="eyebrow">Our mission</div>
-                <div class="prose"><p>Lumera exists to give students and early-career professionals the financial intelligence that used to be reserved for the wealthy. No jargon, no complexity, just clarity.</p></div>
-            </div>
-            <div class="panel liquid-glass reveal">
-                <div class="eyebrow">The problem we solve</div>
-                <div class="prose"><p>Most people do not understand their money, not because they are bad with it, but because no one ever taught them. Lumera closes that gap with tools that explain themselves.</p></div>
-            </div>
-        </div>
-    </section>
-
+    <section class="section tight"><div class="grid-2"><div class="panel liquid-glass reveal"><div class="eyebrow">Our mission</div><div class="prose"><p>Lumera exists to give students and early-career professionals the financial intelligence that used to be reserved for the wealthy. No jargon, no complexity, just clarity.</p></div></div><div class="panel liquid-glass reveal"><div class="eyebrow">The problem we solve</div><div class="prose"><p>Most people do not understand their money, not because they are bad with it, but because no one ever taught them. Lumera closes that gap with tools that explain themselves.</p></div></div></div></section>
     <section class="section">
         <div class="sec-head left reveal">
             <div class="eyebrow">What Lumera gives you</div>
             <h2 class="sec-title">Six things it does <span class="grad">from day one</span></h2>
+            
         </div>
-        <div class="grid-3">
-            <div class="panel liquid-glass reveal"><h3>Benchmark clarity</h3><p>See every spending category against realistic ranges for your income and region.</p></div><div class="panel liquid-glass reveal"><h3>A learning engine</h3><p>Two-minute lessons, quizzes and a glossary that turn jargon into confidence.</p></div><div class="panel liquid-glass reveal"><h3>Real tools</h3><p>Budget, goals, net worth, debt payoff, credit, investing and a wealth simulator.</p></div><div class="panel liquid-glass reveal"><h3>Markets, decoded</h3><p>Live-style markets, a world monitor and plain-English news with the why.</p></div><div class="panel liquid-glass reveal"><h3>A career head-start</h3><p>Finance careers, universities, CV lab and interview prep for early-career users.</p></div><div class="panel liquid-glass reveal"><h3>A community</h3><p>Connect with others on the same path and share opportunities.</p></div>
-        </div>
+        <div class="grid-3"><div class="panel liquid-glass reveal"><h3>Benchmark clarity</h3><p>See every spending category against realistic ranges for your income and region.</p></div><div class="panel liquid-glass reveal"><h3>A learning engine</h3><p>Two-minute lessons, quizzes and a glossary that turn jargon into confidence.</p></div><div class="panel liquid-glass reveal"><h3>Real tools</h3><p>Budget, goals, net worth, debt payoff, credit, investing and a wealth simulator.</p></div><div class="panel liquid-glass reveal"><h3>Markets, decoded</h3><p>Live-style markets, a world monitor and plain-English news with the why.</p></div><div class="panel liquid-glass reveal"><h3>A career head-start</h3><p>Finance careers, universities, CV lab and interview prep.</p></div><div class="panel liquid-glass reveal"><h3>A community</h3><p>Connect with others on the same path and share opportunities.</p></div></div>
     </section>
-
     <section class="section">
         <div class="sec-head left reveal">
             <div class="eyebrow">Who it is for</div>
             <h2 class="sec-title">Built for people <span class="grad">starting out</span></h2>
+            
         </div>
-        <div class="grid-3">
-            <div class="panel liquid-glass reveal"><h3>Students</h3><p>Build money habits early, while the stakes are low and the upside is decades long.</p></div><div class="panel liquid-glass reveal"><h3>Young professionals</h3><p>Turn your first real income into a foundation for lasting wealth.</p></div><div class="panel liquid-glass reveal"><h3>Anyone starting out</h3><p>It is never too late to start your financial journey.</p></div>
-        </div>
+        <div class="grid-3"><div class="panel liquid-glass reveal"><h3>Students</h3><p>Build money habits early, while the stakes are low and the upside is decades long.</p></div><div class="panel liquid-glass reveal"><h3>Young professionals</h3><p>Turn your first real income into a foundation for lasting wealth.</p></div><div class="panel liquid-glass reveal"><h3>Anyone starting out</h3><p>It is never too late to start your financial journey.</p></div></div>
     </section>
-
     <section class="section">
         <div class="sec-head left reveal">
             <div class="eyebrow">The team</div>
             <h2 class="sec-title">The people <span class="grad">building it</span></h2>
-            <p class="sec-sub">Roles, bios and photos are managed in the admin portal, so this page stays current without a deploy.</p>
+            <p class="sec-sub">Roles, bios and photos are managed in the admin portal.</p>
         </div>
-        <div class="grid-3">
-            <div class="panel liquid-glass reveal"><div class="person"><span class="avatar">L</span><div><h3 style="margin:0">Founding team</h3><div class="role">Add names in Admin</div></div></div></div><div class="panel liquid-glass reveal"><div class="person"><span class="avatar">P</span><div><h3 style="margin:0">Product</h3><div class="role">Add names in Admin</div></div></div></div><div class="panel liquid-glass reveal"><div class="person"><span class="avatar">E</span><div><h3 style="margin:0">Engineering</h3><div class="role">Add names in Admin</div></div></div></div>
-        </div>
-        <div class="cta-row" style="justify-content:flex-start">
-            <a class="btn-solid" href="app.html#/team">See the founding team in the app</a>
-        </div>
+        <div class="page-actions"><a class="btn-solid" href="team.html">Meet the team</a></div>
     </section>
 
 
     <footer class="site-footer">
         <div class="footer-inner">
             <div>
-                <a class="nav-logo" href="index.html" style="margin-bottom:.9rem">
+                <a class="nav-logo" href="app.html" style="margin-bottom:.9rem">
                     <!-- Logo placeholder: swap this block for the real mark. -->
                     <span class="mark" title="Logo placeholder, upload in Admin">
                         <svg width="15" height="15" viewBox="0 0 10 10" aria-hidden="true">
@@ -872,24 +861,24 @@ img, video { display: block; max-width: 100%; }
             </div>
             <div>
                 <h4>Worlds</h4>
-                <a href="app.html#/leaf">Leaf</a>
-                <a href="app.html#/atlas">Atlas</a>
-                <a href="app.html#/shield">Shield</a>
-                <a href="app.html#/forge">Forge</a>
+                <a href="leaf.html">Leaf</a>
+                <a href="atlas.html">Atlas</a>
+                <a href="shield.html">Shield</a>
+                <a href="forge.html">Forge</a>
             </div>
             <div>
                 <h4>Product</h4>
-                <a href="app.html#/dashboard">Dashboard</a>
-                <a href="app.html#/twin">Financial Twin</a>
-                <a href="app.html#/simulator">Wealth Simulator</a>
-                <a href="app.html#/market">Market Intelligence</a>
+                <a href="features.html">Features</a>
+                <a href="how-it-works.html">How it works</a>
+                <a href="pricing.html">Pricing</a>
+                <a href="app.html#/login">Open the app</a>
             </div>
             <div>
                 <h4>Company</h4>
                 <a href="about.html">About</a>
-                <a href="app.html#/team">Founding team</a>
-                <a href="pricing.html">Pricing</a>
+                <a href="team.html">The team</a>
                 <a href="privacy.html">Privacy</a>
+                <a href="admin.html">Admin portal</a>
             </div>
         </div>
         <div class="footer-bar">&copy; <span id="year"></span> Lumera. Educational only, never financial advice.</div>
@@ -900,6 +889,14 @@ img, video { display: block; max-width: 100%; }
 (function () {
     var y = document.getElementById('year');
     if (y) y.textContent = new Date().getFullYear();
+
+    var items = [].slice.call(document.querySelectorAll('.reveal'));
+    items.forEach(function (el, i) { el.style.transitionDelay = ((i % 4) * 0.07) + 's'; });
+
+    /* An IntersectionObserver alone loses anything a fast scroll or a jump
+       link skips past, because it never crosses the threshold while observed.
+       So the observer handles the animation, and a cheap scroll pass catches
+       whatever the viewport has already gone by. */
     var io = new IntersectionObserver(function (entries) {
         entries.forEach(function (e) {
             if (!e.isIntersecting) return;
@@ -907,10 +904,27 @@ img, video { display: block; max-width: 100%; }
             io.unobserve(e.target);
         });
     }, { rootMargin: '0px 0px -12% 0px' });
-    document.querySelectorAll('.reveal').forEach(function (el, i) {
-        el.style.transitionDelay = ((i % 4) * 0.07) + 's';
-        io.observe(el);
-    });
+    items.forEach(function (el) { io.observe(el); });
+
+    var ticking = false;
+    function sweep() {
+        ticking = false;
+        var h = window.innerHeight;
+        items.forEach(function (el) {
+            if (el.classList.contains('in')) return;
+            var r = el.getBoundingClientRect();
+            if (r.top < h * 0.92) { el.classList.add('in'); io.unobserve(el); }
+        });
+    }
+    function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(sweep); } }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    window.addEventListener('load', sweep);
+    /* Web fonts land after first paint and make the page taller, so anything
+       that ends up below the fold needs another look. */
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(sweep);
+    if (window.ResizeObserver) new ResizeObserver(onScroll).observe(document.body);
+    sweep();
 })();
 </script>
 </body>

@@ -761,16 +761,11 @@ img, video { display: block; max-width: 100%; }
                     </a>
 
                     <div class="nav-center">
-                        <a class="nav-btn" href="#worlds">
-                            Worlds
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-                        </a>
-                        <a class="nav-btn" href="#features">Features</a>
+                        <a class="nav-btn" href="worlds.html">Worlds</a>
+                        <a class="nav-btn" href="features.html">Features</a>
+                        <a class="nav-btn" href="how-it-works.html">How it works</a>
                         <a class="nav-btn" href="pricing.html">Pricing</a>
-                        <a class="nav-btn" href="about.html">
-                            About
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-                        </a>
+                        <a class="nav-btn" href="about.html">About</a>
                     </div>
 
                     <a class="hero-secondary liquid-glass nav-signup" href="app.html#/signup">Sign Up</a>
@@ -886,24 +881,24 @@ img, video { display: block; max-width: 100%; }
             </div>
             <div>
                 <h4>Worlds</h4>
-                <a href="app.html#/leaf">Leaf</a>
-                <a href="app.html#/atlas">Atlas</a>
-                <a href="app.html#/shield">Shield</a>
-                <a href="app.html#/forge">Forge</a>
+                <a href="leaf.html">Leaf</a>
+                <a href="atlas.html">Atlas</a>
+                <a href="shield.html">Shield</a>
+                <a href="forge.html">Forge</a>
             </div>
             <div>
                 <h4>Product</h4>
-                <a href="app.html#/dashboard">Dashboard</a>
-                <a href="app.html#/twin">Financial Twin</a>
-                <a href="app.html#/simulator">Wealth Simulator</a>
-                <a href="app.html#/market">Market Intelligence</a>
+                <a href="features.html">Features</a>
+                <a href="how-it-works.html">How it works</a>
+                <a href="pricing.html">Pricing</a>
+                <a href="app.html#/login">Open the app</a>
             </div>
             <div>
                 <h4>Company</h4>
                 <a href="about.html">About</a>
-                <a href="app.html#/team">Founding team</a>
-                <a href="pricing.html">Pricing</a>
+                <a href="team.html">The team</a>
                 <a href="privacy.html">Privacy</a>
+                <a href="admin.html">Admin portal</a>
             </div>
         </div>
         <div class="footer-bar">&copy; <span id="year"></span> Lumera. Educational only, never financial advice.</div>
@@ -1067,7 +1062,12 @@ img, video { display: block; max-width: 100%; }
     const y = document.getElementById('year');
     if (y) y.textContent = new Date().getFullYear();
 
-    // Reveal on scroll, one pass, then the observer lets go.
+    // Reveal on scroll. The observer animates; a cheap scroll pass catches
+    // anything a fast scroll or a jump link skipped, which the observer alone
+    // would leave invisible for good.
+    const items = [...document.querySelectorAll('.reveal')];
+    items.forEach((el, i) => { el.style.transitionDelay = `${(i % 4) * 0.07}s`; });
+
     const io = new IntersectionObserver((entries) => {
         entries.forEach(e => {
             if (!e.isIntersecting) return;
@@ -1075,10 +1075,26 @@ img, video { display: block; max-width: 100%; }
             io.unobserve(e.target);
         });
     }, { rootMargin: '0px 0px -12% 0px' });
-    document.querySelectorAll('.reveal').forEach((el, i) => {
-        el.style.transitionDelay = `${(i % 4) * 0.07}s`;
-        io.observe(el);
-    });
+    items.forEach(el => io.observe(el));
+
+    let ticking = false;
+    const sweep = () => {
+        ticking = false;
+        const h = window.innerHeight;
+        items.forEach(el => {
+            if (el.classList.contains('in')) return;
+            if (el.getBoundingClientRect().top < h * 0.92) { el.classList.add('in'); io.unobserve(el); }
+        });
+    };
+    const onScroll = () => { if (!ticking) { ticking = true; requestAnimationFrame(sweep); } };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    window.addEventListener('load', sweep);
+    /* Web fonts land after first paint and make the page taller, so anything
+       that ends up below the fold needs another look. */
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(sweep);
+    if (window.ResizeObserver) new ResizeObserver(onScroll).observe(document.body);
+    sweep();
 })();
 
 </script>
