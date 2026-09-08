@@ -6,29 +6,49 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self';" />
 <title>Lumera — Admin Portal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@fontsource/geist-sans@5.0.3/index.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   /* Dark "Nebula" palette — matches the live Lumera site (black/grey + purple). */
   :root{
-    --ivory:#0E0E13; --cream:#17171F; --card:#1B1B25; --sand:#262635; --line:#2C2C3C;
-    --charcoal:#E9EAF4; --ink:#F5F5FB; --muted:#9EA0B6; --faint:#6E6F88;
+    /* Nova: the same ground, glass and gradient as the site. */
+    --ivory:#080610; --cream:#110E1C; --card:#141021; --sand:#1E1930; --line:#2C2642;
+    --charcoal:#F2F0F9; --ink:#FAF9FD; --muted:#AEACC6; --faint:#84829E;
+    --nova-grad:linear-gradient(to left, #6366f1, #a855f7, #fcd34d);
     --gold:#8B5CF6; --goldd:#A78BFA; --golddd:#6D4FE6;
     --sage:#34D399; --saged:#34D399; --clay:#FBBF24; --clayd:#FCD34D; --berry:#FB7185; --sky:#60A5FA;
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-  body{ margin:0; font-family:'Manrope',system-ui,sans-serif; color:var(--charcoal); background:var(--ivory);
+  body{ margin:0; font-family:'Geist Sans','Manrope',system-ui,sans-serif; color:var(--charcoal); background:var(--ivory);
     background-image:radial-gradient(1100px 560px at 100% -10%, rgba(139,92,246,.22), transparent 60%),
                      radial-gradient(820px 500px at -10% 110%, rgba(59,130,246,.12), transparent 55%);
     background-attachment:fixed; min-height:100vh; -webkit-font-smoothing:antialiased;
   }
-  h1,h2,h3,.serif{ font-family:'Fraunces',Georgia,serif; font-optical-sizing:auto; letter-spacing:-.01em; }
+  h1,h2,h3,.serif{ font-family:'General Sans','Geist Sans',system-ui,sans-serif; font-weight:400; letter-spacing:-.022em; }
   ::selection{ background:rgba(139,92,246,.34); color:#fff; }
   ::-webkit-scrollbar{ width:10px; height:10px; }
   ::-webkit-scrollbar-thumb{ background:#33334a; border-radius:20px; border:2px solid var(--ivory); }
+  /* Panels borrow the site's glass: a lit top edge over the deep ground. */
+  .card{ background:rgba(255,255,255,.028) !important; border:1px solid rgba(255,255,255,.09) !important;
+    border-radius:20px !important; box-shadow:inset 0 1px 1px rgba(255,255,255,.10), 0 18px 40px -24px rgba(0,0,0,.9); }
+  .sidebar{ background:rgba(10,8,20,.72) !important; border-right:1px solid rgba(255,255,255,.08) !important;
+    backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); }
+  .navi.active{ background:rgba(255,255,255,.06) !important; position:relative; }
+  .navi.active::before{ content:""; position:absolute; left:0; top:18%; bottom:18%; width:3px; border-radius:99px; background:var(--nova-grad); }
+  .btn.gold{ background:var(--nova-grad) !important; color:#17110A !important; border:none !important;
+    box-shadow:0 10px 30px -12px rgba(168,85,247,.75) !important; }
+  .btn.ghost{ background:rgba(255,255,255,.02) !important; border:1px solid rgba(255,255,255,.14) !important;
+    box-shadow:inset 0 1px 1px rgba(255,255,255,.09); }
+  .btn.ghost:hover{ background:rgba(255,255,255,.07) !important; }
+  .eyebrow{ letter-spacing:.24em; }
+  input,textarea,select{ background:rgba(255,255,255,.03) !important; border-color:rgba(255,255,255,.13) !important; }
+
   .app{ display:grid; grid-template-columns:248px 1fr; min-height:100vh; }
   .sidebar{ background:var(--cream); border-right:1px solid var(--line); padding:18px 14px 24px; position:sticky; top:0; height:100vh; overflow-y:auto; }
   .brand{ display:flex; flex-direction:column; align-items:flex-start; gap:8px; padding:6px 8px 18px; }
-  .brand .mark{ font-family:'Fraunces',serif; letter-spacing:.18em; font-size:18px; white-space:nowrap; }
+  .brand .mark{ font-family:'General Sans','Geist Sans',system-ui,sans-serif; font-weight:600; letter-spacing:.18em; font-size:18px; white-space:nowrap; }
   .role-chip{ display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:99px; background:var(--sand); color:var(--muted); font-size:10.5px; font-weight:600; white-space:nowrap; max-width:100%; overflow:hidden; text-overflow:ellipsis; }
   .navg{ display:block; padding:0 6px; margin-bottom:14px; }
   .navg .label{ font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--faint); padding:0 6px 6px; font-weight:600; }
@@ -57,7 +77,7 @@
   @media (max-width:520px){ .row.cols-2,.row.cols-3,.row.cols-4{ grid-template-columns:1fr; } }
   .eyebrow{ font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--goldd); font-weight:600; margin-bottom:8px; }
   .kpi{ position:relative; overflow:hidden; }
-  .kpi .v{ font-family:'Fraunces',serif; font-size:30px; line-height:1.05; }
+  .kpi .v{ font-family:'General Sans','Geist Sans',system-ui,sans-serif; font-size:32px; line-height:1.05; font-weight:400; }
   .kpi .l{ font-size:12px; color:var(--muted); margin-top:2px; }
   .kpi .delta{ font-size:11px; font-weight:600; margin-top:6px; }
   .kpi .delta.up{ color:var(--saged); } .kpi .delta.down{ color:var(--clayd); }

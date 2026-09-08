@@ -506,6 +506,54 @@
   html[data-skin="nova"][data-theme][data-mode] #loader{ background:#080610; }
   html[data-skin="nova"][data-theme][data-mode] ::selection{ background:rgba(168,85,247,.35); }
 
+  /* ---- Nova shell: the pieces the redesign added ---- */
+  html[data-skin="nova"][data-theme][data-mode] .topbar-pill{
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.14);
+    box-shadow:inset 0 1px 1px rgba(255,255,255,.10);
+    backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+  }
+  html[data-skin="nova"][data-theme][data-mode] .topbar-on{
+    background:var(--nova-grad); color:#17110A; font-weight:600;
+    box-shadow:0 6px 18px -8px rgba(168,85,247,.8);
+  }
+
+  /* Sidebar items: a lit rail rather than a filled slab. */
+  html[data-skin="nova"][data-theme][data-mode] .nav-item{ position:relative; }
+  html[data-skin="nova"][data-theme][data-mode] .nav-item-on{
+    background:rgba(255,255,255,.06);
+    box-shadow:inset 0 1px 1px rgba(255,255,255,.10);
+  }
+  html[data-skin="nova"][data-theme][data-mode] .nav-item-on::before{
+    content:""; position:absolute; left:0; top:18%; bottom:18%; width:3px;
+    border-radius:99px; background:var(--nova-grad);
+  }
+
+  /* Headings open the page the way the landing page does. */
+  html[data-skin="nova"][data-theme][data-mode] .page-head h1{ letter-spacing:-.026em; }
+  html[data-skin="nova"][data-theme][data-mode] main{ padding-top:2.25rem; }
+  html[data-skin="nova"][data-theme][data-mode] main > * + *{ margin-top:.25rem; }
+
+  /* Panels: rounder and roomier, matching the landing's cards. */
+  html[data-skin="nova"][data-theme][data-mode] .lux-card{ border-radius:22px; }
+  html[data-skin="nova"][data-theme][data-mode] .rounded-xl2,
+  html[data-skin="nova"][data-theme][data-mode] .rounded-xl3{ border-radius:18px !important; }
+  html[data-skin="nova"][data-theme][data-mode] .rounded-xl4{ border-radius:26px !important; }
+
+  html[data-skin="nova"][data-theme][data-mode] .eyebrow-rule{ background:var(--nova-grad); }
+
+  /* A panel floating over the page needs a ground of its own, or the page
+     behind it shows through and the copy stops being readable. */
+  html[data-skin="nova"][data-theme][data-mode] .fixed .lux-card,
+  html[data-skin="nova"][data-theme][data-mode] .fixed .bg-cream,
+  html[data-skin="nova"][data-theme][data-mode] .fixed .bg-card{
+    background:#120F20 !important;
+    border-color:rgba(255,255,255,.12);
+    box-shadow:inset 0 1px 1px rgba(255,255,255,.10), 0 40px 90px -30px rgba(0,0,0,.95);
+  }
+  html[data-skin="nova"][data-theme][data-mode] .fixed .bg-charcoal\/50,
+  html[data-skin="nova"][data-theme][data-mode] .fixed .bg-charcoal\/40{ background-color:rgba(4,2,10,.72) !important; }
+
   /* Stagger helper */
   .stagger > *{ animation:fadeUp .6s cubic-bezier(.22,1,.36,1) both; }
   .stagger > *:nth-child(1){animation-delay:.04s}.stagger > *:nth-child(2){animation-delay:.10s}
@@ -1754,7 +1802,7 @@ const Eyebrow = ({ children, className='' }) =>
   // --goldd lifts almost to white in dark mode; --gold is the saturated brand
   // colour, which is what this tag should read as.
   <div className={cx('inline-flex items-center gap-2 text-[11px] font-semibold tracking-[.22em] uppercase text-gold', className)}>
-    <span className="h-px w-6 bg-gold/60"/>{children}</div>;
+    <span className="eyebrow-rule h-px w-6 bg-gold/60"/>{children}</div>;
 
 function Pill({ children, tone='neutral', className='' }){
   const map={ neutral:'bg-sand text-muted', gold:'bg-gold/15 text-goldd', sage:'bg-sage/15 text-saged',
@@ -2191,9 +2239,9 @@ function Sidebar(){
     <nav ref={navRef} onScroll={e=>{_sbScroll=e.target.scrollTop;}} className="flex-1 overflow-y-auto no-scrollbar px-3 pb-4">
       {(()=>{ const navBtn=(it)=>{ const active=route===it.to;
           return <button key={it.to} onClick={()=>app.nav(it.to)}
-            className={cx('w-full flex items-center gap-3 rounded-xl px-3 py-2.5 mb-0.5 text-sm transition-all duration-300',
-              active?'bg-charcoal text-cream shadow-soft':'text-charcoal/80 hover:bg-sand')}>
-            <Icon name={it.icon} size={18} className={active?'text-gold':'text-muted'}/>{t(it.k)}</button>; };
+            className={cx('nav-item w-full flex items-center gap-3 rounded-xl px-3 py-2.5 mb-0.5 text-sm transition-all duration-300',
+              active?'nav-item-on text-charcoal':'text-charcoal/70 hover:bg-sand')}>
+            <Icon name={it.icon} size={17} className={active?'text-gold':'text-muted'}/>{t(it.k)}</button>; };
         if(!spark) return navFrom(app.layout).map(grp=><div key={grp.section} className="mb-4">
           <div className="px-3 mb-1.5 text-[10px] tracking-[.22em] uppercase text-faint">{grp.section}</div>
           {grp.items.filter(it=>routeAllowed(app.layout,it.to)).map(navBtn)}</div>);
@@ -2400,11 +2448,16 @@ function TopBar(){
     <div className="flex items-center gap-3 px-4 sm:px-6 h-16">
       <button className="lg:hidden grid place-items-center h-10 w-10 rounded-xl hover:bg-sand" onClick={()=>app.setMobileMenu(true)}><Icon name="menu"/></button>
       <button className="lg:hidden" onClick={()=>app.nav(app.user?'/dashboard':'/')}><Logo size={18}/></button>
-      <div className="hidden lg:flex flex-col">
-        <div className="text-sm text-muted">{t('greeting')},</div>
-        <div className="font-serif text-lg text-charcoal leading-none">{app.profile.name}</div>
+      <div className="flex-1 flex justify-center lg:justify-start xl:justify-center">
+        {/* A pill of quick jumps, the same shape as the marketing nav. */}
+        <nav className="hidden xl:flex items-center gap-1 rounded-full px-1.5 py-1 topbar-pill">
+          {[['/dashboard','Home'],['/budget','Money'],['/market','Markets'],['/learn','Learn'],['/careers','Careers']]
+            .filter(([to])=>routeAllowed(app.layout,to))
+            .map(([to,label])=>
+            <button key={to} onClick={()=>app.nav(to)}
+              className={cx('rounded-full px-3.5 py-1.5 text-[13px] font-medium transition', app.route===to?'topbar-on':'text-charcoal/70 hover:text-charcoal')}>{label}</button>)}
+        </nav>
       </div>
-      <div className="flex-1"/>
       <Hint text={t('what_streak')}><button onClick={()=>app.nav('/badges')} className="hidden sm:flex items-center gap-1.5 rounded-full bg-sand px-3 py-1.5">
         <Icon name="flame" size={15} className="text-clay"/><span className="text-sm font-semibold tnum">{app.profile.streak}</span><span className="text-xs text-muted">day streak</span><Icon name="info" size={11} className="text-faint"/></button></Hint>
       <button onClick={()=>app.nav('/dashboard')} className="hidden sm:flex items-center gap-2 rounded-full bg-charcoal text-cream px-3 py-1.5"
@@ -2466,15 +2519,23 @@ function AppShell({ children }){
 
 /* Page header used across app pages */
 function PageHead({ eyebrow, title, desc, action }){
-  // Centred by default so every page opens the same way. An `action` pins to
-  // the right without knocking the heading off centre.
-  return <div className="relative mb-8">
-    <div className="max-w-2xl mx-auto text-center">
-      {eyebrow&&<Eyebrow className="mb-2 justify-center">{eyebrow}</Eyebrow>}
-      <h1 className="font-serif text-3xl sm:text-4xl text-charcoal leading-tight">{title}</h1>
-      {desc&&<p className="lede text-muted mt-3 leading-relaxed">{desc}</p>}
+  // Nova opens a page the way the landing page does: a small tracked eyebrow,
+  // a large display title whose closing words carry the brand gradient, then
+  // the sub-copy. The action sits on the same baseline, right.
+  const words = typeof title==='string' ? title.trim().split(' ') : null;
+  const head = words && words.length>2
+    ? <>{words.slice(0,-2).join(' ')} <span className="gold-text">{words.slice(-2).join(' ')}</span></>
+    : title;
+  return <div className="page-head mb-10">
+    <div className="flex flex-wrap items-end justify-between gap-4">
+      <div className="min-w-0 max-w-2xl">
+        {eyebrow&&<Eyebrow className="mb-3">{eyebrow}</Eyebrow>}
+        <h1 className="font-serif text-[2rem] sm:text-[2.6rem] text-charcoal leading-[1.06]">{head}</h1>
+        {desc&&<p className="lede text-muted mt-3 leading-relaxed">{desc}</p>}
+      </div>
+      {/* full width on a phone so a row of pills wraps instead of overflowing */}
+      {action&&<div className="w-full min-w-0 sm:w-auto sm:shrink-0">{action}</div>}
     </div>
-    {action&&<div className="mt-4 flex justify-center sm:mt-0 sm:absolute sm:right-0 sm:bottom-0">{action}</div>}
   </div>;
 }
 
@@ -3813,17 +3874,27 @@ function Dashboard(){
   const hh=new Date().getHours(); const greet=hh<12?'Good morning':hh<18?'Good afternoon':'Good evening';
   const focus=[['Review my finances','grid','/dashboard'],['Check my spending','wallet','/budget'],['Grow my investments','chart','/invest'],['Improve my credit score','gauge','/credit'],['Reduce waste','tv','/subscriptions'],['Continue learning','book','/learn'],['View news','globe','/news'],['Update my data','refresh','/review']];
   return <AppShell>
-    {app.mode==='spark' && <SparkBanner/>}
-    {app.mode==='spark' && <AchievementsStrip/>}
-    {/* Personal butler greeting */}
+    {/* The page opens on the greeting and the number that matters, the way the
+        landing page opens on one line and one claim. Everything else follows. */}
     <div className="mb-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div><div className="text-sm text-goldd font-medium">{greet}, {app.profile.name}.</div>
-          <h1 className="font-serif text-3xl sm:text-4xl text-charcoal leading-tight mt-1">Welcome back.</h1></div>
+          <h1 className="font-serif text-[2.2rem] sm:text-[3rem] text-charcoal leading-[1.04] mt-1">Your money, <span className="gold-text">today</span>.</h1></div>
         <Btn variant="gold" icon="refresh" to="/review">Update my data</Btn>
       </div>
-      {/* The Lumera family, front and centre */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-4 stagger">
+      <div className="mt-5 rounded-xl2 border border-line bg-cream/60 p-4">
+        <div className="flex items-center gap-2 mb-2"><Icon name="spark" size={15} className="text-goldd"/><span className="text-xs tracking-[.18em] uppercase text-faint">Today at a glance</span></div>
+        <div className="grid sm:grid-cols-3 gap-3 text-sm">
+          <div className="flex items-start gap-2"><Icon name="pig" size={15} className="text-saged mt-0.5 shrink-0"/><span className="text-charcoal/80">You’re saving <b>{round(m.savingsRate*100)}%</b> of income, {m.savingsRate>=0.15?'ahead of the 15% target.':'just below the 15% target.'}</span></div>
+          <div className="flex items-start gap-2"><Icon name="shield" size={15} className="text-goldd mt-0.5 shrink-0"/><span className="text-charcoal/80">Emergency fund covers <b>{m.efMonths.toFixed(1)} months</b> of essentials.</span></div>
+          <div className="flex items-start gap-2"><Icon name="drop" size={15} className="text-clayd mt-0.5 shrink-0"/><span className="text-charcoal/80">About <b>{fmt.money(m.realistic)}/mo</b> is above benchmark, your biggest quick win.</span></div>
+        </div>
+      </div>
+      {/* Then the Spark hero and today's quests. */}
+      {app.mode==='spark' && <div className="mt-5"><SparkBanner/></div>}
+      {/* The family sits below the numbers rather than above them. */}
+      <div className="mt-5 mb-1 text-[11px] tracking-[.22em] uppercase text-faint">The Lumera family</div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-2 stagger">
         {SUBS.filter(s=>s.key!=='lumera' && worldOn(app.layout,s.key)).map(s=>
           <button key={s.key} onClick={()=>app.nav('/'+s.key)} className="rounded-xl3 overflow-hidden lift text-left" style={{border:`1px solid ${s.accent}55`}}>
             <div className="px-4 py-3 text-white" style={{background:HERO_GRAD[s.key]}}>
@@ -3833,16 +3904,9 @@ function Dashboard(){
             </div>
           </button>)}
       </div>
-      <div className="mt-4 rounded-xl2 border border-line bg-cream/60 p-4">
-        <div className="flex items-center gap-2 mb-2"><Icon name="spark" size={15} className="text-goldd"/><span className="text-xs tracking-[.18em] uppercase text-faint">Today at a glance</span></div>
-        <div className="grid sm:grid-cols-3 gap-3 text-sm">
-          <div className="flex items-start gap-2"><Icon name="pig" size={15} className="text-saged mt-0.5 shrink-0"/><span className="text-charcoal/80">You’re saving <b>{round(m.savingsRate*100)}%</b> of income, {m.savingsRate>=0.15?'ahead of the 15% target.':'just below the 15% target.'}</span></div>
-          <div className="flex items-start gap-2"><Icon name="shield" size={15} className="text-goldd mt-0.5 shrink-0"/><span className="text-charcoal/80">Emergency fund covers <b>{m.efMonths.toFixed(1)} months</b> of essentials.</span></div>
-          <div className="flex items-start gap-2"><Icon name="drop" size={15} className="text-clayd mt-0.5 shrink-0"/><span className="text-charcoal/80">About <b>{fmt.money(m.realistic)}/mo</b> is above benchmark, your biggest quick win.</span></div>
-        </div>
-      </div>
     </div>
 
+    {app.mode==='spark' && <AchievementsStrip/>}
     <HabitsStrip/>
     <HeadlinesPanel/>
 
