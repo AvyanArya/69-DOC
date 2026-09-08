@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lumera | All financial intelligence. One place.</title>
+<meta name="description" content="Lumera turns one month of your behaviour into a clear, benchmarked plan. Four worlds, one financial life.">
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@fontsource/geist-sans@5.0.3/index.css" rel="stylesheet">
+<style>
+/* ============================================================
+   Theme tokens
+   ============================================================ */
+:root {
+    --background: 260 87% 3%;      /* deep dark blue-purple */
+    --foreground: 40 6% 95%;       /* off-white */
+    --hero-sub: 40 6% 82%;
+
+    --font-body: 'Geist Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-display: 'General Sans', 'Geist Sans', system-ui, sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+}
+
+img, video { display: block; max-width: 100%; }
+
+/* ============================================================
+   Liquid glass
+   ============================================================ */
+.liquid-glass {
+    background: rgba(255, 255, 255, 0.01);
+    background-blend-mode: luminosity;
+    backdrop-filter: blur(4px);
+    border: none;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.liquid-glass::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.4px;
+    background: linear-gradient(180deg,
+        rgba(255,255,255,0.45) 0%,
+        rgba(255,255,255,0.15) 20%,
+        rgba(255,255,255,0) 40%,
+        rgba(255,255,255,0) 60%,
+        rgba(255,255,255,0.15) 80%,
+        rgba(255,255,255,0.45) 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+}
+
+/* ============================================================
+   Page wrapper + background video
+   ============================================================ */
+.page-wrap {
+    position: relative;
+    overflow: hidden;
+    min-height: 100vh;
+}
+
+.bg-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;            /* the fade loop drives this */
+    z-index: 0;
+    pointer-events: none;
+}
+
+.page-content {
+    position: relative;
+    z-index: 10;
+}
+
+/* ============================================================
+   Hero shell
+   ============================================================ */
+.hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: visible;      /* so the blur shape is never clipped */
+    position: relative;
+}
+
+/* The soft mass sitting behind the headline */
+.hero-blur {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 984px;
+    height: 527px;
+    opacity: 0.9;
+    background: #030712;    /* gray-950 */
+    filter: blur(82px);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ============================================================
+   Navbar
+   ============================================================ */
+.navbar {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    padding: 1.25rem 2rem;      /* py-5 px-8 */
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+}
+
+.nav-logo {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    text-decoration: none;
+    color: hsl(var(--foreground));
+}
+
+/* Logo placeholder: swap this block for the real mark. */
+.nav-logo .mark {
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    border-radius: 9px;
+    border: 1.5px dashed rgba(231, 200, 122, .55);
+    background: rgba(231, 200, 122, .10);
+}
+
+.nav-logo .wordmark {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.05rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+}
+
+.nav-center {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: .95rem;
+    color: hsl(var(--foreground) / 0.9);
+    transition: color .25s ease, opacity .25s ease;
+    text-decoration: none;
+}
+
+.nav-btn:hover { color: hsl(var(--foreground)); opacity: .75; }
+.nav-btn svg { opacity: .8; }
+
+.hero-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    font-family: inherit;
+    font-weight: 500;
+    font-size: .95rem;
+    color: hsl(var(--foreground));
+    background: rgba(255, 255, 255, 0.01);
+    border-radius: 9999px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background .3s ease, transform .3s ease;
+}
+
+.hero-secondary:hover {
+    background: rgba(255, 255, 255, 0.06);
+    transform: translateY(-1px);
+}
+
+.nav-signup { padding: .5rem 1rem; }   /* rounded-full px-4 py-2 */
+
+.nav-divider {
+    position: relative;
+    z-index: 2;
+    height: 1px;
+    margin-top: 3px;
+    background: linear-gradient(to right,
+        transparent,
+        hsl(var(--foreground) / 0.2),
+        transparent);
+}
+
+/* ============================================================
+   Hero content
+   ============================================================ */
+.hero-body {
+    position: relative;
+    z-index: 2;
+    flex: 1 1 0%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.hero-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.headline {
+    font-family: var(--font-display);
+    font-size: 220px;
+    font-weight: 400;
+    line-height: 1.02;
+    letter-spacing: -0.024em;
+    white-space: nowrap;
+}
+
+.headline .grad {
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    background-image: linear-gradient(to left, #6366f1, #a855f7, #fcd34d);
+}
+
+.hero-sub {
+    color: hsl(var(--hero-sub));
+    font-size: 1.125rem;
+    line-height: 2rem;
+    max-width: 28rem;
+    margin-top: 9px;
+    opacity: 0.8;
+}
+
+.hero-cta {
+    padding: 24px 29px;
+    margin-top: 25px;
+    font-size: 1rem;
+}
+
+/* ============================================================
+   Logo marquee
+   ============================================================ */
+.marquee-wrap {
+    position: relative;
+    z-index: 2;
+    padding-bottom: 2.5rem;    /* pb-10 */
+}
+
+.marquee-inner {
+    max-width: 64rem;          /* max-w-5xl */
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 3rem;                 /* gap-12 */
+    padding: 0 2rem;
+}
+
+.marquee-label {
+    color: hsl(var(--foreground) / 0.5);
+    font-size: .875rem;
+    line-height: 1.4;
+    flex-shrink: 0;
+}
+
+.marquee {
+    flex: 1 1 0%;
+    overflow: hidden;
+    mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+}
+
+.marquee-track {
+    display: flex;
+    align-items: center;
+    gap: 4rem;                 /* gap-16 */
+    width: max-content;
+    animation: marquee 20s linear infinite;
+}
+
+@keyframes marquee {
+    from { transform: translateX(0%); }
+    to   { transform: translateX(-50%); }
+}
+
+.logo-item {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    flex-shrink: 0;
+}
+
+.logo-item .icon {
+    width: 24px;
+    height: 24px;
+    border-radius: .5rem;      /* rounded-lg */
+    display: grid;
+    place-items: center;
+    font-size: .7rem;
+    font-weight: 700;
+    color: hsl(var(--foreground));
+}
+
+.logo-item .name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: hsl(var(--foreground));
+    white-space: nowrap;
+}
+
+/* ============================================================
+   Narrow screens
+   ============================================================ */
+@media (max-width: 1100px) {
+    .headline { font-size: 15vw; }
+    .nav-center { display: none; }
+}
+
+@media (max-width: 720px) {
+    .navbar { padding: 1rem 1.25rem; }
+    .headline { font-size: 17vw; white-space: normal; }
+    .hero-blur { width: 90vw; height: 60vw; }
+    .marquee-inner { flex-direction: column; align-items: flex-start; gap: 1.25rem; padding: 0 1.25rem; }
+    .marquee { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .marquee-track { animation: none; }
+}
+
+/* ============================================================
+   The rest of the page
+   ============================================================ */
+.rest { position: relative; z-index: 5; }
+
+.section { max-width: 1180px; margin: 0 auto; padding: 7rem 2rem; }
+.section + .section { padding-top: 0; }
+
+.sec-head { max-width: 46rem; margin: 0 auto 3rem; text-align: center; }
+
+.eyebrow {
+    font-size: .7rem;
+    letter-spacing: .24em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: hsl(var(--foreground) / 0.45);
+    margin-bottom: .9rem;
+}
+
+.sec-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 4vw, 3.1rem);
+    font-weight: 400;
+    line-height: 1.08;
+    letter-spacing: -0.022em;
+}
+
+.sec-title .grad {
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    background-image: linear-gradient(to left, #6366f1, #a855f7, #fcd34d);
+}
+
+.sec-sub {
+    color: hsl(var(--hero-sub));
+    opacity: .75;
+    font-size: 1.05rem;
+    line-height: 1.75;
+    margin-top: 1rem;
+}
+
+.grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 1.25rem; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 1.25rem; }
+.grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 1.25rem; }
+
+.panel {
+    border-radius: 20px;
+    padding: 1.6rem;
+    background: rgba(255,255,255,0.012);
+    transition: transform .45s cubic-bezier(.2,.8,.2,1), background .45s ease;
+}
+
+.panel:hover { transform: translateY(-4px); background: rgba(255,255,255,0.04); }
+
+.panel h3 {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 500;
+    margin-bottom: .45rem;
+}
+
+.panel p {
+    color: hsl(var(--hero-sub));
+    opacity: .72;
+    font-size: .93rem;
+    line-height: 1.65;
+}
+
+.panel .badge {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    display: grid; place-items: center;
+    margin-bottom: 1rem;
+    font-weight: 700;
+    font-size: .85rem;
+}
+
+.world-card { position: relative; overflow: hidden; }
+
+.world-card .wash {
+    position: absolute;
+    inset: -40% -30% auto -30%;
+    height: 220px;
+    filter: blur(58px);
+    opacity: .5;
+    pointer-events: none;
+}
+
+.world-card .tag {
+    font-size: .68rem;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: .8rem;
+    display: block;
+}
+
+.world-card .link {
+    margin-top: 1.1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.step-n {
+    font-family: var(--font-display);
+    font-size: 2.4rem;
+    font-weight: 400;
+    line-height: 1;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    background-image: linear-gradient(to left, #6366f1, #a855f7, #fcd34d);
+    margin-bottom: .9rem;
+    display: block;
+}
+
+.plan-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: .3rem; }
+
+.pill {
+    font-size: .65rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: .3rem .6rem;
+    border-radius: 999px;
+    background: rgba(255,255,255,.07);
+    color: hsl(var(--foreground) / .7);
+    white-space: nowrap;
+}
+
+.pill.now { background: rgba(252, 211, 77, .16); color: #fcd34d; }
+
+.plan-list { list-style: none; margin-top: 1.1rem; display: flex; flex-direction: column; gap: .55rem; }
+
+.plan-list li {
+    display: flex;
+    gap: .55rem;
+    align-items: flex-start;
+    font-size: .9rem;
+    color: hsl(var(--hero-sub));
+    opacity: .78;
+    line-height: 1.5;
+}
+
+.plan-list li::before {
+    content: "";
+    flex: 0 0 auto;
+    width: 6px; height: 6px;
+    margin-top: .5rem;
+    border-radius: 50%;
+    background: linear-gradient(to left, #6366f1, #a855f7, #fcd34d);
+}
+
+.final-cta {
+    border-radius: 28px;
+    padding: 4.5rem 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.final-cta .wash {
+    position: absolute;
+    top: -60%; left: 50%;
+    transform: translateX(-50%);
+    width: 900px; height: 480px;
+    background: radial-gradient(circle, rgba(139,92,246,.5), transparent 70%);
+    filter: blur(70px);
+    pointer-events: none;
+}
+
+.final-cta .inner { position: relative; }
+
+.cta-row { display: flex; flex-wrap: wrap; gap: .8rem; justify-content: center; margin-top: 2rem; }
+
+.btn-solid {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 1.9rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: .95rem;
+    text-decoration: none;
+    color: #17110a;
+    background: linear-gradient(to left, #fcd34d, #f5b642);
+    transition: transform .3s ease, filter .3s ease;
+}
+
+.btn-solid:hover { transform: translateY(-2px); filter: brightness(1.06); }
+
+.disclaimer {
+    margin: 2.2rem auto 0;
+    max-width: 44rem;
+    border-radius: 16px;
+    padding: 1rem 1.2rem;
+    font-size: .8rem;
+    line-height: 1.6;
+    color: hsl(var(--foreground) / .55);
+    text-align: left;
+}
+
+.site-footer {
+    border-top: 1px solid hsl(var(--foreground) / .08);
+    margin-top: 5rem;
+}
+
+.footer-inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+    display: grid;
+    grid-template-columns: 1.4fr repeat(3, 1fr);
+    gap: 2rem;
+}
+
+.footer-inner h4 {
+    font-size: .7rem;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: hsl(var(--foreground) / .45);
+    margin-bottom: .9rem;
+    font-weight: 600;
+}
+
+.footer-inner a {
+    display: block;
+    color: hsl(var(--foreground) / .75);
+    text-decoration: none;
+    font-size: .9rem;
+    padding: .22rem 0;
+    transition: color .25s ease;
+}
+
+.footer-inner a:hover { color: hsl(var(--foreground)); }
+
+.footer-bar {
+    border-top: 1px solid hsl(var(--foreground) / .08);
+    padding: 1.3rem 2rem;
+    text-align: center;
+    font-size: .78rem;
+    color: hsl(var(--foreground) / .4);
+}
+
+/* scroll reveal */
+.reveal { opacity: 0; transform: translateY(26px); transition: opacity .8s cubic-bezier(.25,1,.5,1), transform .8s cubic-bezier(.25,1,.5,1); }
+.reveal.in { opacity: 1; transform: none; }
+
+@media (max-width: 1000px) {
+    .grid-4 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .grid-3 { grid-template-columns: 1fr; }
+    .footer-inner { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 720px) {
+    .section { padding: 4.5rem 1.25rem; }
+    .grid-4, .grid-2 { grid-template-columns: 1fr; }
+    .footer-inner { grid-template-columns: 1fr; padding: 2rem 1.25rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+}
+
+
+:root { --accent-a: #6366f1; --accent-b: #a855f7; --accent-c: #fcd34d; }
+
+/* ============================================================
+   Atmosphere
+   A fixed backdrop under every page: two slow aurora masses in the
+   page's own accent, a hairline grid for structure, and a fine grain
+   so the flat ground stops reading as flat.
+   ============================================================ */
+.atmo { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+.atmo .aurora {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: .5;
+    will-change: transform;
+}
+
+.atmo .a1 {
+    width: 46vw; height: 46vw; min-width: 420px; min-height: 420px;
+    top: -14vw; left: -8vw;
+    background: radial-gradient(circle, var(--accent-a, #6366f1), transparent 68%);
+    animation: drift-a 26s ease-in-out infinite alternate;
+}
+
+.atmo .a2 {
+    width: 40vw; height: 40vw; min-width: 380px; min-height: 380px;
+    top: 24vh; right: -12vw;
+    background: radial-gradient(circle, var(--accent-b, #a855f7), transparent 68%);
+    animation: drift-b 32s ease-in-out infinite alternate;
+}
+
+.atmo .a3 {
+    width: 34vw; height: 34vw; min-width: 300px; min-height: 300px;
+    bottom: -12vw; left: 26vw;
+    background: radial-gradient(circle, var(--accent-c, #fcd34d), transparent 70%);
+    opacity: .22;
+    animation: drift-c 38s ease-in-out infinite alternate;
+}
+
+@keyframes drift-a { to { transform: translate3d(7vw, 5vh, 0) scale(1.12); } }
+@keyframes drift-b { to { transform: translate3d(-6vw, -7vh, 0) scale(1.08); } }
+@keyframes drift-c { to { transform: translate3d(4vw, -4vh, 0) scale(1.16); } }
+
+/* Hairline grid: structure without weight. */
+.atmo .grid {
+    position: absolute; inset: 0;
+    background-image:
+        linear-gradient(hsl(var(--foreground) / .045) 1px, transparent 1px),
+        linear-gradient(90deg, hsl(var(--foreground) / .045) 1px, transparent 1px);
+    background-size: 88px 88px;
+    mask-image: radial-gradient(ellipse 90% 70% at 50% 30%, #000 20%, transparent 78%);
+    -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 30%, #000 20%, transparent 78%);
+}
+
+/* Grain, drawn once as an SVG data URI rather than fetched. */
+.atmo .grain {
+    position: absolute; inset: -50%;
+    opacity: .16;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+    animation: grain 8s steps(6) infinite;
+}
+
+@keyframes grain {
+    0%,100% { transform: translate(0,0); }
+    20% { transform: translate(-4%, 3%); }
+    40% { transform: translate(3%, -5%); }
+    60% { transform: translate(-2%, 6%); }
+    80% { transform: translate(5%, 2%); }
+}
+
+/* A soft horizon between sections, so the page has joints. */
+.rule {
+    max-width: 1180px; margin: 0 auto;
+    height: 1px;
+    background: linear-gradient(to right, transparent, hsl(var(--foreground) / .14), transparent);
+}
+
+/* Panels gain depth: a lit rim, a hover glow in the page accent. */
+.panel { position: relative; }
+.panel::after {
+    content: ""; position: absolute; inset: 0; border-radius: inherit;
+    background: radial-gradient(420px 200px at 50% -30%, var(--accent-b, #a855f7), transparent 70%);
+    opacity: 0; transition: opacity .5s ease; pointer-events: none;
+}
+.panel:hover::after { opacity: .14; }
+
+.sec-title { text-shadow: 0 2px 40px rgba(4,2,12,.55); }
+
+@media (prefers-reduced-motion: reduce) {
+    .atmo .aurora, .atmo .grain { animation: none; }
+}
+
+</style>
+<style>
+/* Sub-pages share the landing's system; only the header band differs. */
+.page-top { position: relative; z-index: 1; overflow: hidden; padding-bottom: 1rem; }
+.page-top .wash {
+    position: absolute; top: -320px; left: 50%; transform: translateX(-50%);
+    width: 1100px; height: 620px; pointer-events: none;
+    background: radial-gradient(circle, var(--accent-b), transparent 68%);
+    filter: blur(70px); opacity: .55;
+}
+.page-hero { position: relative; max-width: 1180px; margin: 0 auto; padding: 5rem 2rem 1rem; }
+.page-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.6rem, 6vw, 4.6rem);
+    font-weight: 400; line-height: 1.04; letter-spacing: -.026em;
+}
+.page-title .grad {
+    background-clip: text; -webkit-background-clip: text;
+    color: transparent; -webkit-text-fill-color: transparent;
+    background-image: linear-gradient(to left, #6366f1, #a855f7, #fcd34d);
+}
+.page-lede { color: hsl(var(--hero-sub)); opacity: .8; font-size: 1.1rem; line-height: 1.75; max-width: 40rem; margin-top: 1.1rem; }
+.page-actions { display: flex; flex-wrap: wrap; gap: .8rem; margin-top: 2rem; }
+.section.tight { padding-top: 3.5rem; }
+.sec-head.left { margin-left: 0; text-align: left; }
+.prose p { color: hsl(var(--hero-sub)); opacity: .78; line-height: 1.75; font-size: .97rem; }
+.prose p + p { margin-top: .9rem; }
+.person { display: flex; gap: 1rem; align-items: flex-start; }
+.person .avatar {
+    width: 56px; height: 56px; border-radius: 16px; flex: 0 0 auto;
+    display: grid; place-items: center; font-weight: 700; font-size: 1.1rem;
+    background-image: linear-gradient(160deg, var(--accent-b), var(--accent-a));
+}
+.person .role { font-size: .72rem; letter-spacing: .18em; text-transform: uppercase; color: hsl(var(--foreground)/.5); margin-top: .15rem; }
+.tool-list { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: .6rem 1.5rem; margin-top: 1.4rem; }
+.tool-list li { display: flex; gap: .6rem; align-items: flex-start; font-size: .95rem; color: hsl(var(--hero-sub)); opacity: .82; line-height: 1.6; }
+.tool-list li::before { content: ""; flex: 0 0 auto; width: 6px; height: 6px; margin-top: .58rem; border-radius: 50%; background: var(--accent-b); }
+@media (max-width: 720px) {
+    .page-hero { padding: 3.5rem 1.25rem .5rem; }
+    .tool-list { grid-template-columns: 1fr; }
+}
+</style>
+
+<style>
+/* One document, many pages: the router shows one .route at a time. */
+.route[hidden] { display: none !important; }
+.site-nav { position: relative; z-index: 3; }
+.nav-btn.on { color: hsl(var(--foreground)); }
+.nav-btn.on::after {
+    content: ""; display: block; height: 2px; margin-top: 4px; border-radius: 2px;
+    background: linear-gradient(to left, #6366f1, #a855f7, #fcd34d);
+}
+/* The landing keeps its own header inside the video hero, so the shared one
+   only shows on the other pages. */
+#route-home .site-nav { display: none; }
+</style>
+
+</head>
+<body>
+
+<div class="atmo" aria-hidden="true">
+    <span class="aurora a1"></span>
+    <span class="aurora a2"></span>
+    <span class="aurora a3"></span>
+    <span class="grid"></span>
+    <span class="grain"></span>
+</div>
+
+<div class="site-nav">
+            <header>
+                <nav class="navbar">
+                    <a class="nav-logo" href="#/">
+                        <!-- Logo placeholder: swap this block for the real mark. -->
+                        <span class="mark" title="Logo placeholder, upload in Admin">
+                            <svg width="15" height="15" viewBox="0 0 10 10" aria-hidden="true">
+                                <path d="M5 0 L6 4 L10 5 L6 6 L5 10 L4 6 L0 5 L4 4 Z" fill="#E7C87A" opacity=".85"/>
+                            </svg>
+                        </span>
+                        <span class="wordmark">Lumera</span>
+                    </a>
+
+                    <div class="nav-center">
+                        <a class="nav-btn" href="#/worlds">Worlds</a>
+                        <a class="nav-btn" href="#/features">Features</a>
+                        <a class="nav-btn" href="#/how-it-works">How it works</a>
+                        <a class="nav-btn" href="#/pricing">Pricing</a>
+                        <a class="nav-btn" href="#/about">About</a>
+                    </div>
+
+                    <a class="hero-secondary liquid-glass nav-signup" href="app.html#/signup">Sign Up</a>
+                </nav>
+                <div class="nav-divider"></div>
+            </header>
+</div>
+
+<section class="route" id="route-home" data-route="home" data-title="Lumera | All financial intelligence. One place." data-a="#6366f1" data-b="#a855f7" data-c="#fcd34d" hidden>
+<div class="page-wrap">
+
+    <video class="bg-video" id="bgVideo" playsinline muted preload="auto"
+        src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260328_065045_c44942da-53c6-4804-b734-f9e07fc22e08.mp4"></video>
+
+    <div class="page-content">
+        <section class="hero">
+
+            <div class="hero-blur"></div>
+
+            <header>
+                <nav class="navbar">
+                    <a class="nav-logo" href="app.html">
+                        <!-- Logo placeholder: swap this block for the real mark. -->
+                        <span class="mark" title="Logo placeholder, upload in Admin">
+                            <svg width="15" height="15" viewBox="0 0 10 10" aria-hidden="true">
+                                <path d="M5 0 L6 4 L10 5 L6 6 L5 10 L4 6 L0 5 L4 4 Z" fill="#E7C87A" opacity=".85"/>
+                            </svg>
+                        </span>
+                        <span class="wordmark">Lumera</span>
+                    </a>
+
+                    <div class="nav-center">
+                        <a class="nav-btn" href="#/worlds">Worlds</a>
+                        <a class="nav-btn" href="#/features">Features</a>
+                        <a class="nav-btn" href="#/how-it-works">How it works</a>
+                        <a class="nav-btn" href="#/pricing">Pricing</a>
+                        <a class="nav-btn" href="#/about">About</a>
+                    </div>
+
+                    <a class="hero-secondary liquid-glass nav-signup" href="app.html#/signup">Sign Up</a>
+                </nav>
+                <div class="nav-divider"></div>
+            </header>
+
+            <div class="hero-body">
+                <div class="hero-inner">
+                    <h1 class="headline"><span class="grad">Lumera</span></h1>
+                    <p class="hero-sub">Your Financial Intelligence</p>
+                    <a class="hero-secondary liquid-glass hero-cta" href="app.html#/signup">Start Your 30-Day Review</a>
+                </div>
+            </div>
+
+            <div class="marquee-wrap">
+                <div class="marquee-inner">
+                    <div class="marquee-label">One family<br>five worlds</div>
+                    <div class="marquee">
+                        <div class="marquee-track" id="marqueeTrack"></div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </div>
+</div>
+
+<div class="rest">
+
+    <!-- ===== The family ===== -->
+    <section class="section" id="worlds">
+        <div class="sec-head reveal">
+            <div class="eyebrow">The Lumera family</div>
+            <h2 class="sec-title">Four worlds, <span class="grad">one financial life</span></h2>
+            <p class="sec-sub">Lumera is the hub. Each world below is its own space, with its own tools, colour and guide.</p>
+        </div>
+        <div class="grid-4" id="worldGrid"></div>
+    </section>
+
+    <!-- ===== Features ===== -->
+    <section class="section" id="features">
+        <div class="sec-head reveal">
+            <div class="eyebrow">What you get</div>
+            <h2 class="sec-title">Everything your money needs, <span class="grad">in one calm place</span></h2>
+            <p class="sec-sub">Not another budgeting tab. A financial operating system that understands the invisible patterns behind your spending.</p>
+        </div>
+        <div class="grid-4" id="featureGrid"></div>
+    </section>
+
+    <!-- ===== How it works ===== -->
+    <section class="section" id="how">
+        <div class="sec-head reveal">
+            <div class="eyebrow">How it works</div>
+            <h2 class="sec-title">Three steps, <span class="grad">thirty days</span></h2>
+        </div>
+        <div class="grid-3" id="stepGrid"></div>
+    </section>
+
+    <!-- ===== Trust ===== -->
+    <section class="section" id="trust">
+        <div class="sec-head reveal">
+            <div class="eyebrow">Built on trust</div>
+            <h2 class="sec-title">Private by design, <span class="grad">educational never advisory</span></h2>
+            <p class="sec-sub">Your figures stay in your browser. Lumera never asks for a bank login and never tells you what to buy.</p>
+        </div>
+        <div class="grid-3" id="trustGrid"></div>
+    </section>
+
+    <!-- ===== Pricing ===== -->
+    <section class="section" id="pricing">
+        <div class="sec-head reveal">
+            <div class="eyebrow">Pricing</div>
+            <h2 class="sec-title">Free today. <span class="grad">Built for what is next.</span></h2>
+        </div>
+        <div class="grid-3" id="planGrid"></div>
+    </section>
+
+    <!-- ===== Final CTA ===== -->
+    <section class="section">
+        <div class="final-cta liquid-glass reveal">
+            <div class="wash"></div>
+            <div class="inner">
+                <h2 class="sec-title">Understand the invisible patterns<br><span class="grad">behind your spending.</span></h2>
+                <p class="sec-sub" style="max-width:40rem;margin-left:auto;margin-right:auto">Turn one month of financial behaviour into a clear action plan. It is free, private, and takes minutes to begin.</p>
+                <div class="cta-row">
+                    <a class="btn-solid" href="app.html#/signup">Start your 30-day review</a>
+                    <a class="hero-secondary liquid-glass" style="padding:1rem 1.9rem" href="app.html#/login">Open the app</a>
+                </div>
+                <div class="disclaimer liquid-glass">
+                    Lumera is an educational tool, not a financial adviser. Figures are estimates based on what you enter, and nothing here is a recommendation to buy, sell or hold any product.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== Footer ===== -->
+</div>
+</section>
+
+<section class="route" id="route-worlds" data-route="worlds" data-title="The Lumera family" data-a="#6366f1" data-b="#a855f7" data-c="#fcd34d" hidden>
+<div class="page-top"><div class="wash"></div>
+    <div class="page-hero">
+        <h1 class="page-title">Four worlds, <span class="grad">one financial life</span></h1>
+        <p class="page-lede">Lumera is the hub. Each world below is its own space, with its own tools, colour and guide, and you only ever see the ones you switch on.</p>
+        <div class="page-actions"><a class="btn-solid" href="app.html#/signup">Start free</a><a class="hero-secondary liquid-glass" style="padding:1rem 1.9rem" href="app.html#/login">Open the app</a></div>
+    </div></div>
+<div class="rest">
+    <section class="section tight"><div class="grid-4"><a class="panel liquid-glass world-card reveal" href="#/leaf" style="text-decoration:none;color:inherit"><span class="wash" style="background:#22C55E"></span><span class="badge" style="background:#22C55E22;color:#22C55E">L</span><span class="tag" style="color:#22C55E">Learn &amp; grow</span><h3>Leaf</h3><p>Bite-size lessons, a daily word, flashcards that stick and a knowledge hub that goes as deep as you want.</p><span class="link" style="color:#22C55E">Explore Leaf &rarr;</span></a><a class="panel liquid-glass world-card reveal" href="#/atlas" style="text-decoration:none;color:inherit"><span class="wash" style="background:#3B82F6"></span><span class="badge" style="background:#3B82F622;color:#3B82F6">A</span><span class="tag" style="color:#3B82F6">Markets &amp; investing</span><h3>Atlas</h3><p>Every index, sector and stock with a plain-English read on why it moved.</p><span class="link" style="color:#3B82F6">Explore Atlas &rarr;</span></a><a class="panel liquid-glass world-card reveal" href="#/shield" style="text-decoration:none;color:inherit"><span class="wash" style="background:#94A3B8"></span><span class="badge" style="background:#94A3B822;color:#94A3B8">S</span><span class="tag" style="color:#94A3B8">Protect &amp; plan</span><h3>Shield</h3><p>Credit building, debt payoff, insurance and the long horizon.</p><span class="link" style="color:#94A3B8">Explore Shield &rarr;</span></a><a class="panel liquid-glass world-card reveal" href="#/forge" style="text-decoration:none;color:inherit"><span class="wash" style="background:#E0A94E"></span><span class="badge" style="background:#E0A94E22;color:#E0A94E">F</span><span class="tag" style="color:#E0A94E">Career &amp; income</span><h3>Forge</h3><p>Careers, firms, universities, admissions tests and what roles really pay.</p><span class="link" style="color:#E0A94E">Explore Forge &rarr;</span></a></div></section>
+    <section class="section">
+        <div class="sec-head left reveal">
+            <div class="eyebrow">Everything in one place</div>
+            <h2 class="sec-title">One account, <span class="grad">every world</span></h2>
+            <p class="sec-sub">Sign up once. Your figures, streak and progress follow you across all four.</p>
+        </div>
+        <div class="page-actions"><a class="btn-solid" href="app.html#/signup">Start your 30-day review</a><a class="hero-secondary liquid-glass" style="padding:1rem 1.9rem" href="app.html#/hub">Open the family hub</a></div>
+    </section>
+
+
+</div>
+</section>
+
+<section class="route" id="route-leaf" data-route="leaf" data-title="Leaf by Lumera" data-a="#6366f1" data-b="#a855f7" data-c="#fcd34d" hidden>
+<div class="page-top"><div class="wash"></div>
+    <div class="page-hero">
+        <h1 class="page-title">Money education <span class="grad">that does not bore you</span></h1>
+        <p class="page-lede">Bite-size lessons, a daily word, flashcards that stick and a knowledge hub that goes as deep as you want. No lectures, no assumed head start.</p>
+        <div class="page-actions"><a class="btn-solid" href="app.html#/leaf">Open Leaf</a><a class="hero-secondary liquid-glass" style="padding:1rem 1.9rem" href="#/worlds">See all four worlds</a></div>
+    </div></div>
+<div class="rest">
+    <section class="section tight"><div class="grid-2"><div class="panel liquid-glass reveal"><h3>Lessons</h3><p>Two-minute lessons that explain one idea properly and then get out of the way.</p></div><div class="panel liquid-glass reveal"><h3>Money Quiz</h3><p>Spaced-repetition flashcards, so what you learn on Monday is still there in March.</p></div><div class="panel liquid-glass reveal"><h3>Challenges</h3><p>Short streak-based challenges that turn a habit into a month of evidence.</p></div><div class="panel liquid-glass reveal"><h3>Knowledge Hub</h3><p>A curated shelf of the best places to learn, sorted by what you actually need.</p></div></div></section>
+    <section class="section">
+        <div class="sec-head left reveal">
+            <div class="eyebrow">What is inside</div>
+            <h2 class="sec-title">The tools <span class="grad">you get</span></h2>
+            <p class="sec-sub">Every one of these lives inside Leaf, and opens the moment you sign up.</p>
+        </div>
+        <ul class="tool-list"><li>Two-minute lessons</li><li>Word of the day</li><li>Money quiz and flashcards</li><li>Weekly challenges</li><li>Knowledge hub</li><li>Badges and streaks</li></ul>
+    </section>
+    <section class="section">
+        <div class="sec-head left reveal">
+            <div class="eyebrow">The rest of the family</div>
+            <h2 class="sec-title">It does not <span class="grad">stop here</span></h2>
+            <p class="sec-sub">Lumera is the hub, and the other three worlds are one click away.</p>
+        </div>
+        <div class="grid-3"><a class="panel liquid-glass reveal" href="#/atlas" style="text-decoration:none;color:inherit"><span class="badge" style="background:#3B82F622;color:#3B82F6">A</span><h3>Atlas</h3><p>Markets &amp; investing</p></a><a class="panel liquid-glass reveal" href="#/shield" style="text-decoration:none;color:inherit"><span class="badge" style="background:#94A3B822;color:#94A3B8">S</span><h3>Shield</h3><p>Protect &amp; plan</p></a><a class="panel liquid-glass reveal" href="#/forge" style="text-decoration:none;color:inherit"><span class="badge" style="background:#E0A94E22;color:#E0A94E">F</span><h3>Forge</h3><p>Career &amp; income</p></a></div>
+    </section>
+
+
+</div>
+</section>
+
+<section class="route" id="route-atlas" data-route="atlas" data-title="Atlas by Lumera" data-a="#6366f1" data-b="#a855f7" data-c="#fcd34d" hidden>
+<div class="page-top"><div class="wash"></div>
+    <div class="page-hero">
+        <h1 class="page-title">Markets, <span class="grad">decoded</span></h1>
+        <p class="page-lede">Every index, sector and stock with a plain-English read on why it moved. Spin the globe, watch the exchanges wake, and learn the language of money while you watch it.</p>
+        <div class="page-actions"><a class="btn-solid" href="app.html#/atlas">Open Atlas</a><a class="hero-secondary liquid-glass" style="padding:1rem 1.9rem" href="#/worlds">See all four worlds</a></div>
+    </div></div>
+<div class="rest">
+    <section class="section tight"><div class="grid-2"><div class="panel liquid-glass reveal"><h3>Investing</h3><p>Educational pathways from emergency fund to a diversified portfolio.</p></div><div class="panel liquid-glass reveal"><h3>Stock Market</h3><p>Indices, sectors and stocks, each with a why-it-matters in human words.</p></div><div class="panel liquid-glass reveal"><h3>Global Markets</h3><p>A globe of exchanges you can spin, with regional news as they open.</p></div><div class="panel liquid-glass reveal"><h3>World Monitor</h3><p>The events moving markets, linked to the sources they came from.</p></div></div></section>
+    <section class="section">
+        <div class="sec-head left reveal">
+            <div class="eyebrow">What is inside</div>
+            <h2 class="sec-title">The tools <span class="grad">you get</span></h2>
+            <p class="sec-sub">Every one of these lives inside Atlas, and opens the moment you sign up.</p>
+        </div>
+        <ul class="tool-list"><li>Investment pathways</li><li>Indices and sectors</li><li>Stock insights</li><li>How markets work</li><li>Globe of exchanges</li><li>Plain-English news</li></ul>
+    </section>
+    <section class="section">
+        <div class="sec-head left reveal">
+            <div class="eyebrow">The rest of the family</div>
+            <h2 class="sec-title">It does not <span class="grad">stop here</span></h2>
+            <p class="sec-sub">Lumera is the hub, and the other three worlds are one click away.</p>
+        </div>
+        <div class="grid-3"><a class="panel liquid-glass reveal" href="#/leaf" style="text-decoration:none;color:inherit"><span class="badge" style="background:#22C55E22;color:#22C55E">L</span><h3>Leaf</h3><p>Learn &amp; grow</p></a><a class="panel liquid-glass reveal" href="#/shield" style="text-decoration:none;color:inherit"><span class="badge" style="background:#94A3B822;color:#94A3B8">S</span><h3>Shield</h3><p>Protect &amp; plan</p></a><a class="panel liquid-glass reveal" href="#/forge" style="text-decoration:none;color:inherit"><span class="badge" style="background:#E0A94E22;color:#E0A94E">F</span><h3>Forge</h3><p>Career &amp; income</p></a></div>
+    </section>
+
+
+</div>
+</section>
+
+<section class="route" id="route-shield" data-route="shield" data-title="Shield by Lumera" data-a="#6366f1" data-b="#a855f7" data-c="#fcd34d" hidden>
+<div class="page-top"><div class="wash"></div>
+    <div class="page-hero">
+        <h1 class="page-title">Nothing <span class="grad">catches you</span></h1>
+        <p class="page-lede">Credit building, debt payoff, insurance and the long horizon. The grown-up decisions, explained on your terms and sized to the life you actually have.</p>
+        <div class="page-actions"><a class="btn-solid" href="app.html#/shield">Open Shield</a><a class="hero-secondary liquid-glass" style="padding:1rem 1.9rem" href="#/worlds">See all four worlds</a></div>
+    </div></div>
+<div class="rest">
+    <section class="section tight"><div class="grid-2"><div class="panel liquid-glass reveal"><h3>Credit</h3><p>What actually moves a score, and the order to do things in.</p></div><div class="panel liquid-glass reveal"><h3>Debt</h3><p>Avalanche and snowball side by side on your real numbers.</p></div><div class="panel liquid-glass reveal"><h3>Insurance</h3><p>A risk score, then only the cover that matches it.</p></div><div class="panel liquid-glass reveal"><h3>Retirement</h3><p>Projections that survive inflation, not just a compound-interest toy.</p></div></div></section>
+    <section class="section">
+        <div class="sec-head left reveal">
+            <div class="eyebrow">What is inside</div>
+            <h2 class="sec-title">The tools <span class="grad">you get</span></h2>
+            <p class="sec-sub">Every one of these lives inside Shield, and opens the moment you sign up.</p>
+        </div>
+        <ul class="tool-list"><li>Credit building</li><li>Debt payoff planner</li><li>Insurance risk score</li><li>Retirement projections</li><li>Emergency fund</li><li>Safety benchmarks</li></ul>
+    </section>
+    <section class="section">
+        <div class="sec-head left reveal">
+            <div class="eyebrow">The rest of the family</div>
+            <h2 class="sec-title">It does not <span class="grad">stop here</span></h2>
+            <p class="sec-sub">Lumera is the hub, and the other three worlds are one click away.</p>
+        </div>
+        <div class="grid-3"><a class="panel liquid-glass reveal" href="#/leaf" style="text-decoration:none;color:inherit"><span class="badge" style="background:#22C55E22;color:#22C55E">L</span><h3>Leaf</h3><p>Learn &amp; grow</p></a><a class="panel liquid-glass reveal" href="#/atlas" style="text-decoration:none;color:inherit"><span class="badge" style="background:#3B82F622;color:#3B82F6">A</span><h3>Atlas</h3><p>Markets &amp; investing</p></a><a class="panel liquid-glass reveal" href="#/forge" style="text-decoration:none;color:inherit"><span class="badge" style="background:#E0A94E22;color:#E0A94E">F</span><h3>Forge</h3><p>Career &amp; income</p></a></div>
+    </section>
+
+
+</div>
+</section>
+
+<section class="route" id="route-forge" data-route="forge" data-title="Forge by Lumera" data-a="#6366f1" data-b="#a855f7" data-c="#fcd34d" hidden>
+<div class="page-top"><div class="wash"></div>
+    <div class="page-hero">
+        <h1 class="page-title">Earn more, <span class="grad">not just spend less</span></h1>
+        <p class="page-lede">Careers, firms, universities, admissions tests and what roles really pay. The fastest way to change your finances at nineteen is not a budget, it is a decision about what you do next.</p>
+        <div class="page-actions"><a class="btn-solid" href="app.html#/forge">Open Forge</a><a class="hero-secondary liquid-glass" style="padding:1rem 1.9rem" href="#/worlds">See all four worlds</a></div>
+    </div></div>
+<div class="rest">
+    <section class="section tight"><div class="grid-2"><div class="panel liquid-glass reveal"><h3>Finance Careers</h3><p>What each path actually involves, and how people get in.</p></div><div class="panel liquid-glass reveal"><h3>Universities</h3><p>Shortlists with the admissions data behind them, not just rankings.</p></div><div class="panel liquid-glass reveal"><h3>Test Centre</h3><p>SAT, TMUA and the rest: tips, a score calculator, and what your score reaches.</p></div><div class="panel liquid-glass reveal"><h3>Salary Check</h3><p>Benchmarks by role and level, per year or per month.</p></div></div></section>
+    <section class="section">
+        <div class="sec-head left reveal">
+            <div class="eyebrow">What is inside</div>
+            <h2 class="sec-title">The tools <span class="grad">you get</span></h2>
+            <p class="sec-sub">Every one of these lives inside Forge, and opens the moment you sign up.</p>
+        </div>
+        <ul class="tool-list"><li>Finance careers</li><li>Top firms</li><li>Universities</li><li>Admissions tests</li><li>Subject selection</li><li>CV and interview prep</li><li>Opportunities</li><li>Salary benchmarks</li></ul>
+    </section>
+    <section class="section">
+        <div class="sec-head left reveal">
+            <div class="eyebrow">The rest of the family</div>
+            <h2 class="sec-title">It does not <span class="grad">stop here</span></h2>
+            <p class="sec-sub">Lumera is the hub, and the other three worlds are one click away.</p>
+        </div>
+        <div class="grid-3"><a class="panel liquid-glass reveal" href="#/leaf" style="text-decoration:none;color:inherit"><span class="badge" style="background:#22C55E22;color:#22C55E">L</span><h3>Leaf</h3><p>Learn &amp; grow</p></a><a class="panel liquid-glass reveal" href="#/atlas" style="text-decoration:none;color:inherit"><span class="badge" style="background:#3B82F622;color:#3B82F6">A</span><h3>Atlas</h3><p>Markets &amp; investing</p></a><a class="panel liquid-glass reveal" href="#/shield" style="text-decoration:none;color:inherit"><span class="badge" style="background:#94A3B822;color:#94A3B8">S</span><h3>Shield</h3><p>Protect &amp; plan</p></a></div>
+    </section>
+
+
+</div>
+</section>
+
+<section class="route" id="route-features" data-route="features" data-title="Features" data-a="#6366f1" data-b="#a855f7" data-c="#fcd34d" hidden>
+<div class="page-top"><div class="wash"></div>
+    <div class="page-hero">
+        <h1 class="page-title">Everything your money needs, <span class="grad">in one calm place</span></h1>
+        <p class="page-lede">Not another budgeting tab. A financial operating system that understands the invisible patterns behind your spending.</p>
+        <div class="page-actions"><a class="btn-solid" href="app.html#/signup">Start free</a><a class="hero-secondary liquid-glass" style="padding:1rem 1.9rem" href="#/how-it-works">How it works</a></div>
+    </div></div>
+<div class="rest">
+    <section class="section tight"><div class="grid-3"><div class="panel liquid-glass reveal"><h3>AI Financial Twin</h3><p>A cinematic profile of your money personality, strengths and biggest leak.</p></div><div class="panel liquid-glass reveal"><h3>Wealth Simulator</h3><p>Drag a few habits and watch your 10-year future recalculate in real time.</p></div><div class="panel liquid-glass reveal"><h3>Benchmark Dashboard</h3><p>See every category against realistic ranges for your region and income.</p></div><div class="panel liquid-glass reveal"><h3>Investment Guidance</h3><p>Educational pathways from emergency fund to diversified portfolio.</p></div><div class="panel liquid-glass reveal"><h3>Market Intelligence</h3><p>Indices, sectors and stock insights, explained for humans.</p></div><div class="panel liquid-glass reveal"><h3>AI Assistant</h3><p>Ask anything about your money and get calm, contextual answers.</p></div><div class="panel liquid-glass reveal"><h3>Subscription Detector</h3><p>Surface the quiet recurring spend draining your account.</p></div><div class="panel liquid-glass reveal"><h3>Emergency Fund</h3><p>Know your true safety number and the fastest way to reach it.</p></div><div class="panel liquid-glass reveal"><h3>Budget & Goals</h3><p>Your own categories, your own targets, and progress that updates itself.</p></div><div class="panel liquid-glass reveal"><h3>Net Worth</h3><p>Everything you own and owe on one line, tracked month over month.</p></div><div class="panel liquid-glass reveal"><h3>Debt Payoff</h3><p>Avalanche or snowball, costed on your real balances and rates.</p></div><div class="panel liquid-glass reveal"><h3>Community</h3><p>Others on the same path, and the opportunities they are sharing.</p></div></div></section>
+    <section class="section">
+        <div class="sec-head left reveal">
+            <div class="eyebrow">Where they live</div>
+            <h2 class="sec-title">Split across <span class="grad">four worlds</span></h2>
+            <p class="sec-sub">Every feature belongs to a world, so the app stays calm instead of showing you all of it at once.</p>
+        </div>
+        <div class="grid-4"><a class="panel liquid-glass reveal" href="#/leaf" style="text-decoration:none;color:inherit"><span class="badge" style="background:#22C55E22;color:#22C55E">L</span><h3>Leaf</h3><p>Learn &amp; grow</p></a><a class="panel liquid-glass reveal" href="#/atlas" style="text-decoration:none;color:inherit"><span class="badge" style="background:#3B82F622;color:#3B82F6">A</span><h3>Atlas</h3><p>Markets &amp; investing</p></a><a class="panel liquid-glass reveal" href="#/shield" style="text-decoration:none;color:inherit"><span class="badge" style="background:#94A3B822;color:#94A3B8">S</span><h3>Shield</h3><p>Protect &amp; plan</p></a><a class="panel liquid-glass reveal" href="#/forge" style="text-decoration:none;color:inherit"><span class="badge" style="background:#E0A94E22;color:#E0A94E">F</span><h3>Forge</h3><p>Career &amp; income</p></a></div>
+    </section>
+
+
+</div>
+</section>
+
+<section class="route" id="route-how-it-works" data-route="how-it-works" data-title="How it works" data-a="#6366f1" data-b="#a855f7" data-c="#fcd34d" hidden>
+<div class="page-top"><div class="wash"></div>
+    <div class="page-hero">
+        <h1 class="page-title">Three steps, <span class="grad">thirty days</span></h1>
+        <p class="page-lede">One month of ordinary behaviour is enough to tell you what is actually going on with your money. Here is the whole process.</p>
+        <div class="page-actions"><a class="btn-solid" href="app.html#/signup">Start free</a><a class="hero-secondary liquid-glass" style="padding:1rem 1.9rem" href="#/features">See the features</a></div>
+    </div></div>
+<div class="rest">
+    <section class="section tight"><div class="grid-3"><div class="panel liquid-glass reveal"><span class="step-n">01</span><h3>Track one month</h3><p>Spend 30 days noticing where money actually goes. No spreadsheets, no judgement, no connecting your bank.</p></div><div class="panel liquid-glass reveal"><span class="step-n">02</span><h3>Enter and compare</h3><p>Put in income and spending. Lumera benchmarks every category against realistic ranges for people like you.</p></div><div class="panel liquid-glass reveal"><span class="step-n">03</span><h3>Get your plan</h3><p>A health score, the leaks worth closing first, and a 30-day plan you can actually follow.</p></div></div></section>
+    <section class="section">
+        <div class="sec-head left reveal">
+            <div class="eyebrow">What you get at the end</div>
+            <h2 class="sec-title">A plan, <span class="grad">not a chart</span></h2>
+            <p class="sec-sub">A score you can move, the leaks worth closing first, and the order to do them in.</p>
+        </div>
+        <div class="grid-3"><div class="panel liquid-glass reveal"><h3>A health score</h3><p>One number from seven benchmarked pillars, so progress is visible month to month.</p></div><div class="panel liquid-glass reveal"><h3>Your biggest leak</h3><p>The single category costing you most against people like you.</p></div><div class="panel liquid-glass reveal"><h3>A 30-day plan</h3><p>Three or four moves, sized to your actual income, not generic advice.</p></div></div>
+    </section>
+    <section class="section">
+        <div class="sec-head left reveal">
+            <div class="eyebrow">What it never does</div>
+            <h2 class="sec-title">No bank login. <span class="grad">No advice.</span></h2>
+            <p class="sec-sub">Lumera is educational. It explains and benchmarks; it never recommends a product or asks for banking credentials.</p>
+        </div>
+        <div class="page-actions"><a class="btn-solid" href="app.html#/signup">Start your 30-day review</a><a class="hero-secondary liquid-glass" style="padding:1rem 1.9rem" href="#/privacy">Read the privacy page</a></div>
+    </section>
+
+
+</div>
+</section>
+
+<section class="route" id="route-about" data-route="about" data-title="About Lumera" data-a="#6366f1" data-b="#a855f7" data-c="#fcd34d" hidden>
+<div class="page-top"><div class="wash"></div>
+    <div class="page-hero">
+        <h1 class="page-title">Financial clarity, <span class="grad">made accessible</span></h1>
+        <p class="page-lede">Lumera turns the financial intelligence once reserved for the wealthy into something anyone can use. Clear, calm, and jargon-free.</p>
+        <div class="page-actions"><a class="btn-solid" href="app.html#/signup">Start free</a><a class="hero-secondary liquid-glass" style="padding:1rem 1.9rem" href="#/features">See the features</a></div>
+    </div></div>
+<div class="rest">
+    <section class="section tight"><div class="grid-2"><div class="panel liquid-glass reveal"><div class="eyebrow">Our mission</div><div class="prose"><p>Lumera exists to give students and early-career professionals the financial intelligence that used to be reserved for the wealthy. No jargon, no complexity, just clarity.</p></div></div><div class="panel liquid-glass reveal"><div class="eyebrow">The problem we solve</div><div class="prose"><p>Most people do not understand their money, not because they are bad with it, but because no one ever taught them. Lumera closes that gap with tools that explain themselves.</p></div></div></div></section>
+    <section class="section">
+        <div class="sec-head left reveal">
+            <div class="eyebrow">What Lumera gives you</div>
+            <h2 class="sec-title">Six things it does <span class="grad">from day one</span></h2>
+            
+        </div>
+        <div class="grid-3"><div class="panel liquid-glass reveal"><h3>Benchmark clarity</h3><p>See every spending category against realistic ranges for your income and region.</p></div><div class="panel liquid-glass reveal"><h3>A learning engine</h3><p>Two-minute lessons, quizzes and a glossary that turn jargon into confidence.</p></div><div class="panel liquid-glass reveal"><h3>Real tools</h3><p>Budget, goals, net worth, debt payoff, credit, investing and a wealth simulator.</p></div><div class="panel liquid-glass reveal"><h3>Markets, decoded</h3><p>Live-style markets, a world monitor and plain-English news with the why.</p></div><div class="panel liquid-glass reveal"><h3>A career head-start</h3><p>Finance careers, universities, CV lab and interview prep.</p></div><div class="panel liquid-glass reveal"><h3>A community</h3><p>Connect with others on the same path and share opportunities.</p></div></div>
+    </section>
+    <section class="section">
+        <div class="sec-head left reveal">
+            <div class="eyebrow">Who it is for</div>
+            <h2 class="sec-title">Built for people <span class="grad">starting out</span></h2>
+            
+        </div>
+        <div class="grid-3"><div class="panel liquid-glass reveal"><h3>Students</h3><p>Build money habits early, while the stakes are low and the upside is decades long.</p></div><div class="panel liquid-glass reveal"><h3>Young professionals</h3><p>Turn your first real income into a foundation for lasting wealth.</p></div><div class="panel liquid-glass reveal"><h3>Anyone starting out</h3><p>It is never too late to start your financial journey.</p></div></div>
+    </section>
+    <section class="section">
+        <div class="sec-head left reveal">
+            <div class="eyebrow">The team</div>
+            <h2 class="sec-title">The people <span class="grad">building it</span></h2>
+            <p class="sec-sub">Roles, bios and photos are managed in the admin portal.</p>
+        </div>
+        <div class="page-actions"><a class="btn-solid" href="#/team">Meet the team</a></div>
+    </section>
+
+
+</div>
+</section>
+
+<section class="route" id="route-team" data-route="team" data-title="The team" data-a="#6366f1" data-b="#a855f7" data-c="#fcd34d" hidden>
+<div class="page-top"><div class="wash"></div>
+    <div class="page-hero">
+        <h1 class="page-title">The people <span class="grad">building it</span></h1>
+        <p class="page-lede">Roles, bios and photos are managed in the admin portal, so this page stays current without a deploy.</p>
+        <div class="page-actions"><a class="btn-solid" href="#/about">About Lumera</a></div>
+    </div></div>
+<div class="rest">
+    <section class="section tight"><div class="grid-3"><div class="panel liquid-glass reveal"><div class="person"><span class="avatar">L</span><div><h3 style="margin:0">Founding team</h3><div class="role">Add names in Admin</div></div></div></div><div class="panel liquid-glass reveal"><div class="person"><span class="avatar">P</span><div><h3 style="margin:0">Product</h3><div class="role">Add names in Admin</div></div></div></div><div class="panel liquid-glass reveal"><div class="person"><span class="avatar">E</span><div><h3 style="margin:0">Engineering</h3><div class="role">Add names in Admin</div></div></div></div><div class="panel liquid-glass reveal"><div class="person"><span class="avatar">D</span><div><h3 style="margin:0">Design</h3><div class="role">Add names in Admin</div></div></div></div><div class="panel liquid-glass reveal"><div class="person"><span class="avatar">R</span><div><h3 style="margin:0">Research</h3><div class="role">Add names in Admin</div></div></div></div><div class="panel liquid-glass reveal"><div class="person"><span class="avatar">O</span><div><h3 style="margin:0">Operations</h3><div class="role">Add names in Admin</div></div></div></div></div></section>
+    <section class="section">
+        <div class="sec-head left reveal">
+            <div class="eyebrow">Why we are building it</div>
+            <h2 class="sec-title">Financial clarity, <span class="grad">made accessible</span></h2>
+            <p class="sec-sub">Lumera exists to give students and early-career professionals the financial intelligence that used to be reserved for the wealthy.</p>
+        </div>
+        <div class="page-actions"><a class="btn-solid" href="#/about">Read about Lumera</a><a class="hero-secondary liquid-glass" style="padding:1rem 1.9rem" href="app.html#/team">See the team in the app</a></div>
+    </section>
+
+
+</div>
+</section>
+
+<section class="route" id="route-pricing" data-route="pricing" data-title="Pricing" data-a="#6366f1" data-b="#a855f7" data-c="#fcd34d" hidden>
+<div class="page-top"><div class="wash"></div>
+    <div class="page-hero">
+        <h1 class="page-title">Free today. <span class="grad">Built for what is next.</span></h1>
+        <p class="page-lede">Everything you need for your first 30-day review costs nothing. Paid tiers arrive when the tools behind them do.</p>
+        <div class="page-actions"><a class="btn-solid" href="app.html#/signup">Start free</a><a class="hero-secondary liquid-glass" style="padding:1rem 1.9rem" href="app.html#/login">Open the app</a></div>
+    </div></div>
+<div class="rest">
+    <section class="section tight"><div class="grid-3"><div class="panel liquid-glass reveal"><div class="plan-head"><h3 style="margin:0">Free</h3><span class="pill now">Current</span></div><p>Available now</p><ul class="plan-list"><li>Monthly expense review</li><li>Financial health score</li><li>Budget &amp; savings tools</li><li>Market news</li><li>Limited AI assistant</li></ul></div><div class="panel liquid-glass reveal"><div class="plan-head"><h3 style="margin:0">Pro</h3><span class="pill">Future</span></div><p>Coming soon</p><ul class="plan-list"><li>Advanced AI coach</li><li>Unlimited simulations</li><li>Full benchmark analytics</li><li>Monthly reports</li><li>Subscription &amp; debt tools</li></ul></div><div class="panel liquid-glass reveal"><div class="plan-head"><h3 style="margin:0">Premium</h3><span class="pill">Future</span></div><p>Coming soon</p><ul class="plan-list"><li>Portfolio analytics</li><li>Family budgeting</li><li>Tax optimisation</li><li>Priority AI</li><li>Advisor-ready summaries</li></ul></div></div></section>
+    <section class="section">
+        <div class="sec-head left reveal">
+            <div class="eyebrow">Questions</div>
+            <h2 class="sec-title">The things people <span class="grad">ask first</span></h2>
+            
+        </div>
+        <div class="grid-2"><div class="panel liquid-glass reveal"><h3>Is the free plan really free?</h3><p>Yes. Every tool listed under Free is available now, with no card and no trial clock.</p></div><div class="panel liquid-glass reveal"><h3>Do I need to connect my bank?</h3><p>No. Lumera never asks for banking credentials. You enter what you want it to see.</p></div><div class="panel liquid-glass reveal"><h3>Is this financial advice?</h3><p>No. Lumera is educational: it explains, benchmarks and projects, but never recommends a product.</p></div><div class="panel liquid-glass reveal"><h3>What happens to my data?</h3><p>It lives in your browser. You can export or delete everything at any time.</p></div></div>
+    </section>
+
+
+</div>
+</section>
+
+<section class="route" id="route-privacy" data-route="privacy" data-title="Privacy & trust" data-a="#6366f1" data-b="#a855f7" data-c="#fcd34d" hidden>
+<div class="page-top"><div class="wash"></div>
+    <div class="page-hero">
+        <h1 class="page-title">Built private. <span class="grad">Built to be trusted.</span></h1>
+        <p class="page-lede">Trust is not a banner, it is an architecture. Here is exactly how Lumera treats your data and your decisions.</p>
+        <div class="page-actions"><a class="hero-secondary liquid-glass" style="padding:1rem 1.9rem" href="app.html#/login">Open the app</a></div>
+    </div></div>
+<div class="rest">
+    <section class="section tight"><div class="grid-3"><div class="panel liquid-glass reveal"><h3>Your data is never sold</h3><p>We do not sell, rent, or share your financial data for advertising, ever. Our business model will be subscriptions, not surveillance.</p></div><div class="panel liquid-glass reveal"><h3>You own and control it</h3><p>Export everything or permanently delete your account and all associated data at any time, with no friction and no retention games.</p></div><div class="panel liquid-glass reveal"><h3>Bank connections are consent-based</h3><p>Future Open-Banking links will use secure, revocable consent through regulated providers. We never see or store your banking credentials.</p></div><div class="panel liquid-glass reveal"><h3>Private by architecture</h3><p>Data is minimised and encrypted. We only ask for what makes your insights better, and you can skip anything.</p></div><div class="panel liquid-glass reveal"><h3>Educational, not advisory</h3><p>Lumera provides educational guidance only. It is not licensed financial, investment, tax or legal advice.</p></div><div class="panel liquid-glass reveal"><h3>Honest about the prototype</h3><p>Market data shown here is illustrative. Projections are illustrations, not promises. Always do your own research.</p></div></div></section>
+    <section class="section">
+        <div class="sec-head left reveal">
+            <div class="eyebrow">Your controls</div>
+            <h2 class="sec-title">Everything is <span class="grad">yours to take back</span></h2>
+            <p class="sec-sub">Export, reset and delete all live inside the app, under Settings.</p>
+        </div>
+        <div class="page-actions"><a class="btn-solid" href="app.html#/settings">Open your data controls</a><a class="hero-secondary liquid-glass" style="padding:1rem 1.9rem" href="app.html#/privacy">Read the full disclaimer</a></div><div class="disclaimer liquid-glass" style="margin-left:0">Lumera is an educational tool, not a financial adviser. Figures are estimates based on what you enter, and nothing here is a recommendation to buy, sell or hold any product.</div>
+    </section>
+
+
+</div>
+</section>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div>
+                <a class="nav-logo" href="app.html" style="margin-bottom:.9rem">
+                    <!-- Logo placeholder: swap this block for the real mark. -->
+                    <span class="mark" title="Logo placeholder, upload in Admin">
+                        <svg width="15" height="15" viewBox="0 0 10 10" aria-hidden="true">
+                            <path d="M5 0 L6 4 L10 5 L6 6 L5 10 L4 6 L0 5 L4 4 Z" fill="#E7C87A" opacity=".85"/>
+                        </svg>
+                    </span>
+                    <span class="wordmark">Lumera</span>
+                </a>
+                <p style="color:hsl(var(--foreground)/.45);font-size:.85rem;line-height:1.6;max-width:22rem">
+                    All financial intelligence. One place.
+                </p>
+            </div>
+            <div>
+                <h4>Worlds</h4>
+                <a href="#/leaf">Leaf</a>
+                <a href="#/atlas">Atlas</a>
+                <a href="#/shield">Shield</a>
+                <a href="#/forge">Forge</a>
+            </div>
+            <div>
+                <h4>Product</h4>
+                <a href="#/features">Features</a>
+                <a href="#/how-it-works">How it works</a>
+                <a href="#/pricing">Pricing</a>
+                <a href="app.html#/login">Open the app</a>
+            </div>
+            <div>
+                <h4>Company</h4>
+                <a href="#/about">About</a>
+                <a href="#/team">The team</a>
+                <a href="#/privacy">Privacy</a>
+                <a href="admin.html">Admin portal</a>
+            </div>
+        </div>
+        <div class="footer-bar">&copy; <span id="year"></span> Lumera. Educational only, never financial advice.</div>
+    </footer>
+
+<script>
+/* ============================================================
+   The whole site in one file. Each page is a <section class="route">
+   and the hash picks which one is on screen.
+   ============================================================ */
+(function () {
+    var routes = [].slice.call(document.querySelectorAll('.route'));
+    var root = document.documentElement;
+
+    function keyFromHash() {
+        var h = (location.hash || '').replace(/^#\/?/, '').trim();
+        if (!h) return 'home';
+        return routes.some(function (r) { return r.dataset.route === h; }) ? h : 'home';
+    }
+
+    function reveal(scope) {
+        var items = [].slice.call(scope.querySelectorAll('.reveal'));
+        items.forEach(function (el, i) { el.style.transitionDelay = ((i % 4) * 0.07) + 's'; });
+        var h = window.innerHeight;
+        items.forEach(function (el) {
+            if (el.getBoundingClientRect().top < h * 0.92) el.classList.add('in');
+        });
+        return items;
+    }
+
+    var observed = null;
+    function show(key) {
+        var current = null;
+        routes.forEach(function (r) {
+            var on = r.dataset.route === key;
+            r.hidden = !on;
+            if (on) current = r;
+        });
+        if (!current) return;
+
+        root.style.setProperty('--accent-a', current.dataset.a);
+        root.style.setProperty('--accent-b', current.dataset.b);
+        root.style.setProperty('--accent-c', current.dataset.c);
+        document.title = current.dataset.title;
+
+        document.querySelectorAll('.nav-btn').forEach(function (a) {
+            var href = a.getAttribute('href') || '';
+            a.classList.toggle('on', href === '#/' + key);
+        });
+
+        window.scrollTo(0, 0);
+        observed = reveal(current);
+
+        var video = current.querySelector('video.bg-video');
+        if (video) { var p = video.play(); if (p && p.catch) p.catch(function () {}); }
+    }
+
+    var ticking = false;
+    function sweep() {
+        ticking = false;
+        if (!observed) return;
+        var h = window.innerHeight;
+        observed.forEach(function (el) {
+            if (!el.classList.contains('in') && el.getBoundingClientRect().top < h * 0.92) {
+                el.classList.add('in');
+            }
+        });
+    }
+    function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(sweep); } }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(sweep);
+
+    window.addEventListener('hashchange', function () { show(keyFromHash()); });
+    show(keyFromHash());
+
+    var y = document.getElementById('year');
+    if (y) y.textContent = new Date().getFullYear();
+})();
+
+/* ============================================================
+   Landing extras: the video fade loop and the logo marquee.
+   ============================================================ */
+(function () {
+    var video = document.getElementById('bgVideo');
+    if (video) {
+        var FADE = 0.5, raf = null;
+        var tick = function () {
+            var d = video.duration;
+            if (d && isFinite(d)) {
+                var t = video.currentTime, o = 1;
+                if (t < FADE) o = t / FADE;
+                else if (t > d - FADE) o = Math.max(0, (d - t) / FADE);
+                video.style.opacity = String(o);
+            }
+            raf = requestAnimationFrame(tick);
+        };
+        var start = function () {
+            video.currentTime = 0;
+            video.style.opacity = '0';
+            var p = video.play();
+            if (p && p.catch) p.catch(function () {});
+            if (raf === null) raf = requestAnimationFrame(tick);
+        };
+        video.addEventListener('loadedmetadata', start);
+        video.addEventListener('ended', function () {
+            video.style.opacity = '0';
+            setTimeout(start, 100);
+        });
+        if (video.readyState >= 1) start();
+    }
+
+    var track = document.getElementById('marqueeTrack');
+    if (track) {
+        var LOGOS = [
+            { name: 'Lumera', c1: '#8B5CF6', c2: '#4C1D95' },
+            { name: 'Leaf',   c1: '#22C55E', c2: '#14532D' },
+            { name: 'Atlas',  c1: '#3B82F6', c2: '#1E3A8A' },
+            { name: 'Shield', c1: '#64748B', c2: '#1E293B' },
+            { name: 'Forge',  c1: '#C0873A', c2: '#5C3A12' }
+        ];
+        var row = LOGOS.map(function (l) {
+            return '<div class="logo-item"><span class="icon liquid-glass" style="background-image:linear-gradient(160deg,'
+                + l.c1 + ',' + l.c2 + ')">' + l.name[0] + '</span><span class="name">' + l.name + '</span></div>';
+        }).join('');
+        track.innerHTML = row + row;
+    }
+})();
+</script>
+</body>
+</html>
