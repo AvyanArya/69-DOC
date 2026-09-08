@@ -271,6 +271,16 @@ window.__SS = (function () {
     doc = re.sub(r'\bsessionStorage\b', '__SS', doc)
     doc = doc.replace('<head>', '<head>\n' + shim, 1)
 
+    # A stylesheet blocks every script after it until it resolves. Inside this
+    # file the font requests are the only network calls left, and while they
+    # are pending nothing in the app or the portal runs, which looked like a
+    # dead page. Loaded with media="print" they never block; the onload puts
+    # them back for real once they arrive.
+    doc = re.sub(r'<link href="(https://(?:fonts\.googleapis|api\.fontshare|cdn\.jsdelivr)[^"]*)" rel="stylesheet">',
+                 r'<link href="\1" rel="stylesheet" media="print" onload="this.media=\'all\'">', doc)
+    doc = re.sub(r'<link rel="stylesheet" href="(https://[^"]*)">',
+                 r'<link rel="stylesheet" href="\1" media="print" onload="this.media=\'all\'">', doc)
+
     # Compile the JSX here rather than in the browser. Babel-in-the-page took
     # twenty seconds or more on a big file and needed a 2.9MB compiler along
     # for the ride; precompiled, the app paints almost immediately.
@@ -374,15 +384,29 @@ ROUTER = '''<script>
         var bytes = new Uint8Array(bin.length);
         for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
         var html = new TextDecoder('utf-8').decode(bytes);
-        var url = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+
         var f = document.createElement('iframe');
         f.className = 'app-frame';
+        f.setAttribute('title', which === 'app' ? 'Lumera app' : 'Admin portal');
         /* The page to open on, read by the payload before it boots. */
         f.name = deepLink();
-        f.setAttribute('title', which === 'app' ? 'Lumera app' : 'Admin portal');
-        f.src = url;
         f.hidden = true;
         document.body.appendChild(f);
+
+        /* Write the document in on the next tick rather than pointing at a
+           blob: URL. A blob document is a foreign, non-secure origin, where
+           window.crypto.subtle is missing (which broke the portal's key) and
+           storage throws. Written into the frame it shares this page's origin
+           and behaves like the file you opened. The tick matters: the frame's
+           own about:blank load would otherwise clear what we just wrote. */
+        setTimeout(function () {
+            var d = f.contentDocument || (f.contentWindow && f.contentWindow.document);
+            if (!d) return;
+            d.open();
+            d.write(html);
+            d.close();
+        }, 0);
+
         frames[which] = f;
         return f;
     }
