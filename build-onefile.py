@@ -60,6 +60,12 @@ sub_style = sub_style[:sub_style.index('</style>') + len('</style>')]
 # page's button works there and the choice is honoured
 _ca = landing.index('<aside class="consent"')
 consent_box = landing[_ca:landing.index('</aside>', _ca) + len('</aside>')]
+# the landing's own section script (worlds, the feature deck, the flow, trust)
+# travels with the single file, or those sections arrive empty
+_sa = landing.index('/* ============================================================\n   The rest of the page: content is data, rendered once.')
+_sb = landing.index('})();', landing.index('items.forEach(el => io.observe(el));', _sa)) + 5
+sections_js = landing[_sa:_sb]
+
 _ja = landing.index('/* ============================================================\n   Third-party content switch.')
 consent_js = landing[_ja:landing.index('})();', landing.index('data-consent-reopen', _ja)) + 5]
 
@@ -83,54 +89,8 @@ def body_of(key):
 
 
 def landing_grids(html):
-    """The landing filled its worlds, features, steps, trust and pricing grids
-    from its own script. That script does not travel into this file, so the
-    grids arrived empty and each section showed only its heading. Render the
-    same markup here instead, so the content is in the document."""
-    esc = lambda v: (str(v).replace('&', '&amp;').replace('<', '&lt;')
-                     .replace('>', '&gt;').replace('"', '&quot;'))
-
-    worlds = ''.join(
-        '<a class="panel liquid-glass world-card reveal" href="#/%s" style="text-decoration:none;color:inherit">'
-        '<span class="wash" style="background:%s"></span>'
-        '<span class="badge" style="background:%s22;color:%s">%s</span>'
-        '<span class="tag" style="color:%s">%s</span><h3>%s</h3><p>%s</p>'
-        '<span class="link" style="color:%s">Explore %s &rarr;</span></a>'
-        % (w['key'], w['accents'][1], w['accents'][1], w['accents'][1], w['name'][0],
-           w['accents'][1], w['tag'], w['name'], esc(w['lede'].split('.')[0] + '.'),
-           w['accents'][1], w['name'])
-        for w in WORLDS)
-
-    features = ''.join(
-        '<a class="panel liquid-glass reveal" href="#/app" style="text-decoration:none;color:inherit">'
-        '<h3>%s</h3><p>%s</p></a>' % (esc(t), esc(d)) for t, d in FEATURES[:8])
-
-    steps = ''.join(
-        '<div class="panel liquid-glass reveal"><span class="step-n">%02d</span><h3>%s</h3><p>%s</p></div>'
-        % (i + 1, esc(t), esc(d)) for i, (t, d) in enumerate(STEPS))
-
-    trust = ''.join(
-        '<div class="panel liquid-glass reveal"><h3>%s</h3><p>%s</p></div>' % (esc(t), esc(d))
-        for t, d in [('Privacy-first', 'Your figures live in your browser. Nothing is sold, shared or brokered.'),
-                     ('No bank login required', 'Lumera never asks for banking credentials. You stay in control of what it sees.'),
-                     ('Educational only', 'Explanations and benchmarks, never a recommendation to buy, sell or hold.')])
-
-    plans = ''.join(
-        '<div class="panel liquid-glass reveal"><div class="plan-head"><h3 style="margin:0">%s</h3>'
-        '<span class="pill%s">%s</span></div><p>%s</p><ul class="plan-list">%s</ul></div>'
-        % (n, ' now' if now else '', 'Current' if now else 'Future', b,
-           ''.join('<li>%s</li>' % f for f in feats))
-        for n, b, now, feats in
-        [('Free', 'Available now', True,
-          ['Monthly expense review', 'Financial health score', 'Budget &amp; savings tools', 'Market news', 'Limited AI assistant']),
-         ('Pro', 'Coming soon', False,
-          ['Advanced AI coach', 'Unlimited simulations', 'Full benchmark analytics', 'Monthly reports', 'Subscription &amp; debt tools']),
-         ('Premium', 'Coming soon', False,
-          ['Portfolio analytics', 'Family budgeting', 'Tax optimisation', 'Priority AI', 'Advisor-ready summaries'])])
-
-    for grid_id, markup in [('worldGrid', worlds), ('featureGrid', features), ('stepGrid', steps),
-                            ('trustGrid', trust), ('planGrid', plans)]:
-        html = html.replace('id="%s"></div>' % grid_id, 'id="%s">%s</div>' % (grid_id, markup))
+    """The landing now writes its own sections from its own script, which
+    travels with the page, so there is nothing to pre-render here."""
     return html
 
 
@@ -139,7 +99,7 @@ def home_body():
     s = landing
     wrap = s[s.index('<div class="page-wrap">'):s.index('<main class="rest" id="main">')]
     main = s[s.index('<main class="rest" id="main">') + len('<main class="rest" id="main">'):s.index('    <footer class="site-footer">')]
-    return landing_grids(wrap + '<div class="rest">' + main + '</div>')
+    return wrap + '<div class="rest">' + main + '</div>'
 
 
 # nav + footer links become hash routes; the app stays an outside link
@@ -598,7 +558,7 @@ out = '''<!DOCTYPE html>
 </html>
 ''' % (head_links, style, sub_style, EXTRA_CSS, atmo, consent_box, NAV,
        '\n\n'.join(sections), hashify(footer), PAYLOADS,
-       ROUTER + '\n<script>' + consent_js + '</script>')
+       ROUTER + '\n<script>' + sections_js + '</script>\n<script>' + consent_js + '</script>')
 
 path = os.path.join(ROOT, 'lumera.html')
 open(path, 'w').write(out)

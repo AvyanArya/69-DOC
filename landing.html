@@ -784,6 +784,211 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
 }
 
 
+
+/* ============================================================
+   NEON MORPHISM
+   Not frosted glass. A near-black plate, a crisp lit edge in the section's
+   accent, an outer bloom, and a faint inner rim so the surface reads as
+   lit rather than blurred. Every section sets --neon to its own colour.
+   ============================================================ */
+:root { --neon: #a855f7; }
+
+.neon {
+    position: relative;
+    border-radius: 18px;
+    background:
+        linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,0) 38%),
+        radial-gradient(120% 90% at 50% -20%, color-mix(in srgb, var(--neon) 16%, transparent), transparent 60%),
+        #0c0918;
+    border: 1px solid color-mix(in srgb, var(--neon) 42%, transparent);
+    box-shadow:
+        0 0 0 1px rgba(0,0,0,.6),
+        0 0 22px -6px color-mix(in srgb, var(--neon) 55%, transparent),
+        inset 0 1px 0 color-mix(in srgb, var(--neon) 22%, transparent),
+        inset 0 -22px 40px -30px color-mix(in srgb, var(--neon) 60%, transparent);
+    transition: box-shadow .45s ease, border-color .45s ease, transform .45s cubic-bezier(.2,.8,.2,1);
+}
+
+/* the lit top edge, brightest in the middle, the signature of the style */
+.neon::before {
+    content: "";
+    position: absolute; left: 12%; right: 12%; top: -1px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--neon), transparent);
+    opacity: .9;
+}
+
+.neon:hover {
+    border-color: color-mix(in srgb, var(--neon) 70%, transparent);
+    box-shadow:
+        0 0 0 1px rgba(0,0,0,.6),
+        0 0 34px -4px color-mix(in srgb, var(--neon) 75%, transparent),
+        inset 0 1px 0 color-mix(in srgb, var(--neon) 34%, transparent),
+        inset 0 -26px 46px -30px color-mix(in srgb, var(--neon) 75%, transparent);
+}
+
+/* Browsers without color-mix still get a lit edge, just a fixed one. */
+@supports not (color: color-mix(in srgb, red 50%, blue)) {
+    .neon { border-color: rgba(168,85,247,.42); box-shadow: 0 0 22px -6px rgba(168,85,247,.55), inset 0 1px 0 rgba(168,85,247,.22); }
+    .neon::before { background: linear-gradient(90deg, transparent, #a855f7, transparent); }
+}
+
+.neon-tag {
+    display: inline-flex; align-items: center; gap: .45rem;
+    font-size: .66rem; letter-spacing: .2em; text-transform: uppercase; font-weight: 700;
+    color: var(--neon);
+    padding: .3rem .7rem; border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--neon) 40%, transparent);
+    background: color-mix(in srgb, var(--neon) 12%, transparent);
+}
+
+/* ============================================================
+   Each section gets its own shape, so the page stops repeating itself.
+   ============================================================ */
+
+/* ---- 1. Worlds: four tall lit slabs, not equal grey cards ---- */
+.world-rail { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 1.1rem; }
+.world-slab {
+    position: relative; overflow: hidden; text-decoration: none; color: inherit;
+    border-radius: 20px; padding: 1.5rem 1.4rem 1.4rem; min-height: 15rem;
+    display: flex; flex-direction: column;
+}
+.world-slab .initial {
+    font-family: var(--font-display); font-size: 3.4rem; line-height: 1;
+    color: var(--neon); opacity: .22; margin-bottom: auto;
+}
+.world-slab h3 { font-family: var(--font-display); font-size: 1.5rem; font-weight: 500; margin-bottom: .3rem; }
+.world-slab .tagline { font-size: .66rem; letter-spacing: .2em; text-transform: uppercase; color: var(--neon); margin-bottom: .6rem; }
+.world-slab p { font-size: .88rem; line-height: 1.6; color: hsl(var(--hero-sub)); opacity: .78; }
+.world-slab .go { margin-top: 1rem; font-size: .82rem; font-weight: 600; color: var(--neon); }
+.world-slab:hover { transform: translateY(-6px); }
+
+/* ---- 2. Features: a deck you flick through ---- */
+.deck-wrap { display: grid; grid-template-columns: 1.05fr .95fr; gap: 3rem; align-items: center; }
+.deck {
+    position: relative; height: 21rem;
+    margin-bottom: 3.5rem;              /* the stack fans downward */
+    perspective: 1400px; touch-action: pan-y;
+}
+.deck-card {
+    position: absolute; inset: 0;
+    border-radius: 22px; padding: 2rem;
+    display: flex; flex-direction: column; justify-content: space-between;
+    cursor: grab; user-select: none;
+    transition: transform .55s cubic-bezier(.2,.8,.2,1), opacity .55s ease, box-shadow .55s ease;
+    will-change: transform;
+}
+.deck-card:active { cursor: grabbing; }
+.deck-card .idx { font-size: .66rem; letter-spacing: .2em; text-transform: uppercase; color: var(--neon); }
+.deck-card h3 { font-family: var(--font-display); font-size: 1.9rem; font-weight: 500; line-height: 1.1; margin: .8rem 0 .6rem; }
+.deck-card p { font-size: 1rem; line-height: 1.65; color: hsl(var(--hero-sub)); opacity: .82; }
+.deck-card .open { font-size: .82rem; font-weight: 600; color: var(--neon); }
+.deck-controls { display: flex; align-items: center; gap: .8rem; margin-top: 1.6rem; }
+.deck-btn {
+    width: 44px; height: 44px; border-radius: 50%; cursor: pointer;
+    background: rgba(255,255,255,.03); color: hsl(var(--foreground));
+    border: 1px solid hsl(var(--foreground) / .2);
+    font-size: 1.1rem; line-height: 1; display: grid; place-items: center;
+}
+.deck-btn:hover { background: rgba(255,255,255,.09); }
+.deck-count { font-size: .8rem; color: hsl(var(--foreground) / .6); font-variant-numeric: tabular-nums; }
+.deck-dots { display: flex; gap: .35rem; margin-left: auto; }
+.deck-dot { width: 6px; height: 6px; border-radius: 50%; background: hsl(var(--foreground) / .22); transition: all .3s ease; }
+.deck-dot.on { background: var(--neon); box-shadow: 0 0 8px var(--neon); width: 18px; border-radius: 3px; }
+.sr-live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.deck-hint { font-size: .78rem; color: hsl(var(--foreground) / .5); margin-top: .8rem; }
+
+/* ---- 3. How it works: a flowing plan, not three boxes ---- */
+.flow { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.6rem; margin-top: 1rem; }
+.flow-line {
+    position: absolute; left: 8%; right: 8%; top: 2.1rem; height: 2px;
+    background: linear-gradient(90deg, transparent, hsl(var(--foreground)/.18) 12%, hsl(var(--foreground)/.18) 88%, transparent);
+    overflow: hidden;
+}
+.flow-line::after {
+    content: ""; position: absolute; top: 0; left: -30%; width: 30%; height: 100%;
+    background: linear-gradient(90deg, transparent, var(--neon), transparent);
+    animation: flowPulse 3.6s linear infinite;
+}
+@keyframes flowPulse { to { left: 100%; } }
+.flow-node { position: relative; text-align: center; }
+.flow-dot {
+    width: 4.2rem; height: 4.2rem; margin: 0 auto 1.2rem; border-radius: 50%;
+    display: grid; place-items: center;
+    font-family: var(--font-display); font-size: 1.5rem;
+    color: var(--neon); background: #0c0918;
+    border: 1px solid color-mix(in srgb, var(--neon) 55%, transparent);
+    box-shadow: 0 0 26px -6px var(--neon), inset 0 0 18px -10px var(--neon);
+    position: relative; z-index: 1;
+}
+.flow-node h3 { font-family: var(--font-display); font-size: 1.2rem; font-weight: 500; margin-bottom: .5rem; }
+.flow-node p { font-size: .92rem; line-height: 1.65; color: hsl(var(--hero-sub)); opacity: .78; max-width: 20rem; margin: 0 auto; }
+.flow-out {
+    margin-top: 2.6rem; border-radius: 20px; padding: 1.4rem 1.6rem;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 2rem;
+}
+.flow-out .arrow { color: var(--neon); font-size: 1.3rem; }
+.flow-out strong { font-family: var(--font-display); font-weight: 500; font-size: 1.05rem; }
+.flow-out span { font-size: .9rem; color: hsl(var(--hero-sub)); opacity: .8; }
+
+/* ---- 4. Trust: a lock, with the promises around it ---- */
+.trust-wrap { display: grid; grid-template-columns: 18rem 1fr; gap: 3rem; align-items: center; }
+.lock { position: relative; display: grid; place-items: center; padding: 1.5rem; }
+.lock svg { width: 11rem; height: 11rem; overflow: visible; }
+.lock .ring {
+    position: absolute; border-radius: 50%; border: 1px solid color-mix(in srgb, var(--neon) 30%, transparent);
+}
+.lock .r1 { inset: 1rem; animation: ringPulse 4s ease-in-out infinite; }
+.lock .r2 { inset: -.4rem; animation: ringPulse 4s ease-in-out infinite .8s; }
+@keyframes ringPulse { 0%,100% { opacity: .25; transform: scale(1); } 50% { opacity: .7; transform: scale(1.04); } }
+.trust-list { display: flex; flex-direction: column; gap: 1rem; }
+.trust-item { border-radius: 16px; padding: 1.1rem 1.3rem; display: flex; gap: 1rem; align-items: flex-start; }
+.trust-item .tick {
+    flex: 0 0 auto; width: 1.9rem; height: 1.9rem; border-radius: 8px; display: grid; place-items: center;
+    color: var(--neon); border: 1px solid color-mix(in srgb, var(--neon) 45%, transparent);
+    background: color-mix(in srgb, var(--neon) 12%, transparent);
+}
+.trust-item h3 { font-family: var(--font-display); font-size: 1.05rem; font-weight: 500; margin-bottom: .25rem; }
+.trust-item p { font-size: .9rem; line-height: 1.6; color: hsl(var(--hero-sub)); opacity: .78; }
+
+/* ---- 5. Pricing: one lit price, two dim outlines ---- */
+.price-wrap { display: grid; grid-template-columns: 1.1fr 1fr; gap: 2rem; align-items: stretch; }
+.price-hero { border-radius: 22px; padding: 2.2rem; display: flex; flex-direction: column; }
+.price-figure { display: flex; align-items: flex-start; gap: .3rem; margin: .6rem 0 .2rem; }
+.price-figure .zero {
+    font-family: var(--font-display); font-size: 6.5rem; line-height: .85; font-weight: 400;
+    color: var(--neon); text-shadow: 0 0 40px color-mix(in srgb, var(--neon) 55%, transparent);
+}
+.price-figure .per { font-size: .85rem; color: hsl(var(--foreground)/.6); margin-top: .9rem; }
+.price-hero ul { list-style: none; margin: 1.4rem 0 0; display: flex; flex-direction: column; gap: .5rem; }
+.price-hero li { display: flex; gap: .55rem; font-size: .92rem; color: hsl(var(--hero-sub)); opacity: .82; }
+.price-hero li::before { content: "✓"; color: var(--neon); font-weight: 700; }
+.price-hero .btn-solid { margin-top: 1.6rem; align-self: flex-start; }
+.price-later { display: flex; flex-direction: column; gap: 1rem; }
+.price-row {
+    border-radius: 16px; padding: 1.2rem 1.4rem; flex: 1;
+    border: 1px dashed hsl(var(--foreground) / .18); background: rgba(255,255,255,.012);
+}
+.price-row .head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: .4rem; }
+.price-row h3 { font-family: var(--font-display); font-size: 1.15rem; font-weight: 500; }
+.price-row .soon { font-size: .62rem; letter-spacing: .16em; text-transform: uppercase; color: hsl(var(--foreground)/.55);
+    border: 1px solid hsl(var(--foreground)/.2); border-radius: 999px; padding: .22rem .6rem; }
+.price-row p { font-size: .86rem; line-height: 1.6; color: hsl(var(--hero-sub)); opacity: .7; }
+
+@media (max-width: 1000px) {
+    .world-rail { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .deck-wrap, .trust-wrap, .price-wrap { grid-template-columns: 1fr; gap: 2rem; }
+    .flow { grid-template-columns: 1fr; gap: 2.2rem; }
+    .flow-line { display: none; }
+}
+@media (max-width: 620px) {
+    .world-rail { grid-template-columns: 1fr; }
+    .deck { height: 24rem; }
+    .price-figure .zero { font-size: 5rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .flow-line::after, .lock .ring { animation: none; }
+    .deck-card { transition: none; }
+}
 </style>
 </head>
 <body>
@@ -858,52 +1063,128 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
 
 <main class="rest" id="main">
 
-    <!-- ===== The family ===== -->
+    <!-- ===== 1. The family: four lit slabs ===== -->
     <section class="section" id="worlds">
         <div class="sec-head reveal">
             <div class="eyebrow">The Lumera family</div>
             <h2 class="sec-title">Four worlds, <span class="grad">one financial life</span></h2>
             <p class="sec-sub">Lumera is the hub. Each world below is its own space, with its own tools, colour and guide.</p>
         </div>
-        <div class="grid-4" id="worldGrid"></div>
+        <div class="world-rail" id="worldGrid"></div>
     </section>
 
-    <!-- ===== Features ===== -->
-    <section class="section" id="features">
-        <div class="sec-head reveal">
-            <div class="eyebrow">What you get</div>
-            <h2 class="sec-title">Everything your money needs, <span class="grad">in one calm place</span></h2>
-            <p class="sec-sub">Not another budgeting tab. A financial operating system that understands the invisible patterns behind your spending.</p>
+    <!-- ===== 2. Features: a deck you flick through ===== -->
+    <section class="section" id="features" style="--neon:#8b5cf6">
+        <div class="deck-wrap">
+            <div class="reveal">
+                <div class="eyebrow">What you get</div>
+                <h2 class="sec-title">Everything your money needs, <span class="grad">in one calm place</span></h2>
+                <p class="sec-sub">Not another budgeting tab. A financial operating system that understands the invisible patterns behind your spending.</p>
+                <div class="deck-controls">
+                    <button type="button" class="deck-btn" id="deckPrev" aria-label="Previous feature">&larr;</button>
+                    <button type="button" class="deck-btn" id="deckNext" aria-label="Next feature">&rarr;</button>
+                    <span class="deck-count" id="deckCount">1 of 12</span>
+                    <span class="deck-dots" id="deckDots" aria-hidden="true"></span>
+                </div>
+                <p class="deck-hint">Drag a card, use the arrows, or press the arrow keys.</p>
+            </div>
+            <div class="deck" id="deck" role="group" aria-roledescription="carousel" aria-label="Lumera features"></div>
         </div>
-        <div class="grid-4" id="featureGrid"></div>
+        <p class="sr-live" id="deckLive" aria-live="polite"></p>
     </section>
 
-    <!-- ===== How it works ===== -->
-    <section class="section" id="how">
+    <!-- ===== 3. How it works: a flowing plan ===== -->
+    <section class="section" id="how" style="--neon:#14b8a6">
         <div class="sec-head reveal">
             <div class="eyebrow">How it works</div>
             <h2 class="sec-title">Three steps, <span class="grad">thirty days</span></h2>
+            <p class="sec-sub">One month of ordinary behaviour is enough to tell you what is going on with your money.</p>
         </div>
-        <div class="grid-3" id="stepGrid"></div>
+        <div class="flow reveal" id="stepGrid">
+            <div class="flow-line" aria-hidden="true"></div>
+        </div>
+        <div class="flow-out neon reveal">
+            <span class="arrow" aria-hidden="true">&rarr;</span>
+            <span><strong>Out the other end:</strong></span>
+            <span>a health score you can move</span>
+            <span class="arrow" aria-hidden="true">&middot;</span>
+            <span>the leak costing you most</span>
+            <span class="arrow" aria-hidden="true">&middot;</span>
+            <span>a 30-day plan sized to your income</span>
+        </div>
     </section>
 
-    <!-- ===== Trust ===== -->
-    <section class="section" id="trust">
+    <!-- ===== 4. Trust: a lock, with the promises beside it ===== -->
+    <section class="section" id="trust" style="--neon:#3b82f6">
         <div class="sec-head reveal">
             <div class="eyebrow">Built on trust</div>
             <h2 class="sec-title">Private by design, <span class="grad">educational never advisory</span></h2>
-            <p class="sec-sub">Your figures stay in your browser. Lumera never asks for a bank login and never tells you what to buy.</p>
         </div>
-        <div class="grid-3" id="trustGrid"></div>
+        <div class="trust-wrap">
+            <div class="lock reveal" aria-hidden="true">
+                <span class="ring r1"></span>
+                <span class="ring r2"></span>
+                <svg viewBox="0 0 120 140" fill="none">
+                    <defs>
+                        <linearGradient id="lockGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#60a5fa"/>
+                            <stop offset="100%" stop-color="#1d4ed8"/>
+                        </linearGradient>
+                        <filter id="lockGlow" x="-60%" y="-60%" width="220%" height="220%">
+                            <feGaussianBlur stdDeviation="5" result="b"/>
+                            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+                        </filter>
+                    </defs>
+                    <path d="M32 62V44a28 28 0 0 1 56 0v18" stroke="url(#lockGrad)" stroke-width="7"
+                          stroke-linecap="round" filter="url(#lockGlow)"/>
+                    <rect x="18" y="62" width="84" height="66" rx="16" stroke="url(#lockGrad)" stroke-width="3"
+                          fill="rgba(29,78,216,.12)" filter="url(#lockGlow)"/>
+                    <circle cx="60" cy="92" r="7" fill="#60a5fa"/>
+                    <path d="M60 99v13" stroke="#60a5fa" stroke-width="5" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <div class="trust-list" id="trustGrid"></div>
+        </div>
     </section>
 
-    <!-- ===== Pricing ===== -->
-    <section class="section" id="pricing">
+    <!-- ===== 5. Pricing: one lit price, two dim outlines ===== -->
+    <section class="section" id="pricing" style="--neon:#fcd34d">
         <div class="sec-head reveal">
             <div class="eyebrow">Pricing</div>
             <h2 class="sec-title">Free today. <span class="grad">Built for what is next.</span></h2>
         </div>
-        <div class="grid-3" id="planGrid"></div>
+        <div class="price-wrap">
+            <div class="price-hero neon reveal">
+                <span class="neon-tag">Available now</span>
+                <div class="price-figure">
+                    <span class="zero">&pound;0</span>
+                    <span class="per">forever, no card</span>
+                </div>
+                <p style="font-size:.92rem;color:hsl(var(--hero-sub));opacity:.8">Everything you need for your first 30-day review.</p>
+                <ul>
+                    <li>Monthly expense review</li>
+                    <li>Financial health score</li>
+                    <li>Budget &amp; savings tools</li>
+                    <li>Market news</li>
+                    <li>Limited AI assistant</li>
+                </ul>
+                <a class="btn-solid" href="app.html#/signup">Start free</a>
+            </div>
+            <div class="price-later">
+                <div class="price-row reveal">
+                    <div class="head"><h3>Pro</h3><span class="soon">Coming soon</span></div>
+                    <p>Advanced AI coach, unlimited simulations, full benchmark analytics, monthly reports, subscription and debt planners.</p>
+                </div>
+                <div class="price-row reveal">
+                    <div class="head"><h3>Premium</h3><span class="soon">Coming soon</span></div>
+                    <p>Portfolio analytics, family budgeting, tax optimisation, priority AI and advisor-ready summaries.</p>
+                </div>
+                <div class="price-row reveal" style="border-style:solid">
+                    <div class="head"><h3>Nothing to cancel</h3></div>
+                    <p>No payment is taken today, so there is nothing to refund. The <a href="refunds.html" style="color:hsl(var(--foreground));text-decoration:underline">refund terms</a> apply if the paid plans launch.</p>
+                </div>
+            </div>
+        </div>
     </section>
 
     <!-- ===== Final CTA ===== -->
@@ -1139,54 +1420,126 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
         ['Educational only',       'Explanations and benchmarks, never a recommendation to buy, sell or hold.']
     ];
 
-    const PLANS = [
-        ['Free', 'Available now', true,
-         ['Monthly expense review','Financial health score','Budget & savings tools','Market news','Limited AI assistant']],
-        ['Pro', 'Coming soon', false,
-         ['Advanced AI coach','Unlimited simulations','Full benchmark analytics','Monthly reports','Subscription & debt tools']],
-        ['Premium', 'Coming soon', false,
-         ['Portfolio analytics','Family budgeting','Tax optimisation','Priority AI','Advisor-ready summaries']]
-    ];
 
     const esc = (v) => String(v).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
+    // ---- 1. Worlds: lit slabs, each carrying its own accent ----
     document.getElementById('worldGrid').innerHTML = WORLDS.map(w => `
-        <a class="panel liquid-glass world-card reveal" href="${w.href}" style="text-decoration:none;color:inherit">
-            <span class="wash" style="background:${w.c}"></span>
-            <span class="badge" style="background:${w.c}22;color:${w.c}">${w.name[0]}</span>
-            <span class="tag" style="color:${w.c}">${esc(w.tag)}</span>
+        <a class="world-slab neon reveal" href="${w.href}" style="--neon:${w.c}">
+            <span class="initial" aria-hidden="true">${w.name[0]}</span>
+            <span class="tagline">${esc(w.tag)}</span>
             <h3>${esc(w.name)}</h3>
             <p>${esc(w.blurb)}</p>
-            <span class="link" style="color:${w.c}">Explore ${esc(w.name)} &rarr;</span>
+            <span class="go">Explore ${esc(w.name)} &rarr;</span>
         </a>`).join('');
 
-    document.getElementById('featureGrid').innerHTML = FEATURES.map(([t, d, href]) => `
-        <a class="panel liquid-glass reveal" href="${href}" style="text-decoration:none;color:inherit">
-            <h3>${esc(t)}</h3>
-            <p>${esc(d)}</p>
-        </a>`).join('');
+    // ---- 2. Features: a deck. The top card flicks to the back. ----
+    const deck = document.getElementById('deck');
+    if (deck) {
+        const DEPTH = 4;                       // how many cards are visible behind
+        let order = FEATURES.map((_, i) => i); // order[0] is the card on top
 
-    document.getElementById('stepGrid').innerHTML = STEPS.map(([n, t, d]) => `
-        <div class="panel liquid-glass reveal">
-            <span class="step-n">${n}</span>
-            <h3>${esc(t)}</h3>
-            <p>${esc(d)}</p>
-        </div>`).join('');
+        deck.innerHTML = FEATURES.map(([t, d, href], i) => `
+            <article class="deck-card neon" data-card="${i}" style="--neon:${['#8b5cf6','#22c55e','#3b82f6','#fcd34d'][i % 4]}">
+                <div>
+                    <span class="idx">Feature ${String(i + 1).padStart(2, '0')}</span>
+                    <h3>${esc(t)}</h3>
+                    <p>${esc(d)}</p>
+                </div>
+                <a class="open" href="${href}">Open in the app &rarr;</a>
+            </article>`).join('');
 
+        const cards = [...deck.querySelectorAll('.deck-card')];
+        const dots = document.getElementById('deckDots');
+        const count = document.getElementById('deckCount');
+        const live = document.getElementById('deckLive');
+        if (dots) dots.innerHTML = FEATURES.map(() => '<span class="deck-dot"></span>').join('');
+        const dotEls = dots ? [...dots.children] : [];
+
+        function paint() {
+            order.forEach((cardIndex, place) => {
+                const el = cards[cardIndex];
+                const hidden = place >= DEPTH;
+                el.style.zIndex = String(FEATURES.length - place);
+                // The cards behind have to peek out, or the deck reads as one card.
+                el.style.transform =
+                    `translate3d(0, ${place * 26}px, ${place * -70}px) scale(${1 - place * 0.075}) rotate(${place * -1.4}deg)`;
+                el.style.opacity = hidden ? '0' : String(1 - place * 0.16);
+                el.style.pointerEvents = place === 0 ? 'auto' : 'none';
+                el.setAttribute('aria-hidden', place === 0 ? 'false' : 'true');
+                el.querySelectorAll('a').forEach(a => a.tabIndex = place === 0 ? 0 : -1);
+            });
+            dotEls.forEach((d, i) => d.classList.toggle('on', i === order[0]));
+            if (count) count.textContent = (order[0] + 1) + ' of ' + FEATURES.length;
+            if (live) live.textContent = FEATURES[order[0]][0] + '. Card ' + (order[0] + 1) + ' of ' + FEATURES.length + '.';
+        }
+
+        function send(dir) {
+            const top = cards[order[0]];
+            // the card leaves in the direction it was thrown, then drops to the back
+            top.style.transition = 'transform .32s ease, opacity .32s ease';
+            top.style.transform = `translate3d(${dir * 60}%, -8%, 120px) rotate(${dir * 9}deg)`;
+            top.style.opacity = '0';
+            window.setTimeout(() => {
+                top.style.transition = '';
+                order = dir > 0 ? order.slice(1).concat(order[0])
+                                : [order[order.length - 1]].concat(order.slice(0, -1));
+                paint();
+            }, 260);
+        }
+
+        document.getElementById('deckNext').addEventListener('click', () => send(1));
+        document.getElementById('deckPrev').addEventListener('click', () => send(-1));
+        deck.addEventListener('keydown', e => {
+            if (e.key === 'ArrowRight') { e.preventDefault(); send(1); }
+            if (e.key === 'ArrowLeft') { e.preventDefault(); send(-1); }
+        });
+        deck.tabIndex = 0;
+
+        // drag, on pointer devices and by touch
+        let startX = null, dragging = false;
+        deck.addEventListener('pointerdown', e => {
+            const top = cards[order[0]];
+            if (!top.contains(e.target)) return;
+            startX = e.clientX; dragging = true;
+            top.style.transition = 'none';
+        });
+        window.addEventListener('pointermove', e => {
+            if (!dragging) return;
+            const dx = e.clientX - startX;
+            cards[order[0]].style.transform = `translate3d(${dx}px, 0, 0) rotate(${dx * 0.04}deg)`;
+        });
+        window.addEventListener('pointerup', e => {
+            if (!dragging) return;
+            dragging = false;
+            const dx = e.clientX - startX;
+            cards[order[0]].style.transition = '';
+            if (Math.abs(dx) > 90) send(dx > 0 ? 1 : -1); else paint();
+        });
+
+        paint();
+    }
+
+    // ---- 3. How it works: nodes along the flow line ----
+    const stepGrid = document.getElementById('stepGrid');
+    if (stepGrid) {
+        // STEPS entries carry their own number: [n, title, detail]
+        stepGrid.insertAdjacentHTML('beforeend', STEPS.map(([n, t, d]) => `
+            <div class="flow-node reveal">
+                <div class="flow-dot">${esc(n)}</div>
+                <h3>${esc(t)}</h3>
+                <p>${esc(d)}</p>
+            </div>`).join(''));
+    }
+
+    // ---- 4. Trust: the promises beside the lock ----
     document.getElementById('trustGrid').innerHTML = TRUST.map(([t, d]) => `
-        <div class="panel liquid-glass reveal">
-            <h3>${esc(t)}</h3>
-            <p>${esc(d)}</p>
-        </div>`).join('');
-
-    document.getElementById('planGrid').innerHTML = PLANS.map(([n, b, now, feats]) => `
-        <div class="panel liquid-glass reveal">
-            <div class="plan-head">
-                <h3 style="margin:0">${esc(n)}</h3>
-                <span class="pill${now ? ' now' : ''}">${now ? 'Current' : 'Future'}</span>
-            </div>
-            <p>${esc(b)}</p>
-            <ul class="plan-list">${feats.map(f => `<li>${esc(f)}</li>`).join('')}</ul>
+        <div class="trust-item neon reveal">
+            <span class="tick" aria-hidden="true">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4"
+                     stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            </span>
+            <div><h3>${esc(t)}</h3><p>${esc(d)}</p></div>
         </div>`).join('');
 
     const y = document.getElementById('year');
