@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lumera · Secondary font options</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Four candidates for Lumera's SECONDARY face — the one carrying every label,
+     number, button and 11px caption. Fraunces stays fixed on the headings in
+     all four, so the only variable is the sans. */
+  :root{
+    --bg:#0E0E13; --panel:#1A1A23; --panel2:#15151C; --line:#2A2A38;
+    --ink:#E9EAF4; --muted:#9EA0B4; --faint:#70728A; --violet:#A78BFA; --green:#4ADE80; --amber:#FBBF24;
+  }
+  :root[data-theme="light"]{
+    --bg:#F6F2EB; --panel:#FFFDFA; --panel2:#FCFAF6; --line:#E9E2D5;
+    --ink:#272320; --muted:#7C7264; --faint:#9A9182; --violet:#8B5CF6; --green:#16A34A; --amber:#D97706;
+  }
+  *{box-sizing:border-box}
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:'Inter',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(1000px 560px at 100% -10%, rgba(139,92,246,.18), transparent 60%);
+    background-attachment:fixed; }
+  h1,h2,h3,.serif{ font-family:'Fraunces',Georgia,serif; font-weight:600; }
+  .wrap{ max-width:1240px; margin:0 auto; padding:40px 20px 80px; }
+
+  .eyebrow{ font-size:11px; font-weight:600; letter-spacing:.22em; text-transform:uppercase; color:var(--violet);
+    display:inline-flex; align-items:center; gap:8px; }
+  .eyebrow::before{ content:''; width:24px; height:1px; background:var(--violet); opacity:.6; }
+  h1{ font-size:38px; margin:8px 0 0; line-height:1.15; }
+  .lede{ font-family:'Fraunces',Georgia,serif; font-weight:400; color:var(--muted); max-width:660px;
+    margin:12px 0 0; line-height:1.6; }
+  .toolbar{ display:flex; gap:8px; margin-top:22px; flex-wrap:wrap; }
+  button.tool{ font-family:inherit; font-size:13px; font-weight:600; color:var(--ink); background:transparent;
+    border:1px solid var(--line); border-radius:99px; padding:8px 14px; cursor:pointer; transition:.2s; }
+  button.tool:hover,button.tool[aria-pressed="true"]{ border-color:var(--violet); color:var(--violet); }
+
+  .grid{ display:grid; gap:20px; margin-top:30px; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); }
+
+  .col{ background:linear-gradient(180deg,var(--panel),var(--panel2)); border:1px solid var(--line);
+    border-radius:20px; overflow:hidden; }
+  .col header{ padding:16px 18px; border-bottom:1px solid var(--line); }
+  .fname{ font-family:'Fraunces',Georgia,serif; font-size:22px; }
+  .verdict{ font-size:11.5px; color:var(--muted); margin-top:4px; line-height:1.5; }
+  .tag{ display:inline-block; font-size:10px; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+    padding:3px 8px; border-radius:99px; margin-top:8px; }
+  .body{ padding:18px; }
+
+  /* --- the specimen: a slice of real Lumera UI --- */
+  .spec h3{ font-size:19px; margin:0; }
+  .spec .sub{ font-family:'Fraunces',Georgia,serif; font-weight:400; font-size:13.5px; color:var(--muted);
+    margin:6px 0 0; line-height:1.6; }
+  .label{ font-size:10px; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); }
+  .big{ font-family:'Fraunces',Georgia,serif; font-size:32px; line-height:1; margin-top:3px;
+    font-variant-numeric:tabular-nums; }
+  .row{ display:flex; align-items:center; justify-content:space-between; font-size:13px; padding:7px 0;
+    border-bottom:1px solid var(--line); }
+  .row:last-child{ border-bottom:0 }
+  .num{ font-variant-numeric:tabular-nums; font-weight:600; }
+  .pill{ display:inline-block; font-size:10.5px; font-weight:600; padding:3px 9px; border-radius:99px; }
+  .btn{ display:block; width:100%; text-align:center; font-family:inherit; font-size:13px; font-weight:600;
+    color:#fff; background:linear-gradient(180deg,#8B5CF6,#6D28D9); border:0; border-radius:12px;
+    padding:11px; margin-top:14px; cursor:pointer; }
+  .cap{ font-size:11px; color:var(--faint); margin-top:10px; line-height:1.5; }
+  .chips{ display:flex; gap:6px; flex-wrap:wrap; margin-top:12px; }
+  .chip{ font-size:11px; border:1px solid var(--line); border-radius:99px; padding:4px 10px; color:var(--muted); }
+  .divider{ height:1px; background:var(--line); margin:16px 0; }
+  .glyphs{ font-size:15px; letter-spacing:.02em; word-spacing:.1em; line-height:1.7; color:var(--muted); }
+
+  .foot{ margin-top:34px; padding:18px 20px; border:1px dashed var(--line); border-radius:16px;
+    color:var(--muted); font-size:13.5px; line-height:1.65; }
+  .foot b{ color:var(--ink); }
+  code{ font-family:ui-monospace,Menlo,monospace; font-size:12.5px; background:rgba(139,92,246,.14);
+    color:var(--violet); padding:1px 6px; border-radius:5px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="eyebrow">Design system</span>
+  <h1>Pick the secondary face.</h1>
+  <p class="lede">Fraunces is fixed — it carries the wordmark, every heading and the long sub-copy, and it is not
+    changing. The choice below is only the <b>secondary</b> face: the one doing the unglamorous work of labels,
+    numbers, buttons, chips and 10&ndash;13px captions, where a serif turns to mush. Each column is the same slice
+    of real Lumera UI, so compare the small text, not the headings.</p>
+
+  <div class="toolbar">
+    <button class="tool" onclick="toggleTheme()">Toggle theme</button>
+    <button class="tool" id="szBtn" onclick="toggleSize()">Shrink to 11px</button>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="foot">
+    <b>How to choose:</b> squint at the <code>SAVINGS RATE</code> labels and the numbers, not the headline.
+    The winner is whichever stays crisp and even at 10&ndash;11px while still feeling like it belongs beside
+    Fraunces. Tell me the name and I will swap it in — it is one line in the font stack, so switching later is cheap.
+  </div>
+</div>
+
+<script>
+const FONTS = [
+  { name:'Inter', stack:"'Inter',system-ui,sans-serif", tag:'Current', tagBg:'rgba(139,92,246,.18)', tagFg:'#A78BFA',
+    verdict:'The default workhorse. Deliberately neutral, superb at small sizes, and invisible in the best way. Safe, and slightly anonymous — it is what most fintech looks like.' },
+  { name:'Plus Jakarta Sans', stack:"'Plus Jakarta Sans',system-ui,sans-serif", tag:'Warmest', tagBg:'rgba(74,222,128,.18)', tagFg:'#4ADE80',
+    verdict:'Softer, rounder terminals and a friendlier tone. Reads younger without being childish, and sits comfortably beside Fraunces since both have some warmth. My pick for this audience.' },
+  { name:'Manrope', stack:"'Manrope',system-ui,sans-serif", tag:'Most distinct', tagBg:'rgba(251,191,36,.18)', tagFg:'#FBBF24',
+    verdict:'Geometric and a bit technical, with tall figures that make numbers feel precise. Gives the product its own voice, but it is the biggest departure and can read cool next to a warm serif.' },
+  { name:'Instrument Sans', stack:"'Instrument Sans',system-ui,sans-serif", tag:'Most editorial', tagBg:'rgba(167,139,250,.18)', tagFg:'#A78BFA',
+    verdict:'Slightly condensed with a modern editorial feel. Fits a lot of label into a small chip, which suits the dense pages. Marginally less legible than Inter at the very smallest sizes.' },
+];
+
+const specimen = (stack)=>`
+  <div class="spec" style="font-family:${stack}">
+    <h3>Subscription waste detector</h3>
+    <p class="sub">The quiet renewals add up faster than any single big purchase. Decide keep, review, or cancel.</p>
+    <div class="divider"></div>
+    <div class="label">Savings rate</div>
+    <div class="big">18.4%</div>
+    <div class="cap">Above the 15% benchmark for your income and region.</div>
+    <div class="divider"></div>
+    <div class="row"><span>Netflix Premium</span><span class="num">56 AED</span></div>
+    <div class="row"><span>Spotify</span><span class="num">22 AED</span></div>
+    <div class="row"><span>Adobe Creative Cloud</span><span class="num">75 AED</span></div>
+    <div class="chips">
+      <span class="chip">Active</span><span class="chip">Review</span><span class="chip">Paused</span>
+    </div>
+    <div style="margin-top:12px">
+      <span class="pill" style="background:rgba(74,222,128,.16);color:#4ADE80">WITHIN BENCHMARK</span>
+    </div>
+    <button class="btn">Claim today &middot; +10 XP</button>
+    <div class="cap">Educational, never advisory. Your data is yours.</div>
+    <div class="divider"></div>
+    <div class="glyphs">0123456789 &middot; AED £ $ &euro; &middot; Il1 O0 rn m &middot; 28&ndash;34</div>
+  </div>`;
+
+document.getElementById('grid').innerHTML = FONTS.map(f=>`
+  <div class="col">
+    <header>
+      <div class="fname">${f.name}</div>
+      <span class="tag" style="background:${f.tagBg};color:${f.tagFg}">${f.tag}</span>
+      <div class="verdict">${f.verdict}</div>
+    </header>
+    <div class="body">${specimen(f.stack)}</div>
+  </div>`).join('');
+
+function toggleTheme(){
+  const r=document.documentElement;
+  r.setAttribute('data-theme', r.getAttribute('data-theme')==='dark'?'light':'dark');
+}
+let small=false;
+function toggleSize(){
+  small=!small;
+  document.querySelectorAll('.spec').forEach(el=>{ el.style.fontSize = small?'11px':''; });
+  document.querySelectorAll('.row,.chip,.cap,.glyphs').forEach(el=>{ el.style.fontSize = small?'11px':''; });
+  document.getElementById('szBtn').textContent = small?'Back to normal size':'Shrink to 11px';
+}
+</script>
+</body>
+</html>

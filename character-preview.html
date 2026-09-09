@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lumera · Character preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Standalone preview of the five Lumera guides. No build step, no React:
+     the mascot SVG is the same markup the app renders, pasted flat, so what
+     you see here is what ships. Copy is editable in the page. */
+  :root{
+    --bg:#0E0E13; --panel:#1A1A23; --panel2:#15151C; --line:#2A2A38;
+    --ink:#E9EAF4; --muted:#9EA0B4; --faint:#70728A;
+  }
+  :root[data-theme="light"]{
+    --bg:#F6F2EB; --panel:#FFFDFA; --panel2:#FCFAF6; --line:#E9E2D5;
+    --ink:#272320; --muted:#7C7264; --faint:#9A9182;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif; -webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(1000px 560px at 100% -10%, rgba(139,92,246,.20), transparent 60%),
+      radial-gradient(820px 520px at -10% 110%, rgba(139,92,246,.10), transparent 58%);
+    background-attachment:fixed;
+  }
+  h1,h2,h3,.serif{ font-family:'Fraunces',Georgia,serif; font-optical-sizing:auto; font-weight:600; }
+  .wrap{ max-width:1180px; margin:0 auto; padding:40px 20px 80px; }
+
+  header.top{ display:flex; align-items:flex-end; gap:16px; flex-wrap:wrap; margin-bottom:8px; }
+  .eyebrow{ font-size:11px; font-weight:600; letter-spacing:.22em; text-transform:uppercase;
+    color:#A78BFA; display:inline-flex; align-items:center; gap:8px; }
+  .eyebrow::before{ content:''; width:24px; height:1px; background:rgba(167,139,250,.6); }
+  h1{ font-size:38px; line-height:1.15; margin:8px 0 0; }
+  .lede{ font-family:'Fraunces',Georgia,serif; font-weight:400; color:var(--muted);
+    max-width:640px; margin:12px 0 0; line-height:1.6; }
+  .tools{ margin-left:auto; display:flex; gap:8px; }
+  button.tool{ font:inherit; font-size:13px; font-weight:600; color:var(--ink);
+    background:transparent; border:1px solid var(--line); border-radius:99px;
+    padding:8px 14px; cursor:pointer; transition:.25s; }
+  button.tool:hover{ border-color:#A78BFA; color:#A78BFA; }
+
+  .grid{ display:grid; gap:18px; margin-top:34px;
+    grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); }
+
+  .card{ background:linear-gradient(180deg,var(--panel),var(--panel2));
+    border:1px solid var(--line); border-radius:20px; overflow:hidden;
+    display:flex; flex-direction:column; transition:transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s ease; }
+  .card:hover{ transform:translateY(-4px); }
+  .hero{ position:relative; padding:26px 20px 18px; text-align:center; overflow:hidden; }
+  .hero::after{ content:''; position:absolute; inset:0; opacity:.14; pointer-events:none;
+    background-image:radial-gradient(circle,#fff 1.3px,transparent 1.4px); background-size:20px 20px; }
+  .name{ font-family:'Fraunces',Georgia,serif; font-size:27px; color:#fff; margin-top:6px; position:relative; }
+  .tagline{ font-size:11px; font-weight:600; letter-spacing:.16em; text-transform:uppercase;
+    color:rgba(255,255,255,.86); margin-top:3px; position:relative; }
+  .world{ position:absolute; top:12px; left:14px; font-size:10px; font-weight:600;
+    letter-spacing:.16em; text-transform:uppercase; color:rgba(255,255,255,.75); }
+  .body{ padding:18px 20px 20px; }
+  .role{ font-size:11px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--faint); }
+  .desc{ font-family:'Fraunces',Georgia,serif; font-weight:400; line-height:1.65;
+    color:var(--muted); margin:8px 0 0; font-size:15px; min-height:78px; outline:none; }
+  .desc:focus{ color:var(--ink); }
+  .job{ margin:14px 0 0; padding-top:14px; border-top:1px solid var(--line);
+    font-size:12.5px; color:var(--faint); line-height:1.55; }
+
+  /* Mascot motion, identical to the app */
+  .mascot{ display:inline-block; animation:floaty 4s ease-in-out infinite; line-height:0; }
+  .mascot-blink{ transform-box:fill-box; transform-origin:center; animation:blink 4.6s infinite; }
+  .mascot-cape{ transform-box:fill-box; transform-origin:50% 18%; animation:capesway 3.4s ease-in-out infinite; }
+  @keyframes floaty{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+  @keyframes blink{ 0%,92%,100%{transform:scaleY(1)} 96%{transform:scaleY(.1)} }
+  @keyframes capesway{ 0%,100%{transform:rotate(-3deg)} 50%{transform:rotate(3deg)} }
+  @media (prefers-reduced-motion: reduce){ .mascot,.mascot-blink,.mascot-cape{ animation:none; } }
+
+  .foot{ margin-top:34px; padding:18px 20px; border:1px dashed var(--line); border-radius:16px;
+    color:var(--muted); font-size:13.5px; line-height:1.6; }
+  .foot b{ color:var(--ink); }
+  code{ font-family:ui-monospace,Menlo,monospace; font-size:12.5px;
+    background:rgba(139,92,246,.14); color:#A78BFA; padding:1px 6px; border-radius:5px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <span class="eyebrow">Character preview</span>
+      <h1>The five guides.</h1>
+      <p class="lede">Each world hands you a different character. They share one chat history,
+        so the voice changes but the conversation does not. Click any description to edit it in place.</p>
+    </div>
+    <div class="tools">
+      <button class="tool" onclick="toggleTheme()">Toggle theme</button>
+      <button class="tool" onclick="copyCopy()">Copy all text</button>
+    </div>
+  </header>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="foot">
+    <b>Where these live in the app:</b> the names, taglines and opening lines come from the
+    <code>GUIDE</code> object in <code>Lumera.html</code>. The tagline shows in the chat panel header
+    and on the hand-off card when you move between worlds.
+    Paste new copy straight into the cards above, hit <b>Copy all text</b>, and send it over to have it wired in.
+  </div>
+</div>
+
+<script>
+/* One entry per guide. `svg` is the app's Mascot markup with the gradient id
+   and accent already resolved, so each card is a true preview rather than a
+   redrawing. */
+const CHARACTERS = [
+  { key:'lumera', world:'Lumera', name:'Lumi',     emoji:'🦉', accent:'#8B5CF6',
+    tagline:'your money guide',
+    desc:'Calm and a bit knowing. Shows you round the HQ, explains XP and quests, sends you off to the right world.',
+    job:'Welcomes you, explains levels, XP and daily quests, points you to the right section.' },
+  { key:'leaf', world:'Leaf', name:'Sprout',       emoji:'🌱', accent:'#22C55E',
+    tagline:'your learning buddy',
+    desc:'Warm and keen. Wants money to click for you, and will not shut up about your streak.',
+    job:'Teaches money basics, pushes the daily challenge and your streak, lessons in any order.' },
+  { key:'atlas', world:'Atlas', name:'Nova',       emoji:'🛰️', accent:'#3B82F6',
+    tagline:'your markets co-pilot',
+    desc:'Cool-headed and precise. Takes the markets and the noise around them and says what it actually means.',
+    job:'Investing, live markets and world news in plain English, starting from step one.' },
+  { key:'shield', world:'Shield', name:'Sentinel', emoji:'🛡️', accent:'#64748B',
+    tagline:'your protection guide',
+    desc:'Steady, slightly serious. Credit, debt, planning ahead. The one who makes sure nothing catches you out.',
+    job:'Building credit, clearing debt, planning ahead.' },
+  { key:'forge', world:'Forge', name:'Blaze',      emoji:'🔥', accent:'#C0873A',
+    tagline:'your income coach',
+    desc:'Loud and pushy in a good way. Careers, firms, salaries, your CV. Wants you aiming higher.',
+    job:'Finance careers, top firms, universities, CV lab, what roles really pay.' },
+];
+
+// The head topper is what separates the characters.
+function topper(key, color, gid){
+  return ({
+    lumera:`<g><path d="M20 14 L23 -10 L35 12 Z" fill="url(#${gid})"/><path d="M52 14 L49 -10 L37 12 Z" fill="url(#${gid})"/>
+      <path d="M23 -10 L25 -2 L29 4 Z" fill="#fff" opacity=".25"/><path d="M49 -10 L47 -2 L43 4 Z" fill="#fff" opacity=".25"/></g>`,
+    leaf:`<g><line x1="36" y1="14" x2="36" y2="-8" stroke="#0E7A37" stroke-width="3"/>
+      <path d="M36 0 Q16 -9 22 -20 Q41 -17 36 0 Z" fill="#22C55E"/><path d="M29 -10 Q33 -7 35 -3" stroke="#0B5E2A" stroke-width="1.3" fill="none"/>
+      <path d="M36 -3 Q56 -12 51 -23 Q33 -20 36 -3 Z" fill="#15A34A"/><path d="M44 -13 Q40 -9 38 -6" stroke="#0B5E2A" stroke-width="1.3" fill="none"/></g>`,
+    atlas:`<g><line x1="36" y1="14" x2="36" y2="-13" stroke="${color}" stroke-width="2.6"/>
+      <circle cx="36" cy="-17" r="5" fill="${color}"/><circle cx="36" cy="-17" r="2.2" fill="#fff" opacity=".85"/>
+      <circle cx="36" cy="-17" r="9.5" fill="none" stroke="${color}" stroke-width="1.3" opacity=".55"/>
+      <ellipse cx="36" cy="-17" rx="14" ry="4.5" fill="none" stroke="${color}" stroke-width="1.1" opacity=".4" transform="rotate(-18 36 -17)"/></g>`,
+    shield:`<g><path d="M24 13 Q36 -18 48 13 Z" fill="url(#${gid})"/><path d="M30 13 L36 -7 L42 13 Z" fill="#fff" opacity=".38"/>
+      <circle cx="36" cy="-8" r="2.8" fill="#fff" opacity=".7"/>
+      <path d="M22 14 h28" stroke="#fff" stroke-width="2" opacity=".45" stroke-linecap="round"/></g>`,
+    forge:`<g><path d="M26 16 Q27 -4 36 9 Q45 -4 46 16 Z" fill="#F97316"/>
+      <path d="M30 16 Q31 -12 36 5 Q41 -12 42 16 Z" fill="#FB923C"/>
+      <path d="M33 16 Q34 -3 36 8 Q38 -3 39 16 Z" fill="#FCD34D"/></g>`,
+  })[key] || '';
+}
+
+function mascot(c, size){
+  const gid = 'mg' + c.key;
+  // Atlas wears a visor; everyone else wears the hero mask.
+  const face = c.key === 'atlas'
+    ? `<g><path d="M19 27 Q36 22 53 27 L52 34 Q36 30 20 34 Z" fill="#0b1220" opacity=".9"/>
+        <path d="M22 28 Q36 25 50 28 L49 30 Q36 27.5 23 30 Z" fill="#7dd3fc" opacity=".7"/></g>`
+    : `<g><path d="M17 28 Q36 19 55 28 L55 35 Q36 28 17 35 Z" fill="#0b0b16" opacity=".82"/>
+        <ellipse class="mascot-blink" cx="29" cy="31" rx="3.4" ry="3.8" fill="#fff"/>
+        <ellipse class="mascot-blink" cx="43" cy="31" rx="3.4" ry="3.8" fill="#fff"/></g>`;
+  return `<span class="mascot" style="width:${size}px;height:${size*110/80}px;filter:drop-shadow(0 8px 16px ${c.accent}66)">
+    <svg viewBox="-4 -22 80 110" width="${size}" height="${size*110/80}" aria-hidden="true">
+      <defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#ffffff" stop-opacity=".35"/>
+        <stop offset=".25" stop-color="${c.accent}"/><stop offset="1" stop-color="${c.accent}"/>
+      </linearGradient></defs>
+      <path class="mascot-cape" d="M16 40 Q2 66 18 82 L36 70 L54 82 Q70 66 56 40 Z" fill="${c.accent}"/>
+      <path class="mascot-cape" d="M16 40 Q2 66 18 82 L36 70 L54 82 Q70 66 56 40 Z" fill="#000" opacity=".22"/>
+      <path d="M14 84 Q14 58 36 58 Q58 58 58 84 Z" fill="url(#${gid})"/>
+      <circle cx="36" cy="73" r="8" fill="#fff" opacity=".95"/>
+      <text x="36" y="76.5" font-size="9.5" text-anchor="middle">${c.emoji}</text>
+      ${topper(c.key, c.accent, gid)}
+      <circle cx="36" cy="30" r="18" fill="url(#${gid})"/>
+      <ellipse cx="30" cy="24" rx="6" ry="3.4" fill="#fff" opacity=".22"/>
+      ${face}
+      <path d="M30 42 Q36 47 42 42" stroke="#0b0b16" stroke-width="2" fill="none" stroke-linecap="round" opacity=".55"/>
+    </svg></span>`;
+}
+
+const esc = (s)=>String(s).replace(/[&<>]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+document.getElementById('grid').innerHTML = CHARACTERS.map((c,i)=>`
+  <div class="card">
+    <div class="hero" style="background:linear-gradient(160deg,${c.accent},${c.accent}cc)">
+      <span class="world">${esc(c.world)}</span>
+      ${mascot(c,84)}
+      <div class="name">${esc(c.name)}</div>
+      <div class="tagline" contenteditable="true" data-i="${i}" data-f="tagline">${esc(c.tagline)}</div>
+    </div>
+    <div class="body">
+      <div class="role">Personality</div>
+      <p class="desc" contenteditable="true" data-i="${i}" data-f="desc">${esc(c.desc)}</p>
+      <div class="job">${esc(c.job)}</div>
+    </div>
+  </div>`).join('');
+
+// Edits write straight back into CHARACTERS so "Copy all text" stays current.
+document.getElementById('grid').addEventListener('input', e=>{
+  const t=e.target; if(!t.dataset || t.dataset.i===undefined) return;
+  CHARACTERS[+t.dataset.i][t.dataset.f] = t.textContent.trim();
+});
+
+function copyCopy(){
+  const out = CHARACTERS.map(c=>`**${c.name} ${c.emoji}** — *${c.world} · ${c.tagline}.* ${c.desc}`).join('\n\n');
+  navigator.clipboard.writeText(out).then(
+    ()=>flash('Copied'), ()=>flash('Copy failed, select the text instead'));
+}
+function toggleTheme(){
+  const r=document.documentElement;
+  r.setAttribute('data-theme', r.getAttribute('data-theme')==='dark' ? 'light' : 'dark');
+}
+function flash(msg){
+  const b=[...document.querySelectorAll('button.tool')].find(x=>/Copy/.test(x.textContent));
+  if(!b) return; const old=b.textContent; b.textContent=msg; setTimeout(()=>b.textContent=old,1400);
+}
+</script>
+</body>
+</html>
