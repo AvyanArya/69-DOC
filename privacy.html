@@ -7,8 +7,8 @@
 <meta name="description" content="What Lumera does with information about you. Everything you enter stays in your browser.">
 <link rel="preconnect" href="https://api.fontshare.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link data-href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
-<link data-href="https://cdn.jsdelivr.net/npm/@fontsource/geist-sans@5.0.3/index.css" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@fontsource/geist-sans@5.0.3/index.css" rel="stylesheet">
 <style>
 /* ============================================================
    Theme tokens
@@ -987,12 +987,12 @@ insurance or social security number, date of birth, or address. We do not use an
 software, advertising pixels, tag managers, or session recording. There is no
 newsletter list, and no profile is built about you anywhere but on your own device.</p>
 
-<h3>The password field</h3>
-<p>When you create a profile the app asks for a password so the flow feels familiar. It is
-checked for length and then <strong>discarded</strong> — never stored, never transmitted, never
-used to protect anything. Because of that, anyone with access to your device or browser
-profile can open your Lumera data. Do not reuse an important password here, and do not
-put anything in Lumera you would not want a person holding your unlocked laptop to see.</p>
+<h3>There is no password</h3>
+<p>Lumera does not ask for one. An earlier build had a password field that was checked and then
+thrown away without protecting anything, which was misleading, so it was removed. Your profile is
+simply the data sitting in this browser, which means <strong>anyone with access to your device or
+browser profile can open it</strong>. Do not put anything in Lumera you would not want a person
+holding your unlocked laptop to see.</p>
 
 <h2 id="where">Where it lives</h2>
 <p>In your browser's local storage, under keys beginning <code>lumera_</code>. Local storage is
@@ -1013,7 +1013,7 @@ service you actively requested.</p>
 <table>
 <tr><th>Service</th><th>What it receives</th><th>When</th></tr>
 <tr><td>Our hosting provider</td><td>Your IP address and request details, in ordinary server logs</td><td>Every page load</td></tr>
-<tr><td>Web font providers (Fontshare, jsDelivr, Google Fonts)</td><td>Your IP address and browser details</td><td>Only after you accept non-essential content; declined by default</td></tr>
+<tr><td>Web font providers (Fontshare, jsDelivr, Google Fonts)</td><td>Your IP address and browser details</td><td>On page load, unless you switch them off</td></tr>
 <tr><td>Exchange-rate API (open.er-api.com)</td><td>A request for currency rates. No personal data, no figures of yours</td><td>Only inside the app, when you switch currency</td></tr>
 <tr><td>Translation API (Google Translate, MyMemory)</td><td>The interface text being translated. Do not use the translation feature on text containing anything private</td><td>Only inside the app, when you switch language</td></tr>
 </table>
@@ -1110,23 +1110,24 @@ significant, say so in the app.</p>
 <aside class="consent" id="consent" role="dialog" aria-modal="false"
        aria-labelledby="consent-title" aria-describedby="consent-body">
     <h2 id="consent-title">Fonts and video from other companies</h2>
-    <p id="consent-body">Lumera sets <strong>no cookies</strong> and sends nothing you type to us &mdash;
-    your figures stay in your browser. But our web fonts, and the video on the home page, load from
-    Fontshare, jsDelivr and Google, which reveals your IP address to them. That is not necessary to
-    use the site, so we ask first. Decline and the site uses fonts already on your computer.
+    <p id="consent-body">Lumera sets <strong>no cookies</strong>, and nothing you type reaches us &mdash;
+    your figures stay in your browser. Our web fonts and the video on this page do load from
+    Fontshare, jsDelivr and Amazon CloudFront, which shows them your IP address. You can turn
+    that off and the site will use fonts already on your computer.
     <a href="cookies.html">Read the detail</a>.</p>
     <div class="consent-actions">
-        <button type="button" class="consent-accept" data-consent="yes">Accept fonts &amp; video</button>
-        <button type="button" class="consent-decline" data-consent="no">Decline, use system fonts</button>
+        <button type="button" class="consent-accept" data-consent="yes">That&rsquo;s fine, keep them</button>
+        <button type="button" class="consent-decline" data-consent="no">Turn them off</button>
     </div>
 </aside>
 
 <script>
 /* ============================================================
-   Consent for third-party content.
-   Nothing here is analytics: the only outside requests are fonts and the
-   home-page video, and neither loads until the visitor says yes. The choice
-   is kept in localStorage, which is first-party and sets no cookie.
+   Third-party content switch.
+   The fonts and the video load normally, so the page looks the way it was
+   designed. A visitor who would rather not contact those companies can turn
+   them off here and the choice is remembered. No cookie is involved: the
+   preference is first-party local storage.
    ============================================================ */
 (function () {
     var KEY = 'lumera_consent_thirdparty';
@@ -1135,25 +1136,27 @@ significant, say so in the app.</p>
     function read() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
     function write(v) { try { localStorage.setItem(KEY, v); } catch (e) {} }
 
-    function loadThirdParty() {
-        document.querySelectorAll('link[data-href]').forEach(function (l) {
-            if (l.href) return;
-            l.href = l.getAttribute('data-href');
+    function disableThirdParty() {
+        document.querySelectorAll('link[rel="stylesheet"]').forEach(function (l) {
+            if (!/fontshare|jsdelivr|googleapis/.test(l.href)) return;
+            l.setAttribute('data-href', l.href);
+            l.disabled = true;
+            l.parentNode.removeChild(l);
         });
-        var v = document.querySelector('video[data-src]');
-        if (v && !v.src) { v.src = v.getAttribute('data-src'); v.load(); }
-        document.documentElement.setAttribute('data-thirdparty', 'on');
+        var v = document.getElementById('bgVideo');
+        if (v) { v.pause(); v.removeAttribute('src'); v.load(); v.style.display = 'none'; }
+        document.documentElement.setAttribute('data-thirdparty', 'off');
     }
 
     function decide(answer) {
         write(answer);
         if (box) box.removeAttribute('data-open');
-        if (answer === 'yes') loadThirdParty();
+        if (answer === 'no') disableThirdParty();
     }
 
     var saved = read();
-    if (saved === 'yes') loadThirdParty();
-    else if (saved !== 'no' && box) box.setAttribute('data-open', '');
+    if (saved === 'no') disableThirdParty();
+    else if (saved !== 'yes' && box) box.setAttribute('data-open', '');
 
     if (box) {
         box.querySelectorAll('[data-consent]').forEach(function (b) {

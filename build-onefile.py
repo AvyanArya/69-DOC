@@ -56,6 +56,13 @@ head_links = landing[landing.index('<link rel="preconnect"'):landing.index('<sty
 style = landing[landing.index('<style>'):landing.rindex('</style>') + len('</style>')]
 sub_style = src['about'][src['about'].index('<style>\n/* Sub-pages'):]
 sub_style = sub_style[:sub_style.index('</style>') + len('</style>')]
+# the third-party switch travels with the single file too, so the cookies
+# page's button works there and the choice is honoured
+_ca = landing.index('<aside class="consent"')
+consent_box = landing[_ca:landing.index('</aside>', _ca) + len('</aside>')]
+_ja = landing.index('/* ============================================================\n   Third-party content switch.')
+consent_js = landing[_ja:landing.index('})();', landing.index('data-consent-reopen', _ja)) + 5]
+
 atmo = landing[landing.index('<div class="atmo"'):landing.index('</div>', landing.index('<span class="grain">')) + 6]
 footer = landing[landing.index('    <footer class="site-footer">'):
                  landing.index('    </footer>') + len('    </footer>')]
@@ -574,6 +581,8 @@ out = '''<!DOCTYPE html>
 
 <a class="skip-link" href="#main">Skip to content</a>
 
+%s
+
 <div class="site-nav">
 %s
 </div>
@@ -587,8 +596,9 @@ out = '''<!DOCTYPE html>
 %s
 </body>
 </html>
-''' % (head_links, style, sub_style, EXTRA_CSS, atmo, NAV,
-       '\n\n'.join(sections), hashify(footer), PAYLOADS, ROUTER)
+''' % (head_links, style, sub_style, EXTRA_CSS, atmo, consent_box, NAV,
+       '\n\n'.join(sections), hashify(footer), PAYLOADS,
+       ROUTER + '\n<script>' + consent_js + '</script>')
 
 path = os.path.join(ROOT, 'lumera.html')
 open(path, 'w').write(out)

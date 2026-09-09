@@ -7,8 +7,8 @@
 <meta name="description" content="Lumera sets no cookies. Here is what it does store, and what it loads from elsewhere.">
 <link rel="preconnect" href="https://api.fontshare.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link data-href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
-<link data-href="https://cdn.jsdelivr.net/npm/@fontsource/geist-sans@5.0.3/index.css" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@fontsource/geist-sans@5.0.3/index.css" rel="stylesheet">
 <style>
 /* ============================================================
    Theme tokens
@@ -1000,10 +1000,14 @@ simply looks plainer. You can change your mind at any time:</p>
 <h2 id="do-i-need">Do you need a banner at all?</h2>
 <p>Our reading, which is not legal advice: storage that is strictly necessary to provide a service
 the user has actively requested is exempt from consent under the UK and EU ePrivacy rules, and
-that covers everything Lumera keeps on your device. The third-party fonts and video are not
-exempt, which is why they are the only thing the banner asks about. If you later add analytics,
-advertising, or any tracking, that will need consent before it loads, and this page will need
-rewriting.</p>
+that covers everything Lumera keeps on your device &mdash; so no banner is required for it.</p>
+<p>The fonts and the video are a different matter. They are not strictly necessary, and they show
+your IP address to companies outside this site. We load them by default and offer a switch, which
+is an <strong>opt-out</strong>. A stricter reading of the UK and EU rules, and of decisions such as
+the 2022 Munich ruling on Google Fonts, would load nothing from those companies until a visitor
+opts <em>in</em>. Self-hosting the fonts and the video avoids the question altogether. If analytics,
+advertising or any tracking is ever added, that will need consent <em>before</em> it loads, and this
+page will need rewriting.</p>
 
 <h2 id="contact">Contact</h2>
 <p><span class="fill">[LEGAL ENTITY NAME]</span>, <span class="fill">[REGISTERED ADDRESS]</span>. Email <span class="fill">[CONTACT EMAIL]</span>.</p>
@@ -1072,23 +1076,24 @@ rewriting.</p>
 <aside class="consent" id="consent" role="dialog" aria-modal="false"
        aria-labelledby="consent-title" aria-describedby="consent-body">
     <h2 id="consent-title">Fonts and video from other companies</h2>
-    <p id="consent-body">Lumera sets <strong>no cookies</strong> and sends nothing you type to us &mdash;
-    your figures stay in your browser. But our web fonts, and the video on the home page, load from
-    Fontshare, jsDelivr and Google, which reveals your IP address to them. That is not necessary to
-    use the site, so we ask first. Decline and the site uses fonts already on your computer.
+    <p id="consent-body">Lumera sets <strong>no cookies</strong>, and nothing you type reaches us &mdash;
+    your figures stay in your browser. Our web fonts and the video on this page do load from
+    Fontshare, jsDelivr and Amazon CloudFront, which shows them your IP address. You can turn
+    that off and the site will use fonts already on your computer.
     <a href="cookies.html">Read the detail</a>.</p>
     <div class="consent-actions">
-        <button type="button" class="consent-accept" data-consent="yes">Accept fonts &amp; video</button>
-        <button type="button" class="consent-decline" data-consent="no">Decline, use system fonts</button>
+        <button type="button" class="consent-accept" data-consent="yes">That&rsquo;s fine, keep them</button>
+        <button type="button" class="consent-decline" data-consent="no">Turn them off</button>
     </div>
 </aside>
 
 <script>
 /* ============================================================
-   Consent for third-party content.
-   Nothing here is analytics: the only outside requests are fonts and the
-   home-page video, and neither loads until the visitor says yes. The choice
-   is kept in localStorage, which is first-party and sets no cookie.
+   Third-party content switch.
+   The fonts and the video load normally, so the page looks the way it was
+   designed. A visitor who would rather not contact those companies can turn
+   them off here and the choice is remembered. No cookie is involved: the
+   preference is first-party local storage.
    ============================================================ */
 (function () {
     var KEY = 'lumera_consent_thirdparty';
@@ -1097,25 +1102,27 @@ rewriting.</p>
     function read() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
     function write(v) { try { localStorage.setItem(KEY, v); } catch (e) {} }
 
-    function loadThirdParty() {
-        document.querySelectorAll('link[data-href]').forEach(function (l) {
-            if (l.href) return;
-            l.href = l.getAttribute('data-href');
+    function disableThirdParty() {
+        document.querySelectorAll('link[rel="stylesheet"]').forEach(function (l) {
+            if (!/fontshare|jsdelivr|googleapis/.test(l.href)) return;
+            l.setAttribute('data-href', l.href);
+            l.disabled = true;
+            l.parentNode.removeChild(l);
         });
-        var v = document.querySelector('video[data-src]');
-        if (v && !v.src) { v.src = v.getAttribute('data-src'); v.load(); }
-        document.documentElement.setAttribute('data-thirdparty', 'on');
+        var v = document.getElementById('bgVideo');
+        if (v) { v.pause(); v.removeAttribute('src'); v.load(); v.style.display = 'none'; }
+        document.documentElement.setAttribute('data-thirdparty', 'off');
     }
 
     function decide(answer) {
         write(answer);
         if (box) box.removeAttribute('data-open');
-        if (answer === 'yes') loadThirdParty();
+        if (answer === 'no') disableThirdParty();
     }
 
     var saved = read();
-    if (saved === 'yes') loadThirdParty();
-    else if (saved !== 'no' && box) box.setAttribute('data-open', '');
+    if (saved === 'no') disableThirdParty();
+    else if (saved !== 'yes' && box) box.setAttribute('data-open', '');
 
     if (box) {
         box.querySelectorAll('[data-consent]').forEach(function (b) {

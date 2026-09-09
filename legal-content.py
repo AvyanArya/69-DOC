@@ -79,12 +79,12 @@ insurance or social security number, date of birth, or address. We do not use an
 software, advertising pixels, tag managers, or session recording. There is no
 newsletter list, and no profile is built about you anywhere but on your own device.</p>
 
-<h3>The password field</h3>
-<p>When you create a profile the app asks for a password so the flow feels familiar. It is
-checked for length and then <strong>discarded</strong> — never stored, never transmitted, never
-used to protect anything. Because of that, anyone with access to your device or browser
-profile can open your Lumera data. Do not reuse an important password here, and do not
-put anything in Lumera you would not want a person holding your unlocked laptop to see.</p>
+<h3>There is no password</h3>
+<p>Lumera does not ask for one. An earlier build had a password field that was checked and then
+thrown away without protecting anything, which was misleading, so it was removed. Your profile is
+simply the data sitting in this browser, which means <strong>anyone with access to your device or
+browser profile can open it</strong>. Do not put anything in Lumera you would not want a person
+holding your unlocked laptop to see.</p>
 
 <h2 id="where">Where it lives</h2>
 <p>In your browser's local storage, under keys beginning <code>lumera_</code>. Local storage is
@@ -105,7 +105,7 @@ service you actively requested.</p>
 <table>
 <tr><th>Service</th><th>What it receives</th><th>When</th></tr>
 <tr><td>Our hosting provider</td><td>Your IP address and request details, in ordinary server logs</td><td>Every page load</td></tr>
-<tr><td>Web font providers (Fontshare, jsDelivr, Google Fonts)</td><td>Your IP address and browser details</td><td>Only after you accept non-essential content; declined by default</td></tr>
+<tr><td>Web font providers (Fontshare, jsDelivr, Google Fonts)</td><td>Your IP address and browser details</td><td>On page load, unless you switch them off</td></tr>
 <tr><td>Exchange-rate API (open.er-api.com)</td><td>A request for currency rates. No personal data, no figures of yours</td><td>Only inside the app, when you switch currency</td></tr>
 <tr><td>Translation API (Google Translate, MyMemory)</td><td>The interface text being translated. Do not use the translation feature on text containing anything private</td><td>Only inside the app, when you switch language</td></tr>
 </table>
@@ -263,10 +263,14 @@ simply looks plainer. You can change your mind at any time:</p>
 <h2 id="do-i-need">Do you need a banner at all?</h2>
 <p>Our reading, which is not legal advice: storage that is strictly necessary to provide a service
 the user has actively requested is exempt from consent under the UK and EU ePrivacy rules, and
-that covers everything Lumera keeps on your device. The third-party fonts and video are not
-exempt, which is why they are the only thing the banner asks about. If you later add analytics,
-advertising, or any tracking, that will need consent before it loads, and this page will need
-rewriting.</p>
+that covers everything Lumera keeps on your device &mdash; so no banner is required for it.</p>
+<p>The fonts and the video are a different matter. They are not strictly necessary, and they show
+your IP address to companies outside this site. We load them by default and offer a switch, which
+is an <strong>opt-out</strong>. A stricter reading of the UK and EU rules, and of decisions such as
+the 2022 Munich ruling on Google Fonts, would load nothing from those companies until a visitor
+opts <em>in</em>. Self-hosting the fonts and the video avoids the question altogether. If analytics,
+advertising or any tracking is ever added, that will need consent <em>before</em> it loads, and this
+page will need rewriting.</p>
 
 <h2 id="contact">Contact</h2>
 <p>%(entity)s, %(address)s. Email %(contact)s.</p>
