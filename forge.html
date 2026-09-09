@@ -7,8 +7,8 @@
 <meta name="description" content="Careers, firms, universities, admissions tests and what roles really pay. The fastest way to change your finances at nineteen is not a budget, it is a">
 <link rel="preconnect" href="https://api.fontshare.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/@fontsource/geist-sans@5.0.3/index.css" rel="stylesheet">
+<link data-href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
+<link data-href="https://cdn.jsdelivr.net/npm/@fontsource/geist-sans@5.0.3/index.css" rel="stylesheet">
 <style>
 /* ============================================================
    Theme tokens
@@ -18,8 +18,9 @@
     --foreground: 40 6% 95%;       /* off-white */
     --hero-sub: 40 6% 82%;
 
-    --font-body: 'Geist Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
-    --font-display: 'General Sans', 'Geist Sans', system-ui, sans-serif;
+    /* The brand faces load only after consent; these carry the page until then. */
+    --font-body: 'Geist Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --font-display: 'General Sans', 'Geist Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -68,6 +69,20 @@ img, video { display: block; max-width: 100%; }
     mask-composite: exclude;
     pointer-events: none;
 }
+
+/* Moving content needs a way to stop it (WCAG 2.2.2). Shown only when there
+   is motion to stop, i.e. once the video has been allowed to load. */
+.motion-toggle {
+    position: absolute; z-index: 12; right: 1rem; bottom: 1rem;
+    font-family: inherit; font-size: .74rem; font-weight: 600; cursor: pointer;
+    padding: .45rem .9rem; border-radius: 999px;
+    background: rgba(8,6,16,.8); color: hsl(var(--foreground) / .85);
+    border: 1px solid hsl(var(--foreground) / .22);
+    backdrop-filter: blur(10px);
+}
+.motion-toggle:hover { background: rgba(8,6,16,.95); color: hsl(var(--foreground)); }
+html[data-motion="off"] .marquee-track { animation-play-state: paused; }
+html[data-motion="off"] .atmo .aurora, html[data-motion="off"] .atmo .grain { animation: none; }
 
 /* ============================================================
    Page wrapper + background video
@@ -290,13 +305,14 @@ img, video { display: block; max-width: 100%; }
 }
 
 .marquee-label {
-    color: hsl(var(--foreground) / 0.5);
+    color: hsl(var(--foreground) / 0.62);
     font-size: .875rem;
     line-height: 1.4;
     flex-shrink: 0;
 }
 
 .marquee {
+    pointer-events: none;
     flex: 1 1 0%;
     overflow: hidden;
     mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
@@ -580,7 +596,7 @@ img, video { display: block; max-width: 100%; }
     margin: 0 auto;
     padding: 3rem 2rem;
     display: grid;
-    grid-template-columns: 1.4fr repeat(3, 1fr);
+    grid-template-columns: 1.4fr repeat(4, 1fr);
     gap: 2rem;
 }
 
@@ -588,7 +604,7 @@ img, video { display: block; max-width: 100%; }
     font-size: .7rem;
     letter-spacing: .2em;
     text-transform: uppercase;
-    color: hsl(var(--foreground) / .45);
+    color: hsl(var(--foreground) / .62);
     margin-bottom: .9rem;
     font-weight: 600;
 }
@@ -609,7 +625,7 @@ img, video { display: block; max-width: 100%; }
     padding: 1.3rem 2rem;
     text-align: center;
     font-size: .78rem;
-    color: hsl(var(--foreground) / .4);
+    color: hsl(var(--foreground) / .62);
 }
 
 /* scroll reveal */
@@ -726,6 +742,48 @@ img, video { display: block; max-width: 100%; }
     .atmo .aurora, .atmo .grain { animation: none; }
 }
 
+/* ===== consent ===== */
+.consent {
+    position: fixed; z-index: 70; left: 1rem; right: 1rem; bottom: 1rem;
+    max-width: 44rem; margin: 0 auto;
+    background: rgba(10, 8, 20, .96);
+    border: 1px solid hsl(var(--foreground) / .16);
+    border-radius: 18px; padding: 1.2rem 1.3rem;
+    box-shadow: 0 30px 70px -30px rgba(0,0,0,.95);
+    display: none;
+}
+.consent[data-open] { display: block; }
+.consent h2 { font-family: var(--font-display); font-size: 1.05rem; font-weight: 500; margin-bottom: .4rem; }
+.consent p { font-size: .88rem; line-height: 1.65; color: hsl(var(--hero-sub)); opacity: .85; }
+.consent p a { color: hsl(var(--foreground)); text-decoration: underline; text-underline-offset: 3px; }
+.consent-actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1rem; }
+.consent-actions button {
+    font-family: inherit; font-size: .85rem; font-weight: 600; cursor: pointer;
+    padding: .6rem 1.2rem; border-radius: 999px; border: 1px solid transparent;
+}
+.consent-accept { background: linear-gradient(to left, #fcd34d, #f5b642); color: #17110a; }
+.consent-decline { background: rgba(255,255,255,.04); border-color: hsl(var(--foreground) / .2); color: hsl(var(--foreground)); }
+.consent-decline:hover { background: rgba(255,255,255,.1); }
+@media (max-width: 560px) { .consent-actions button { flex: 1 1 100%; } }
+
+/* ===== keyboard access ===== */
+.skip-link {
+    position: absolute; left: 1rem; top: -3rem; z-index: 60;
+    background: #fcd34d; color: #17110a; font-weight: 600; font-size: .9rem;
+    padding: .6rem 1.1rem; border-radius: 0 0 10px 10px; text-decoration: none;
+    transition: top .2s ease;
+}
+.skip-link:focus { top: 0; }
+
+/* Every interactive thing shows where the keyboard is. */
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible,
+input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 3px solid #fcd34d;
+    outline-offset: 3px;
+    border-radius: 6px;
+}
+
+
 </style>
 <style>:root { --accent-a: #b45309; --accent-b: #E0A94E; --accent-c: #fcd34d; }</style>
 
@@ -769,6 +827,90 @@ img, video { display: block; max-width: 100%; }
     .page-hero { padding: 3.5rem 1.25rem .5rem; }
     .tool-list { grid-template-columns: 1fr; }
 }
+
+
+/* ===== consent ===== */
+.consent {
+    position: fixed; z-index: 70; left: 1rem; right: 1rem; bottom: 1rem;
+    max-width: 44rem; margin: 0 auto;
+    background: rgba(10, 8, 20, .96);
+    border: 1px solid hsl(var(--foreground) / .16);
+    border-radius: 18px; padding: 1.2rem 1.3rem;
+    box-shadow: 0 30px 70px -30px rgba(0,0,0,.95);
+    display: none;
+}
+.consent[data-open] { display: block; }
+.consent h2 { font-family: var(--font-display); font-size: 1.05rem; font-weight: 500; margin-bottom: .4rem; }
+.consent p { font-size: .88rem; line-height: 1.65; color: hsl(var(--hero-sub)); opacity: .85; }
+.consent p a { color: hsl(var(--foreground)); text-decoration: underline; text-underline-offset: 3px; }
+.consent-actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1rem; }
+.consent-actions button {
+    font-family: inherit; font-size: .85rem; font-weight: 600; cursor: pointer;
+    padding: .6rem 1.2rem; border-radius: 999px; border: 1px solid transparent;
+}
+.consent-accept { background: linear-gradient(to left, #fcd34d, #f5b642); color: #17110a; }
+.consent-decline { background: rgba(255,255,255,.04); border-color: hsl(var(--foreground) / .2); color: hsl(var(--foreground)); }
+.consent-decline:hover { background: rgba(255,255,255,.1); }
+@media (max-width: 560px) { .consent-actions button { flex: 1 1 100%; } }
+
+/* ===== keyboard access ===== */
+.skip-link {
+    position: absolute; left: 1rem; top: -3rem; z-index: 60;
+    background: #fcd34d; color: #17110a; font-weight: 600; font-size: .9rem;
+    padding: .6rem 1.1rem; border-radius: 0 0 10px 10px; text-decoration: none;
+    transition: top .2s ease;
+}
+.skip-link:focus { top: 0; }
+
+/* Every interactive thing shows where the keyboard is. */
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible,
+input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 3px solid #fcd34d;
+    outline-offset: 3px;
+    border-radius: 6px;
+}
+
+/* ===== legal pages ===== */
+.legal { max-width: 46rem; }
+.legal h2 {
+    font-family: var(--font-display); font-weight: 500;
+    font-size: 1.45rem; letter-spacing: -.018em;
+    margin: 2.8rem 0 .9rem; scroll-margin-top: 2rem;
+}
+.legal h3 { font-family: var(--font-display); font-weight: 500; font-size: 1.08rem; margin: 1.6rem 0 .5rem; }
+.legal p, .legal li { color: hsl(var(--hero-sub)); opacity: .82; line-height: 1.8; font-size: .97rem; }
+.legal p + p { margin-top: .9rem; }
+.legal ul, .legal ol { margin: .8rem 0 .8rem 1.2rem; }
+.legal li { margin-bottom: .45rem; }
+.legal a { color: hsl(var(--foreground)); text-decoration: underline; text-underline-offset: 3px; }
+.legal strong { color: hsl(var(--foreground)); font-weight: 600; }
+.legal table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+.legal th, .legal td {
+    text-align: left; padding: .7rem .8rem; vertical-align: top;
+    border-bottom: 1px solid hsl(var(--foreground) / .1);
+    color: hsl(var(--hero-sub));
+}
+.legal th { color: hsl(var(--foreground)); font-weight: 600; font-size: .8rem; letter-spacing: .04em; }
+.legal .updated { font-size: .82rem; color: hsl(var(--foreground) / .55); margin-bottom: 1.5rem; }
+.legal .toc { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1.5rem 0 0; padding: 0; list-style: none; }
+.legal .toc li { margin: 0; }
+.legal .toc a {
+    display: inline-block; font-size: .82rem; text-decoration: none;
+    padding: .35rem .8rem; border-radius: 999px;
+    background: rgba(255,255,255,.04); color: hsl(var(--foreground) / .8);
+}
+.legal .toc a:hover { background: rgba(255,255,255,.09); color: hsl(var(--foreground)); }
+/* Anything the operator must fill in before launch is marked, not hidden. */
+.fill {
+    background: rgba(252, 211, 77, .13); color: #fcd34d;
+    border-radius: 5px; padding: .05em .4em; font-weight: 600;
+    font-size: .95em; white-space: nowrap;
+}
+.callout {
+    border-radius: 16px; padding: 1.1rem 1.3rem; margin: 1.6rem 0;
+    background: rgba(255,255,255,.03);
+}
+.callout p { margin: 0; opacity: .85; }
 </style>
 
 </head>
@@ -784,6 +926,7 @@ img, video { display: block; max-width: 100%; }
 
 <div class="page-top">
     <div class="wash"></div>
+            <a class="skip-link" href="#main">Skip to content</a>
             <header>
                 <nav class="navbar">
                     <a class="nav-logo" href="index.html">
@@ -815,7 +958,7 @@ img, video { display: block; max-width: 100%; }
     </div>
 </div>
 
-<main class="rest">
+<main class="rest" id="main">
     <section class="section tight"><div class="grid-2"><div class="panel liquid-glass reveal"><h3>Finance Careers</h3><p>What each path actually involves, and how people get in.</p></div><div class="panel liquid-glass reveal"><h3>Universities</h3><p>Shortlists with the admissions data behind them, not just rankings.</p></div><div class="panel liquid-glass reveal"><h3>Test Centre</h3><p>SAT, TMUA and the rest: tips, a score calculator, and what your score reaches.</p></div><div class="panel liquid-glass reveal"><h3>Salary Check</h3><p>Benchmarks by role and level, per year or per month.</p></div></div></section>
     <section class="section">
         <div class="sec-head left reveal">
@@ -869,15 +1012,90 @@ img, video { display: block; max-width: 100%; }
                 <h4>Company</h4>
                 <a href="about.html">About</a>
                 <a href="team.html">The team</a>
-                <a href="privacy.html">Privacy</a>
                 <a href="admin.html">Admin portal</a>
             </div>
+            <div>
+                <h4>Legal</h4>
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="terms.html">Terms &amp; Conditions</a>
+                <a href="cookies.html">Cookies &amp; storage</a>
+                <a href="refunds.html">Refunds</a>
+            </div>
         </div>
-        <div class="footer-bar">&copy; <span id="year"></span> Lumera. Educational only, never financial advice.</div>
+        <div class="footer-bar">
+            <p>&copy; <span id="year"></span> Lumera. Educational only, never financial advice.
+            Lumera is not a financial adviser and is not authorised or regulated as one.</p>
+            <p style="margin-top:.5rem">
+                <span class="fill">[LEGAL ENTITY NAME]</span>,
+                <span class="fill">[REGISTERED ADDRESS]</span> &middot;
+                company number <span class="fill">[COMPANY NUMBER]</span> &middot;
+                <span class="fill">[CONTACT EMAIL]</span>
+            </p>
+        </div>
     </footer>
 </main>
 
+
+<aside class="consent" id="consent" role="dialog" aria-modal="false"
+       aria-labelledby="consent-title" aria-describedby="consent-body">
+    <h2 id="consent-title">Fonts and video from other companies</h2>
+    <p id="consent-body">Lumera sets <strong>no cookies</strong> and sends nothing you type to us &mdash;
+    your figures stay in your browser. But our web fonts, and the video on the home page, load from
+    Fontshare, jsDelivr and Google, which reveals your IP address to them. That is not necessary to
+    use the site, so we ask first. Decline and the site uses fonts already on your computer.
+    <a href="cookies.html">Read the detail</a>.</p>
+    <div class="consent-actions">
+        <button type="button" class="consent-accept" data-consent="yes">Accept fonts &amp; video</button>
+        <button type="button" class="consent-decline" data-consent="no">Decline, use system fonts</button>
+    </div>
+</aside>
+
 <script>
+/* ============================================================
+   Consent for third-party content.
+   Nothing here is analytics: the only outside requests are fonts and the
+   home-page video, and neither loads until the visitor says yes. The choice
+   is kept in localStorage, which is first-party and sets no cookie.
+   ============================================================ */
+(function () {
+    var KEY = 'lumera_consent_thirdparty';
+    var box = document.getElementById('consent');
+
+    function read() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
+    function write(v) { try { localStorage.setItem(KEY, v); } catch (e) {} }
+
+    function loadThirdParty() {
+        document.querySelectorAll('link[data-href]').forEach(function (l) {
+            if (l.href) return;
+            l.href = l.getAttribute('data-href');
+        });
+        var v = document.querySelector('video[data-src]');
+        if (v && !v.src) { v.src = v.getAttribute('data-src'); v.load(); }
+        document.documentElement.setAttribute('data-thirdparty', 'on');
+    }
+
+    function decide(answer) {
+        write(answer);
+        if (box) box.removeAttribute('data-open');
+        if (answer === 'yes') loadThirdParty();
+    }
+
+    var saved = read();
+    if (saved === 'yes') loadThirdParty();
+    else if (saved !== 'no' && box) box.setAttribute('data-open', '');
+
+    if (box) {
+        box.querySelectorAll('[data-consent]').forEach(function (b) {
+            b.addEventListener('click', function () { decide(b.getAttribute('data-consent')); });
+        });
+    }
+    document.querySelectorAll('[data-consent-reopen]').forEach(function (b) {
+        b.addEventListener('click', function () {
+            if (box) { box.setAttribute('data-open', ''); box.querySelector('button').focus(); }
+        });
+    });
+})();
+
 (function () {
     var y = document.getElementById('year');
     if (y) y.textContent = new Date().getFullYear();

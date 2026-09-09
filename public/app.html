@@ -646,6 +646,15 @@
   html[data-skin="nova"][data-theme][data-mode] .fixed .bg-charcoal\/50,
   html[data-skin="nova"][data-theme][data-mode] .fixed .bg-charcoal\/40{ background-color:rgba(4,2,10,.72) !important; }
 
+  /* ===== keyboard access ===== */
+  .skip-link{ position:absolute; left:1rem; top:-3rem; z-index:200; background:#FCD34D; color:#17110A;
+    font-weight:600; font-size:.9rem; padding:.6rem 1.1rem; border-radius:0 0 10px 10px; text-decoration:none;
+    transition:top .2s ease; }
+  .skip-link:focus{ top:0; }
+  a:focus-visible, button:focus-visible, [tabindex]:focus-visible,
+  input:focus-visible, select:focus-visible, textarea:focus-visible{
+    outline:3px solid #FCD34D; outline-offset:3px; border-radius:8px;
+  }
   /* Stagger helper */
   .stagger > *{ animation:fadeUp .6s cubic-bezier(.22,1,.36,1) both; }
   .stagger > *:nth-child(1){animation-delay:.04s}.stagger > *:nth-child(2){animation-delay:.10s}
@@ -2609,11 +2618,12 @@ function Atmosphere(){
 function AppShell({ children }){
   const ref = useReveal();
   return <div className="min-h-screen flex">
+    <a href="#main" className="skip-link">Skip to content</a>
     <Atmosphere/>
     <Sidebar/>
     <div className="flex-1 min-w-0 flex flex-col">
       <TopBar/>
-      <main ref={ref} className="flex-1 px-4 sm:px-6 lg:px-8 py-6 pb-28 lg:pb-10 max-w-[1180px] w-full mx-auto">{children}</main>
+      <main id="main" ref={ref} className="flex-1 px-4 sm:px-6 lg:px-8 py-6 pb-28 lg:pb-10 max-w-[1180px] w-full mx-auto">{children}</main>
     </div>
     <MobileNav/><MobileMenu/><Guide/>
   </div>;
@@ -5793,13 +5803,40 @@ function Pricing(){
 /* ============================================================
    PAGE · PRIVACY & TRUST
    ============================================================ */
+function Terms(){
+  const app = useApp();
+  const points=[
+    ['book','Educational only','Lumera is an educational tool, not a financial adviser. It is not authorised or regulated as one, and nothing it shows you is a personal recommendation to buy, sell or hold anything.'],
+    ['gauge','Estimates, not promises','Benchmarks, scores and projections are illustrations based on what you enter. They are not predictions or guarantees of any outcome.'],
+    ['chart','Market data is illustrative','Prices, companies and news in this build are sample data unless labelled otherwise. Do not trade on them.'],
+    ['user','Your profile is local','It lives in this browser, not on a server. There is no password protecting it, so anyone using this device can open it, and clearing browser data deletes it permanently.'],
+    ['shield','Acceptable use','Do not break the law with it, attack or scrape it, or use it to give regulated advice to other people.'],
+    ['info','Liability','We are not liable for financial loss or decisions you take after using Lumera. Nothing here removes your statutory rights as a consumer, or liability that cannot be limited by law.'],
+  ];
+  return <AppShell>
+    <PageHead eyebrow="Terms & conditions" title="The terms you agree to."
+      desc={`By using Lumera you accept these. You must be ${MIN_AGE} or older. The full version, with our company details, is on the website.`}/>
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-5">
+      {points.map(([ic,ti,de])=><Card key={ti}><span className="grid place-items-center h-11 w-11 rounded-xl bg-gold/12 text-goldd mb-3"><Icon name={ic}/></span>
+        <h3 className="font-serif text-lg text-charcoal">{ti}</h3><p className="text-sm text-muted mt-1.5 leading-relaxed">{de}</p></Card>)}
+    </div>
+    <Card hover={false}>
+      <Eyebrow className="mb-3">Company details</Eyebrow>
+      <p className="text-sm text-charcoal/80 leading-relaxed">Lumera is operated by <b>[LEGAL ENTITY NAME]</b>, <b>[REGISTERED ADDRESS]</b>, company number <b>[COMPANY NUMBER]</b>, registered in <b>[COUNTRY / JURISDICTION]</b>. Contact <b>[CONTACT EMAIL]</b>. These placeholders must be replaced before launch.</p>
+      <div className="flex flex-wrap gap-2 mt-4">
+        <Btn variant="ghost" icon="lock" to="/privacy">Privacy Policy</Btn>
+        <Btn variant="ghost" icon="info" to="/about">About Lumera</Btn>
+      </div>
+    </Card>
+  </AppShell>;
+}
 function Privacy(){
   const app = useApp(); const { t } = app;
   const principles=[
     ['lock','Your data is never sold','We do not sell, rent, or share your financial data for advertising, ever. Our business model will be subscriptions, not surveillance.'],
     ['download','You own and control it','Export everything or permanently delete your account and all associated data at any time, with no friction and no retention games.'],
     ['shield','Bank connections are consent-based','Future Open-Banking links will use secure, revocable consent through regulated providers. We never see or store your banking credentials.'],
-    ['eye','Private by architecture','Data is minimised and encrypted. We only ask for what makes your insights better, and you can skip anything.'],
+    ['eye','Private by architecture','Your figures never leave your browser, so there is no database of them to breach. We ask for as little as possible, and you can skip anything.'],
     ['book','Educational, not advisory','Lumera provides educational guidance only. It is not licensed financial, investment, tax or legal advice.'],
     ['info','Honest about the prototype','Market data shown here is mock data. Projections are illustrations, not promises. Always do your own research or consult a professional.'],
   ];
@@ -6075,37 +6112,50 @@ function Field({ label, type='text', value, onChange, placeholder, icon }){
       <input type={type} value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder}
         className={cx('w-full rounded-xl border border-line bg-cream py-3 focus:border-gold focus:outline-none focus:ring-4 focus:ring-gold/10', icon?'pl-10 pr-3':'px-3')}/></span></label>;
 }
-function Signup(){ const app=useApp(); const [n,setN]=useState(''); const [e,setE]=useState(''); const [p,setP]=useState(''); const [err,setErr]=useState('');
-  const submit=()=>{ if(!n.trim()) return setErr('Please enter your name.'); if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e.trim())) return setErr('Please enter a valid email address.'); if(p.length<6) return setErr('Password must be at least 6 characters.'); setErr(''); app.signup(n.trim(), e.trim()); };
-  return <AuthShell title="Create your account" sub="Free forever. No card, no bank login required."
-    foot={<>Already have an account? <button onClick={()=>app.nav('/login')} className="text-goldd font-semibold">Log in</button></>}>
+function Signup(){ const app=useApp(); const [n,setN]=useState(''); const [e,setE]=useState(''); const [agree,setAgree]=useState(false); const [err,setErr]=useState('');
+  // No password field. It used to be validated and then thrown away, which
+  // collected a credential the app never used and implied protection it does
+  // not provide. A profile is local to this browser, and the copy says so.
+  const submit=()=>{ if(!n.trim()) return setErr('Please enter your name.'); if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e.trim())) return setErr('Please enter a valid email address.'); if(!agree) return setErr('Please confirm you have read the terms and privacy policy.'); setErr(''); app.signup(n.trim(), e.trim()); };
+  return <AuthShell title="Create your profile" sub="Free. No card, no bank login, and your figures stay in this browser."
+    foot={<>Already have a profile? <button onClick={()=>app.nav('/login')} className="text-goldd font-semibold">Open it</button></>}>
     <Field label="Name" value={n} onChange={v=>{setN(v);setErr('');}} placeholder="Your name" icon="user"/>
     <Field label="Email" type="email" value={e} onChange={v=>{setE(v);setErr('');}} placeholder="you@email.com" icon="mail"/>
-    <Field label="Password" type="password" value={p} onChange={v=>{setP(v);setErr('');}} placeholder="Create a password (min 6 chars)" icon="lock"/>
-    {err && <div className="rounded-lg bg-berry/10 text-berry text-xs px-3 py-2 mb-2 flex items-center gap-1.5"><Icon name="info" size={13}/>{err}</div>}
-    <Btn variant="gold" className="w-full mt-1" iconR="arrowR" onClick={submit}>Create account & continue</Btn>
+    <div className="rounded-xl2 border border-line bg-cream/50 p-3 mb-3">
+      <p className="text-[11.5px] text-muted leading-relaxed">This profile is stored in this browser only. We do not receive it, and there is no password protecting it, so anyone using this device can open it. Clearing your browser data deletes it for good.</p>
+    </div>
+    <label className="flex items-start gap-2.5 mb-3 cursor-pointer">
+      <input type="checkbox" checked={agree} onChange={ev=>{setAgree(ev.target.checked);setErr('');}}
+        className="mt-0.5 h-4 w-4 shrink-0 accent-current"/>
+      <span className="text-[12px] text-charcoal/80 leading-relaxed">I am {MIN_AGE}+ and I have read the <button type="button" onClick={()=>app.nav('/terms')} className="underline text-goldd">Terms</button> and <button type="button" onClick={()=>app.nav('/privacy')} className="underline text-goldd">Privacy Policy</button>.</span>
+    </label>
+    {err && <div role="alert" className="rounded-lg bg-berry/10 text-berry text-xs px-3 py-2 mb-2 flex items-center gap-1.5"><Icon name="info" size={13}/>{err}</div>}
+    <Btn variant="gold" className="w-full mt-1" iconR="arrowR" onClick={submit}>Create profile & continue</Btn>
     <div className="flex items-center gap-3 my-4"><span className="h-px flex-1 bg-line"/><span className="text-xs text-faint">or continue with</span><span className="h-px flex-1 bg-line"/></div>
     <div className="grid grid-cols-2 gap-2">
       {[['Google','google'],['Apple','apple'],['Facebook','facebook'],['Microsoft','microsoft']].map(([l,p])=><button key={p} onClick={()=>app.loginProvider(p)} className="btn btn-ghost py-2.5 text-sm justify-center"><Icon name="globe" size={15}/>{l}</button>)}
     </div>
-    <p className="text-[11px] text-faint text-center mt-2 flex items-center justify-center gap-1"><Icon name="lock" size={11}/>Secured by your provider, Lumera never sees your password or sells your data.</p>
+    <p className="text-[11px] text-faint text-center mt-2 flex items-center justify-center gap-1"><Icon name="lock" size={11}/>Sign-in providers are illustrative in this build. Lumera never asks for a password and never sells your data.</p>
     <button onClick={()=>app.demo()} className="w-full btn btn-ghost py-3 text-sm mt-3"><Icon name="play" size={15}/>Explore a demo account</button>
   </AuthShell>;
 }
-function Login(){ const app=useApp(); const [e,setE]=useState(''); const [p,setP]=useState(''); const [err,setErr]=useState('');
-  const submit=()=>{ if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e.trim())) return setErr('Please enter a valid email address.'); if(!p) return setErr('Please enter your password.'); setErr(''); app.login(e.trim()); };
-  return <AuthShell title="Welcome back" sub="Log in to your financial intelligence."
+function Login(){ const app=useApp(); const [e,setE]=useState(''); const [err,setErr]=useState('');
+  // Profiles live in this browser and were never password-protected: asking
+  // for one implied a check that did not exist.
+  const submit=()=>{ if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e.trim())) return setErr('Please enter a valid email address.'); setErr(''); app.login(e.trim()); };
+  return <AuthShell title="Welcome back" sub="Open the profile stored in this browser."
     foot={<>New to Lumera? <button onClick={()=>app.nav('/signup')} className="text-goldd font-semibold">Create an account</button></>}>
     <Field label="Email" type="email" value={e} onChange={v=>{setE(v);setErr('');}} placeholder="you@email.com" icon="mail"/>
-    <Field label="Password" type="password" value={p} onChange={v=>{setP(v);setErr('');}} placeholder="Your password" icon="lock"/>
-    <div className="flex justify-end -mt-1 mb-3"><button onClick={()=>app.nav('/forgot')} className="text-xs text-goldd">Forgot password?</button></div>
-    {err && <div className="rounded-lg bg-berry/10 text-berry text-xs px-3 py-2 mb-2 flex items-center gap-1.5"><Icon name="info" size={13}/>{err}</div>}
-    <Btn variant="primary" className="w-full" iconR="arrowR" onClick={submit}>Log in</Btn>
+    <div className="rounded-xl2 border border-line bg-cream/50 p-3 mb-3">
+      <p className="text-[11.5px] text-muted leading-relaxed">Profiles are stored in this browser, not on a server, so there is no password to check. If you used Lumera in a different browser, that profile is not here.</p>
+    </div>
+    {err && <div role="alert" className="rounded-lg bg-berry/10 text-berry text-xs px-3 py-2 mb-2 flex items-center gap-1.5"><Icon name="info" size={13}/>{err}</div>}
+    <Btn variant="primary" className="w-full" iconR="arrowR" onClick={submit}>Open my profile</Btn>
     <div className="flex items-center gap-3 my-4"><span className="h-px flex-1 bg-line"/><span className="text-xs text-faint">or continue with</span><span className="h-px flex-1 bg-line"/></div>
     <div className="grid grid-cols-2 gap-2">
       {[['Google','google'],['Apple','apple'],['Facebook','facebook'],['Microsoft','microsoft']].map(([l,p])=><button key={p} onClick={()=>app.loginProvider(p)} className="btn btn-ghost py-2.5 text-sm justify-center"><Icon name="globe" size={15}/>{l}</button>)}
     </div>
-    <p className="text-[11px] text-faint text-center mt-2 flex items-center justify-center gap-1"><Icon name="lock" size={11}/>Secured by your provider, Lumera never sees your password or sells your data.</p>
+    <p className="text-[11px] text-faint text-center mt-2 flex items-center justify-center gap-1"><Icon name="lock" size={11}/>Sign-in providers are illustrative in this build. Lumera never asks for a password and never sells your data.</p>
     <button onClick={()=>app.demo()} className="w-full btn btn-ghost py-3 text-sm mt-3"><Icon name="play" size={15}/>Try the demo account</button>
   </AuthShell>;
 }
@@ -10537,7 +10587,7 @@ const ROUTES = {
   '/onboarding':Onboarding, '/review':Review, '/dashboard':Dashboard, '/twin':FinancialTwin,
   '/simulator':WealthSimulator, '/invest':Investment, '/market':Market, '/news':News, '/assistant':AIAssistant,
   '/budget':Budget, '/goals':Goals, '/emergency':Emergency, '/subscriptions':Subscriptions, '/debt':Debt,
-  '/networth':NetWorth, '/learn':Learn, '/resources':KnowledgeHub, '/updates':Updates, '/pricing':Pricing, '/privacy':Privacy, '/settings':Settings,
+  '/networth':NetWorth, '/learn':Learn, '/resources':KnowledgeHub, '/updates':Updates, '/pricing':Pricing, '/privacy':Privacy, '/terms':Terms, '/settings':Settings,
   '/retirement':Retirement, '/globe':GlobalMarkets, '/world':WorldMonitor, '/hub':ProductHub,
   '/lumera':()=><ProductPage k="lumera"/>, '/leaf':()=><ProductPage k="leaf"/>, '/atlas':()=><ProductPage k="atlas"/>,
   '/shield':()=><ProductPage k="shield"/>, '/forge':()=><ProductPage k="forge"/>,
@@ -10548,6 +10598,7 @@ const ROUTES = {
   '/community':Community, '/exchanges':StockMarketsEdu, '/about':AboutLumera, '/team':FoundingTeam, '/chats':ChatHistory, '/benchmarks':Benchmarks, '/recommendations':Recommendations,
 };
 
+const MIN_AGE = 16;   // set to match the age of digital consent where you operate
 const STORE='lumera_v2';
 const BLANK_EXP = Object.fromEntries(ITEMS.map(i=>[i.id,0]));
 const BLANK_BAL = { emergencyFund:0, cashSavings:0, investmentsBal:0, propertyBal:0, carBal:0 };
@@ -10662,7 +10713,7 @@ function App(){
   }catch(e){} },[user,onboarded,profile,expenses,balances,lang,lastUpdated,lastPrompt]);
 
   let path = route.split('?')[0]; if(!ROUTES[path]) path='/';
-  const PUBLIC=['/','/login','/signup','/forgot','/pricing','/privacy'];
+  const PUBLIC=['/','/login','/signup','/forgot','/pricing','/privacy','/terms'];
   const PREBOARD=['/onboarding','/review','/settings'];
   // Only the personal-finance tools need your figures. Everything else (the
   // Leaf/Atlas/Shield/Forge worlds, learning, careers, community) is open as

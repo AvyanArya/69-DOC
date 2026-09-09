@@ -39,7 +39,10 @@ PAGES = [
     ('about', 'about.html', 'About Lumera'),
     ('team', 'team.html', 'The team'),
     ('pricing', 'pricing.html', 'Pricing'),
-    ('privacy', 'privacy.html', 'Privacy & trust'),
+    ('privacy', 'privacy.html', 'Privacy Policy'),
+    ('terms', 'terms.html', 'Terms & Conditions'),
+    ('cookies', 'cookies.html', 'Cookies & storage'),
+    ('refunds', 'refunds.html', 'Refunds & cancellation'),
 ]
 
 src = {}
@@ -66,8 +69,8 @@ def accents(key):
 def body_of(key):
     """The hero band plus the page body, for a generated sub-page."""
     s = src[key]
-    hero = s[s.index('    <div class="page-hero">'):s.index('</div>\n</div>\n\n<main class="rest">')]
-    main = s[s.index('<main class="rest">') + len('<main class="rest">'):s.index('    <footer class="site-footer">')]
+    hero = s[s.index('    <div class="page-hero">'):s.index('</div>\n</div>\n\n<main class="rest" id="main">')]
+    main = s[s.index('<main class="rest" id="main">') + len('<main class="rest" id="main">'):s.index('    <footer class="site-footer">')]
     return ('<div class="page-top"><div class="wash"></div>\n' + hero + '</div></div>\n'
             + '<div class="rest">' + main + '</div>')
 
@@ -127,8 +130,8 @@ def landing_grids(html):
 def home_body():
     """The landing: video hero, marquee, and its own sections."""
     s = landing
-    wrap = s[s.index('<div class="page-wrap">'):s.index('<main class="rest">')]
-    main = s[s.index('<main class="rest">') + len('<main class="rest">'):s.index('    <footer class="site-footer">')]
+    wrap = s[s.index('<div class="page-wrap">'):s.index('<main class="rest" id="main">')]
+    main = s[s.index('<main class="rest" id="main">') + len('<main class="rest" id="main">'):s.index('    <footer class="site-footer">')]
     return landing_grids(wrap + '<div class="rest">' + main + '</div>')
 
 
@@ -568,6 +571,8 @@ out = '''<!DOCTYPE html>
 <body>
 
 %s
+
+<a class="skip-link" href="#main">Skip to content</a>
 
 <div class="site-nav">
 %s

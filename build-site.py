@@ -14,6 +14,12 @@ import re
 import os
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
+
+import importlib.util as _ilu
+_lspec = _ilu.spec_from_file_location('legal_content', os.path.join(ROOT, 'legal-content.py'))
+_legal = _ilu.module_from_spec(_lspec)
+_lspec.loader.exec_module(_legal)
+
 SRC = open(os.path.join(ROOT, 'landing.html')).read()
 
 # ---------------------------------------------------------------- shared shell
@@ -33,7 +39,8 @@ LOGO = '''<a class="nav-logo" href="index.html">
                         <span class="wordmark">Lumera</span>
                     </a>'''
 
-NAV = '''            <header>
+NAV = '''            <a class="skip-link" href="#main">Skip to content</a>
+            <header>
                 <nav class="navbar">
                     ''' + LOGO + '''
 
@@ -91,10 +98,155 @@ SUB_CSS = '''
     .page-hero { padding: 3.5rem 1.25rem .5rem; }
     .tool-list { grid-template-columns: 1fr; }
 }
+
+
+/* ===== consent ===== */
+.consent {
+    position: fixed; z-index: 70; left: 1rem; right: 1rem; bottom: 1rem;
+    max-width: 44rem; margin: 0 auto;
+    background: rgba(10, 8, 20, .96);
+    border: 1px solid hsl(var(--foreground) / .16);
+    border-radius: 18px; padding: 1.2rem 1.3rem;
+    box-shadow: 0 30px 70px -30px rgba(0,0,0,.95);
+    display: none;
+}
+.consent[data-open] { display: block; }
+.consent h2 { font-family: var(--font-display); font-size: 1.05rem; font-weight: 500; margin-bottom: .4rem; }
+.consent p { font-size: .88rem; line-height: 1.65; color: hsl(var(--hero-sub)); opacity: .85; }
+.consent p a { color: hsl(var(--foreground)); text-decoration: underline; text-underline-offset: 3px; }
+.consent-actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1rem; }
+.consent-actions button {
+    font-family: inherit; font-size: .85rem; font-weight: 600; cursor: pointer;
+    padding: .6rem 1.2rem; border-radius: 999px; border: 1px solid transparent;
+}
+.consent-accept { background: linear-gradient(to left, #fcd34d, #f5b642); color: #17110a; }
+.consent-decline { background: rgba(255,255,255,.04); border-color: hsl(var(--foreground) / .2); color: hsl(var(--foreground)); }
+.consent-decline:hover { background: rgba(255,255,255,.1); }
+@media (max-width: 560px) { .consent-actions button { flex: 1 1 100%; } }
+
+/* ===== keyboard access ===== */
+.skip-link {
+    position: absolute; left: 1rem; top: -3rem; z-index: 60;
+    background: #fcd34d; color: #17110a; font-weight: 600; font-size: .9rem;
+    padding: .6rem 1.1rem; border-radius: 0 0 10px 10px; text-decoration: none;
+    transition: top .2s ease;
+}
+.skip-link:focus { top: 0; }
+
+/* Every interactive thing shows where the keyboard is. */
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible,
+input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 3px solid #fcd34d;
+    outline-offset: 3px;
+    border-radius: 6px;
+}
+
+/* ===== legal pages ===== */
+.legal { max-width: 46rem; }
+.legal h2 {
+    font-family: var(--font-display); font-weight: 500;
+    font-size: 1.45rem; letter-spacing: -.018em;
+    margin: 2.8rem 0 .9rem; scroll-margin-top: 2rem;
+}
+.legal h3 { font-family: var(--font-display); font-weight: 500; font-size: 1.08rem; margin: 1.6rem 0 .5rem; }
+.legal p, .legal li { color: hsl(var(--hero-sub)); opacity: .82; line-height: 1.8; font-size: .97rem; }
+.legal p + p { margin-top: .9rem; }
+.legal ul, .legal ol { margin: .8rem 0 .8rem 1.2rem; }
+.legal li { margin-bottom: .45rem; }
+.legal a { color: hsl(var(--foreground)); text-decoration: underline; text-underline-offset: 3px; }
+.legal strong { color: hsl(var(--foreground)); font-weight: 600; }
+.legal table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+.legal th, .legal td {
+    text-align: left; padding: .7rem .8rem; vertical-align: top;
+    border-bottom: 1px solid hsl(var(--foreground) / .1);
+    color: hsl(var(--hero-sub));
+}
+.legal th { color: hsl(var(--foreground)); font-weight: 600; font-size: .8rem; letter-spacing: .04em; }
+.legal .updated { font-size: .82rem; color: hsl(var(--foreground) / .55); margin-bottom: 1.5rem; }
+.legal .toc { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1.5rem 0 0; padding: 0; list-style: none; }
+.legal .toc li { margin: 0; }
+.legal .toc a {
+    display: inline-block; font-size: .82rem; text-decoration: none;
+    padding: .35rem .8rem; border-radius: 999px;
+    background: rgba(255,255,255,.04); color: hsl(var(--foreground) / .8);
+}
+.legal .toc a:hover { background: rgba(255,255,255,.09); color: hsl(var(--foreground)); }
+/* Anything the operator must fill in before launch is marked, not hidden. */
+.fill {
+    background: rgba(252, 211, 77, .13); color: #fcd34d;
+    border-radius: 5px; padding: .05em .4em; font-weight: 600;
+    font-size: .95em; white-space: nowrap;
+}
+.callout {
+    border-radius: 16px; padding: 1.1rem 1.3rem; margin: 1.6rem 0;
+    background: rgba(255,255,255,.03);
+}
+.callout p { margin: 0; opacity: .85; }
 </style>
 '''
 
+CONSENT_HTML = '''
+<aside class="consent" id="consent" role="dialog" aria-modal="false"
+       aria-labelledby="consent-title" aria-describedby="consent-body">
+    <h2 id="consent-title">Fonts and video from other companies</h2>
+    <p id="consent-body">Lumera sets <strong>no cookies</strong> and sends nothing you type to us &mdash;
+    your figures stay in your browser. But our web fonts, and the video on the home page, load from
+    Fontshare, jsDelivr and Google, which reveals your IP address to them. That is not necessary to
+    use the site, so we ask first. Decline and the site uses fonts already on your computer.
+    <a href="cookies.html">Read the detail</a>.</p>
+    <div class="consent-actions">
+        <button type="button" class="consent-accept" data-consent="yes">Accept fonts &amp; video</button>
+        <button type="button" class="consent-decline" data-consent="no">Decline, use system fonts</button>
+    </div>
+</aside>
+'''
+
 SCRIPT = '''<script>
+/* ============================================================
+   Consent for third-party content.
+   Nothing here is analytics: the only outside requests are fonts and the
+   home-page video, and neither loads until the visitor says yes. The choice
+   is kept in localStorage, which is first-party and sets no cookie.
+   ============================================================ */
+(function () {
+    var KEY = 'lumera_consent_thirdparty';
+    var box = document.getElementById('consent');
+
+    function read() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
+    function write(v) { try { localStorage.setItem(KEY, v); } catch (e) {} }
+
+    function loadThirdParty() {
+        document.querySelectorAll('link[data-href]').forEach(function (l) {
+            if (l.href) return;
+            l.href = l.getAttribute('data-href');
+        });
+        var v = document.querySelector('video[data-src]');
+        if (v && !v.src) { v.src = v.getAttribute('data-src'); v.load(); }
+        document.documentElement.setAttribute('data-thirdparty', 'on');
+    }
+
+    function decide(answer) {
+        write(answer);
+        if (box) box.removeAttribute('data-open');
+        if (answer === 'yes') loadThirdParty();
+    }
+
+    var saved = read();
+    if (saved === 'yes') loadThirdParty();
+    else if (saved !== 'no' && box) box.setAttribute('data-open', '');
+
+    if (box) {
+        box.querySelectorAll('[data-consent]').forEach(function (b) {
+            b.addEventListener('click', function () { decide(b.getAttribute('data-consent')); });
+        });
+    }
+    document.querySelectorAll('[data-consent-reopen]').forEach(function (b) {
+        b.addEventListener('click', function () {
+            if (box) { box.setAttribute('data-open', ''); box.querySelector('button').focus(); }
+        });
+    });
+})();
+
 (function () {
     var y = document.getElementById('year');
     if (y) y.textContent = new Date().getFullYear();
@@ -172,17 +324,18 @@ def page(fname, title, desc, accents, head, grad, lede, body, actions=None):
     </div>
 </div>
 
-<main class="rest">
+<main class="rest" id="main">
 %s
 
 %s
 </main>
 
 %s
+%s
 </body>
 </html>
 ''' % (title, desc, HEAD_LINKS, STYLE, a, b, c, SUB_CSS, ATMO, NAV,
-       head, grad, lede, actions_html, body, FOOTER, SCRIPT)
+       head, grad, lede, actions_html, body, FOOTER, CONSENT_HTML, SCRIPT)
 
     open(os.path.join(ROOT, fname), 'w').write(html)
     return fname
@@ -422,26 +575,42 @@ def build():
                       ('What happens to my data?', 'It lives in your browser. You can export or delete everything at any time.')], 2)),
         actions=[('Start free', 'app.html#/signup', True), ('Open the app', 'app.html#/login', False)]))
 
-    made.append(page('privacy.html', 'Privacy &amp; trust | Lumera',
-        'How Lumera treats your data and your decisions.',
+    # ---- legal ----
+    made.append(page('privacy.html', 'Privacy Policy | Lumera',
+        'What Lumera does with information about you. Everything you enter stays in your browser.',
         ('#1d4ed8', '#3b82f6', '#67e8f9'),
-        'Built private.', 'Built to be trusted.',
-        'Trust is not a banner, it is an architecture. Here is exactly how Lumera treats your data and your decisions.',
-        '    <section class="section tight">' + panels([
-            ('Your data is never sold', 'We do not sell, rent, or share your financial data for advertising, ever. Our business model will be subscriptions, not surveillance.'),
-            ('You own and control it', 'Export everything or permanently delete your account and all associated data at any time, with no friction and no retention games.'),
-            ('Bank connections are consent-based', 'Future Open-Banking links will use secure, revocable consent through regulated providers. We never see or store your banking credentials.'),
-            ('Private by architecture', 'Data is minimised and encrypted. We only ask for what makes your insights better, and you can skip anything.'),
-            ('Educational, not advisory', 'Lumera provides educational guidance only. It is not licensed financial, investment, tax or legal advice.'),
-            ('Honest about the prototype', 'Market data shown here is illustrative. Projections are illustrations, not promises. Always do your own research.')], 3) + '</section>\n'
-        + sec('Your controls', 'Everything is', 'yours to take back',
-              'Export, reset and delete all live inside the app, under Settings.',
-              actions_row([('Open your data controls', 'app.html#/settings', True),
-                           ('Read the full disclaimer', 'app.html#/privacy', False)])
-              + '<div class="disclaimer liquid-glass" style="margin-left:0">Lumera is an educational tool, not a '
-                'financial adviser. Figures are estimates based on what you enter, and nothing here is a recommendation '
-                'to buy, sell or hold any product.</div>'),
-        actions=[('Open the app', 'app.html#/login', False)]))
+        'Privacy', 'Policy',
+        'Everything you type into Lumera stays in your own browser. We have no server that stores it, '
+        'cannot read it, and could not hand it over if asked. Here is the whole picture.',
+        '    <section class="section tight">' + _legal.PRIVACY + '</section>\n',
+        actions=[('Cookies & storage', 'cookies.html', False), ('Terms', 'terms.html', False)]))
+
+    made.append(page('terms.html', 'Terms & Conditions | Lumera',
+        'The terms you agree to when you use Lumera.',
+        ('#4f46e5', '#8b5cf6', '#c4b5fd'),
+        'Terms &amp;', 'Conditions',
+        'Lumera is an educational tool, not a financial adviser. These are the terms you accept '
+        'when you use it.',
+        '    <section class="section tight">' + _legal.TERMS + '</section>\n',
+        actions=[('Privacy Policy', 'privacy.html', False), ('Refunds', 'refunds.html', False)]))
+
+    made.append(page('cookies.html', 'Cookies & storage | Lumera',
+        'Lumera sets no cookies. Here is what it does store, and what it loads from elsewhere.',
+        ('#0f766e', '#14b8a6', '#5eead4'),
+        'Cookies', '& storage',
+        'Lumera sets no cookies at all. It does keep your figures on your own device, and it can '
+        'load fonts and video from other companies, so both are explained here.',
+        '    <section class="section tight">' + _legal.COOKIES + '</section>\n',
+        actions=[('Privacy Policy', 'privacy.html', False)]))
+
+    made.append(page('refunds.html', 'Refunds & cancellation | Lumera',
+        'Lumera is free, so there is nothing to refund. These terms apply if paid plans launch.',
+        ('#b45309', '#f59e0b', '#fcd34d'),
+        'Refunds &', 'cancellation',
+        'Lumera is free today, so there is nothing to refund and nothing to cancel. These are the '
+        'terms that will apply if the paid plans launch.',
+        '    <section class="section tight">' + _legal.REFUNDS + '</section>\n',
+        actions=[('Pricing', 'pricing.html', False), ('Terms', 'terms.html', False)]))
 
     return made
 
