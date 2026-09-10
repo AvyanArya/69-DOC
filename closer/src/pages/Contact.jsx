@@ -1,13 +1,11 @@
-// Closer — "Get in touch" hero. Adapted from the Mainframe contact spec into
-// Closer's dark cinematic glass theme. The reference's static person/face is
-// replaced with a "someone speaking" motif: a live coach-on-the-line card with
-// an animated speaking waveform. Native mouse-scrub video on desktop.
+// Closer — "Get in touch" hero. The Mainframe contact spec applied to Closer's
+// dark cinematic theme. The point of the original: the background is a person's
+// head, and moving the cursor scrubs the clip so the head reacts to your mouse.
 import { Link, useNavigate } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
-import { Waveform } from '../components/phone/PhoneSim.jsx'
 
-// Same cinematic clip the landing uses, so the UI stays cohesive.
-const BG_VIDEO = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260729_102822_0e6c87e8-c141-4744-bf32-ad30db296371.mp4'
+// The head clip — cursor-scrubbed so the coach's head tracks the mouse.
+const BG_VIDEO = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260601_110537_3a579fa0-7bbc-4d94-9d25-0e816c7840f5.mp4'
 
 const SERVICE_OPTIONS = ['Solo rep', 'Sales team', 'Enterprise', 'Just exploring']
 
@@ -51,9 +49,11 @@ export default function Contact() {
   const videoRef = useRef(null)
   const [menuOpen, setMenuOpen] = useState(false)
   const [services, setServices] = useState([])
+  const [moved, setMoved] = useState(false)
   const { displayed, done } = useTypewriter("we'd love to\nhear from you!")
 
-  // Video: desktop = mouse-scrub, mobile = normal autoplay.
+  // The interaction: on desktop the cursor scrubs the head clip frame-to-frame
+  // so the head reacts to mouse movement; on mobile it just plays.
   useEffect(() => {
     const video = videoRef.current
     if (!video) return
@@ -64,18 +64,24 @@ export default function Contact() {
     }
     let prevX = null
     let seeking = false
+    let firstMove = true
     const onMove = (e) => {
       if (window.innerWidth < 1024) return
+      if (firstMove) { firstMove = false; setMoved(true) }
       if (prevX === null) { prevX = e.clientX; return }
       const delta = e.clientX - prevX
       prevX = e.clientX
       const d = video.duration
       if (!d || Number.isNaN(d)) return
+      // delta / viewport width, scaled, drives the scrub head (clamped 0..duration)
       const target = Math.min(d, Math.max(0, (video.currentTime || 0) + (delta / window.innerWidth) * 0.8 * d))
       if (!seeking) { seeking = true; try { video.currentTime = target } catch { /* seeking */ } }
     }
     const onSeeked = () => { seeking = false }
     video.addEventListener('seeked', onSeeked)
+    // Seed a mid-clip frame so the head is looking "ahead" before the first move.
+    const seed = () => { try { video.currentTime = (video.duration || 1) * 0.5 } catch { /* not ready */ } }
+    if (video.readyState >= 1) seed(); else video.addEventListener('loadedmetadata', seed, { once: true })
     window.addEventListener('mousemove', onMove)
     return () => { window.removeEventListener('mousemove', onMove); video.removeEventListener('seeked', onSeeked) }
   }, [])
@@ -93,10 +99,11 @@ export default function Contact() {
 
   return (
     <div className="ct">
-      {/* Background video */}
+      {/* Background: the head clip, cursor-scrubbed */}
       <div className="ct-bg" aria-hidden="true">
         <video ref={videoRef} className="ct-video" src={BG_VIDEO} muted playsInline preload="auto" />
         <div className="ct-scrim" />
+        <span className="ct-livebadge"><span className="ct-live-dot" /> Mitha · live on the line</span>
       </div>
 
       {/* Navbar */}
@@ -165,22 +172,12 @@ export default function Contact() {
             </div>
           </div>
         </div>
-
-        {/* "Someone speaking" — a live coach on the line, not a static face */}
-        <aside className="ct-speaking anim-in d2" aria-hidden="true">
-          <div className="ct-speaking-card">
-            <div className="ct-speaking-head">
-              <span className="ct-live-dot" />
-              <span>A real coach, on the line</span>
-            </div>
-            <Waveform active bars={30} />
-            <div className="ct-speaking-cap">
-              <span className="ct-speaking-name">Mitha · Head coach</span>
-              <span className="ct-speaking-sub">“Let's hear your opener…”</span>
-            </div>
-          </div>
-        </aside>
       </main>
+
+      {/* Cursor-reactivity hint (desktop) */}
+      <div className={`ct-hint ${moved ? 'gone' : ''}`} aria-hidden="true">
+        <span className="ct-hint-arrows">‹ ›</span> move your cursor — she follows you
+      </div>
     </div>
   )
 }
