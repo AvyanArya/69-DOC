@@ -1,12 +1,27 @@
 /* ── App shell ────────────────────────────────────────────── */
-.shell { display: flex; min-height: 100vh; background: var(--bg-1); }
+.shell {
+  display: flex; min-height: 100vh;
+  background:
+    radial-gradient(85% 55% at 82% 0%, rgba(122,142,172,0.10), transparent 60%),
+    radial-gradient(70% 60% at 0% 100%, rgba(216,178,92,0.05), transparent 55%),
+    var(--bg-1);
+  background-attachment: fixed;
+}
+:root[data-theme="light"] .shell {
+  background:
+    radial-gradient(85% 55% at 82% 0%, rgba(122,142,172,0.14), transparent 60%),
+    radial-gradient(70% 60% at 0% 100%, rgba(154,116,32,0.06), transparent 55%),
+    var(--bg-1);
+}
 .sidebar {
   width: 240px; flex-shrink: 0; position: sticky; top: 0; height: 100vh;
   display: flex; flex-direction: column; padding: 20px 14px;
-  background: linear-gradient(180deg, var(--bg-2), var(--bg-1));
+  background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015));
+  backdrop-filter: blur(16px) saturate(1.1); -webkit-backdrop-filter: blur(16px) saturate(1.1);
   border-right: 1px solid var(--glass-border);
   z-index: 50;
 }
+:root[data-theme="light"] .sidebar { background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.35)); }
 .sidebar-logo { display: flex; align-items: center; gap: 10px; padding: 4px 10px 18px; }
 /* Brand mark: gold cursive "C" on a dark tile. Text passed in is hidden and
    replaced by a serif-italic gradient glyph, so every <span class="logo-mark">C</span>
@@ -15,9 +30,9 @@
   width: 34px; height: 34px; border-radius: 11px;
   display: grid; place-items: center; position: relative;
   font-size: 0; color: transparent; flex-shrink: 0;
-  background: radial-gradient(130% 130% at 30% 18%, #241b0e, #0c0906 78%);
-  border: 1px solid rgba(203,162,78,.4);
-  box-shadow: 0 4px 16px -6px var(--gold-glow), inset 0 1px 0 rgba(203,162,78,.18);
+  background: radial-gradient(130% 130% at 30% 18%, rgba(255,255,255,.10), rgba(255,255,255,.02) 78%);
+  border: 1px solid rgba(216,178,92,.4);
+  box-shadow: 0 4px 16px -6px var(--gold-glow), inset 0 1px 0 rgba(255,255,255,.1);
 }
 .logo-mark::after {
   content: "C";
@@ -52,7 +67,7 @@
 }
 .nav-item:hover { background: rgba(255,255,255,.05); color: var(--ink-0); }
 .nav-item.active {
-  background: linear-gradient(90deg, rgba(211,169,78,.16), rgba(211,169,78,.05));
+  background: linear-gradient(90deg, var(--gold-soft), transparent 90%);
   color: var(--gold-bright); font-weight: 600;
   box-shadow: inset 2px 0 0 var(--gold);
 }
