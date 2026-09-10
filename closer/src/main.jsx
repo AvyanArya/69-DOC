@@ -7,6 +7,7 @@ import './styles/global.css'
 import './styles/app.css'
 import './styles/phone.css'
 import './styles/landing.css'
+import './styles/contact.css'
 
 initTheme()
 

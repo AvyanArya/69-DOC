@@ -136,7 +136,7 @@ export default function Landing() {
                 <div className="cine-contact-text">
                   <span className="cine-contact-name">Talk with Mitha</span>
                   <span className="cine-contact-role">Head coach at Closer</span>
-                  <Link to="/auth" className="cine-contact-btn">Book a 15-min call <Chevron size={14} /></Link>
+                  <Link to="/contact" className="cine-contact-btn">Book a 15-min call <Chevron size={14} /></Link>
                 </div>
               </Reveal>
             </div>

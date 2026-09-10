@@ -1,6 +1,7 @@
 import { Routes, Route, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
 import Landing from './pages/Landing.jsx'
+import Contact from './pages/Contact.jsx'
 import Auth from './pages/Auth.jsx'
 import Pricing from './pages/Pricing.jsx'
 import AppShell from './components/AppShell.jsx'
@@ -35,6 +36,7 @@ export default function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/pricing" element={<Pricing />} />
+        <Route path="/contact" element={<Contact />} />
         <Route path="/app" element={<AppShell />}>
           <Route index element={<Dashboard />} />
           <Route path="simulator" element={<Simulator />} />
