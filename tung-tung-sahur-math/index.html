@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Tung Tung Tung Sahur Math</title>
+<meta name="description" content="A brown, wooden, drum-thumping math game for young kids: single-digit adding, taking away and times.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%236b4423'/><circle cx='36' cy='44' r='11' fill='%23fff6e5'/><circle cx='64' cy='44' r='11' fill='%23fff6e5'/><circle cx='36' cy='46' r='5' fill='%232a1a0e'/><circle cx='64' cy='46' r='5' fill='%232a1a0e'/></svg>">
+<style>
+/* ============================================================
+   TUNG TUNG TUNG SAHUR MATH  —  everything is brown, as he is.
+   ============================================================ */
+:root{
+  --wood-darkest:#241509;
+  --wood-darker:#3a2314;
+  --wood-dark:#4e3020;
+  --wood:#6b4423;
+  --wood-mid:#8b5a2b;
+  --wood-light:#a9713a;
+  --wood-lighter:#c98f52;
+  --wood-pale:#e6c49a;
+  --wood-cream:#f6e3c6;
+  --bark:#5a3a1e;
+  --glow:#ffd79a;
+  --good:#7a9b3f;
+  --good-dark:#4e6626;
+  --bad:#a4502f;
+  --bad-dark:#6d3319;
+  --shadow:0 .5rem 0 rgba(36,21,9,.45);
+  --font:"Baloo 2","Comic Sans MS","Chalkboard SE","Trebuchet MS",system-ui,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:#241509}
+html,body{height:100%}
+body{
+  margin:0;font-family:var(--font);color:var(--wood-cream);
+  background:
+    radial-gradient(ellipse 120% 80% at 50% -10%, #8b5a2b 0%, #6b4423 35%, #3a2314 75%, #241509 100%);
+  background-attachment:fixed;
+  min-height:100dvh;display:flex;flex-direction:column;align-items:center;
+  overflow-x:hidden;
+}
+/* wood-grain texture over the whole page */
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+  background:
+    repeating-linear-gradient(94deg, rgba(36,21,9,.16) 0 2px, transparent 2px 9px),
+    repeating-linear-gradient(88deg, rgba(230,196,154,.05) 0 1px, transparent 1px 23px);
+}
+.wrap{position:relative;z-index:1;width:100%;max-width:70rem;padding:1rem 1rem 3rem;flex:1;display:flex;flex-direction:column;gap:1rem}
+
+/* ---------- top bar ---------- */
+header{display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:.6rem;min-width:0}
+.brand h1{
+  margin:0;font-size:clamp(1.1rem,4.4vw,2rem);line-height:1.05;letter-spacing:.5px;
+  color:var(--wood-cream);text-shadow:0 .18rem 0 var(--wood-darkest), 0 0 1.6rem rgba(255,215,154,.35);
+}
+.brand h1 small{display:block;font-size:.5em;color:var(--wood-pale);opacity:.85;letter-spacing:2px;text-transform:uppercase}
+.scores{display:flex;gap:.5rem}
+.chip{
+  background:linear-gradient(180deg,var(--wood-mid),var(--wood-dark));
+  border:.18rem solid var(--wood-darkest);border-radius:1rem;padding:.4rem .75rem;
+  box-shadow:inset 0 .12rem 0 rgba(255,220,170,.28), var(--shadow);
+  text-align:center;min-width:4.4rem;
+}
+.chip b{display:block;font-size:1.35rem;line-height:1;color:var(--glow);text-shadow:0 .12rem 0 var(--wood-darkest)}
+.chip span{font-size:.6rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--wood-pale);opacity:.9}
+.chip.pop b{animation:chipPop .45s cubic-bezier(.2,1.7,.4,1)}
+@keyframes chipPop{0%{transform:scale(1)}40%{transform:scale(1.55) rotate(-6deg);color:#fff}100%{transform:scale(1)}}
+
+/* ---------- main stage ---------- */
+.stage{
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:1rem;align-items:stretch;
+}
+@media (max-width:820px){ .stage{grid-template-columns:1fr} }
+.panel{
+  position:relative;border-radius:1.6rem;padding:1rem;
+  background:linear-gradient(170deg,var(--wood-mid) 0%,var(--wood) 45%,var(--wood-dark) 100%);
+  border:.28rem solid var(--wood-darkest);
+  box-shadow:inset 0 .3rem 0 rgba(255,220,170,.22), inset 0 -.6rem 1.2rem rgba(36,21,9,.5), 0 .7rem 0 var(--wood-darkest), 0 1.2rem 2.2rem rgba(0,0,0,.4);
+}
+.panel::after{ /* plank grain */
+  content:"";position:absolute;inset:0;border-radius:1.3rem;pointer-events:none;opacity:.35;
+  background:repeating-linear-gradient(91deg, rgba(36,21,9,.22) 0 2px, transparent 2px 14px);
+}
+.panel > *{position:relative;z-index:1}
+
+/* ---------- character ---------- */
+.tung-stage{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-height:23rem;overflow:hidden}
+#tung-svg{width:min(100%,23rem);height:auto;overflow:visible;display:block}
+#tung{transform-origin:100px 230px}
+#tung.idle{animation:idleBob 2.2s ease-in-out infinite}
+#tung.happy{animation:celebrate .62s cubic-bezier(.2,1.4,.4,1) 3}
+#tung.sad{animation:slump .8s ease-out forwards}
+#tung.thinking{animation:sway 1.5s ease-in-out infinite}
+@keyframes idleBob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-.55rem) rotate(1.2deg)}}
+@keyframes sway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+@keyframes celebrate{
+  0%{transform:translateY(0) rotate(0) scale(1)}
+  35%{transform:translateY(-3.2rem) rotate(-13deg) scale(1.08,.95)}
+  70%{transform:translateY(-.6rem) rotate(11deg) scale(.95,1.06)}
+  100%{transform:translateY(0) rotate(0) scale(1)}
+}
+@keyframes slump{
+  0%{transform:translateY(0) rotate(0)}
+  25%{transform:translateY(.35rem) rotate(-7deg)}
+  60%{transform:translateY(.9rem) rotate(5deg)}
+  100%{transform:translateY(1.1rem) rotate(0) scale(.96,.94)}
+}
+#arm-bat{transform-origin:152px 150px;transition:transform .25s ease}
+#tung.happy #arm-bat{animation:batSwing .5s ease-in-out 4}
+#tung.sad #arm-bat{transform:rotate(38deg) translate(-4px,14px)}
+@keyframes batSwing{0%,100%{transform:rotate(0)}50%{transform:rotate(-58deg)}}
+#arm-free{transform-origin:52px 152px;transition:transform .25s ease}
+#tung.happy #arm-free{animation:armWave .34s ease-in-out 6}
+#tung.sad #arm-free{transform:rotate(-30deg) translate(6px,12px)}
+@keyframes armWave{0%,100%{transform:rotate(6deg)}50%{transform:rotate(-40deg)}}
+#leg-l,#leg-r{transform-origin:top center}
+#tung.happy #leg-l{animation:kick .3s ease-in-out 6}
+#tung.happy #leg-r{animation:kick .3s ease-in-out 6 reverse}
+@keyframes kick{0%,100%{transform:rotate(0)}50%{transform:rotate(-16deg)}}
+#eyelids{transform-origin:center;transform:scaleY(0)}
+#eyelids.blink{animation:blink .2s ease-in-out}
+@keyframes blink{0%,100%{transform:scaleY(0)}50%{transform:scaleY(1)}}
+.pupil{transition:transform .3s cubic-bezier(.2,1.6,.4,1)}
+#tung.happy .pupil{transform:translateY(-4px) scale(1.12)}
+#tung.sad .pupil{transform:translateY(5px) scale(.82)}
+#mouth,#brow-l,#brow-r{transition:d .28s ease, transform .28s ease}
+.tear{opacity:0}
+#tung.sad .tear{animation:tearDrop 1.1s ease-in infinite}
+#tung.sad .tear.t2{animation-delay:.45s}
+@keyframes tearDrop{0%{opacity:0;transform:translateY(0) scale(.5)}20%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(46px) scale(.8)}}
+#sweat{opacity:0}
+#tung.thinking #sweat{animation:tearDrop 1.6s ease-in infinite}
+#shadow-ell{transition:transform .3s ease}
+#tung.happy #shadow-ell{animation:shadowPulse .62s ease-in-out 3}
+@keyframes shadowPulse{0%,100%{transform:scale(1)}40%{transform:scale(.62);opacity:.5}}
+.sparkle{opacity:0}
+#tung.happy .sparkle{animation:sparkle .6s ease-out 3}
+.sparkle.s2{animation-delay:.18s!important}
+.sparkle.s3{animation-delay:.34s!important}
+@keyframes sparkle{0%{opacity:0;transform:scale(.2) rotate(0)}45%{opacity:1;transform:scale(1.2) rotate(70deg)}100%{opacity:0;transform:scale(.4) rotate(140deg)}}
+
+/* ---------- speech bubble ---------- */
+.bubble{
+  position:relative;margin:0 0 .4rem;padding:.6rem 1rem;max-width:22rem;text-align:center;
+  background:linear-gradient(180deg,var(--wood-cream),var(--wood-pale));
+  color:var(--wood-darkest);border:.22rem solid var(--wood-darkest);border-radius:1.2rem;
+  font-size:clamp(.95rem,3.4vw,1.25rem);font-weight:700;line-height:1.25;
+  box-shadow:0 .35rem 0 var(--wood-darkest);
+  animation:bubblePop .35s cubic-bezier(.2,1.7,.4,1);
+}
+.bubble::after{
+  content:"";position:absolute;left:50%;bottom:-.95rem;transform:translateX(-50%);
+  border:.55rem solid transparent;border-top-color:var(--wood-darkest);
+}
+@keyframes bubblePop{0%{transform:scale(.4) translateY(1rem);opacity:0}100%{transform:scale(1) translateY(0);opacity:1}}
+
+/* ---------- question ---------- */
+.q-panel{display:flex;flex-direction:column;gap:.9rem}
+.qcard{
+  background:linear-gradient(180deg,var(--wood-darker),var(--wood-darkest));
+  border:.22rem solid var(--wood-light);border-radius:1.2rem;padding:1rem .6rem;text-align:center;
+  box-shadow:inset 0 0 2.2rem rgba(255,215,154,.14);
+}
+.qcard .q{
+  font-size:clamp(2.4rem,11vw,4.2rem);font-weight:900;letter-spacing:.06em;line-height:1;
+  color:var(--glow);text-shadow:0 .2rem 0 var(--wood-dark), 0 0 2rem rgba(255,215,154,.5);
+  display:flex;align-items:center;justify-content:center;gap:.12em;flex-wrap:wrap;
+}
+.qcard .q span{display:inline-block}
+.qcard .q .num{animation:numIn .4s cubic-bezier(.2,1.7,.4,1) backwards}
+.qcard .q .num:nth-child(1){animation-delay:.02s}
+.qcard .q .num:nth-child(3){animation-delay:.12s}
+.qcard .q .op{color:var(--wood-lighter);animation:numIn .4s cubic-bezier(.2,1.7,.4,1) .07s backwards}
+.qcard .q .eq{color:var(--wood-lighter)}
+.qcard .q .blank{
+  min-width:1.3em;border-bottom:.12em solid var(--wood-lighter);color:var(--wood-pale);
+  animation:pulseBlank 1.3s ease-in-out infinite;
+}
+@keyframes numIn{0%{transform:translateY(-1.2rem) scale(.3) rotate(-18deg);opacity:0}100%{transform:none;opacity:1}}
+@keyframes pulseBlank{0%,100%{opacity:.45}50%{opacity:1}}
+.counters{display:flex;justify-content:center;align-items:center;gap:1.1rem;margin-top:.7rem;flex-wrap:wrap;min-height:1.6rem}
+.dotgroup{display:grid;gap:.2rem;justify-content:center}
+.dot{
+  width:.72rem;height:.72rem;border-radius:50%;
+  background:radial-gradient(circle at 32% 30%,var(--wood-pale),var(--wood-mid) 60%,var(--wood-dark));
+  border:.1rem solid var(--wood-darkest);animation:dotIn .3s backwards;
+}
+.dot.gone{opacity:.22;filter:grayscale(1)}
+@keyframes dotIn{0%{transform:scale(0)}100%{transform:scale(1)}}
+
+/* ---------- answers ---------- */
+.answers{display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem}
+.ans{
+  font-family:inherit;font-size:clamp(1.8rem,7vw,2.6rem);font-weight:900;
+  padding:.55rem .3rem;border-radius:1.1rem;cursor:pointer;
+  color:var(--wood-cream);
+  background:linear-gradient(180deg,var(--wood-light),var(--wood) 60%,var(--wood-dark));
+  border:.22rem solid var(--wood-darkest);
+  box-shadow:inset 0 .22rem 0 rgba(255,220,170,.35), 0 .45rem 0 var(--wood-darkest);
+  text-shadow:0 .14rem 0 var(--wood-darkest);
+  transition:transform .09s, box-shadow .09s, filter .15s;
+  animation:ansIn .34s cubic-bezier(.2,1.6,.4,1) backwards;
+}
+.ans:nth-child(2){animation-delay:.05s}.ans:nth-child(3){animation-delay:.1s}.ans:nth-child(4){animation-delay:.15s}
+@keyframes ansIn{0%{transform:translateY(1.1rem) scale(.7);opacity:0}100%{transform:none;opacity:1}}
+.ans:hover:not(:disabled){filter:brightness(1.12)}
+.ans:active:not(:disabled){transform:translateY(.4rem);box-shadow:inset 0 .22rem 0 rgba(255,220,170,.3), 0 .06rem 0 var(--wood-darkest)}
+.ans:focus-visible{outline:.25rem solid var(--glow);outline-offset:.2rem}
+.ans:disabled{cursor:default}
+.ans.right{
+  background:linear-gradient(180deg,#9dc154,var(--good) 60%,var(--good-dark));
+  animation:rightFlash .5s ease-out 2;
+}
+@keyframes rightFlash{0%,100%{transform:scale(1)}50%{transform:scale(1.12);filter:brightness(1.4)}}
+.ans.wrong{
+  background:linear-gradient(180deg,#c9714a,var(--bad) 60%,var(--bad-dark));
+  animation:shake .42s ease-in-out;
+}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-.6rem) rotate(-3deg)}40%{transform:translateX(.6rem) rotate(3deg)}60%{transform:translateX(-.4rem)}80%{transform:translateX(.4rem)}}
+.ans.dim{opacity:.4;filter:grayscale(.6)}
+
+/* ---------- progress ---------- */
+.progress{height:1.1rem;border-radius:1rem;background:var(--wood-darkest);border:.18rem solid var(--wood-dark);overflow:hidden;box-shadow:inset 0 .15rem .4rem rgba(0,0,0,.6)}
+.progress i{display:block;height:100%;width:0;border-radius:1rem;transition:width .5s cubic-bezier(.2,1.3,.4,1);
+  background:linear-gradient(90deg,var(--wood-lighter),var(--glow));box-shadow:0 0 1rem rgba(255,215,154,.7)}
+.stars{display:flex;justify-content:center;gap:.25rem;font-size:1.5rem;min-height:1.9rem;flex-wrap:wrap}
+.stars b{opacity:0;transform:scale(0);animation:starPop .45s cubic-bezier(.2,1.8,.4,1) forwards;filter:drop-shadow(0 0 .4rem rgba(255,215,154,.8))}
+@keyframes starPop{to{opacity:1;transform:scale(1) rotate(360deg)}}
+
+/* ---------- mode buttons ---------- */
+.modes{display:flex;gap:.4rem;justify-content:center;flex-wrap:wrap}
+.mode{
+  font-family:inherit;font-size:.95rem;font-weight:800;cursor:pointer;
+  padding:.4rem .8rem;border-radius:.9rem;color:var(--wood-cream);
+  background:linear-gradient(180deg,var(--wood),var(--wood-dark));
+  border:.16rem solid var(--wood-darkest);box-shadow:0 .25rem 0 var(--wood-darkest);
+  transition:transform .09s,filter .15s;
+}
+.mode[aria-pressed="true"]{background:linear-gradient(180deg,var(--wood-lighter),var(--wood-mid));color:var(--wood-darkest);text-shadow:none}
+.mode:active{transform:translateY(.2rem)}
+
+/* ---------- overlays ---------- */
+.overlay{
+  position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:1.2rem;
+  background:radial-gradient(circle at 50% 40%,rgba(107,68,35,.93),rgba(36,21,9,.97));
+  backdrop-filter:blur(3px);animation:fadeIn .35s ease;
+}
+.overlay[hidden]{display:none}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.card{
+  max-width:32rem;width:100%;text-align:center;padding:1.6rem 1.2rem;border-radius:1.6rem;
+  background:linear-gradient(170deg,var(--wood-mid),var(--wood-dark));
+  border:.3rem solid var(--wood-darkest);box-shadow:0 .8rem 0 var(--wood-darkest),0 1.6rem 3rem rgba(0,0,0,.55);
+  animation:cardIn .45s cubic-bezier(.2,1.5,.4,1);
+}
+@keyframes cardIn{0%{transform:scale(.7) translateY(2rem);opacity:0}100%{transform:none;opacity:1}}
+.card h2{margin:.2rem 0 .5rem;font-size:clamp(1.5rem,6vw,2.4rem);color:var(--glow);text-shadow:0 .18rem 0 var(--wood-darkest)}
+.card p{margin:.4rem 0;color:var(--wood-cream);font-size:1rem;line-height:1.5}
+.card .tiny{font-size:.82rem;color:var(--wood-pale);opacity:.85}
+.big-btn{
+  font-family:inherit;font-size:1.5rem;font-weight:900;cursor:pointer;margin-top:1rem;
+  padding:.75rem 2rem;border-radius:1.3rem;color:var(--wood-darkest);
+  background:linear-gradient(180deg,var(--wood-cream),var(--wood-lighter));
+  border:.24rem solid var(--wood-darkest);box-shadow:0 .5rem 0 var(--wood-darkest);
+  animation:btnBounce 1.6s ease-in-out infinite;
+}
+.big-btn:active{transform:translateY(.35rem);box-shadow:0 .15rem 0 var(--wood-darkest);animation:none}
+@keyframes btnBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-.3rem)}}
+.mini-tung{width:11.5rem;height:auto;margin:.2rem auto .4rem;display:block;overflow:visible}
+.mini-tung .bob{animation:idleBob 1.8s ease-in-out infinite;transform-origin:100px 230px}
+
+/* ---------- confetti / effects ---------- */
+#fx{position:fixed;inset:0;pointer-events:none;z-index:40;overflow:hidden}
+.conf{position:absolute;width:.7rem;height:1rem;border-radius:.15rem;will-change:transform,opacity;animation:confFall linear forwards}
+@keyframes confFall{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(105vh) rotate(760deg);opacity:0}}
+.floaty{
+  position:absolute;font-size:2rem;font-weight:900;color:var(--glow);pointer-events:none;
+  text-shadow:0 .16rem 0 var(--wood-darkest);animation:floatUp 1.1s ease-out forwards;
+}
+@keyframes floatUp{0%{transform:translate(-50%,0) scale(.5);opacity:0}25%{transform:translate(-50%,-1.2rem) scale(1.25);opacity:1}100%{transform:translate(-50%,-5rem) scale(1);opacity:0}}
+.ring{position:absolute;border:.35rem solid var(--glow);border-radius:50%;pointer-events:none;animation:ringOut .65s ease-out forwards}
+@keyframes ringOut{0%{width:0;height:0;opacity:.9;transform:translate(-50%,-50%)}100%{width:26rem;height:26rem;opacity:0;transform:translate(-50%,-50%)}}
+.shakeit{animation:pageShake .4s ease-in-out}
+@keyframes pageShake{0%,100%{transform:translate(0,0)}25%{transform:translate(-.5rem,.3rem)}50%{transform:translate(.5rem,-.3rem)}75%{transform:translate(-.3rem,-.2rem)}}
+
+footer{color:var(--wood-pale);opacity:.6;font-size:.72rem;text-align:center;padding:0 1rem 1rem;line-height:1.6;position:relative;z-index:1}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+
+/* ---------- phones: fit question + buttons above the fold ---------- */
+@media (max-width:820px){
+  .stage{gap:.7rem}
+  .wrap{padding:.7rem .7rem 2rem;gap:.7rem}
+  .panel{padding:.7rem}
+  .tung-stage{min-height:0}
+  #tung-svg{width:min(56%,12rem)}
+  .bubble{padding:.45rem .8rem;font-size:1rem}
+  .qcard{padding:.6rem .4rem}
+  .qcard .q{font-size:clamp(2rem,9vw,3rem)}
+  .counters{gap:.7rem;margin-top:.45rem}
+  .ans{font-size:clamp(1.5rem,6vw,2rem);padding:.4rem .3rem}
+  .answers{gap:.55rem}
+  .stars{font-size:1.1rem;min-height:1.4rem}
+  header{gap:.4rem}
+  .chip{padding:.28rem .55rem;min-width:3.7rem}
+  .chip b{font-size:1.1rem}
+  .progress{height:.8rem}
+  footer{font-size:.66rem}
+}
+@media (max-width:820px) and (max-height:700px){
+  #tung-svg{width:min(46%,9.5rem)}
+  .counters{display:none}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+
+<div id="fx" aria-hidden="true"></div>
+
+<!-- ===================== START SCREEN ===================== -->
+<div class="overlay" id="start-screen">
+  <div class="card">
+    <svg class="mini-tung" viewBox="0 0 200 265" aria-hidden="true">
+      <g class="bob">
+        <rect x="88" y="212" width="10" height="34" rx="5" fill="#4e3020"/>
+        <rect x="104" y="212" width="10" height="34" rx="5" fill="#4e3020"/>
+        <ellipse cx="93" cy="248" rx="11" ry="6" fill="#3a2314"/>
+        <ellipse cx="109" cy="248" rx="11" ry="6" fill="#3a2314"/>
+        <rect x="48" y="62" width="104" height="156" rx="26" fill="#8b5a2b" stroke="#241509" stroke-width="5"/>
+        <path d="M62 96h76M58 124h84M64 170h72" stroke="#6b4423" stroke-width="4" stroke-linecap="round" opacity=".7"/>
+        <circle cx="80" cy="118" r="15" fill="#f6e3c6" stroke="#241509" stroke-width="4"/>
+        <circle cx="120" cy="118" r="15" fill="#f6e3c6" stroke="#241509" stroke-width="4"/>
+        <circle cx="80" cy="120" r="7" fill="#241509"/><circle cx="120" cy="120" r="7" fill="#241509"/>
+        <path d="M84 152q16 14 32 0" stroke="#241509" stroke-width="5" fill="none" stroke-linecap="round"/>
+      </g>
+    </svg>
+    <h2>Tung Tung Tung Sahur<br>Math Adventure!</h2>
+    <p>Help the wooden drum friend beat his bat!<br>Answer the math and he will dance. 🥁</p>
+    <p class="tiny">Plus ➕ &nbsp; Take away ➖ &nbsp; Times ✖️ &nbsp; (one-digit numbers only)</p>
+    <button class="big-btn" id="btn-start">TUNG! LET'S PLAY</button>
+  </div>
+</div>
+
+<!-- ===================== END SCREEN ===================== -->
+<div class="overlay" id="end-screen" hidden>
+  <div class="card">
+    <div class="stars" id="end-stars"></div>
+    <svg class="mini-tung" id="end-tung" viewBox="0 0 200 265" aria-hidden="true">
+      <g class="bob">
+        <rect x="88" y="212" width="10" height="34" rx="5" fill="#4e3020"/>
+        <rect x="104" y="212" width="10" height="34" rx="5" fill="#4e3020"/>
+        <ellipse cx="93" cy="248" rx="11" ry="6" fill="#3a2314"/>
+        <ellipse cx="109" cy="248" rx="11" ry="6" fill="#3a2314"/>
+        <rect x="48" y="62" width="104" height="156" rx="26" fill="#8b5a2b" stroke="#241509" stroke-width="5"/>
+        <ellipse cx="100" cy="68" rx="48" ry="12" fill="#a9713a" stroke="#241509" stroke-width="4.5"/>
+        <ellipse cx="100" cy="68" rx="28" ry="6" fill="none" stroke="#6b4423" stroke-width="3"/>
+        <path d="M58 124h84M64 176h72" stroke="#6b4423" stroke-width="4" stroke-linecap="round" opacity=".7"/>
+        <circle cx="80" cy="118" r="15" fill="#f6e3c6" stroke="#241509" stroke-width="4"/>
+        <circle cx="120" cy="118" r="15" fill="#f6e3c6" stroke="#241509" stroke-width="4"/>
+        <circle cx="80" cy="120" r="7" fill="#241509"/><circle cx="120" cy="120" r="7" fill="#241509"/>
+        <path id="end-mouth" d="M84 152q16 14 32 0" stroke="#241509" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <g transform="rotate(-26 168 150)">
+          <rect x="162" y="90" width="12" height="56" rx="6" fill="#5a3a1e" stroke="#241509" stroke-width="3"/>
+          <path d="M160 94q8 -10 16 0l6 -48q-14 -10 -28 0z" fill="#c98f52" stroke="#241509" stroke-width="3.5"/>
+        </g>
+      </g>
+    </svg>
+    <h2 id="end-title">Great job!</h2>
+    <p id="end-msg">You helped Tung Tung Tung Sahur!</p>
+    <p class="tiny" id="end-detail"></p>
+    <button class="big-btn" id="btn-again">PLAY AGAIN 🥁</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <h1>Tung Tung Tung Sahur <small>Math Adventure</small></h1>
+    </div>
+    <div class="scores">
+      <div class="chip" id="chip-score"><b id="score">0</b><span>Score</span></div>
+      <div class="chip" id="chip-streak"><b id="streak">0</b><span>Streak</span></div>
+      <div class="chip" id="chip-round"><b id="round">1</b><span>of 10</span></div>
+    </div>
+  </header>
+
+  <div class="progress" aria-hidden="true"><i id="bar"></i></div>
+
+  <div class="stage">
+    <!-- ---------- Tung Tung Tung Sahur ---------- -->
+    <div class="panel tung-stage">
+      <div class="bubble" id="bubble">Tung tung tung… let's do math!</div>
+      <svg id="tung-svg" viewBox="0 0 200 265" role="img" aria-label="Tung Tung Tung Sahur, a friendly wooden log character holding a bat">
+        <defs>
+          <linearGradient id="logGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#c98f52"/>
+            <stop offset="42%" stop-color="#8b5a2b"/>
+            <stop offset="100%" stop-color="#4e3020"/>
+          </linearGradient>
+          <linearGradient id="batGrad" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0%" stop-color="#6b4423"/><stop offset="100%" stop-color="#c98f52"/>
+          </linearGradient>
+          <radialGradient id="eyeGrad" cx="35%" cy="30%">
+            <stop offset="0%" stop-color="#fffdf7"/><stop offset="100%" stop-color="#e6c49a"/>
+          </radialGradient>
+        </defs>
+
+        <ellipse id="shadow-ell" cx="100" cy="255" rx="58" ry="9" fill="#241509" opacity=".55"/>
+
+        <g id="tung" class="idle">
+          <!-- legs -->
+          <g id="leg-l" style="transform-origin:90px 214px">
+            <rect x="84" y="208" width="12" height="36" rx="6" fill="#5a3a1e" stroke="#241509" stroke-width="3.5"/>
+            <ellipse cx="88" cy="246" rx="14" ry="7" fill="#4e3020" stroke="#241509" stroke-width="3.5"/>
+          </g>
+          <g id="leg-r" style="transform-origin:110px 214px">
+            <rect x="104" y="208" width="12" height="36" rx="6" fill="#5a3a1e" stroke="#241509" stroke-width="3.5"/>
+            <ellipse cx="112" cy="246" rx="14" ry="7" fill="#4e3020" stroke="#241509" stroke-width="3.5"/>
+          </g>
+
+          <!-- free arm (left of screen) -->
+          <g id="arm-free">
+            <rect x="26" y="146" width="30" height="11" rx="5.5" fill="#6b4423" stroke="#241509" stroke-width="3.5"/>
+            <circle cx="28" cy="152" r="9" fill="#8b5a2b" stroke="#241509" stroke-width="3.5"/>
+          </g>
+
+          <!-- body / log -->
+          <rect x="46" y="58" width="108" height="158" rx="28" fill="url(#logGrad)" stroke="#241509" stroke-width="5"/>
+          <!-- top cut ring of the log -->
+          <ellipse cx="100" cy="66" rx="50" ry="13" fill="#a9713a" stroke="#241509" stroke-width="4.5"/>
+          <ellipse cx="100" cy="66" rx="34" ry="8" fill="none" stroke="#6b4423" stroke-width="3" opacity=".85"/>
+          <ellipse cx="100" cy="66" rx="19" ry="4.5" fill="none" stroke="#6b4423" stroke-width="3" opacity=".85"/>
+          <ellipse cx="100" cy="66" rx="7" ry="2" fill="#5a3a1e"/>
+          <!-- wood grain -->
+          <path d="M58 92q42 7 84 0M54 178q46 -8 92 0M60 198q40 6 80 0"
+                stroke="#5a3a1e" stroke-width="4" fill="none" stroke-linecap="round" opacity=".55"/>
+          <circle cx="64" cy="190" r="5" fill="none" stroke="#5a3a1e" stroke-width="3" opacity=".6"/>
+
+          <!-- eyebrows -->
+          <path id="brow-l" d="M64 92 q14 -7 28 -1" stroke="#241509" stroke-width="6" fill="none" stroke-linecap="round"/>
+          <path id="brow-r" d="M108 91 q14 -6 28 1" stroke="#241509" stroke-width="6" fill="none" stroke-linecap="round"/>
+
+          <!-- eyes -->
+          <g id="eyes">
+            <circle cx="78" cy="118" r="18" fill="url(#eyeGrad)" stroke="#241509" stroke-width="4.5"/>
+            <circle cx="122" cy="118" r="18" fill="url(#eyeGrad)" stroke="#241509" stroke-width="4.5"/>
+            <g class="pupil" style="transform-origin:100px 118px">
+              <circle cx="78" cy="120" r="8.5" fill="#241509"/>
+              <circle cx="122" cy="120" r="8.5" fill="#241509"/>
+              <circle cx="81" cy="116" r="3" fill="#fffdf7"/>
+              <circle cx="125" cy="116" r="3" fill="#fffdf7"/>
+            </g>
+            <g id="eyelids">
+              <rect x="59" y="99" width="38" height="20" rx="8" fill="#8b5a2b"/>
+              <rect x="103" y="99" width="38" height="20" rx="8" fill="#8b5a2b"/>
+            </g>
+          </g>
+
+          <!-- tears -->
+          <g class="tear"><ellipse cx="66" cy="136" rx="5" ry="7" fill="#9ec6e8" stroke="#241509" stroke-width="2"/></g>
+          <g class="tear t2"><ellipse cx="134" cy="136" rx="5" ry="7" fill="#9ec6e8" stroke="#241509" stroke-width="2"/></g>
+          <g id="sweat"><ellipse cx="149" cy="86" rx="5" ry="7" fill="#9ec6e8" stroke="#241509" stroke-width="2"/></g>
+
+          <!-- mouth -->
+          <path id="mouth" d="M78 152 q22 14 44 0" stroke="#241509" stroke-width="6" fill="none" stroke-linecap="round"/>
+
+
+          <!-- bat arm: drawn last so the bat is always in front -->
+          <g id="arm-bat">
+            <rect x="144" y="144" width="32" height="13" rx="6.5" fill="#6b4423" stroke="#241509" stroke-width="3.5"/>
+            <g transform="rotate(-24 176 150)">
+              <rect x="169" y="82" width="14" height="62" rx="7" fill="#5a3a1e" stroke="#241509" stroke-width="3.5"/>
+              <circle cx="176" cy="141" r="8" fill="#4e3020" stroke="#241509" stroke-width="3"/>
+              <path d="M166 88 q10 -12 20 0 l7 -56 q-17 -12 -34 0 z" fill="url(#batGrad)" stroke="#241509" stroke-width="4"/>
+              <path d="M170 74h12M169 60h14M171 46h10" stroke="#5a3a1e" stroke-width="3" stroke-linecap="round" opacity=".75"/>
+            </g>
+            <circle cx="176" cy="151" r="10.5" fill="#8b5a2b" stroke="#241509" stroke-width="3.5"/>
+          </g>
+          <!-- sparkles for celebration -->
+          <g class="sparkle" style="transform-origin:34px 60px"><path d="M34 46l5 11 11 5-11 5-5 11-5-11-11-5 11-5z" fill="#ffd79a"/></g>
+          <g class="sparkle s2" style="transform-origin:170px 44px"><path d="M170 32l4 9 9 4-9 4-4 9-4-9-9-4 9-4z" fill="#ffd79a"/></g>
+          <g class="sparkle s3" style="transform-origin:150px 200px"><path d="M150 190l4 8 8 4-8 4-4 8-4-8-8-4 8-4z" fill="#ffd79a"/></g>
+        </g>
+      </svg>
+    </div>
+
+    <!-- ---------- question + answers ---------- -->
+    <div class="panel q-panel">
+      <div class="qcard">
+        <div class="q" id="question" aria-live="polite"></div>
+        <div class="counters" id="counters" aria-hidden="true"></div>
+      </div>
+      <div class="answers" id="answers"></div>
+      <div class="stars" id="stars" aria-hidden="true"></div>
+      <div class="modes">
+        <button class="mode" data-op="+" aria-pressed="true">➕ Plus</button>
+        <button class="mode" data-op="-" aria-pressed="true">➖ Minus</button>
+        <button class="mode" data-op="x" aria-pressed="true">✖️ Times</button>
+        <button class="mode" id="btn-sound" aria-pressed="true">🔊 Sound</button>
+      </div>
+    </div>
+  </div>
+  <p class="sr" id="live" aria-live="assertive"></p>
+</div>
+
+<footer>
+  Tung Tung Tung Sahur began as an Indonesian TikTok by @noxaasht (Feb 2025); the name echoes the
+  <i>kentongan</i> wooden slit-drum beaten before dawn for <i>sahur</i> in Ramadan.
+  All artwork here is original, drawn in SVG for this game.
+</footer>
+
+<script>
+(() => {
+"use strict";
+
+/* ============================================================
+   1. STATE
+   ============================================================ */
+const TOTAL_ROUNDS = 10;
+const state = {
+  score: 0, streak: 0, best: 0, round: 1, correct: 0, wrong: 0,
+  ops: { "+": true, "-": true, "x": true },
+  sound: true, answer: 0, locked: true, busy: false
+};
+
+const $  = (id) => document.getElementById(id);
+const el = {
+  tung: $("tung"), bubble: $("bubble"), question: $("question"), counters: $("counters"),
+  answers: $("answers"), score: $("score"), streak: $("streak"), round: $("round"),
+  bar: $("bar"), stars: $("stars"), fx: $("fx"), live: $("live"),
+  mouth: $("mouth"), browL: $("brow-l"), browR: $("brow-r"), eyelids: $("eyelids"),
+  startScreen: $("start-screen"), endScreen: $("end-screen")
+};
+
+/* ============================================================
+   2. SOUND — a tiny WebAudio kit. The "tung" is a wooden drum.
+   ============================================================ */
+let ac = null;
+const audio = {
+  wake(){ if(!ac){ try{ ac = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ ac = null; } } if(ac && ac.state === "suspended") ac.resume(); },
+  tone(freq, when, dur, type = "triangle", gain = .18){
+    if(!ac || !state.sound) return;
+    const t = ac.currentTime + when;
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t);
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(gain, t + .015);
+    g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    o.connect(g).connect(ac.destination); o.start(t); o.stop(t + dur + .05);
+  },
+  /* hollow wooden knock — the kentongan "tung" */
+  tung(when = 0, freq = 320){
+    if(!ac || !state.sound) return;
+    const t = ac.currentTime + when;
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = "sine";
+    o.frequency.setValueAtTime(freq * 2.2, t);
+    o.frequency.exponentialRampToValueAtTime(freq * .6, t + .12);
+    g.gain.setValueAtTime(.35, t);
+    g.gain.exponentialRampToValueAtTime(.0001, t + .22);
+    o.connect(g).connect(ac.destination); o.start(t); o.stop(t + .3);
+    /* a click of wood on wood */
+    const len = Math.floor(ac.sampleRate * .04);
+    const buf = ac.createBuffer(1, len, ac.sampleRate), d = buf.getChannelData(0);
+    for(let i = 0; i < len; i++) d[i] = (Math.random()*2-1) * Math.pow(1 - i/len, 6);
+    const n = ac.createBufferSource(), ng = ac.createGain();
+    n.buffer = buf; ng.gain.value = .22;
+    n.connect(ng).connect(ac.destination); n.start(t);
+  },
+  tungTungTung(){ this.tung(0, 300); this.tung(.16, 330); this.tung(.32, 380); },
+  cheer(){ [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => this.tone(f, i * .09, .35, "triangle", .16)); this.tung(.02, 420); this.tung(.2, 500); },
+  boo(){ [392, 349.23, 293.66, 246.94].forEach((f, i) => this.tone(f, i * .13, .4, "sawtooth", .09)); },
+  pick(){ this.tone(660, 0, .08, "square", .06); },
+  fanfare(){ [523.25,523.25,523.25,659.25,587.33,659.25,783.99].forEach((f,i)=>this.tone(f, i*.14, .45, "triangle", .15)); }
+};
+
+/* ============================================================
+   3. FACE + MOOD
+   ============================================================ */
+const MOUTHS = {
+  idle:     "M78 152 q22 14 44 0",
+  thinking: "M80 154 q20 -4 40 0",
+  happy:    "M72 144 q28 34 56 0 q-28 10 -56 0",
+  sad:      "M78 160 q22 -16 44 0",
+  wow:      "M88 146 q12 26 24 0 q-12 8 -24 0"
+};
+const BROWS = {
+  idle:     ["M64 92 q14 -7 28 -1",  "M108 91 q14 -6 28 1"],
+  thinking: ["M64 88 q14 -6 28 4",   "M108 92 q14 -8 28 -2"],
+  happy:    ["M62 84 q14 -10 28 -2", "M110 82 q14 -8 28 2"],
+  sad:      ["M64 96 q14 6 28 -2",   "M108 94 q14 8 28 -2"],
+  wow:      ["M62 84 q14 -9 28 -1",  "M110 83 q14 -7 28 1"]
+};
+function setMood(mood){
+  const face = MOUTHS[mood] ? mood : "idle";
+  el.mouth.setAttribute("d", MOUTHS[face]);
+  el.browL.setAttribute("d", BROWS[face][0]);
+  el.browR.setAttribute("d", BROWS[face][1]);
+  el.tung.classList.remove("idle","happy","sad","thinking");
+  el.tung.classList.add(mood === "wow" ? "happy" : (MOUTHS[mood] ? mood : "idle"));
+}
+/* blinking, but never mid-celebration */
+setInterval(() => {
+  if(el.tung.classList.contains("happy") || el.tung.classList.contains("sad")) return;
+  el.eyelids.classList.add("blink");
+  setTimeout(() => el.eyelids.classList.remove("blink"), 220);
+}, 2600);
+
+function say(text){
+  el.bubble.textContent = text;
+  el.bubble.style.animation = "none";
+  void el.bubble.offsetWidth;          /* restart the pop */
+  el.bubble.style.animation = "";
+}
+
+const CHEERS = [
+  "TUNG TUNG TUNG! You did it! 🥁","Wooo! My bat is dancing!","That is exactly right!",
+  "You are a math hero! ⭐","Sahur! Sahur! Correct!","Amazing! Let's bang the drum!",
+  "Perfect! My wooden heart is happy!","Yesss! High five! 🪵","Brilliant! Tung tung tung!"
+];
+const SADS = [
+  "Aww… not that one. 😢","Oh no, my bat is droopy…","Nearly! Let's try the next one.",
+  "Hmm, that made me sad. Try again!","Oops! Even logs make mistakes.","Not quite… but I still like you!",
+  "My drum went boo… let's keep going!"
+];
+const THINKS = [
+  "Hmmm, what is the answer?","Tung tung tung… think think think!","Can you help me?",
+  "I am too wooden for this one!","Tap the right number!","Quick, before sahur time!"
+];
+const rand = (a) => a[Math.floor(Math.random() * a.length)];
+
+/* ============================================================
+   4. EFFECTS
+   ============================================================ */
+const CONF_COLORS = ["#e6c49a","#c98f52","#a9713a","#8b5a2b","#ffd79a","#f6e3c6","#6b4423"];
+function confetti(n = 70){
+  for(let i = 0; i < n; i++){
+    const c = document.createElement("i");
+    c.className = "conf";
+    c.style.left = Math.random()*100 + "vw";
+    c.style.top = (-10 - Math.random()*25) + "vh";
+    c.style.background = rand(CONF_COLORS);
+    c.style.animationDuration = (1.5 + Math.random()*1.6) + "s";
+    c.style.animationDelay = (Math.random()*.5) + "s";
+    if(Math.random() < .35) c.style.borderRadius = "50%";
+    el.fx.appendChild(c);
+    setTimeout(() => c.remove(), 4200);
+  }
+}
+function floaty(text, x, y){
+  const f = document.createElement("div");
+  f.className = "floaty"; f.textContent = text;
+  f.style.left = x + "px"; f.style.top = y + "px";
+  el.fx.appendChild(f); setTimeout(() => f.remove(), 1200);
+}
+function ring(x, y){
+  const r = document.createElement("div");
+  r.className = "ring"; r.style.left = x + "px"; r.style.top = y + "px";
+  el.fx.appendChild(r); setTimeout(() => r.remove(), 700);
+}
+function shakePage(){
+  document.body.classList.add("shakeit");
+  setTimeout(() => document.body.classList.remove("shakeit"), 420);
+}
+function popChip(chip){
+  chip.classList.remove("pop"); void chip.offsetWidth; chip.classList.add("pop");
+}
+
+/* ============================================================
+   5. QUESTION BUILDING
+   ============================================================ */
+function activeOps(){
+  const list = Object.keys(state.ops).filter(o => state.ops[o]);
+  return list.length ? list : ["+"];
+}
+function makeQuestion(){
+  const op = rand(activeOps());
+  let a, b, answer;
+  if(op === "+"){ a = 1 + Math.floor(Math.random()*9); b = 1 + Math.floor(Math.random()*9); answer = a + b; }
+  else if(op === "-"){ a = 1 + Math.floor(Math.random()*9); b = Math.floor(Math.random()*(a+1)); answer = a - b; }
+  else { a = 1 + Math.floor(Math.random()*9); b = 1 + Math.floor(Math.random()*9); answer = a * b; }
+  return { a, b, op, answer };
+}
+function makeChoices(answer, op){
+  const set = new Set([answer]);
+  const spread = op === "x" ? [1,-1,2,-2,answer>9?10:3,-3,5] : [1,-1,2,-2,3,-3,4];
+  while(set.size < 4){
+    let v;
+    if(Math.random() < .75) v = answer + rand(spread);
+    else v = Math.floor(Math.random() * (op === "x" ? 82 : 19));
+    if(v >= 0 && v <= 99) set.add(v);
+  }
+  return [...set].sort(() => Math.random() - .5);
+}
+const OP_SIGN = { "+": "+", "-": "−", "x": "×" };
+
+/* dots that show the sum, so kids can count it out */
+function buildCounters(q){
+  el.counters.innerHTML = "";
+  const total = q.op === "x" ? q.a * q.b : q.a + (q.op === "+" ? q.b : 0);
+  const stagger = Math.min(0.03, 0.5 / Math.max(total, 1));
+  const dot = (i, gone) => {
+    const d = document.createElement("i");
+    d.className = "dot" + (gone ? " gone" : "");
+    d.style.animationDelay = (i * stagger) + "s";
+    return d;
+  };
+  const group = (count, cols, goneFrom) => {
+    const g = document.createElement("div"); g.className = "dotgroup";
+    g.style.gridTemplateColumns = `repeat(${cols}, auto)`;
+    for(let i = 0; i < count; i++) g.appendChild(dot(i, goneFrom !== undefined && i >= goneFrom));
+    return g;
+  };
+  if(q.op === "+"){ el.counters.append(group(q.a, q.a), group(q.b, q.b)); }
+  else if(q.op === "-"){ el.counters.append(group(q.a, q.a, q.a - q.b)); }
+  else {
+    /* a rows of b: the rectangle IS the times table */
+    el.counters.appendChild(group(q.a * q.b, q.b));
+  }
+}
+
+function newRound(){
+  state.busy = false; state.locked = false;
+  const q = makeQuestion();
+  state.answer = q.answer;
+
+  el.question.innerHTML =
+    `<span class="num">${q.a}</span><span class="op">${OP_SIGN[q.op]}</span>` +
+    `<span class="num">${q.b}</span><span class="eq">=</span><span class="blank">?</span>`;
+  buildCounters(q);
+
+  el.answers.innerHTML = "";
+  makeChoices(q.answer, q.op).forEach(v => {
+    const b = document.createElement("button");
+    b.className = "ans"; b.type = "button"; b.textContent = v;
+    b.setAttribute("aria-label", `Answer ${v}`);
+    b.addEventListener("click", (e) => choose(b, v, e));
+    el.answers.appendChild(b);
+  });
+
+  el.round.textContent = state.round;
+  el.bar.style.width = ((state.round - 1) / TOTAL_ROUNDS * 100) + "%";
+  setMood("thinking");
+  say(rand(THINKS));
+  el.live.textContent = `Question ${state.round}: what is ${q.a} ${q.op === "x" ? "times" : q.op === "+" ? "plus" : "minus"} ${q.b}?`;
+  audio.tung(0, 300);
+}
+
+/* ============================================================
+   6. ANSWERING
+   ============================================================ */
+function choose(btn, value, evt){
+  if(state.locked || state.busy) return;
+  state.busy = true; state.locked = true;
+  audio.pick();
+
+  const buttons = [...el.answers.querySelectorAll(".ans")];
+  buttons.forEach(b => { b.disabled = true; if(b !== btn) b.classList.add("dim"); });
+
+  const rect = btn.getBoundingClientRect();
+  const cx = evt && evt.clientX ? evt.clientX : rect.left + rect.width/2;
+  const cy = evt && evt.clientY ? evt.clientY : rect.top + rect.height/2;
+
+  if(value === state.answer) right(btn, cx, cy);
+  else wrongAnswer(btn, buttons, cx, cy);
+}
+
+function right(btn, cx, cy){
+  btn.classList.remove("dim"); btn.classList.add("right");
+  state.correct++;
+  state.streak++;
+  state.best = Math.max(state.best, state.streak);
+  const bonus = 10 + Math.min(state.streak - 1, 5) * 2;
+  state.score += bonus;
+
+  el.score.textContent = state.score;
+  el.streak.textContent = state.streak;
+  popChip($("chip-score")); popChip($("chip-streak"));
+
+  el.question.querySelector(".blank").textContent = state.answer;
+  el.question.querySelector(".blank").style.animation = "numIn .4s cubic-bezier(.2,1.7,.4,1)";
+
+  setMood(state.streak >= 3 ? "wow" : "happy");
+  say(state.streak >= 3 ? `${state.streak} in a row! ` + rand(CHEERS) : rand(CHEERS));
+  el.live.textContent = "Correct!";
+
+  audio.cheer();
+  if(state.streak >= 3) audio.tungTungTung();
+  confetti(state.streak >= 3 ? 110 : 60);
+  floaty("+" + bonus, cx, cy); ring(cx, cy);
+  addStar();
+
+  setTimeout(nextRound, 2100);
+}
+
+function wrongAnswer(btn, buttons, cx, cy){
+  btn.classList.remove("dim"); btn.classList.add("wrong");
+  state.wrong++; state.streak = 0;
+  el.streak.textContent = 0;
+
+  /* always show the truth, gently */
+  const good = buttons.find(b => Number(b.textContent) === state.answer);
+  if(good){ setTimeout(() => { good.classList.remove("dim"); good.classList.add("right"); }, 700); }
+  setTimeout(() => { el.question.querySelector(".blank").textContent = state.answer; }, 700);
+
+  setMood("sad");
+  say(rand(SADS));
+  el.live.textContent = `Not quite. The answer is ${state.answer}.`;
+  audio.boo();
+  shakePage();
+  floaty("😢", cx, cy);
+
+  setTimeout(() => say(`The answer was ${state.answer}. Now I know! 🪵`), 1500);
+  setTimeout(nextRound, 3000);
+}
+
+function addStar(){
+  const s = document.createElement("b");
+  s.textContent = "⭐";
+  s.style.animationDelay = (el.stars.children.length * .04) + "s";
+  el.stars.appendChild(s);
+}
+
+function nextRound(){
+  if(state.round >= TOTAL_ROUNDS){ finish(); return; }
+  state.round++;
+  newRound();
+}
+
+/* ============================================================
+   7. FINISH
+   ============================================================ */
+function finish(){
+  el.bar.style.width = "100%";
+  const pct = state.correct / TOTAL_ROUNDS;
+  const stars = pct >= .9 ? 3 : pct >= .6 ? 2 : pct >= .3 ? 1 : 0;
+
+  const es = $("end-stars"); es.innerHTML = "";
+  for(let i = 0; i < 3; i++){
+    const b = document.createElement("b");
+    b.textContent = i < stars ? "⭐" : "☆";
+    b.style.animationDelay = (i * .22) + "s";
+    es.appendChild(b);
+  }
+  const perfect = state.correct === TOTAL_ROUNDS;
+  $("end-title").textContent =
+    perfect     ? "TUNG TUNG TUNG! Perfect!" :
+    stars === 3 ? "Brilliant! So close to perfect!" :
+    stars === 2 ? "Great work!" :
+    stars === 1 ? "Nice try!" : "Let's practise together!";
+  const em = $("end-mouth");
+  em.setAttribute("d", stars >= 2 ? "M76 142 q24 32 48 0 q-24 10 -48 0" : "M84 160 q16 -16 32 0");
+  em.setAttribute("fill", stars >= 2 ? "#241509" : "none");
+  $("end-msg").textContent =
+    stars >= 2 ? "Tung Tung Tung Sahur is dancing with his bat! 🥁"
+               : "Tung Tung Tung Sahur says: every log gets stronger. Try again!";
+  $("end-detail").textContent =
+    `${state.correct} right · ${state.wrong} wrong · best streak ${state.best} · ${state.score} points`;
+
+  el.endScreen.hidden = false;
+  setMood(stars >= 2 ? "happy" : "sad");
+  say(stars >= 2 ? "We did it together!" : "Let's try again!");
+  if(stars >= 2){ audio.fanfare(); confetti(160); }
+  else audio.boo();
+}
+
+function resetGame(){
+  Object.assign(state, { score:0, streak:0, best:0, round:1, correct:0, wrong:0 });
+  el.score.textContent = "0"; el.streak.textContent = "0";
+  el.stars.innerHTML = "";
+  el.endScreen.hidden = true;
+  newRound();
+}
+
+/* ============================================================
+   8. CONTROLS
+   ============================================================ */
+$("btn-start").addEventListener("click", () => {
+  audio.wake();
+  el.startScreen.hidden = true;
+  audio.tungTungTung();
+  resetGame();
+});
+$("btn-again").addEventListener("click", () => { audio.wake(); resetGame(); });
+
+document.querySelectorAll(".mode[data-op]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const op = btn.dataset.op;
+    const on = btn.getAttribute("aria-pressed") === "true";
+    /* never let all three switch off */
+    if(on && activeOps().length === 1) { say("I need at least one kind of math!"); return; }
+    state.ops[op] = !on;
+    btn.setAttribute("aria-pressed", String(!on));
+    audio.tung(0, 420);
+  });
+});
+$("btn-sound").addEventListener("click", () => {
+  state.sound = !state.sound;
+  $("btn-sound").setAttribute("aria-pressed", String(state.sound));
+  $("btn-sound").textContent = state.sound ? "🔊 Sound" : "🔇 Quiet";
+  if(state.sound){ audio.wake(); audio.tung(0, 400); }
+});
+
+/* keyboard: 1-4 pick an answer */
+document.addEventListener("keydown", (e) => {
+  if(!el.startScreen.hidden || !el.endScreen.hidden) return;
+  const i = "1234".indexOf(e.key);
+  if(i >= 0){
+    const b = el.answers.children[i];
+    if(b && !b.disabled) b.click();
+  }
+});
+
+/* eyes follow the pointer, because a log should still pay attention */
+const pupil = document.querySelector(".pupil");
+document.addEventListener("pointermove", (e) => {
+  if(el.tung.classList.contains("happy") || el.tung.classList.contains("sad")) return;
+  const r = $("tung-svg").getBoundingClientRect();
+  const dx = Math.max(-1, Math.min(1, (e.clientX - (r.left + r.width/2)) / (r.width/2)));
+  const dy = Math.max(-1, Math.min(1, (e.clientY - (r.top + r.height*0.45)) / (r.height/2)));
+  pupil.style.transform = `translate(${dx*4}px, ${dy*3}px)`;
+}, { passive: true });
+
+setMood("idle");
+})();
+</script>
+</body>
+</html>
