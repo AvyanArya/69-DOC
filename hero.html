@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lumera | All financial intelligence. One place.</title>
+<meta name="description" content="Lumera turns one month of your behaviour into a clear, benchmarked plan. Four worlds, one financial life.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=Manrope:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<style>
+:root {
+    --bg-color: #0a0a0a;
+    --text-color: #ffffff;
+    --accent-color: #ffffff;
+    --muted-color: rgba(255, 255, 255, 0.7);
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --font-main: 'Inter', sans-serif;
+    --font-heading: 'Fraunces', Georgia, serif;
+
+    /* Dynamic Background Variables — Lumera hub (violet) is the default world */
+    --bg-inner: #6D28D9;
+    --bg-mid: #341A6B;
+    --bg-outer: #0B0616;
+
+    /* Signature accent: Lumera gold */
+    --accent: #E7C87A;
+    --on-accent: #1B1405;
+    --world: #A78BFA;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html { overflow: hidden; height: 100%; }
+
+body {
+    background: radial-gradient(circle at center, var(--bg-inner) 0%, var(--bg-mid) 50%, var(--bg-outer) 100%);
+    color: var(--text-color);
+    font-family: var(--font-main);
+    overflow: hidden; /* Remove scroll */
+    height: 100vh;
+    transition: background 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== Bubbles ===== */
+#bubbles-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.bubble-img {
+    position: absolute;
+    pointer-events: none;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 32% 28%, rgba(255,255,255,.95) 0%, rgba(255,255,255,.35) 22%, rgba(255,255,255,.06) 46%, rgba(255,255,255,0) 62%),
+        radial-gradient(circle at center, rgba(255,255,255,0) 58%, rgba(255,255,255,.22) 78%, rgba(255,255,255,0) 100%);
+}
+
+@keyframes floatUpImg {
+    0% {
+        transform: translateY(0) translateX(0) rotate(0deg);
+        opacity: 0;
+    }
+    10% { opacity: 0.4; }
+    90% { opacity: 0.4; }
+    100% {
+        transform: translateY(-110vh) translateX(30px) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* ===== Header ===== */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem 4%;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 100;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
+    font-size: 1.2rem;
+    font-family: var(--font-heading);
+    letter-spacing: .16em;
+    text-transform: uppercase;
+}
+
+/* Logo placeholder: swap this block for the real mark. */
+.logo-mark {
+    width: 32px; height: 32px;
+    display: grid; place-items: center;
+    border-radius: 9px;
+    border: 1.5px dashed rgba(231, 200, 122, .55);
+    background: rgba(231, 200, 122, .10);
+}
+
+.nav {
+    display: flex;
+    gap: 0.5rem;
+    background: var(--glass-bg);
+    padding: 0.4rem;
+    border-radius: 100px;
+    border: 1px solid var(--glass-border);
+}
+
+.nav.glass {
+    position: relative;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+.nav-item {
+    font-family: 'Manrope', sans-serif;
+    color: var(--muted-color);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 0.5rem 1.2rem;
+    border-radius: 100px;
+    transition: all 0.3s ease;
+}
+
+.nav-item:hover,
+.nav-item.active {
+    background: var(--accent);
+    color: var(--on-accent);
+}
+
+.contact-btn {
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    padding: 0.9rem 2rem;
+    border-radius: 100px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: none;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.contact-btn:hover {
+    background: rgba(0, 0, 0, 0.7);
+    transform: translateY(-2px);
+    box-shadow: none;
+}
+
+/* ===== Hero ===== */
+.hero {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4%;
+    padding-top: 5rem;
+}
+
+.hero-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch; /* Stretch columns to full height */
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    height: 100%;
+    position: relative;
+}
+
+/* Typography */
+.main-title,
+.side-title {
+    font-family: var(--font-heading);
+    font-size: clamp(3.2rem, 6.4vw, 8rem);
+    line-height: 0.86;
+    font-weight: 300;
+    text-transform: none;
+    white-space: nowrap;
+    color: white;
+    letter-spacing: -0.015em;
+    text-shadow: 0 2px 34px rgba(4, 4, 10, .5);
+}
+
+.outline {
+    color: var(--text-color);
+}
+
+/* ===== Sparks (far background) ===== */
+.leaves-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1; /* Even further behind */
+    transition: transform 0.1s ease-out;
+}
+
+.leaf {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    pointer-events: none;
+    z-index: -1;
+    filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.2));
+}
+
+.l1 { top: 10%; left: 15%; }
+.l2 { top: 40%; left: 80%; width: 140px; height: 140px; opacity: 0.4; }
+.l3 { top: 70%; left: 75%; width: 80px; height: 80px; }
+.l4 { top: 85%; left: 20%; width: 120px; height: 120px; opacity: 0.3; }
+
+/* ===== Left column ===== */
+.hero-left {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 6rem 0;
+    gap: 2rem;
+    z-index: 100;
+}
+
+@keyframes fadeInEntry {
+    to { opacity: 1; transform: none; }
+}
+
+.eyebrow {
+    font-size: .68rem;
+    letter-spacing: .26em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--world);
+    transition: color 1.2s ease;
+    text-shadow: 0 1px 10px rgba(4,4,10,.85);
+}
+
+.description {
+    color: var(--muted-color);
+    font-size: 1.1rem;
+    line-height: 1.6;
+    max-width: 400px;
+    text-shadow: 0 1px 12px rgba(4,4,10,.7);
+}
+
+.primary-btn {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    padding: 0.4rem 0.4rem 0.4rem 1.5rem;
+    border-radius: 100px;
+    font-weight: 700;
+    cursor: pointer;
+    width: fit-content;
+    transition: all 0.3s ease;
+    box-shadow: none;
+    text-decoration: none;
+    font-size: .9rem;
+}
+
+.primary-btn:hover {
+    background: rgba(0, 0, 0, 0.7);
+    transform: translateY(-3px);
+    box-shadow: none;
+}
+
+.plus-icon {
+    background: var(--accent);
+    color: var(--on-accent);
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 1.4rem;
+    font-weight: 900;
+    line-height: 1;
+    padding-bottom: 2px; /* Compensate for baseline shift */
+    border: none;
+}
+
+.trust-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    font-size: .72rem;
+    letter-spacing: .06em;
+    color: rgba(255,255,255,.6);
+}
+
+.trust-row span::before {
+    content: '';
+    display: inline-block;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin-right: .5rem;
+    vertical-align: middle;
+}
+
+.award-badge {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: auto; /* Push to bottom */
+}
+
+.award-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.award-text { display: flex; flex-direction: column; }
+.award-title { font-size: 0.7rem; letter-spacing: 0.1em; color: var(--muted-color); }
+.award-subtitle { font-size: 0.85rem; font-weight: 600; }
+
+/* ===== Centre mark ===== */
+.hero-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    opacity: 0;
+    animation: fadeIn 1.5s ease-out 0.3s forwards, float 6s ease-in-out infinite;
+    pointer-events: none;
+    background: radial-gradient(circle at center, rgba(167, 139, 250, 0.10) 0%, transparent 70%);
+}
+
+@keyframes fadeIn { to { opacity: 1; } }
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+.main-product-3d {
+    width: 80vw;
+    height: 80vh;
+    outline: none;
+    z-index: 1;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    perspective: 1200px;
+}
+
+.mark-stage {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    transform-style: preserve-3d;
+    will-change: transform;
+}
+
+.mark-svg {
+    width: min(46vw, 46vh);
+    height: min(46vw, 46vh);
+    overflow: visible;
+    filter: drop-shadow(0 30px 90px rgba(0, 0, 0, .55));
+}
+
+/* ===== Tokens (the floating models) ===== */
+.berries-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 110; /* Above text (100) and mark (50) */
+    transition: transform 0.1s ease-out;
+}
+
+.berries-container-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0; /* Behind everything */
+    transition: transform 0.1s ease-out;
+}
+
+.berry {
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    outline: none;
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.3));
+    transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+    display: grid;
+    place-items: center;
+}
+
+.berry.no-animation { animation: none !important; }
+
+.token {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, .28);
+    opacity: .8;
+    background:
+        radial-gradient(circle at 30% 26%, rgba(255,255,255,.5) 0%, rgba(255,255,255,.1) 38%, rgba(255,255,255,0) 60%),
+        radial-gradient(circle at 62% 74%, var(--tok, #A78BFA) 0%, rgba(20,16,38,.42) 82%);
+    box-shadow: inset 0 0 30px rgba(255,255,255,.2), 0 0 34px -8px var(--tok, #A78BFA);
+    backdrop-filter: blur(3px);
+    transition: background 1.2s ease, box-shadow 1.2s ease;
+}
+
+.token svg { width: 42%; height: 42%; opacity: .92; }
+
+.b1 { top: 25%; left: 30%; width: 220px; height: 220px; }
+.b2 { top: 60%; left: 42%; width: 100px; height: 100px; }
+.b3 { top: 30%; left: 62%; width: 250px; height: 250px; }
+.b4 { top: 15%; left: 48%; width: 140px; height: 140px; }
+.b5 { top: 75%; left: 20%; width: 120px; height: 120px; }
+.b6 { top: 45%; left: 75%; width: 180px; height: 180px; }
+.b7 { top: 15%; left: 40%; width: 80px; height: 80px; opacity: 0.7; }
+.b8 { top: 50%; left: 55%; width: 70px; height: 70px; opacity: 0.6; }
+.b9 { top: 80%; left: 35%; width: 75px; height: 75px; opacity: 0.7; }
+
+/* ===== Right column ===== */
+.hero-right {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+    text-align: right;
+    height: 100%;
+    padding: 6rem 0;
+    z-index: 100;
+    width: 560px;
+    pointer-events: none;
+}
+
+@keyframes fadeInLeft {
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.product-carousel {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: flex-end;
+    pointer-events: auto; /* Enable interaction */
+}
+
+.carousel-cards { display: flex; gap: 1rem; }
+
+.card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    padding: 1rem;
+    padding-top: 5rem;
+    border-radius: 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    width: 125px;
+    position: relative;
+    backdrop-filter: blur(10px);
+    text-align: center;
+}
+
+.card:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.card.active {
+    border-color: var(--accent);
+    border-width: 1px;
+    background: var(--glass-bg);
+    box-shadow: none;
+}
+
+.card-art {
+    width: 118px;
+    height: 118px;
+    margin-top: -7rem;
+    border-radius: 26px;
+    display: grid;
+    place-items: center;
+    filter: drop-shadow(0 20px 35px rgba(0, 0, 0, 0.5));
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    will-change: transform;
+    pointer-events: none; /* Mouse passes through art to trigger card hover */
+    border: 1px solid rgba(255,255,255,.2);
+    background:
+        radial-gradient(circle at 30% 24%, rgba(255,255,255,.3) 0%, rgba(255,255,255,0) 55%),
+        linear-gradient(160deg, var(--c1) 0%, var(--c2) 100%);
+}
+
+.card-art svg { width: 46%; height: 46%; }
+
+.card:hover .card-art {
+    transform: translateY(-30px) rotate(-12deg) scale(1.15) !important;
+}
+
+.card-info {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.7rem;
+    width: 100%;
+    word-wrap: break-word;
+}
+
+.card-info span:first-child { font-weight: 600; }
+.card-info span:last-child { color: var(--muted-color); }
+
+.carousel-nav { display: flex; gap: 1rem; }
+
+.nav-arrow {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s;
+}
+
+.nav-arrow:hover { background: rgba(255, 255, 255, 0.1); }
+
+.side-title { align-self: flex-end; text-align: right; }
+
+@keyframes shine {
+    from { transform: translateX(-100%) rotate(45deg); }
+    to { transform: translateX(200%) rotate(45deg); }
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 1200px) {
+    .main-product-3d { width: 100vw; height: 60vh; top: 40%; }
+}
+
+@media (max-width: 1200px) {
+    .hero-content { grid-template-columns: 1fr; padding-top: 8rem; }
+    .hero-center { order: -1; }
+    .main-title, .side-title { font-size: 3.2rem; }
+    .hero-right { align-items: center; text-align: center; width: 100%; }
+    .side-title { align-self: center; text-align: center; }
+    .nav { display: none; }
+    .hero-content { flex-direction: column; justify-content: space-between; }
+    .hero-left, .hero-right { padding: 1rem 0; height: auto; }
+    .award-badge { margin-top: 1.5rem; }
+    .hero { padding-top: 6rem; align-items: flex-start; }
+    .hero-content { overflow: hidden; }
+    .description { max-width: 100%; }
+    .description br { display: none; }
+    .trust-row { justify-content: center; }
+    .hero-left { align-items: center; text-align: center; gap: 1.1rem; }
+    .carousel-cards { flex-wrap: wrap; justify-content: center; }
+    .card { width: 104px; padding-top: 4rem; }
+    .card-art { width: 92px; height: 92px; margin-top: -5.6rem; }
+    .product-carousel { align-items: center; }
+    .main-title, .side-title { white-space: normal; }
+}
+</style>
+</head>
+<body>
+
+<div id="bubbles-container"></div>
+
+<header class="header">
+    <div class="logo">
+        <!-- Logo placeholder: swap this block for the real mark. -->
+        <span class="logo-mark" title="Logo placeholder, upload in Admin">
+            <svg width="15" height="15" viewBox="0 0 10 10" aria-hidden="true">
+                <path d="M5 0 L6 4 L10 5 L6 6 L5 10 L4 6 L0 5 L4 4 Z" fill="#E7C87A" opacity=".8"/>
+            </svg>
+        </span>
+        <span>Lumera</span>
+    </div>
+    <nav class="nav glass">
+        <a href="#" class="nav-item active" data-world="lumera">Hub</a>
+        <a href="#" class="nav-item" data-world="leaf">Leaf</a>
+        <a href="#" class="nav-item" data-world="atlas">Atlas</a>
+        <a href="#" class="nav-item" data-world="shield">Shield</a>
+        <a href="#" class="nav-item" data-world="forge">Forge</a>
+    </nav>
+    <a href="index.html" class="contact-btn">Log in</a>
+</header>
+
+<main class="hero">
+    <div class="hero-content">
+
+        <div class="leaves-container">
+            <div class="leaf l1">
+                <svg viewBox="0 0 10 10" width="100%" height="100%" aria-hidden="true"><path d="M5 0 L6 4 L10 5 L6 6 L5 10 L4 6 L0 5 L4 4 Z" fill="rgba(231,200,122,.5)"/></svg>
+            </div>
+            <div class="leaf l2">
+                <svg viewBox="0 0 10 10" width="100%" height="100%" aria-hidden="true"><path d="M5 0 L6 4 L10 5 L6 6 L5 10 L4 6 L0 5 L4 4 Z" fill="rgba(255,255,255,.28)"/></svg>
+            </div>
+            <div class="leaf l3">
+                <svg viewBox="0 0 10 10" width="100%" height="100%" aria-hidden="true"><path d="M5 0 L6 4 L10 5 L6 6 L5 10 L4 6 L0 5 L4 4 Z" fill="rgba(231,200,122,.4)"/></svg>
+            </div>
+            <div class="leaf l4">
+                <svg viewBox="0 0 10 10" width="100%" height="100%" aria-hidden="true"><path d="M5 0 L6 4 L10 5 L6 6 L5 10 L4 6 L0 5 L4 4 Z" fill="rgba(255,255,255,.24)"/></svg>
+            </div>
+        </div>
+
+        <div class="hero-left">
+            <div class="eyebrow" id="eyebrow">Lumera &middot; All financial intelligence. One place.</div>
+            <h1 class="main-title large-animation-1">
+                <span class="outline">Four worlds,</span><br>
+                one financial life
+            </h1>
+            <p class="description">
+                Most people don't have a money problem. <br>
+                They have a visibility problem — <br>
+                Lumera turns one month into a plan.
+            </p>
+            <div class="cta-group">
+                <a href="index.html#/signup" class="primary-btn">
+                    Start your 30-day review
+                    <span class="plus-icon">+</span>
+                </a>
+            </div>
+            <div class="trust-row">
+                <span>Privacy-first</span>
+                <span>No bank login required</span>
+                <span>Educational only</span>
+            </div>
+            <div class="award-badge">
+                <div class="award-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 15L15 18L19 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+                <div class="award-text">
+                    <span class="award-title">HEALTH SCORE</span>
+                    <span class="award-subtitle">67 / 100 &middot; 791 A MONTH IN REACH</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="berries-container-bg">
+            <div class="berry b7"><div class="token"></div></div>
+            <div class="berry b8"><div class="token"></div></div>
+            <div class="berry b9"><div class="token"></div></div>
+        </div>
+
+        <div class="hero-center">
+            <div id="product-model" class="main-product-3d">
+                <div class="mark-stage" id="mark-stage">
+                    <svg class="mark-svg" viewBox="-100 -100 200 200" aria-label="Lumera mark">
+                        <defs>
+                            <linearGradient id="ribbon" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0%" stop-color="#E7C87A"/>
+                                <stop offset="50%" stop-color="var(--world, #A78BFA)"/>
+                                <stop offset="100%" stop-color="#E7C87A"/>
+                            </linearGradient>
+                            <radialGradient id="coreGlow">
+                                <stop offset="0%" stop-color="#fff" stop-opacity=".95"/>
+                                <stop offset="45%" stop-color="var(--world, #A78BFA)" stop-opacity=".55"/>
+                                <stop offset="100%" stop-color="var(--world, #A78BFA)" stop-opacity="0"/>
+                            </radialGradient>
+                        </defs>
+                        <circle cx="0" cy="0" r="96" fill="url(#coreGlow)"/>
+                        <g id="ribbons" fill="none" stroke="url(#ribbon)" stroke-linecap="round"></g>
+                        <g id="star-group">
+                            <path d="M0 -86 L13 -13 L86 0 L13 13 L0 86 L-13 13 L-86 0 L-13 -13 Z"
+                                  fill="#E7C87A" opacity=".92"/>
+                            <path d="M0 -52 L8 -8 L52 0 L8 8 L0 52 L-8 8 L-52 0 L-8 -8 Z"
+                                  fill="#fff" opacity=".55"/>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="berries-container">
+            <div class="berry b1"><div class="token"></div></div>
+            <div class="berry b2"><div class="token"></div></div>
+            <div class="berry b3"><div class="token"></div></div>
+            <div class="berry b4"><div class="token"></div></div>
+            <div class="berry b5"><div class="token"></div></div>
+            <div class="berry b6"><div class="token"></div></div>
+        </div>
+
+        <div class="hero-right">
+            <div class="product-carousel">
+                <div class="carousel-cards" id="carousel-cards"></div>
+                <div class="carousel-nav">
+                    <button class="nav-arrow" id="prev-world" aria-label="Previous world">&larr;</button>
+                    <button class="nav-arrow" id="next-world" aria-label="Next world">&rarr;</button>
+                </div>
+            </div>
+            <h2 class="side-title large-animation-1">
+                <span class="outline" id="side-1">Money,</span><br>
+                <span id="side-2">finally clear</span>
+            </h2>
+        </div>
+
+    </div>
+</main>
+
+<svg style="position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none;">
+    <filter id="frosted">
+        <feTurbulence type="fractalNoise" baseFrequency="0.0125" numOctaves="3" result="noise" />
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="80" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+</svg>
+
+<script>
+/* ============================================================
+   Lumera hero. The floating pieces are drawn in the page rather than
+   loaded as 3D assets, so there is no external asset host to fail.
+   ============================================================ */
+
+/* The five worlds, straight from the product. */
+const WORLDS = {
+    lumera: { name:'Lumera',  tag:'The hub',       accent:'#A78BFA', c1:'#8B5CF6', c2:'#4C1D95',
+              inner:'#6D28D9', mid:'#341A6B', outer:'#0B0616',
+              eyebrow:'Lumera · All financial intelligence. One place.',
+              side:['Money,','finally clear'], glyph:'star' },
+    leaf:   { name:'Leaf',    tag:'Learn & grow',  accent:'#4ADE80', c1:'#22C55E', c2:'#14532D',
+              inner:'#16A34A', mid:'#0B4A2A', outer:'#04140C',
+              eyebrow:'Leaf · Learn & grow',
+              side:['Lessons that','actually stick'], glyph:'leaf' },
+    atlas:  { name:'Atlas',   tag:'Markets',       accent:'#60A5FA', c1:'#3B82F6', c2:'#1E3A8A',
+              inner:'#1D4ED8', mid:'#0B2A63', outer:'#030A18',
+              eyebrow:'Atlas · Markets & investing',
+              side:['Markets,','decoded'], glyph:'globe' },
+    shield: { name:'Shield',  tag:'Protect',       accent:'#94A3B8', c1:'#64748B', c2:'#1E293B',
+              inner:'#475569', mid:'#1E293B', outer:'#070B12',
+              eyebrow:'Shield · Protect & plan',
+              side:['Nothing','catches you'], glyph:'shield' },
+    forge:  { name:'Forge',   tag:'Career',        accent:'#E0A94E', c1:'#C0873A', c2:'#5C3A12',
+              inner:'#B0762E', mid:'#5F3F14', outer:'#170F06',
+              eyebrow:'Forge · Career & income',
+              side:['Earn more,','not just spend less'], glyph:'flame' }
+};
+const ORDER = ['lumera','leaf','atlas','shield','forge'];
+
+const GLYPHS = {
+    star:  '<path d="M12 2 L14 9 L21 12 L14 15 L12 22 L10 15 L3 12 L10 9 Z" fill="#fff" opacity=".9"/>',
+    leaf:  '<path d="M20 4C10 4 4 10 4 19c0 0 1 1 1 1C6 11 12 7 20 4Z" fill="#fff" opacity=".9"/><path d="M5 20C9 12 13 9 20 4" stroke="rgba(0,0,0,.35)" stroke-width="1.4" fill="none"/>',
+    globe: '<circle cx="12" cy="12" r="9" fill="none" stroke="#fff" stroke-width="1.8" opacity=".9"/><ellipse cx="12" cy="12" rx="4" ry="9" fill="none" stroke="#fff" stroke-width="1.5" opacity=".8"/><path d="M3 12h18" stroke="#fff" stroke-width="1.5" opacity=".8"/>',
+    shield:'<path d="M12 3l7 3v6c0 5-3 8-7 9-4-1-7-4-7-9V6l7-3Z" fill="#fff" opacity=".9"/>',
+    flame: '<path d="M12 2c1 5 6 6 6 11a6 6 0 1 1-12 0c0-3 2-4 3-6 1 2 2 2 2 2 0-3 1-5 1-7Z" fill="#fff" opacity=".9"/>'
+};
+
+const markStage   = document.querySelector('#mark-stage');
+const starGroup   = document.querySelector('#star-group');
+const ribbonGroup = document.querySelector('#ribbons');
+const berriesFG   = document.querySelector('.berries-container');
+const berriesBG   = document.querySelector('.berries-container-bg');
+const leavesBG    = document.querySelector('.leaves-container');
+const allBerries  = document.querySelectorAll('.berry');
+const cardsWrap   = document.querySelector('#carousel-cards');
+const eyebrowEl   = document.querySelector('#eyebrow');
+const side1       = document.querySelector('#side-1');
+const side2       = document.querySelector('#side-2');
+let isSwitching = false;
+let switchSpin = 0;
+let currentWorld = 'lumera';
+
+/* ---------- build the mark's ribbon strands ---------- */
+(function buildRibbons(){
+    const STRANDS = 10;
+    let html = '';
+    for (let i = 0; i < STRANDS; i++) {
+        const off = (i - (STRANDS - 1) / 2) * 6;
+        const w = 3.2 - Math.abs(i - (STRANDS - 1) / 2) * 0.18;
+        html += `<path d="M -92 ${20 + off} C -40 ${-60 + off}, 40 ${80 + off}, 92 ${-20 + off}"
+                   stroke-width="${w.toFixed(2)}" opacity="${(0.85 - Math.abs(off) / 90).toFixed(2)}"/>`;
+    }
+    ribbonGroup.innerHTML = html;
+})();
+
+/* ---------- build the world carousel ---------- */
+(function buildCards(){
+    cardsWrap.innerHTML = ORDER.map((k, i) => {
+        const w = WORLDS[k];
+        return `<div class="card${i === 0 ? ' active' : ''}" data-flavor="${k}" role="button" tabindex="0">
+            <div class="card-art" style="--c1:${w.c1};--c2:${w.c2}">
+                <svg viewBox="0 0 24 24" aria-hidden="true">${GLYPHS[w.glyph]}</svg>
+            </div>
+            <div class="card-info"><span>${w.name}</span><span>${w.tag}</span></div>
+        </div>`;
+    }).join('');
+})();
+
+function paintTokens(world) {
+    const w = WORLDS[world];
+    document.querySelectorAll('.token').forEach(t => {
+        t.style.setProperty('--tok', w.accent);
+        t.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true">${GLYPHS[w.glyph]}</svg>`;
+    });
+}
+paintTokens('lumera');
+
+const cards = document.querySelectorAll('.card');
+
+cards.forEach(card => {
+    card.addEventListener('click', () => {
+        if (isSwitching) return;
+        cards.forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+        const flavor = card.dataset.flavor;
+        switchFlavor(flavor);
+    });
+    card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); } });
+});
+
+document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', e => {
+        e.preventDefault();
+        const w = item.dataset.world;
+        if (!w || isSwitching) return;
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        item.classList.add('active');
+        const card = document.querySelector(`.card[data-flavor="${w}"]`);
+        if (card) card.click();
+    });
+});
+
+function step(dir) {
+    if (isSwitching) return;
+    const i = (ORDER.indexOf(currentWorld) + dir + ORDER.length) % ORDER.length;
+    const card = document.querySelector(`.card[data-flavor="${ORDER[i]}"]`);
+    if (card) card.click();
+}
+document.querySelector('#prev-world').addEventListener('click', () => step(-1));
+document.querySelector('#next-world').addEventListener('click', () => step(1));
+
+async function switchFlavor(flavor) {
+    if (isSwitching) return;
+    isSwitching = true;
+    currentWorld = flavor;
+    const body = document.body;
+    const berries = document.querySelectorAll('.berry');
+    const heroCenter = document.querySelector('.hero-center');
+    const w = WORLDS[flavor];
+
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.world === flavor));
+
+    // 1. Background Animation
+    gsap.to(body, {
+        '--bg-inner': w.inner,
+        '--bg-mid': w.mid,
+        '--bg-outer': w.outer,
+        duration: 1.5,
+        ease: 'power2.inOut'
+    });
+    gsap.to(body, { '--world': w.accent, duration: 1.2, ease: 'power2.inOut' });
+
+    // 2. Mark spin (720deg with a motion blur, swapping look at the peak)
+    const spinObj = { val: 0, blur: 0 };
+    gsap.to(spinObj, {
+        val: 360,
+        blur: 15,
+        duration: 0.6,
+        ease: "power2.in",
+        onUpdate: () => {
+            switchSpin = spinObj.val;
+            markStage.style.filter = `blur(${spinObj.blur}px)`;
+        },
+        onComplete: () => {
+            // SWAP at peak
+            body.style.setProperty('--world', w.accent);
+            eyebrowEl.textContent = w.eyebrow;
+            side1.textContent = w.side[0];
+            side2.textContent = w.side[1];
+
+            gsap.to(spinObj, {
+                val: 720,
+                blur: 0,
+                duration: 1.5,
+                ease: "back.out(0.7)",
+                onUpdate: () => {
+                    switchSpin = spinObj.val;
+                    markStage.style.filter = `blur(${spinObj.blur}px)`;
+                },
+                onComplete: () => {
+                    switchSpin = 0;
+                    markStage.style.filter = 'none';
+                }
+            });
+        }
+    });
+
+    // 3. Tokens "Hide & Reveal" with Dynamic Positioning
+    let completedBerries = 0;
+    berries.forEach((berry, i) => {
+        const bW = berry.offsetWidth / 2;
+        const bH = berry.offsetHeight / 2;
+        const centerX = (window.innerWidth / 2 - berry.offsetLeft - bW);
+        const centerY = (window.innerHeight / 2 - berry.offsetTop - bH);
+
+        const startAngle = parseFloat(berry.dataset.angle) || 0;
+        const currentBaseX = parseFloat(berry.dataset.baseX) || 0;
+        const currentBaseY = parseFloat(berry.dataset.baseY) || 0;
+
+        // New random target position - Increased range for visibility
+        const nextBaseX = (Math.random() - 0.5) * 200;
+        const nextBaseY = (Math.random() - 0.5) * 200;
+
+        gsap.set(berry, {
+            rotation: startAngle,
+            x: currentBaseX,
+            y: currentBaseY
+        });
+
+        const berryTl = gsap.timeline();
+
+        berryTl.to(berry, {
+            x: centerX,
+            y: centerY,
+            rotation: startAngle + 45,
+            scale: 0.1,
+            opacity: 0,
+            duration: 0.5,
+            ease: "power2.in",
+            onComplete: () => {
+                const tok = berry.querySelector('.token');
+                tok.style.setProperty('--tok', w.accent);
+                tok.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true">${GLYPHS[w.glyph]}</svg>`;
+                heroCenter.style.zIndex = 50;
+            }
+        })
+        .to(berry, {
+            duration: 0.3
+        })
+        .to(berry, {
+            onStart: () => {
+                heroCenter.style.zIndex = 1;
+            },
+            x: nextBaseX,
+            y: nextBaseY,
+            rotation: startAngle + 90,
+            scale: 1,
+            opacity: 1,
+            duration: 0.9,
+            ease: "back.out(1.5)",
+            onComplete: () => {
+                berry.dataset.angle = startAngle + 90;
+                berry.dataset.baseX = nextBaseX;
+                berry.dataset.baseY = nextBaseY;
+                berry.dataset.rx = 0;
+                berry.dataset.ry = 0;
+
+                completedBerries++;
+                if (completedBerries === berries.length) {
+                    isSwitching = false;
+                }
+            }
+        });
+    });
+}
+
+
+// Track token states for smoothing
+allBerries.forEach(b => {
+    b.dataset.rx = 0; b.dataset.ry = 0; b.dataset.angle = Math.random() * 360;
+    b.dataset.baseX = 0; b.dataset.baseY = 0;
+    b.dataset.targetRx = 0; b.dataset.targetRy = 0;
+});
+
+let mouse = { x: 0, y: 0, px: 0, py: 0 };
+let currentMouse = { x: 0, y: 0 };
+
+window.addEventListener('mousemove', (e) => {
+    mouse.x = (e.clientX / window.innerWidth) - 0.5;
+    mouse.y = (e.clientY / window.innerHeight) - 0.5;
+    mouse.px = e.clientX;
+    mouse.py = e.clientY;
+});
+
+function animate() {
+    const time = Date.now() * 0.001;
+    // Smoothly interpolate current mouse to target mouse
+    currentMouse.x += (mouse.x - currentMouse.x) * 0.05;
+    currentMouse.y += (mouse.y - currentMouse.y) * 0.05;
+
+    // Tilt the mark toward the cursor + add switch spin
+    markStage.style.transform =
+        `rotateY(${(currentMouse.x * 40) + switchSpin}deg) rotateX(${(currentMouse.y * -20)}deg)`;
+    if (starGroup) starGroup.setAttribute('transform', `rotate(${(time * 12) % 360})`);
+
+    // Update parallax containers - Always
+    berriesFG.style.transform = `translate(${currentMouse.x * 60}px, ${currentMouse.y * 60}px)`;
+    berriesBG.style.transform = `translate(${currentMouse.x * -30}px, ${currentMouse.y * -30}px)`;
+    leavesBG.style.transform = `translate(${currentMouse.x * -15}px, ${currentMouse.y * -15}px)`;
+
+    // Update each token with its own smoothing and float - ONLY IF NOT SWITCHING
+    if (!isSwitching) {
+        allBerries.forEach((berry, i) => {
+            const berryRect = berry.getBoundingClientRect();
+            const berryX = berryRect.left + berryRect.width / 2;
+            const berryY = berryRect.top + berryRect.height / 2;
+
+            const diffX = mouse.px - berryX;
+            const diffY = mouse.py - berryY;
+            const distance = Math.sqrt(diffX * diffX + diffY * diffY);
+
+            let targetRx = 0, targetRy = 0, speedMult = 1;
+
+            if (distance < 400) {
+                const force = (400 - distance) / 400;
+                targetRx = (diffX / distance) * force * -80;
+                targetRy = (diffY / distance) * force * -80;
+                speedMult = 1 + force * 5;
+            }
+
+            // Lerp repulsion values
+            let rx = parseFloat(berry.dataset.rx) || 0;
+            let ry = parseFloat(berry.dataset.ry) || 0;
+            let angle = parseFloat(berry.dataset.angle) || 0;
+            let baseX = parseFloat(berry.dataset.baseX) || 0;
+            let baseY = parseFloat(berry.dataset.baseY) || 0;
+
+            rx += (targetRx - rx) * 0.1;
+            ry += (targetRy - ry) * 0.1;
+            angle += 0.2 * speedMult;
+
+            berry.dataset.rx = rx;
+            berry.dataset.ry = ry;
+            berry.dataset.angle = angle;
+
+            // Floating effect
+            const dur = [5, 7, 6, 8, 5.5, 6.5, 9, 11, 10][i % 9];
+            const phase = (time + i * 0.7) * (Math.PI * 2 / dur);
+            const floatY = Math.sin(phase) * 15;
+            const floatAngle = Math.cos(phase) * 6;
+
+            berry.style.transform = `translate(calc(${rx + baseX}px), calc(${ry + baseY}px + ${floatY}px)) rotate(calc(${angle}deg + ${floatAngle}deg))`;
+        });
+    }
+
+    // Update sparks with float - ALWAYS
+    document.querySelectorAll('.leaf').forEach((leaf, i) => {
+        const dur = 10 + i * 2;
+        const phase = (time + i * 1.2) * (Math.PI * 2 / dur);
+        const floatY = Math.sin(phase) * 20;
+        const floatX = Math.cos(phase * 0.5) * 15;
+        const floatAngle = Math.sin(phase * 0.3) * 15;
+        leaf.style.transform = `translate(${floatX}px, ${floatY}px) rotate(${floatAngle}deg)`;
+    });
+
+    requestAnimationFrame(animate);
+}
+
+animate();
+
+// Bubbles Generator
+const bubblesContainer = document.getElementById('bubbles-container');
+function createBubble() {
+    if (!bubblesContainer) return;
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble-img';
+    const size = Math.random() * 20 + 10;
+    bubble.style.width = size + 'px';
+    bubble.style.height = size + 'px';
+    bubble.style.left = Math.random() * 100 + '%';
+    bubble.style.bottom = '-50px';
+    bubble.style.opacity = Math.random() * 0.4 + 0.2;
+
+    const duration = Math.random() * 6 + 4;
+    bubble.style.animation = `floatUpImg ${duration}s linear forwards`;
+
+    bubblesContainer.appendChild(bubble);
+    setTimeout(() => bubble.remove(), duration * 1000);
+}
+setInterval(createBubble, 400);
+</script>
+</body>
+</html>
