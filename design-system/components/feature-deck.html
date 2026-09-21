@@ -1,0 +1,147 @@
+<!-- @dsCard group="Components" name="Feature deck" viewport-width="1100" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Feature deck</title>
+<link rel="stylesheet" href="../styles/lumera.css">
+<style>
+    body { padding: 2.5rem; }
+    .ds-n { font-size: .82rem; line-height: 1.6; color: hsl(var(--hero-sub)); opacity: .75; max-width: 42rem; margin-bottom: 2rem; }
+</style>
+</head>
+<body>
+
+<p class="ds-n">A stack you flick through: click the arrows, drag the top card, or focus the deck
+    and use the left and right arrow keys. A thrown card leaves in the direction it was
+    pushed, is moved to the back while it is still invisible, and fades in there &mdash; it
+    never flies back across the stack.</p>
+
+<div class="deck-wrap" style="--neon:#8b5cf6">
+    <div>
+        <div class="deck" id="deck" aria-roledescription="card deck"></div>
+        <div class="deck-controls">
+            <button class="deck-btn" id="deckPrev" aria-label="Previous feature">&larr;</button>
+            <button class="deck-btn" id="deckNext" aria-label="Next feature">&rarr;</button>
+            <span class="deck-count" id="deckCount"></span>
+            <span class="deck-dots" id="deckDots" aria-hidden="true"></span>
+        </div>
+        <p class="deck-hint">Drag a card, or use the arrow keys.</p>
+        <p class="sr-live" id="deckLive" aria-live="polite"></p>
+    </div>
+    <div class="sec-head" style="text-align:left;margin:0">
+        <div class="eyebrow">What you get</div>
+        <h2 class="sec-title">Every tool, <span class="grad">one deck.</span></h2>
+    </div>
+</div>
+
+<script>
+const FEATURES = [
+    ['Monthly expense review', 'Nine steps, one month of behaviour, a score you can act on.'],
+    ['Financial health score', 'Savings rate, safety net and headroom, in one number out of a hundred.'],
+    ['Budget and savings', 'Where the money goes, and what is left to move.'],
+    ['Market news', 'Explained, never recommended.'],
+    ['AI assistant', 'Ask about your own figures, in plain words.'],
+    ['Wealth simulator', 'What a change today is worth in ten years.'],
+    ['Emergency fund', 'How many months you are covered for, and the gap.'],
+    ['Goals', 'One target at a time, with the pace it needs.']
+];
+const DEPTH = 4;
+const ACCENTS = ['#8b5cf6', '#22c55e', '#3b82f6', '#fcd34d'];
+const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+const deck = document.getElementById('deck');
+let order = FEATURES.map((_, i) => i);   // order[0] is the card on top
+
+deck.innerHTML = FEATURES.map(([t, d], i) => `
+    <article class="deck-card neon" data-card="${i}" style="--neon:${ACCENTS[i % 4]}">
+        <div>
+            <span class="idx">Feature ${String(i + 1).padStart(2, '0')}</span>
+            <h3>${esc(t)}</h3>
+            <p>${esc(d)}</p>
+        </div>
+        <a class="open" href="#">Open in the app &rarr;</a>
+    </article>`).join('');
+
+const cards = [...deck.querySelectorAll('.deck-card')];
+const dots = document.getElementById('deckDots');
+const count = document.getElementById('deckCount');
+const live = document.getElementById('deckLive');
+dots.innerHTML = FEATURES.map(() => '<span class="deck-dot"></span>').join('');
+const dotEls = [...dots.children];
+
+function paint() {
+    order.forEach((cardIndex, place) => {
+        const el = cards[cardIndex];
+        const hidden = place >= DEPTH;
+        el.style.zIndex = String(FEATURES.length - place);
+        // The cards behind have to peek out, or the deck reads as one card.
+        el.style.transform =
+            `translate3d(0, ${place * 26}px, ${place * -70}px) scale(${1 - place * 0.075}) rotate(${place * -1.4}deg)`;
+        el.style.opacity = hidden ? '0' : String(1 - place * 0.16);
+        el.style.pointerEvents = place === 0 ? 'auto' : 'none';
+        el.setAttribute('aria-hidden', place === 0 ? 'false' : 'true');
+        el.querySelectorAll('a').forEach(a => a.tabIndex = place === 0 ? 0 : -1);
+    });
+    dotEls.forEach((d, i) => d.classList.toggle('on', i === order[0]));
+    count.textContent = (order[0] + 1) + ' of ' + FEATURES.length;
+    live.textContent = FEATURES[order[0]][0] + '. Card ' + (order[0] + 1) + ' of ' + FEATURES.length + '.';
+}
+
+let busy = false;
+function send(dir) {
+    if (busy) return;
+    busy = true;
+    const moved = cards[order[0]];
+    moved.style.transition = 'transform .32s ease, opacity .22s ease';
+    moved.style.transform = `translate3d(${dir * 60}%, -8%, 120px) rotate(${dir * 9}deg)`;
+    moved.style.opacity = '0';
+    window.setTimeout(() => {
+        order = dir > 0 ? order.slice(1).concat(order[0])
+                        : [order[order.length - 1]].concat(order.slice(0, -1));
+        // Put it in its new place while it is still invisible, so it never
+        // flies back across the deck, then fade it in where it landed.
+        moved.style.transition = 'none';
+        paint();
+        moved.style.opacity = '0';
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            moved.style.transition = '';
+            paint();
+            busy = false;
+        }));
+    }, 300);
+}
+
+document.getElementById('deckNext').addEventListener('click', () => send(1));
+document.getElementById('deckPrev').addEventListener('click', () => send(-1));
+deck.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight') { e.preventDefault(); send(1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); send(-1); }
+});
+deck.tabIndex = 0;
+
+let startX = null, dragging = false;
+deck.addEventListener('pointerdown', e => {
+    const top = cards[order[0]];
+    if (busy || !top.contains(e.target)) return;
+    startX = e.clientX; dragging = true;
+    top.style.transition = 'none';
+});
+window.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    cards[order[0]].style.transform = `translate3d(${dx}px, 0, 0) rotate(${dx * 0.04}deg)`;
+});
+window.addEventListener('pointerup', e => {
+    if (!dragging) return;
+    dragging = false;
+    const dx = e.clientX - startX;
+    cards[order[0]].style.transition = '';
+    if (Math.abs(dx) > 90) send(dx > 0 ? 1 : -1); else paint();
+});
+
+paint();
+</script>
+</body>
+</html>
