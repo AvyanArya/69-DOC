@@ -350,6 +350,13 @@ html[data-motion="off"] .atmo .aurora, html[data-motion="off"] .atmo .grain { an
     color: hsl(var(--foreground));
 }
 
+/* A 24px gradient square is too small to carry the glass edge: the bright cap
+   at its top and bottom reads as a white fragment stuck to the tile, not as a
+   highlight, so these get a faint even hairline instead. */
+.logo-item .icon.liquid-glass::before {
+    background: rgba(255, 255, 255, .16);
+}
+
 .logo-item .name {
     font-size: 1rem;
     font-weight: 600;
@@ -866,6 +873,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
 .deck-wrap { display: grid; grid-template-columns: 1.05fr .95fr; gap: 3rem; align-items: center; }
 .deck {
     position: relative; height: 21rem;
+    margin-bottom: 3.5rem;              /* the stack fans downward */
     perspective: 1400px; touch-action: pan-y;
 }
 .deck-card {

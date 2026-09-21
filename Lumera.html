@@ -415,6 +415,10 @@
 
     /* the landing page's signature sweep */
     --nova-grad:linear-gradient(to left, #6366f1, #a855f7, #fcd34d);
+    /* The sweep above ends on a pale gold. Clipped to text that reads well, but
+       as the fill of a pill or a rail that end shows up as a white-looking
+       fragment, so filled surfaces use this two-stop version instead. */
+    --nova-fill:linear-gradient(120deg, #6366f1, #a855f7);
     color-scheme:dark;
   }
 
@@ -465,7 +469,7 @@
   html[data-skin="nova"][data-theme][data-mode] .btn{ border-radius:9999px; }
   html[data-skin="nova"][data-theme][data-mode] .btn-gold,
   html[data-skin="nova"][data-theme][data-mode] .btn-gold{
-    background:var(--nova-grad) !important; color:#17110A !important;
+    background:var(--nova-fill) !important; color:#fff !important;
     box-shadow:0 10px 30px -12px rgba(168,85,247,.75) !important;
   }
   html[data-skin="nova"][data-theme][data-mode] .btn-primary{
@@ -482,7 +486,7 @@
     background:rgba(255,255,255,.03); border-color:rgba(255,255,255,.12);
     box-shadow:inset 0 1px 1px rgba(255,255,255,.07);
   }
-  html[data-skin="nova"][data-theme][data-mode] .chip.on{ background:var(--nova-grad); color:#17110A; box-shadow:0 6px 18px -8px rgba(168,85,247,.8); }
+  html[data-skin="nova"][data-theme][data-mode] .chip.on{ background:var(--nova-fill); color:#fff; box-shadow:0 6px 18px -8px rgba(168,85,247,.8); }
 
   /* Text that the dark themes force light: keep it readable here too. */
   html[data-skin="nova"][data-theme][data-mode] .text-cream, html[data-skin="nova"][data-theme][data-mode] .text-ivory{ color:#F2F0F9 !important; }
@@ -572,7 +576,7 @@
   html[data-skin="nova"] .lux-card ul.plan-list > li{ display:flex; gap:.55rem; align-items:flex-start; }
   html[data-skin="nova"] .lux-card ul.plan-list > li::before{
     content:""; flex:0 0 auto; width:6px; height:6px; margin-top:.52rem; border-radius:50%;
-    background:var(--nova-grad);
+    background:var(--nova-fill);
   }
 
   /* Numbers get the display face and the landing's stat-tile shape. */
@@ -582,6 +586,14 @@
     font-size:2.4rem; line-height:1; letter-spacing:-.024em; }
   html[data-skin="nova"] .stat-tile .l{ font-size:.66rem; letter-spacing:.2em; text-transform:uppercase;
     color:rgb(var(--c-faint)); margin-top:.5rem; }
+  /* The health score is the headline number of the dashboard, so it is set
+     larger than the three figures beside it and given a lit edge of its own. */
+  html[data-skin="nova"] .stat-tile.stat-lead .v{ font-size:4rem; font-weight:600; letter-spacing:-.034em; }
+  html[data-skin="nova"] .stat-tile.stat-lead .l{ color:#fcd34d; opacity:.9; }
+  html[data-skin="nova"] .stat-tile.stat-lead{
+    border-color:rgba(252,211,77,.34) !important;
+    box-shadow:0 0 0 1px rgba(252,211,77,.14), 0 20px 48px -30px rgba(252,211,77,.6);
+  }
 
   /* Tables read as rows of glass rather than ruled paper. */
   html[data-skin="nova"] table{ border-collapse:separate; border-spacing:0 6px; }
@@ -606,7 +618,7 @@
     backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
   }
   html[data-skin="nova"][data-theme][data-mode] .topbar-on{
-    background:var(--nova-grad); color:#17110A; font-weight:600;
+    background:var(--nova-fill); color:#fff; font-weight:600;
     box-shadow:0 6px 18px -8px rgba(168,85,247,.8);
   }
 
@@ -618,7 +630,7 @@
   }
   html[data-skin="nova"][data-theme][data-mode] .nav-item-on::before{
     content:""; position:absolute; left:0; top:18%; bottom:18%; width:3px;
-    border-radius:99px; background:var(--nova-grad);
+    border-radius:99px; background:var(--nova-fill);
   }
 
   /* Headings open the page the way the landing page does. */
@@ -632,7 +644,7 @@
   html[data-skin="nova"][data-theme][data-mode] .rounded-xl3{ border-radius:18px !important; }
   html[data-skin="nova"][data-theme][data-mode] .rounded-xl4{ border-radius:26px !important; }
 
-  html[data-skin="nova"][data-theme][data-mode] .eyebrow-rule{ background:var(--nova-grad); }
+  html[data-skin="nova"][data-theme][data-mode] .eyebrow-rule{ background:var(--nova-fill); }
 
   /* A panel floating over the page needs a ground of its own, or the page
      behind it shows through and the copy stops being readable. */
@@ -2364,7 +2376,7 @@ function Sidebar(){
             <div className="px-3 mb-1.5 text-[10px] tracking-[.22em] uppercase text-faint">Lumera</div>
             {core.map(navBtn)}
           </div>
-          <div className="mb-4">
+          {products.length>0 && <div className="mb-4">
             <div className="px-3 mb-2 text-[10px] tracking-[.22em] uppercase text-faint">The Lumera family</div>
             {/* Each product leads with its own colour rather than a faint accent. */}
             {products.map(s=>{
@@ -2385,7 +2397,7 @@ function Sidebar(){
                   ? <Icon name="arrowR" size={14} style={{color:active?'#fff':s.accent}}/>
                   : <span className="text-[9px] text-faint uppercase tracking-wider">soon</span>}
               </button>; })}
-          </div>
+          </div>}
         </>;
       })()}
     </nav>
@@ -4002,7 +4014,7 @@ function Dashboard(){
           ['Safety net', m.efMonths.toFixed(1), 'months covered', m.efMonths>=3?'Past the three-month mark':'Building toward three months', 'sky'],
           ['Biggest win', fmt.money(m.realistic), 'a month', 'Above benchmark, and reachable', 'clay']
         ].map(([label,value,unit,note,tone])=>
-          <Card key={label} hover={false} className="stat-tile !p-4">
+          <Card key={label} hover={false} className={cx('stat-tile !p-4', tone==='gold'&&'stat-lead')}>
             <div className="l">{label}</div>
             <div className="flex items-baseline gap-1.5 mt-1">
               <span className={cx('v tnum', tone==='gold'&&'gold-text', tone==='sage'&&'text-saged', tone==='sky'&&'text-sky', tone==='clay'&&'text-clayd')}>{value}</span>
@@ -4014,7 +4026,10 @@ function Dashboard(){
       {/* Then the Spark hero and today's quests. */}
       {app.mode==='spark' && <div className="mt-5"><SparkBanner/></div>}
       {/* The family sits below the numbers rather than above them. */}
-      <div className="mt-5 mb-1 text-[11px] tracking-[.22em] uppercase text-faint">The Lumera family</div>
+      {/* Turning every world off in the admin portal takes the heading with it,
+          rather than leaving a title standing over an empty row. */}
+      {SUBS.some(s=>s.key!=='lumera' && worldOn(app.layout,s.key)) &&
+      <div className="mt-5 mb-1 text-[11px] tracking-[.22em] uppercase text-faint">The Lumera family</div>}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-2 stagger">
         {SUBS.filter(s=>s.key!=='lumera' && worldOn(app.layout,s.key)).map(s=>
           <button key={s.key} onClick={()=>app.nav('/'+s.key)} className="rounded-xl3 overflow-hidden lift text-left" style={{border:`1px solid ${s.accent}55`}}>

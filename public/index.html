@@ -350,6 +350,13 @@ html[data-motion="off"] .atmo .aurora, html[data-motion="off"] .atmo .grain { an
     color: hsl(var(--foreground));
 }
 
+/* A 24px gradient square is too small to carry the glass edge: the bright cap
+   at its top and bottom reads as a white fragment stuck to the tile, not as a
+   highlight, so these get a faint even hairline instead. */
+.logo-item .icon.liquid-glass::before {
+    background: rgba(255, 255, 255, .16);
+}
+
 .logo-item .name {
     font-size: 1rem;
     font-weight: 600;
@@ -1155,7 +1162,6 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
         </div>
         <div class="price-wrap">
             <div class="price-hero neon reveal">
-                <span class="neon-tag">Available now</span>
                 <div class="price-figure">
                     <span class="zero">&pound;0</span>
                     <span class="per">forever, no card</span>
@@ -1474,18 +1480,29 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
             if (live) live.textContent = FEATURES[order[0]][0] + '. Card ' + (order[0] + 1) + ' of ' + FEATURES.length + '.';
         }
 
+        let busy = false;
         function send(dir) {
-            const top = cards[order[0]];
+            if (busy) return;
+            busy = true;
+            const moved = cards[order[0]];
             // the card leaves in the direction it was thrown, then drops to the back
-            top.style.transition = 'transform .32s ease, opacity .32s ease';
-            top.style.transform = `translate3d(${dir * 60}%, -8%, 120px) rotate(${dir * 9}deg)`;
-            top.style.opacity = '0';
+            moved.style.transition = 'transform .32s ease, opacity .22s ease';
+            moved.style.transform = `translate3d(${dir * 60}%, -8%, 120px) rotate(${dir * 9}deg)`;
+            moved.style.opacity = '0';
             window.setTimeout(() => {
-                top.style.transition = '';
                 order = dir > 0 ? order.slice(1).concat(order[0])
                                 : [order[order.length - 1]].concat(order.slice(0, -1));
+                // Put it in its new place while it is still invisible, so it never
+                // flies back across the deck, then fade it in where it landed.
+                moved.style.transition = 'none';
                 paint();
-            }, 260);
+                moved.style.opacity = '0';
+                requestAnimationFrame(() => requestAnimationFrame(() => {
+                    moved.style.transition = '';
+                    paint();
+                    busy = false;
+                }));
+            }, 300);
         }
 
         document.getElementById('deckNext').addEventListener('click', () => send(1));
@@ -1500,7 +1517,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
         let startX = null, dragging = false;
         deck.addEventListener('pointerdown', e => {
             const top = cards[order[0]];
-            if (!top.contains(e.target)) return;
+            if (busy || !top.contains(e.target)) return;
             startX = e.clientX; dragging = true;
             top.style.transition = 'none';
         });
