@@ -544,6 +544,23 @@ tr.flash-row { animation: flashrow 2.8s ease-out; }
 .src { display: inline-block; font-size: 8.5px; padding: 3px 7px 2px; border-radius: 2px; vertical-align: middle; }
 .src.official { color: var(--green); border: 1px solid rgba(134, 191, 158, .4); }
 .src.unverified { color: var(--red); border: 1px solid rgba(217, 138, 124, .45); }
+.src.packet { color: var(--gold-hi); border: 1px solid var(--gold-line); }
+.deliv-row { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) minmax(150px, auto); gap: 18px; align-items: center; padding: 18px 0; border-bottom: 1px solid var(--line); }
+.deliv-row:first-child { padding-top: 4px; }
+@media (max-width: 800px) { .deliv-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.deliv-row .nm2 { font-family: var(--serif); font-size: 16px; font-weight: 400; }
+.deliv-row .sub { font-size: 12px; color: var(--muted); margin-top: 3px; }
+.deliv-row .k { font-family: var(--mono); font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--faint); }
+.deliv-row .d { font-size: 13px; color: var(--text-2); margin-top: 3px; }
+.deliv-state { text-align: right; }
+.deliv-state .st { font-family: var(--mono); font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase; padding: 3px 8px 2px; border-radius: 2px; display: inline-block; }
+.st.open { color: var(--green); border: 1px solid rgba(134, 191, 158, .4); }
+.st.soon { color: var(--red); border: 1px solid rgba(217, 138, 124, .45); }
+.st.later { color: var(--muted); border: 1px solid var(--line-2); }
+.st.closed { color: var(--faint); border: 1px solid var(--line); }
+.deliv-state .cd { font-family: var(--mono); font-size: 13px; color: var(--text-2); margin-top: 6px; }
+.deliv-state .cd.red { color: var(--red); }
+@media (max-width: 800px) { .deliv-state { text-align: left; } }
 .rule-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 32px; }
 @media (max-width: 800px) { .rule-grid { grid-template-columns: minmax(0, 1fr); } }
 .rule { padding: 16px 0; border-bottom: 1px solid var(--line); }
@@ -729,6 +746,11 @@ footer::before { content: ""; display: block; width: 40px; height: 1px; backgrou
       <div class="facts" id="facts"></div>
       <div id="checks"></div>
     </section>
+    <section class="card" id="sec-deliverables">
+      <h2>Deliverables</h2>
+      <div id="deliv"></div>
+      <p class="fine">Dates from your competition packet. Submission windows open on the listed day and close at 5:00 p.m. ET on the due date.</p>
+    </section>
     <section class="card" id="sec-portfolio">
       <h2>Portfolio</h2>
       <div class="stats" id="stats"></div>
@@ -854,12 +876,8 @@ footer::before { content: ""; display: block; width: 40px; height: 1px; backgrou
 
     <section class="card">
       <h2>Deliverables</h2>
-      <table class="rules-table"><thead><tr><th>Deliverable</th><th>Due</th><th>Notes</th></tr></thead><tbody>
-        <tr><td>Official team roster</td><td>9 Oct 2026, 5:00 p.m. ET</td><td>No members can be added after it is submitted.</td></tr>
-        <tr><td>Trading Notes Analysis</td><td>23 Oct 2026, 5:00 p.m. ET</td><td>Trading notes with justification for your trades.</td></tr>
-        <tr><td>Investment Policy Statement (IPS)</td><td>6 Nov 2026, 5:00 p.m. ET</td><td>Counts toward semifinal selection.</td></tr>
-        <tr><td>Final report and school documentation</td><td>4 Dec 2026, 5:00 p.m. ET</td><td>Counts toward semifinal selection. School documentation verifies eligibility.</td></tr>
-      </tbody></table>
+      <div id="rules-deliv"></div>
+      <p class="fine">Official team roster: due 9 October 2026, 5:00 p.m. ET. No members can be added after it is submitted.</p>
       <p class="fine">Semifinalists must also send a letter on official school letterhead confirming the school allows the team to take part and that all students and the advisor belong to the school.</p>
     </section>
 
@@ -1517,9 +1535,12 @@ footer::before { content: ""; display: block; width: 40px; height: 1px; backgrou
     { date: "2026-09-28", h: null, what: "Official trading begins", src: "official" },
     { date: "2026-10-09", h: 17, what: "Official team roster due", src: "official" },
     { date: "2026-10-10", h: 16, what: "At least one trade required to stay eligible", src: "unverified" },
-    { date: "2026-10-23", h: 17, what: "Trading Notes Analysis due", src: "official" },
-    { date: "2026-11-06", h: 17, what: "Investment Policy Statement due. The portal also says trading ends", src: "official" },
-    { date: "2026-12-04", h: 17, what: "Final report and school documentation due", src: "official" },
+    { date: "2026-10-12", h: 0, what: "Trading Notes Analysis submissions open", src: "packet" },
+    { date: "2026-10-23", h: 17, what: "Trading Notes Analysis due", src: "packet" },
+    { date: "2026-10-26", h: 0, what: "Investment Policy Statement submissions open", src: "packet" },
+    { date: "2026-11-06", h: 17, what: "Investment Policy Statement due. The portal also says trading ends", src: "packet" },
+    { date: "2026-11-09", h: 0, what: "Final Report and School Documentation submissions open", src: "packet" },
+    { date: "2026-12-04", h: 17, what: "Final Report and School Documentation due", src: "packet" },
     { date: null, label: "TBD", what: "Top 50 semifinalists announced", src: "official" },
     { date: null, label: "TBD", what: "Virtual semifinals", src: "official" },
     { date: null, label: "Feb 2027", what: "Digital participation credentials issued", src: "official" },
@@ -1528,7 +1549,7 @@ footer::before { content: ""; display: block; width: 40px; height: 1px; backgrou
   var RULES_SUMMARY = [
     "COMPETITION RULES (researched from the official Wharton Global Youth Program website on 25 Sep 2026; the team's SurveyMonkey Apply packet overrides this):",
     "- Judging: success is not decided by portfolio performance. Teams are judged on strategy quality, fit with the client's objectives, research and communication. Top 50 semifinalists are chosen on the IPS and Final Report; top 10 go to the Global Finale in Philadelphia, 29 to 30 April 2027.",
-    "- Deliverables: roster 9 Oct, Trading Notes Analysis 23 Oct, IPS 6 Nov, Final report and school documentation 4 Dec 2026, all 5:00 p.m. ET.",
+    "- Deliverables (from the team's competition packet, all due by 5:00 p.m. ET): Trading Notes Analysis due Fri 23 Oct 2026, submissions open Mon 12 Oct. Investment Policy Statement due Fri 6 Nov, submissions open Mon 26 Oct. Final Report due Fri 4 Dec, submissions open 9 Nov. School Documentation due Fri 4 Dec, submissions open 9 Nov. Official team roster due 9 Oct.",
     "- CONFLICT: the official portal says 'November 6: Investment Policy Statement Due and Trading Ends', while the briefing says trading runs to 4 Dec. The team must confirm in the packet.",
     "- Teams: 4 to 6 students from one school, one team only each. Team leader at least 16 on 28 Sep 2026. No additions after the roster is submitted.",
     "- Advisors: one teacher from the school is required and cannot make decisions or trade. No paid advisors or education consultants of any kind.",
@@ -1536,6 +1557,40 @@ footer::before { content: ""; display: block; width: 40px; height: 1px; backgrou
     "- Disqualification: contacting the competition client, paid advisors, plagiarism, going below 4 or above 6 members, unapproved member or advisor changes, offensive conduct.",
     "- UNVERIFIED (third-party summary, check the packet): $500,000 starting virtual cash; at least one trade by 10 Oct 2026 4:00 p.m. ET to stay eligible; up to 200 trades; stocks must be $5 or more; at least one approved ETF required; Treasury bonds optional; commissions $25 per stock trade and $10 per bond trade."
   ].join("\n");
+  var DELIVERABLES = [
+    { name: "Trading Notes Analysis", opens: "2026-10-12", due: "2026-10-23", note: "Trading notes with justification for your trades." },
+    { name: "Investment Policy Statement", opens: "2026-10-26", due: "2026-11-06", note: "Counts toward semifinal selection." },
+    { name: "Final Report", opens: "2026-11-09", due: "2026-12-04", note: "Counts toward semifinal selection." },
+    { name: "School Documentation", opens: "2026-11-09", due: "2026-12-04", note: "Verifies your team's eligibility." }
+  ].map(function (d) { d.openTs = etTs(d.opens, 0, 0); d.dueTs = etTs(d.due, 17, 0); return d; });
+  function delivStatus(d) {
+    var now = Date.now(), dueDays = daysBetween(todayLocal(), parseDate(d.due)), openDays = daysBetween(todayLocal(), parseDate(d.opens));
+    if (now > d.dueTs) return { cls: "closed", label: "Closed", cd: "Due date passed", red: false };
+    if (now >= d.openTs) return { cls: dueDays <= 7 ? "soon" : "open", label: "Open now", cd: "<span class='countdown-lite' data-ts='" + d.dueTs + "'>" + countdown(d.dueTs - now) + "</span> left", red: dueDays <= 7 };
+    return { cls: "later", label: "Opens " + daysPhrase(openDays), cd: "Due " + daysPhrase(dueDays), red: false };
+  }
+  function delivHtml() {
+    return DELIVERABLES.map(function (d) {
+      var st = delivStatus(d);
+      return "<div class='deliv-row'><div><div class='nm2'>" + esc(d.name) + "</div><div class='sub'>" + esc(d.note) + "</div></div>" +
+        "<div><div class='k'>Submissions open</div><div class='d'>" + esc(parseDate(d.opens).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })) + "</div></div>" +
+        "<div><div class='k'>Due</div><div class='d'>" + esc(parseDate(d.due).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })) + ", 5:00 p.m. ET</div></div>" +
+        "<div class='deliv-state'><span class='st " + st.cls + "'>" + esc(st.label) + "</span><div class='cd" + (st.red ? " red" : "") + "'>" + st.cd + "</div></div></div>";
+    }).join("");
+  }
+  function renderDeliverables() {
+    var a = $("#deliv"), b = $("#rules-deliv");
+    if (a) a.innerHTML = delivHtml();
+    if (b) b.innerHTML = delivHtml();
+  }
+  function deliverablesText() {
+    return DELIVERABLES.map(function (d) {
+      var st = delivStatus(d), dueDays = daysBetween(todayLocal(), parseDate(d.due)), openDays = daysBetween(todayLocal(), parseDate(d.opens));
+      if (st.cls === "closed") return d.name + " is closed";
+      if (st.label === "Open now") return d.name + " is open now and due " + daysPhrase(dueDays) + ", on " + fmtDate(parseDate(d.due)) + " at 5pm Eastern";
+      return d.name + " opens " + daysPhrase(openDays) + " and is due " + fmtDate(parseDate(d.due));
+    }).join(". ") + ".";
+  }
   function nextRuleDate() {
     var now = Date.now();
     return RULE_DATES.filter(function (r) { return r.ts && r.ts > now && !/practice/i.test(r.what); }).sort(function (a, b) { return a.ts - b.ts; })[0] || null;
@@ -1550,8 +1605,8 @@ footer::before { content: ""; display: block; width: 40px; height: 1px; backgrou
           if (ms <= 0) { left = "Passed"; cls += " past"; }
           else { left = "<span class='countdown-lite' data-ts='" + r.ts + "'>" + countdown(ms) + "</span>"; if (days <= 7) cls += " soon"; }
         } else left = "TBD";
-        return "<tr><td>" + (d ? esc(fmtDate(d)) + (r.h != null ? "<br><span class='muted'>" + (r.h > 12 ? r.h - 12 : r.h) + ":00 p.m. ET</span>" : "") : esc(r.label)) + "</td><td>" + esc(r.what) + "</td>" +
-          "<td><span class='src " + r.src + "'>" + (r.src === "official" ? "Official" : "Unverified") + "</span></td><td class='num'><span class='" + cls + "'>" + left + "</span></td></tr>";
+        return "<tr><td>" + (d ? esc(fmtDate(d)) + (r.h ? "<br><span class='muted'>" + (r.h > 12 ? r.h - 12 : r.h) + ":00 p.m. ET</span>" : "") : esc(r.label)) + "</td><td>" + esc(r.what) + "</td>" +
+          "<td><span class='src " + r.src + "'>" + (r.src === "official" ? "Official" : r.src === "packet" ? "Packet" : "Unverified") + "</span></td><td class='num'><span class='" + cls + "'>" + left + "</span></td></tr>";
       }).join("") + "</tbody></table></div>";
     var rc = $("#rules-cash");
     if (rc) rc.textContent = HAS_DATA && isNum(P.total_value) ? money(P.total_value) + " as of the latest briefing" : "N/A";
@@ -1617,7 +1672,9 @@ footer::before { content: ""; display: block; width: 40px; height: 1px; backgrou
   function renderAll() {
     renderHeader();
     renderRuleDates();
+    renderDeliverables();
     setInterval(tickCountdowns, 1000);
+    setInterval(renderDeliverables, 60000);
     if (!HAS_DATA) { renderNoData(); return; }
     renderUrgent();
     renderFacts();
@@ -1656,6 +1713,8 @@ footer::before { content: ""; display: block; width: 40px; height: 1px; backgrou
     lastReminder = Date.now();
     var s = "You have " + u.length + " deadline" + (u.length > 1 ? "s" : "") + " within 7 days. ";
     s += u.map(function (x) { return x.name + " is due " + daysPhrase(x.days) + (x.days > 1 ? ", on " + fmtDate(x.date) : "") + (x.target && x.target.label !== "end of day" ? " at " + x.target.label : ""); }).join(". ") + ".";
+    var dNext = DELIVERABLES.filter(function (d) { return Date.now() < d.dueTs; })[0];
+    if (dNext) s += " Next deliverable: " + dNext.name + ", due " + fmtDate(parseDate(dNext.due)) + (Date.now() >= dNext.openTs ? ", submissions are open." : ", submissions open " + fmtDate(parseDate(dNext.opens)) + ".");
     var tbd = DEADLINES.filter(function (x) { return !x.date; }).length;
     if (tbd) s += " " + tbd + " other date" + (tbd > 1 ? "s are" : " is") + " still to be announced.";
     return s;
@@ -1772,6 +1831,7 @@ footer::before { content: ""; display: block; width: 40px; height: 1px; backgrou
     if (/\bstrategy lab\b|\badapt (the )?picks\b|\bre-?pick\b|\bnew strategy\b/.test(t)) return { type: "workshop-strategy", section: "ws-strategy" };
     if (/\brules?\b|\bregulations?\b|\beligib|\bdisqualif|\bjudg(ed|ing)\b|\bai (policy|use)\b/.test(t)) return { type: "rules", section: "rules" };
     if (/\bbrief(ing)?\b|\bsummary\b|\bsummari[sz]e\b|\bcatch me up\b/.test(t)) return { type: "brief", section: "sec-urgent" };
+    if (/\bdeliverables?\b|\bsubmissions?\b|\bsubmit\b/.test(t)) return { type: "deliverables", section: "sec-deliverables" };
     if (/\burgent\b|\bdeadlines?\b|\bdue\b|\btimeline\b/.test(t)) return { type: "urgent", section: urgentList().length ? "sec-urgent" : "sec-timeline" };
     var tk = tickerHits(text);
     if (tk.length) return { type: "ticker", ticker: tk[0], multi: tk.length > 1, section: findPick(tk[0]) ? "pick-" + tk[0] : "hold-" + tk[0] };
@@ -1790,6 +1850,7 @@ footer::before { content: ""; display: block; width: 40px; height: 1px; backgrou
   }
   function quickAnswer(intent) {
     if (intent.type === "rules") return rulesText();
+    if (intent.type === "deliverables") return deliverablesText();
     if (intent.type === "workshop-review") return "Opening Report review. Paste your draft, pick the report type and press Check report. For deeper feedback, press Get AI feedback with Ollama running. I will point out problems but I will not write it for you, that is Wharton's AI rule.";
     if (intent.type === "workshop-strategy") return "Opening the Strategy lab. Describe your strategy, set the sliders and press Adapt picks. I only choose from today's picks in the briefing.";
     if (!HAS_DATA) return "I do not have a briefing loaded. Put data.js next to jarvis.html and refresh.";
@@ -2262,7 +2323,7 @@ footer::before { content: ""; display: block; width: 40px; height: 1px; backgrou
     if (muted) stopSpeaking();
     paintMute();
   });
-  var chips = ["Brief me", "Urgent", "Portfolio", "Buckets", "Market", "Picks", "Study", "Rules", "Review my report", "Strategy lab"].concat(allTickers().slice(0, 5));
+  var chips = ["Brief me", "Urgent", "Deliverables", "Portfolio", "Buckets", "Market", "Picks", "Study", "Rules", "Review my report", "Strategy lab"].concat(allTickers().slice(0, 5));
   $("#chips").innerHTML = chips.map(function (c) { return "<button class='chip' type='button'>" + esc(c) + "</button>"; }).join("");
   $("#chips").addEventListener("click", function (e) { var b = e.target.closest(".chip"); if (b) ask(b.textContent); });
 
