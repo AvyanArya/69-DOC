@@ -3,7 +3,10 @@
 // client error reports.
 const { fail, send, readJson, str } = require('../http');
 
-const CONFIG_KEYS = ['flags', 'layout'];
+// Application configuration and content managed from the admin portal and
+// read by every member's app: feature flags, page layout, product updates,
+// news headlines and the About/team page.
+const CONFIG_KEYS = ['flags', 'layout', 'updates', 'news', 'about'];
 
 function readConfig(db) {
   const out = {};

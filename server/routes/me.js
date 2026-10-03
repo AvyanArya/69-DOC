@@ -9,6 +9,8 @@ const STATE_LIMIT = 512 * 1024;
 // Only these keys are kept, so the store cannot become a dumping ground.
 const STATE_KEYS = ['profile', 'expenses', 'balances', 'onboarded', 'lastUpdated', 'lastPrompt', 'lang',
   'subs', 'goals', 'budgetCustom', 'xp', 'badges'];
+// Paid plans a member can ask to hear about. Admins see the list in the portal.
+const PLANS = ['Pro', 'Premium'];
 
 function register(router, { db, key, requireUser }) {
   const readState = (userId) => {
@@ -34,6 +36,20 @@ function register(router, { db, key, requireUser }) {
     send(ctx.res, 200, { ok: true, updatedAt: now });
   });
 
+  const plansFor = (id) => db.prepare('SELECT plan FROM waitlist WHERE user_id = ? ORDER BY plan').all(id).map((r) => r.plan);
+
+  router.get('/api/me/waitlist', requireUser, async (ctx) => {
+    send(ctx.res, 200, { plans: plansFor(ctx.user.id) });
+  });
+
+  router.put('/api/me/waitlist', requireUser, async (ctx) => {
+    const b = await readJson(ctx.req);
+    if (!PLANS.includes(b.plan)) fail(400, 'Unknown plan.');
+    if (b.on) db.prepare('INSERT OR IGNORE INTO waitlist (user_id, plan, created_at) VALUES (?, ?, ?)').run(ctx.user.id, b.plan, Date.now());
+    else db.prepare('DELETE FROM waitlist WHERE user_id = ? AND plan = ?').run(ctx.user.id, b.plan);
+    send(ctx.res, 200, { plans: plansFor(ctx.user.id) });
+  });
+
   // Everything held about the member, as one JSON download (UK GDPR art. 15/20).
   router.get('/api/me/export', requireUser, async (ctx) => {
     const id = ctx.user.id;
@@ -46,6 +62,7 @@ function register(router, { db, key, requireUser }) {
       replies: db.prepare('SELECT id, post_id, body, created_at FROM replies WHERE user_id = ? ORDER BY id').all(id),
       likes: db.prepare('SELECT post_id FROM post_likes WHERE user_id = ?').all(id).map((r) => r.post_id),
       connections: db.prepare('SELECT target_id, created_at FROM connections WHERE user_id = ?').all(id),
+      waitlist: db.prepare('SELECT plan, created_at FROM waitlist WHERE user_id = ?').all(id),
     };
     send(ctx.res, 200, out, { 'Content-Disposition': 'attachment; filename="lumera-export.json"' });
   });
@@ -62,7 +79,7 @@ function register(router, { db, key, requireUser }) {
   });
 
   // Erasure (UK GDPR art. 17). Cascades remove state, posts, likes, replies,
-  // connections and sessions.
+  // connections, waitlist entries and sessions.
   router.delete('/api/me', requireUser, async (ctx) => {
     const b = await readJson(ctx.req);
     if (!verifyPassword(String(b.password || ''), ctx.user.password_hash)) fail(400, 'Enter your password to delete your account.');
@@ -72,4 +89,4 @@ function register(router, { db, key, requireUser }) {
   });
 }
 
-module.exports = { register, STATE_KEYS };
+module.exports = { register, STATE_KEYS, PLANS };

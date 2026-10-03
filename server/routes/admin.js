@@ -21,7 +21,17 @@ function register(router, { db, requireAdmin, companies, audit }) {
       openErrors: n("SELECT COUNT(*) AS n FROM reports WHERE status = 'open' AND kind = 'error'"),
       companies: n('SELECT COUNT(*) AS n FROM companies'),
       companiesMissing: n("SELECT COUNT(*) AS n FROM companies WHERE status = 'missing'"),
+      waitlist: db.prepare('SELECT plan, COUNT(*) AS n FROM waitlist GROUP BY plan').all()
+        .reduce((o, r) => { o[r.plan] = r.n; return o; }, {}),
     });
+  });
+
+  // Who asked to hear when a paid plan launches (there is no mail service;
+  // the admin downloads the list).
+  router.get('/api/admin/waitlist', requireAdmin, async (ctx) => {
+    const rows = db.prepare(`SELECT w.plan, w.created_at, u.email, u.name FROM waitlist w
+      JOIN users u ON u.id = w.user_id WHERE u.status = 'active' ORDER BY w.plan, w.created_at`).all();
+    send(ctx.res, 200, { entries: rows });
   });
 
   // ---- users ----
@@ -180,7 +190,8 @@ function register(router, { db, requireAdmin, companies, audit }) {
   });
 
   router.put('/api/admin/config', requireAdmin, async (ctx) => {
-    const b = await readJson(ctx.req, 64 * 1024);
+    // About can carry team photos as data URLs, so allow a larger body here.
+    const b = await readJson(ctx.req, 2 * 1024 * 1024);
     const now = Date.now();
     for (const k of CONFIG_KEYS) {
       if (!(k in b)) continue;

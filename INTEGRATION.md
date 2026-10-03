@@ -1,5 +1,7 @@
 # Lumera — Going Live: Mock → Production Integration Guide
 
+> **Update:** Lumera now has its own server (see [BACKEND.md](BACKEND.md)) for accounts, encrypted saved figures, the community, subscription logos and the admin portal. The sections below still apply to social sign-in (OAuth), live market data and product analytics, which the server does not provide yet.
+
 Lumera currently runs as a **single offline `Lumera.html` file**. That's perfect for design, demos and testing, but three things genuinely **cannot** run inside one static file and need a tiny backend or third‑party service + API keys:
 
 1. **Real OAuth** (Google / Apple / Microsoft / Facebook sign‑in)

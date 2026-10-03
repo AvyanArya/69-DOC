@@ -24,38 +24,18 @@ SRC = open(os.path.join(ROOT, 'landing.html')).read()
 
 # ---------------------------------------------------------------- shared shell
 STYLE = SRC[SRC.index('<style>'):SRC.rindex('</style>') + len('</style>')]
-HEAD_LINKS = SRC[SRC.index('<link rel="preconnect"'):SRC.index('<style>')]
+HEAD_LINKS = SRC[SRC.index('<link rel="icon"'):SRC.index('<style>')]
 FOOTER = SRC[SRC.index('    <footer class="site-footer">'):
              SRC.index('    </footer>') + len('    </footer>')]
 ATMO = SRC[SRC.index('<div class="atmo"'):SRC.index('</div>', SRC.index('<span class="grain">')) + 6]
 
-LOGO = '''<a class="nav-logo" href="index.html">
-                        <!-- Logo placeholder: swap this block for the real mark. -->
-                        <span class="mark" title="Logo placeholder, upload in Admin">
-                            <svg width="15" height="15" viewBox="0 0 10 10" aria-hidden="true">
-                                <path d="M5 0 L6 4 L10 5 L6 6 L5 10 L4 6 L0 5 L4 4 Z" fill="#E7C87A" opacity=".85"/>
-                            </svg>
-                        </span>
-                        <span class="wordmark">Lumera</span>
-                    </a>'''
-
-NAV = '''            <a class="skip-link" href="#main">Skip to content</a>
-            <header>
-                <nav class="navbar">
-                    ''' + LOGO + '''
-
-                    <div class="nav-center">
-                        <a class="nav-btn" href="worlds.html">Worlds</a>
-                        <a class="nav-btn" href="features.html">Features</a>
-                        <a class="nav-btn" href="how-it-works.html">How it works</a>
-                        <a class="nav-btn" href="pricing.html">Pricing</a>
-                        <a class="nav-btn" href="about.html">About</a>
-                    </div>
-
-                    <a class="hero-secondary liquid-glass nav-signup" href="app.html#/signup">Sign Up</a>
-                </nav>
-                <div class="nav-divider"></div>
-            </header>'''
+# The header, consent box and its script come from landing.html too, so the
+# logo, the Log In / Sign Up pair and the consent wording exist exactly once.
+NAV = ('            <a class="skip-link" href="#main">Skip to content</a>\n'
+       + SRC[SRC.index('            <header>'):SRC.index('            </header>') + len('            </header>')])
+CONSENT_HTML = '\n' + SRC[SRC.index('<aside class="consent"'):SRC.index('</aside>', SRC.index('<aside class="consent"')) + len('</aside>')] + '\n'
+_cs = SRC.index('/* ============================================================\n   Third-party content switch.')
+CONSENT_JS = SRC[_cs:SRC.index('})();', _cs) + len('})();')]
 
 SUB_CSS = '''
 <style>
@@ -76,7 +56,7 @@ SUB_CSS = '''
 .page-title .grad {
     background-clip: text; -webkit-background-clip: text;
     color: transparent; -webkit-text-fill-color: transparent;
-    background-image: linear-gradient(to left, #6366f1, #a855f7, #fcd34d);
+    background-image: var(--sp-sweep);
 }
 .page-lede { color: hsl(var(--hero-sub)); opacity: .8; font-size: 1.1rem; line-height: 1.75; max-width: 40rem; margin-top: 1.1rem; }
 .page-actions { display: flex; flex-wrap: wrap; gap: .8rem; margin-top: 2rem; }
@@ -185,70 +165,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
 </style>
 '''
 
-CONSENT_HTML = '''
-<aside class="consent" id="consent" role="dialog" aria-modal="false"
-       aria-labelledby="consent-title" aria-describedby="consent-body">
-    <h2 id="consent-title">Fonts and video from other companies</h2>
-    <p id="consent-body">Lumera sets <strong>no cookies</strong>, and nothing you type reaches us &mdash;
-    your figures stay in your browser. Our web fonts and the video on this page do load from
-    Fontshare, jsDelivr and Amazon CloudFront, which shows them your IP address. You can turn
-    that off and the site will use fonts already on your computer.
-    <a href="cookies.html">Read the detail</a>.</p>
-    <div class="consent-actions">
-        <button type="button" class="consent-accept" data-consent="yes">That&rsquo;s fine, keep them</button>
-        <button type="button" class="consent-decline" data-consent="no">Turn them off</button>
-    </div>
-</aside>
-'''
-
-SCRIPT = '''<script>
-/* ============================================================
-   Third-party content switch.
-   The fonts and the video load normally, so the page looks the way it was
-   designed. A visitor who would rather not contact those companies can turn
-   them off here and the choice is remembered. No cookie is involved: the
-   preference is first-party local storage.
-   ============================================================ */
-(function () {
-    var KEY = 'lumera_consent_thirdparty';
-    var box = document.getElementById('consent');
-
-    function read() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
-    function write(v) { try { localStorage.setItem(KEY, v); } catch (e) {} }
-
-    function disableThirdParty() {
-        document.querySelectorAll('link[rel="stylesheet"]').forEach(function (l) {
-            if (!/fontshare|jsdelivr|googleapis/.test(l.href)) return;
-            l.setAttribute('data-href', l.href);
-            l.disabled = true;
-            l.parentNode.removeChild(l);
-        });
-        var v = document.getElementById('bgVideo');
-        if (v) { v.pause(); v.removeAttribute('src'); v.load(); v.style.display = 'none'; }
-        document.documentElement.setAttribute('data-thirdparty', 'off');
-    }
-
-    function decide(answer) {
-        write(answer);
-        if (box) box.removeAttribute('data-open');
-        if (answer === 'no') disableThirdParty();
-    }
-
-    var saved = read();
-    if (saved === 'no') disableThirdParty();
-    else if (saved !== 'yes' && box) box.setAttribute('data-open', '');
-
-    if (box) {
-        box.querySelectorAll('[data-consent]').forEach(function (b) {
-            b.addEventListener('click', function () { decide(b.getAttribute('data-consent')); });
-        });
-    }
-    document.querySelectorAll('[data-consent-reopen]').forEach(function (b) {
-        b.addEventListener('click', function () {
-            if (box) { box.setAttribute('data-open', ''); box.querySelector('button').focus(); }
-        });
-    });
-})();
+SCRIPT = '<script>\n' + CONSENT_JS + '''
 
 (function () {
     var y = document.getElementById('year');
@@ -346,7 +263,7 @@ def page(fname, title, desc, accents, head, grad, lede, body, actions=None):
 
 def panels(items, cols=3):
     return '<div class="grid-%d">%s</div>' % (cols, ''.join(
-        '<div class="panel liquid-glass reveal"><h3>%s</h3><p>%s</p></div>' % (t, d) for t, d in items))
+        '<div class="panel sp-panel reveal"><h3>%s</h3><p>%s</p></div>' % (t, d) for t, d in items))
 
 
 def sec(eyebrow, head, grad, sub='', body=''):
@@ -424,14 +341,14 @@ STEPS = [
 
 
 # ---------------------------------------------------------------- the pages
-WORLD_CARD = ('<a class="panel liquid-glass world-card reveal" href="{key}.html" style="text-decoration:none;color:inherit">'
+WORLD_CARD = ('<a class="panel sp-panel world-card reveal" href="{key}.html" style="text-decoration:none;color:inherit">'
               '<span class="wash" style="background:{c}"></span>'
               '<span class="badge" style="background:{c}22;color:{c}">{initial}</span>'
               '<span class="tag" style="color:{c}">{tag}</span>'
               '<h3>{name}</h3><p>{blurb}</p>'
               '<span class="link" style="color:{c}">Explore {name} &rarr;</span></a>')
 
-MINI_CARD = ('<a class="panel liquid-glass reveal" href="{key}.html" style="text-decoration:none;color:inherit">'
+MINI_CARD = ('<a class="panel sp-panel reveal" href="{key}.html" style="text-decoration:none;color:inherit">'
              '<span class="badge" style="background:{c}22;color:{c}">{initial}</span>'
              '<h3>{name}</h3><p>{tag}</p></a>')
 
@@ -453,7 +370,7 @@ def build():
 
     made.append(page('worlds.html', 'The Lumera family | Lumera',
         'Four worlds, one financial life. Leaf, Atlas, Shield and Forge.',
-        ('#6366f1', '#a855f7', '#fcd34d'),
+        ('#8E7BFF', '#6E6CF6', '#EBC77A'),
         'Four worlds,', 'one financial life',
         'Lumera is the hub. Each world below is its own space, with its own tools, colour and guide, and you only ever see the ones you switch on.',
         '    <section class="section tight"><div class="grid-4">' + world_cards(WORLDS) + '</div></section>\n'
@@ -490,7 +407,7 @@ def build():
         actions=[('Start free', 'app.html#/signup', True), ('How it works', 'how-it-works.html', False)]))
 
     steps_html = '<div class="grid-3">' + ''.join(
-        '<div class="panel liquid-glass reveal"><span class="step-n">%02d</span><h3>%s</h3><p>%s</p></div>'
+        '<div class="panel sp-panel reveal"><span class="step-n">%02d</span><h3>%s</h3><p>%s</p></div>'
         % (i + 1, t, d) for i, (t, d) in enumerate(STEPS)) + '</div>'
     made.append(page('how-it-works.html', 'How it works | Lumera',
         'Three steps, thirty days: track, compare, and get your plan.',
@@ -510,7 +427,7 @@ def build():
         actions=[('Start free', 'app.html#/signup', True), ('See the features', 'features.html', False)]))
 
     team_cards = ''.join(
-        '<div class="panel liquid-glass reveal"><div class="person"><span class="avatar">%s</span>'
+        '<div class="panel sp-panel reveal"><div class="person"><span class="avatar">%s</span>'
         '<div><h3 style="margin:0">%s</h3><div class="role">%s</div></div></div></div>' % (c, n, r)
         for n, r, c in [('Founding team', 'Add names in Admin', 'L'), ('Product', 'Add names in Admin', 'P'),
                         ('Engineering', 'Add names in Admin', 'E'), ('Design', 'Add names in Admin', 'D'),
@@ -532,10 +449,10 @@ def build():
         'Financial clarity,', 'made accessible',
         'Lumera turns the financial intelligence once reserved for the wealthy into something anyone can use. Clear, calm, and jargon-free.',
         '    <section class="section tight"><div class="grid-2">'
-        '<div class="panel liquid-glass reveal"><div class="eyebrow">Our mission</div><div class="prose">'
+        '<div class="panel sp-panel reveal"><div class="eyebrow">Our mission</div><div class="prose">'
         '<p>Lumera exists to give students and early-career professionals the financial intelligence that used to be '
         'reserved for the wealthy. No jargon, no complexity, just clarity.</p></div></div>'
-        '<div class="panel liquid-glass reveal"><div class="eyebrow">The problem we solve</div><div class="prose">'
+        '<div class="panel sp-panel reveal"><div class="eyebrow">The problem we solve</div><div class="prose">'
         '<p>Most people do not understand their money, not because they are bad with it, but because no one ever taught '
         'them. Lumera closes that gap with tools that explain themselves.</p></div></div>'
         '</div></section>\n'
@@ -562,7 +479,7 @@ def build():
              ('Premium', 'Coming soon', False,
               ['Portfolio analytics', 'Family budgeting', 'Tax optimisation', 'Priority AI', 'Advisor-ready summaries'])]
     plans_html = '<div class="grid-3">' + ''.join(
-        '<div class="panel liquid-glass reveal"><div class="plan-head"><h3 style="margin:0">%s</h3>'
+        '<div class="panel sp-panel reveal"><div class="plan-head"><h3 style="margin:0">%s</h3>'
         '<span class="pill%s">%s</span></div><p>%s</p><ul class="plan-list">%s</ul></div>'
         % (n, ' now' if now else '', 'Current' if now else 'Future', b, ''.join('<li>%s</li>' % f for f in feats))
         for n, b, now, feats in PLANS) + '</div>'

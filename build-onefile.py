@@ -52,7 +52,7 @@ for key, fname, _ in PAGES:
 landing = src['home']
 
 # ---------------------------------------------------------------- shared bits
-head_links = landing[landing.index('<link rel="preconnect"'):landing.index('<style>')]
+head_links = landing[landing.index('<link rel="icon"'):landing.index('<style>')]
 style = landing[landing.index('<style>'):landing.rindex('</style>') + len('</style>')]
 sub_style = src['about'][src['about'].index('<style>\n/* Sub-pages'):]
 sub_style = sub_style[:sub_style.index('</style>') + len('</style>')]
@@ -115,30 +115,45 @@ def hashify(html):
     return html
 
 
-NAV = hashify('''            <header>
-                <nav class="navbar">
-                    <a class="nav-logo" href="index.html">
-                        <!-- Logo placeholder: swap this block for the real mark. -->
-                        <span class="mark" title="Logo placeholder, upload in Admin">
-                            <svg width="15" height="15" viewBox="0 0 10 10" aria-hidden="true">
-                                <path d="M5 0 L6 4 L10 5 L6 6 L5 10 L4 6 L0 5 L4 4 Z" fill="#E7C87A" opacity=".85"/>
-                            </svg>
-                        </span>
-                        <span class="wordmark">Lumera</span>
-                    </a>
+# The shared bar is the landing's own header (official logo, Log In, Sign Up).
+NAV = hashify(landing[landing.index('            <header>'):landing.index('            </header>') + len('            </header>')])
 
-                    <div class="nav-center">
-                        <a class="nav-btn" href="worlds.html">Worlds</a>
-                        <a class="nav-btn" href="features.html">Features</a>
-                        <a class="nav-btn" href="how-it-works.html">How it works</a>
-                        <a class="nav-btn" href="pricing.html">Pricing</a>
-                        <a class="nav-btn" href="about.html">About</a>
-                    </div>
 
-                    <a class="hero-secondary liquid-glass nav-signup" href="app.html#/signup">Sign Up</a>
-                </nav>
-                <div class="nav-divider"></div>
-            </header>''')
+# ---------------------------------------------------------------- assets
+# The single file carries its fonts and the brand artwork. Fonts and anything
+# referenced once are inlined where they stand. Images that repeat on every
+# route (the logo in each header and footer) are stored once in a map and
+# resolved at runtime, so the file does not carry fifteen copies of each.
+_MIME = {'.webp': 'image/webp', '.png': 'image/png', '.woff2': 'font/woff2', '.svg': 'image/svg+xml'}
+def asset_uri(rel):
+    path = os.path.join(ROOT, 'assets', rel)
+    ext = os.path.splitext(path)[1].lower()
+    with open(path, 'rb') as fh:
+        return 'data:%s;base64,%s' % (_MIME[ext], base64.b64encode(fh.read()).decode('ascii'))
+
+def inline_assets(html):
+    # every remaining assets/... reference becomes a data URI
+    return re.sub(r"assets/((?:brand|fonts)/[\w.-]+)", lambda m: asset_uri(m.group(1)), html)
+
+def defer_images(html):
+    # <img src="assets/brand/x.webp"> (also inside JS templates) -> data-asset
+    return re.sub(r'src="assets/brand/([^"]+)"', r'data-asset="\1"', html)
+
+ASSET_MAP_JS = '<script>\n/* Brand artwork, stored once and filled into any <img data-asset>. */\n(function () {\n    var A = {%s};\n' % ','.join(
+    "'%s':'%s'" % (f, asset_uri('brand/' + f)) for f in sorted(os.listdir(os.path.join(ROOT, 'assets', 'brand')))
+    if f.endswith('.webp')) + '''    function fill(root) {
+        (root || document).querySelectorAll('img[data-asset]').forEach(function (i) {
+            var u = A[i.getAttribute('data-asset')];
+            if (u && i.getAttribute('src') !== u) i.setAttribute('src', u);
+        });
+    }
+    fill(document);
+    new MutationObserver(function (ms) {
+        ms.forEach(function (m) { m.addedNodes.forEach(function (n) { if (n.nodeType === 1) fill(n.parentNode || document); }); });
+    }).observe(document.body, { childList: true, subtree: true });
+})();
+</script>'''
+
 
 def compile_jsx(source):
     """Run the app's JSX through Babel once, at build time, using node."""
@@ -281,6 +296,9 @@ window.__SS = (function () {
                 .replace('</script', '<\\/script')
                 .replace('<script', '\\x3cscript'))
         doc = re.sub(pattern, lambda m, c=code: '<script>' + c + '</script>', doc, count=1)
+
+    # Fonts, favicon and the brand artwork, inline: the payload has no folder.
+    doc = inline_assets(doc)
 
     # Base64, not raw text. A payload holding HTML comments and the string
     # "<script" pushes the parser into its double-escaped state, where the
@@ -509,15 +527,15 @@ ROUTER = '''<script>
     var track = document.getElementById('marqueeTrack');
     if (track) {
         var LOGOS = [
-            { name: 'Lumera', c1: '#8B5CF6', c2: '#4C1D95' },
-            { name: 'Leaf',   c1: '#22C55E', c2: '#14532D' },
-            { name: 'Atlas',  c1: '#3B82F6', c2: '#1E3A8A' },
-            { name: 'Shield', c1: '#64748B', c2: '#1E293B' },
-            { name: 'Forge',  c1: '#C0873A', c2: '#5C3A12' }
+            { name: 'Lumera', guide: 'lumi',     c: '#9D7CFF' },
+            { name: 'Leaf',   guide: 'sprout',   c: '#22C55E' },
+            { name: 'Atlas',  guide: 'nova',     c: '#3B82F6' },
+            { name: 'Shield', guide: 'sentinel', c: '#94A3B8' },
+            { name: 'Forge',  guide: 'blaze',    c: '#E0A94E' }
         ];
         var row = LOGOS.map(function (l) {
-            return '<div class="logo-item"><span class="icon liquid-glass" style="background-image:linear-gradient(160deg,'
-                + l.c1 + ',' + l.c2 + ')">' + l.name[0] + '</span><span class="name">' + l.name + '</span></div>';
+            return '<div class="logo-item"><span class="icon" style="background:radial-gradient(circle at 50% 78%,' + l.c + '66,' + l.c + '1A 70%);box-shadow:inset 0 0 0 1px ' + l.c + '55">'
+                + '<img data-asset="' + l.guide + '.webp" alt=""></span><span class="name">' + l.name + '</span></div>';
         }).join('');
         track.innerHTML = row + row;
     }
@@ -559,6 +577,11 @@ out = '''<!DOCTYPE html>
 ''' % (head_links, style, sub_style, EXTRA_CSS, atmo, consent_box, NAV,
        '\n\n'.join(sections), hashify(footer), PAYLOADS,
        ROUTER + '\n<script>' + sections_js + '</script>\n<script>' + consent_js + '</script>')
+
+# Images become data-asset references resolved from one map; fonts and the
+# favicon are inlined where they stand.
+out = inline_assets(defer_images(out))
+out = out.replace('</body>', ASSET_MAP_JS + '\n</body>', 1)
 
 path = os.path.join(ROOT, 'lumera.html')
 open(path, 'w').write(out)

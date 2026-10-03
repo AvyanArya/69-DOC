@@ -732,7 +732,7 @@
     mask-image:linear-gradient(90deg, rgba(0,0,0,.35), #000 40%, #000); }
   .pt-strand{ stroke-dasharray:1600; stroke-dashoffset:1600; animation:pt-draw 2.4s cubic-bezier(.22,1,.36,1) forwards; }
   .reveal:not(.in) .pt-strand{ animation-play-state:paused; }
-  .pt-star{ filter:drop-shadow(0 0 14px rgba(235,199,122,.85)); transform-origin:1140px 90px; animation:pt-twinkle 5s ease-in-out infinite; }
+  .pt-star{ filter:drop-shadow(0 0 14px rgba(235,199,122,.85)); transform-origin:1090px 90px; animation:pt-twinkle 5s ease-in-out infinite; }
   @keyframes pt-draw{ to{ stroke-dashoffset:0; } }
   @keyframes pt-twinkle{ 0%,100%{ transform:scale(1); opacity:1; } 50%{ transform:scale(.86); opacity:.75; } }
   .patterns-em{ font-style:italic; color:#F4F0FF; }
@@ -912,10 +912,21 @@ function useAssets(){
   return a;
 }
 
+// In server mode a crash is reported (message, page and stack only, never
+// figures) so it shows up under Reports in the admin portal.
+let _errSent=0;
+function reportError(err, path){
+  if(API.mode!=='server' || _errSent>=5) return; _errSent++;
+  try{ fetch('/api/reports/error',{ method:'POST', credentials:'same-origin', headers:{'X-Lumera':'1','Content-Type':'application/json'},
+    body:JSON.stringify({ message:String((err&&err.message)||err||'Unknown error').slice(0,500), stack:String((err&&err.stack)||'').slice(0,4000), path:path||location.hash }) }).catch(()=>{}); }catch(e){}
+}
+window.addEventListener('error', (e)=>reportError(e.error||e.message));
+window.addEventListener('unhandledrejection', (e)=>reportError(e.reason));
+
 class ErrorBoundary extends React.Component {
   constructor(p){ super(p); this.state={err:null}; this._onHash=()=>{ if(this.state.err) this.setState({err:null}); }; }
   static getDerivedStateFromError(e){ return {err:e}; }
-  componentDidCatch(e,i){ console.error('Lumera caught an error:',e,i); }
+  componentDidCatch(e,i){ console.error('Lumera caught an error:',e,i); reportError(e); }
   // Clear on navigation, otherwise one broken page keeps every later page broken.
   componentDidMount(){ window.addEventListener('hashchange', this._onHash); }
   componentWillUnmount(){ window.removeEventListener('hashchange', this._onHash); }
@@ -3006,9 +3017,9 @@ function Landing(){
           <g fill="none" stroke="url(#pt-g)" strokeLinecap="round">
             {Array.from({length:16},(_,i)=>{ const o=i*9;
               return <path key={i} className="pt-strand" style={{animationDelay:(i*0.06)+'s'}} strokeWidth={i%4===0?1.4:0.8} opacity={0.85-i*0.035}
-                d={`M -40 ${380+o} C 180 ${150+o*0.6}, 420 ${120+o}, 640 ${300+o} S 1000 ${420+o*0.4}, 1140 ${90+o*0.7}`}/>; })}
+                d={`M -40 ${380+o} C 180 ${150+o*0.6}, 420 ${120+o}, 640 ${300+o} S 1000 ${420+o*0.4}, 1090 ${90+o*0.7}`}/>; })}
           </g>
-          <path className="pt-star" d="M1140 52 L1147 82 L1176 90 L1147 98 L1140 128 L1133 98 L1104 90 L1133 82 Z" fill="#EBC77A"/>
+          <path className="pt-star" d="M1090 52 L1097 82 L1126 90 L1097 98 L1090 128 L1083 98 L1054 90 L1083 82 Z" fill="#EBC77A"/>
         </svg>
         <div className="relative grid lg:grid-cols-[1.25fr_1fr] gap-10 lg:gap-14 items-end">
           <h2 id="patterns-title" className="font-display text-[2.7rem] sm:text-[4.4rem] leading-[.98] text-charcoal tracking-[-0.015em]">
@@ -5883,8 +5894,22 @@ function Learn(){
    ============================================================ */
 function Pricing(){
   const app = useApp();
-  const [waitlisted,setWaitlisted]=useState(()=>{ try{ return JSON.parse(localStorage.getItem('lumera_waitlist'))||{}; }catch(e){ return {}; } });
-  const toggleWait=(plan)=>{ setWaitlisted(w=>{ const n={...w}; if(n[plan]) delete n[plan]; else n[plan]=(app.user&&app.user.email)||'me'; try{ localStorage.setItem('lumera_waitlist',JSON.stringify(n)); }catch(e){} return n; }); };
+  // The waitlist lives on the server with the account, so the team can
+  // actually email people at launch. Without an account it cannot be kept.
+  const canJoin = app.apiMode==='server' && app.user && !app.user.demo;
+  const [waitlisted,setWaitlisted]=useState({});
+  const [waitBusy,setWaitBusy]=useState('');
+  const [waitErr,setWaitErr]=useState('');
+  useEffect(()=>{ if(!canJoin) return; let dead=false;
+    API.get('/api/me/waitlist').then(r=>{ if(!dead) setWaitlisted(Object.fromEntries((r.plans||[]).map(p=>[p,true]))); }).catch(()=>{});
+    return ()=>{ dead=true; }; },[canJoin]);
+  const toggleWait=(plan)=>{
+    if(!canJoin){ app.nav('/signup'); return; }
+    setWaitBusy(plan); setWaitErr('');
+    API.put('/api/me/waitlist',{ plan, on:!waitlisted[plan] })
+      .then(r=>setWaitlisted(Object.fromEntries((r.plans||[]).map(p=>[p,true]))))
+      .catch(e=>setWaitErr(e.message||'That did not save. Try again.'))
+      .finally(()=>setWaitBusy('')); };
   const tiers=[
     {name:'Free',price:'Free',sub:'Available today',tone:false,cta:'Current plan',feats:['30-day expense review','Financial health score','Budget & savings tools','Emergency fund calculator','Market news & insights','Limited AI assistant'],note:'Everything you need to start understanding your money.'},
     {name:'Pro',price:'Coming soon',sub:'For serious optimisers',tone:true,cta:'Notify me',feats:['Everything in Free','Advanced AI financial coach','Unlimited wealth simulations','Full benchmark analytics','Automated monthly reports','Subscription & debt planners','Investment education pathways'],note:'For people ready to optimise every dirham.'},
@@ -5901,10 +5926,15 @@ function Pricing(){
         <ul className="mt-4 space-y-2 flex-1">{t.feats.map(f=><li key={f} className="flex items-start gap-2 text-sm text-charcoal/80"><Icon name="check" size={16} className={cx('mt-0.5 shrink-0', paid?'text-taupe':'text-saged')}/>{f}</li>)}</ul>
         {t.name==='Free'
           ? <button className="btn btn-ghost mt-5 px-5 py-3 text-sm" disabled>Current plan</button>
+          : app.apiMode!=='server'
+            ? <button className="btn btn-ghost mt-5 px-5 py-3 text-sm" disabled><Icon name="bell" size={15}/>Notify me</button>
           : onList
-            ? <button onClick={()=>toggleWait(t.name)} className="btn mt-5 px-5 py-3 text-sm border border-sage/40 text-saged bg-sage/8 hover:bg-sage/15"><Icon name="check" size={15}/>Joined ✓ · Leave waitlist</button>
-            : <button onClick={()=>toggleWait(t.name)} className="btn btn-ghost mt-5 px-5 py-3 text-sm"><Icon name="bell" size={15}/>Notify me</button>}
-        <p className="text-[11px] text-faint mt-2 text-center">{onList? `Done, we’ll email you when Lumera ${t.name} launches.` : t.note}</p>
+            ? <button onClick={()=>toggleWait(t.name)} disabled={waitBusy===t.name} className="btn mt-5 px-5 py-3 text-sm border border-sage/40 text-saged bg-sage/8 hover:bg-sage/15"><Icon name="check" size={15}/>On the waitlist · Leave</button>
+            : <button onClick={()=>toggleWait(t.name)} disabled={waitBusy===t.name} className="btn btn-ghost mt-5 px-5 py-3 text-sm"><Icon name="bell" size={15}/>{canJoin?'Notify me':'Sign up to be notified'}</button>}
+        <p className="text-[11px] text-faint mt-2 text-center" aria-live="polite">{
+          paid && app.apiMode!=='server' ? 'The waitlist needs the online version of Lumera with an account.'
+          : onList ? `You’re on the list. We’ll email ${app.user.email} when Lumera ${t.name} launches.`
+          : (paid && waitErr) ? waitErr : t.note}</p>
       </Card>; })}
     </div>
     <Card hover={false} className="bg-cream/60"><div className="flex items-start gap-3"><Icon name="lock" className="text-goldd mt-0.5"/><div>
@@ -5922,7 +5952,7 @@ function Terms(){
     ['book','Educational only','Lumera is an educational tool, not a financial adviser. It is not authorised or regulated as one, and nothing it shows you is a personal recommendation to buy, sell or hold anything.'],
     ['gauge','Estimates, not promises','Benchmarks, scores and projections are illustrations based on what you enter. They are not predictions or guarantees of any outcome.'],
     ['chart','Market data is illustrative','Prices, companies and news in this build are sample data unless labelled otherwise. Do not trade on them.'],
-    ['user','Your profile is local','It lives in this browser, not on a server. There is no password protecting it, so anyone using this device can open it, and clearing browser data deletes it permanently.'],
+    ['user','Your account','Keep your password to yourself; you are responsible for what happens under your account. You can export or delete everything from Settings at any time.'],
     ['shield','Acceptable use','Do not break the law with it, attack or scrape it, or use it to give regulated advice to other people.'],
     ['info','Liability','We are not liable for financial loss or decisions you take after using Lumera. Nothing here removes your statutory rights as a consumer, or liability that cannot be limited by law.'],
   ];
@@ -5943,13 +5973,45 @@ function Terms(){
     </Card>
   </AppShell>;
 }
+function DataControls(){
+  const app=useApp(); const server=app.apiMode==='server' && app.user && !app.user.demo;
+  const [busy,setBusy]=useState(''); const [msg,setMsg]=useState(''); const [err,setErr]=useState('');
+  const [confirmDel,setConfirmDel]=useState(false); const [pw,setPw]=useState('');
+  const doExport=async()=>{ setBusy('export'); setErr(''); setMsg('');
+    try{ await app.exportData(); setMsg('Your export has downloaded.'); } catch(x){ setErr(x.message); } finally{ setBusy(''); } };
+  const doReset=()=>{ if(!window.confirm('Clear your figures and start your monthly review again? Your account stays.')) return; app.resetAll(); app.nav('/review'); };
+  const doDelete=async(e)=>{ e.preventDefault(); setBusy('delete'); setErr('');
+    try{ await app.deleteAccount(pw); } catch(x){ setErr(x.message); setBusy(''); } };
+  if(!app.user) return null;
+  return <div>
+    <div className="grid sm:grid-cols-3 gap-3">
+      <button onClick={doExport} disabled={!!busy} className="btn btn-ghost px-4 py-3 text-sm justify-start"><Icon name="download" size={16}/>{busy==='export'?'Preparing…':'Export my data'}</button>
+      <button onClick={doReset} disabled={!!busy} className="btn btn-ghost px-4 py-3 text-sm justify-start"><Icon name="refresh" size={16}/>Reset my month</button>
+      <button onClick={()=>{ setConfirmDel(true); setErr(''); }} disabled={!!busy} className="btn px-4 py-3 text-sm justify-start border border-berry/40 text-berry hover:bg-berry/5"><Icon name="x" size={16}/>Delete my account</button>
+    </div>
+    {msg && <p role="status" className="text-xs text-saged mt-3">{msg}</p>}
+    {confirmDel && <form onSubmit={doDelete} className="mt-4 rounded-2xl p-4" style={{background:'rgba(251,133,150,.08)', boxShadow:'inset 0 0 0 1px rgba(251,133,150,.3)'}}>
+      <div className="text-sm font-semibold text-charcoal">Delete your account for good?</div>
+      <p className="text-xs text-muted mt-1">{server?'Your account, figures, posts, replies and connections are deleted immediately. This cannot be undone.':'Everything Lumera holds in this browser for this profile is deleted. This cannot be undone.'}</p>
+      {server && <label className="block mt-3"><span className="text-xs text-charcoal/85 mb-1 block">Enter your password to confirm</span>
+        <input type="password" name="current-password" autoComplete="current-password" value={pw} onChange={e=>setPw(e.target.value)}
+          className="w-full rounded-xl border border-line bg-cream px-3 py-2.5 text-sm focus:border-gold focus:outline-none"/></label>}
+      <FormError msg={err}/>
+      <div className="flex gap-2 mt-3">
+        <button type="submit" disabled={busy==='delete' || (server && !pw)} className="btn px-4 py-2.5 text-sm border border-berry/50 text-berry hover:bg-berry/10">{busy==='delete'?'Deleting…':'Delete permanently'}</button>
+        <button type="button" onClick={()=>{ setConfirmDel(false); setPw(''); }} className="btn btn-ghost px-4 py-2.5 text-sm">Cancel</button>
+      </div>
+    </form>}
+    {!confirmDel && err && <FormError msg={err}/>}
+  </div>;
+}
 function Privacy(){
   const app = useApp(); const { t } = app;
   const principles=[
     ['lock','Your data is never sold','We do not sell, rent, or share your financial data for advertising, ever. Our business model will be subscriptions, not surveillance.'],
     ['download','You own and control it','Export everything or permanently delete your account and all associated data at any time, with no friction and no retention games.'],
     ['shield','Bank connections are consent-based','Future Open-Banking links will use secure, revocable consent through regulated providers. We never see or store your banking credentials.'],
-    ['eye','Private by architecture','Your figures never leave your browser, so there is no database of them to breach. We ask for as little as possible, and you can skip anything.'],
+    ['eye','Encrypted where it is stored','Your figures are encrypted on our servers and only decrypted to show them to you. Admins cannot see them. We ask for as little as possible, and you can skip anything.'],
     ['book','Educational, not advisory','Lumera provides educational guidance only. It is not licensed financial, investment, tax or legal advice.'],
     ['info','Honest about the prototype','Market data shown here is mock data. Projections are illustrations, not promises. Always do your own research or consult a professional.'],
   ];
@@ -5961,12 +6023,7 @@ function Privacy(){
         <h3 className="font-serif text-lg text-charcoal">{ti}</h3><p className="text-sm text-muted mt-1.5 leading-relaxed">{de}</p></Card>)}
     </div>
     <Card className="mb-5"><Eyebrow className="mb-3">Your data controls</Eyebrow>
-      <div className="grid sm:grid-cols-3 gap-3">
-        <button className="btn btn-ghost px-4 py-3 text-sm justify-start"><Icon name="download" size={16}/>Export my data</button>
-        <button className="btn btn-ghost px-4 py-3 text-sm justify-start"><Icon name="refresh" size={16}/>Reset my month</button>
-        <button className="btn px-4 py-3 text-sm justify-start border border-berry/40 text-berry hover:bg-berry/5"><Icon name="x" size={16}/>Delete my account</button>
-      </div>
-      <p className="text-xs text-faint mt-3">In this prototype these are illustrative. In production each action is immediate and irreversible where stated.</p>
+      {app.user ? <DataControls/> : <p className="text-sm text-muted">Log in to export or delete your data.</p>}
     </Card>
     <Card hover={false}>
       <Eyebrow className="mb-3">Full disclaimer</Eyebrow>
@@ -6094,7 +6151,8 @@ function Settings(){
         <Card hover={false}><Eyebrow className="mb-3">Account & data</Eyebrow>
           {app.user && <div className="rounded-xl bg-cream/60 border border-line p-3 mb-2 text-sm"><div className="text-charcoal font-medium">{app.user.name}</div><div className="text-xs text-faint">{app.user.email}{app.user.isAdmin&&' · admin'}</div></div>}
           <button onClick={()=>app.nav('/privacy')} className="btn btn-ghost w-full px-4 py-2.5 text-sm justify-start mb-2"><Icon name="lock" size={15}/>Privacy controls</button>
-          <button onClick={()=>{app.resetAll();app.nav('/onboarding');}} className="btn btn-ghost w-full px-4 py-2.5 text-sm justify-start mb-2"><Icon name="refresh" size={15}/>Restart onboarding</button>
+          <button onClick={()=>app.nav('/onboarding')} className="btn btn-ghost w-full px-4 py-2.5 text-sm justify-start mb-2"><Icon name="refresh" size={15}/>Change my answers</button>
+          <button onClick={()=>app.exportData().catch(e=>alert(e.message))} className="btn btn-ghost w-full px-4 py-2.5 text-sm justify-start mb-2"><Icon name="download" size={15}/>Export my data</button>
           {app.user && <button onClick={()=>app.logout()} className="btn w-full px-4 py-2.5 text-sm justify-start border border-berry/40 text-berry hover:bg-berry/5"><Icon name="x" size={15}/>Log out</button>}
         </Card>
       </div>
@@ -6198,7 +6256,7 @@ function AuthShell({ title, sub, children, foot }){
         <p className="text-cream/70 mt-4 max-w-md leading-relaxed">Private by design. Educational, never advisory. Your data is yours, export or delete it anytime.</p>
         <div className="flex flex-wrap gap-4 mt-7 text-xs text-cream/60">
           <span className="flex items-center gap-1.5"><Icon name="lock" size={14} className="text-gold"/>Privacy-first</span>
-          <span className="flex items-center gap-1.5"><Icon name="globe" size={14} className="text-gold"/>5 languages · RTL</span>
+          <span className="flex items-center gap-1.5"><Icon name="globe" size={14} className="text-gold"/>7 languages · RTL</span>
           <span className="flex items-center gap-1.5"><Icon name="check" size={14} className="text-gold"/>100% free</span>
         </div>
       </div>
@@ -6724,7 +6782,7 @@ function Analytics(){
       <Card><Eyebrow className="mb-3">By currency</Eyebrow>{curB.length?<div className="space-y-2.5">{curB.map(([k,v])=><HBar key={k} l={k} v={v} color={COLORS.gold}/>)}</div>:<div className="text-sm text-faint">-</div>}</Card>
       <Card><Eyebrow className="mb-3">Recent activity</Eyebrow><div className="space-y-1.5 text-xs max-h-48 overflow-y-auto no-scrollbar">{recent.length?recent.map((e,i)=><div key={i} className="flex items-center gap-2"><span className="text-faint w-12 tnum shrink-0">{new Date(e.ts).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</span><span className="text-charcoal/80 truncate">{e.type}{e.path?` · ${labelOf(e.path)}`:''}{e.lang?` · ${e.lang}`:''}{e.cur?` · ${e.cur}`:''}</span></div>):<div className="text-faint">No events yet.</div>}</div></Card>
     </div>
-    <p className="text-[11px] text-faint mt-4 leading-relaxed">Tracked locally in this browser (localStorage), real activity on this device. Open the standalone <b>admin-portal.html</b> (same folder/host) for the same live data, or wire a backend (INTEGRATION.md Step 3) to aggregate every user across devices.</p>
+    <p className="text-[11px] text-faint mt-4 leading-relaxed">Tracked locally in this browser (localStorage): real activity on this device only. Account, community and report figures for every member are on the admin portal&rsquo;s Overview when the Lumera server is running.</p>
   </AppShell>;
 }
 
@@ -6940,7 +6998,7 @@ function Updates(){
         <div className="flex-1 min-w-0"><div className="flex items-center gap-2 flex-wrap"><h3 className="font-serif text-lg text-charcoal">{u.title}</h3><Pill tone={live(u.tag)?'sage':'gold'}>{u.tag}</Pill><span className="text-[11px] text-faint">{u.date}</span></div>
           <p className="text-sm text-muted mt-1 leading-relaxed">{u.body}</p></div></Card>)}
     </div>
-    <p className="text-[11px] text-faint mt-3">Published from the admin portal (admin-portal.html → Updates) and shown here automatically when both are served from the same origin.</p>
+    <p className="text-[11px] text-faint mt-3">Published from the admin portal and shown here automatically.</p>
   </AppShell>;
 }
 /* ============================================================
@@ -11002,6 +11060,23 @@ function App(){
   // Silent demo: skips the survey (used when a sub-product site auto-enters a demo).
   const demoSilent=()=>{ setUser({name:'Avyan', email:'demo@lumera.app', isAdmin:false, demo:true}); setOnboarded(true);
     setProfile({...DEFAULT_PROFILE}); setExpenses({...DEFAULT_EXPENSES}); setBalances({...DEFAULT_BALANCES}); };
+  // Export everything held about the member, and delete the account. In server
+  // mode these hit the API (UK GDPR access, portability and erasure); in local
+  // mode the data is this browser's, so that is what they act on.
+  const exportData=async()=>{
+    let data;
+    if(apiMode==='server' && user && !user.demo){ data=await API.get('/api/me/export'); }
+    else { data={ exportedAt:new Date().toISOString(), account:user?{ name:user.name, email:user.email }:null, profile, expenses, balances, onboarded, lastUpdated };
+      Object.entries(SYNCED).forEach(([k,key])=>{ const v=lsRead(key); if(v!=null) data[k]=v; }); }
+    const blob=new Blob([JSON.stringify(data,null,2)],{ type:'application/json' });
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='lumera-export.json';
+    document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },800);
+  };
+  const deleteAccount=async(password)=>{
+    if(apiMode==='server' && user && !user.demo){ await API.del('/api/me',{ password }); }
+    else if(user){ const a=loadAccounts(); delete a[user.email]; try{ localStorage.setItem(ACCT, JSON.stringify(a)); localStorage.removeItem(STORE); }catch(e){} }
+    clearSyncedLocal(); setUser(null); setOnboarded(false); setProfile({...BLANK_PROFILE}); setExpenses({...BLANK_EXP}); setBalances({...BLANK_BAL}); setSync('local'); nav('/');
+  };
   const askLogout=()=> setShowLogout(true);
   const doLogout=()=>{ setShowLogout(false);
     if(apiMode==='server' && user && !user.demo){ API.post('/api/auth/logout').catch(()=>{}); clearSyncedLocal(); }
@@ -11066,8 +11141,14 @@ function App(){
           if(!dead && !(user && user.demo)){ setUser(null); setOnboarded(false); setProfile({...BLANK_PROFILE}); setExpenses({...BLANK_EXP}); setBalances({...BLANK_BAL}); clearSyncedLocal(); }
         }
         try{ const cfg=await API.get('/api/config');
-          if(cfg && cfg.flags){ try{ localStorage.setItem(FLAG_KEY, JSON.stringify(cfg.flags)); }catch(e){} setFlagsState(loadFlags()); }
-          if(cfg && cfg.layout){ try{ localStorage.setItem(LAYOUT_KEY, JSON.stringify(cfg.layout)); }catch(e){} setLayoutState(loadLayout()); }
+          if(cfg){ try{ if(cfg.flags) localStorage.setItem(FLAG_KEY, JSON.stringify(cfg.flags)); else localStorage.removeItem(FLAG_KEY); }catch(e){} setFlagsState(loadFlags()); }
+          if(cfg){ try{ if(cfg.layout) localStorage.setItem(LAYOUT_KEY, JSON.stringify(cfg.layout)); else localStorage.removeItem(LAYOUT_KEY); }catch(e){} setLayoutState(loadLayout()); }
+          // Content managed in the admin portal: what's new, headlines, about/team.
+          // The server is the source of truth: content it does not hold falls back to the built-in copy.
+          [['updates','lumera_updates'],['news','lumera_news'],['about','lumera_about']].forEach(([k,key])=>{
+            if(!cfg) return;
+            try{ if(cfg[k]!=null) localStorage.setItem(key, JSON.stringify(cfg[k])); else localStorage.removeItem(key);
+              window.dispatchEvent(new StorageEvent('storage',{ key })); }catch(e){} });
         }catch(e){}
       }
       if(!dead) setBooting(false);
@@ -11127,7 +11208,7 @@ function App(){
   const value = { route, nav, user, signup, login, demo, logout:askLogout, askLogout, completeOnboarding, checkIn, onboarded, apiMode, sync, lastUpdated,
     profile, updateProfile, setProfile, expenses, setExpenses, balances, setBalances,
     lang, setLang, theme, setTheme, mode, setMode, skin, setSkin, product, xp, quests, awardXp, completeQuest, flags, setFlag, layout,
-    setRegion, resetAll, fmt, metrics, mobileMenu, setMobileMenu, t: tfn(lang) };
+    setRegion, resetAll, exportData, deleteAccount, fmt, metrics, mobileMenu, setMobileMenu, t: tfn(lang) };
 
   if(booting) return null;
   const Page = redirect ? (()=> null) : (ROUTES[path]||Landing);
@@ -11138,7 +11219,8 @@ function App(){
     {/* Both popups belong on the dashboard, not on whatever page you happen to land on. */}
     {user && !redirect && product==='leaf' && <WordOfDayPopup/>}
     {/* not while someone is answering the questionnaire */}
-    {user && onboarded && !redirect && !PUBLIC.includes(path) && !PREBOARD.includes(path) && <DailyCheckIn/>}
+    {/* Dashboard only: on other pages the card covered their header actions. */}
+    {user && onboarded && !redirect && path==='/dashboard' && <DailyCheckIn/>}
     {user && !redirect && path==='/dashboard' && <WhatsNewPopup/>}
     {showLogout && <div className="fixed inset-0 z-[150] grid place-items-center p-4">
       <div className="absolute inset-0 bg-charcoal/45" onClick={()=>setShowLogout(false)}/>

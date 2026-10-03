@@ -140,6 +140,15 @@ const MIGRATIONS = [
     used_at    INTEGER
   );
   `,
+  // 3: members who asked to hear when a paid plan launches
+  `
+  CREATE TABLE waitlist (
+    user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    plan       TEXT NOT NULL,
+    created_at INTEGER NOT NULL,
+    PRIMARY KEY (user_id, plan)
+  );
+  `,
 ];
 
 function open(file) {

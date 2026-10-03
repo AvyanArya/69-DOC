@@ -284,3 +284,24 @@ test('a member without a community profile gets profile: null', async () => {
   assert.equal(r.status, 200);
   assert.ok('profile' in r.data && r.data.profile === null);
 });
+
+test('plan waitlist: members join and leave, admins see the list', async () => {
+  const erin = client();
+  await erin('POST', '/api/auth/signup', { name: 'Erin', email: 'erin@example.com', password: 'erin password 123', consent: true });
+  let r = await erin('PUT', '/api/me/waitlist', { plan: 'Gold', on: true });
+  assert.equal(r.status, 400, 'only known plans');
+  r = await erin('PUT', '/api/me/waitlist', { plan: 'Pro', on: true });
+  assert.deepEqual(r.data.plans, ['Pro']);
+  r = await erin('PUT', '/api/me/waitlist', { plan: 'Pro', on: true });
+  assert.deepEqual(r.data.plans, ['Pro'], 'joining twice is a no-op');
+  r = await erin('GET', '/api/admin/waitlist');
+  assert.equal(r.status, 403);
+  r = await boss('GET', '/api/admin/waitlist');
+  assert.ok(r.data.entries.some((e) => e.email === 'erin@example.com' && e.plan === 'Pro'));
+  r = await boss('GET', '/api/admin/overview');
+  assert.equal(r.data.waitlist.Pro, 1);
+  r = await erin('PUT', '/api/me/waitlist', { plan: 'Pro', on: false });
+  assert.deepEqual(r.data.plans, []);
+  r = await anon('PUT', '/api/me/waitlist', { plan: 'Pro', on: true });
+  assert.equal(r.status, 401);
+});
