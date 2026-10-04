@@ -44,6 +44,16 @@ def main():
     html = open(os.path.join(ROOT, 'ui-styles.html'), encoding='utf-8').read()
     open(os.path.join(OUT, 'lumera-ui-styles.html'), 'w', encoding='utf-8').write(ns['inline_assets'](html))
     print('built dist-previews/lumera-ui-styles.html')
+    # One file per style, with the same components.
+    shown = ns['inline_assets'](html)
+    for sid, label in [('brutalism', 'Brutalism'), ('neumorphism', 'Neumorphism'), ('glassmorphism', 'Glassmorphism'), ('liquid', 'Liquid Glass')]:
+        doc = shown.replace("document.getElementById('styles').innerHTML = STYLES.map(section)",
+                            "document.getElementById('styles').innerHTML = STYLES.filter(function(s){ return s.id==='%s'; }).map(section)" % sid)
+        doc = doc.replace('<title>Lumera — UI styles</title>', '<title>Lumera — %s</title>' % label)
+        doc = doc.replace('</style>', '  .jump a, .intro{ display:none; }\n</style>', 1)
+        name = 'lumera-style-%s.html' % sid.replace('liquid', 'liquid-glass')
+        open(os.path.join(OUT, name), 'w', encoding='utf-8').write(doc)
+        print('built dist-previews/' + name)
 
 
 if __name__ == '__main__':
