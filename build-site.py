@@ -428,22 +428,22 @@ def build():
 
     # My Team. Photos and details arrive person by person; anyone without a
     # photo yet shows their initials.
-    TEAM = [
-        ('Avyan Arya', 'Founder', 'Product vision and strategy', '', ''),
-        ('Ernie Engmann', '', '', '', 'ernie-engmann'),
-        ('Alaya Ahmad', 'Outreach &amp; Marketing Associate', '&ldquo;In the future, I want to work in motorsport.&rdquo;',
-         'Creative, passionate and dedicated. Into Formula 1, music, films and reading, and planning a future in psychology.', 'alaya-ahmad'),
-        ('William Iantorno', '', '', '', ''), ('Reaan Verma', '', '', '', ''), ('Jonathan Jebin Thomas', '', '', '', ''),
-        ('Rishit Dhanak', '', '', '', ''), ('Zafar Masud', '', '', '', ''), ('Yannick Dsouza', '', '', '', ''),
-        ('Zaid Qadri', '', '', '', ''), ('Muhammad Suleman', '', '', '', ''), ('Aryaman Agarwalla', '', '', '', ''),
-        ('Nikesh Patel', '', '', '', ''),
-    ]
-    def member(n, role, quote, bio, img):
+    import json as _json
+    TEAM = [(t['name'], t['role'], t['quote'], t['why'], t['photo'], t['words'], t['interests'])
+            for t in _json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'team.json'), encoding='utf-8'))]
+    import html as _html
+    def member(n, role, quote, why, img, words, interests):
+        e = _html.escape
         initials = ''.join(w[0] for w in n.split())[:2]
-        pic = ('<img src="assets/team/%s.webp" alt="%s" loading="lazy">' % (img, n)) if img else '<span class="initials">%s</span>' % initials
+        pic = ('<img src="assets/team/%s.webp" alt="%s" loading="lazy">' % (img, e(n))) if img else '<span class="initials">%s</span>' % initials
+        chips = ''.join('<span class="chip">%s</span>' % e(w) for w in words)
         return ('<article class="member lg-panel reveal"><div class="portrait">%s</div><div class="info"><h3>%s</h3>'
-                '<div class="role">%s</div>%s%s</div></article>') % (
-            pic, n, role or 'Role coming soon', ('<p class="quote">%s</p>' % quote) if quote else '', ('<p>%s</p>' % bio) if bio else '')
+                '<div class="role">%s</div>%s%s%s%s</div></article>') % (
+            pic, e(n), e(role) or 'Role coming soon',
+            ('<p class="quote">&ldquo;%s&rdquo;</p>' % e(quote)) if quote else '',
+            ('<div class="chips">%s</div>' % chips) if chips else '',
+            ('<p><b>Into:</b> %s</p>' % e(' · '.join(interests))) if interests else '',
+            ('<p class="why">&ldquo;%s&rdquo;</p>' % e(why)) if why else '')
     team_cards = ''.join(member(*t) for t in TEAM)
     team_css = ('<style>.team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px}'
         '.member{padding:0;overflow:hidden;display:flex;flex-direction:column}'
@@ -452,10 +452,11 @@ def build():
         '.member .initials{font-family:var(--font-display);font-size:3rem;color:#fff}'
         '.member .info{padding:1rem 1.1rem 1.2rem}.member h3{font-family:var(--font-display);font-weight:400;font-size:1.7rem;margin:0}'
         '.member .role{font-size:.85rem;color:#C6A8FF;margin-top:.2rem}.member .quote{font-style:italic;opacity:.85;margin:.6rem 0 0;font-size:.88rem}'
-        '.member p{font-size:.88rem;line-height:1.55;margin:.5rem 0 0;opacity:.85}</style>')
-    made.append(page('team.html', 'My Team | Lumera', 'The people building Lumera.',
+        '.member p{font-size:.88rem;line-height:1.55;margin:.5rem 0 0;opacity:.85}.member .why{font-style:italic;opacity:.75}'
+        '.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:.6rem}.chips .chip{font-size:.72rem;font-weight:700;padding:.25rem .6rem;border-radius:99px;background:rgba(198,168,255,.18);color:#D9C8FF}</style>')
+    made.append(page('team.html', 'Our Team | Lumera', 'The people building Lumera.',
         ('#7c3aed', '#a855f7', '#f0abfc'),
-        'My Team:', 'the people building Lumera',
+        'Our Team:', 'the people building Lumera',
         'Students and early-career builders who want financial understanding to be for everyone.',
         team_css + '    <section class="section tight"><div class="team-grid">' + team_cards + '</div></section>\n'
         + sec('Why we are building it', 'Financial clarity,', 'made accessible',
@@ -488,7 +489,7 @@ def build():
               panels([('Students', 'Build money habits early, while the stakes are low and the upside is decades long.'),
                       ('Young professionals', 'Turn your first real income into a foundation for lasting wealth.'),
                       ('Anyone starting out', 'It is never too late to start your financial journey.')], 3))
-        + sec('My Team', 'The people', 'building it',
+        + sec('Our Team', 'The people', 'building it',
               'Roles, bios and photos are managed in the admin portal.',
               actions_row([('Meet the team', 'team.html', True)])),
         actions=[('Start free', 'app.html#/signup', True), ('See the features', 'features.html', False)]))

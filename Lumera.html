@@ -591,10 +591,11 @@
 
   .soon-pill{ display:inline-block; font-size:9.5px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; padding:3px 7px; border-radius:999px;
     color:#1A1206; background:linear-gradient(100deg,#F5D78A,#EBC77A); box-shadow:0 0 0 1px rgba(255,255,255,.25), 0 4px 12px -4px rgba(235,199,122,.7); white-space:nowrap; }
-  .demo-banner{ position:relative; z-index:2; display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin:8px 16px 0; padding:3px 10px; border-radius:999px; font-size:11px; width:fit-content; max-width:calc(100% - 32px);
-    color:rgb(var(--c-charcoal)); background:linear-gradient(100deg, rgba(240,139,196,.16), rgba(157,124,255,.16)); border:1px solid rgba(255,255,255,.14); }
+  .demo-banner{ position:fixed; z-index:70; right:14px; bottom:14px; display:flex; align-items:center; gap:5px; padding:3px 8px 3px 7px; border-radius:999px;
+    font-size:10px; font-weight:600; color:rgb(var(--c-charcoal)); background:rgba(22,21,33,.82); border:1px solid rgba(255,255,255,.14);
+    backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
   .demo-banner svg{ color:#F5C77A; flex-shrink:0; }
-  .demo-banner-cta{ margin-left:6px; font-weight:700; font-size:11px; padding:2px 8px; border-radius:999px; background:rgba(255,255,255,.12); }
+  .demo-banner-cta{ margin-left:4px; font-weight:700; font-size:10px; padding:1px 7px; border-radius:999px; background:rgba(255,255,255,.12); }
   .demo-banner-cta:hover{ background:rgba(255,255,255,.2); }
   /* ---- header search bar ---- */
   .lg-searchbar{ display:flex; align-items:center; gap:10px; width:100%; max-width:440px; height:40px; padding:0 12px 0 14px; border-radius:999px;
@@ -604,6 +605,22 @@
   .lg-searchbar-text{ flex:1; text-align:left; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .lg-searchbar-kbd{ font:600 10.5px/1 'Manrope',sans-serif; padding:4px 6px; border-radius:6px; background:rgba(255,255,255,.08); color:rgb(var(--c-faint)); }
   @media (max-width:640px){ .lg-searchbar{ width:40px; padding:0; justify-content:center; } .lg-searchbar-text,.lg-searchbar-kbd{ display:none; } }
+
+  /* ---- worlds: each one is washed in its own colour ---- */
+  html[data-skin="glass"][data-product]:not([data-product="lumera"]) .atmo{
+    background:
+      radial-gradient(1100px 760px at 8% -10%, rgba(var(--glow),.55), transparent 62%),
+      radial-gradient(900px 700px at 100% 30%, rgba(var(--glow),.30), transparent 62%),
+      radial-gradient(1000px 700px at 40% 120%, rgba(var(--glow),.26), transparent 62%),
+      radial-gradient(700px 520px at 90% 100%, rgba(235,199,122,.12), transparent 60%),
+      #0E0D14; }
+  html[data-skin="glass"][data-product]:not([data-product="lumera"]) .atmo .aurora{ opacity:.6; }
+  html[data-skin="glass"][data-product]:not([data-product="lumera"]) .lux-card{
+    background:linear-gradient(160deg, rgba(var(--glow),.16), rgba(255,255,255,.035) 55%), rgba(20,19,30,.55) !important;
+    border-color:rgba(var(--glow),.30); }
+  html[data-skin="glass"][data-product]:not([data-product="lumera"]) .lg-sidebar,
+  html[data-skin="glass"][data-product]:not([data-product="lumera"]) .lg-topbar{
+    background:linear-gradient(170deg, rgba(var(--glow),.20), rgba(26,24,38,.72) 60%) !important; border-color:rgba(var(--glow),.32) !important; }
 
   /* ---- questionnaire: one pinned action bar, content padded clear of it ---- */
   .quiz-body{ padding-bottom:calc(112px + env(safe-area-inset-bottom)); }
@@ -622,11 +639,12 @@
   /* ---- the ground: volumetric light that drifts very slowly ---- */
   html[data-skin="glass"] .atmo{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;
     background:
-      radial-gradient(1200px 820px at 10% -14%, rgba(var(--glow,157,124,255),.22), transparent 62%),
-      radial-gradient(980px 760px at 104% 18%, rgba(110,108,246,.15), transparent 64%),
-      radial-gradient(1100px 760px at 46% 124%, rgba(235,199,122,.085), transparent 62%),
+      radial-gradient(1200px 820px at 10% -14%, rgba(var(--glow,157,124,255),.34), transparent 62%),
+      radial-gradient(980px 760px at 104% 18%, rgba(236,72,153,.18), transparent 64%),
+      radial-gradient(1100px 760px at 46% 124%, rgba(235,199,122,.16), transparent 62%),
+      radial-gradient(900px 700px at -6% 80%, rgba(45,212,191,.12), transparent 60%),
       var(--lg-ground); }
-  html[data-skin="glass"] .atmo .aurora{ position:absolute; border-radius:50%; filter:blur(90px); opacity:.30; will-change:transform; }
+  html[data-skin="glass"] .atmo .aurora{ position:absolute; border-radius:50%; filter:blur(90px); opacity:.42; will-change:transform; }
   html[data-skin="glass"] .atmo .a1{ width:42vw; height:42vw; min-width:380px; min-height:380px; top:-16vw; left:-10vw;
     background:radial-gradient(circle, rgba(var(--glow,157,124,255),.9), transparent 66%); animation:lg-drift-a 70s ease-in-out infinite alternate; }
   html[data-skin="glass"] .atmo .a2{ width:36vw; height:36vw; min-width:340px; min-height:340px; top:30vh; right:-14vw;
@@ -651,8 +669,10 @@
     margin:14px 0 14px 14px; border-radius:28px; overflow:visible;
   }
   html[data-skin="glass"] .lg-sidebar nav{ overflow:visible !important; flex:none !important; }
+  html[data-skin="glass"] .lg-sidebar .sidebar-foot{ position:sticky; bottom:0; border-radius:0 0 28px 28px;
+    background:linear-gradient(180deg, transparent, rgba(22,21,33,.92) 22%); padding-top:22px; }
   html[data-skin="glass"] .lg-topbar{
-    position:sticky; top:14px; z-index:30; margin:14px 14px 0; border-radius:22px;
+    position:sticky; top:14px; z-index:30; margin:0 14px 0; border-radius:22px;
   }
   @media (max-width:1023px){
     html[data-skin="glass"] .lg-topbar{ top:10px; margin:10px 10px 0; border-radius:20px; }
@@ -2054,7 +2074,7 @@ function Logo({ size=22, light=false, sub=false, stacked=false, tagline=false })
     </div>
   );
   return (
-    <div className="flex items-center gap-2.5 select-none">
+    <div className="flex items-center gap-4 select-none">
       {mark}
       <div className="leading-none min-w-0">
         {word}
@@ -2522,7 +2542,7 @@ function Sidebar(){
   return <aside aria-label="Main navigation" className="hidden lg:flex flex-col w-64 shrink-0 border-r border-line bg-cream/60 glass lg-sidebar lg-glass">
     <div className="px-5 py-5">
       {inProduct
-        ? <button onClick={()=>app.nav('/'+curSub.key)} className="flex items-center gap-2.5 text-left">
+        ? <button onClick={()=>app.nav('/'+curSub.key)} className="flex items-center gap-4 text-left">
             <MascotAvatar kind={curSub.key} color={curSub.accent} size={38}/>
             <span className="leading-none"><span className="block font-serif tracking-[.12em] text-charcoal" style={{fontSize:17}}>{curSub.name}</span><span className="block text-[9px] tracking-[.28em] uppercase mt-1 font-semibold" style={{color:curSub.accent}}>by Lumera</span></span>
           </button>
@@ -2580,7 +2600,8 @@ function Sidebar(){
         </>;
       })()}
     </nav>
-    <div className="p-3 space-y-2">
+    {/* Pinned to the bottom of the sidebar, visible while you scroll. */}
+    <div className="p-3 space-y-2 mt-auto sidebar-foot">
       <button onClick={()=>app.nav('/assistant')} className="w-full btn btn-gold px-4 py-3 text-sm"><Icon name="spark" size={16}/>{t('nav_assistant')}</button>
       {app.user&&app.user.isAdmin&&<Fragment>
         <button onClick={()=>app.nav('/analytics')} className={cx('w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-300', route==='/analytics'?'bg-charcoal text-cream shadow-soft':'text-charcoal/80 hover:bg-sand')}><Icon name="chart" size={18} className={route==='/analytics'?'text-gold':'text-muted'}/>Analytics</button>
@@ -2590,14 +2611,14 @@ function Sidebar(){
           <Icon name="lock" size={18} className="text-muted"/>Admin portal
           <Icon name="arrowR" size={12} className="-rotate-45 ml-auto text-faint"/></a>
       </Fragment>}
-      {app.user && <button onClick={()=>app.logout()} className="w-full text-xs text-muted hover:text-charcoal py-1.5">Log out</button>}
-      {/* Milestone badges sit below log out, out of the main navigation flow. */}
+      {/* Milestone badges, then log out last. */}
       {app.user && <button onClick={()=>app.nav('/badges')} aria-current={route==='/badges'?'page':undefined}
         className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-[13px] font-semibold transition hover:scale-[1.02]"
         style={{background:route==='/badges'?'linear-gradient(90deg, rgba(235,199,122,.30), rgba(235,199,122,.10))':'linear-gradient(90deg, rgba(235,199,122,.18), rgba(235,199,122,.05))',
           boxShadow:'inset 0 0 0 1px rgba(235,199,122,.40), 0 6px 18px -10px rgba(235,199,122,.55)', color:'#F2D596'}}>
         <Icon name="trophy" size={16}/>Milestone badges
         <span className="ml-auto rounded-full px-2 py-0.5 text-[10.5px] tnum" style={{background:'rgba(235,199,122,.18)'}}>{app.profile.streak||0}d</span></button>}
+      {app.user && <button onClick={()=>app.logout()} className="w-full text-xs text-muted hover:text-charcoal py-1.5">Log out</button>}
     </div>
   </aside>;
 }
@@ -2623,7 +2644,7 @@ function GlobalSearch(){
       if(!it||seen[r]||!flagForRoute(app.flags,r)) return; seen[r]=1;
       out.push({ to:r, label:t(it.k), desc:SUB_TOOL_DESC[r]||'', emoji:TOOL_EMOJI[r]||'•', world:s.name }); }));
     ['/assistant','/settings','/about','/team','/pricing','/privacy','/hub'].forEach(r=>{ if(seen[r]) return; seen[r]=1;
-      const names={'/assistant':'AI Assistant','/settings':'Settings','/about':'About Lumera','/team':'My Team','/pricing':'Pricing','/privacy':'Privacy','/hub':'The Lumera family'};
+      const names={'/assistant':'AI Assistant','/settings':'Settings','/about':'About Lumera','/team':'Our Team','/pricing':'Pricing','/privacy':'Privacy','/hub':'The Lumera family'};
       out.push({ to:r, label:names[r], desc:SUB_TOOL_DESC[r]||'', emoji:'⚙️', world:'Lumera' }); });
     return out;
   },[app.flags,t]);
@@ -2822,7 +2843,7 @@ function Atmosphere(){
 function DemoBanner(){
   const app=useApp(); if(!isDemo(app)) return null;
   return <div className="demo-banner" role="note">
-    <Icon name="info" size={12}/><span><b>Demo account</b> · example data, not a real person</span>
+    <Icon name="info" size={11}/><span>Demo · example data</span>
     <button onClick={()=>app.nav('/signup')} className="demo-banner-cta">Create your own</button>
   </div>;
 }
@@ -7558,20 +7579,206 @@ function StockMarketsEdu(){
 // (Admin → About & team), which writes to localStorage['lumera_about'].
 // These entries are the defaults shown until the portal overrides them.
 const TEAM_DEFAULT = [
-  { name:'Avyan Arya',           role:'Founder', focus:'Product vision and strategy', photo:null, bio:'', li:'' },
-  { name:'Ernie Engmann',        role:'Add role', focus:'', photo:'assets/team/ernie-engmann.webp', bio:'', li:'' },
-  { name:'Alaya Ahmad',          role:'Outreach & Marketing Associate', focus:'“In the future, I want to work in motorsport.”', photo:'assets/team/alaya-ahmad.webp',
-    bio:'Creative, passionate and dedicated. Into Formula 1, music, films and reading, and planning a future in psychology.', li:'' },
-  { name:'William Iantorno',     role:'Add role', focus:'', photo:null, bio:'', li:'' },
-  { name:'Reaan Verma',          role:'Add role', focus:'', photo:null, bio:'', li:'' },
-  { name:'Jonathan Jebin Thomas',role:'Add role', focus:'', photo:null, bio:'', li:'' },
-  { name:'Rishit Dhanak',        role:'Add role', focus:'', photo:null, bio:'', li:'' },
-  { name:'Zafar Masud',          role:'Add role', focus:'', photo:null, bio:'', li:'' },
-  { name:'Yannick Dsouza',       role:'Add role', focus:'', photo:null, bio:'', li:'' },
-  { name:'Zaid Qadri',           role:'Add role', focus:'', photo:null, bio:'', li:'' },
-  { name:'Muhammad Suleman',     role:'Add role', focus:'', photo:null, bio:'', li:'' },
-  { name:'Aryaman Agarwalla',    role:'Add role', focus:'', photo:null, bio:'', li:'' },
-  { name:'Nikesh Patel',         role:'Add role', focus:'', photo:null, bio:'', li:'' },
+ {
+  "name": "Avyan Arya",
+  "role": "Founder & CEO",
+  "focus": "“In the future, I want to build a legacy that outlives me.”",
+  "photo": "assets/team/avyan-arya.webp",
+  "bio": "Helping my mum with finances and my sister with her future career made me think: why not make this guidance accessible to everyone? Someone had to do it.",
+  "words": [
+   "Ambitious",
+   "Curious",
+   "Collaborative"
+  ],
+  "interests": [
+   "MUN",
+   "Boxing",
+   "Cars",
+   "Perfumes",
+   "Watches",
+   "Aspiring private banker"
+  ],
+  "li": ""
+ },
+ {
+  "name": "Ernie Engmann",
+  "role": "Operations & Executive Associate",
+  "focus": "“In the future, I want to live in a small boat by the beach.”",
+  "photo": "assets/team/ernie-engmann.webp",
+  "bio": "I like Lumera because it helps target a very large real-life problem within young people.",
+  "words": [
+   "Helpful",
+   "Driven",
+   "Reliable"
+  ],
+  "interests": [
+   "Music",
+   "Football",
+   "Cooking",
+   "Hanging out with friends",
+   "Future doctor"
+  ],
+  "li": ""
+ },
+ {
+  "name": "Alaya Ahmad",
+  "role": "Outreach & Marketing Associate",
+  "focus": "“In the future, I want to work in motorsport.”",
+  "photo": "assets/team/alaya-ahmad.webp",
+  "bio": "",
+  "words": [
+   "Creative",
+   "Passionate",
+   "Dedicated"
+  ],
+  "interests": [
+   "Formula 1",
+   "Music",
+   "Watching movies",
+   "Reading",
+   "Future psychologist"
+  ],
+  "li": ""
+ },
+ {
+  "name": "William Iantorno",
+  "role": "Outreach & Marketing Associate",
+  "focus": "“In the future, I want to publish my own book.”",
+  "photo": "assets/team/william-iantorno.webp",
+  "bio": "",
+  "words": [
+   "Innovative",
+   "Curious",
+   "Ambitious"
+  ],
+  "interests": [
+   "Reading",
+   "Writing",
+   "History",
+   "Gaming",
+   "Lawyer",
+   "Author"
+  ],
+  "li": ""
+ },
+ {
+  "name": "Reaan Verma",
+  "role": "UI & UX Designer",
+  "focus": "",
+  "photo": null,
+  "bio": "",
+  "words": [],
+  "interests": [],
+  "li": ""
+ },
+ {
+  "name": "Jonathan Jebin Thomas",
+  "role": "UI & UX Designer",
+  "focus": "",
+  "photo": null,
+  "bio": "",
+  "words": [],
+  "interests": [],
+  "li": ""
+ },
+ {
+  "name": "Aarav Raney",
+  "role": "UI & UX Designer",
+  "focus": "",
+  "photo": null,
+  "bio": "",
+  "words": [],
+  "interests": [],
+  "li": ""
+ },
+ {
+  "name": "Rishit Dhanak",
+  "role": "Market Research Associate",
+  "focus": "“In the future, I want to be a trillionaire.”",
+  "photo": "assets/team/rishit-dhanak.webp",
+  "bio": "I like how Lumera is integrating AI to make finance more accessible and easy to understand.",
+  "words": [
+   "Motivated",
+   "Innovative",
+   "Adaptable"
+  ],
+  "interests": [
+   "Lifting",
+   "Padel",
+   "Private equity",
+   "Markets"
+  ],
+  "li": ""
+ },
+ {
+  "name": "Zafar Masud",
+  "role": "Market Research Associate",
+  "focus": "“In the future, I want to own a bookstore in central London.”",
+  "photo": "assets/team/zafar-masud.webp",
+  "bio": "I like Lumera because it’s inclusive of everyone, regardless of gender, race, or age, meaning that people aren’t shut out of financial services; we actually get a real bridge into them.",
+  "words": [
+   "Aspiring",
+   "Resourceful",
+   "Dependable"
+  ],
+  "interests": [
+   "Investment banking & strategy",
+   "Rugby",
+   "Tennis",
+   "Tracking the markets"
+  ],
+  "li": ""
+ },
+ {
+  "name": "Muhammad Suleman",
+  "role": "Growth & Strategy Associate",
+  "focus": "“In the future, I want to continue exploring new ideas and opportunities.”",
+  "photo": "assets/team/muhammad-suleman.webp",
+  "bio": "",
+  "words": [
+   "Ambitious",
+   "Curious",
+   "Strategic"
+  ],
+  "interests": [
+   "Finance",
+   "Engineering & strategy",
+   "Consulting",
+   "Business",
+   "Solving complex problems"
+  ],
+  "li": ""
+ },
+ {
+  "name": "Zaid Qadri",
+  "role": "Growth & Strategy Associate",
+  "focus": "“In the future, I want to work in finance.”",
+  "photo": "assets/team/zaid-qadri.webp",
+  "bio": "",
+  "words": [
+   "Hardworking",
+   "Compassionate",
+   "Ambitious"
+  ],
+  "interests": [
+   "Cricket",
+   "Football",
+   "Chess",
+   "Reading",
+   "Economics"
+  ],
+  "li": ""
+ },
+ {
+  "name": "Aryaman Aggarwal",
+  "role": "Outreach & Marketing Associate",
+  "focus": "",
+  "photo": "assets/team/aryaman-aggarwal.webp",
+  "bio": "",
+  "words": [],
+  "interests": [],
+  "li": ""
+ }
 ];
 const ABOUT_KEY='lumera_about';
 function loadAbout(){
@@ -7593,7 +7800,7 @@ function FoundingTeam(){
   const about=useAbout();
   const team=(about.team&&about.team.length)?about.team:TEAM_DEFAULT;
   return <AppShell>
-    <PageHead eyebrow={about.teamEyebrow||'My Team'} title={about.teamTitle||'The people building Lumera.'}
+    <PageHead eyebrow={about.teamEyebrow||'Our Team'} title={about.teamTitle||'The people building Lumera.'}
       desc={about.teamDesc||'A small team with one shared belief: financial understanding should not depend on who your parents are.'}/>
     {/* Three across, each a rectangular portrait above name, role and a short bio. */}
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 stagger">
@@ -7617,8 +7824,11 @@ function FoundingTeam(){
             <div className="text-sm mt-1" style={{color:hue,opacity:.85}}>{p.role||'Role to be confirmed'}</div>
             {p.focus && <div className="text-xs text-faint mt-0.5">{p.focus}</div>}
             {/* Short description: smaller again */}
-            <p className="text-[13px] text-muted mt-3 leading-relaxed">
-              {p.bio || 'A short bio will appear here.'}</p>
+            {p.words && p.words.length>0 && <div className="flex flex-wrap gap-1.5 mt-3">{p.words.map(w=>
+              <span key={w} className="text-[11px] font-semibold rounded-full px-2.5 py-1" style={{background:hue+'26',color:hue}}>{w}</span>)}</div>}
+            {p.interests && p.interests.length>0 && <p className="text-[12.5px] text-charcoal/80 mt-3 leading-relaxed"><b className="text-charcoal">Into: </b>{p.interests.join(' · ')}</p>}
+            {p.bio && <p className="text-[13px] text-muted mt-3 leading-relaxed italic">“{p.bio}”</p>}
+            {!p.bio && !(p.interests&&p.interests.length) && <p className="text-[13px] text-faint mt-3">Profile coming soon.</p>}
             {p.li && <a href={p.li} target="_blank" rel="noopener noreferrer"
               className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold" style={{color:hue}}>
               LinkedIn <Icon name="arrowR" size={11} className="-rotate-45"/></a>}
@@ -10718,65 +10928,68 @@ function PostCard({ post, onChange, onRemove }){
 /* What the community looks like, for the demo account only. Every post and
    member is invented and labelled "Example"; nothing is sent anywhere. */
 const DEMO_POSTS=[
-  {id:1, name:'Maya', headline:'Second-year nursing student', tag:'Milestone', ago:'2h', likes:24, body:'Hit three months of emergency savings today. Moving my coffee spend into a separate pot did more than any budget app ever did.',
-    replies:[['Jordan','That pot trick is underrated. How much were you spending a month?'],['Maya','Around £60. Now it goes straight to the fund on payday.']]},
-  {id:2, name:'Theo', headline:'Junior analyst, first full-time job', tag:'Question', ago:'5h', likes:11, body:'First payslip next week. Is it better to start a pension top-up or clear a £900 credit card first?',
-    replies:[['Priya','Card first at most card rates. Then the pension, especially if your employer matches.']]},
-  {id:3, name:'Priya', headline:'Freelance designer', tag:'Opportunity', ago:'1d', likes:38, body:'A design studio near me is running paid summer placements for students, applications close at the end of the month. Happy to share what my portfolio looked like.', replies:[]},
-  {id:4, name:'Sam', headline:'Saving for a first car', tag:'Update', ago:'2d', likes:16, body:'Cancelled two streaming services I had not opened since March. That is the insurance deposit sorted.', replies:[]},
+  {name:'Maya Okafor', head:'Second-year nursing student', tag:'Milestone', ago:'2h', likes:24, text:'Hit three months of emergency savings today. Moving my coffee spend into a separate pot did more than any budget app ever did.'},
+  {name:'Theo Lindqvist', head:'Junior analyst, first full-time job', tag:'Question', ago:'5h', likes:11, text:'First payslip next week. Is it better to start a pension top-up or clear a £900 credit card first?'},
+  {name:'Priya Raman', head:'Freelance designer', tag:'Opportunity', ago:'1d', likes:38, text:'A design studio near me is running paid summer placements for students, applications close at the end of the month. Happy to share what my portfolio looked like.'},
+  {name:'Sam Adeyemi', head:'Saving for a first car', tag:'Update', ago:'2d', likes:16, text:'Cancelled two streaming services I had not opened since March. That is the insurance deposit sorted.'},
+  {name:'Jordan Ellis', head:'Apprentice electrician', tag:'Looking to connect', ago:'3d', likes:9, text:'Anyone else on an apprenticeship working out how to budget an irregular wage? Would love to compare notes.'},
 ];
-const DEMO_MEMBERS=[['Maya','Second-year nursing student'],['Theo','Junior analyst'],['Priya','Freelance designer'],['Sam','Saving for a first car'],['Jordan','Apprentice electrician']];
+const DEMO_MEMBERS=[
+  {name:'Maya Okafor', head:'Second-year nursing student', loc:'Manchester', tags:['Saving','Healthcare']},
+  {name:'Theo Lindqvist', head:'Junior analyst', loc:'London', tags:['Finance','First job']},
+  {name:'Priya Raman', head:'Freelance designer', loc:'Leeds', tags:['Freelance','Design']},
+  {name:'Sam Adeyemi', head:'Saving for a first car', loc:'Bristol', tags:['Goals','Student']},
+  {name:'Jordan Ellis', head:'Apprentice electrician', loc:'Glasgow', tags:['Apprenticeship','Budgeting']},
+  {name:'Aisha Karim', head:'Economics undergraduate', loc:'Birmingham', tags:['Investing','Economics']},
+];
+// Real searches on LinkedIn for each kind of opportunity, not invented listings.
+const DEMO_OPPS=[
+  {type:'Internship', title:'Finance summer internships', text:'Search current summer internships in finance and banking.', li:'https://www.linkedin.com/jobs/search/?keywords=finance%20summer%20internship'},
+  {type:'Apprenticeship', title:'Degree apprenticeships', text:'Earn while you study: search degree apprenticeships near you.', li:'https://www.linkedin.com/jobs/search/?keywords=degree%20apprenticeship'},
+  {type:'Placement', title:'Design and UX placements', text:'Paid placements for students in design, UI and UX.', li:'https://www.linkedin.com/jobs/search/?keywords=ux%20design%20placement'},
+];
 function DemoCommunity(){
-  const [liked,setLiked]=useState({}); const [open,setOpen]=useState({}); const [tab,setTab]=useState('Feed');
-  const shown = tab==='Opportunities' ? DEMO_POSTS.filter(p=>p.tag==='Opportunity') : DEMO_POSTS;
-  const Ex=()=> <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md" style={{background:'rgba(245,199,122,.18)',color:'#F5C77A'}}>Example</span>;
+  const [tab,setTab]=useState('Feed'); const [liked,setLiked]=useState([]); const [connected,setConnected]=useState([]);
+  const Ex=()=> <span className="text-[9.5px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md" style={{background:'rgba(245,199,122,.18)',color:'#F5C77A'}}>Example</span>;
+  const Avatar=({name,size=44})=><span className="grid place-items-center rounded-full text-white font-semibold shrink-0" style={{width:size,height:size,background:`linear-gradient(135deg,${avatarHue(name)},${avatarHue(name)}AA)`,fontSize:size*0.36}}>{initialsOf(name)}</span>;
+  const toggleConn=(n)=>setConnected(c=>c.includes(n)?c.filter(x=>x!==n):[...c,n]);
   return <AppShell>
-    <PageHead eyebrow="Community · demo" title="Connect with the Lumera community." desc="A preview with example posts. Create an account to post, reply and connect with real members."/>
-    <div className="flex flex-wrap items-center gap-2 mb-5">
-      {[['Example members',DEMO_MEMBERS.length],['Example posts',DEMO_POSTS.length],['Opportunities',1]].map(([l,n])=>
-        <span key={l} className="lg-pill"><span className="tnum">{n}</span><span className="text-muted font-medium">{l}</span></span>)}
+    <PageHead eyebrow="Community" title="Connect with the Lumera community." desc="Share what you’re working on, add your LinkedIn, find people on the same path, and swap opportunities. This demo shows example posts and members."/>
+    <div className="rounded-2xl p-5 mb-4 text-white flex flex-wrap items-center gap-6" style={{background:'linear-gradient(135deg,#7C3AED 0%,#4F46E5 50%,#0D9488 100%)'}}>
+      {[['Example members',DEMO_MEMBERS.length],['Your connections',connected.length],['Example posts',DEMO_POSTS.length],['Opportunities',DEMO_OPPS.length]].map(([l,n])=><div key={l}><div className="font-serif text-3xl">{n}</div><div className="text-xs opacity-85">{l}</div></div>)}
+      <a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" className="ml-auto btn bg-white/15 hover:bg-white/25 text-white text-sm">Open LinkedIn <Icon name="arrowR" size={13} className="-rotate-45"/></a>
     </div>
-    <div role="tablist" aria-label="Community" className="inline-flex flex-wrap gap-1 rounded-full p-1 mb-4 topbar-pill">
-      {['Feed','Members','Opportunities'].map(t=><button key={t} role="tab" aria-selected={tab===t} onClick={()=>setTab(t)}
-        className={cx('rounded-full px-4 py-2 text-[13px] font-semibold transition', tab===t?'topbar-on':'text-charcoal/75 hover:text-charcoal')}>{t}</button>)}
-    </div>
-    <div className="grid lg:grid-cols-3 gap-4">
+    <div className="flex gap-2 mb-4 flex-wrap">{['Feed','Members','Opportunities'].map(t=><button key={t} onClick={()=>setTab(t)} className={cx('chip',tab===t&&'on')}>{t}</button>)}</div>
+    {tab==='Feed' && <div className="grid lg:grid-cols-3 gap-4">
       <div className="lg:col-span-2 space-y-3">
-        <Card hover={false} className="flex items-center gap-3">
-          <MemberAvatar name="You"/><div className="flex-1 rounded-2xl border border-line bg-cream/50 px-3.5 py-3 text-sm text-faint">Posting needs an account</div>
-          <Btn variant="gold" to="/signup">Create account</Btn>
-        </Card>
-        {tab==='Members' ? <Card hover={false}><ul className="divide-y divide-line">
-          {DEMO_MEMBERS.map(([n,h])=><li key={n} className="flex items-center gap-3 py-3"><MemberAvatar name={n}/>
-            <span className="flex-1 min-w-0"><span className="flex items-center gap-2 text-sm font-semibold text-charcoal">{n} <Ex/></span><span className="block text-xs text-muted truncate">{h}</span></span></li>)}
-        </ul></Card>
-        : shown.map(p=><Card key={p.id} hover={false}>
-          <div className="flex items-start gap-3"><MemberAvatar name={p.name}/>
-            <div className="flex-1 min-w-0">
-              <div className="flex flex-wrap items-center gap-2"><span className="font-semibold text-charcoal text-sm">{p.name}</span><Ex/>
-                <span className="text-xs text-faint">{p.headline} · {p.ago}</span></div>
-              <span className="inline-block mt-1.5 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-gold/12 text-goldd">{p.tag}</span>
-              <p className="text-sm text-charcoal/90 mt-2 leading-relaxed">{p.body}</p>
-              <div className="flex items-center gap-2 mt-3">
-                <button onClick={()=>setLiked(l=>({...l,[p.id]:!l[p.id]}))} aria-pressed={!!liked[p.id]} className={cx('btn btn-ghost px-3 py-1.5 text-xs', liked[p.id]&&'text-berry')}>
-                  <Icon name="heart" size={13}/><span className="tnum">{p.likes+(liked[p.id]?1:0)}</span></button>
-                {p.replies.length>0 && <button onClick={()=>setOpen(o=>({...o,[p.id]:!o[p.id]}))} aria-expanded={!!open[p.id]} className="btn btn-ghost px-3 py-1.5 text-xs">
-                  <Icon name="chat" size={13}/>{p.replies.length} {p.replies.length===1?'reply':'replies'}</button>}
-              </div>
-              {open[p.id] && <div className="mt-3 space-y-2 border-l-2 border-line pl-3">
-                {p.replies.map(([n,b],i)=><div key={i} className="text-sm"><span className="font-semibold text-charcoal">{n}</span> <Ex/> <span className="text-charcoal/85">{b}</span></div>)}</div>}
-            </div></div>
-        </Card>)}
+        <Card hover={false}><div className="flex items-center gap-3"><Avatar name="You"/>
+          <div className="flex-1 rounded-xl border border-line bg-cream/60 px-3 py-2.5 text-sm text-faint">Posting and linking your LinkedIn needs an account</div>
+          <Btn variant="gold" to="/signup">Create account</Btn></div></Card>
+        {DEMO_POSTS.map((p,i)=><Card key={i}><div className="flex gap-3"><Avatar name={p.name}/><div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap"><span className="font-semibold text-charcoal text-sm">{p.name}</span><Ex/><span className="text-xs text-faint">· {p.ago}</span>
+            <span className="ml-auto text-[11px] rounded-full px-2 py-0.5" style={{background:avatarHue(p.name)+'22',color:avatarHue(p.name)}}>{p.tag}</span></div>
+          <div className="text-xs text-faint">{p.head}</div>
+          <p className="text-sm text-charcoal/85 mt-2 leading-relaxed">{p.text}</p>
+          <div className="flex items-center gap-4 mt-3 pt-3 border-t border-line">
+            <button onClick={()=>setLiked(l=>l.includes(i)?l.filter(x=>x!==i):[...l,i])} aria-pressed={liked.includes(i)} className={cx('text-xs flex items-center gap-1',liked.includes(i)?'text-berry':'text-muted')}><Icon name="heart" size={13}/>{p.likes+(liked.includes(i)?1:0)}</button>
+          </div></div></div></Card>)}
       </div>
-      <div className="space-y-3">
-        <Card hover={false}><Eyebrow className="mb-2">How it works</Eyebrow>
-          <ul className="space-y-2 text-sm text-charcoal/85">
-            <li className="flex gap-2"><Icon name="lock" size={15} className="text-goldd mt-0.5 shrink-0"/>Your figures stay private. Members see only your name, headline and posts.</li>
-            <li className="flex gap-2"><Icon name="users" size={15} className="text-goldd mt-0.5 shrink-0"/>Connect with people on the same path.</li>
-            <li className="flex gap-2"><Icon name="flag" size={15} className="text-goldd mt-0.5 shrink-0"/>Anything unkind can be reported and is reviewed.</li>
-          </ul></Card>
+      <div className="space-y-4">
+        <Card hover={false}><Eyebrow className="mb-2">People to connect with</Eyebrow><div className="space-y-2.5">{DEMO_MEMBERS.slice(0,4).map(mem=>{ const on=connected.includes(mem.name);
+          return <div key={mem.name} className="flex items-center gap-2.5"><Avatar name={mem.name} size={34}/><div className="min-w-0 flex-1"><div className="text-sm font-medium text-charcoal truncate">{mem.name}</div><div className="text-[11px] text-faint truncate">{mem.head}</div></div>
+            <button onClick={()=>toggleConn(mem.name)} className={cx('text-[11px] font-semibold rounded-lg px-2.5 py-1 shrink-0',on?'bg-sage/12 text-saged':'btn-primary text-white')}>{on?'✓':'Connect'}</button></div>; })}</div></Card>
+        <Card hover={false}><Eyebrow className="mb-2">Trending tags</Eyebrow><div className="flex flex-wrap gap-1.5">{['Saving','FirstJob','Apprenticeships','Investing','Budgeting','Placements','Freelance','Economics'].map(t=><span key={t} className="text-[11px] rounded-full px-2.5 py-1" style={{background:avatarHue(t)+'1F',color:avatarHue(t)}}>#{t}</span>)}</div></Card>
       </div>
-    </div>
+    </div>}
+    {tab==='Members' && <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">{DEMO_MEMBERS.map(mem=>{ const on=connected.includes(mem.name);
+      return <Card key={mem.name}><div className="flex items-center gap-3"><Avatar name={mem.name} size={52}/><div className="min-w-0"><div className="font-serif text-lg text-charcoal truncate">{mem.name}</div><div className="text-xs text-faint flex items-center gap-1.5">{mem.loc} <Ex/></div></div></div>
+        <p className="text-sm text-charcoal/85 mt-2">{mem.head}</p>
+        <div className="flex flex-wrap gap-1.5 mt-2">{mem.tags.map(t=><span key={t} className="text-[11px] rounded-full px-2 py-0.5" style={{background:avatarHue(mem.name)+'1F',color:avatarHue(mem.name)}}>{t}</span>)}</div>
+        <div className="flex items-center gap-2 mt-3 pt-3 border-t border-line"><button onClick={()=>toggleConn(mem.name)} className={cx('btn text-sm flex-1',on?'btn-ghost':'btn-primary')}>{on?'✓ Connected':'Connect'}</button></div></Card>; })}</div>}
+    {tab==='Opportunities' && <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">{DEMO_OPPS.map(o=>
+      <Card key={o.title} className="flex flex-col"><Pill tone="gold">{o.type}</Pill><div className="font-serif text-lg text-charcoal mt-2">{o.title}</div>
+        <p className="text-sm text-muted mt-2 leading-relaxed flex-1">{o.text}</p>
+        <a href={o.li} target="_blank" rel="noopener noreferrer" className="btn btn-ghost mt-3 py-2 text-xs justify-between">Search on LinkedIn <Icon name="arrowR" size={11} className="-rotate-45"/></a></Card>)}</div>}
   </AppShell>;
 }
 
@@ -10824,9 +11037,12 @@ function Community(){
 
   return <AppShell>
     <PageHead eyebrow="Community" title="Connect with the Lumera community." desc="Share what you are working on, find people on the same path, and swap opportunities."/>
-    <div className="flex flex-wrap items-center gap-2 mb-5">
-      {[['Members',stats&&stats.members],['Posts',stats&&stats.posts],['Opportunities',stats&&stats.opportunities],['Your connections',stats&&stats.connections]].map(([l,n])=>
-        <span key={l} className="lg-pill"><span className="tnum">{n==null?'–':n}</span><span className="text-muted font-medium">{l}</span></span>)}
+    <div className="rounded-2xl p-5 mb-4 text-white flex flex-wrap items-center gap-6" style={{background:'linear-gradient(135deg,#7C3AED 0%,#4F46E5 50%,#0D9488 100%)'}}>
+      {[['Members',stats&&stats.members],['Your connections',stats&&stats.connections],['Posts',stats&&stats.posts],['Opportunities',stats&&stats.opportunities]].map(([l,n])=>
+        <div key={l}><div className="font-serif text-3xl tnum">{n==null?'–':n}</div><div className="text-xs opacity-85">{l}</div></div>)}
+      {profile && (profile.linkedin
+        ? <a href={profile.linkedin} target="_blank" rel="noopener noreferrer" className="ml-auto btn bg-white/15 hover:bg-white/25 text-white text-sm">Your LinkedIn <Icon name="arrowR" size={13} className="-rotate-45"/></a>
+        : <button onClick={()=>setEditing(true)} className="ml-auto btn bg-white/15 hover:bg-white/25 text-white text-sm">Add your LinkedIn <Icon name="plus" size={13}/></button>)}
     </div>
     {profile===undefined ? <div className="space-y-3" aria-label="Loading"><div className="skeleton h-28"/><div className="skeleton h-40"/></div>
     : profile===null ? <Card hover={false} className="max-w-2xl">
@@ -11123,7 +11339,7 @@ function App(){
       nav('/onboarding',{replace:true}); return;
     }
     email=email||'you@email.com'; const accts=loadAccounts();
-    if(accts[email]){ return login(email); }
+    if(accts[email]){ const e=new Error('An account with this email already exists in this browser. Log in instead, or use a different email.'); e.code='exists'; throw e; }
     const u={name:name||email.split('@')[0], email, isAdmin:false};
     setUser(u); setOnboarded(false); setProfile(freshProfile(u.name)); setExpenses({...BLANK_EXP}); setBalances({...BLANK_BAL}); nav('/onboarding',{replace:true}); };
   const login=async(email,password)=>{

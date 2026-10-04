@@ -940,13 +940,209 @@ document.addEventListener('keydown', e=>{ if(e.key==='Escape' && document.getEle
    which the Lumera app reads for /team and /about.
    ============================================================ */
 const ABOUT='lumera_about';
-const TEAM_SEED=['Avyan Arya','Ernie Engmann','Alaya Ahmad','William Iantorno','Reaan Verma',
- 'Jonathan Jebin Thomas','Rishit Dhanak','Zafar Masud','Yannick Dsouza','Zaid Qadri',
- 'Muhammad Suleman','Aryaman Agarwalla','Nikesh Patel']
- .map(n=>({name:n, role:n==='Avyan Arya'?'Founder':'Add role', focus:n==='Avyan Arya'?'Product vision and strategy':'', photo:null, bio:'', li:''}))
- .map(p=> p.name==='Alaya Ahmad' ? {...p, role:'Outreach & Marketing Associate', focus:'“In the future, I want to work in motorsport.”', photo:'assets/team/alaya-ahmad.webp',
-      bio:'Creative, passionate and dedicated. Into Formula 1, music, films and reading, and planning a future in psychology.'}
-   : p.name==='Ernie Engmann' ? {...p, photo:'assets/team/ernie-engmann.webp'} : p);
+// Mirrors TEAM_DEFAULT in Lumera.html (team.json).
+const TEAM_SEED=[
+ {
+  "name": "Avyan Arya",
+  "role": "Founder & CEO",
+  "focus": "“In the future, I want to build a legacy that outlives me.”",
+  "photo": "assets/team/avyan-arya.webp",
+  "bio": "Helping my mum with finances and my sister with her future career made me think: why not make this guidance accessible to everyone? Someone had to do it.",
+  "words": [
+   "Ambitious",
+   "Curious",
+   "Collaborative"
+  ],
+  "interests": [
+   "MUN",
+   "Boxing",
+   "Cars",
+   "Perfumes",
+   "Watches",
+   "Aspiring private banker"
+  ],
+  "li": ""
+ },
+ {
+  "name": "Ernie Engmann",
+  "role": "Operations & Executive Associate",
+  "focus": "“In the future, I want to live in a small boat by the beach.”",
+  "photo": "assets/team/ernie-engmann.webp",
+  "bio": "I like Lumera because it helps target a very large real-life problem within young people.",
+  "words": [
+   "Helpful",
+   "Driven",
+   "Reliable"
+  ],
+  "interests": [
+   "Music",
+   "Football",
+   "Cooking",
+   "Hanging out with friends",
+   "Future doctor"
+  ],
+  "li": ""
+ },
+ {
+  "name": "Alaya Ahmad",
+  "role": "Outreach & Marketing Associate",
+  "focus": "“In the future, I want to work in motorsport.”",
+  "photo": "assets/team/alaya-ahmad.webp",
+  "bio": "",
+  "words": [
+   "Creative",
+   "Passionate",
+   "Dedicated"
+  ],
+  "interests": [
+   "Formula 1",
+   "Music",
+   "Watching movies",
+   "Reading",
+   "Future psychologist"
+  ],
+  "li": ""
+ },
+ {
+  "name": "William Iantorno",
+  "role": "Outreach & Marketing Associate",
+  "focus": "“In the future, I want to publish my own book.”",
+  "photo": "assets/team/william-iantorno.webp",
+  "bio": "",
+  "words": [
+   "Innovative",
+   "Curious",
+   "Ambitious"
+  ],
+  "interests": [
+   "Reading",
+   "Writing",
+   "History",
+   "Gaming",
+   "Lawyer",
+   "Author"
+  ],
+  "li": ""
+ },
+ {
+  "name": "Reaan Verma",
+  "role": "UI & UX Designer",
+  "focus": "",
+  "photo": null,
+  "bio": "",
+  "words": [],
+  "interests": [],
+  "li": ""
+ },
+ {
+  "name": "Jonathan Jebin Thomas",
+  "role": "UI & UX Designer",
+  "focus": "",
+  "photo": null,
+  "bio": "",
+  "words": [],
+  "interests": [],
+  "li": ""
+ },
+ {
+  "name": "Aarav Raney",
+  "role": "UI & UX Designer",
+  "focus": "",
+  "photo": null,
+  "bio": "",
+  "words": [],
+  "interests": [],
+  "li": ""
+ },
+ {
+  "name": "Rishit Dhanak",
+  "role": "Market Research Associate",
+  "focus": "“In the future, I want to be a trillionaire.”",
+  "photo": "assets/team/rishit-dhanak.webp",
+  "bio": "I like how Lumera is integrating AI to make finance more accessible and easy to understand.",
+  "words": [
+   "Motivated",
+   "Innovative",
+   "Adaptable"
+  ],
+  "interests": [
+   "Lifting",
+   "Padel",
+   "Private equity",
+   "Markets"
+  ],
+  "li": ""
+ },
+ {
+  "name": "Zafar Masud",
+  "role": "Market Research Associate",
+  "focus": "“In the future, I want to own a bookstore in central London.”",
+  "photo": "assets/team/zafar-masud.webp",
+  "bio": "I like Lumera because it’s inclusive of everyone, regardless of gender, race, or age, meaning that people aren’t shut out of financial services; we actually get a real bridge into them.",
+  "words": [
+   "Aspiring",
+   "Resourceful",
+   "Dependable"
+  ],
+  "interests": [
+   "Investment banking & strategy",
+   "Rugby",
+   "Tennis",
+   "Tracking the markets"
+  ],
+  "li": ""
+ },
+ {
+  "name": "Muhammad Suleman",
+  "role": "Growth & Strategy Associate",
+  "focus": "“In the future, I want to continue exploring new ideas and opportunities.”",
+  "photo": "assets/team/muhammad-suleman.webp",
+  "bio": "",
+  "words": [
+   "Ambitious",
+   "Curious",
+   "Strategic"
+  ],
+  "interests": [
+   "Finance",
+   "Engineering & strategy",
+   "Consulting",
+   "Business",
+   "Solving complex problems"
+  ],
+  "li": ""
+ },
+ {
+  "name": "Zaid Qadri",
+  "role": "Growth & Strategy Associate",
+  "focus": "“In the future, I want to work in finance.”",
+  "photo": "assets/team/zaid-qadri.webp",
+  "bio": "",
+  "words": [
+   "Hardworking",
+   "Compassionate",
+   "Ambitious"
+  ],
+  "interests": [
+   "Cricket",
+   "Football",
+   "Chess",
+   "Reading",
+   "Economics"
+  ],
+  "li": ""
+ },
+ {
+  "name": "Aryaman Aggarwal",
+  "role": "Outreach & Marketing Associate",
+  "focus": "",
+  "photo": "assets/team/aryaman-aggarwal.webp",
+  "bio": "",
+  "words": [],
+  "interests": [],
+  "li": ""
+ }
+];
 function getAbout(){ const a=loadJSON(ABOUT,{})||{}; if(!Array.isArray(a.team)||!a.team.length) a.team=TEAM_SEED.slice(); return a; }
 function putAbout(a){ saveJSON(ABOUT,a); broadcast(ABOUT); }
 function renderAbout(){ const a=getAbout();

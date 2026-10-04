@@ -589,10 +589,11 @@
 
   .soon-pill{ display:inline-block; font-size:9.5px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; padding:3px 7px; border-radius:999px;
     color:#1A1206; background:linear-gradient(100deg,#F5D78A,#EBC77A); box-shadow:0 0 0 1px rgba(255,255,255,.25), 0 4px 12px -4px rgba(235,199,122,.7); white-space:nowrap; }
-  .demo-banner{ position:relative; z-index:2; display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin:8px 16px 0; padding:3px 10px; border-radius:999px; font-size:11px; width:fit-content; max-width:calc(100% - 32px);
-    color:rgb(var(--c-charcoal)); background:linear-gradient(100deg, rgba(240,139,196,.16), rgba(157,124,255,.16)); border:1px solid rgba(255,255,255,.14); }
+  .demo-banner{ position:fixed; z-index:70; right:14px; bottom:14px; display:flex; align-items:center; gap:5px; padding:3px 8px 3px 7px; border-radius:999px;
+    font-size:10px; font-weight:600; color:rgb(var(--c-charcoal)); background:rgba(22,21,33,.82); border:1px solid rgba(255,255,255,.14);
+    backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
   .demo-banner svg{ color:#F5C77A; flex-shrink:0; }
-  .demo-banner-cta{ margin-left:6px; font-weight:700; font-size:11px; padding:2px 8px; border-radius:999px; background:rgba(255,255,255,.12); }
+  .demo-banner-cta{ margin-left:4px; font-weight:700; font-size:10px; padding:1px 7px; border-radius:999px; background:rgba(255,255,255,.12); }
   .demo-banner-cta:hover{ background:rgba(255,255,255,.2); }
   /* ---- header search bar ---- */
   .lg-searchbar{ display:flex; align-items:center; gap:10px; width:100%; max-width:440px; height:40px; padding:0 12px 0 14px; border-radius:999px;
@@ -602,6 +603,22 @@
   .lg-searchbar-text{ flex:1; text-align:left; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .lg-searchbar-kbd{ font:600 10.5px/1 'Manrope',sans-serif; padding:4px 6px; border-radius:6px; background:rgba(255,255,255,.08); color:rgb(var(--c-faint)); }
   @media (max-width:640px){ .lg-searchbar{ width:40px; padding:0; justify-content:center; } .lg-searchbar-text,.lg-searchbar-kbd{ display:none; } }
+
+  /* ---- worlds: each one is washed in its own colour ---- */
+  html[data-skin="glass"][data-product]:not([data-product="lumera"]) .atmo{
+    background:
+      radial-gradient(1100px 760px at 8% -10%, rgba(var(--glow),.55), transparent 62%),
+      radial-gradient(900px 700px at 100% 30%, rgba(var(--glow),.30), transparent 62%),
+      radial-gradient(1000px 700px at 40% 120%, rgba(var(--glow),.26), transparent 62%),
+      radial-gradient(700px 520px at 90% 100%, rgba(235,199,122,.12), transparent 60%),
+      #0E0D14; }
+  html[data-skin="glass"][data-product]:not([data-product="lumera"]) .atmo .aurora{ opacity:.6; }
+  html[data-skin="glass"][data-product]:not([data-product="lumera"]) .lux-card{
+    background:linear-gradient(160deg, rgba(var(--glow),.16), rgba(255,255,255,.035) 55%), rgba(20,19,30,.55) !important;
+    border-color:rgba(var(--glow),.30); }
+  html[data-skin="glass"][data-product]:not([data-product="lumera"]) .lg-sidebar,
+  html[data-skin="glass"][data-product]:not([data-product="lumera"]) .lg-topbar{
+    background:linear-gradient(170deg, rgba(var(--glow),.20), rgba(26,24,38,.72) 60%) !important; border-color:rgba(var(--glow),.32) !important; }
 
   /* ---- questionnaire: one pinned action bar, content padded clear of it ---- */
   .quiz-body{ padding-bottom:calc(112px + env(safe-area-inset-bottom)); }
@@ -620,11 +637,12 @@
   /* ---- the ground: volumetric light that drifts very slowly ---- */
   html[data-skin="glass"] .atmo{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;
     background:
-      radial-gradient(1200px 820px at 10% -14%, rgba(var(--glow,157,124,255),.22), transparent 62%),
-      radial-gradient(980px 760px at 104% 18%, rgba(110,108,246,.15), transparent 64%),
-      radial-gradient(1100px 760px at 46% 124%, rgba(235,199,122,.085), transparent 62%),
+      radial-gradient(1200px 820px at 10% -14%, rgba(var(--glow,157,124,255),.34), transparent 62%),
+      radial-gradient(980px 760px at 104% 18%, rgba(236,72,153,.18), transparent 64%),
+      radial-gradient(1100px 760px at 46% 124%, rgba(235,199,122,.16), transparent 62%),
+      radial-gradient(900px 700px at -6% 80%, rgba(45,212,191,.12), transparent 60%),
       var(--lg-ground); }
-  html[data-skin="glass"] .atmo .aurora{ position:absolute; border-radius:50%; filter:blur(90px); opacity:.30; will-change:transform; }
+  html[data-skin="glass"] .atmo .aurora{ position:absolute; border-radius:50%; filter:blur(90px); opacity:.42; will-change:transform; }
   html[data-skin="glass"] .atmo .a1{ width:42vw; height:42vw; min-width:380px; min-height:380px; top:-16vw; left:-10vw;
     background:radial-gradient(circle, rgba(var(--glow,157,124,255),.9), transparent 66%); animation:lg-drift-a 70s ease-in-out infinite alternate; }
   html[data-skin="glass"] .atmo .a2{ width:36vw; height:36vw; min-width:340px; min-height:340px; top:30vh; right:-14vw;
@@ -649,8 +667,10 @@
     margin:14px 0 14px 14px; border-radius:28px; overflow:visible;
   }
   html[data-skin="glass"] .lg-sidebar nav{ overflow:visible !important; flex:none !important; }
+  html[data-skin="glass"] .lg-sidebar .sidebar-foot{ position:sticky; bottom:0; border-radius:0 0 28px 28px;
+    background:linear-gradient(180deg, transparent, rgba(22,21,33,.92) 22%); padding-top:22px; }
   html[data-skin="glass"] .lg-topbar{
-    position:sticky; top:14px; z-index:30; margin:14px 14px 0; border-radius:22px;
+    position:sticky; top:14px; z-index:30; margin:0 14px 0; border-radius:22px;
   }
   @media (max-width:1023px){
     html[data-skin="glass"] .lg-topbar{ top:10px; margin:10px 10px 0; border-radius:20px; }
@@ -3995,7 +4015,7 @@ function Logo({
     className: cx('text-[9px] tracking-[.3em] uppercase mt-2.5 text-center', light ? 'text-cream/70' : 'text-faint')
   }, "All financial intelligence. One place."));
   return React.createElement("div", {
-    className: "flex items-center gap-2.5 select-none"
+    className: "flex items-center gap-4 select-none"
   }, mark, React.createElement("div", {
     className: "leading-none min-w-0"
   }, word, sub && React.createElement("div", {
@@ -5119,7 +5139,7 @@ function Sidebar() {
     className: "px-5 py-5"
   }, inProduct ? React.createElement("button", {
     onClick: () => app.nav('/' + curSub.key),
-    className: "flex items-center gap-2.5 text-left"
+    className: "flex items-center gap-4 text-left"
   }, React.createElement(MascotAvatar, {
     kind: curSub.key,
     color: curSub.accent,
@@ -5238,7 +5258,7 @@ function Sidebar() {
       }, "soon"));
     })));
   })()), React.createElement("div", {
-    className: "p-3 space-y-2"
+    className: "p-3 space-y-2 mt-auto sidebar-foot"
   }, React.createElement("button", {
     onClick: () => app.nav('/assistant'),
     className: "w-full btn btn-gold px-4 py-3 text-sm"
@@ -5266,9 +5286,6 @@ function Sidebar() {
     size: 12,
     className: "-rotate-45 ml-auto text-faint"
   }))), app.user && React.createElement("button", {
-    onClick: () => app.logout(),
-    className: "w-full text-xs text-muted hover:text-charcoal py-1.5"
-  }, "Log out"), app.user && React.createElement("button", {
     onClick: () => app.nav('/badges'),
     "aria-current": route === '/badges' ? 'page' : undefined,
     className: "w-full flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-[13px] font-semibold transition hover:scale-[1.02]",
@@ -5285,7 +5302,10 @@ function Sidebar() {
     style: {
       background: 'rgba(235,199,122,.18)'
     }
-  }, app.profile.streak || 0, "d"))));
+  }, app.profile.streak || 0, "d")), app.user && React.createElement("button", {
+    onClick: () => app.logout(),
+    className: "w-full text-xs text-muted hover:text-charcoal py-1.5"
+  }, "Log out")));
 }
 function GlobalSearch() {
   const app = useApp();
@@ -5345,7 +5365,7 @@ function GlobalSearch() {
         '/assistant': 'AI Assistant',
         '/settings': 'Settings',
         '/about': 'About Lumera',
-        '/team': 'My Team',
+        '/team': 'Our Team',
         '/pricing': 'Pricing',
         '/privacy': 'Privacy',
         '/hub': 'The Lumera family'
@@ -5896,8 +5916,8 @@ function DemoBanner() {
     role: "note"
   }, React.createElement(Icon, {
     name: "info",
-    size: 12
-  }), React.createElement("span", null, React.createElement("b", null, "Demo account"), " \xB7 example data, not a real person"), React.createElement("button", {
+    size: 11
+  }), React.createElement("span", null, "Demo \xB7 example data"), React.createElement("button", {
     onClick: () => app.nav('/signup'),
     className: "demo-banner-cta"
   }, "Create your own"));
@@ -18169,96 +18189,113 @@ function StockMarketsEdu() {
   }, "Global Markets"), " to spin the globe of exchanges.")))));
 }
 const TEAM_DEFAULT = [{
-  name: 'Avyan Arya',
-  role: 'Founder',
-  focus: 'Product vision and strategy',
-  photo: null,
-  bio: '',
-  li: ''
+  "name": "Avyan Arya",
+  "role": "Founder & CEO",
+  "focus": "“In the future, I want to build a legacy that outlives me.”",
+  "photo": "assets/team/avyan-arya.webp",
+  "bio": "Helping my mum with finances and my sister with her future career made me think: why not make this guidance accessible to everyone? Someone had to do it.",
+  "words": ["Ambitious", "Curious", "Collaborative"],
+  "interests": ["MUN", "Boxing", "Cars", "Perfumes", "Watches", "Aspiring private banker"],
+  "li": ""
 }, {
-  name: 'Ernie Engmann',
-  role: 'Add role',
-  focus: '',
-  photo: 'assets/team/ernie-engmann.webp',
-  bio: '',
-  li: ''
+  "name": "Ernie Engmann",
+  "role": "Operations & Executive Associate",
+  "focus": "“In the future, I want to live in a small boat by the beach.”",
+  "photo": "assets/team/ernie-engmann.webp",
+  "bio": "I like Lumera because it helps target a very large real-life problem within young people.",
+  "words": ["Helpful", "Driven", "Reliable"],
+  "interests": ["Music", "Football", "Cooking", "Hanging out with friends", "Future doctor"],
+  "li": ""
 }, {
-  name: 'Alaya Ahmad',
-  role: 'Outreach & Marketing Associate',
-  focus: '“In the future, I want to work in motorsport.”',
-  photo: 'assets/team/alaya-ahmad.webp',
-  bio: 'Creative, passionate and dedicated. Into Formula 1, music, films and reading, and planning a future in psychology.',
-  li: ''
+  "name": "Alaya Ahmad",
+  "role": "Outreach & Marketing Associate",
+  "focus": "“In the future, I want to work in motorsport.”",
+  "photo": "assets/team/alaya-ahmad.webp",
+  "bio": "",
+  "words": ["Creative", "Passionate", "Dedicated"],
+  "interests": ["Formula 1", "Music", "Watching movies", "Reading", "Future psychologist"],
+  "li": ""
 }, {
-  name: 'William Iantorno',
-  role: 'Add role',
-  focus: '',
-  photo: null,
-  bio: '',
-  li: ''
+  "name": "William Iantorno",
+  "role": "Outreach & Marketing Associate",
+  "focus": "“In the future, I want to publish my own book.”",
+  "photo": "assets/team/william-iantorno.webp",
+  "bio": "",
+  "words": ["Innovative", "Curious", "Ambitious"],
+  "interests": ["Reading", "Writing", "History", "Gaming", "Lawyer", "Author"],
+  "li": ""
 }, {
-  name: 'Reaan Verma',
-  role: 'Add role',
-  focus: '',
-  photo: null,
-  bio: '',
-  li: ''
+  "name": "Reaan Verma",
+  "role": "UI & UX Designer",
+  "focus": "",
+  "photo": null,
+  "bio": "",
+  "words": [],
+  "interests": [],
+  "li": ""
 }, {
-  name: 'Jonathan Jebin Thomas',
-  role: 'Add role',
-  focus: '',
-  photo: null,
-  bio: '',
-  li: ''
+  "name": "Jonathan Jebin Thomas",
+  "role": "UI & UX Designer",
+  "focus": "",
+  "photo": null,
+  "bio": "",
+  "words": [],
+  "interests": [],
+  "li": ""
 }, {
-  name: 'Rishit Dhanak',
-  role: 'Add role',
-  focus: '',
-  photo: null,
-  bio: '',
-  li: ''
+  "name": "Aarav Raney",
+  "role": "UI & UX Designer",
+  "focus": "",
+  "photo": null,
+  "bio": "",
+  "words": [],
+  "interests": [],
+  "li": ""
 }, {
-  name: 'Zafar Masud',
-  role: 'Add role',
-  focus: '',
-  photo: null,
-  bio: '',
-  li: ''
+  "name": "Rishit Dhanak",
+  "role": "Market Research Associate",
+  "focus": "“In the future, I want to be a trillionaire.”",
+  "photo": "assets/team/rishit-dhanak.webp",
+  "bio": "I like how Lumera is integrating AI to make finance more accessible and easy to understand.",
+  "words": ["Motivated", "Innovative", "Adaptable"],
+  "interests": ["Lifting", "Padel", "Private equity", "Markets"],
+  "li": ""
 }, {
-  name: 'Yannick Dsouza',
-  role: 'Add role',
-  focus: '',
-  photo: null,
-  bio: '',
-  li: ''
+  "name": "Zafar Masud",
+  "role": "Market Research Associate",
+  "focus": "“In the future, I want to own a bookstore in central London.”",
+  "photo": "assets/team/zafar-masud.webp",
+  "bio": "I like Lumera because it’s inclusive of everyone, regardless of gender, race, or age, meaning that people aren’t shut out of financial services; we actually get a real bridge into them.",
+  "words": ["Aspiring", "Resourceful", "Dependable"],
+  "interests": ["Investment banking & strategy", "Rugby", "Tennis", "Tracking the markets"],
+  "li": ""
 }, {
-  name: 'Zaid Qadri',
-  role: 'Add role',
-  focus: '',
-  photo: null,
-  bio: '',
-  li: ''
+  "name": "Muhammad Suleman",
+  "role": "Growth & Strategy Associate",
+  "focus": "“In the future, I want to continue exploring new ideas and opportunities.”",
+  "photo": "assets/team/muhammad-suleman.webp",
+  "bio": "",
+  "words": ["Ambitious", "Curious", "Strategic"],
+  "interests": ["Finance", "Engineering & strategy", "Consulting", "Business", "Solving complex problems"],
+  "li": ""
 }, {
-  name: 'Muhammad Suleman',
-  role: 'Add role',
-  focus: '',
-  photo: null,
-  bio: '',
-  li: ''
+  "name": "Zaid Qadri",
+  "role": "Growth & Strategy Associate",
+  "focus": "“In the future, I want to work in finance.”",
+  "photo": "assets/team/zaid-qadri.webp",
+  "bio": "",
+  "words": ["Hardworking", "Compassionate", "Ambitious"],
+  "interests": ["Cricket", "Football", "Chess", "Reading", "Economics"],
+  "li": ""
 }, {
-  name: 'Aryaman Agarwalla',
-  role: 'Add role',
-  focus: '',
-  photo: null,
-  bio: '',
-  li: ''
-}, {
-  name: 'Nikesh Patel',
-  role: 'Add role',
-  focus: '',
-  photo: null,
-  bio: '',
-  li: ''
+  "name": "Aryaman Aggarwal",
+  "role": "Outreach & Marketing Associate",
+  "focus": "",
+  "photo": "assets/team/aryaman-aggarwal.webp",
+  "bio": "",
+  "words": [],
+  "interests": [],
+  "li": ""
 }];
 const ABOUT_KEY = 'lumera_about';
 function loadAbout() {
@@ -18294,7 +18331,7 @@ function FoundingTeam() {
   const about = useAbout();
   const team = about.team && about.team.length ? about.team : TEAM_DEFAULT;
   return React.createElement(AppShell, null, React.createElement(PageHead, {
-    eyebrow: about.teamEyebrow || 'My Team',
+    eyebrow: about.teamEyebrow || 'Our Team',
     title: about.teamTitle || 'The people building Lumera.',
     desc: about.teamDesc || 'A small team with one shared belief: financial understanding should not depend on who your parents are.'
   }), React.createElement("div", {
@@ -18342,9 +18379,24 @@ function FoundingTeam() {
       }
     }, p.role || 'Role to be confirmed'), p.focus && React.createElement("div", {
       className: "text-xs text-faint mt-0.5"
-    }, p.focus), React.createElement("p", {
-      className: "text-[13px] text-muted mt-3 leading-relaxed"
-    }, p.bio || 'A short bio will appear here.'), p.li && React.createElement("a", {
+    }, p.focus), p.words && p.words.length > 0 && React.createElement("div", {
+      className: "flex flex-wrap gap-1.5 mt-3"
+    }, p.words.map(w => React.createElement("span", {
+      key: w,
+      className: "text-[11px] font-semibold rounded-full px-2.5 py-1",
+      style: {
+        background: hue + '26',
+        color: hue
+      }
+    }, w))), p.interests && p.interests.length > 0 && React.createElement("p", {
+      className: "text-[12.5px] text-charcoal/80 mt-3 leading-relaxed"
+    }, React.createElement("b", {
+      className: "text-charcoal"
+    }, "Into: "), p.interests.join(' · ')), p.bio && React.createElement("p", {
+      className: "text-[13px] text-muted mt-3 leading-relaxed italic"
+    }, "\u201C", p.bio, "\u201D"), !p.bio && !(p.interests && p.interests.length) && React.createElement("p", {
+      className: "text-[13px] text-faint mt-3"
+    }, "Profile coming soon."), p.li && React.createElement("a", {
       href: p.li,
       target: "_blank",
       rel: "noopener noreferrer",
@@ -25078,186 +25130,284 @@ function PostCard({
   }, busy ? '…' : 'Reply'))))));
 }
 const DEMO_POSTS = [{
-  id: 1,
-  name: 'Maya',
-  headline: 'Second-year nursing student',
+  name: 'Maya Okafor',
+  head: 'Second-year nursing student',
   tag: 'Milestone',
   ago: '2h',
   likes: 24,
-  body: 'Hit three months of emergency savings today. Moving my coffee spend into a separate pot did more than any budget app ever did.',
-  replies: [['Jordan', 'That pot trick is underrated. How much were you spending a month?'], ['Maya', 'Around £60. Now it goes straight to the fund on payday.']]
+  text: 'Hit three months of emergency savings today. Moving my coffee spend into a separate pot did more than any budget app ever did.'
 }, {
-  id: 2,
-  name: 'Theo',
-  headline: 'Junior analyst, first full-time job',
+  name: 'Theo Lindqvist',
+  head: 'Junior analyst, first full-time job',
   tag: 'Question',
   ago: '5h',
   likes: 11,
-  body: 'First payslip next week. Is it better to start a pension top-up or clear a £900 credit card first?',
-  replies: [['Priya', 'Card first at most card rates. Then the pension, especially if your employer matches.']]
+  text: 'First payslip next week. Is it better to start a pension top-up or clear a £900 credit card first?'
 }, {
-  id: 3,
-  name: 'Priya',
-  headline: 'Freelance designer',
+  name: 'Priya Raman',
+  head: 'Freelance designer',
   tag: 'Opportunity',
   ago: '1d',
   likes: 38,
-  body: 'A design studio near me is running paid summer placements for students, applications close at the end of the month. Happy to share what my portfolio looked like.',
-  replies: []
+  text: 'A design studio near me is running paid summer placements for students, applications close at the end of the month. Happy to share what my portfolio looked like.'
 }, {
-  id: 4,
-  name: 'Sam',
-  headline: 'Saving for a first car',
+  name: 'Sam Adeyemi',
+  head: 'Saving for a first car',
   tag: 'Update',
   ago: '2d',
   likes: 16,
-  body: 'Cancelled two streaming services I had not opened since March. That is the insurance deposit sorted.',
-  replies: []
+  text: 'Cancelled two streaming services I had not opened since March. That is the insurance deposit sorted.'
+}, {
+  name: 'Jordan Ellis',
+  head: 'Apprentice electrician',
+  tag: 'Looking to connect',
+  ago: '3d',
+  likes: 9,
+  text: 'Anyone else on an apprenticeship working out how to budget an irregular wage? Would love to compare notes.'
 }];
-const DEMO_MEMBERS = [['Maya', 'Second-year nursing student'], ['Theo', 'Junior analyst'], ['Priya', 'Freelance designer'], ['Sam', 'Saving for a first car'], ['Jordan', 'Apprentice electrician']];
+const DEMO_MEMBERS = [{
+  name: 'Maya Okafor',
+  head: 'Second-year nursing student',
+  loc: 'Manchester',
+  tags: ['Saving', 'Healthcare']
+}, {
+  name: 'Theo Lindqvist',
+  head: 'Junior analyst',
+  loc: 'London',
+  tags: ['Finance', 'First job']
+}, {
+  name: 'Priya Raman',
+  head: 'Freelance designer',
+  loc: 'Leeds',
+  tags: ['Freelance', 'Design']
+}, {
+  name: 'Sam Adeyemi',
+  head: 'Saving for a first car',
+  loc: 'Bristol',
+  tags: ['Goals', 'Student']
+}, {
+  name: 'Jordan Ellis',
+  head: 'Apprentice electrician',
+  loc: 'Glasgow',
+  tags: ['Apprenticeship', 'Budgeting']
+}, {
+  name: 'Aisha Karim',
+  head: 'Economics undergraduate',
+  loc: 'Birmingham',
+  tags: ['Investing', 'Economics']
+}];
+const DEMO_OPPS = [{
+  type: 'Internship',
+  title: 'Finance summer internships',
+  text: 'Search current summer internships in finance and banking.',
+  li: 'https://www.linkedin.com/jobs/search/?keywords=finance%20summer%20internship'
+}, {
+  type: 'Apprenticeship',
+  title: 'Degree apprenticeships',
+  text: 'Earn while you study: search degree apprenticeships near you.',
+  li: 'https://www.linkedin.com/jobs/search/?keywords=degree%20apprenticeship'
+}, {
+  type: 'Placement',
+  title: 'Design and UX placements',
+  text: 'Paid placements for students in design, UI and UX.',
+  li: 'https://www.linkedin.com/jobs/search/?keywords=ux%20design%20placement'
+}];
 function DemoCommunity() {
-  const [liked, setLiked] = useState({});
-  const [open, setOpen] = useState({});
   const [tab, setTab] = useState('Feed');
-  const shown = tab === 'Opportunities' ? DEMO_POSTS.filter(p => p.tag === 'Opportunity') : DEMO_POSTS;
+  const [liked, setLiked] = useState([]);
+  const [connected, setConnected] = useState([]);
   const Ex = () => React.createElement("span", {
-    className: "text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md",
+    className: "text-[9.5px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md",
     style: {
       background: 'rgba(245,199,122,.18)',
       color: '#F5C77A'
     }
   }, "Example");
+  const Avatar = ({
+    name,
+    size = 44
+  }) => React.createElement("span", {
+    className: "grid place-items-center rounded-full text-white font-semibold shrink-0",
+    style: {
+      width: size,
+      height: size,
+      background: `linear-gradient(135deg,${avatarHue(name)},${avatarHue(name)}AA)`,
+      fontSize: size * 0.36
+    }
+  }, initialsOf(name));
+  const toggleConn = n => setConnected(c => c.includes(n) ? c.filter(x => x !== n) : [...c, n]);
   return React.createElement(AppShell, null, React.createElement(PageHead, {
-    eyebrow: "Community \xB7 demo",
+    eyebrow: "Community",
     title: "Connect with the Lumera community.",
-    desc: "A preview with example posts. Create an account to post, reply and connect with real members."
+    desc: "Share what you\u2019re working on, add your LinkedIn, find people on the same path, and swap opportunities. This demo shows example posts and members."
   }), React.createElement("div", {
-    className: "flex flex-wrap items-center gap-2 mb-5"
-  }, [['Example members', DEMO_MEMBERS.length], ['Example posts', DEMO_POSTS.length], ['Opportunities', 1]].map(([l, n]) => React.createElement("span", {
-    key: l,
-    className: "lg-pill"
-  }, React.createElement("span", {
-    className: "tnum"
-  }, n), React.createElement("span", {
-    className: "text-muted font-medium"
-  }, l)))), React.createElement("div", {
-    role: "tablist",
-    "aria-label": "Community",
-    className: "inline-flex flex-wrap gap-1 rounded-full p-1 mb-4 topbar-pill"
+    className: "rounded-2xl p-5 mb-4 text-white flex flex-wrap items-center gap-6",
+    style: {
+      background: 'linear-gradient(135deg,#7C3AED 0%,#4F46E5 50%,#0D9488 100%)'
+    }
+  }, [['Example members', DEMO_MEMBERS.length], ['Your connections', connected.length], ['Example posts', DEMO_POSTS.length], ['Opportunities', DEMO_OPPS.length]].map(([l, n]) => React.createElement("div", {
+    key: l
+  }, React.createElement("div", {
+    className: "font-serif text-3xl"
+  }, n), React.createElement("div", {
+    className: "text-xs opacity-85"
+  }, l))), React.createElement("a", {
+    href: "https://www.linkedin.com/",
+    target: "_blank",
+    rel: "noopener noreferrer",
+    className: "ml-auto btn bg-white/15 hover:bg-white/25 text-white text-sm"
+  }, "Open LinkedIn ", React.createElement(Icon, {
+    name: "arrowR",
+    size: 13,
+    className: "-rotate-45"
+  }))), React.createElement("div", {
+    className: "flex gap-2 mb-4 flex-wrap"
   }, ['Feed', 'Members', 'Opportunities'].map(t => React.createElement("button", {
     key: t,
-    role: "tab",
-    "aria-selected": tab === t,
     onClick: () => setTab(t),
-    className: cx('rounded-full px-4 py-2 text-[13px] font-semibold transition', tab === t ? 'topbar-on' : 'text-charcoal/75 hover:text-charcoal')
-  }, t))), React.createElement("div", {
+    className: cx('chip', tab === t && 'on')
+  }, t))), tab === 'Feed' && React.createElement("div", {
     className: "grid lg:grid-cols-3 gap-4"
   }, React.createElement("div", {
     className: "lg:col-span-2 space-y-3"
   }, React.createElement(Card, {
-    hover: false,
-    className: "flex items-center gap-3"
-  }, React.createElement(MemberAvatar, {
-    name: "You"
-  }), React.createElement("div", {
-    className: "flex-1 rounded-2xl border border-line bg-cream/50 px-3.5 py-3 text-sm text-faint"
-  }, "Posting needs an account"), React.createElement(Btn, {
-    variant: "gold",
-    to: "/signup"
-  }, "Create account")), tab === 'Members' ? React.createElement(Card, {
-    hover: false
-  }, React.createElement("ul", {
-    className: "divide-y divide-line"
-  }, DEMO_MEMBERS.map(([n, h]) => React.createElement("li", {
-    key: n,
-    className: "flex items-center gap-3 py-3"
-  }, React.createElement(MemberAvatar, {
-    name: n
-  }), React.createElement("span", {
-    className: "flex-1 min-w-0"
-  }, React.createElement("span", {
-    className: "flex items-center gap-2 text-sm font-semibold text-charcoal"
-  }, n, " ", React.createElement(Ex, null)), React.createElement("span", {
-    className: "block text-xs text-muted truncate"
-  }, h)))))) : shown.map(p => React.createElement(Card, {
-    key: p.id,
     hover: false
   }, React.createElement("div", {
-    className: "flex items-start gap-3"
-  }, React.createElement(MemberAvatar, {
+    className: "flex items-center gap-3"
+  }, React.createElement(Avatar, {
+    name: "You"
+  }), React.createElement("div", {
+    className: "flex-1 rounded-xl border border-line bg-cream/60 px-3 py-2.5 text-sm text-faint"
+  }, "Posting and linking your LinkedIn needs an account"), React.createElement(Btn, {
+    variant: "gold",
+    to: "/signup"
+  }, "Create account"))), DEMO_POSTS.map((p, i) => React.createElement(Card, {
+    key: i
+  }, React.createElement("div", {
+    className: "flex gap-3"
+  }, React.createElement(Avatar, {
     name: p.name
   }), React.createElement("div", {
     className: "flex-1 min-w-0"
   }, React.createElement("div", {
-    className: "flex flex-wrap items-center gap-2"
+    className: "flex items-center gap-2 flex-wrap"
   }, React.createElement("span", {
     className: "font-semibold text-charcoal text-sm"
   }, p.name), React.createElement(Ex, null), React.createElement("span", {
     className: "text-xs text-faint"
-  }, p.headline, " \xB7 ", p.ago)), React.createElement("span", {
-    className: "inline-block mt-1.5 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-gold/12 text-goldd"
-  }, p.tag), React.createElement("p", {
-    className: "text-sm text-charcoal/90 mt-2 leading-relaxed"
-  }, p.body), React.createElement("div", {
-    className: "flex items-center gap-2 mt-3"
+  }, "\xB7 ", p.ago), React.createElement("span", {
+    className: "ml-auto text-[11px] rounded-full px-2 py-0.5",
+    style: {
+      background: avatarHue(p.name) + '22',
+      color: avatarHue(p.name)
+    }
+  }, p.tag)), React.createElement("div", {
+    className: "text-xs text-faint"
+  }, p.head), React.createElement("p", {
+    className: "text-sm text-charcoal/85 mt-2 leading-relaxed"
+  }, p.text), React.createElement("div", {
+    className: "flex items-center gap-4 mt-3 pt-3 border-t border-line"
   }, React.createElement("button", {
-    onClick: () => setLiked(l => ({
-      ...l,
-      [p.id]: !l[p.id]
-    })),
-    "aria-pressed": !!liked[p.id],
-    className: cx('btn btn-ghost px-3 py-1.5 text-xs', liked[p.id] && 'text-berry')
+    onClick: () => setLiked(l => l.includes(i) ? l.filter(x => x !== i) : [...l, i]),
+    "aria-pressed": liked.includes(i),
+    className: cx('text-xs flex items-center gap-1', liked.includes(i) ? 'text-berry' : 'text-muted')
   }, React.createElement(Icon, {
     name: "heart",
     size: 13
-  }), React.createElement("span", {
-    className: "tnum"
-  }, p.likes + (liked[p.id] ? 1 : 0))), p.replies.length > 0 && React.createElement("button", {
-    onClick: () => setOpen(o => ({
-      ...o,
-      [p.id]: !o[p.id]
-    })),
-    "aria-expanded": !!open[p.id],
-    className: "btn btn-ghost px-3 py-1.5 text-xs"
-  }, React.createElement(Icon, {
-    name: "chat",
-    size: 13
-  }), p.replies.length, " ", p.replies.length === 1 ? 'reply' : 'replies')), open[p.id] && React.createElement("div", {
-    className: "mt-3 space-y-2 border-l-2 border-line pl-3"
-  }, p.replies.map(([n, b], i) => React.createElement("div", {
-    key: i,
-    className: "text-sm"
-  }, React.createElement("span", {
-    className: "font-semibold text-charcoal"
-  }, n), " ", React.createElement(Ex, null), " ", React.createElement("span", {
-    className: "text-charcoal/85"
-  }, b))))))))), React.createElement("div", {
-    className: "space-y-3"
+  }), p.likes + (liked.includes(i) ? 1 : 0)))))))), React.createElement("div", {
+    className: "space-y-4"
   }, React.createElement(Card, {
     hover: false
   }, React.createElement(Eyebrow, {
     className: "mb-2"
-  }, "How it works"), React.createElement("ul", {
-    className: "space-y-2 text-sm text-charcoal/85"
-  }, React.createElement("li", {
-    className: "flex gap-2"
-  }, React.createElement(Icon, {
-    name: "lock",
-    size: 15,
-    className: "text-goldd mt-0.5 shrink-0"
-  }), "Your figures stay private. Members see only your name, headline and posts."), React.createElement("li", {
-    className: "flex gap-2"
-  }, React.createElement(Icon, {
-    name: "users",
-    size: 15,
-    className: "text-goldd mt-0.5 shrink-0"
-  }), "Connect with people on the same path."), React.createElement("li", {
-    className: "flex gap-2"
-  }, React.createElement(Icon, {
-    name: "flag",
-    size: 15,
-    className: "text-goldd mt-0.5 shrink-0"
-  }), "Anything unkind can be reported and is reviewed."))))));
+  }, "People to connect with"), React.createElement("div", {
+    className: "space-y-2.5"
+  }, DEMO_MEMBERS.slice(0, 4).map(mem => {
+    const on = connected.includes(mem.name);
+    return React.createElement("div", {
+      key: mem.name,
+      className: "flex items-center gap-2.5"
+    }, React.createElement(Avatar, {
+      name: mem.name,
+      size: 34
+    }), React.createElement("div", {
+      className: "min-w-0 flex-1"
+    }, React.createElement("div", {
+      className: "text-sm font-medium text-charcoal truncate"
+    }, mem.name), React.createElement("div", {
+      className: "text-[11px] text-faint truncate"
+    }, mem.head)), React.createElement("button", {
+      onClick: () => toggleConn(mem.name),
+      className: cx('text-[11px] font-semibold rounded-lg px-2.5 py-1 shrink-0', on ? 'bg-sage/12 text-saged' : 'btn-primary text-white')
+    }, on ? '✓' : 'Connect'));
+  }))), React.createElement(Card, {
+    hover: false
+  }, React.createElement(Eyebrow, {
+    className: "mb-2"
+  }, "Trending tags"), React.createElement("div", {
+    className: "flex flex-wrap gap-1.5"
+  }, ['Saving', 'FirstJob', 'Apprenticeships', 'Investing', 'Budgeting', 'Placements', 'Freelance', 'Economics'].map(t => React.createElement("span", {
+    key: t,
+    className: "text-[11px] rounded-full px-2.5 py-1",
+    style: {
+      background: avatarHue(t) + '1F',
+      color: avatarHue(t)
+    }
+  }, "#", t)))))), tab === 'Members' && React.createElement("div", {
+    className: "grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger"
+  }, DEMO_MEMBERS.map(mem => {
+    const on = connected.includes(mem.name);
+    return React.createElement(Card, {
+      key: mem.name
+    }, React.createElement("div", {
+      className: "flex items-center gap-3"
+    }, React.createElement(Avatar, {
+      name: mem.name,
+      size: 52
+    }), React.createElement("div", {
+      className: "min-w-0"
+    }, React.createElement("div", {
+      className: "font-serif text-lg text-charcoal truncate"
+    }, mem.name), React.createElement("div", {
+      className: "text-xs text-faint flex items-center gap-1.5"
+    }, mem.loc, " ", React.createElement(Ex, null)))), React.createElement("p", {
+      className: "text-sm text-charcoal/85 mt-2"
+    }, mem.head), React.createElement("div", {
+      className: "flex flex-wrap gap-1.5 mt-2"
+    }, mem.tags.map(t => React.createElement("span", {
+      key: t,
+      className: "text-[11px] rounded-full px-2 py-0.5",
+      style: {
+        background: avatarHue(mem.name) + '1F',
+        color: avatarHue(mem.name)
+      }
+    }, t))), React.createElement("div", {
+      className: "flex items-center gap-2 mt-3 pt-3 border-t border-line"
+    }, React.createElement("button", {
+      onClick: () => toggleConn(mem.name),
+      className: cx('btn text-sm flex-1', on ? 'btn-ghost' : 'btn-primary')
+    }, on ? '✓ Connected' : 'Connect')));
+  })), tab === 'Opportunities' && React.createElement("div", {
+    className: "grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger"
+  }, DEMO_OPPS.map(o => React.createElement(Card, {
+    key: o.title,
+    className: "flex flex-col"
+  }, React.createElement(Pill, {
+    tone: "gold"
+  }, o.type), React.createElement("div", {
+    className: "font-serif text-lg text-charcoal mt-2"
+  }, o.title), React.createElement("p", {
+    className: "text-sm text-muted mt-2 leading-relaxed flex-1"
+  }, o.text), React.createElement("a", {
+    href: o.li,
+    target: "_blank",
+    rel: "noopener noreferrer",
+    className: "btn btn-ghost mt-3 py-2 text-xs justify-between"
+  }, "Search on LinkedIn ", React.createElement(Icon, {
+    name: "arrowR",
+    size: 11,
+    className: "-rotate-45"
+  }))))));
 }
 function Community() {
   const app = useApp();
@@ -25409,15 +25559,32 @@ function Community() {
     title: "Connect with the Lumera community.",
     desc: "Share what you are working on, find people on the same path, and swap opportunities."
   }), React.createElement("div", {
-    className: "flex flex-wrap items-center gap-2 mb-5"
-  }, [['Members', stats && stats.members], ['Posts', stats && stats.posts], ['Opportunities', stats && stats.opportunities], ['Your connections', stats && stats.connections]].map(([l, n]) => React.createElement("span", {
-    key: l,
-    className: "lg-pill"
-  }, React.createElement("span", {
-    className: "tnum"
-  }, n == null ? '–' : n), React.createElement("span", {
-    className: "text-muted font-medium"
-  }, l)))), profile === undefined ? React.createElement("div", {
+    className: "rounded-2xl p-5 mb-4 text-white flex flex-wrap items-center gap-6",
+    style: {
+      background: 'linear-gradient(135deg,#7C3AED 0%,#4F46E5 50%,#0D9488 100%)'
+    }
+  }, [['Members', stats && stats.members], ['Your connections', stats && stats.connections], ['Posts', stats && stats.posts], ['Opportunities', stats && stats.opportunities]].map(([l, n]) => React.createElement("div", {
+    key: l
+  }, React.createElement("div", {
+    className: "font-serif text-3xl tnum"
+  }, n == null ? '–' : n), React.createElement("div", {
+    className: "text-xs opacity-85"
+  }, l))), profile && (profile.linkedin ? React.createElement("a", {
+    href: profile.linkedin,
+    target: "_blank",
+    rel: "noopener noreferrer",
+    className: "ml-auto btn bg-white/15 hover:bg-white/25 text-white text-sm"
+  }, "Your LinkedIn ", React.createElement(Icon, {
+    name: "arrowR",
+    size: 13,
+    className: "-rotate-45"
+  })) : React.createElement("button", {
+    onClick: () => setEditing(true),
+    className: "ml-auto btn bg-white/15 hover:bg-white/25 text-white text-sm"
+  }, "Add your LinkedIn ", React.createElement(Icon, {
+    name: "plus",
+    size: 13
+  })))), profile === undefined ? React.createElement("div", {
     className: "space-y-3",
     "aria-label": "Loading"
   }, React.createElement("div", {
@@ -26193,7 +26360,9 @@ function App() {
     email = email || 'you@email.com';
     const accts = loadAccounts();
     if (accts[email]) {
-      return login(email);
+      const e = new Error('An account with this email already exists in this browser. Log in instead, or use a different email.');
+      e.code = 'exists';
+      throw e;
     }
     const u = {
       name: name || email.split('@')[0],
