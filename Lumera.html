@@ -2441,9 +2441,13 @@ const WORLD_KEYS = ['leaf','atlas','shield','forge'];
 function defaultLayout(){
   return {
     worlds: WORLD_KEYS.reduce((o,k)=>{ o[k]=true; return o; }, {}),
-    sections: NAV.map(g=>({ name:g.section, on:true, items:g.items.map(i=>i.to) }))
+    sections: NAV.map(g=>({ name:g.section, on:true, items:g.items.map(i=>i.to) })),
+    moved: [],          // world pages shown in the main Lumera menu instead
   };
 }
+// Pages the admin portal has moved from a world into Lumera itself.
+let _movedRoutes = new Set();
+function setMovedRoutes(layout){ _movedRoutes = new Set((layout && Array.isArray(layout.moved)) ? layout.moved : []); }
 
 /* Merge what was saved with the defaults, so a page added in code still
    shows up for someone whose layout was saved before it existed. */
@@ -2478,13 +2482,15 @@ function loadLayout(){
     missing.forEach(r=>{ seenItem[r]=1; });
   });
 
-  return { worlds, sections };
+  const moved = (Array.isArray(saved.moved)?saved.moved:[]).filter(r=>typeof r==='string' && r.charAt(0)==='/');
+  return { worlds, sections, moved };
 }
 
 /* Which world does a route belong to? Lumera's own routes belong to nobody,
    so they can never be switched off by a world toggle. */
 let _worldOfRoute = null;
 function worldOfRoute(path){
+  if(_movedRoutes.has(path)) return null;   // moved into Lumera: no world can switch it off
   if(!_worldOfRoute){
     if(typeof SUBS==='undefined') return null;   // SUBS is declared further down
     _worldOfRoute = {};
@@ -2555,7 +2561,7 @@ function Sidebar(){
           <div className="px-3 mb-1.5 text-[10px] tracking-[.22em] uppercase text-faint">{grp.section}</div>
           {grp.items.filter(it=>routeAllowed(app.layout,it.to)).map(navBtn)}</div>);
         // Inside a sub-product: show only that product's tools + a way back to Lumera.
-        if(inProduct){ const tools=curSub.routes.filter(r=>flagForRoute(app.flags,r)).map(r=>NAV_BY_ROUTE[r]).filter(Boolean);
+        if(inProduct){ const tools=curSub.routes.filter(r=>!_movedRoutes.has(r) && flagForRoute(app.flags,r)).map(r=>NAV_BY_ROUTE[r]).filter(Boolean);
           return <>
             <button onClick={backToLumera} className="w-full flex items-center gap-2 rounded-xl px-3 py-2 mb-3 text-xs text-muted hover:bg-sand hover:text-charcoal transition">
               <Icon name="chevron" size={14} className="rotate-180"/>Back to Lumera</button>
@@ -2565,7 +2571,7 @@ function Sidebar(){
         }
         // Lumera home (Spark): core tools, then one link per sub-product.
         const lumeraSub=SUBS.find(s=>s.key==='lumera');
-        const core=lumeraSub.routes.filter(r=>isFeatured(r,band)&&flagForRoute(app.flags,r)).map(r=>NAV_BY_ROUTE[r]).filter(Boolean);
+        const core=lumeraSub.routes.filter(r=>isFeatured(r,band)&&flagForRoute(app.flags,r)).concat([..._movedRoutes].filter(r=>flagForRoute(app.flags,r))).map(r=>NAV_BY_ROUTE[r]).filter(Boolean);
         const products=SUBS.filter(s=>s.key!=='lumera' && worldOn(app.layout,s.key));
         return <>
           <div className="mb-4">
@@ -3478,6 +3484,7 @@ const SHARED_ROUTES = new Set(['/assistant','/settings','/badges','/chats','/upd
 let _lastProduct = 'lumera';
 try{ _lastProduct = sessionStorage.getItem('lumera_world') || 'lumera'; }catch(e){}
 function productOf(path){
+  if(_movedRoutes.has(path)){ _lastProduct='lumera'; return 'lumera'; }
   const own = ROUTE_PRODUCT[path];
   if(own){ _lastProduct = own; try{ sessionStorage.setItem('lumera_world', own); }catch(e){} return own; }
   if(SHARED_ROUTES.has(path)) return _lastProduct;   // inherit the world you came from
@@ -11443,6 +11450,7 @@ function App(){
   },[]);
   const [flags,setFlagsState] = useState(loadFlags);
   const [layout,setLayoutState] = useState(loadLayout);
+  setMovedRoutes(layout);   // read synchronously by the router and sidebar
   const setFlag = useCallback((key,on)=>{ setFlagsState(f=>{ const nf={...f,[key]:on}; try{ localStorage.setItem(FLAG_KEY, JSON.stringify(nf)); }catch(e){} return nf; }); },[]);
   // Re-read flags if the admin portal changes them in another tab.
   useEffect(()=>{ const h=(e)=>{ if(e.key===FLAG_KEY) setFlagsState(loadFlags()); if(e.key===LAYOUT_KEY) setLayoutState(loadLayout()); }; window.addEventListener('storage',h); return ()=>window.removeEventListener('storage',h); },[]);

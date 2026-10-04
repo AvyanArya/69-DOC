@@ -794,9 +794,20 @@ const ROUTE_WORLD={};
 
 const NAV_LABEL={}; APP_NAV.forEach(([,items])=>items.forEach(([to,label])=>{ NAV_LABEL[to]=label; }));
 
+// Every page that lives inside a world, so any of them can be moved into the
+// main Lumera menu. Must mirror SUBS in Lumera.html.
+const WORLD_PAGES=[
+  ['/learn','Learn','leaf'],['/quiz','Money Quiz','leaf'],['/challenges','Challenges','leaf'],['/resources','Knowledge Hub','leaf'],
+  ['/invest','Investing','atlas'],['/market','Markets','atlas'],['/exchanges','How Markets Work','atlas'],['/globe','Global Markets','atlas'],['/world','World Monitor','atlas'],['/news','News','atlas'],
+  ['/credit','Credit','shield'],['/debt','Debt','shield'],['/insurance','Insurance','shield'],['/retirement','Retirement','shield'],
+  ['/careers','Finance Careers','forge'],['/firms','Top Finance Firms','forge'],['/universities','Universities','forge'],['/tests','Test Centre','forge'],
+  ['/subjects','Subject Selection','forge'],['/finance-vs-econ','Finance vs Economics','forge'],['/prep','Career Prep Hub','forge'],
+  ['/career-lab','CV & LinkedIn Lab','forge'],['/opportunities','Opportunities','forge'],['/sideincome','Side Income','forge'],['/salary','Salary Check','forge'],
+];
+function setMoved(route,on){ const L=getLayout(); const m=new Set(L.moved||[]); if(on) m.add(route); else m.delete(route); L.moved=[...m]; putLayout(L); }
 function defaultLayout(){
   return { worlds:WORLDS.reduce((o,w)=>{ o[w[0]]=true; return o; },{}),
-           sections:APP_NAV.map(([name,items])=>({ name, on:true, items:items.map(i=>i[0]) })) };
+           sections:APP_NAV.map(([name,items])=>({ name, on:true, items:items.map(i=>i[0]) })), moved:[] };
 }
 
 /* Saved layout merged over the defaults, so a page added in code still appears. */
@@ -820,7 +831,8 @@ function getLayout(){
     else if(!seenSec[sec.name]) sections.push({ name:sec.name, on:true, items:missing.length?missing:sec.items.slice() });
     missing.forEach(r=>{ seenItem[r]=1; });
   });
-  return { worlds, sections };
+  const moved=(Array.isArray(saved.moved)?saved.moved:[]).filter(r=>WORLD_PAGES.some(p=>p[0]===r));
+  return { worlds, sections, moved };
 }
 
 function putLayout(l){ saveJSON(LAYOUT,l); broadcast(LAYOUT); render(); }
@@ -884,6 +896,14 @@ function renderSections(){
       <div class="eyebrow">Worlds</div>
       <p class="page-desc" style="margin-bottom:6px;">Switching a world off removes it from the family grid, the sidebar and the landing page, and closes its pages by URL as well.</p>
       ${WORLDS.map(worldCard).join('')}
+    </div>
+
+    <div class="card" style="margin-bottom:14px;">
+      <div class="eyebrow">Move world pages into Lumera</div>
+      <p class="page-desc" style="margin-bottom:8px;">A moved page appears in the main Lumera menu, opens in the Lumera look, and leaves its world's menu. It stays reachable even if its world is switched off.</p>
+      ${WORLDS.map(([wk,wname,,colour])=>`<div style="margin-top:12px;"><div style="font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${colour};margin-bottom:6px;">${escapeHtml(wname)}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">${WORLD_PAGES.filter(p=>p[2]===wk).map(([r,label])=>{ const on=(L.moved||[]).includes(r);
+          return `<button class="btn sm ${on?'gold':'ghost'}" onclick="setMoved('${r}',${!on})" aria-pressed="${on}">${on?'✓ In Lumera':'Move to Lumera'} · ${escapeHtml(label)}</button>`; }).join('')}</div></div>`).join('')}
     </div>
 
     <div class="card" style="margin-bottom:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">

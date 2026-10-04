@@ -4987,8 +4987,13 @@ function defaultLayout() {
       name: g.section,
       on: true,
       items: g.items.map(i => i.to)
-    }))
+    })),
+    moved: []
   };
+}
+let _movedRoutes = new Set();
+function setMovedRoutes(layout) {
+  _movedRoutes = new Set(layout && Array.isArray(layout.moved) ? layout.moved : []);
 }
 function loadLayout() {
   const def = defaultLayout();
@@ -5031,13 +5036,16 @@ function loadLayout() {
       seenItem[r] = 1;
     });
   });
+  const moved = (Array.isArray(saved.moved) ? saved.moved : []).filter(r => typeof r === 'string' && r.charAt(0) === '/');
   return {
     worlds,
-    sections
+    sections,
+    moved
   };
 }
 let _worldOfRoute = null;
 function worldOfRoute(path) {
+  if (_movedRoutes.has(path)) return null;
   if (!_worldOfRoute) {
     if (typeof SUBS === 'undefined') return null;
     _worldOfRoute = {};
@@ -5184,7 +5192,7 @@ function Sidebar() {
       className: "px-3 mb-1.5 text-[10px] tracking-[.22em] uppercase text-faint"
     }, grp.section), grp.items.filter(it => routeAllowed(app.layout, it.to)).map(navBtn)));
     if (inProduct) {
-      const tools = curSub.routes.filter(r => flagForRoute(app.flags, r)).map(r => NAV_BY_ROUTE[r]).filter(Boolean);
+      const tools = curSub.routes.filter(r => !_movedRoutes.has(r) && flagForRoute(app.flags, r)).map(r => NAV_BY_ROUTE[r]).filter(Boolean);
       return React.createElement(React.Fragment, null, React.createElement("button", {
         onClick: backToLumera,
         className: "w-full flex items-center gap-2 rounded-xl px-3 py-2 mb-3 text-xs text-muted hover:bg-sand hover:text-charcoal transition"
@@ -5197,7 +5205,7 @@ function Sidebar() {
       }, curSub.tag), tools.map(navBtn));
     }
     const lumeraSub = SUBS.find(s => s.key === 'lumera');
-    const core = lumeraSub.routes.filter(r => isFeatured(r, band) && flagForRoute(app.flags, r)).map(r => NAV_BY_ROUTE[r]).filter(Boolean);
+    const core = lumeraSub.routes.filter(r => isFeatured(r, band) && flagForRoute(app.flags, r)).concat([..._movedRoutes].filter(r => flagForRoute(app.flags, r))).map(r => NAV_BY_ROUTE[r]).filter(Boolean);
     const products = SUBS.filter(s => s.key !== 'lumera' && worldOn(app.layout, s.key));
     return React.createElement(React.Fragment, null, React.createElement("div", {
       className: "mb-4"
@@ -7508,6 +7516,10 @@ try {
   _lastProduct = sessionStorage.getItem('lumera_world') || 'lumera';
 } catch (e) {}
 function productOf(path) {
+  if (_movedRoutes.has(path)) {
+    _lastProduct = 'lumera';
+    return 'lumera';
+  }
   const own = ROUTE_PRODUCT[path];
   if (own) {
     _lastProduct = own;
@@ -26711,6 +26723,7 @@ function App() {
   }, []);
   const [flags, setFlagsState] = useState(loadFlags);
   const [layout, setLayoutState] = useState(loadLayout);
+  setMovedRoutes(layout);
   const setFlag = useCallback((key, on) => {
     setFlagsState(f => {
       const nf = {
