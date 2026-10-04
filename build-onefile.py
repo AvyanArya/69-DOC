@@ -82,7 +82,7 @@ def accents(key):
 def body_of(key):
     """The hero band plus the page body, for a generated sub-page."""
     s = src[key]
-    hero = s[s.index('    <div class="page-hero">'):s.index('</div>\n</div>\n\n<main class="rest" id="main">')]
+    hero = s[s.index('    <div class="page-hero'):s.index('</div>\n</div>\n\n<main class="rest" id="main">')]
     main = s[s.index('<main class="rest" id="main">') + len('<main class="rest" id="main">'):s.index('    <footer class="site-footer">')]
     return ('<div class="page-top"><div class="wash"></div>\n' + hero + '</div></div>\n'
             + '<div class="rest">' + main + '</div>')

@@ -415,7 +415,7 @@
     --charcoal:#F2F1F8; --muted:#B8B5CA; --sage:#6EE7A0; --clay:#FBA976;
 
     /* materials */
-    --lg-ground:#16122C;
+    --lg-ground:#24195E;
     --lg-panel:linear-gradient(180deg, rgba(255,255,255,.062), rgba(255,255,255,.030)), rgba(20,19,30,.58);
     --lg-glass:rgba(26,24,38,.66);
     --lg-glass-strong:rgba(22,21,33,.90);
@@ -638,12 +638,12 @@
   html[data-skin="glass"] .atmo{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;
     background:
       radial-gradient(1200px 820px at 10% -14%, rgba(var(--glow,157,124,255),.55), transparent 62%),
-      radial-gradient(980px 760px at 104% 18%, rgba(236,72,153,.32), transparent 64%),
-      radial-gradient(1100px 760px at 46% 124%, rgba(251,191,36,.24), transparent 62%),
-      radial-gradient(900px 700px at -6% 80%, rgba(45,212,191,.22), transparent 60%),
-      radial-gradient(700px 500px at 70% 55%, rgba(99,102,241,.16), transparent 60%),
-      var(--lg-ground); }
-  html[data-skin="glass"] .atmo .aurora{ position:absolute; border-radius:50%; filter:blur(90px); opacity:.6; will-change:transform; }
+      radial-gradient(980px 760px at 104% 18%, rgba(236,72,153,.45), transparent 64%),
+      radial-gradient(1100px 760px at 46% 124%, rgba(251,191,36,.34), transparent 62%),
+      radial-gradient(900px 700px at -6% 80%, rgba(45,212,191,.36), transparent 60%),
+      radial-gradient(700px 500px at 70% 55%, rgba(99,102,241,.30), transparent 60%),
+      linear-gradient(155deg,#3A1878 0%,#24206E 38%,#123E6E 70%,#0F5A63 100%); }
+  html[data-skin="glass"] .atmo .aurora{ position:absolute; border-radius:50%; filter:blur(90px); opacity:.75; will-change:transform; }
   html[data-skin="glass"] .atmo .a1{ width:42vw; height:42vw; min-width:380px; min-height:380px; top:-16vw; left:-10vw;
     background:radial-gradient(circle, rgba(var(--glow,157,124,255),.9), transparent 66%); animation:lg-drift-a 70s ease-in-out infinite alternate; }
   html[data-skin="glass"] .atmo .a2{ width:36vw; height:36vw; min-width:340px; min-height:340px; top:30vh; right:-14vw;
@@ -2593,11 +2593,10 @@ function Sidebar(){
                 <MascotAvatar kind={s.key} color={active?'#ffffff':s.accent} size={32}/>
                 <span className="flex-1 text-left leading-tight">
                   <span className="block font-semibold">{s.name}</span>
-                  <span className="block text-[10px]" style={{color:active?'rgba(255,255,255,.85)':s.accent}}>{s.tag}</span>
-                  <span className="soon-pill mt-1" style={{fontSize:'8.5px',padding:'2px 6px'}}>Coming soon</span></span>
+                  <span className="block text-[10px]" style={{color:active?'rgba(255,255,255,.85)':s.accent}}>{s.tag}</span></span>
                 {s.live
                   ? <Icon name="arrowR" size={14} style={{color:active?'#fff':s.accent}}/>
-                  : <span className="text-[9px] text-faint uppercase tracking-wider">soon</span>}
+                  : null}
               </button>; })}
           </div>}
         </>;
@@ -3022,6 +3021,11 @@ function Onboarding(){
     {k:'heardFrom', q:'How did you hear about us?', why:'Optional, and it helps us know where our community is coming from.', kind:'multi', other:true,
       opts:['A friend or family member','Instagram','TikTok','LinkedIn','YouTube','X (Twitter)','Search engine','School or university','A podcast','An event']},
   ];
+  // Language and currency are separate: picking a region only suggests a
+  // currency until the member chooses one themselves (header or question).
+  const ccyPicked=useRef(false);
+  const lastCcy=useRef(app.profile.currency);
+  useEffect(()=>{ const c=app.profile.currency; if(c && c!==lastCcy.current){ lastCcy.current=c; ccyPicked.current=true; setD(s=>({...s,currency:c})); } },[app.profile.currency]);
   const total=Q.length; const cur=Q[step]; const progress=Math.round(((step)/total)*100);
   // Single-choice questions need an answer; multi-select ones can be skipped.
   const answered = cur.kind==='multi' || cur.kind==='text' || !!d[cur.k];
@@ -3042,7 +3046,7 @@ function Onboarding(){
     app.nav('/review'); };
   return <div className="min-h-screen flex flex-col">
     <header className="px-4 sm:px-6 h-16 flex items-center gap-3 border-b border-line glass sticky top-0 z-20">
-      <button onClick={()=>logoHome(app)} aria-label="Lumera home"><Logo size={18}/></button><div className="flex-1"/><LanguageSwitcher compact/>
+      <button onClick={()=>logoHome(app)} aria-label="Lumera home"><Logo size={18}/></button><div className="flex-1"/><LanguageSwitcher compact/><CurrencySwitcher/>
       {!app.onboarded && <button onClick={()=>{app.completeOnboarding();app.nav('/dashboard');}} className="text-sm text-muted hover:text-charcoal">{t('skip')} →</button>}
     </header>
     <div className="h-1 bg-sand"><div className="h-full bg-gradient-to-r from-gold to-goldd transition-all duration-500" style={{width:progress+'%'}}/></div>
@@ -3070,12 +3074,12 @@ function Onboarding(){
                   placeholder="Other (tell us)" className="sm:col-span-2 w-full rounded-xl2 border border-line bg-cream px-4 py-3 focus:border-gold focus:outline-none"/>; })()}
             </div>}
             {cur.kind==='region' && <div className="grid gap-3">
-              {Object.entries(REGIONS).map(([k,r])=><button key={k} onClick={()=>setD(s=>({...s,region:k,currency:(REGIONS[k]||{}).currency||s.currency}))} className={cx('flex items-center gap-3 rounded-xl2 border px-4 py-3.5 transition',
+              {Object.entries(REGIONS).map(([k,r])=><button key={k} onClick={()=>setD(s=>({...s,region:k,currency:ccyPicked.current?s.currency:((REGIONS[k]||{}).currency||s.currency)}))} className={cx('flex items-center gap-3 rounded-xl2 border px-4 py-3.5 transition',
                 d.region===k?'border-gold bg-gold/10':'border-line bg-cream hover:bg-sand/60')}>
                 <span className="text-2xl">{r.flag}</span><span className="flex-1 text-left font-medium text-charcoal">{r.name}</span><span className="text-sm text-faint">{r.currency}</span>{d.region===k&&<Icon name="check" className="text-goldd"/>}</button>)}
             </div>}
             {cur.kind==='currency' && <div className="grid sm:grid-cols-2 gap-2.5 max-h-[60vh] overflow-y-auto no-scrollbar">
-              {Object.values(CURRENCIES).map(c=><button key={c.code} onClick={()=>set('currency',c.code)} className={cx('flex items-center gap-3 rounded-xl2 border px-4 py-3 transition', d.currency===c.code?'border-gold bg-gold/10':'border-line bg-cream hover:bg-sand/60')}>
+              {Object.values(CURRENCIES).map(c=><button key={c.code} onClick={()=>{ccyPicked.current=true; set('currency',c.code); app.updateProfile({currency:c.code});}} className={cx('flex items-center gap-3 rounded-xl2 border px-4 py-3 transition', d.currency===c.code?'border-gold bg-gold/10':'border-line bg-cream hover:bg-sand/60')}>
                 <span className="text-2xl">{c.flag}</span><span className="flex-1 text-left"><span className="font-medium text-charcoal">{c.code}</span><span className="text-xs text-faint block">{c.name}</span></span>{d.currency===c.code&&<Icon name="check" className="text-goldd"/>}</button>)}
             </div>}
             {cur.kind==='text' && <input {...NO_AUTOFILL} name={'lm-'+cur.k} aria-label={cur.q} value={d[cur.k]} onChange={e=>set(cur.k,e.target.value)} placeholder={cur.placeholder}
@@ -3438,16 +3442,16 @@ const SUBS = [
   { key:'lumera', name:'Lumera', tag:'Core money', accent:'#8B5CF6', emoji:'🪙', live:true,
     blurb:'The parent. Your everyday money HQ, budgeting, goals, net worth and the wealth simulator.',
     routes:['/dashboard','/benchmarks','/recommendations','/budget','/goals','/emergency','/subscriptions','/networth','/simulator','/twin','/chats','/community'] },
-  { key:'leaf', name:'Leaf', tag:'Learn & grow', accent:'#22C55E', emoji:'🌿', live:true,
+  { key:'leaf', name:'Leaf', tag:'Learn & grow', accent:'#20B257', emoji:'🌿', live:true,
     blurb:'Money education that doesn’t bore you, bite-size lessons and a deep knowledge hub.',
     routes:['/learn','/quiz','/challenges','/resources'] },
-  { key:'atlas', name:'Atlas', tag:'Markets & investing', accent:'#3B82F6', emoji:'🛰️', live:true,
+  { key:'atlas', name:'Atlas', tag:'Markets & investing', accent:'#2D68E2', emoji:'🛰️', live:true,
     blurb:'Markets explained for humans, stocks, indices, a globe of exchanges and plain-English news.',
     routes:['/invest','/market','/exchanges','/globe','/world','/news'] },
-  { key:'shield', name:'Shield', tag:'Protect & plan', accent:'#64748B', emoji:'🛡️', live:true,
+  { key:'shield', name:'Shield', tag:'Protect & plan', accent:'#5B6B84', emoji:'🛡️', live:true,
     blurb:'The grown-up stuff on your terms, credit building, insurance, debt payoff and long-term planning.',
     routes:['/credit','/debt','/insurance','/retirement'] },
-  { key:'forge', name:'Forge', tag:'Career & income', accent:'#C0873A', emoji:'🔥', live:true,
+  { key:'forge', name:'Forge', tag:'Career & income', accent:'#E38F11', emoji:'🔥', live:true,
     blurb:'Grow what you earn, not just what you save, side-income ideas, salary benchmarks and career moves.',
     routes:['/careers','/firms','/universities','/tests','/subjects','/finance-vs-econ','/prep','/career-lab','/opportunities','/sideincome','/salary'] },
 ];
@@ -3579,7 +3583,7 @@ function MascotAvatar({ kind='lumera', color='#8B5CF6', size=32 }){
     style={{width:size, height:size, background:`radial-gradient(circle at 50% 75%, ${color}55, ${color}18 70%)`,
       boxShadow:`inset 0 0 0 1px ${color}44`}}>
     <img src={art} alt="" aria-hidden="true" draggable="false"
-      style={{width:size*0.92, height:'auto', marginTop:size*0.08, display:'block'}}/>
+      style={kind==='forge'?{width:size*1.25, maxWidth:'none', height:'auto', marginTop:-size*0.68, display:'block'}:{width:size*0.92, height:'auto', marginTop:size*0.08, display:'block'}}/>
   </span>;
 }
 // '#22C55E' -> '34,197,94', so CSS rgba(var(--glow),a) can take a hex accent.
@@ -3753,7 +3757,6 @@ function ProductPage({ k }){
       {parts.map((e,i)=><span key={i} className="absolute floaty select-none pointer-events-none hidden sm:block" style={{left:`${18+i*26}%`, top:`${22+(i%2)*42}%`, fontSize:'24px', opacity:.55, animationDelay:`${i*0.8}s`, animationDuration:`${5+i}s`}}>{e}</span>)}
       <div className="relative">
         <button onClick={backToLumera} className="inline-flex items-center gap-1.5 text-xs font-semibold mb-6 px-3 py-1.5 rounded-full text-white hover:bg-white/25 transition" style={{background:'rgba(255,255,255,.18)'}}><Icon name="chevron" size={13} className="rotate-180"/>Lumera</button>
-        <span className="soon-pill ml-2 align-middle">Coming soon · preview</span>
         <div className="text-[11px] font-bold uppercase tracking-[.3em]" style={{color:'rgba(255,255,255,.85)'}}>{sub.key!=='lumera'?'A Lumera company':'The parent company'}</div>
         <div className="flex items-center gap-4 mt-3"><span className="text-5xl sm:text-7xl floaty" style={{filter:'drop-shadow(0 4px 10px rgba(0,0,0,.25))'}}>{sub.emoji}</span>
           <div><h1 className="font-serif text-5xl sm:text-7xl leading-none" style={{color:'#fff', textShadow:'0 2px 20px rgba(0,0,0,.2)'}}>{sub.name}</h1>
@@ -3882,7 +3885,7 @@ function ProductHub(){
             <p className="text-sm text-muted mt-3 leading-relaxed">{s.blurb}</p>
             {s.live
               ? <div className="flex flex-wrap gap-1.5 mt-4">{tools.slice(0,5).map(it=><span key={it.to} className="text-[11px] rounded-full bg-sand px-2 py-0.5 text-muted">{t(it.k)}</span>)}{tools.length>5&&<span className="text-[11px] text-faint px-1 py-0.5">+{tools.length-5}</span>}</div>
-              : <Pill className="mt-4">Coming soon</Pill>}
+              : null}
           </div>
         </Card>; })}
     </div>
@@ -4186,12 +4189,11 @@ function Dashboard(){
 
     {/* The family: each world with its character */}
     {worlds.length>0 && <section aria-labelledby="fam-title" className="mb-2">
-      <h2 id="fam-title" className="text-[11px] tracking-[.22em] uppercase text-faint font-semibold mb-3">The Lumera family · coming soon</h2>
+      <h2 id="fam-title" className="text-[11px] tracking-[.22em] uppercase text-faint font-semibold mb-3">The Lumera family</h2>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {worlds.map(s=><button key={s.key} onClick={()=>app.nav('/'+s.key)} aria-label={`Open ${s.name}, ${s.tag}`}
           className="lux-card lift relative overflow-hidden text-left !p-4 h-[140px] group" style={{'--glow':hexToRgbList(s.accent), borderColor:s.accent+'66'}}>
           <span aria-hidden="true" className="absolute inset-0 -z-0 pointer-events-none" style={{background:`radial-gradient(130% 130% at 100% 100%, ${s.accent}88, transparent 58%), linear-gradient(150deg, ${s.accent}38, ${s.accent}0A 70%)`}}/>
-          <span className="absolute bottom-3 left-4 z-[1]"><span className="soon-pill">Coming soon</span></span>
           <span className="relative block">
             <span className="block font-display text-[1.7rem] leading-none text-charcoal">{s.name}</span>
             <span className="block text-[11px] mt-1.5 font-semibold" style={{color:s.accent}}>{s.tag}</span>
@@ -10980,7 +10982,7 @@ const DEMO_OPPS=[
   {type:'Placement', title:'Design and UX placements', text:'Paid placements for students in design, UI and UX.', li:'https://www.linkedin.com/jobs/search/?keywords=ux%20design%20placement'},
 ];
 function DemoCommunity(){
-  const [tab,setTab]=useState('Feed'); const [liked,setLiked]=useState([]); const [connected,setConnected]=useState([]);
+  const [tab,setTab]=useState('Feed'); const [liked,setLiked]=useState([]); const [connected,setConnected]=useState([]); const [topic,setTopic]=useState('');
   const Ex=()=> <span className="text-[9.5px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md" style={{background:'rgba(245,199,122,.18)',color:'#F5C77A'}}>Example</span>;
   const Avatar=({name,size=44})=><span className="grid place-items-center rounded-full text-white font-semibold shrink-0" style={{width:size,height:size,background:`linear-gradient(135deg,${avatarHue(name)},${avatarHue(name)}AA)`,fontSize:size*0.36}}>{initialsOf(name)}</span>;
   const toggleConn=(n)=>setConnected(c=>c.includes(n)?c.filter(x=>x!==n):[...c,n]);
@@ -10991,33 +10993,57 @@ function DemoCommunity(){
       <a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" className="ml-auto btn bg-white/15 hover:bg-white/25 text-white text-sm">Open LinkedIn <Icon name="arrowR" size={13} className="-rotate-45"/></a>
     </div>
     <div className="flex gap-2 mb-4 flex-wrap">{['Feed','Members','Opportunities'].map(t=><button key={t} onClick={()=>setTab(t)} className={cx('chip',tab===t&&'on')}>{t}</button>)}</div>
-    {tab==='Feed' && <div>
-      {/* People first, as a scrolling row of colourful cards */}
-      <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2 mb-4 -mx-1 px-1">
-        {DEMO_MEMBERS.map(mem=>{ const on=connected.includes(mem.name); const h=avatarHue(mem.name);
-          return <div key={mem.name} className="shrink-0 w-[190px] rounded-2xl p-4 text-center" style={{background:`linear-gradient(160deg, ${h}55, ${h}14 70%)`, boxShadow:`inset 0 0 0 1px ${h}66`}}>
-            <div className="mx-auto w-fit"><Avatar name={mem.name} size={52}/></div>
-            <div className="mt-2 text-sm font-semibold text-charcoal truncate">{mem.name}</div>
-            <div className="text-[11px] text-charcoal/75 truncate">{mem.head}</div>
-            <button onClick={()=>toggleConn(mem.name)} className="mt-3 w-full rounded-full py-1.5 text-[12px] font-bold transition"
-              style={on?{background:'rgba(255,255,255,.18)',color:'#fff'}:{background:'#ffffff',color:'#1d1b2b',boxShadow:`0 6px 16px -6px ${h}`}}>{on?'✓ Connected':'Connect'}</button>
-          </div>; })}
+    {tab==='Feed' && <div className="grid lg:grid-cols-[220px_minmax(0,1fr)_280px] gap-5 items-start">
+      {/* Left: topics, each in its own colour */}
+      <aside className="space-y-3 lg:sticky lg:top-24">
+        <div className="rounded-2xl p-4" style={{background:'linear-gradient(160deg,#F472B6,#8B5CF6)',boxShadow:'0 14px 30px -14px #8B5CF6'}}>
+          <div className="text-[11px] font-bold uppercase tracking-wider text-white/85">Topics</div>
+          <div className="flex flex-wrap gap-1.5 mt-3">{['Saving','FirstJob','Apprenticeships','Investing','Budgeting','Placements','Freelance','Economics'].map(t=>
+            <button key={t} onClick={()=>setTopic(topic===t?'':t)} className="text-[12px] font-bold rounded-full px-3 py-1 transition"
+              style={topic===t?{background:'#fff',color:'#6D28D9'}:{background:'rgba(255,255,255,.2)',color:'#fff'}}>#{t}</button>)}</div>
+        </div>
+        <div className="rounded-2xl p-4 text-white" style={{background:'linear-gradient(160deg,#14B8A6,#2563EB)',boxShadow:'0 14px 30px -14px #2563EB'}}>
+          <div className="font-serif text-3xl leading-none">{connected.length}</div>
+          <div className="text-xs mt-1 opacity-90">connections you’ve made in this demo</div>
+          <a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-[12px] font-bold" style={{color:'#1D4ED8'}}>Open LinkedIn <Icon name="arrowR" size={11} className="-rotate-45"/></a>
+        </div>
+      </aside>
+      {/* Centre: the feed, each post with its own colour band */}
+      <div className="space-y-4 min-w-0">
+        <div className="rounded-2xl p-4 flex items-center gap-3" style={{background:'linear-gradient(120deg,rgba(251,191,36,.28),rgba(244,114,182,.24))',boxShadow:'inset 0 0 0 1px rgba(251,191,36,.45)'}}>
+          <Avatar name="You"/>
+          <div className="flex-1 text-sm text-charcoal/85">Posting and linking your LinkedIn needs an account.</div>
+          <Btn variant="gold" to="/signup">Create account</Btn></div>
+        {DEMO_POSTS.map((p,i)=>({p,i})).filter(({p})=>!topic||p.tag.replace(/\W/g,'').toLowerCase().includes(topic.toLowerCase())||p.text.toLowerCase().includes(topic.toLowerCase())).map(({p,i})=>{ const h=avatarHue(p.name);
+          return <article key={i} className="rounded-2xl overflow-hidden transition hover:-translate-y-1" style={{background:`linear-gradient(170deg, ${h}30, rgba(255,255,255,.04) 55%)`, boxShadow:`inset 0 0 0 1px ${h}55, 0 18px 36px -22px ${h}`}}>
+            <div className="h-1.5" style={{background:`linear-gradient(90deg, ${h}, ${avatarHue(p.tag)})`}}/>
+            <div className="p-4 flex gap-3"><Avatar name={p.name}/><div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap"><span className="font-semibold text-charcoal text-sm">{p.name}</span><Ex/><span className="text-xs text-faint">· {p.ago}</span>
+                <span className="ml-auto text-[11px] font-bold rounded-full px-2.5 py-0.5 text-white" style={{background:h}}>{p.tag}</span></div>
+              <div className="text-xs text-charcoal/70">{p.head}</div>
+              <p className="text-[15px] text-charcoal/95 mt-2 leading-relaxed">{p.text}</p>
+              <div className="flex items-center gap-2 mt-3">
+                <button onClick={()=>setLiked(l=>l.includes(i)?l.filter(x=>x!==i):[...l,i])} aria-pressed={liked.includes(i)} className="text-xs font-semibold flex items-center gap-1 rounded-full px-3 py-1 transition"
+                  style={liked.includes(i)?{background:'#F43F5E',color:'#fff'}:{background:'rgba(255,255,255,.1)',color:'rgb(var(--c-charcoal))'}}><Icon name="heart" size={13}/>{p.likes+(liked.includes(i)?1:0)}</button>
+              </div></div></div>
+          </article>; })}
       </div>
-      <div className="flex flex-wrap gap-1.5 mb-5">{['Saving','FirstJob','Apprenticeships','Investing','Budgeting','Placements','Freelance','Economics'].map(t=>
-        <span key={t} className="text-[12px] font-semibold rounded-full px-3 py-1" style={{background:avatarHue(t)+'2E',color:avatarHue(t)}}>#{t}</span>)}</div>
-      <div className="max-w-2xl mx-auto space-y-3">
-        <Card hover={false}><div className="flex items-center gap-3"><Avatar name="You"/>
-          <div className="flex-1 rounded-xl border border-line bg-cream/60 px-3 py-2.5 text-sm text-faint">Posting and linking your LinkedIn needs an account</div>
-          <Btn variant="gold" to="/signup">Create account</Btn></div></Card>
-        {DEMO_POSTS.map((p,i)=>{ const h=avatarHue(p.name); return <Card key={i} style={{boxShadow:`inset 3px 0 0 ${h}`}}><div className="flex gap-3"><Avatar name={p.name}/><div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap"><span className="font-semibold text-charcoal text-sm">{p.name}</span><Ex/><span className="text-xs text-faint">· {p.ago}</span>
-            <span className="ml-auto text-[11px] font-semibold rounded-full px-2.5 py-0.5" style={{background:h+'2E',color:h}}>{p.tag}</span></div>
-          <div className="text-xs text-faint">{p.head}</div>
-          <p className="text-[15px] text-charcoal/90 mt-2 leading-relaxed">{p.text}</p>
-          <div className="flex items-center gap-4 mt-3 pt-3 border-t border-line">
-            <button onClick={()=>setLiked(l=>l.includes(i)?l.filter(x=>x!==i):[...l,i])} aria-pressed={liked.includes(i)} className={cx('text-xs flex items-center gap-1',liked.includes(i)?'text-berry':'text-muted')}><Icon name="heart" size={13}/>{p.likes+(liked.includes(i)?1:0)}</button>
-          </div></div></div></Card>; })}
-      </div>
+      {/* Right: people and opportunities */}
+      <aside className="space-y-4 lg:sticky lg:top-24">
+        <div className="rounded-2xl p-4" style={{background:'linear-gradient(170deg,rgba(139,92,246,.35),rgba(139,92,246,.08))',boxShadow:'inset 0 0 0 1px rgba(167,139,250,.45)'}}>
+          <div className="text-[11px] font-bold uppercase tracking-wider" style={{color:'#C4B5FD'}}>People to meet</div>
+          <div className="mt-3 space-y-2.5">{DEMO_MEMBERS.slice(0,5).map(mem=>{ const on=connected.includes(mem.name); const h=avatarHue(mem.name);
+            return <div key={mem.name} className="flex items-center gap-2.5"><Avatar name={mem.name} size={36}/>
+              <div className="flex-1 min-w-0"><div className="text-[13px] font-semibold text-charcoal truncate">{mem.name}</div><div className="text-[11px] text-charcoal/70 truncate">{mem.head}</div></div>
+              <button onClick={()=>toggleConn(mem.name)} className="rounded-full px-2.5 py-1 text-[11px] font-bold shrink-0"
+                style={on?{background:'rgba(255,255,255,.15)',color:'#fff'}:{background:h,color:'#fff'}}>{on?'✓':'Connect'}</button></div>; })}</div>
+        </div>
+        <div className="rounded-2xl p-4" style={{background:'linear-gradient(170deg,rgba(245,158,11,.35),rgba(245,158,11,.08))',boxShadow:'inset 0 0 0 1px rgba(251,191,36,.45)'}}>
+          <div className="text-[11px] font-bold uppercase tracking-wider" style={{color:'#FCD34D'}}>Opportunities</div>
+          <div className="mt-3 space-y-2">{DEMO_OPPS.slice(0,3).map(o=><a key={o.title} href={o.li} target="_blank" rel="noopener noreferrer" className="block rounded-xl p-2.5 transition hover:-translate-y-0.5" style={{background:'rgba(255,255,255,.08)'}}>
+            <div className="text-[10px] font-bold uppercase" style={{color:'#FCD34D'}}>{o.type}</div><div className="text-[13px] font-semibold text-charcoal">{o.title}</div></a>)}</div>
+        </div>
+      </aside>
     </div>}
     {tab==='Members' && <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">{DEMO_MEMBERS.map(mem=>{ const on=connected.includes(mem.name);
       return <Card key={mem.name}><div className="flex items-center gap-3"><Avatar name={mem.name} size={52}/><div className="min-w-0"><div className="font-serif text-lg text-charcoal truncate">{mem.name}</div><div className="text-xs text-faint flex items-center gap-1.5">{mem.loc} <Ex/></div></div></div>

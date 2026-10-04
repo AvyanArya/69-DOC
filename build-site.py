@@ -80,7 +80,7 @@ body {
         radial-gradient(1300px 900px at -5% -10%, color-mix(in srgb, var(--accent-b) 55%, transparent), transparent 60%),
         radial-gradient(1100px 800px at 105% 25%, color-mix(in srgb, var(--accent-a) 45%, transparent), transparent 62%),
         radial-gradient(1000px 800px at 40% 115%, color-mix(in srgb, var(--accent-c) 30%, transparent), transparent 62%),
-        linear-gradient(180deg, #120F22, #0D0B18);
+        linear-gradient(160deg, color-mix(in srgb, var(--accent-a) 45%, #1A1446), #1C1A52 55%, color-mix(in srgb, var(--accent-b) 30%, #0E2A4A));
     background-attachment: fixed;
 }
 .page-top .wash { opacity: .9; }
@@ -90,12 +90,18 @@ body {
     border-color: color-mix(in srgb, var(--accent-b) 38%, rgba(255,255,255,.08));
 }
 .rest .panel h3, .rest .eyebrow { color: color-mix(in srgb, var(--accent-c) 70%, #ffffff); }
-.hero-mascot { position: absolute; right: 4%; bottom: -10px; width: min(300px, 34vw); height: auto; z-index: 0; pointer-events: none;
-    filter: drop-shadow(0 30px 60px color-mix(in srgb, var(--accent-b) 70%, transparent)); animation: heroFloat 6s ease-in-out infinite; }
-.page-hero > * { position: relative; z-index: 1; }
+.page-hero.has-art { display: grid; grid-template-columns: minmax(180px, 320px) 1fr; gap: 2.5rem; align-items: center; }
+.hero-mascot { width: 100%; height: auto; pointer-events: none;
+    filter: drop-shadow(0 30px 60px color-mix(in srgb, var(--accent-b) 75%, transparent)); animation: heroFloat 6s ease-in-out infinite; }
 @keyframes heroFloat { 50% { transform: translateY(-12px); } }
 @media (prefers-reduced-motion: reduce) { .hero-mascot { animation: none; } }
-@media (max-width: 720px) { .hero-mascot { opacity: .35; width: 180px; } }
+@media (max-width: 760px) { .page-hero.has-art { grid-template-columns: 1fr; gap: 1rem; } .hero-mascot { width: 170px; } }
+/* Cards float when you point at them. */
+.rest .panel { transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s ease, border-color .3s ease; }
+.rest .panel:hover { transform: translateY(-8px); box-shadow: 0 26px 50px -24px color-mix(in srgb, var(--accent-b) 80%, transparent); border-color: color-mix(in srgb, var(--accent-b) 65%, transparent); }
+.card-mascot { display: block; width: 76px; height: 76px; object-fit: contain; object-position: center 40%; margin-bottom: .6rem;
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,.4)); transition: transform .35s ease; }
+.panel:hover .card-mascot { transform: translateY(-4px) scale(1.06); }
 @media (max-width: 720px) {
     .page-hero { padding: 3.5rem 1.25rem .5rem; }
     .tool-list { grid-template-columns: 1fr; }
@@ -262,11 +268,13 @@ def page(fname, title, desc, accents, head, grad, lede, body, actions=None):
 <div class="page-top">
     <div class="wash"></div>
 %s
-    <div class="page-hero">
+    <div class="page-hero%s">
         %s
+        <div class="hero-text">
         <h1 class="page-title">%s <span class="grad">%s</span></h1>
         <p class="page-lede">%s</p>
         %s
+        </div>
     </div>
 </div>
 
@@ -281,7 +289,7 @@ def page(fname, title, desc, accents, head, grad, lede, body, actions=None):
 </body>
 </html>
 ''' % (title, desc, HEAD_LINKS, STYLE, a, b, c, SUB_CSS, ATMO, NAV,
-       mascot, head, grad, lede, actions_html, body, FOOTER, CONSENT_HTML, SCRIPT)
+       (' has-art' if mascot else ''), mascot, head, grad, lede, actions_html, body, FOOTER, CONSENT_HTML, SCRIPT)
 
     open(os.path.join(ROOT, fname), 'w').write(html)
     return fname
@@ -306,40 +314,59 @@ def sec(eyebrow, head, grad, sub='', body=''):
 
 # ---------------------------------------------------------------- the content
 WORLDS = [
-    dict(key='leaf', name='Leaf', tag='Learn &amp; grow', accents=('#15803d', '#22C55E', '#86efac'),
+    dict(key='leaf', name='Leaf', tag='Learn &amp; grow', accents=('#0E7A3A', '#20B257', '#86EFAC'),
          head='Money education', grad='that does not bore you',
          lede='Bite-size lessons, a daily word, flashcards that stick and a knowledge hub that goes as deep as you want. No lectures, no assumed head start.',
          tools=[('Lessons', 'Two-minute lessons that explain one idea properly and then get out of the way.'),
                 ('Money Quiz', 'Spaced-repetition flashcards, so what you learn on Monday is still there in March.'),
                 ('Challenges', 'Short streak-based challenges that turn a habit into a month of evidence.'),
-                ('Knowledge Hub', 'A curated shelf of the best places to learn, sorted by what you actually need.')],
+                ('Knowledge Hub', 'A curated shelf of the best places to learn, sorted by what you actually need.'),
+                ('Word of the Day', 'One money word a day, with a quick check that you really know it.'),
+                ('Money Habits', 'Tick off small daily habits and watch a streak build.'),
+                ('Glossary', 'Every term explained in plain English, one tap from wherever it appears.'),
+                ('Badges & streaks', 'Progress you can see, from your first lesson to a hundred-day streak.')],
          inside=['Two-minute lessons', 'Word of the day', 'Money quiz and flashcards', 'Weekly challenges',
                  'Knowledge hub', 'Badges and streaks']),
-    dict(key='atlas', name='Atlas', tag='Markets &amp; investing', accents=('#1d4ed8', '#3B82F6', '#93c5fd'),
+    dict(key='atlas', name='Atlas', tag='Markets &amp; investing', accents=('#1747B0', '#2D68E2', '#93C5FD'),
          head='Markets,', grad='decoded',
          lede='Every index, sector and stock with a plain-English read on why it moved. Spin the globe, watch the exchanges wake, and learn the language of money while you watch it.',
          tools=[('Investing', 'Educational pathways from emergency fund to a diversified portfolio.'),
                 ('Stock Market', 'Indices, sectors and stocks, each with a why-it-matters in human words.'),
                 ('Global Markets', 'A globe of exchanges you can spin, with regional news as they open.'),
-                ('World Monitor', 'The events moving markets, linked to the sources they came from.')],
+                ('World Monitor', 'The events moving markets, linked to the sources they came from.'),
+                ('How Markets Work', 'Exchanges, orders and indices explained from the ground up.'),
+                ('Market News', 'Plain-English headlines and what each one means for you.'),
+                ('Stock Insights', 'A clear read on any stock: what it does, what moves it, what to watch.'),
+                ('Sectors', 'Which parts of the market are rising or falling today, and why.')],
          inside=['Investment pathways', 'Indices and sectors', 'Stock insights', 'How markets work',
                  'Globe of exchanges', 'Plain-English news']),
-    dict(key='shield', name='Shield', tag='Protect &amp; plan', accents=('#475569', '#94A3B8', '#cbd5e1'),
+    dict(key='shield', name='Shield', tag='Protect &amp; plan', accents=('#2F3848', '#5B6B84', '#CBD5E1'),
          head='Nothing', grad='catches you',
          lede='Credit building, debt payoff, insurance and the long horizon. The grown-up decisions, explained on your terms and sized to the life you actually have.',
          tools=[('Credit', 'What actually moves a score, and the order to do things in.'),
                 ('Debt', 'Avalanche and snowball side by side on your real numbers.'),
                 ('Insurance', 'A risk score, then only the cover that matches it.'),
-                ('Retirement', 'Projections that survive inflation, not just a compound-interest toy.')],
+                ('Retirement', 'Projections that survive inflation, not just a compound-interest toy.'),
+                ('Emergency Fund', 'Your true safety number and the fastest way to reach it.'),
+                ('Credit Cards', 'How cards really work, and how to use one without paying for it.'),
+                ('Net Worth', 'What you own and owe on one line, tracked month to month.'),
+                ('Safety Benchmarks', 'How protected you are compared with people like you.')],
          inside=['Credit building', 'Debt payoff planner', 'Insurance risk score', 'Retirement projections',
                  'Emergency fund', 'Safety benchmarks']),
-    dict(key='forge', name='Forge', tag='Career &amp; income', accents=('#b45309', '#E0A94E', '#fcd34d'),
+    dict(key='forge', name='Forge', tag='Career &amp; income', accents=('#B4650A', '#E38F11', '#FCD34D'),
          head='Earn more,', grad='not just spend less',
          lede='Careers, firms, universities, admissions tests and what roles really pay. The fastest way to change your finances at nineteen is not a budget, it is a decision about what you do next.',
          tools=[('Finance Careers', 'What each path actually involves, and how people get in.'),
                 ('Universities', 'Shortlists with the admissions data behind them, not just rankings.'),
                 ('Test Centre', 'SAT, TMUA and the rest: tips, a score calculator, and what your score reaches.'),
-                ('Salary Check', 'Benchmarks by role and level, per year or per month.')],
+                ('Salary Check', 'Benchmarks by role and level, per year or per month.'),
+                ('Top Finance Firms', 'Who the big employers are and what working there is like.'),
+                ('Subject Selection', 'Which subjects open which doors, by career path.'),
+                ('Career Prep Hub', 'Skill roadmaps and interview practice for each route in.'),
+                ('CV & LinkedIn Lab', 'CV templates, best practice and a stronger LinkedIn profile.'),
+                ('Opportunities', 'Internships, competitions, programmes and scholarships.'),
+                ('Side Income', 'Realistic ways to earn alongside study or work.'),
+                ('Finance vs Economics', 'The difference between the two, and which suits you.')],
          inside=['Finance careers', 'Top firms', 'Universities', 'Admissions tests',
                  'Subject selection', 'CV and interview prep', 'Opportunities', 'Salary benchmarks']),
 ]
@@ -369,18 +396,19 @@ STEPS = [
 # ---------------------------------------------------------------- the pages
 WORLD_CARD = ('<a class="panel lg-panel world-card reveal" href="{key}.html" style="text-decoration:none;color:inherit">'
               '<span class="wash" style="background:{c}"></span>'
-              '<span class="badge" style="background:{c}22;color:{c}">{initial}</span>'
+              '<img class="card-mascot" src="assets/brand/{img}.webp" alt="" aria-hidden="true">'
               '<span class="tag" style="color:{c}">{tag}</span>'
               '<h3>{name}</h3><p>{blurb}</p>'
               '<span class="link" style="color:{c}">Explore {name} &rarr;</span></a>')
 
 MINI_CARD = ('<a class="panel lg-panel reveal" href="{key}.html" style="text-decoration:none;color:inherit">'
-             '<span class="badge" style="background:{c}22;color:{c}">{initial}</span>'
+             '<img class="card-mascot" src="assets/brand/{img}.webp" alt="" aria-hidden="true">'
              '<h3>{name}</h3><p>{tag}</p></a>')
 
 
 def world_cards(worlds, tpl=WORLD_CARD):
-    return ''.join(tpl.format(key=w['key'], c=w['accents'][1], initial=w['name'][0], tag=w['tag'],
+    img = {'leaf': 'sprout', 'atlas': 'nova', 'shield': 'sentinel', 'forge': 'blaze'}
+    return ''.join(tpl.format(key=w['key'], c=w['accents'][1], initial=w['name'][0], tag=w['tag'], img=img[w['key']],
                               name=w['name'], blurb=w['lede'].split('.')[0] + '.') for w in worlds)
 
 
@@ -411,14 +439,14 @@ def build():
         inside = '<ul class="tool-list">' + ''.join('<li>%s</li>' % i for i in w['inside']) + '</ul>'
         body = ('    <section class="section tight">' + panels(w['tools'], 2) + '</section>\n'
                 + sec('What is inside', 'The tools', 'you get',
-                      'Every one of these lives inside %s, and opens the moment you sign up.' % w['name'], inside)
+                      'Every one of these will live inside %s.' % w['name'], inside)
                 + sec('The rest of the family', 'It does not', 'stop here',
                       'Lumera is the hub, and the other three worlds are one click away.',
                       '<div class="grid-3">' + world_cards(others, MINI_CARD) + '</div>'))
         made.append(page('%s.html' % w['key'],
             '%s by Lumera | %s' % (w['name'], w['tag'].replace('&amp;', '&')),
             w['lede'][:150], w['accents'], w['head'], w['grad'], w['lede'], body,
-            actions=[('Open %s' % w['name'], 'app.html#/%s' % w['key'], True),
+            actions=[('Start free with Lumera', 'app.html#/signup', True),
                      ('See all four worlds', 'worlds.html', False)]))
 
     made.append(page('features.html', 'Features | Lumera',
@@ -473,7 +501,7 @@ def build():
     team_cards = ''.join(member(*t) for t in TEAM)
     team_css = ('<style>.team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px}'
         '.member{padding:0;overflow:hidden;display:flex;flex-direction:column}'
-        '.member .portrait{aspect-ratio:4/5;display:grid;place-items:center;background:linear-gradient(150deg,rgba(157,124,255,.35),rgba(235,199,122,.15))}'
+        '.member .portrait{aspect-ratio:4/5;flex:none;display:grid;place-items:center;background:linear-gradient(150deg,rgba(157,124,255,.35),rgba(235,199,122,.15))}'
         '.member .portrait img{width:100%;height:100%;object-fit:cover;object-position:50% 30%}'
         '.member .initials{font-family:var(--font-display);font-size:3rem;color:#fff}'
         '.member .info{padding:1rem 1.1rem 1.2rem}.member h3{font-family:var(--font-display);font-weight:400;font-size:1.7rem;margin:0}'

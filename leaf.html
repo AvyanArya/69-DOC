@@ -51,10 +51,10 @@ html { scroll-behavior: smooth; }
 body {
     background:
         radial-gradient(1300px 900px at -5% 0%, rgba(139,92,246,.42), transparent 60%),
-        radial-gradient(1100px 800px at 105% 20%, rgba(236,72,153,.28), transparent 62%),
-        radial-gradient(1000px 800px at 30% 60%, rgba(45,212,191,.14), transparent 62%),
+        radial-gradient(1100px 800px at 105% 20%, rgba(236,72,153,.42), transparent 62%),
+        radial-gradient(1000px 800px at 30% 60%, rgba(45,212,191,.30), transparent 62%),
         radial-gradient(1100px 800px at 80% 100%, rgba(251,191,36,.20), transparent 62%),
-        linear-gradient(180deg, #16122C, #110E22);
+        linear-gradient(155deg,#3A1878 0%,#24206E 38%,#123E6E 70%,#0F5A63 100%);
     background-attachment: fixed;
     color: hsl(var(--foreground));
     font-family: var(--font-body);
@@ -924,6 +924,7 @@ a.lg-panel:hover, .lg-panel.lift:hover {
     filter: drop-shadow(0 16px 24px color-mix(in srgb, var(--accent) 45%, transparent)) drop-shadow(0 2px 4px rgba(0,0,0,.35));
     transition: transform .6s var(--lg-ease); pointer-events: none;
 }
+.world-slab .who[src*="blaze"] { height: 9.5rem; bottom: 6px; object-fit: contain; }
 .world-slab:hover .who { transform: translateX(-50%) translateY(-6px); }
 .world-slab .body { padding: 1.2rem 1.4rem 1.4rem; display: flex; flex-direction: column; flex: 1; }
 .world-slab .tagline { font-size: .66rem; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); margin-bottom: .5rem; font-weight: 700; }
@@ -1067,7 +1068,7 @@ a.lg-panel:hover, .lg-panel.lift:hover {
     .deck-card { transition: none; }
 }
 </style>
-<style>:root { --accent-a: #15803d; --accent-b: #22C55E; --accent-c: #86efac; }</style>
+<style>:root { --accent-a: #0E7A3A; --accent-b: #20B257; --accent-c: #86EFAC; }</style>
 
 <style>
 /* Sub-pages share the landing's system; only the header band differs. */
@@ -1111,7 +1112,7 @@ body {
         radial-gradient(1300px 900px at -5% -10%, color-mix(in srgb, var(--accent-b) 55%, transparent), transparent 60%),
         radial-gradient(1100px 800px at 105% 25%, color-mix(in srgb, var(--accent-a) 45%, transparent), transparent 62%),
         radial-gradient(1000px 800px at 40% 115%, color-mix(in srgb, var(--accent-c) 30%, transparent), transparent 62%),
-        linear-gradient(180deg, #120F22, #0D0B18);
+        linear-gradient(160deg, color-mix(in srgb, var(--accent-a) 45%, #1A1446), #1C1A52 55%, color-mix(in srgb, var(--accent-b) 30%, #0E2A4A));
     background-attachment: fixed;
 }
 .page-top .wash { opacity: .9; }
@@ -1121,12 +1122,18 @@ body {
     border-color: color-mix(in srgb, var(--accent-b) 38%, rgba(255,255,255,.08));
 }
 .rest .panel h3, .rest .eyebrow { color: color-mix(in srgb, var(--accent-c) 70%, #ffffff); }
-.hero-mascot { position: absolute; right: 4%; bottom: -10px; width: min(300px, 34vw); height: auto; z-index: 0; pointer-events: none;
-    filter: drop-shadow(0 30px 60px color-mix(in srgb, var(--accent-b) 70%, transparent)); animation: heroFloat 6s ease-in-out infinite; }
-.page-hero > * { position: relative; z-index: 1; }
+.page-hero.has-art { display: grid; grid-template-columns: minmax(180px, 320px) 1fr; gap: 2.5rem; align-items: center; }
+.hero-mascot { width: 100%; height: auto; pointer-events: none;
+    filter: drop-shadow(0 30px 60px color-mix(in srgb, var(--accent-b) 75%, transparent)); animation: heroFloat 6s ease-in-out infinite; }
 @keyframes heroFloat { 50% { transform: translateY(-12px); } }
 @media (prefers-reduced-motion: reduce) { .hero-mascot { animation: none; } }
-@media (max-width: 720px) { .hero-mascot { opacity: .35; width: 180px; } }
+@media (max-width: 760px) { .page-hero.has-art { grid-template-columns: 1fr; gap: 1rem; } .hero-mascot { width: 170px; } }
+/* Cards float when you point at them. */
+.rest .panel { transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s ease, border-color .3s ease; }
+.rest .panel:hover { transform: translateY(-8px); box-shadow: 0 26px 50px -24px color-mix(in srgb, var(--accent-b) 80%, transparent); border-color: color-mix(in srgb, var(--accent-b) 65%, transparent); }
+.card-mascot { display: block; width: 76px; height: 76px; object-fit: contain; object-position: center 40%; margin-bottom: .6rem;
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,.4)); transition: transform .35s ease; }
+.panel:hover .card-mascot { transform: translateY(-4px) scale(1.06); }
 @media (max-width: 720px) {
     .page-hero { padding: 3.5rem 1.25rem .5rem; }
     .tool-list { grid-template-columns: 1fr; }
@@ -1254,21 +1261,23 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
                 </nav>
                 <div class="nav-divider"></div>
             </header>
-    <div class="page-hero">
+    <div class="page-hero has-art">
         <img class="hero-mascot" src="assets/brand/sprout.webp" alt="" aria-hidden="true">
+        <div class="hero-text">
         <h1 class="page-title">Money education <span class="grad">that does not bore you</span></h1>
         <p class="page-lede">Bite-size lessons, a daily word, flashcards that stick and a knowledge hub that goes as deep as you want. No lectures, no assumed head start.</p>
-        <div class="page-actions"><a class="btn-solid" href="app.html#/leaf">Open Leaf</a><a class="hero-secondary liquid-glass" style="padding:1rem 1.9rem" href="worlds.html">See all four worlds</a></div>
+        <div class="page-actions"><a class="btn-solid" href="app.html#/signup">Start free with Lumera</a><a class="hero-secondary liquid-glass" style="padding:1rem 1.9rem" href="worlds.html">See all four worlds</a></div>
+        </div>
     </div>
 </div>
 
 <main class="rest" id="main">
-    <section class="section tight"><div class="grid-2"><div class="panel lg-panel reveal"><h3>Lessons</h3><p>Two-minute lessons that explain one idea properly and then get out of the way.</p></div><div class="panel lg-panel reveal"><h3>Money Quiz</h3><p>Spaced-repetition flashcards, so what you learn on Monday is still there in March.</p></div><div class="panel lg-panel reveal"><h3>Challenges</h3><p>Short streak-based challenges that turn a habit into a month of evidence.</p></div><div class="panel lg-panel reveal"><h3>Knowledge Hub</h3><p>A curated shelf of the best places to learn, sorted by what you actually need.</p></div></div></section>
+    <section class="section tight"><div class="grid-2"><div class="panel lg-panel reveal"><h3>Lessons</h3><p>Two-minute lessons that explain one idea properly and then get out of the way.</p></div><div class="panel lg-panel reveal"><h3>Money Quiz</h3><p>Spaced-repetition flashcards, so what you learn on Monday is still there in March.</p></div><div class="panel lg-panel reveal"><h3>Challenges</h3><p>Short streak-based challenges that turn a habit into a month of evidence.</p></div><div class="panel lg-panel reveal"><h3>Knowledge Hub</h3><p>A curated shelf of the best places to learn, sorted by what you actually need.</p></div><div class="panel lg-panel reveal"><h3>Word of the Day</h3><p>One money word a day, with a quick check that you really know it.</p></div><div class="panel lg-panel reveal"><h3>Money Habits</h3><p>Tick off small daily habits and watch a streak build.</p></div><div class="panel lg-panel reveal"><h3>Glossary</h3><p>Every term explained in plain English, one tap from wherever it appears.</p></div><div class="panel lg-panel reveal"><h3>Badges & streaks</h3><p>Progress you can see, from your first lesson to a hundred-day streak.</p></div></div></section>
     <section class="section">
         <div class="sec-head left reveal">
             <div class="eyebrow">What is inside</div>
             <h2 class="sec-title">The tools <span class="grad">you get</span></h2>
-            <p class="sec-sub">Every one of these lives inside Leaf, and opens the moment you sign up.</p>
+            <p class="sec-sub">Every one of these will live inside Leaf.</p>
         </div>
         <ul class="tool-list"><li>Two-minute lessons</li><li>Word of the day</li><li>Money quiz and flashcards</li><li>Weekly challenges</li><li>Knowledge hub</li><li>Badges and streaks</li></ul>
     </section>
@@ -1278,7 +1287,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
             <h2 class="sec-title">It does not <span class="grad">stop here</span></h2>
             <p class="sec-sub">Lumera is the hub, and the other three worlds are one click away.</p>
         </div>
-        <div class="grid-3"><a class="panel lg-panel reveal" href="atlas.html" style="text-decoration:none;color:inherit"><span class="badge" style="background:#3B82F622;color:#3B82F6">A</span><h3>Atlas</h3><p>Markets &amp; investing</p></a><a class="panel lg-panel reveal" href="shield.html" style="text-decoration:none;color:inherit"><span class="badge" style="background:#94A3B822;color:#94A3B8">S</span><h3>Shield</h3><p>Protect &amp; plan</p></a><a class="panel lg-panel reveal" href="forge.html" style="text-decoration:none;color:inherit"><span class="badge" style="background:#E0A94E22;color:#E0A94E">F</span><h3>Forge</h3><p>Career &amp; income</p></a></div>
+        <div class="grid-3"><a class="panel lg-panel reveal" href="atlas.html" style="text-decoration:none;color:inherit"><img class="card-mascot" src="assets/brand/nova.webp" alt="" aria-hidden="true"><h3>Atlas</h3><p>Markets &amp; investing</p></a><a class="panel lg-panel reveal" href="shield.html" style="text-decoration:none;color:inherit"><img class="card-mascot" src="assets/brand/sentinel.webp" alt="" aria-hidden="true"><h3>Shield</h3><p>Protect &amp; plan</p></a><a class="panel lg-panel reveal" href="forge.html" style="text-decoration:none;color:inherit"><img class="card-mascot" src="assets/brand/blaze.webp" alt="" aria-hidden="true"><h3>Forge</h3><p>Career &amp; income</p></a></div>
     </section>
 
 

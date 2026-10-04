@@ -51,10 +51,10 @@ html { scroll-behavior: smooth; }
 body {
     background:
         radial-gradient(1300px 900px at -5% 0%, rgba(139,92,246,.42), transparent 60%),
-        radial-gradient(1100px 800px at 105% 20%, rgba(236,72,153,.28), transparent 62%),
-        radial-gradient(1000px 800px at 30% 60%, rgba(45,212,191,.14), transparent 62%),
+        radial-gradient(1100px 800px at 105% 20%, rgba(236,72,153,.42), transparent 62%),
+        radial-gradient(1000px 800px at 30% 60%, rgba(45,212,191,.30), transparent 62%),
         radial-gradient(1100px 800px at 80% 100%, rgba(251,191,36,.20), transparent 62%),
-        linear-gradient(180deg, #16122C, #110E22);
+        linear-gradient(155deg,#3A1878 0%,#24206E 38%,#123E6E 70%,#0F5A63 100%);
     background-attachment: fixed;
     color: hsl(var(--foreground));
     font-family: var(--font-body);
@@ -924,6 +924,7 @@ a.lg-panel:hover, .lg-panel.lift:hover {
     filter: drop-shadow(0 16px 24px color-mix(in srgb, var(--accent) 45%, transparent)) drop-shadow(0 2px 4px rgba(0,0,0,.35));
     transition: transform .6s var(--lg-ease); pointer-events: none;
 }
+.world-slab .who[src*="blaze"] { height: 9.5rem; bottom: 6px; object-fit: contain; }
 .world-slab:hover .who { transform: translateX(-50%) translateY(-6px); }
 .world-slab .body { padding: 1.2rem 1.4rem 1.4rem; display: flex; flex-direction: column; flex: 1; }
 .world-slab .tagline { font-size: .66rem; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); margin-bottom: .5rem; font-weight: 700; }
@@ -1111,7 +1112,7 @@ body {
         radial-gradient(1300px 900px at -5% -10%, color-mix(in srgb, var(--accent-b) 55%, transparent), transparent 60%),
         radial-gradient(1100px 800px at 105% 25%, color-mix(in srgb, var(--accent-a) 45%, transparent), transparent 62%),
         radial-gradient(1000px 800px at 40% 115%, color-mix(in srgb, var(--accent-c) 30%, transparent), transparent 62%),
-        linear-gradient(180deg, #120F22, #0D0B18);
+        linear-gradient(160deg, color-mix(in srgb, var(--accent-a) 45%, #1A1446), #1C1A52 55%, color-mix(in srgb, var(--accent-b) 30%, #0E2A4A));
     background-attachment: fixed;
 }
 .page-top .wash { opacity: .9; }
@@ -1121,12 +1122,18 @@ body {
     border-color: color-mix(in srgb, var(--accent-b) 38%, rgba(255,255,255,.08));
 }
 .rest .panel h3, .rest .eyebrow { color: color-mix(in srgb, var(--accent-c) 70%, #ffffff); }
-.hero-mascot { position: absolute; right: 4%; bottom: -10px; width: min(300px, 34vw); height: auto; z-index: 0; pointer-events: none;
-    filter: drop-shadow(0 30px 60px color-mix(in srgb, var(--accent-b) 70%, transparent)); animation: heroFloat 6s ease-in-out infinite; }
-.page-hero > * { position: relative; z-index: 1; }
+.page-hero.has-art { display: grid; grid-template-columns: minmax(180px, 320px) 1fr; gap: 2.5rem; align-items: center; }
+.hero-mascot { width: 100%; height: auto; pointer-events: none;
+    filter: drop-shadow(0 30px 60px color-mix(in srgb, var(--accent-b) 75%, transparent)); animation: heroFloat 6s ease-in-out infinite; }
 @keyframes heroFloat { 50% { transform: translateY(-12px); } }
 @media (prefers-reduced-motion: reduce) { .hero-mascot { animation: none; } }
-@media (max-width: 720px) { .hero-mascot { opacity: .35; width: 180px; } }
+@media (max-width: 760px) { .page-hero.has-art { grid-template-columns: 1fr; gap: 1rem; } .hero-mascot { width: 170px; } }
+/* Cards float when you point at them. */
+.rest .panel { transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s ease, border-color .3s ease; }
+.rest .panel:hover { transform: translateY(-8px); box-shadow: 0 26px 50px -24px color-mix(in srgb, var(--accent-b) 80%, transparent); border-color: color-mix(in srgb, var(--accent-b) 65%, transparent); }
+.card-mascot { display: block; width: 76px; height: 76px; object-fit: contain; object-position: center 40%; margin-bottom: .6rem;
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,.4)); transition: transform .35s ease; }
+.panel:hover .card-mascot { transform: translateY(-4px) scale(1.06); }
 @media (max-width: 720px) {
     .page-hero { padding: 3.5rem 1.25rem .5rem; }
     .tool-list { grid-template-columns: 1fr; }
@@ -1254,11 +1261,13 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
                 </nav>
                 <div class="nav-divider"></div>
             </header>
-    <div class="page-hero">
+    <div class="page-hero has-art">
         <img class="hero-mascot" src="assets/brand/lumi.webp" alt="" aria-hidden="true">
+        <div class="hero-text">
         <h1 class="page-title">Free today. <span class="grad">Built for what is next.</span></h1>
         <p class="page-lede">Everything you need for your first 30-day review costs nothing. Paid tiers arrive when the tools behind them do.</p>
         <div class="page-actions"><a class="btn-solid" href="app.html#/signup">Start free</a><a class="hero-secondary liquid-glass" style="padding:1rem 1.9rem" href="app.html#/login">Open the app</a></div>
+        </div>
     </div>
 </div>
 
