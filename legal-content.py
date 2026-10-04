@@ -107,7 +107,7 @@ keeping the service safe and working. Community posts are published because you 
 <tr><td>Amazon CloudFront</td><td>Your IP address</td><td>When the background video on the home page loads, unless you switch it off</td></tr>
 <tr><td>Exchange-rate API (open.er-api.com)</td><td>A request for currency rates. No personal data, no figures</td><td>Inside the app, when rates refresh</td></tr>
 <tr><td>Translation API (Google Translate, MyMemory)</td><td>The interface text being translated. Do not use translation on anything private</td><td>Inside the app, when you switch language</td></tr>
-<tr><td>Logo services (Logo.dev, Brandfetch, DuckDuckGo, Google)</td><td>A company name or website, sent <strong>by our server</strong>. They do not receive your IP address or anything about you</td><td>The first time anyone adds a subscription from a company we do not have a logo for</td></tr>
+<tr><td>Logo services (Logo.dev, Brandfetch, DuckDuckGo, Google)</td><td>A company name or website, sent <strong>by our server</strong>. When you use Lumera with an account they do not receive your IP address or anything about you. In the offline copy, or if our server is unavailable, your browser asks Google&rsquo;s or DuckDuckGo&rsquo;s public icon service for the company&rsquo;s website icon directly, which shows them your IP address and that website name</td><td>The first time anyone adds a subscription from a company we do not have a logo for</td></tr>
 </table>
 <p>We do not sell, rent, share or broker your data, and we do not run advertising.</p>
 
@@ -259,7 +259,7 @@ scripts on the page (<code>HttpOnly</code>) and is only sent to Lumera.</td><td>
 <tr><td>Working copies</td><td><code>lumera_subs</code>, <code>lumera_goals</code></td><td>Tools keep a copy while you
 use them; it is saved to your account and cleared when you log out</td></tr>
 <tr><td>Dismissed prompts</td><td><code>lumera_streak_snooze</code>, <code>lumera_seen_update</code></td><td>So a prompt you closed stays closed</td></tr>
-<tr><td>Activity on this device</td><td><code>lumera_analytics</code></td><td>A count of the pages you open, kept only in
+<tr><td>Pages opened in this browser</td><td><code>lumera_analytics</code></td><td>A count of the pages you open, kept only in
 this browser for the app&rsquo;s own activity view. It is never sent to us</td></tr>
 <tr><td>Your choice about the video</td><td><code>lumera_consent_thirdparty</code></td><td>Remembers whether you switched it off</td></tr>
 </table>

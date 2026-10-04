@@ -82,10 +82,10 @@
       var site = window.__LUMERA_SITE;
       // Spatial is the house design language, matching the landing page.
       // Classic keeps the original warm-paper look for anyone who prefers it.
-      var skin = localStorage.getItem('lumera_skin') || 'spatial';
-      if(skin==='nova'){ skin='spatial'; localStorage.setItem('lumera_skin','spatial'); }
+      var skin = localStorage.getItem('lumera_skin') || 'glass';
+      if(skin==='nova'||skin==='glass'){ skin='glass'; localStorage.setItem('lumera_skin','glass'); }
       document.documentElement.setAttribute('data-skin', skin);
-      if(skin==='spatial'){ dark = true; document.documentElement.setAttribute('data-theme','dark'); }
+      if(skin==='glass'){ dark = true; document.documentElement.setAttribute('data-theme','dark'); }
       var mode = (site && site!=='lumera') ? 'spark' : (localStorage.getItem('lumera_mode') || 'spark');
       document.documentElement.setAttribute('data-mode', mode==='spark'?'spark':'classic');
       if(site) document.documentElement.setAttribute('data-product', site);
@@ -404,10 +404,10 @@
      Instrument Serif for large editorial moments, Manrope for all UI.
      Every page inherits it by repainting the tokens components read.
      ============================================================ */
-  html[data-skin="spatial"][data-theme]{
+  html[data-skin="glass"][data-theme]{
     /* surfaces, ascending in elevation */
-    --c-ivory:14 13 20; --c-canvas:18 17 26; --c-cream:27 26 38; --c-card:32 31 45;
-    --c-sand:44 42 59; --c-stone:60 57 79; --c-taupe:86 82 108; --c-line:58 55 78;
+    --c-ivory:22 17 42; --c-canvas:28 22 52; --c-cream:44 37 74; --c-card:52 44 86;
+    --c-sand:62 54 98; --c-stone:78 70 118; --c-taupe:104 96 146; --c-line:84 76 124;
     /* text: muted is 8.6:1 and faint 5.5:1 on the ground */
     --c-charcoal:242 241 248; --c-ink:250 250 253; --c-muted:184 181 202; --c-faint:146 143 168;
     --c-sage:110 231 160; --c-saged:134 239 178; --c-clay:251 169 118; --c-clayd:253 186 140;
@@ -416,308 +416,344 @@
     --charcoal:#F2F1F8; --muted:#B8B5CA; --sage:#6EE7A0; --clay:#FBA976;
 
     /* materials */
-    --sp-ground:#0E0D14;
-    --sp-panel:linear-gradient(180deg, rgba(255,255,255,.062), rgba(255,255,255,.030)), rgba(20,19,30,.58);
-    --sp-glass:rgba(26,24,38,.66);
-    --sp-glass-strong:rgba(22,21,33,.90);
-    --sp-edge:rgba(255,255,255,.10);
-    --sp-edge-hi:rgba(255,255,255,.20);
-    --sp-rim:inset 0 1px 0 rgba(255,255,255,.09), inset 0 0 0 1px rgba(255,255,255,.012);
-    --sp-depth-1:0 1px 2px rgba(0,0,0,.30), 0 12px 28px -16px rgba(0,0,0,.62);
-    --sp-depth-2:0 2px 4px rgba(0,0,0,.24), 0 20px 46px -20px rgba(0,0,0,.68), 0 46px 96px -50px rgba(30,16,74,.72);
-    --sp-depth-3:0 6px 14px rgba(0,0,0,.26), 0 32px 72px -26px rgba(0,0,0,.74), 0 72px 150px -64px rgba(44,24,104,.62);
-    --sp-blur:blur(28px) saturate(150%);
+    --lg-ground:#140F2A;
+    --lg-panel:linear-gradient(155deg, rgba(255,255,255,.15), rgba(255,255,255,.06) 42%, rgba(255,255,255,.09)), rgba(36,28,70,.42);
+    --lg-glass:rgba(48,38,92,.42);
+    --lg-glass-strong:rgba(34,27,66,.86);
+    --lg-edge:rgba(255,255,255,.18);
+    --lg-edge-hi:rgba(255,255,255,.32);
+    --lg-rim:inset 0 1px 0 rgba(255,255,255,.32), inset 0 -1px 0 rgba(255,255,255,.06);
+    --lg-depth-1:0 1px 2px rgba(0,0,0,.30), 0 12px 28px -16px rgba(0,0,0,.62);
+    --lg-depth-2:0 2px 4px rgba(0,0,0,.24), 0 20px 46px -20px rgba(0,0,0,.68), 0 46px 96px -50px rgba(30,16,74,.72);
+    --lg-depth-3:0 6px 14px rgba(0,0,0,.26), 0 32px 72px -26px rgba(0,0,0,.74), 0 72px 150px -64px rgba(44,24,104,.62);
+    --lg-blur:blur(22px) saturate(185%);
     /* brand light, taken from the logo: violet lines, gold star */
-    --sp-violet:#9D7CFF; --sp-indigo:#6E6CF6; --sp-gold:#EBC77A;
-    --sp-sweep:linear-gradient(100deg, #EBC77A 0%, #C6A8FF 46%, #8E7BFF 100%);
-    --sp-ease:cubic-bezier(.22,1,.36,1);
+    --lg-violet:#9D7CFF; --lg-indigo:#6E6CF6; --lg-gold:#EBC77A;
+    --lg-sweep:linear-gradient(100deg, #FFC98A 0%, #F08BC4 40%, #9D7CFF 75%, #6FD3FF 100%);
+    --lg-a1:#9D7CFF; --lg-a2:#F08BC4; --lg-a3:#FFC98A; --lg-a4:#5EE6D0;
+    --lg-ease:cubic-bezier(.22,1,.36,1);
     color-scheme:dark;
   }
   /* In classic (non-Spark) mode the accent tokens are the logo's gold. */
-  html[data-skin="spatial"][data-mode="classic"]{
+  html[data-skin="glass"][data-mode="classic"]{
     --c-gold:235 199 122; --c-goldd:242 213 150; --c-golddd:224 184 98; --gold:#EBC77A; --goldd:#F2D596; --glow:235,199,122;
   }
 
-  html[data-skin="spatial"][data-theme][data-mode] body{
+  html[data-skin="glass"][data-theme][data-mode] body{
     font-family:'Manrope',system-ui,sans-serif; letter-spacing:-.004em;
-    background:var(--sp-ground); background-image:none;
+    background:var(--lg-ground); background-image:none;
   }
 
   /* ---- type: serif for big editorial moments, Manrope for everything else ---- */
-  html[data-skin="spatial"] .lede{ font-family:'Manrope',system-ui,sans-serif; font-weight:400; letter-spacing:-.004em; }
-  html[data-skin="spatial"] h2, html[data-skin="spatial"] h3,
-  html[data-skin="spatial"] .serif, html[data-skin="spatial"] .font-serif{
+  html[data-skin="glass"] .lede{ font-family:'Manrope',system-ui,sans-serif; font-weight:400; letter-spacing:-.004em; }
+  html[data-skin="glass"] h2, html[data-skin="glass"] h3,
+  html[data-skin="glass"] .serif, html[data-skin="glass"] .font-serif{
     font-family:'Manrope',system-ui,sans-serif; font-weight:600; letter-spacing:-.02em;
   }
-  html[data-skin="spatial"] h1,
-  html[data-skin="spatial"] .font-display,
-  html[data-skin="spatial"] :is(h2,.font-serif):is([class*="text-3xl"],[class*="text-4xl"],[class*="text-5xl"],[class*="text-6xl"],[class*="text-7xl"],[class*="text-[2."],[class*="text-[3"],[class*="text-[4"]){
+  html[data-skin="glass"] h1,
+  html[data-skin="glass"] .font-display,
+  html[data-skin="glass"] :is(h2,.font-serif):is([class*="text-3xl"],[class*="text-4xl"],[class*="text-5xl"],[class*="text-6xl"],[class*="text-7xl"],[class*="text-[2."],[class*="text-[3"],[class*="text-[4"]){
     font-family:'Instrument Serif',Georgia,serif; font-weight:400; letter-spacing:-.012em;
   }
-  html[data-skin="spatial"] h1{ line-height:1.06; }
+  html[data-skin="glass"] h1{ line-height:1.06; }
 
   /* ---- content panels ---- */
-  html[data-skin="spatial"][data-theme][data-mode] .lux-card{
-    background:var(--sp-panel) !important;
-    border:1px solid var(--sp-edge);
+  html[data-skin="glass"][data-theme][data-mode] .lux-card{
+    background:var(--lg-panel) !important;
+    border:1px solid var(--lg-edge);
     border-radius:22px;
-    box-shadow:var(--sp-rim), var(--sp-depth-1);
+    box-shadow:var(--lg-rim), var(--lg-depth-1);
     isolation:isolate;
-    transition:transform .45s var(--sp-ease), box-shadow .45s var(--sp-ease), border-color .3s ease;
+    transition:transform .45s var(--lg-ease), box-shadow .45s var(--lg-ease), border-color .3s ease;
+  }
+  /* Liquid Glass edge: a light-catching gradient rim, brightest at the top-left
+     like light refracting through a curved edge. Mask keeps it to 1px. */
+  html[data-skin="glass"] :is(.lux-card,.lg-workspace,.lg-glass)::after{
+    content:""; position:absolute; inset:0; border-radius:inherit; padding:1px; pointer-events:none;
+    background:linear-gradient(135deg, rgba(255,255,255,.6), rgba(255,255,255,.08) 34%, rgba(255,255,255,0) 58%, rgba(255,255,255,.28));
+    -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask-composite:exclude; }
+  @media (prefers-reduced-transparency: reduce){
+    html[data-skin="glass"] :is(.lux-card,.lg-glass,.glass,.lg-workspace){ background:rgb(var(--c-card)) !important; backdrop-filter:none !important; -webkit-backdrop-filter:none !important; }
   }
   /* a soft overhead light on every panel; sits behind the content */
-  html[data-skin="spatial"] .lux-card::before{
+  html[data-skin="glass"] .lux-card::before{
     content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none; z-index:-1;
-    background:radial-gradient(120% 70% at 50% -16%, rgba(255,255,255,.075), transparent 58%);
+    background:radial-gradient(120% 70% at 18% -20%, rgba(255,255,255,.16), transparent 55%);
   }
-  html[data-skin="spatial"][data-theme][data-mode] .lift:hover{
+  html[data-skin="glass"][data-theme][data-mode] .lift:hover{
     transform:translateY(-3px) scale(1.01);
-    border-color:var(--sp-edge-hi);
-    box-shadow:var(--sp-rim), var(--sp-depth-2), 0 0 0 1px rgba(var(--glow,157,124,255),.16);
+    border-color:var(--lg-edge-hi);
+    box-shadow:var(--lg-rim), var(--lg-depth-2), 0 0 0 1px rgba(var(--glow,157,124,255),.16);
   }
   /* things you can actually press lift a little further */
-  html[data-skin="spatial"][data-theme][data-mode] :is(button,a).lux-card:hover,
-  html[data-skin="spatial"][data-theme][data-mode] .lift.cursor-pointer:hover{
+  html[data-skin="glass"][data-theme][data-mode] :is(button,a).lux-card:hover,
+  html[data-skin="glass"][data-theme][data-mode] .lift.cursor-pointer:hover{
     transform:translateY(-3px) scale(1.02);
-    box-shadow:var(--sp-rim), var(--sp-depth-2), 0 0 0 1px rgba(var(--glow,157,124,255),.24), 0 16px 48px -20px rgba(var(--glow,157,124,255),.45);
+    box-shadow:var(--lg-rim), var(--lg-depth-2), 0 0 0 1px rgba(var(--glow,157,124,255),.24), 0 16px 48px -20px rgba(var(--glow,157,124,255),.45);
   }
-  html[data-skin="spatial"][data-theme][data-mode] .lux-card:active{ transform:scale(.995); }
+  html[data-skin="glass"][data-theme][data-mode] .lux-card:active{ transform:scale(.995); }
 
-  html[data-skin="spatial"][data-theme][data-mode] .bg-white{ background-color:rgba(255,255,255,.04) !important; }
-  html[data-skin="spatial"][data-theme][data-mode] .bg-charcoal{ background-color:#24223A !important; }
-  html[data-skin="spatial"][data-theme][data-mode] .bg-ink{ background-color:#0A0910 !important; }
-  html[data-skin="spatial"][data-theme][data-mode] .skeleton{
+  html[data-skin="glass"][data-theme][data-mode] .bg-white{ background-color:rgba(255,255,255,.04) !important; }
+  html[data-skin="glass"][data-theme][data-mode] .bg-charcoal{ background-color:#24223A !important; }
+  html[data-skin="glass"][data-theme][data-mode] .bg-ink{ background-color:#0A0910 !important; }
+  html[data-skin="glass"][data-theme][data-mode] .skeleton{
     background:linear-gradient(90deg, rgba(255,255,255,.05) 25%, rgba(255,255,255,.10) 37%, rgba(255,255,255,.05) 63%);
     background-size:200% 100%;
   }
-  html[data-skin="spatial"][data-theme][data-mode] img{ filter:none; }
-  html[data-skin="spatial"][data-theme][data-mode] .hairline,
-  html[data-skin="spatial"][data-theme][data-mode] .border-line{ border-color:rgba(255,255,255,.09) !important; }
-  html[data-skin="spatial"][data-theme][data-mode] .text-cream,
-  html[data-skin="spatial"][data-theme][data-mode] .text-ivory{ color:#F2F1F8 !important; }
-  html[data-skin="spatial"][data-theme][data-mode] [class*="text-cream/"],
-  html[data-skin="spatial"][data-theme][data-mode] [class*="text-ivory/"]{ color:rgba(242,241,248,.76) !important; }
+  html[data-skin="glass"][data-theme][data-mode] img{ filter:none; }
+  html[data-skin="glass"][data-theme][data-mode] .hairline,
+  html[data-skin="glass"][data-theme][data-mode] .border-line{ border-color:rgba(255,255,255,.09) !important; }
+  html[data-skin="glass"][data-theme][data-mode] .text-cream,
+  html[data-skin="glass"][data-theme][data-mode] .text-ivory{ color:#F2F1F8 !important; }
+  html[data-skin="glass"][data-theme][data-mode] [class*="text-cream/"],
+  html[data-skin="glass"][data-theme][data-mode] [class*="text-ivory/"]{ color:rgba(242,241,248,.76) !important; }
 
   /* accent text: the logo's light, gold into violet */
-  html[data-skin="spatial"][data-theme][data-mode] .gold-text{
-    background:var(--sp-sweep); -webkit-background-clip:text; background-clip:text; color:transparent; animation:none;
+  html[data-skin="glass"][data-theme][data-mode] .gold-text{
+    background:var(--lg-sweep); -webkit-background-clip:text; background-clip:text; color:transparent; animation:none;
   }
-  html[data-skin="spatial"][data-theme][data-mode][data-product]:not([data-product="lumera"]) .gold-text{
+  html[data-skin="glass"][data-theme][data-mode][data-product]:not([data-product="lumera"]) .gold-text{
     background:linear-gradient(100deg, rgb(var(--c-goldd)), rgb(var(--c-gold)));
     -webkit-background-clip:text; background-clip:text;
   }
 
   /* ---- controls ---- */
-  html[data-skin="spatial"][data-theme][data-mode] .btn{
+  html[data-skin="glass"][data-theme][data-mode] .btn{
     border-radius:9999px;
-    transition:transform .3s var(--sp-ease), box-shadow .3s var(--sp-ease), background-color .25s ease, border-color .25s ease, color .25s ease;
+    transition:transform .3s var(--lg-ease), box-shadow .3s var(--lg-ease), background-color .25s ease, border-color .25s ease, color .25s ease;
   }
-  html[data-skin="spatial"][data-theme][data-mode] .btn:hover{ transform:translateY(-1px) scale(1.03); }
-  html[data-skin="spatial"][data-theme][data-mode] .btn:active{ transform:scale(.98); }
-  html[data-skin="spatial"][data-theme][data-mode] .btn:disabled{ transform:none; }
-  html[data-skin="spatial"][data-theme][data-mode] :is(.btn-gold,.btn-primary){
-    background:linear-gradient(180deg, var(--p1,#8E7BFF), var(--p2,#6D4FE6)) !important; color:#fff !important;
+  html[data-skin="glass"][data-theme][data-mode] .btn:hover{ transform:translateY(-1px) scale(1.03); }
+  html[data-skin="glass"][data-theme][data-mode] .btn:active{ transform:scale(.98); }
+  html[data-skin="glass"][data-theme][data-mode] .btn:disabled{ transform:none; }
+  html[data-skin="glass"][data-theme][data-mode] :is(.btn-gold,.btn-primary){
+    background:linear-gradient(120deg, var(--p1,#9D7CFF), var(--p2,#E86FB8)) !important; color:#fff !important;
     border-color:rgba(255,255,255,.14);
     box-shadow:inset 0 1px 0 rgba(255,255,255,.28), 0 10px 26px -12px rgba(var(--pshadow,109,79,230),.85) !important;
   }
-  html[data-skin="spatial"][data-theme][data-mode] :is(.btn-gold,.btn-primary):hover{
+  html[data-skin="glass"][data-theme][data-mode] :is(.btn-gold,.btn-primary):hover{
     box-shadow:inset 0 1px 0 rgba(255,255,255,.32), 0 16px 40px -14px rgba(var(--pshadow,109,79,230),.95),
       0 0 0 4px rgba(var(--glow,157,124,255),.14) !important;
   }
-  html[data-skin="spatial"][data-theme][data-mode] .btn-ghost{
-    background:rgba(255,255,255,.05); border-color:var(--sp-edge); color:rgb(var(--c-charcoal));
-    box-shadow:var(--sp-rim);
+  html[data-skin="glass"][data-theme][data-mode] .btn-ghost{
+    background:rgba(255,255,255,.05); border-color:var(--lg-edge); color:rgb(var(--c-charcoal));
+    box-shadow:var(--lg-rim);
   }
-  html[data-skin="spatial"][data-theme][data-mode] .btn-ghost:hover{
-    background:rgba(255,255,255,.09); border-color:var(--sp-edge-hi);
-    box-shadow:var(--sp-rim), 0 8px 24px -14px rgba(var(--glow,157,124,255),.5);
+  html[data-skin="glass"][data-theme][data-mode] .btn-ghost:hover{
+    background:rgba(255,255,255,.09); border-color:var(--lg-edge-hi);
+    box-shadow:var(--lg-rim), 0 8px 24px -14px rgba(var(--glow,157,124,255),.5);
   }
-  html[data-skin="spatial"][data-theme][data-mode] .chip{
-    background:rgba(255,255,255,.045); border-color:var(--sp-edge); color:rgb(var(--c-muted));
-    box-shadow:var(--sp-rim);
+  html[data-skin="glass"][data-theme][data-mode] .chip{
+    background:rgba(255,255,255,.045); border-color:var(--lg-edge); color:rgb(var(--c-muted));
+    box-shadow:var(--lg-rim);
   }
-  html[data-skin="spatial"][data-theme][data-mode] .chip:hover{ color:rgb(var(--c-charcoal)); border-color:var(--sp-edge-hi); transform:translateY(-1px) scale(1.02); }
-  html[data-skin="spatial"][data-theme][data-mode] .chip.on{
+  html[data-skin="glass"][data-theme][data-mode] .chip:hover{ color:rgb(var(--c-charcoal)); border-color:var(--lg-edge-hi); transform:translateY(-1px) scale(1.02); }
+  html[data-skin="glass"][data-theme][data-mode] .chip.on{
     background:linear-gradient(180deg, var(--p1,#8E7BFF), var(--p2,#6D4FE6)); color:#fff; border-color:rgba(255,255,255,.14);
     box-shadow:inset 0 1px 0 rgba(255,255,255,.26), 0 8px 20px -10px rgba(var(--pshadow,109,79,230),.9);
   }
-  html[data-skin="spatial"][data-theme][data-mode] :is(input,select,textarea){
+  html[data-skin="glass"][data-theme][data-mode] :is(input,select,textarea){
     background-color:rgba(255,255,255,.045); border-color:rgba(255,255,255,.13); color:rgb(var(--c-charcoal));
     transition:border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
   }
-  html[data-skin="spatial"][data-theme][data-mode] :is(input,select,textarea):hover{ border-color:rgba(255,255,255,.22); }
-  html[data-skin="spatial"][data-theme][data-mode] :is(input,select,textarea):focus{
+  html[data-skin="glass"][data-theme][data-mode] :is(input,select,textarea):hover{ border-color:rgba(255,255,255,.22); }
+  html[data-skin="glass"][data-theme][data-mode] :is(input,select,textarea):focus{
     border-color:rgba(var(--glow,157,124,255),.7); background-color:rgba(255,255,255,.06);
     box-shadow:0 0 0 4px rgba(var(--glow,157,124,255),.16); outline:none;
   }
-  html[data-skin="spatial"][data-theme][data-mode] :is(input,textarea)::placeholder{ color:rgba(242,241,248,.42); }
-  html[data-skin="spatial"][data-theme][data-mode] select option{ color:#11111A; }
-  html[data-skin="spatial"][data-theme][data-mode] input[type=range].lux{
+  html[data-skin="glass"][data-theme][data-mode] :is(input,textarea)::placeholder{ color:rgba(242,241,248,.42); }
+  html[data-skin="glass"][data-theme][data-mode] select option{ color:#11111A; }
+  html[data-skin="glass"][data-theme][data-mode] input[type=range].lux{
     background:linear-gradient(90deg, rgb(var(--c-gold)) var(--p,40%), rgba(255,255,255,.12) var(--p,40%));
   }
 
   /* ---- glass: only on surfaces that float over content ---- */
-  html[data-skin="spatial"][data-theme][data-mode] .glass{
-    background:var(--sp-glass) !important;
-    border-color:var(--sp-edge) !important;
-    backdrop-filter:var(--sp-blur); -webkit-backdrop-filter:var(--sp-blur);
+  html[data-skin="glass"][data-theme][data-mode] .glass{
+    background:var(--lg-glass) !important;
+    border-color:var(--lg-edge) !important;
+    backdrop-filter:var(--lg-blur); -webkit-backdrop-filter:var(--lg-blur);
   }
-  html[data-skin="spatial"] .sp-glass{
-    background:var(--sp-glass); border:1px solid var(--sp-edge);
-    backdrop-filter:var(--sp-blur); -webkit-backdrop-filter:var(--sp-blur);
-    box-shadow:var(--sp-rim), var(--sp-depth-3);
+  html[data-skin="glass"] .lg-glass{
+    background:var(--lg-glass); border:1px solid var(--lg-edge);
+    backdrop-filter:var(--lg-blur); -webkit-backdrop-filter:var(--lg-blur);
+    box-shadow:var(--lg-rim), var(--lg-depth-3);
   }
-  html[data-skin="spatial"] .sp-popover{
-    background:var(--sp-glass-strong) !important; border:1px solid var(--sp-edge-hi) !important;
-    backdrop-filter:var(--sp-blur); -webkit-backdrop-filter:var(--sp-blur);
-    box-shadow:var(--sp-rim), var(--sp-depth-3) !important; border-radius:20px !important;
+  html[data-skin="glass"] .lg-popover{
+    background:var(--lg-glass-strong) !important; border:1px solid var(--lg-edge-hi) !important;
+    backdrop-filter:var(--lg-blur); -webkit-backdrop-filter:var(--lg-blur);
+    box-shadow:var(--lg-rim), var(--lg-depth-3) !important; border-radius:20px !important;
   }
   /* modals and toasts get a ground of their own so their copy stays legible */
-  html[data-skin="spatial"][data-theme][data-mode] .fixed .lux-card,
-  html[data-skin="spatial"][data-theme][data-mode] .fixed .bg-cream,
-  html[data-skin="spatial"][data-theme][data-mode] .fixed .bg-card{
-    background:var(--sp-glass-strong) !important; border-color:var(--sp-edge-hi);
-    backdrop-filter:var(--sp-blur); -webkit-backdrop-filter:var(--sp-blur);
-    box-shadow:var(--sp-rim), var(--sp-depth-3);
+  html[data-skin="glass"][data-theme][data-mode] .fixed .lux-card,
+  html[data-skin="glass"][data-theme][data-mode] .fixed .bg-cream,
+  html[data-skin="glass"][data-theme][data-mode] .fixed .bg-card{
+    background:var(--lg-glass-strong) !important; border-color:var(--lg-edge-hi);
+    backdrop-filter:var(--lg-blur); -webkit-backdrop-filter:var(--lg-blur);
+    box-shadow:var(--lg-rim), var(--lg-depth-3);
   }
-  html[data-skin="spatial"][data-theme][data-mode] .fixed .bg-white{ background-color:var(--sp-glass-strong) !important; }
-  html[data-skin="spatial"][data-theme][data-mode] .fixed :is(.bg-charcoal\/40,.bg-charcoal\/45,.bg-charcoal\/50){
+  html[data-skin="glass"][data-theme][data-mode] .fixed .bg-white{ background-color:var(--lg-glass-strong) !important; }
+  html[data-skin="glass"][data-theme][data-mode] .fixed :is(.bg-charcoal\/40,.bg-charcoal\/45,.bg-charcoal\/50){
     background-color:rgba(6,5,12,.62) !important; backdrop-filter:blur(6px);
   }
 
+  .demo-banner{ position:relative; z-index:2; display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:10px 16px 0; padding:8px 12px; border-radius:14px; font-size:12.5px;
+    color:rgb(var(--c-charcoal)); background:linear-gradient(100deg, rgba(240,139,196,.16), rgba(157,124,255,.16)); border:1px solid rgba(255,255,255,.14); }
+  .demo-banner svg{ color:#F5C77A; flex-shrink:0; }
+  .demo-banner-cta{ margin-left:auto; font-weight:700; font-size:12px; padding:4px 10px; border-radius:999px; background:rgba(255,255,255,.12); }
+  .demo-banner-cta:hover{ background:rgba(255,255,255,.2); }
+  /* ---- header search bar ---- */
+  .lg-searchbar{ display:flex; align-items:center; gap:10px; width:100%; max-width:440px; height:40px; padding:0 12px 0 14px; border-radius:999px;
+    color:rgb(var(--c-muted)); font-size:13px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.08); transition:background .2s ease, border-color .2s ease; }
+  .lg-searchbar:hover{ background:rgba(255,255,255,.11); border-color:rgba(255,255,255,.2); color:rgb(var(--c-charcoal)); }
+  .lg-searchbar-text{ flex:1; text-align:left; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .lg-searchbar-kbd{ font:600 10.5px/1 'Manrope',sans-serif; padding:4px 6px; border-radius:6px; background:rgba(255,255,255,.08); color:rgb(var(--c-faint)); }
+  @media (max-width:640px){ .lg-searchbar{ width:40px; padding:0; justify-content:center; } .lg-searchbar-text,.lg-searchbar-kbd{ display:none; } }
+
+  /* ---- questionnaire: one pinned action bar, content padded clear of it ---- */
+  .quiz-body{ padding-bottom:calc(112px + env(safe-area-inset-bottom)); }
+  .quiz-bar{ position:fixed; left:0; right:0; bottom:0; z-index:40; padding:10px 12px calc(10px + env(safe-area-inset-bottom)); pointer-events:none; }
+  .quiz-bar-inner{ pointer-events:auto; max-width:42rem; margin:0 auto; display:flex; align-items:center; gap:8px; padding:8px;
+    border-radius:22px; background:var(--lg-glass-strong, rgba(22,21,33,.9)); border:1px solid var(--lg-edge, rgba(255,255,255,.1));
+    box-shadow:var(--lg-rim, none), var(--lg-depth-3, 0 20px 40px rgba(0,0,0,.4));
+    backdrop-filter:var(--lg-blur, blur(20px)); -webkit-backdrop-filter:var(--lg-blur, blur(20px)); }
+  .quiz-bar-inner .btn:disabled{ opacity:.4; cursor:not-allowed; }
+  .ready-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; }
+  .ready-tile{ display:flex; align-items:center; gap:10px; padding:12px; border-radius:16px; min-width:0;
+    background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.03)); border:1px solid rgba(255,255,255,.1); }
+  .ready-ic{ display:grid; place-items:center; width:36px; height:36px; border-radius:12px; flex-shrink:0; color:#fff;
+    background:linear-gradient(140deg, var(--lg-a1,#9D7CFF), var(--lg-a2,#F08BC4)); box-shadow:inset 0 1px 0 rgba(255,255,255,.35); }
+
   /* ---- the ground: volumetric light that drifts very slowly ---- */
-  html[data-skin="spatial"] .atmo{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;
+  html[data-skin="glass"] .atmo{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;
     background:
-      radial-gradient(1200px 820px at 10% -14%, rgba(var(--glow,157,124,255),.22), transparent 62%),
-      radial-gradient(980px 760px at 104% 18%, rgba(110,108,246,.15), transparent 64%),
-      radial-gradient(1100px 760px at 46% 124%, rgba(235,199,122,.085), transparent 62%),
-      var(--sp-ground); }
-  html[data-skin="spatial"] .atmo .aurora{ position:absolute; border-radius:50%; filter:blur(90px); opacity:.30; will-change:transform; }
-  html[data-skin="spatial"] .atmo .a1{ width:42vw; height:42vw; min-width:380px; min-height:380px; top:-16vw; left:-10vw;
-    background:radial-gradient(circle, rgba(var(--glow,157,124,255),.9), transparent 66%); animation:sp-drift-a 70s ease-in-out infinite alternate; }
-  html[data-skin="spatial"] .atmo .a2{ width:36vw; height:36vw; min-width:340px; min-height:340px; top:30vh; right:-14vw;
-    background:radial-gradient(circle, rgba(110,108,246,.85), transparent 66%); animation:sp-drift-b 84s ease-in-out infinite alternate; }
-  html[data-skin="spatial"] .atmo .a3{ width:30vw; height:30vw; min-width:280px; min-height:280px; bottom:-14vw; left:30vw; opacity:.16;
-    background:radial-gradient(circle, rgba(235,199,122,.9), transparent 68%); animation:sp-drift-a 96s ease-in-out infinite alternate-reverse; }
-  @keyframes sp-drift-a{ to{ transform:translate3d(6vw,4vh,0) scale(1.08); } }
-  @keyframes sp-drift-b{ to{ transform:translate3d(-5vw,-6vh,0) scale(1.06); } }
-  html[data-skin="spatial"] .atmo .atmo-grid{ display:none; }
-  html[data-skin="spatial"] .atmo .grain{ position:absolute; inset:0; opacity:.05; animation:none;
+      radial-gradient(1200px 820px at 10% -14%, rgba(var(--glow,157,124,255),.42), transparent 62%),
+      radial-gradient(980px 760px at 104% 18%, rgba(240,139,196,.30), transparent 64%),
+      radial-gradient(1100px 760px at 46% 124%, rgba(255,201,138,.22), transparent 62%),
+      radial-gradient(800px 600px at 0% 100%, rgba(94,230,208,.16), transparent 60%),
+      var(--lg-ground); }
+  html[data-skin="glass"] .atmo .aurora{ position:absolute; border-radius:50%; filter:blur(90px); opacity:.5; will-change:transform; }
+  html[data-skin="glass"] .atmo .a1{ width:42vw; height:42vw; min-width:380px; min-height:380px; top:-16vw; left:-10vw;
+    background:radial-gradient(circle, rgba(var(--glow,157,124,255),.9), transparent 66%); animation:lg-drift-a 70s ease-in-out infinite alternate; }
+  html[data-skin="glass"] .atmo .a2{ width:36vw; height:36vw; min-width:340px; min-height:340px; top:30vh; right:-14vw;
+    background:radial-gradient(circle, rgba(110,108,246,.85), transparent 66%); animation:lg-drift-b 84s ease-in-out infinite alternate; }
+  html[data-skin="glass"] .atmo .a3{ width:30vw; height:30vw; min-width:280px; min-height:280px; bottom:-14vw; left:30vw; opacity:.16;
+    background:radial-gradient(circle, rgba(235,199,122,.9), transparent 68%); animation:lg-drift-a 96s ease-in-out infinite alternate-reverse; }
+  @keyframes lg-drift-a{ to{ transform:translate3d(6vw,4vh,0) scale(1.08); } }
+  @keyframes lg-drift-b{ to{ transform:translate3d(-5vw,-6vh,0) scale(1.06); } }
+  html[data-skin="glass"] .atmo .atmo-grid{ display:none; }
+  html[data-skin="glass"] .atmo .grain{ position:absolute; inset:0; opacity:.05; animation:none;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E"); }
-  @media (prefers-reduced-motion: reduce){ html[data-skin="spatial"] .atmo .aurora{ animation:none; } }
+  @media (prefers-reduced-motion: reduce){ html[data-skin="glass"] .atmo .aurora{ animation:none; } }
 
   /* the shell sits above the ground */
-  html[data-skin="spatial"] :is(aside,header,main,nav):not(.sp-dock){ position:relative; z-index:1; }
+  html[data-skin="glass"] :is(aside,header,main,nav):not(.lg-dock){ position:relative; z-index:1; }
 
   /* ---- shell: floating sidebar, floating top bar, dock ---- */
-  html[data-skin="spatial"] .sp-sidebar{
+  html[data-skin="glass"] .lg-sidebar{
     position:sticky; top:14px; height:calc(100vh - 28px); margin:14px 0 14px 14px; border-radius:28px; overflow:hidden;
   }
-  html[data-skin="spatial"] .sp-topbar{
+  html[data-skin="glass"] .lg-topbar{
     position:sticky; top:14px; z-index:30; margin:14px 14px 0; border-radius:22px;
   }
   @media (max-width:1023px){
-    html[data-skin="spatial"] .sp-topbar{ top:10px; margin:10px 10px 0; border-radius:20px; }
+    html[data-skin="glass"] .lg-topbar{ top:10px; margin:10px 10px 0; border-radius:20px; }
   }
-  html[data-skin="spatial"][data-theme][data-mode] .nav-item{ position:relative; border-radius:14px; }
-  html[data-skin="spatial"][data-theme][data-mode] .nav-item:hover{ background:rgba(255,255,255,.055); }
-  html[data-skin="spatial"][data-theme][data-mode] .nav-item-on{
+  html[data-skin="glass"][data-theme][data-mode] .nav-item{ position:relative; border-radius:14px; }
+  html[data-skin="glass"][data-theme][data-mode] .nav-item:hover{ background:rgba(255,255,255,.055); }
+  html[data-skin="glass"][data-theme][data-mode] .nav-item-on{
     background:linear-gradient(90deg, rgba(var(--glow,157,124,255),.20), rgba(255,255,255,.05)) !important;
-    box-shadow:var(--sp-rim), 0 0 0 1px rgba(var(--glow,157,124,255),.22);
+    box-shadow:var(--lg-rim), 0 0 0 1px rgba(var(--glow,157,124,255),.22);
   }
-  html[data-skin="spatial"][data-theme][data-mode] .nav-item-on::after{
+  html[data-skin="glass"][data-theme][data-mode] .nav-item-on::after{
     content:""; position:absolute; right:12px; top:50%; width:6px; height:6px; margin-top:-3px; border-radius:50%;
     background:rgb(var(--c-gold)); box-shadow:0 0 10px 1px rgba(var(--glow,157,124,255),.9);
   }
-  html[data-skin="spatial"][data-theme][data-mode] .topbar-pill{
-    background:rgba(255,255,255,.045); border:1px solid var(--sp-edge); box-shadow:var(--sp-rim);
+  html[data-skin="glass"][data-theme][data-mode] .topbar-pill{
+    background:rgba(255,255,255,.045); border:1px solid var(--lg-edge); box-shadow:var(--lg-rim);
   }
-  html[data-skin="spatial"][data-theme][data-mode] .topbar-on{
+  html[data-skin="glass"][data-theme][data-mode] .topbar-on{
     background:linear-gradient(180deg, var(--p1,#8E7BFF), var(--p2,#6D4FE6)); color:#fff; font-weight:600;
     box-shadow:inset 0 1px 0 rgba(255,255,255,.26), 0 6px 18px -8px rgba(var(--pshadow,109,79,230),.9);
   }
 
-  .sp-dock{ position:fixed; left:50%; bottom:max(14px, env(safe-area-inset-bottom)); transform:translateX(-50%); z-index:60;
+  .lg-dock{ position:fixed; left:50%; bottom:max(14px, env(safe-area-inset-bottom)); transform:translateX(-50%); z-index:60;
     display:flex; align-items:center; gap:4px; padding:6px; border-radius:999px; }
-  .sp-dock-btn{ position:relative; display:grid; place-items:center; width:46px; height:46px; border-radius:999px; border:0;
+  .lg-dock-btn{ position:relative; display:grid; place-items:center; width:46px; height:46px; border-radius:999px; border:0;
     background:transparent; color:rgb(var(--c-muted)); cursor:pointer;
-    transition:transform .3s var(--sp-ease,ease), background-color .25s ease, color .25s ease, box-shadow .3s ease; }
-  .sp-dock-btn:hover{ color:rgb(var(--c-charcoal)); background:rgba(255,255,255,.08); transform:translateY(-2px) scale(1.06); }
-  .sp-dock-btn:active{ transform:scale(.96); }
-  .sp-dock-btn.on{ color:#fff; background:linear-gradient(180deg, var(--p1,#8E7BFF), var(--p2,#6D4FE6));
+    transition:transform .3s var(--lg-ease,ease), background-color .25s ease, color .25s ease, box-shadow .3s ease; }
+  .lg-dock-btn:hover{ color:rgb(var(--c-charcoal)); background:rgba(255,255,255,.08); transform:translateY(-2px) scale(1.06); }
+  .lg-dock-btn:active{ transform:scale(.96); }
+  .lg-dock-btn.on{ color:#fff; background:linear-gradient(180deg, var(--p1,#8E7BFF), var(--p2,#6D4FE6));
     box-shadow:inset 0 1px 0 rgba(255,255,255,.26), 0 8px 22px -10px rgba(var(--pshadow,109,79,230),.95); }
-  .sp-dock-btn .sp-tip{ position:absolute; bottom:calc(100% + 10px); left:50%; transform:translate(-50%,4px); white-space:nowrap;
+  .lg-dock-btn .lg-tip{ position:absolute; bottom:calc(100% + 10px); left:50%; transform:translate(-50%,4px); white-space:nowrap;
     font-size:11px; font-weight:600; padding:5px 9px; border-radius:9px; opacity:0; pointer-events:none;
-    background:var(--sp-glass-strong,#16151F); color:rgb(var(--c-charcoal)); border:1px solid var(--sp-edge,rgba(255,255,255,.1));
+    background:var(--lg-glass-strong,#16151F); color:rgb(var(--c-charcoal)); border:1px solid var(--lg-edge,rgba(255,255,255,.1));
     transition:opacity .2s ease, transform .2s ease; }
-  .sp-dock-btn:hover .sp-tip, .sp-dock-btn:focus-visible .sp-tip{ opacity:1; transform:translate(-50%,0); }
-  .sp-dock-sep{ width:1px; height:26px; background:rgba(255,255,255,.12); margin:0 4px; }
-  .sp-dock-lumi{ width:46px; height:46px; border-radius:999px; overflow:hidden; display:grid; place-items:end center;
+  .lg-dock-btn:hover .lg-tip, .lg-dock-btn:focus-visible .lg-tip{ opacity:1; transform:translate(-50%,0); }
+  .lg-dock-sep{ width:1px; height:26px; background:rgba(255,255,255,.12); margin:0 4px; }
+  .lg-dock-lumi{ width:46px; height:46px; border-radius:999px; overflow:hidden; display:grid; place-items:end center;
     background:radial-gradient(circle at 50% 70%, rgba(var(--glow,157,124,255),.38), rgba(255,255,255,.04) 70%); }
-  .sp-dock-lumi img{ width:34px; height:auto; transform:translateY(5px); transition:transform .3s var(--sp-ease,ease); }
-  .sp-dock-btn:hover .sp-dock-lumi img{ transform:translateY(2px) scale(1.06); }
+  .lg-dock-lumi img{ width:34px; height:auto; transform:translateY(5px); transition:transform .3s var(--lg-ease,ease); }
+  .lg-dock-btn:hover .lg-dock-lumi img{ transform:translateY(2px) scale(1.06); }
 
   /* ---- status indicators: small glowing orbs and neon-glass pills ---- */
-  .sp-orb{ display:inline-block; width:8px; height:8px; border-radius:50%; flex:0 0 auto; background:#6EE7A0;
+  .lg-orb{ display:inline-block; width:8px; height:8px; border-radius:50%; flex:0 0 auto; background:#6EE7A0;
     box-shadow:0 0 0 3px rgba(110,231,160,.16), 0 0 12px 1px rgba(110,231,160,.7); }
-  .sp-orb.busy{ background:#B69CFF; box-shadow:0 0 0 3px rgba(182,156,255,.18), 0 0 12px 1px rgba(182,156,255,.8); animation:sp-breathe 1.6s ease-in-out infinite; }
-  .sp-orb.warn{ background:#F8C46A; box-shadow:0 0 0 3px rgba(248,196,106,.16), 0 0 12px 1px rgba(248,196,106,.7); }
-  .sp-orb.off{ background:#8C89A3; box-shadow:0 0 0 3px rgba(140,137,163,.14); }
-  .sp-orb.bad{ background:#FB8596; box-shadow:0 0 0 3px rgba(251,133,150,.16), 0 0 12px 1px rgba(251,133,150,.7); }
-  @keyframes sp-breathe{ 0%,100%{ opacity:1; transform:scale(1);} 50%{ opacity:.55; transform:scale(.82);} }
-  .sp-pill{ display:inline-flex; align-items:center; gap:.45rem; font-size:11.5px; font-weight:600; line-height:1;
+  .lg-orb.busy{ background:#B69CFF; box-shadow:0 0 0 3px rgba(182,156,255,.18), 0 0 12px 1px rgba(182,156,255,.8); animation:lg-breathe 1.6s ease-in-out infinite; }
+  .lg-orb.warn{ background:#F8C46A; box-shadow:0 0 0 3px rgba(248,196,106,.16), 0 0 12px 1px rgba(248,196,106,.7); }
+  .lg-orb.off{ background:#8C89A3; box-shadow:0 0 0 3px rgba(140,137,163,.14); }
+  .lg-orb.bad{ background:#FB8596; box-shadow:0 0 0 3px rgba(251,133,150,.16), 0 0 12px 1px rgba(251,133,150,.7); }
+  @keyframes lg-breathe{ 0%,100%{ opacity:1; transform:scale(1);} 50%{ opacity:.55; transform:scale(.82);} }
+  .lg-pill{ display:inline-flex; align-items:center; gap:.45rem; font-size:11.5px; font-weight:600; line-height:1;
     padding:.42rem .72rem; border-radius:999px; color:rgb(var(--c-charcoal));
     background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.035));
     border:1px solid rgba(255,255,255,.12); box-shadow:inset 0 1px 0 rgba(255,255,255,.09); }
-  .sp-pill.tint{ background:linear-gradient(180deg, rgba(var(--glow,157,124,255),.22), rgba(var(--glow,157,124,255),.08));
+  .lg-pill.tint{ background:linear-gradient(180deg, rgba(var(--glow,157,124,255),.22), rgba(var(--glow,157,124,255),.08));
     border-color:rgba(var(--glow,157,124,255),.34); }
-  @media (prefers-reduced-motion: reduce){ .sp-orb.busy{ animation:none; } }
+  @media (prefers-reduced-motion: reduce){ .lg-orb.busy{ animation:none; } }
 
   /* ---- the Active Workspace: the one raised, glassy hero panel ---- */
-  html[data-skin="spatial"] .sp-workspace{
+  html[data-skin="glass"] .lg-workspace{
     position:relative; border-radius:30px; overflow:hidden; isolation:isolate;
     background:
-      radial-gradient(90% 120% at 0% 0%, rgba(var(--glow,157,124,255),.20), transparent 55%),
-      radial-gradient(70% 90% at 100% 100%, rgba(235,199,122,.10), transparent 60%),
-      linear-gradient(180deg, rgba(255,255,255,.085), rgba(255,255,255,.035));
-    border:1px solid var(--sp-edge-hi);
-    box-shadow:var(--sp-rim), var(--sp-depth-3);
+      radial-gradient(90% 120% at 0% 0%, rgba(157,124,255,.38), transparent 55%),
+      radial-gradient(70% 90% at 100% 100%, rgba(240,139,196,.26), transparent 60%),
+      radial-gradient(60% 80% at 60% 0%, rgba(94,230,208,.14), transparent 60%),
+      linear-gradient(160deg, rgba(255,255,255,.16), rgba(255,255,255,.05));
+    border:1px solid var(--lg-edge-hi);
+    box-shadow:var(--lg-rim), var(--lg-depth-3);
     backdrop-filter:blur(24px) saturate(140%); -webkit-backdrop-filter:blur(24px) saturate(140%);
   }
-  html[data-skin="spatial"] .sp-workspace::after{
-    content:""; position:absolute; left:8%; right:8%; top:0; height:1px; pointer-events:none;
-    background:linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent);
-  }
-  html[data-skin="spatial"] .sp-inset{
-    border-radius:20px; background:rgba(8,7,14,.32); border:1px solid rgba(255,255,255,.07);
-    box-shadow:inset 0 1px 2px rgba(0,0,0,.35);
+  html[data-skin="glass"] .lg-inset{
+    border-radius:20px; background:linear-gradient(160deg, rgba(255,255,255,.12), rgba(255,255,255,.04)); border:1px solid rgba(255,255,255,.16);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.22);
   }
 
   /* ---- numbers, tiles, tables, page rhythm ---- */
-  html[data-skin="spatial"] .stat-tile{ border-radius:20px; }
-  html[data-skin="spatial"] .stat-tile .v{ font-family:'Instrument Serif',Georgia,serif; font-weight:400; font-size:2.6rem; line-height:1; letter-spacing:-.01em; }
-  html[data-skin="spatial"] .stat-tile .l{ font-size:.66rem; letter-spacing:.2em; text-transform:uppercase; color:rgb(var(--c-faint)); font-weight:600; }
-  html[data-skin="spatial"] .page-head{ padding-bottom:1.5rem; border-bottom:1px solid rgba(255,255,255,.07); }
-  html[data-skin="spatial"][data-theme][data-mode] main{ padding-top:1.75rem; }
-  html[data-skin="spatial"] table{ border-collapse:separate; border-spacing:0 6px; }
-  html[data-skin="spatial"] table tbody tr{ background:rgba(255,255,255,.03); }
-  html[data-skin="spatial"] table tbody tr > *:first-child{ border-top-left-radius:12px; border-bottom-left-radius:12px; }
-  html[data-skin="spatial"] table tbody tr > *:last-child{ border-top-right-radius:12px; border-bottom-right-radius:12px; }
-  html[data-skin="spatial"] table th{ font-size:.66rem; letter-spacing:.18em; text-transform:uppercase; color:rgb(var(--c-faint)); }
-  html[data-skin="spatial"] .rule{ height:1px; margin:2.2rem 0; background:linear-gradient(to right, transparent, rgba(255,255,255,.14), transparent); }
-  html[data-skin="spatial"][data-theme][data-mode] .rounded-xl2,
-  html[data-skin="spatial"][data-theme][data-mode] .rounded-xl3{ border-radius:18px !important; }
-  html[data-skin="spatial"][data-theme][data-mode] .rounded-xl4{ border-radius:28px !important; }
-  html[data-skin="spatial"][data-theme][data-mode] .eyebrow-rule{ background:linear-gradient(90deg, rgb(var(--c-gold)), transparent); }
-  html[data-skin="spatial"] .lux-card ul.plan-list > li{ display:flex; gap:.55rem; align-items:flex-start; list-style:none; }
-  html[data-skin="spatial"] .lux-card ul.plan-list > li::before{
+  html[data-skin="glass"] .stat-tile{ border-radius:20px; }
+  html[data-skin="glass"] .stat-tile .v{ font-family:'Instrument Serif',Georgia,serif; font-weight:400; font-size:2.6rem; line-height:1; letter-spacing:-.01em; }
+  html[data-skin="glass"] .stat-tile .l{ font-size:.66rem; letter-spacing:.2em; text-transform:uppercase; color:rgb(var(--c-faint)); font-weight:600; }
+  html[data-skin="glass"] .page-head{ padding-bottom:1.5rem; border-bottom:1px solid rgba(255,255,255,.07); }
+  html[data-skin="glass"][data-theme][data-mode] main{ padding-top:1.75rem; }
+  html[data-skin="glass"] table{ border-collapse:separate; border-spacing:0 6px; }
+  html[data-skin="glass"] table tbody tr{ background:rgba(255,255,255,.03); }
+  html[data-skin="glass"] table tbody tr > *:first-child{ border-top-left-radius:12px; border-bottom-left-radius:12px; }
+  html[data-skin="glass"] table tbody tr > *:last-child{ border-top-right-radius:12px; border-bottom-right-radius:12px; }
+  html[data-skin="glass"] table th{ font-size:.66rem; letter-spacing:.18em; text-transform:uppercase; color:rgb(var(--c-faint)); }
+  html[data-skin="glass"] .rule{ height:1px; margin:2.2rem 0; background:linear-gradient(to right, transparent, rgba(255,255,255,.14), transparent); }
+  html[data-skin="glass"][data-theme][data-mode] .rounded-xl2,
+  html[data-skin="glass"][data-theme][data-mode] .rounded-xl3{ border-radius:18px !important; }
+  html[data-skin="glass"][data-theme][data-mode] .rounded-xl4{ border-radius:28px !important; }
+  html[data-skin="glass"][data-theme][data-mode] .eyebrow-rule{ background:linear-gradient(90deg, rgb(var(--c-gold)), transparent); }
+  html[data-skin="glass"] .lux-card ul.plan-list > li{ display:flex; gap:.55rem; align-items:flex-start; list-style:none; }
+  html[data-skin="glass"] .lux-card ul.plan-list > li::before{
     content:""; flex:0 0 auto; width:6px; height:6px; margin-top:.52rem; border-radius:50%; background:rgb(var(--c-gold));
   }
 
-  html[data-skin="spatial"][data-theme][data-mode] #loader{ background:var(--sp-ground); }
-  html[data-skin="spatial"][data-theme][data-mode] ::selection{ background:rgba(157,124,255,.36); color:#fff; }
-  html[data-skin="spatial"] ::-webkit-scrollbar-thumb{ background:rgba(255,255,255,.14); border-color:var(--sp-ground); }
-  html[data-skin="spatial"] ::-webkit-scrollbar-thumb:hover{ background:rgba(255,255,255,.24); }
+  html[data-skin="glass"][data-theme][data-mode] #loader{ background:var(--lg-ground); }
+  html[data-skin="glass"][data-theme][data-mode] ::selection{ background:rgba(157,124,255,.36); color:#fff; }
+  html[data-skin="glass"] ::-webkit-scrollbar-thumb{ background:rgba(255,255,255,.14); border-color:var(--lg-ground); }
+  html[data-skin="glass"] ::-webkit-scrollbar-thumb:hover{ background:rgba(255,255,255,.24); }
 
   /* The invisible-patterns stage: opaque and lit, not glass. */
   .patterns-stage{ isolation:isolate;
@@ -1051,9 +1087,31 @@ function useHashRoute(){
     const on=()=>{ setRoute(location.hash.replace('#','')||'/'); window.scrollTo({top:0,behavior:'instant'}); };
     window.addEventListener('hashchange',on); return ()=>window.removeEventListener('hashchange',on);
   },[]);
-  const nav = useCallback((to)=>{ location.hash = to; },[]);
+  const nav = useCallback((to, opts)=>{ if(opts && opts.replace) replaceRoute(to); else location.hash = to; },[]);
   return [route, nav];
 }
+// Redirects replace the current history entry instead of adding one, so the
+// browser's Back button never bounces between a page and its redirect.
+// The screen a design preview asked for, remembered before any redirect.
+const PREVIEW_ROUTE = (typeof location!=='undefined' && location.hash.replace('#','')) || '/dashboard';
+function replaceRoute(to){
+  if(window.__go){ window.__go(to); return; }
+  const h='#'+to; if(location.hash!==h) location.replace(h);
+}
+// Lumera has one front door: the site's landing page. The app has no landing
+// of its own, so leaving it (log out, the logo on sign-in pages) goes there.
+function goSiteHome(){
+  if(window.__exitToSite){ window.__exitToSite(); return; }
+  const p=location.pathname;
+  location.href = /(Lumera|_app_dev)\.html$/i.test(p) ? 'landing.html' : (p.replace(/[^/]*$/,'') || '/');
+}
+// The root of the app: straight to where you belong.
+function RootRoute(){
+  const app=useApp();
+  useEffect(()=>{ replaceRoute(app.user ? (app.onboarded ? '/dashboard' : '/onboarding') : '/login'); },[]);
+  return null;
+}
+const logoHome=(app)=>{ if(app.user) app.nav('/dashboard'); else goSiteHome(); };
 
 /* ============================================================
    INTERNATIONALISATION  (EN · AR/RTL · FR · ES · HI)
@@ -1492,7 +1550,7 @@ const REGIONS = {
 
 /* Seed profile + expenses (Dubai professional, deliberately full of fixable leaks) */
 const DEFAULT_PROFILE = {
-  name:'Avyan', region:'AE', currency:'AED', baseCurrency:'AED', city:'Dubai',
+  name:'Alex', region:'AE', currency:'AED', baseCurrency:'AED', city:'Dubai',
   ageBracket:'28-34', motivations:[], heardFrom:[], householdSize:1, dependents:0, status:'Employed full-time',
   housing:'Renting', knowledge:'Beginner+', risk:'Balanced', goal:'Build wealth & invest',
   streak:1, streakBest:1, lastCheckin:'', joined:'May 2026',
@@ -1515,7 +1573,7 @@ const DEFAULT_EXPENSES = {
   eatingOut:1850, coffee:620, shopping:1320, clothes:300, entertainment:250,
   subscriptions:470, gym:250, travel:300, personalCare:180, gifts:100, hobbies:0,
   creditCards:900, loans:1450, eduFees:0, familySupport:300, insurancePrem:220,
-  savings:900, investments:500, pension:0,
+  savings:1400, investments:700, pension:0,
 };
 const DEFAULT_BALANCES = { emergencyFund:12000, cashSavings:28000, investmentsBal:26000, propertyBal:0, carBal:55000 };
 
@@ -1854,7 +1912,8 @@ const BADGES = [
   {id:'supernova', name:'Supernova', icon:'star', desc:'Checked in 100 days in a row', tier:'Prestige', rarity:'Mythic', emoji:'🌟'},
 ];
 
-/* Tools seed data */
+/* Example data, shown only in the demo account and always labelled as such. */
+const isDemo=(app)=>!!(app && app.user && app.user.demo);
 const SEED_GOALS = [
   {id:'g1', name:'Emergency fund', target:33000, current:12000, deadline:'2026-12', priority:'High', icon:'shield'},
   {id:'g2', name:'Home deposit', target:150000, current:28000, deadline:'2029-06', priority:'High', icon:'home'},
@@ -2258,7 +2317,7 @@ function MenuPanel({ menu, width=240, className='', label, children }){
   if(!menu.open || !menu.pos) return null;
   return ReactDOM.createPortal(
     <div ref={menu.panelRef} role="menu" aria-label={label}
-      className={cx('fixed z-[190] sp-popover rounded-xl2 border border-line bg-cream shadow-lift p-1.5 anim-scaleIn max-h-[calc(100vh-96px)] overflow-y-auto no-scrollbar', className)}
+      className={cx('fixed z-[190] lg-popover rounded-xl2 border border-line bg-cream shadow-lift p-1.5 anim-scaleIn max-h-[calc(100vh-96px)] overflow-y-auto no-scrollbar', className)}
       style={{ top:menu.pos.top, right:menu.pos.right, left:menu.pos.left, width }}>{children}</div>, document.body);
 }
 // Close a popover when clicking anywhere outside it.
@@ -2436,7 +2495,7 @@ function Sidebar(){
   useEffect(()=>{ if(navRef.current) navRef.current.scrollTop=_sbScroll; },[]);
   const curSub = SUBS.find(s=>s.key===app.product);
   const inProduct = spark && app.product!=='lumera' && curSub;
-  return <aside aria-label="Main navigation" className="hidden lg:flex flex-col w-64 shrink-0 h-screen sticky top-0 border-r border-line bg-cream/60 glass sp-sidebar sp-glass">
+  return <aside aria-label="Main navigation" className="hidden lg:flex flex-col w-64 shrink-0 h-screen sticky top-0 border-r border-line bg-cream/60 glass lg-sidebar lg-glass">
     <div className="px-5 py-5">
       {inProduct
         ? <button onClick={()=>app.nav('/'+curSub.key)} className="flex items-center gap-2.5 text-left">
@@ -2566,9 +2625,9 @@ function GlobalSearch(){
     }catch(e){ setVoiceErr('Voice search could not start.'); setListening(false); }
   };
   return <Fragment>
-    <button onClick={()=>setOpen(true)} aria-label="Search Lumera" title="Search (Ctrl+K)"
-      className="grid place-items-center h-10 w-10 rounded-full hover:bg-sand text-charcoal/80 transition">
-      <Icon name="search" size={18}/></button>
+    <button onClick={()=>setOpen(true)} aria-label="Search Lumera" title="Search (Ctrl+K)" className="lg-searchbar">
+      <Icon name="search" size={17}/><span className="lg-searchbar-text">Search tools, pages and topics</span>
+      <kbd className="lg-searchbar-kbd" aria-hidden="true">Ctrl K</kbd></button>
     {open && <div className="fixed inset-0 z-[180] flex items-start justify-center p-4 pt-[12vh]">
       <div className="absolute inset-0" style={{background:'rgba(8,8,16,.6)',backdropFilter:'blur(4px)'}} onClick={()=>setOpen(false)}/>
       <div className="relative w-full max-w-xl lux-card !p-0 overflow-hidden anim-scaleIn">
@@ -2644,7 +2703,7 @@ function ProfileMenu(){
           className="rounded-lg border border-line bg-cream px-2 py-1.5 text-xs">
           {LANGS.map(l=><option key={l.code} value={l.code}>{l.native}</option>)}</select>
       </label>
-      {app.skin!=='spatial' && <div className="flex items-center justify-between gap-2 px-3 py-1">
+      {app.skin!=='glass' && <div className="flex items-center justify-between gap-2 px-3 py-1">
         <span className="text-xs text-muted">Appearance</span><ThemeToggle/></div>}
       <div className="my-1 border-t border-line"/>
       <button role="menuitem" onClick={()=>{menu.close(); app.askLogout();}} className={cx(row,'text-berry')}>
@@ -2664,34 +2723,27 @@ function ThemeToggle(){
 function SyncStatus(){
   const app=useApp(); const st=app.sync||'local';
   const map={ saved:['','Saved'], saving:['busy','Saving…'], offline:['warn','Offline'],
-    error:['bad','Not saved, retrying'], local:['off','On this device'] };
+    error:['bad','Not saved, retrying'], local:['off','Saved in this browser'] };
   const long={ saved:'Saved to your account', saving:'Saving to your account', offline:'You are offline. Changes will save when you reconnect.',
-    error:'Could not save just now. Retrying.', local:'Your figures are kept in this browser' };
+    error:'Could not save just now. Retrying.', local:'Not signed in to an account: your figures are saved in this browser only' };
   const [cls,label]=map[st]||map.local;
-  return <span className="hidden md:inline-flex sp-pill" role="status" title={long[st]||label}><span className={cx('sp-orb',cls)} aria-hidden="true"/>
+  return <span className="hidden md:inline-flex lg-pill" role="status" title={long[st]||label}><span className={cx('lg-orb',cls)} aria-hidden="true"/>
     <span className="hidden 2xl:inline">{label}</span><span className="2xl:hidden sr-only">{long[st]||label}</span></span>;
 }
 function TopBar(){
   const app = useApp(); const { t } = app; const m = app.metrics;
-  return <header className="sticky top-0 z-30 glass border-b border-line sp-topbar sp-glass">
+  return <header className="sticky top-0 z-30 glass border-b border-line lg-topbar lg-glass">
     <div className="flex items-center gap-2.5 px-3 sm:px-4 h-16">
       <button className="lg:hidden grid place-items-center h-10 w-10 rounded-xl hover:bg-sand" onClick={()=>app.setMobileMenu(true)} aria-label="Open menu"><Icon name="menu"/></button>
       <button className="lg:hidden" onClick={()=>app.nav(app.user?'/dashboard':'/')} aria-label="Lumera home"><Logo size={16}/></button>
-      <div className="flex-1 flex justify-center lg:justify-start xl:justify-center min-w-0">
-        <nav aria-label="Quick links" className="hidden xl:flex items-center gap-1 rounded-full px-1.5 py-1 topbar-pill shrink-0">
-          {[['/dashboard','Home'],['/budget','Money'],['/market','Markets'],['/learn','Learn'],['/careers','Careers']]
-            .filter(([to])=>routeAllowed(app.layout,to))
-            .map(([to,label])=>
-            <button key={to} onClick={()=>app.nav(to)} aria-current={app.route===to?'page':undefined}
-              className={cx('rounded-full px-3.5 py-1.5 text-[13px] font-medium transition', app.route===to?'topbar-on':'text-charcoal/70 hover:text-charcoal')}>{label}</button>)}
-        </nav>
-      </div>
+      {/* Search sits in the middle; language and currency live up here, where
+          people look for them, rather than in a page switcher. */}
+      <div className="flex-1 flex justify-center min-w-0"><GlobalSearch/></div>
+      <span className="hidden md:inline-flex"><LanguageSwitcher compact/></span>
+      <CurrencySwitcher/>
       <SyncStatus/>
-      <Hint text={t('what_streak')}><button onClick={()=>app.nav('/badges')} className="hidden sm:inline-flex sp-pill" aria-label={`${app.profile.streak||0} day streak`}>
+      <Hint text={t('what_streak')}><button onClick={()=>app.nav('/badges')} className="hidden xl:inline-flex lg-pill" aria-label={`${app.profile.streak||0} day streak`}>
         <Icon name="flame" size={14} className="text-clay"/><span className="tnum">{app.profile.streak||0}</span><span className="text-muted font-medium">day streak</span></button></Hint>
-      <GlobalSearch/>
-      <span className="hidden lg:inline-flex"><CurrencySwitcher/></span>
-      {app.skin!=='spatial' && <span className="hidden md:inline-flex"><ThemeToggle/></span>}
       <ProfileMenu/>
     </div>
   </header>;
@@ -2705,14 +2757,14 @@ function Dock(){
   const g = GUIDE[app.product]||GUIDE.lumera; const accent=(SUBS.find(x=>x.key===app.product)||{}).accent||'#8B5CF6';
   const assets=useAssets(); const art=assets['mascot_'+(app.product||'lumera')]||assets.mascot_lumera;
   const B=({on,label,onClick,children,className=''})=><button onClick={onClick} aria-label={label} aria-current={on?'page':undefined}
-    className={cx('sp-dock-btn',on&&'on',className)}>{children}<span className="sp-tip" aria-hidden="true">{label}</span></button>;
-  return <nav aria-label="Dock" className="sp-dock sp-glass">
+    className={cx('lg-dock-btn',on&&'on',className)}>{children}<span className="lg-tip" aria-hidden="true">{label}</span></button>;
+  return <nav aria-label="Dock" className="lg-dock lg-glass">
     <B on={route==='/dashboard'} label="Home" onClick={()=>app.nav('/dashboard')}><Icon name="grid" size={19}/></B>
     <B label="Search (Ctrl+K)" onClick={()=>window.dispatchEvent(new Event('lumera:search'))}><Icon name="search" size={19}/></B>
     <B label={guide?`Ask ${g.name}`:'AI assistant'} onClick={()=>guide?window.dispatchEvent(new Event('lumera:guide')):app.nav('/assistant')}>
-      <span className="sp-dock-lumi" style={{'--glow':hexToRgbList(accent)}}><img src={art} alt="" aria-hidden="true" draggable="false"/></span></B>
+      <span className="lg-dock-lumi" style={{'--glow':hexToRgbList(accent)}}><img src={art} alt="" aria-hidden="true" draggable="false"/></span></B>
     <B on={route==='/review'} label="Update my figures" onClick={()=>app.nav('/review')}><Icon name="refresh" size={19}/></B>
-    <span className="sp-dock-sep lg:hidden" aria-hidden="true"/>
+    <span className="lg-dock-sep lg:hidden" aria-hidden="true"/>
     <B label="Menu" className="lg:hidden" onClick={()=>app.setMobileMenu(true)}><Icon name="menu" size={19}/></B>
   </nav>;
 }
@@ -2721,7 +2773,7 @@ function MobileMenu(){
   const app = useApp(); const { t } = app; if(!app.mobileMenu) return null;
   return <div className="lg:hidden fixed inset-0 z-50">
     <div className="absolute inset-0 bg-charcoal/40 anim-fadeIn" onClick={()=>app.setMobileMenu(false)}/>
-    <div role="dialog" aria-label="Menu" className="absolute left-2.5 top-2.5 bottom-2.5 w-[min(84vw,300px)] bg-cream shadow-lift p-4 overflow-y-auto anim-scaleIn sp-glass rounded-[26px]">
+    <div role="dialog" aria-label="Menu" className="absolute left-2.5 top-2.5 bottom-2.5 w-[min(84vw,300px)] bg-cream shadow-lift p-4 overflow-y-auto anim-scaleIn lg-glass rounded-[26px]">
       <div className="flex items-center justify-between mb-4"><Logo size={16}/><button onClick={()=>app.setMobileMenu(false)} aria-label="Close menu" className="grid place-items-center h-9 w-9 rounded-lg hover:bg-sand"><Icon name="x"/></button></div>
       {navFrom(app.layout).map(grp=><div key={grp.section} className="mb-3">
         <div className="px-2 mb-1 text-[10px] tracking-[.2em] uppercase text-faint">{grp.section}</div>
@@ -2741,6 +2793,14 @@ function Atmosphere(){
   </div>;
 }
 
+/* The demo account runs on an invented example person. Every page says so. */
+function DemoBanner(){
+  const app=useApp(); if(!isDemo(app)) return null;
+  return <div className="demo-banner" role="note">
+    <Icon name="info" size={14}/><span><b>Demo account.</b> Every figure, goal, subscription and post here is example data, not a real person.</span>
+    <button onClick={()=>app.nav('/signup')} className="demo-banner-cta">Create your own</button>
+  </div>;
+}
 function AppShell({ children }){
   const ref = useReveal();
   return <div className="min-h-screen flex">
@@ -2749,6 +2809,7 @@ function AppShell({ children }){
     <Sidebar/>
     <div className="flex-1 min-w-0 flex flex-col">
       <TopBar/>
+      <DemoBanner/>
       {/* bottom padding keeps the last panel clear of the dock */}
       <main id="main" ref={ref} tabIndex={-1} className="flex-1 px-4 sm:px-6 lg:px-8 py-6 pb-32 max-w-[1200px] w-full mx-auto outline-none">{children}</main>
     </div>
@@ -2827,254 +2888,20 @@ function HeroPreview(){
   );
 }
 
-function Landing(){
-  const app = useApp(); const { t } = app; const ref = useReveal();
-  const goTo = id => { const el=document.getElementById(id); if(el) el.scrollIntoView({behavior:'smooth'}); };
-  const features = [
-    {icon:'user', title:'AI Financial Twin', desc:'A cinematic profile of your money personality, strengths and biggest leak.', to:'/twin'},
-    {icon:'sliders', title:'Wealth Simulator', desc:'Drag a few habits and watch your 10-year future recalculate in real time.', to:'/simulator'},
-    {icon:'grid', title:'Benchmark Dashboard', desc:'See every category against realistic ranges for your region and income.', to:'/dashboard'},
-    {icon:'chart', title:'Investment Guidance', desc:'Educational pathways from emergency fund to diversified portfolio.', to:'/invest'},
-    {icon:'gauge', title:'Market Intelligence', desc:'Indices, sectors and stock insights, explained for humans.', to:'/market'},
-    {icon:'spark', title:'AI Assistant', desc:'Ask anything about your money and get calm, contextual answers.', to:'/assistant'},
-    {icon:'tv', title:'Subscription Detector', desc:'Surface the quiet recurring spend draining your account.', to:'/subscriptions'},
-    {icon:'shield', title:'Emergency Fund', desc:'Know your true safety number and the fastest way to reach it.', to:'/emergency'},
-  ];
-  const steps=[
-    {n:'01', icon:'calendar', title:'Track one month', desc:'Spend 30 days noticing where money actually goes, no spreadsheets, no judgement.'},
-    {n:'02', icon:'grid', title:'Enter & compare', desc:'Input income and spending. Lumera benchmarks you against real-world ranges for people like you.'},
-    {n:'03', icon:'spark', title:'Get your plan', desc:'Receive AI insights, a health score, and a 30-day action plan you can actually follow.'},
-  ];
-  return <div ref={ref} className="relative">
-    {/* Nav */}
-    <header className="sticky top-0 z-40 glass border-b border-line/70">
-      <div className="max-w-[1180px] mx-auto px-4 sm:px-6 h-16 flex items-center gap-4">
-        <button onClick={()=>app.nav('/')}><Logo size={20}/></button>
-        <nav className="hidden lg:flex items-center gap-0.5 ml-2 text-sm text-charcoal/75">
-          {[['Problem','problem'],['Family','family'],['Features','features'],['Markets','market'],['Trust','trust'],['Pricing','pricing']].map(([l,id])=>
-            <button key={id} onClick={()=>goTo(id)} className="px-2.5 py-2 rounded-lg hover:bg-sand transition whitespace-nowrap">{l}</button>)}
-        </nav>
-        <div className="flex-1"/>
-        <ThemeToggle/>
-        <span className="hidden sm:inline-flex"><LanguageSwitcher compact/></span>
-        <Btn variant="ghost" className="hidden sm:inline-flex lg:hidden xl:inline-flex shrink-0" onClick={()=>app.nav('/login')}>{t('Log in')}</Btn>
-        <Btn variant="primary" className="shrink-0 whitespace-nowrap !px-3 !text-xs sm:!px-5 sm:!text-sm" onClick={()=>app.nav('/signup')}>{t('Get started')}</Btn>
-      </div>
-    </header>
-
-    {/* Hero */}
-    <section className="relative overflow-hidden">
-      <div className="max-w-[1180px] mx-auto px-4 sm:px-6 pt-14 sm:pt-20 pb-16 grid lg:grid-cols-2 gap-12 items-center">
-        <div>
-          <div className="anim-fadeUp"><Pill tone="gold" className="mb-5"><Icon name="globe" size={13}/> {t('global')}</Pill></div>
-          <h1 className="anim-fadeUp font-serif text-[2.05rem] sm:text-[2.45rem] leading-[1.12] text-charcoal tracking-[-0.01em]" style={{textWrap:'balance'}}>
-            {t('hero_h1').split(' ').slice(0,-2).join(' ')} <span className="gold-text">{t('hero_h1').split(' ').slice(-2).join(' ')}</span>
-          </h1>
-          <p className="anim-fadeUp lede text-lg text-muted leading-relaxed mt-5 max-w-xl" style={{animationDelay:'.08s'}}>{t('hero_sub')}</p>
-          <div className="anim-fadeUp flex flex-wrap gap-3 mt-8" style={{animationDelay:'.16s'}}>
-            <Btn variant="gold" iconR="arrowR" onClick={()=>app.nav('/signup')}>{t('cta_start')}</Btn>
-            <Btn variant="ghost" icon="gauge" onClick={()=>app.nav('/market')}>{t('cta_market')}</Btn>
-            <Btn variant="ghost" icon="play" onClick={()=>goTo('how')}>{t('cta_how')}</Btn>
-          </div>
-          <div className="anim-fadeUp flex items-center gap-5 mt-9 text-xs text-faint" style={{animationDelay:'.24s'}}>
-            <span className="flex items-center gap-1.5"><Icon name="lock" size={14} className="text-goldd"/> Privacy-first</span>
-            <span className="flex items-center gap-1.5"><Icon name="check" size={14} className="text-saged"/> No bank login required</span>
-            <span className="flex items-center gap-1.5"><Icon name="book" size={14} className="text-sky"/> Educational only</span>
-          </div>
-        </div>
-        <div className="anim-scaleIn" style={{animationDelay:'.1s'}}><HeroPreview/></div>
-      </div>
-    </section>
-
-    {/* Problem */}
-    <section id="problem" className="max-w-[1180px] mx-auto px-4 sm:px-6 py-20">
-      <div className="reveal max-w-2xl mx-auto text-center"><Eyebrow className="mb-3 justify-center">{t('sec_problem')}</Eyebrow>
-        <h2 className="font-serif text-3xl sm:text-4xl text-charcoal leading-tight">Most people don’t have a money problem. They have a <span className="gold-text">visibility</span> problem.</h2>
-        <p className="lede text-muted mt-4 leading-relaxed text-lg">You earn, you spend, and the month disappears. Budgeting apps hand you charts but never tell you whether your spending is normal, where the silent leaks are, or what to actually do next. Lumera turns one month of behaviour into a clear, benchmarked, personalised plan.</p>
-      </div>
-      <div className="grid sm:grid-cols-3 gap-4 mt-10 stagger">
-        {[['eye','Invisible leaks','Small recurring costs quietly cap how fast your wealth grows.'],
-          ['scale','No benchmark','“Is this normal?”, nobody tells you what good looks like for someone like you.'],
-          ['bulb','No next step','Data without a plan is just anxiety with a dashboard.']].map(([ic,ti,de])=>
-          <Card key={ti}><div className="grid place-items-center h-11 w-11 rounded-xl bg-sand text-clayd mb-3"><Icon name={ic}/></div>
-            <h3 className="font-serif text-xl text-charcoal">{ti}</h3><p className="text-muted text-sm mt-1.5 leading-relaxed">{de}</p></Card>)}
-      </div>
-    </section>
-
-    {/* The Lumera family */}
-    <section id="family" className="bg-gradient-to-b from-cream/0 via-cream/60 to-cream/0 border-y border-line/60">
-      <div className="max-w-[1180px] mx-auto px-4 sm:px-6 py-20">
-        <div className="reveal text-center max-w-2xl mx-auto mb-12"><Eyebrow className="mb-3 justify-center">The Lumera family</Eyebrow>
-          <h2 className="font-serif text-3xl sm:text-4xl text-charcoal">Four worlds, one financial life.</h2>
-          <p className="lede text-muted mt-3 text-lg">Lumera is the hub. Each product below is its own space with its own tools.</p></div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 stagger">
-          {SUBS.filter(s=>s.key!=='lumera' && worldOn(app.layout,s.key)).map(s=>
-            <button key={s.key} onClick={()=>app.nav('/signup')} aria-label={`${s.name}: ${s.tag}`}
-              className="reveal lux-card lift relative overflow-hidden text-left !p-0 flex flex-col" style={{'--glow':hexToRgbList(s.accent), borderColor:s.accent+'40'}}>
-              <span className="relative h-44 block overflow-hidden" aria-hidden="true"
-                style={{background:`radial-gradient(100% 120% at 50% 120%, ${s.accent}5A, transparent 62%), linear-gradient(180deg, ${s.accent}1F, transparent)`}}>
-                <span className="absolute left-1/2 -translate-x-1/2 bottom-0"><Mascot kind={s.key} color={s.accent} size={104}/></span>
-              </span>
-              <span className="p-5 block">
-                <span className="block font-display text-[1.8rem] leading-none text-charcoal">{s.name}</span>
-                <span className="block text-[11px] font-semibold mt-1.5" style={{color:s.accent}}>{GUIDE[s.key].name} · {s.tag}</span>
-                <span className="block text-sm text-muted leading-relaxed mt-3">{s.blurb}</span>
-              </span>
-            </button>)}
-        </div>
-        <div className="reveal text-center mt-10"><Btn variant="primary" iconR="arrowR" onClick={()=>app.nav('/signup')}>{t('cta_start')}</Btn></div>
-      </div>
-    </section>
-
-    {/* Features */}
-    <section id="features" className="max-w-[1180px] mx-auto px-4 sm:px-6 py-20">
-      <div className="reveal max-w-2xl mx-auto text-center mb-12"><Eyebrow className="mb-3 justify-center">{t('sec_features')}</Eyebrow>
-        <h2 className="font-serif text-3xl sm:text-4xl text-charcoal leading-tight">Everything your money needs, in one calm place.</h2>
-        <p className="lede text-muted mt-3 text-lg">Not another budgeting tab. A financial operating system that understands the invisible patterns behind your spending.</p></div>
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 stagger">
-        {features.map(f=><Card key={f.title} onClick={()=>app.nav(f.to)} className="reveal sweep-wrap group halo tilt">
-          <div className="grid place-items-center h-11 w-11 rounded-xl bg-gold/12 text-goldd mb-3 group-hover:scale-110 transition"><Icon name={f.icon}/></div>
-          <h3 className="font-serif text-lg text-charcoal">{f.title}</h3><p className="text-muted text-sm mt-1.5 leading-relaxed">{f.desc}</p>
-          <div className="mt-3 text-xs font-semibold text-goldd flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">Explore <Icon name="arrowR" size={13}/></div>
-        </Card>)}
-      </div>
-    </section>
-
-    {/* Market intel preview */}
-    <section id="market" className="max-w-[1180px] mx-auto px-4 sm:px-6 py-20 grid lg:grid-cols-2 gap-12 items-center">
-        <div className="reveal text-center lg:text-left"><Eyebrow className="mb-3 justify-center lg:justify-start">{t('sec_market')}</Eyebrow>
-          <h2 className="font-serif text-3xl sm:text-4xl text-charcoal leading-tight">Serious market intelligence, in plain English.</h2>
-          <p className="lede text-muted mt-4 leading-relaxed text-lg">Markets without the jargon. Every index, sector and stock comes with a plain-English “why it matters”, so you learn the language of money while you watch it.</p>
-          <Btn variant="primary" className="mt-7" iconR="arrowR" onClick={()=>app.nav('/market')}>{t('cta_market')}</Btn>
-        </div>
-        <div className="reveal grid grid-cols-2 gap-3">
-          {MARKET_INDICES.slice(0,4).map(ix=><Card key={ix.ticker} hover={false} className="!p-4">
-            <div className="text-xs text-muted">{ix.name}</div>
-            <div className="font-serif text-2xl text-charcoal mt-1 tnum">{ix.value.toLocaleString()}</div>
-            <div className={cx('text-sm mt-1 tnum', ix.chg>=0?'text-saged':'text-clayd')}>{ix.chg>=0?'▲':'▼'} {Math.abs(ix.chg)}%</div>
-          </Card>)}
-        </div>
-    </section>
-
-    {/* Achievements */}
-    <section className="max-w-[1180px] mx-auto px-4 sm:px-6 py-20">
-      <div className="reveal text-center max-w-xl mx-auto mb-10"><Eyebrow className="mb-3 justify-center">Engagement, refined</Eyebrow>
-        <h2 className="font-serif text-3xl sm:text-4xl text-charcoal">Milestones that feel like achievements, not arcade points.</h2>
-        <p className="lede text-muted mt-3">Prestige badges that mark real financial progress, built on the engagement psychology of the best products, kept serious and premium.</p></div>
-      <div className="flex flex-wrap justify-center gap-3 stagger">
-        {BADGES.map(b=><div key={b.id} className="reveal lux-card lift px-4 py-3 flex items-center gap-3">
-          <span className="grid place-items-center h-10 w-10 rounded-xl bg-gradient-to-br from-gold/20 to-sand text-goldd"><Icon name={b.icon} size={20}/></span>
-          <div><div className="text-sm font-semibold text-charcoal">{b.name}</div><div className="text-[11px] text-faint">{b.tier}</div></div></div>)}
-      </div>
-    </section>
-
-    {/* Trust */}
-    <section id="trust" className="bg-cream/60 border-y border-line/60">
-      <div className="max-w-[1180px] mx-auto px-4 sm:px-6 py-20 grid lg:grid-cols-2 gap-12 items-center">
-        <div className="reveal text-center lg:text-left"><Eyebrow className="mb-3 justify-center lg:justify-start">{t('sec_trust')}</Eyebrow>
-          <h2 className="font-serif text-3xl sm:text-4xl text-charcoal leading-tight">Your data is yours. Full stop.</h2>
-          <p className="lede text-muted mt-4 leading-relaxed text-lg">Lumera is privacy-first by architecture. We never sell your data. You can export or permanently delete everything at any time. Future bank connections will use secure, revocable consent, never stored credentials.</p>
-          <Btn variant="ghost" className="mt-6" icon="lock" onClick={()=>app.nav('/privacy')}>Read our privacy commitments</Btn>
-        </div>
-        <div className="reveal grid sm:grid-cols-2 gap-4">
-          {[['lock','Never sold','Your financial data is never sold or shared for advertising.'],
-            ['download','You own it','Export or delete all your data in one click, anytime.'],
-            ['shield','Consent-based','Future bank links require secure, revocable consent.'],
-            ['book','Educational','Guidance only, never licensed financial advice.']].map(([ic,ti,de])=>
-            <Card key={ti}><Icon name={ic} className="text-goldd mb-2"/><div className="font-semibold text-charcoal">{ti}</div><p className="text-sm text-muted mt-1 leading-relaxed">{de}</p></Card>)}
-        </div>
-      </div>
-    </section>
-
-    {/* Pricing teaser */}
-    <section id="pricing" className="max-w-[1180px] mx-auto px-4 sm:px-6 py-20">
-      <div className="reveal text-center max-w-xl mx-auto mb-10"><Eyebrow className="mb-3 justify-center">{t('sec_pricing')}</Eyebrow>
-        <h2 className="font-serif text-3xl sm:text-4xl text-charcoal">Free today. Built for what’s next.</h2></div>
-      <div className="grid md:grid-cols-3 gap-5">
-        {[['Free','Available now',['Monthly expense review','Financial health score','Budget & savings tools','Market news','Limited AI assistant'],true],
-          ['Pro','Coming soon',['Advanced AI coach','Unlimited simulations','Full benchmark analytics','Monthly reports','Subscription & debt tools'],false],
-          ['Premium','Coming soon',['Portfolio analytics','Family budgeting','Tax optimisation (placeholder)','Priority AI','Advisor-ready summaries'],false]].map(([n,b,feats,active])=>
-          <Card key={n} className={cx('reveal', active&&'ring-1 ring-gold/40')}>
-            <div className="flex items-center justify-between"><h3 className="font-serif text-2xl text-charcoal">{n}</h3>{active?<Pill tone="gold">Current</Pill>:<Pill>Future</Pill>}</div>
-            <div className="text-sm text-muted mt-1">{b}</div>
-            <ul className="mt-4 space-y-2">{feats.map(f=><li key={f} className="flex items-start gap-2 text-sm text-charcoal/80"><Icon name="check" size={16} className="text-saged mt-0.5 shrink-0"/>{f}</li>)}</ul>
-          </Card>)}
-      </div>
-      <div className="reveal text-center mt-6"><Btn variant="ghost" onClick={()=>app.nav('/pricing')}>See full pricing</Btn></div>
-    </section>
-
-    {/* Final CTA: the invisible patterns, made visible. Not a glass card: an
-        opaque, lit stage with the brand's own wave strands as the pattern, set
-        behind a large editorial headline. */}
-    <section className="max-w-[1180px] mx-auto px-4 sm:px-6 pb-24" aria-labelledby="patterns-title">
-      <div className="reveal patterns-stage relative overflow-hidden rounded-[34px] px-6 sm:px-14 py-16 sm:py-20">
-        <svg className="patterns-strands" viewBox="0 0 1200 520" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-          <defs>
-            <linearGradient id="pt-g" x1="0" y1="1" x2="1" y2="0">
-              <stop offset="0" stopColor="#EBC77A"/><stop offset=".35" stopColor="#B693FF"/><stop offset=".7" stopColor="#8E7BFF"/><stop offset="1" stopColor="#EBC77A"/>
-            </linearGradient>
-          </defs>
-          <g fill="none" stroke="url(#pt-g)" strokeLinecap="round">
-            {Array.from({length:16},(_,i)=>{ const o=i*9;
-              return <path key={i} className="pt-strand" style={{animationDelay:(i*0.06)+'s'}} strokeWidth={i%4===0?1.4:0.8} opacity={0.85-i*0.035}
-                d={`M -40 ${380+o} C 180 ${150+o*0.6}, 420 ${120+o}, 640 ${300+o} S 1000 ${420+o*0.4}, 1090 ${90+o*0.7}`}/>; })}
-          </g>
-          <path className="pt-star" d="M1090 52 L1097 82 L1126 90 L1097 98 L1090 128 L1083 98 L1054 90 L1083 82 Z" fill="#EBC77A"/>
-        </svg>
-        <div className="relative grid lg:grid-cols-[1.25fr_1fr] gap-10 lg:gap-14 items-end">
-          <h2 id="patterns-title" className="font-display text-[2.7rem] sm:text-[4.4rem] leading-[.98] text-charcoal tracking-[-0.015em]">
-            Understand the <em className="not-italic patterns-em">invisible patterns</em><br/><span className="gold-text">behind your spending.</span></h2>
-          <div className="lg:pb-3">
-            <div className="h-px w-16 mb-5" style={{background:'linear-gradient(90deg,#EBC77A,transparent)'}}/>
-            <p className="text-[17px] sm:text-lg leading-relaxed text-charcoal/85">Turn one month of financial behaviour into a clear action plan. It’s free, private, and takes minutes to begin.</p>
-            <div className="flex flex-wrap gap-3 mt-7"><Btn variant="gold" iconR="arrowR" onClick={()=>app.nav('/signup')}>{t('cta_start')}</Btn>
-              <Btn variant="ghost" onClick={()=>app.nav('/login')}>{t('cta_open')}</Btn></div>
-          </div>
-        </div>
-        <p className="relative mt-12 pt-5 border-t border-white/10 text-[12px] leading-relaxed text-charcoal/60 max-w-3xl">Lumera provides educational financial guidance only, not licensed financial advice. We do not guarantee investment returns. Market data shown is illustrative. Always do your own research or consult a qualified professional.</p>
-      </div>
-    </section>
-
-    {/* Footer */}
-    <footer className="border-t border-line bg-cream/40">
-      <div className="max-w-[1180px] mx-auto px-4 sm:px-6 py-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
-        <div className="lg:col-span-2">
-          <Logo size={20} sub/>
-          <p className="text-sm text-muted mt-3 max-w-xs leading-relaxed">Financial clarity for students and early-career professionals. Clear, calm and jargon-free.</p>
-
-        </div>
-        {[['Product',[['Features','/'],['Pricing','/pricing'],['Markets','/market'],['Learn','/learn']]],
-          ['Company',[['About us','/about'],['Founding team','/team'],['What’s new','/updates'],['Privacy','/privacy']]],
-          ['The family',[['Leaf','/leaf'],['Atlas','/atlas'],['Shield','/shield'],['Forge','/forge']]]].map(([h,links])=>
-          <div key={h}>
-            <div className="text-[11px] font-semibold tracking-[.18em] uppercase text-faint mb-3">{h}</div>
-            <div className="flex flex-col gap-2">{links.map(([l,to])=>
-              <button key={l} onClick={()=>app.nav(to)} className="text-sm text-muted hover:text-charcoal text-left transition">{l}</button>)}</div>
-          </div>)}
-        <div>
-          <div className="text-[11px] font-semibold tracking-[.18em] uppercase text-faint mb-3">Contact</div>
-          <div className="flex flex-col gap-2 text-sm text-muted">
-            <a href="mailto:hello@lumera.app" className="hover:text-charcoal transition">hello@lumera.app</a>
-            <a href="mailto:support@lumera.app" className="hover:text-charcoal transition">support@lumera.app</a>
-
-          </div>
-          <button onClick={()=>app.nav('/signup')} className="btn btn-primary mt-4 px-4 py-2 text-xs">Get started</button>
-        </div>
-      </div>
-      <div className="border-t border-line/70">
-        <div className="max-w-[1180px] mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row gap-3 sm:items-center justify-between">
-          <span className="text-[11px] text-faint">© 2026 Lumera. All rights reserved.</span>
-          <LanguageSwitcher compact/>
-        </div>
-        <div className="max-w-[1180px] mx-auto px-4 sm:px-6 pb-8 text-[11px] text-faint leading-relaxed">Educational financial guidance only, not licensed financial advice. Lumera does not guarantee investment returns. Market data shown is mock data in this prototype. Always do your own research or consult a qualified professional.</div>
-      </div>
-    </footer>
+/* One action bar for every questionnaire: pinned to the bottom of the screen,
+   so Back, Skip and Continue never move while the question above changes. */
+function QuizBar({ onBack, onSkip, onNext, nextLabel, nextDisabled, note }){
+  return <div className="quiz-bar" role="group" aria-label="Questionnaire navigation">
+    <div className="quiz-bar-inner">
+      <button type="button" onClick={onBack} disabled={!onBack} className="btn btn-ghost px-3.5 py-2.5 text-sm"><Icon name="chevL" size={16}/>Back</button>
+      <span className="flex-1 min-w-0 text-center text-xs text-faint truncate" aria-live="polite">{note}</span>
+      {onSkip && <button type="button" onClick={onSkip} className="btn btn-ghost px-3.5 py-2.5 text-sm">Skip</button>}
+      <button type="button" onClick={onNext} disabled={nextDisabled} aria-disabled={nextDisabled}
+        className={cx('btn btn-gold px-5 py-2.5 text-sm', nextDisabled&&'opacity-50 cursor-not-allowed')}>{nextLabel}<Icon name="arrowR" size={16}/></button>
+    </div>
   </div>;
 }
 
-/* ============================================================
-   PAGE · ONBOARDING
-   ============================================================ */
 function Onboarding(){
   const app = useApp(); const { t } = app;
   const [step,setStep]=useState(0);
@@ -3121,11 +2948,11 @@ function Onboarding(){
     app.nav('/review'); };
   return <div className="min-h-screen flex flex-col">
     <header className="px-4 sm:px-6 h-16 flex items-center gap-3 border-b border-line glass sticky top-0 z-20">
-      <button onClick={()=>app.nav('/')}><Logo size={18}/></button><div className="flex-1"/><LanguageSwitcher compact/>
+      <button onClick={()=>logoHome(app)} aria-label="Lumera home"><Logo size={18}/></button><div className="flex-1"/><LanguageSwitcher compact/>
       {!app.onboarded && <button onClick={()=>{app.completeOnboarding();app.nav('/dashboard');}} className="text-sm text-muted hover:text-charcoal">{t('skip')} →</button>}
     </header>
     <div className="h-1 bg-sand"><div className="h-full bg-gradient-to-r from-gold to-goldd transition-all duration-500" style={{width:progress+'%'}}/></div>
-    <div className="flex-1 grid place-items-center px-4 py-10">
+    <div className="flex-1 flex justify-center px-4 pt-8 sm:pt-14 quiz-body">
       <div className="w-full max-w-xl">
         <div className="text-xs tracking-[.2em] uppercase text-faint mb-3">Step {step+1} of {total}</div>
         <div key={step} className="anim-fadeUp">
@@ -3165,17 +2992,13 @@ function Onboarding(){
               <button onClick={()=>set(cur.k, clamp(d[cur.k]+1,cur.min,cur.max))} className="grid place-items-center h-14 w-14 rounded-2xl border border-line bg-cream hover:bg-sand text-2xl"><Icon name="plus"/></button>
             </div>}
           </div>
-          <div className="flex items-center justify-between mt-9">
-            <button onClick={()=>step>0?setStep(step-1):app.nav('/')} className="btn btn-ghost px-4 py-2.5 text-sm"><Icon name="chevL" size={16}/>{t('back')}</button>
-            <div className="flex items-center gap-2">
-              {(cur.kind==='text'||cur.kind==='multi') && <button onClick={next} className="text-sm text-muted hover:text-charcoal px-3">{t('skip')}</button>}
-              <button onClick={next} disabled={!answered} aria-disabled={!answered}
-                className={cx('btn btn-gold px-5 py-2.5 text-sm', !answered&&'opacity-50 cursor-not-allowed')}>{step<total-1?t('continue'):t('finish')}<Icon name="arrowR" size={16}/></button>
-            </div>
-          </div>
         </div>
       </div>
     </div>
+    <QuizBar onBack={step>0 ? ()=>setStep(step-1) : null}
+      onSkip={(cur.kind==='text'||cur.kind==='multi') ? ()=>{ if(step<total-1) setStep(step+1); else finish(); } : null}
+      onNext={next} nextDisabled={!answered} nextLabel={step<total-1?t('continue'):t('finish')}
+      note={answered ? `Question ${step+1} of ${total}` : 'Choose an answer to continue'}/>
   </div>;
 }
 
@@ -3225,40 +3048,39 @@ function Review(){
   const next=()=>{ if(step<total-1) setStep(step+1); else finish(); };
   return <div className="min-h-screen flex flex-col">
     <header className="px-4 sm:px-6 h-16 flex items-center gap-3 border-b border-line glass sticky top-0 z-20">
-      <button onClick={()=>app.nav('/')}><Logo size={18}/></button>
+      <button onClick={()=>logoHome(app)} aria-label="Lumera home"><Logo size={18}/></button>
       <span className="hidden sm:block text-sm text-muted ml-2">Monthly Expense Review</span>
       <div className="flex-1"/><RegionSwitcher/>
       {!app.onboarded && <button onClick={finish} className="text-sm text-muted hover:text-charcoal">{t('skip')} →</button>}
     </header>
     <div className="h-1 bg-sand"><div className="h-full bg-gradient-to-r from-gold to-goldd transition-all duration-500" style={{width:progress+'%'}}/></div>
-    <div className="flex-1 px-4 py-8">
+    <div className="flex-1 px-4 py-8 quiz-body">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center gap-2 mb-6 overflow-x-auto no-scrollbar pb-1">
           {stepDefs.map((s,i)=><div key={i} className={cx('h-1.5 rounded-full transition-all', i<=step?'bg-goldd':'bg-sand', i===step?'w-8':'w-4')}/>)}
         </div>
         <div key={step} className="anim-fadeUp">
           {cur.type==='intro' && <>
-            <Eyebrow className="mb-2">Before you start</Eyebrow>
+            <Eyebrow className="mb-2">Monthly Expense Review</Eyebrow>
             <h1 className="font-serif text-3xl sm:text-4xl text-charcoal">What to have ready.</h1>
-            <p className="text-muted mt-2 max-w-xl">Grab a rough monthly figure for each of these. Estimates are completely fine, you can refine them later.</p>
-            <div className="grid sm:grid-cols-2 gap-3 mt-6">
-              {[['💰','Income','Your take-home pay, after tax'],
-                ['🏠','Housing','Rent or mortgage, plus service charges'],
-                ['🛒','Food','Groceries and eating out'],
-                ['🚇','Transport','Fuel, transit passes, car costs'],
-                ['🔁','Bills & subscriptions','The auto-renewing ones'],
-                ['🛍️','Lifestyle','Shopping, fun, travel'],
-                ['💳','Debt','Card, loan or BNPL payments'],
-                ['🐖','Saving & investing','What you set aside each month']].map(([e,ttl,d])=>
-                <Card key={ttl} hover={false} className="!p-4 flex items-start gap-3">
-                  <span className="text-2xl shrink-0">{e}</span>
-                  <span><span className="block font-medium text-charcoal">{ttl}</span>
-                    <span className="block text-sm text-muted leading-snug">{d}</span></span></Card>)}
+            <p className="text-muted mt-2 max-w-xl">Made for when money is coming in, from a job, an allowance or side work. Rough monthly figures are fine.</p>
+            {[['Money in', [['wallet','Income','Take-home pay']]],
+              ['Money out', [['home','Housing','Rent or mortgage'],['cart','Food','Groceries, eating out'],['bus','Transport','Fuel, fares'],
+                ['tv','Bills','Utilities, subscriptions'],['gift','Lifestyle','Shopping, fun'],['credit','Debt','Cards, loans, BNPL']]],
+              ['Set aside', [['chart','Saving','Savings, investing']]]].map(([group, items])=>
+              <section key={group} className="mt-6">
+                <h2 className="text-[11px] font-semibold uppercase tracking-[.18em] text-faint mb-2.5">{group}</h2>
+                <div className="ready-grid">
+                  {items.map(([ic,ttl,hint])=><div key={ttl} className="ready-tile">
+                    <span className="ready-ic" aria-hidden="true"><Icon name={ic} size={18}/></span>
+                    <span className="min-w-0"><span className="block text-sm font-semibold text-charcoal">{ttl}</span>
+                      <span className="block text-xs text-muted truncate">{hint}</span></span></div>)}
+                </div>
+              </section>)}
+            <div className="mt-6 flex flex-wrap gap-2">
+              {[['bulb','Last month’s statement helps'],['clock','About five minutes'],['refresh','Edit any time']].map(([ic,l])=>
+                <span key={l} className="inline-flex items-center gap-1.5 rounded-full border border-line bg-cream/60 px-3 py-1.5 text-xs text-charcoal/85"><Icon name={ic} size={13} className="text-goldd"/>{l}</span>)}
             </div>
-            <Card hover={false} className="mt-4 bg-gradient-to-br from-gold/8 to-transparent">
-              <div className="flex items-start gap-3"><span className="grid place-items-center h-9 w-9 rounded-xl bg-gold/15 text-goldd shrink-0"><Icon name="bulb" size={17}/></span>
-                <p className="text-sm text-charcoal/85 leading-relaxed">Fastest route: open last month’s bank or card statement. It shows where the money actually went, rather than where you think it went. Takes about five minutes.</p></div>
-            </Card>
           </>}
           {cur.type==='group' && <>
             <Eyebrow className="mb-2">Step {step+1} of {total}</Eyebrow>
@@ -3321,14 +3143,14 @@ function Review(){
                     className={cx('rounded-full px-4 py-2 text-sm border transition', app.profile.behaviour[k]===o?'border-gold bg-gold/10 text-goldd':'border-line bg-cream hover:bg-sand')}>{o}</button>)}</div></Card>)}
             </div>
           </>}
-          <div className="flex items-center justify-between mt-7">
-            <button onClick={()=>step>0?setStep(step-1):app.nav('/onboarding')} className="btn btn-ghost px-4 py-2.5 text-sm"><Icon name="chevL" size={16}/>{t('back')}</button>
-            <Btn variant="gold" iconR="arrowR" onClick={next}>{step<total-1?t('continue'):'Generate my dashboard'}</Btn>
-          </div>
           {step===0 && <div className="mt-5"><Disclaimer compact/></div>}
         </div>
       </div>
     </div>
+    <QuizBar onBack={step>0 ? ()=>setStep(step-1) : ()=>app.nav('/onboarding')}
+      onSkip={(cur.type==='custom'||cur.type==='behaviour') ? next : null}
+      onNext={next} nextLabel={step===0 ? 'Start' : step<total-1 ? t('continue') : 'Generate my dashboard'}
+      note={step===0 ? 'About five minutes' : `Step ${step+1} of ${total}`}/>
   </div>;
 }
 
@@ -3561,11 +3383,10 @@ function productOf(path){
   return 'lumera';
 }
 const SITE = (typeof window!=='undefined' && window.__LUMERA_SITE) || 'lumera';
-const SITE_FILE = { lumera:'Lumera.html', leaf:'Leaf.html', atlas:'Atlas.html', shield:'Shield.html', forge:'Forge.html' };
 // Enter a product's world IN-APP (always the current build, never a stale file).
 // Each product still gets its own URL/theme/shell, so it feels like a separate site.
 function openProduct(app, key){ app.nav('/'+key); }
-const backToLumera = ()=>{ if(SITE==='lumera'){ location.hash='/dashboard'; } else { location.href='Lumera.html'; } };
+const backToLumera = ()=>{ location.hash='/dashboard'; };
 const SUB_TOOL_DESC = {
   '/dashboard':'Your money at a glance.', '/budget':'See where every penny goes.', '/goals':'Save for the things that matter.',
   '/emergency':'Size your safety buffer.', '/subscriptions':'Catch the silent money leaks.', '/networth':'One honest number, tracked.',
@@ -4012,9 +3833,9 @@ function Recommendations(){
     <PageHead eyebrow="AI recommendations" title="What to do next, and why."
       desc="Prioritised actions built from your own numbers, each with its reasoning one click away."/>
     {insights.length>0 && <div className="flex flex-wrap items-center gap-2 mb-4">
-      <span className="sp-pill"><span className="sp-orb warn" aria-hidden="true"/>{insights.filter(i=>i.priority==='High').length} high priority</span>
-      <span className="sp-pill">{insights.length} action{insights.length===1?'':'s'}</span>
-      {reclaim>0 && <span className="sp-pill tint">Up to {fmt.money(reclaim)}/mo to reclaim</span>}
+      <span className="lg-pill"><span className="lg-orb warn" aria-hidden="true"/>{insights.filter(i=>i.priority==='High').length} high priority</span>
+      <span className="lg-pill">{insights.length} action{insights.length===1?'':'s'}</span>
+      {reclaim>0 && <span className="lg-pill tint">Up to {fmt.money(reclaim)}/mo to reclaim</span>}
     </div>}
     <div className="grid lg:grid-cols-2 gap-3">
       {insights.map((ins,i)=>{ const hi=ins.priority==='High'; const isOpen=open===i;
@@ -4112,15 +3933,18 @@ function Dashboard(){
   const hasData = m.income>1;
   return <AppShell>
     {/* ===== Active workspace: the one raised surface on the page ===== */}
-    <section aria-labelledby="ws-title" className="sp-workspace lux-card !p-5 sm:!p-7 mb-6">
+    <section aria-labelledby="ws-title" className="lg-workspace lux-card !p-5 sm:!p-7 mb-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5"><span className="sp-orb" aria-hidden="true"/>
+        <div className="flex items-center gap-2.5"><span className="lg-orb" aria-hidden="true"/>
           <span className="text-[11px] tracking-[.22em] uppercase font-semibold text-muted">Active workspace</span></div>
         <div className="flex flex-wrap items-center gap-2">
-          <span className="sp-pill"><span className={cx('sp-orb', !updated||stale?'warn':'')} aria-hidden="true"/>{updatedLabel}</span>
-          {app.mode==='spark' && <span className="sp-pill tint" title={`${lvlNext-(app.xp||0)} XP to level ${lvl+1}`}>Level {lvl}
+          <span className="lg-pill"><span className={cx('lg-orb', !updated||stale?'warn':'')} aria-hidden="true"/>{updatedLabel}</span>
+          {app.mode==='spark' && <span className="lg-pill tint" title={`${lvlNext-(app.xp||0)} XP to level ${lvl+1}`}>Level {lvl}
             <span className="inline-block w-14 h-1.5 rounded-full overflow-hidden bg-white/15" aria-hidden="true"><span className="block h-full rounded-full bg-white" style={{width:Math.max(6,lvlPct)+'%'}}/></span>
             <span className="tnum text-muted">{app.xp||0} XP</span></span>}
+          {/* utility actions: small, in the corner, out of the way of the figures */}
+          <button onClick={()=>app.nav('/review')} className="btn btn-ghost px-3 py-1.5 text-xs"><Icon name="refresh" size={13}/>Update my figures</button>
+          <button onClick={()=>app.nav('/twin')} className="btn btn-ghost px-3 py-1.5 text-xs"><Icon name="user" size={13}/>Financial Twin</button>
         </div>
       </div>
       <div className="grid lg:grid-cols-[1.1fr_1fr] gap-6 lg:gap-8 mt-5 items-end">
@@ -4128,22 +3952,18 @@ function Dashboard(){
           <div className="text-sm text-muted">{greet}{app.profile.name?`, ${app.profile.name}`:''}.</div>
           <h1 id="ws-title" className="font-display text-[2.5rem] sm:text-[3.3rem] text-charcoal leading-[1.02] mt-1">Your money, <span className="gold-text">today</span>.</h1>
           <div className="flex flex-wrap items-end gap-4 mt-6">
-            <div className="sp-inset px-5 py-4">
-              <div className="text-[10.5px] tracking-[.2em] uppercase font-semibold" style={{color:'var(--sp-gold,#EBC77A)'}}>Health score</div>
+            <div className="lg-inset px-5 py-4">
+              <div className="text-[10.5px] tracking-[.2em] uppercase font-semibold" style={{color:'var(--lg-gold,#EBC77A)'}}>Health score</div>
               <div className="flex items-baseline gap-2 mt-1">
-                <span className="font-display tnum leading-[.9] text-[4.4rem]" style={{color:'var(--sp-gold,#EBC77A)', textShadow:'0 0 32px rgba(235,199,122,.35)'}}>{hasData?m.overall:'–'}</span>
+                <span className="font-display tnum leading-[.9] text-[4.4rem]" style={{color:'var(--lg-gold,#EBC77A)', textShadow:'0 0 32px rgba(235,199,122,.35)'}}>{hasData?m.overall:'–'}</span>
                 <span className="text-sm text-faint">of 100</span></div>
               <div className="text-sm text-charcoal/85 mt-1">{hasData?scoreLabel:'Add your income to get a score'}</div>
-            </div>
-            <div className="flex flex-col gap-2">
-              <Btn variant="gold" icon="refresh" to="/review">Update my figures</Btn>
-              <Btn variant="ghost" icon="user" to="/twin">Financial Twin</Btn>
             </div>
           </div>
         </div>
         <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
           {figures.map(([label,value,unit,note,tone])=>
-            <div key={label} className="sp-inset p-3.5 sm:p-4 min-w-0">
+            <div key={label} className="lg-inset p-3.5 sm:p-4 min-w-0">
               <div className="text-[10px] tracking-[.14em] uppercase font-semibold text-faint leading-tight">{label}</div>
               <div className={cx('font-display tnum text-[1.9rem] sm:text-[2.3rem] leading-none mt-2 truncate', hasData?tone:'text-faint')}>{hasData?value:'–'}</div>
               <div className="text-[11px] text-faint mt-1">{unit}</div>
@@ -4192,7 +4012,7 @@ function Dashboard(){
         <ScoreChip label="Invest readiness" value={m.scores.investmentReadiness}/>
         <ScoreChip label="Income stability" value={m.scores.incomeStability}/>
         <ScoreChip label="Lifestyle control" value={m.scores.lifestyleControl}/>
-        <div className="stat-tile rounded-xl2 sp-inset p-3.5 flex flex-col justify-center">
+        <div className="stat-tile rounded-xl2 lg-inset p-3.5 flex flex-col justify-center">
           <span className="l !mt-0">Monthly income</span><span className="v tnum !text-[1.6rem] mt-1">{fmt.money(m.income)}</span></div>
       </div>
     </Card>
@@ -4354,6 +4174,56 @@ function twinFindings(m, fmt){
 
   return { strengths, watch };
 }
+/* The twin's picture: where the money goes, what the score is made of, and
+   where ten years lead with and without the best next move. Every number is
+   computed from the member's own figures. */
+function TwinCharts({ m, fmt, target, start=0 }){
+  const segs=[
+    {label:'Essentials', value:m.essentialsTotal, color:'#7CB4FF'},
+    {label:'Lifestyle', value:Math.max(0,m.lifestyleTotal), color:'#F08BC4'},
+    {label:'Obligations', value:m.obligationsTotal, color:'#FFC98A'},
+    {label:'Saving', value:m.savingsTotal, color:'#5EE6D0'},
+    {label:'Left over', value:Math.max(0,m.leftover), color:'#B9A6FF'},
+  ].filter(x=>x.value>0);
+  const tot=sum(segs.map(x=>x.value))||1;
+  const pillars=[['Savings rate',m.scores.savingsRate],['Emergency fund',m.scores.emergencyFund],['Debt pressure',m.scores.debtPressure],
+    ['Spending',m.scores.spendingEfficiency],['Invest readiness',m.scores.investmentReadiness],['Income stability',m.scores.incomeStability]];
+  const now=fvYearly(m.savingsTotal,10,0.05,start), better=fvYearly(m.savingsTotal+target,10,0.05,start);
+  const max=Math.max(1,...better), W=320, H=140;
+  const pts=(arr)=>arr.map((v,i)=>`${(i/10*W).toFixed(1)},${(H-6-v/max*(H-16)).toFixed(1)}`).join(' ');
+  return <div className="grid lg:grid-cols-3 gap-4 mb-6">
+    <Card hover={false}>
+      <Eyebrow className="mb-3">Where the money goes</Eyebrow>
+      <div className="flex items-center gap-4">
+        <Donut size={128} stroke={18} segments={segs} center={<div className="text-center"><div className="text-[10px] text-faint uppercase tracking-wider">Saved</div><div className="text-lg font-semibold text-charcoal tnum">{round(m.savingsTotal/tot*100)}%</div></div>}/>
+        <ul className="flex-1 space-y-1.5 text-sm min-w-0">{segs.map(x=><li key={x.label} className="flex items-center gap-2">
+          <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{background:x.color}}/><span className="flex-1 truncate text-charcoal/85">{x.label}</span><span className="tnum text-muted">{round(x.value/tot*100)}%</span></li>)}</ul>
+      </div>
+    </Card>
+    <Card hover={false}>
+      <Eyebrow className="mb-3">What your score is made of</Eyebrow>
+      <ul className="space-y-2.5">{pillars.map(([l,v])=><li key={l}>
+        <div className="flex justify-between text-xs mb-1"><span className="text-charcoal/85">{l}</span><span className="tnum font-semibold text-charcoal">{round(v)}</span></div>
+        <div className="h-2 rounded-full bg-white/10 overflow-hidden" role="img" aria-label={`${l}: ${round(v)} of 100`}>
+          <div className="h-full rounded-full" style={{width:clamp(v,3,100)+'%', background:v>=70?'linear-gradient(90deg,#5EE6D0,#7CB4FF)':v>=45?'linear-gradient(90deg,#FFC98A,#F08BC4)':'linear-gradient(90deg,#F87171,#F08BC4)'}}/></div></li>)}</ul>
+    </Card>
+    <Card hover={false}>
+      <Eyebrow className="mb-1">Ten years from now</Eyebrow>
+      <p className="text-xs text-muted mb-2">Saved and invested at 5% a year: as you are, and with the best next move.</p>
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto" role="img" aria-label={`In ten years: ${fmt.money(now[10])} as you are, ${fmt.money(better[10])} with the move`}>
+        <defs><linearGradient id="twFill" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor="#F08BC4" stopOpacity=".45"/><stop offset="1" stopColor="#9D7CFF" stopOpacity="0"/></linearGradient></defs>
+        <polygon points={`0,${H} ${pts(better)} ${W},${H}`} fill="url(#twFill)"/>
+        <polyline points={pts(better)} fill="none" stroke="#F08BC4" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round"/>
+        <polyline points={pts(now)} fill="none" stroke="#7CB4FF" strokeWidth="2.5" strokeDasharray="5 5" strokeLinecap="round"/>
+      </svg>
+      <div className="grid grid-cols-2 gap-2 mt-2 text-xs">
+        <div><span className="inline-block h-2 w-3 rounded-sm mr-1.5 align-middle" style={{background:'#7CB4FF'}}/>As you are<div className="text-base font-semibold text-charcoal tnum">{fmt.money(now[10])}</div></div>
+        <div><span className="inline-block h-2 w-3 rounded-sm mr-1.5 align-middle" style={{background:'#F08BC4'}}/>With the move<div className="text-base font-semibold text-charcoal tnum">{fmt.money(better[10])}</div></div>
+      </div>
+    </Card>
+  </div>;
+}
+
 function FinancialTwin(){
   const app = useApp(); const fmt = app.fmt; const m = app.metrics; const a = m.archetype;
   const tone = COLORS[a.color] || a.color || '#9D7CFF';
@@ -4403,19 +4273,22 @@ function FinancialTwin(){
         boxShadow:'inset 0 1px 0 rgba(255,255,255,.22), inset 0 0 0 1px rgba(255,255,255,.14), 0 40px 90px -44px rgba(40,22,96,.9)'}}>
       <div className="relative grid lg:grid-cols-[1fr_auto] gap-8 items-end">
         <div className="min-w-0">
-          <span className="sp-pill tint">Your archetype</span>
+          <span className="lg-pill tint">Your archetype</span>
           <h2 id="twin-name" className="font-display text-[2.8rem] sm:text-[3.8rem] leading-[1] text-charcoal mt-4">{a.name}</h2>
           <p className="text-lg mt-2 font-semibold" style={{color:'#F2D596'}}>{a.tag}</p>
           <p className="text-charcoal/90 mt-4 max-w-2xl leading-relaxed text-[17px]">{a.blurb}</p>
         </div>
         <div className="grid grid-cols-3 lg:grid-cols-1 gap-2.5 lg:w-56">
           {[['Health score',`${m.overall}/100`],['Savings rate',round(m.savingsRate*100)+'%'],['Emergency buffer',m.efMonths.toFixed(1)+' mo']].map(([l,v])=>
-            <div key={l} className="rounded-2xl px-4 py-3" style={{background:'rgba(10,9,18,.38)', boxShadow:'inset 0 0 0 1px rgba(255,255,255,.10)'}}>
+            <div key={l} className="rounded-2xl px-4 py-3" style={{background:'linear-gradient(160deg,rgba(255,255,255,.16),rgba(255,255,255,.06))', boxShadow:'inset 0 1px 0 rgba(255,255,255,.25), inset 0 0 0 1px rgba(255,255,255,.14)'}}>
               <div className="text-[10.5px] uppercase tracking-[.16em] text-muted font-semibold">{l}</div>
               <div className="font-display text-[1.7rem] text-charcoal leading-none mt-1 tnum">{v}</div></div>)}
         </div>
       </div>
     </section>
+
+    {isDemo(app) && <p className="text-xs text-faint -mt-2 mb-4">Example twin, built from the demo account&rsquo;s invented figures.</p>}
+    <TwinCharts m={m} fmt={fmt} target={target} start={app.balances.investmentsBal||0}/>
 
     {/* Sections are tabs, so the page reads in three short steps, not one long scroll */}
     <div role="tablist" aria-label="Financial Twin sections" className="inline-flex flex-wrap gap-1 rounded-full p-1 mb-5 topbar-pill">
@@ -4475,8 +4348,8 @@ function FinancialTwin(){
 
     {tab==='read' && <div role="tabpanel" id="twp-read" aria-labelledby="tw-read" className="anim-fadeUp">
       <div className="flex flex-wrap items-center gap-2 mb-4">
-        <span className="sp-pill"><span className="sp-orb" aria-hidden="true"/>{f.strengths.length} working for you</span>
-        <span className="sp-pill"><span className="sp-orb bad" aria-hidden="true"/>{f.watch.filter(w=>w.sev==='high').length} priority</span>
+        <span className="lg-pill"><span className="lg-orb" aria-hidden="true"/>{f.strengths.length} working for you</span>
+        <span className="lg-pill"><span className="lg-orb bad" aria-hidden="true"/>{f.watch.filter(w=>w.sev==='high').length} priority</span>
         <span className="text-sm text-muted">Open any line to see the reasoning.</span>
       </div>
       <div className="grid md:grid-cols-2 gap-4 mb-5">
@@ -5102,7 +4975,7 @@ function ChatHistory(){
   const del=(id)=>{ const n=chats.filter(c=>c.id!==id); setChats(n); try{ localStorage.setItem(CHAT_KEY, JSON.stringify(n)); }catch(e){} if(open&&open.id===id) setOpen(null); };
   const clearAll=()=>{ if(!confirm('Delete every saved conversation?')) return; setChats([]); try{ localStorage.removeItem(CHAT_KEY); }catch(e){} setOpen(null); };
   return <AppShell>
-    <PageHead eyebrow="Chat history" title="Everything you have asked Lumi." desc="Your past conversations, saved on this device. Open one to read it back or start a fresh chat."
+    <PageHead eyebrow="Chat history" title="Everything you have asked Lumi." desc="Your past conversations, saved in this browser. Open one to read it back or start a fresh chat."
       action={chats.length? <button onClick={clearAll} className="btn btn-ghost px-3 py-2 text-sm"><Icon name="x" size={14}/>Clear all</button> : null}/>
     {chats.length===0
       ? <Card hover={false} className="text-center py-10"><div className="text-4xl mb-2">💬</div>
@@ -5241,31 +5114,83 @@ function Budget(){
    PAGE · SAVINGS GOALS
    ============================================================ */
 function monthsUntil(ym){ const [y,m]=ym.split('-').map(Number); const d=new Date(y,m-1,1); const now=new Date(2026,4,31); return Math.max(1, Math.round((d-now)/(1000*60*60*24*30))); }
-/* Each goal is drawn by the character whose world it belongs to: Sentinel
-   guards the emergency fund, Nova watches investments, Blaze is careers and
-   study, Sprout is learning and habits, Lumi everything else. These ship with
-   the app, so a goal never shows an empty frame. (This used to pull random
-   photos from a third-party service; when that failed, the frame was blank.) */
-function goalWorld(g){ const n=(g.name||'').toLowerCase();
-  if(/emergency|safety|rainy|buffer|cushion|insur|debt|loan|credit|retire|pension/.test(n)) return 'shield';
-  if(/invest|portfolio|stock|wealth|isa|shares|crypto/.test(n)) return 'atlas';
-  if(/univers|college|tuition|education|school|degree|master|career|course|business|startup/.test(n)) return 'forge';
-  if(/learn|book|habit|skill/.test(n)) return 'leaf';
-  return 'lumera';
-}
+/* Goal imagery, picked from what the goal is for. Each type has its own
+   illustrated scene (drawn here as SVG, so it ships with the app, always
+   loads and never needs an upload). A goal can still carry your own photo. */
+const GOAL_KINDS=[
+  ['emergency', /emergency|safety|rainy|buffer|cushion|insur/],
+  ['car',       /\bcar\b|vehicle|motor|bike|scooter|driv/],
+  ['education', /univers|college|tuition|education|school|degree|master|course|study|exam|student/],
+  ['travel',    /travel|trip|holiday|vacation|japan|flight|abroad|gap year|europe|backpack/],
+  ['home',      /home|house|flat|apartment|deposit|mortgage|rent|move/],
+  ['wedding',   /wedding|ring|engage|honeymoon/],
+  ['tech',      /laptop|phone|iphone|computer|pc|console|camera|tech|gadget/],
+  ['business',  /business|startup|shop|side hustle|company|freelanc/],
+  ['investing', /invest|portfolio|stock|wealth|isa|shares|crypto|retire|pension/],
+  ['debt',      /debt|loan|credit card|overdraft|pay off|bnpl/],
+  ['health',    /health|gym|fitness|dental|medical|therapy/],
+  ['family',    /baby|family|kid|child|parent|pet|dog|cat/],
+];
+function goalKind(g){ const n=String((g&&g.name)||'').toLowerCase(); const hit=GOAL_KINDS.find(([,rx])=>rx.test(n)); return hit?hit[0]:'other'; }
+const GOAL_SCENES={
+  emergency:{ a:'#10B981', b:'#0EA5E9', label:'A shield protecting savings',
+    art:<g><path d="M232 22l40 14v26c0 22-16 38-40 46-24-8-40-24-40-46V36z" fill="#fff" fillOpacity=".92"/><path d="M216 66l12 12 22-24" fill="none" stroke="#10B981" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round"/>
+      <circle cx="80" cy="96" r="14" fill="#FDE68A"/><circle cx="104" cy="104" r="10" fill="#FDE68A" fillOpacity=".85"/><circle cx="60" cy="108" r="8" fill="#FDE68A" fillOpacity=".7"/></g> },
+  car:{ a:'#F59E0B', b:'#EC4899', label:'A car on an open road',
+    art:<g><path d="M0 112h320v16H0z" fill="#1F1235" fillOpacity=".55"/><path d="M40 120h40M120 120h40M200 120h40M280 120h40" stroke="#fff" strokeOpacity=".6" strokeWidth="3"/>
+      <path d="M150 94l18-24c4-5 9-7 15-7h44c6 0 11 2 15 7l18 24h10c6 0 10 4 10 10v8H140v-8c0-6 4-10 10-10z" fill="#fff" fillOpacity=".95"/>
+      <path d="M178 74h22v18h-34zM208 74h18l12 18h-30z" fill="#F59E0B" fillOpacity=".55"/><circle cx="172" cy="112" r="11" fill="#1F1235"/><circle cx="248" cy="112" r="11" fill="#1F1235"/>
+      <circle cx="70" cy="40" r="18" fill="#FEF3C7" fillOpacity=".9"/></g> },
+  education:{ a:'#6366F1', b:'#A855F7', label:'A graduation cap on a stack of books',
+    art:<g><rect x="182" y="96" width="96" height="14" rx="3" fill="#fff" fillOpacity=".9"/><rect x="190" y="82" width="84" height="14" rx="3" fill="#FDE68A"/><rect x="186" y="68" width="90" height="14" rx="3" fill="#fff" fillOpacity=".75"/>
+      <path d="M232 22l52 20-52 20-52-20z" fill="#1F1235"/><path d="M206 52v12c0 6 12 12 26 12s26-6 26-12V52l-26 10z" fill="#1F1235" fillOpacity=".85"/><path d="M276 46v22" stroke="#FDE68A" strokeWidth="3"/><circle cx="276" cy="70" r="4" fill="#FDE68A"/>
+      <circle cx="60" cy="34" r="3" fill="#fff"/><circle cx="96" cy="58" r="2" fill="#fff"/><circle cx="40" cy="80" r="2.5" fill="#fff" fillOpacity=".7"/></g> },
+  travel:{ a:'#38BDF8', b:'#14B8A6', label:'A plane flying above the clouds',
+    art:<g><circle cx="262" cy="36" r="18" fill="#FEF3C7"/><path d="M40 104c0-12 10-20 22-20 4-12 16-18 28-14 8-8 24-8 32 2 12 0 20 8 20 18v14H40z" fill="#fff" fillOpacity=".85"/>
+      <path d="M170 74l78-30c8-3 14 0 12 6l-4 6-38 22 4 26-10 4-14-22-26 10-4 12-8 2 2-18-8-8 6-4z" fill="#fff"/></g> },
+  home:{ a:'#FB923C', b:'#A78BFA', label:'A house with a lit window',
+    art:<g><path d="M232 26l58 42h-14v46h-88V68h-14z" fill="#fff" fillOpacity=".95"/><rect x="220" y="84" width="24" height="30" rx="3" fill="#7C3AED" fillOpacity=".7"/>
+      <rect x="254" y="78" width="16" height="16" rx="2" fill="#FDE68A"/><rect x="198" y="78" width="14" height="16" rx="2" fill="#FDE68A" fillOpacity=".8"/><path d="M0 114h320v14H0z" fill="#1F1235" fillOpacity=".35"/>
+      <circle cx="70" cy="44" r="14" fill="#FEF3C7" fillOpacity=".85"/></g> },
+  wedding:{ a:'#F472B6', b:'#F59E0B', label:'Two interlocking rings',
+    art:<g fill="none" strokeWidth="9"><circle cx="216" cy="74" r="28" stroke="#fff"/><circle cx="252" cy="74" r="28" stroke="#FDE68A"/><path d="M252 34l6-8h-12z" fill="#fff" stroke="none"/></g> },
+  tech:{ a:'#0EA5E9', b:'#6366F1', label:'A laptop and a phone',
+    art:<g><rect x="178" y="40" width="96" height="60" rx="6" fill="#fff" fillOpacity=".95"/><rect x="186" y="48" width="80" height="44" rx="3" fill="#1F1235" fillOpacity=".8"/><path d="M166 104h120l-8 10H174z" fill="#fff" fillOpacity=".9"/>
+      <rect x="282" y="62" width="26" height="46" rx="5" fill="#fff"/><path d="M198 80l14-12 12 8 18-16" stroke="#38BDF8" strokeWidth="4" fill="none" strokeLinecap="round"/></g> },
+  business:{ a:'#F97316', b:'#EAB308', label:'A small shopfront',
+    art:<g><rect x="186" y="56" width="96" height="58" rx="4" fill="#fff" fillOpacity=".95"/><path d="M180 44h108l6 18H174z" fill="#1F1235" fillOpacity=".85"/><path d="M180 62q9 10 18 0 9 10 18 0 9 10 18 0 9 10 18 0 9 10 18 0 9 10 18 0" fill="#FDE68A"/>
+      <rect x="198" y="76" width="30" height="38" rx="2" fill="#F97316" fillOpacity=".55"/><rect x="238" y="76" width="34" height="22" rx="2" fill="#38BDF8" fillOpacity=".5"/></g> },
+  investing:{ a:'#8B5CF6', b:'#3B82F6', label:'Rising bars and a growth line',
+    art:<g><rect x="190" y="88" width="16" height="26" rx="3" fill="#fff" fillOpacity=".7"/><rect x="214" y="74" width="16" height="40" rx="3" fill="#fff" fillOpacity=".8"/><rect x="238" y="56" width="16" height="58" rx="3" fill="#fff" fillOpacity=".9"/><rect x="262" y="38" width="16" height="76" rx="3" fill="#fff"/>
+      <path d="M180 84l30-22 22 10 48-42" stroke="#FDE68A" strokeWidth="5" fill="none" strokeLinecap="round" strokeLinejoin="round"/><path d="M268 28h14v14" stroke="#FDE68A" strokeWidth="5" fill="none" strokeLinecap="round"/></g> },
+  debt:{ a:'#64748B', b:'#10B981', label:'A card being cut down to size',
+    art:<g><rect x="186" y="44" width="92" height="58" rx="8" fill="#fff" fillOpacity=".95" transform="rotate(-8 232 73)"/><rect x="190" y="58" width="90" height="10" fill="#1F1235" fillOpacity=".7" transform="rotate(-8 232 73)"/>
+      <path d="M150 96l120-6" stroke="#FDE68A" strokeWidth="4" strokeDasharray="6 6"/><circle cx="292" cy="96" r="12" fill="#10B981"/><path d="M286 96l4 4 8-8" stroke="#fff" strokeWidth="3" fill="none"/></g> },
+  health:{ a:'#22C55E', b:'#14B8A6', label:'A heart with a pulse line',
+    art:<g><path d="M232 106s-42-24-42-52c0-14 10-24 22-24 9 0 16 5 20 12 4-7 11-12 20-12 12 0 22 10 22 24 0 28-42 52-42 52z" fill="#fff" fillOpacity=".95"/>
+      <path d="M150 72h50l8-16 12 32 10-20h60" stroke="#22C55E" strokeWidth="4" fill="none" strokeLinejoin="round"/></g> },
+  family:{ a:'#EC4899', b:'#8B5CF6', label:'Two hearts together',
+    art:<g><path d="M214 100s-30-17-30-37c0-10 7-17 16-17 6 0 11 3 14 8 3-5 8-8 14-8 9 0 16 7 16 17 0 20-30 37-30 37z" fill="#fff"/><path d="M262 104s-22-13-22-27c0-7 5-12 11-12 5 0 8 2 11 6 2-4 6-6 10-6 7 0 12 5 12 12 0 14-22 27-22 27z" fill="#FDE68A"/></g> },
+  other:{ a:'#9D7CFF', b:'#F08BC4', label:'A target with a star',
+    art:<g><circle cx="232" cy="72" r="40" fill="#fff" fillOpacity=".9"/><circle cx="232" cy="72" r="26" fill="#9D7CFF" fillOpacity=".55"/><circle cx="232" cy="72" r="12" fill="#fff"/>
+      <path d="M276 26l4 10 10 4-10 4-4 10-4-10-10-4 10-4z" fill="#FDE68A"/></g> },
+};
 function GoalArt({ goal }){
-  const w=goalWorld(goal); const sub=SUBS.find(s=>s.key===w)||SUBS[0];
-  if(goal.img) return <img src={goal.img} alt="" className="h-full w-full object-cover" loading="lazy"/>;
-  return <div className="absolute inset-0 overflow-hidden" aria-hidden="true"
-    style={{background:`radial-gradient(110% 140% at 85% 110%, ${sub.accent}66, transparent 60%), linear-gradient(160deg, ${sub.accent}2E, rgba(255,255,255,.02))`}}>
-    <span className="absolute right-3 -bottom-1"><Mascot kind={w} color={sub.accent} size={70} float={false}/></span>
-  </div>;
+  if(goal.img) return <img src={goal.img} alt="" className="absolute inset-0 h-full w-full object-cover" loading="lazy"/>;
+  const kind=goalKind(goal); const sc=GOAL_SCENES[kind]||GOAL_SCENES.other; const gid='gs-'+String(goal.id||kind).replace(/[^a-z0-9]/gi,'');
+  return <svg className="absolute inset-0 h-full w-full" viewBox="0 0 320 128" preserveAspectRatio="xMaxYMid meet" role="img" aria-label={sc.label}>
+    <defs><linearGradient id={gid} gradientUnits="userSpaceOnUse" x1="-260" y1="0" x2="320" y2="128"><stop offset="0" stopColor={sc.a}/><stop offset="1" stopColor={sc.b}/></linearGradient>
+      <radialGradient id={gid+'h'} gradientUnits="userSpaceOnUse" cx="-120" cy="-40" r="380"><stop offset="0" stopColor="#fff" stopOpacity=".35"/><stop offset="1" stopColor="#fff" stopOpacity="0"/></radialGradient></defs>
+    <rect x="-2000" y="-200" width="4320" height="528" fill={'url(#'+gid+')'}/><rect x="-2000" y="-200" width="4320" height="528" fill={'url(#'+gid+'h)'}/>
+    {sc.art}
+  </svg>;
 }
 function Goals(){
   const app = useApp(); const fmt = app.fmt; const m = app.metrics;
   const [goals,setGoals]=useState(()=>{
     // Goals you add are kept (and synced with your account in server mode).
     const saved=lsRead('lumera_goals'); if(Array.isArray(saved) && saved.length) return saved;
+    if(isDemo(app)) return SEED_GOALS;
     const ef=Math.max(Math.round(m.essentialsTotal*3),5000);
     const list=[{id:'gEF', name:'Emergency fund', target:ef, current:app.balances.emergencyFund||0, deadline:'2026-12', priority:'High', icon:'shield'}];
     const map={ 'Home deposit':{name:'Home deposit', target:150000, icon:'home'}, 'A big purchase':{name:'Big purchase', target:20000, icon:'bag'}, 'Travel':{name:'Travel fund', target:12000, icon:'plane'}, 'Investing':{name:'Investment starter', target:20000, icon:'chart'}, 'Retirement':{name:'Retirement boost', target:50000, icon:'umbrella'} };
@@ -5290,7 +5215,7 @@ function Goals(){
         return <Card key={g.id} hover className="relative overflow-hidden !p-0">
           <div className="relative h-32 overflow-hidden">
             <GoalArt goal={g}/>
-            {g.img && <div className="absolute inset-0" style={{background:'linear-gradient(to top, rgba(14,13,20,.86) 0%, rgba(14,13,20,.25) 60%, transparent 100%)'}}/>}
+            <div className="absolute inset-0" style={{background:'linear-gradient(to top, rgba(14,13,20,.82) 0%, rgba(14,13,20,.2) 55%, transparent 100%)'}}/>
             <span className="absolute top-2 left-2 grid place-items-center h-8 w-8 rounded-lg bg-cream/85 text-goldd backdrop-blur"><Icon name={done?'trophy':g.icon} size={16}/></span>
             <label className="absolute top-2 right-2 grid place-items-center h-8 w-8 rounded-lg bg-cream/85 text-charcoal cursor-pointer hover:bg-cream backdrop-blur" title="Use your own image" aria-label={`Use your own image for ${g.name}`}>
               <Icon name="plus" size={15}/>
@@ -5378,21 +5303,63 @@ function Emergency(){
    no logo, or no server, the tile shows a monogram, so it never looks broken. */
 const monogramOf=(name)=>{ const w=String(name||'').replace(/[^A-Za-z0-9 ]+/g,' ').trim().split(/\s+/).filter(Boolean);
   return ((w[0]||'?')[0]+((w[1]||'')[0]||'')).toUpperCase(); };
-function CompanyLogo({ name, domain, size=64, hue='#8B5CF6', className='' }){
-  const app=useApp(); const server=app.apiMode==='server';
-  const src = server && name ? `/api/companies/logo?name=${encodeURIComponent(name)}${domain?`&domain=${encodeURIComponent(domain)}`:''}` : '';
-  const [state,setState]=useState(src?'loading':'none');   // loading | ok | none
-  useEffect(()=>{ setState(src?'loading':'none'); },[src]);
-  return <span className={cx('relative grid place-items-center overflow-hidden shrink-0', className)}
-    style={{width:size, height:size, borderRadius:Math.round(size*0.28), background:state==='ok'?'#fff':`linear-gradient(150deg, ${hue}33, ${hue}10)`,
-      boxShadow:`inset 0 0 0 1px ${state==='ok'?'rgba(0,0,0,.06)':hue+'44'}`}}>
-    {state!=='ok' && <span aria-hidden="true" className={cx('font-bold tracking-tight transition-opacity', state==='loading'?'opacity-0':'opacity-100')}
-      style={{fontSize:Math.round(size*0.34), color:hue}}>{monogramOf(name)}</span>}
-    {state==='loading' && <span aria-hidden="true" className="absolute inset-0 skeleton" style={{borderRadius:'inherit'}}/>}
-    {src && state!=='none' && <img src={src} alt="" loading="lazy" decoding="async" draggable="false"
-      onLoad={()=>setState('ok')} onError={()=>setState('none')}
-      className={cx('absolute inset-0 m-auto object-contain transition-opacity duration-300', state==='ok'?'opacity-100':'opacity-0')}
-      style={{width:'64%', height:'64%'}}/>}
+/* Company logos. With the Lumera server running, the server resolves and
+   caches each logo (BACKEND.md). Without it (a static host, or the file opened
+   from disk) the browser asks a public, key-free icon service for the
+   company's domain instead. Generic names never get a guessed logo. */
+const KNOWN_DOMAINS = {
+  netflix:'netflix.com', spotify:'spotify.com', disney:'disneyplus.com', 'disney plus':'disneyplus.com', hulu:'hulu.com',
+  max:'max.com', hbo:'max.com', 'hbo max':'max.com', paramount:'paramountplus.com', peacock:'peacocktv.com', crunchyroll:'crunchyroll.com',
+  'apple music':'apple.com', 'apple tv':'apple.com', icloud:'icloud.com', 'apple one':'apple.com', apple:'apple.com',
+  'amazon prime':'amazon.com', prime:'amazon.com', 'prime video':'primevideo.com', amazon:'amazon.com', audible:'audible.com', kindle:'amazon.com',
+  youtube:'youtube.com', 'youtube premium':'youtube.com', 'youtube music':'music.youtube.com', 'google one':'one.google.com', google:'google.com',
+  adobe:'adobe.com', 'creative cloud':'adobe.com', microsoft:'microsoft.com', 'microsoft 365':'microsoft.com', office:'microsoft.com', xbox:'xbox.com',
+  playstation:'playstation.com', 'ps plus':'playstation.com', nintendo:'nintendo.com', steam:'steampowered.com', dropbox:'dropbox.com',
+  notion:'notion.so', chatgpt:'openai.com', openai:'openai.com', claude:'claude.ai', canva:'canva.com', figma:'figma.com', github:'github.com',
+  grammarly:'grammarly.com', duolingo:'duolingo.com', headspace:'headspace.com', calm:'calm.com', strava:'strava.com', peloton:'onepeloton.com',
+  linkedin:'linkedin.com', 'linkedin premium':'linkedin.com', zoom:'zoom.us', slack:'slack.com', deezer:'deezer.com', tidal:'tidal.com',
+  'new york times':'nytimes.com', nyt:'nytimes.com', 'financial times':'ft.com', economist:'economist.com', 'the economist':'economist.com',
+  'uber one':'uber.com', uber:'uber.com', deliveroo:'deliveroo.co.uk', 'just eat':'just-eat.co.uk', 'now tv':'nowtv.com', 'sky':'sky.com',
+  dazn:'dazn.com', 'puregym':'puregym.com', 'pure gym':'puregym.com', 'the gym':'thegymgroup.com', 'gym group':'thegymgroup.com',
+  nordvpn:'nordvpn.com', expressvpn:'expressvpn.com', '1password':'1password.com', lastpass:'lastpass.com', patreon:'patreon.com', twitch:'twitch.tv',
+};
+const GENERIC_WORDS = new Set(('news gym fitness music video tv streaming storage cloud software gaming games magazine newspaper insurance phone '+
+  'mobile internet broadband boutique local my the other misc subscription app premium online yoga meal kit box club course courses learning '+
+  'vpn dating audio books book membership plan monthly annual family student basic standard plus pro').split(' '));
+function logoDomainFor(name, domain){
+  if(domain && /^[a-z0-9.-]+\.[a-z]{2,}$/i.test(domain)) return domain.toLowerCase();
+  const n=String(name||'').toLowerCase().replace(/\+/g,' plus').replace(/[^a-z0-9 ]+/g,' ').replace(/\s+/g,' ').trim();
+  if(!n) return '';
+  if(KNOWN_DOMAINS[n]) return KNOWN_DOMAINS[n];
+  const words=n.split(' ');
+  for(let k=Math.min(3,words.length); k>=1; k--){ const head=words.slice(0,k).join(' '); if(KNOWN_DOMAINS[head]) return KNOWN_DOMAINS[head]; }
+  const core=words.filter(w=>!GENERIC_WORDS.has(w) && !/^\d/.test(w));
+  // One distinctive word ("Notion", "Readwise") is usually its own .com.
+  return core.length===1 && words.length<=3 && core[0].length>=4 ? core[0]+'.com' : '';
+}
+function logoSources(name, domain, server){
+  const out=[];
+  if(server && name) out.push(`/api/companies/logo?name=${encodeURIComponent(name)}${domain?`&domain=${encodeURIComponent(domain)}`:''}`);
+  const d=logoDomainFor(name, domain);
+  if(d){ out.push(`https://www.google.com/s2/favicons?domain=${encodeURIComponent(d)}&sz=128`); out.push(`https://icons.duckduckgo.com/ip3/${encodeURIComponent(d)}.ico`); }
+  return out;
+}
+function CompanyLogo({ name, domain, size=40, hue='#8B5CF6', className='' }){
+  const app=useApp();
+  const sources=useMemo(()=>logoSources(name, domain, app.apiMode==='server'),[name, domain, app.apiMode]);
+  const [i,setI]=useState(0);
+  const [ok,setOk]=useState(false);
+  useEffect(()=>{ setI(0); setOk(false); },[sources.join('|')]);
+  const src=sources[i];
+  const nextSource=()=>{ setOk(false); setI(x=>x+1); };
+  return <span className={cx('relative grid place-items-center overflow-hidden shrink-0', className)} role="img" aria-label={name ? name+' logo' : undefined}
+    style={{width:size, height:size, borderRadius:Math.round(size*0.28), background:ok?'#fff':`linear-gradient(150deg, ${hue}40, ${hue}14)`,
+      boxShadow:`inset 0 0 0 1px ${ok?'rgba(0,0,0,.06)':hue+'55'}, inset 0 1px 0 rgba(255,255,255,.25)`}}>
+    {!ok && <span aria-hidden="true" className="font-bold tracking-tight" style={{fontSize:Math.round(size*0.36), color:hue}}>{monogramOf(name)}</span>}
+    {src && <img key={src} src={src} alt="" loading="lazy" decoding="async" draggable="false" referrerPolicy="no-referrer"
+      onLoad={e=>{ if(e.currentTarget.naturalWidth<24) nextSource(); else setOk(true); }} onError={nextSource}
+      className={cx('absolute inset-0 m-auto object-contain transition-opacity duration-300', ok?'opacity-100':'opacity-0')}
+      style={{width:'70%', height:'70%'}}/>}
   </span>;
 }
 
@@ -5402,7 +5369,7 @@ function CompanyLogo({ name, domain, size=64, hue='#8B5CF6', className='' }){
 function Subscriptions(){
   const app = useApp(); const fmt = app.fmt;
   const MIG={keep:'active',cancel:'cancelled'};
-  const [subs,setSubs]=useState(()=>{ try{ const s=JSON.parse(localStorage.getItem('lumera_subs')); const arr=(Array.isArray(s)&&s.length)?s:SEED_SUBS; return arr.map(x=>({...x, verdict:MIG[x.verdict]||x.verdict})); }catch(e){ return SEED_SUBS; } });
+  const [subs,setSubs]=useState(()=>{ try{ const s=JSON.parse(localStorage.getItem('lumera_subs')); const arr=(Array.isArray(s)&&s.length)?s:(isDemo(app)?SEED_SUBS:[]); return arr.map(x=>({...x, verdict:MIG[x.verdict]||x.verdict})); }catch(e){ return SEED_SUBS; } });
   useEffect(()=>{ saveSynced('lumera_subs', subs); },[subs]);
   const setVerdict=(id,v)=>setSubs(s=>s.map(x=>x.id===id?{...x,verdict:v}:x));
   const removeSub=(id)=>setSubs(s=>s.filter(x=>x.id!==id));
@@ -5429,42 +5396,32 @@ function Subscriptions(){
       </div>
       <div className="flex gap-2 mt-3"><Btn variant="gold" onClick={addSub}>Add subscription</Btn><Btn variant="ghost" onClick={()=>setShowAdd(false)}>Cancel</Btn></div>
     </Card>}
-    {/* Each subscription is a big brand square, the price, and the verdict.
-        Everything else lives behind a click so the wall stays scannable. */}
-    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
+    {/* Each subscription leads with the company, then the plan and the cost.
+        The logo is a compact tile beside the name, not the whole card. */}
+    <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-3 stagger">
       {subs.map(s=>{
         const dead = s.freq==='Never'||s.freq==='Rarely';
         const hue = s.verdict==='cancelled' ? '#E0505A' : s.verdict==='paused' ? '#6E86A0'
                   : dead ? '#D97706' : '#16A34A';
-        return <div key={s.id} className="lux-card lift halo !p-0 overflow-hidden flex flex-col"
-          style={{'--glow':hexToRgbList(hue), borderColor:hue+'44'}}>
-          <button onClick={()=>setOpenSub(s.id)} className="text-left w-full">
-            {/* big brand square */}
-            <div className="relative grid place-items-center aspect-square"
-              style={{background:`linear-gradient(150deg, ${hue}1F, transparent 72%)`}}>
-              <CompanyLogo name={s.name} domain={s.domain} size={96} hue={hue}/>
-              <span className="absolute top-3 right-3 text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded-full"
-                style={{background:hue+'26', color:hue}}>{s.verdict}</span>
-              {dead && <span className="absolute top-3 left-3 text-[10px] font-semibold px-2 py-1 rounded-full"
-                style={{background:'rgba(217,119,6,.22)',color:'#D97706'}}>Barely used</span>}
-            </div>
-            {/* name + price only */}
-            <div className="px-4 pt-3 pb-2">
-              <div className="font-serif text-lg text-charcoal leading-tight truncate">{s.name}</div>
-              <div className="flex items-baseline justify-between gap-2 mt-1">
-                <span className="font-serif text-2xl text-charcoal tnum">{fmt.money(s.cost)}</span>
-                <span className="text-[11px] text-faint">per month</span>
-              </div>
-              <div className="mt-1.5 text-[11px] font-semibold flex items-center gap-1" style={{color:hue}}>
-                Details <Icon name="arrowR" size={11}/></div>
-            </div>
+        return <div key={s.id} className="lux-card lift !p-0 overflow-hidden flex flex-col" style={{'--glow':hexToRgbList(hue)}}>
+          <button onClick={()=>setOpenSub(s.id)} className="text-left w-full flex items-center gap-3 px-4 pt-4 pb-3" aria-label={`${s.name}, details`}>
+            <CompanyLogo name={s.name} domain={s.domain} size={44} hue={hue}/>
+            <span className="min-w-0 flex-1">
+              <span className="block font-semibold text-charcoal leading-tight truncate">{s.name}</span>
+              <span className="mt-1 flex items-center gap-1.5 text-[11px] text-muted">
+                {s.category && <Fragment><span className="whitespace-nowrap">{s.category}</span><span aria-hidden="true">·</span></Fragment>}
+                <span className="whitespace-nowrap" style={dead?{color:'#F5B95C',fontWeight:600}:undefined}>{dead?'Barely used':'Used '+String(s.freq||'').toLowerCase()}</span></span>
+            </span>
+            <span className="text-right shrink-0">
+              <span className="block font-semibold text-lg text-charcoal tnum leading-none">{fmt.money(s.cost)}</span>
+              <span className="block text-[10.5px] text-faint mt-1">a month</span>
+            </span>
           </button>
-          {/* verdict switch, the one thing worth doing without opening it */}
-          <div className="mt-auto grid grid-cols-4 gap-1 p-2 border-t border-line">
+          <div className="mt-auto grid grid-cols-4 gap-1 px-2 pb-2">
             {['active','review','paused','cancelled'].map(v=>
-              <button key={v} onClick={()=>setVerdict(s.id,v)} title={v}
+              <button key={v} onClick={()=>setVerdict(s.id,v)} aria-pressed={s.verdict===v}
                 className={cx('rounded-lg py-1.5 text-[10.5px] font-semibold capitalize border transition', s.verdict===v?'':'border-transparent text-muted hover:bg-sand')}
-                style={s.verdict===v?{borderColor:hue,background:hue+'1A',color:hue}:undefined}>{v}</button>)}
+                style={s.verdict===v?{borderColor:hue+'99',background:hue+'22',color:hue}:undefined}>{v}</button>)}
           </div>
         </div>; })}
     </div>
@@ -5583,7 +5540,7 @@ function simulateDebts(debts, extra, strategy){
 }
 function Debt(){
   const app = useApp(); const fmt = app.fmt;
-  const [debts,setDebts]=useState(SEED_DEBTS);
+  const [debts,setDebts]=useState(()=>isDemo(app)?SEED_DEBTS:[]);
   const [showAdd,setShowAdd]=useState(false);
   const [nd,setNd]=useState({name:'',type:'Credit card',balance:0,rate:0,min:0,due:''});
   const addDebt=()=>{ if(!nd.name||!Number(nd.balance)) return; setDebts(d=>[...d,{...nd,id:'d'+Date.now(),balance:Number(nd.balance),rate:Number(nd.rate)||0,min:Number(nd.min)||0}]); setNd({name:'',type:'Credit card',balance:0,rate:0,min:0,due:''}); setShowAdd(false); };
@@ -6065,15 +6022,15 @@ function Settings(){
           <div className="mb-5 pb-5 border-b border-line">
             <div className="text-sm font-medium text-charcoal mb-2">Design</div>
             <div className="grid grid-cols-2 gap-2.5">
-              {[['spatial','Spatial','Floating panels, soft volumetric light and glass. The house look.'],
+              {[['glass','Liquid Glass','Translucent, colour-lit glass surfaces. The house look.'],
                 ['classic','Classic','The original warm paper look, in light or dark.']].map(([val,label,desc])=>
                 <button key={val} onClick={()=>app.setSkin(val)}
                   className={cx('text-left rounded-xl2 border px-4 py-3 transition', app.skin===val?'border-gold bg-gold/10':'border-line bg-cream hover:bg-sand')}>
-                  <div className="flex items-center gap-2"><span className="text-lg">{val==='spatial'?'✧':'🕮'}</span><span className="text-sm font-semibold text-charcoal">{label}</span>{app.skin===val&&<Icon name="check" size={14} className="text-goldd ml-auto"/>}</div>
+                  <div className="flex items-center gap-2"><span className="text-lg">{val==='glass'?'✧':'🕮'}</span><span className="text-sm font-semibold text-charcoal">{label}</span>{app.skin===val&&<Icon name="check" size={14} className="text-goldd ml-auto"/>}</div>
                   <div className="text-[11px] text-muted mt-1 leading-relaxed">{desc}</div>
                 </button>)}
             </div>
-            {app.skin==='spatial' && <p className="text-[11px] text-faint mt-2">Spatial is a dark design language, so the light/dark switch below applies to Classic.</p>}
+            {app.skin==='glass' && <p className="text-[11px] text-faint mt-2">Liquid Glass is a dark, colour-lit design language, so the light/dark switch below applies to Classic.</p>}
           </div>
           <p className="text-sm text-muted mb-3">Switch between light and dark, or follow your device automatically.</p>
           <div className="grid grid-cols-3 gap-2.5">
@@ -6250,7 +6207,7 @@ function AuthShell({ title, sub, children, foot }){
   return <div className="min-h-screen grid lg:grid-cols-2">
     <div className="hidden lg:flex flex-col justify-between bg-charcoal text-cream p-12 relative overflow-hidden">
       <div className="absolute inset-0 opacity-40" style={{background:'radial-gradient(520px 320px at 28% 8%, rgba(191,160,106,.55), transparent)'}}/>
-      <div className="relative"><button onClick={()=>app.nav('/')}><Logo size={22} light/></button></div>
+      <div className="relative"><button onClick={()=>logoHome(app)} aria-label="Lumera home"><Logo size={22} light/></button></div>
       <div className="relative">
         <h2 className="font-serif text-4xl leading-tight">Turn one month of behaviour into a <span className="gold-text">clear action plan.</span></h2>
         <p className="text-cream/70 mt-4 max-w-md leading-relaxed">Private by design. Educational, never advisory. Your data is yours, export or delete it anytime.</p>
@@ -6263,7 +6220,7 @@ function AuthShell({ title, sub, children, foot }){
       <div className="relative text-xs text-cream/40">© 2026 Lumera · Educational guidance only, not licensed financial advice.</div>
     </div>
     <div className="flex flex-col">
-      <div className="lg:hidden p-5 border-b border-line flex items-center justify-between"><button onClick={()=>app.nav('/')}><Logo size={20}/></button><LanguageSwitcher compact/></div>
+      <div className="lg:hidden p-5 border-b border-line flex items-center justify-between"><button onClick={()=>logoHome(app)} aria-label="Lumera home"><Logo size={20}/></button><LanguageSwitcher compact/></div>
       <div className="flex-1 grid place-items-center p-6">
         <div className="w-full max-w-sm">
           <div className="hidden lg:flex justify-end mb-4"><LanguageSwitcher compact/></div>
@@ -6782,7 +6739,7 @@ function Analytics(){
       <Card><Eyebrow className="mb-3">By currency</Eyebrow>{curB.length?<div className="space-y-2.5">{curB.map(([k,v])=><HBar key={k} l={k} v={v} color={COLORS.gold}/>)}</div>:<div className="text-sm text-faint">-</div>}</Card>
       <Card><Eyebrow className="mb-3">Recent activity</Eyebrow><div className="space-y-1.5 text-xs max-h-48 overflow-y-auto no-scrollbar">{recent.length?recent.map((e,i)=><div key={i} className="flex items-center gap-2"><span className="text-faint w-12 tnum shrink-0">{new Date(e.ts).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</span><span className="text-charcoal/80 truncate">{e.type}{e.path?` · ${labelOf(e.path)}`:''}{e.lang?` · ${e.lang}`:''}{e.cur?` · ${e.cur}`:''}</span></div>):<div className="text-faint">No events yet.</div>}</div></Card>
     </div>
-    <p className="text-[11px] text-faint mt-4 leading-relaxed">Tracked locally in this browser (localStorage): real activity on this device only. Account, community and report figures for every member are on the admin portal&rsquo;s Overview when the Lumera server is running.</p>
+    <p className="text-[11px] text-faint mt-4 leading-relaxed">Counted in this browser only: pages opened here, nothing from other people or devices. Account, community and report figures for every member are on the admin portal&rsquo;s Overview when the Lumera server is running.</p>
   </AppShell>;
 }
 
@@ -6903,7 +6860,7 @@ function DailyCheckIn(){
     setTimeout(()=>dismiss(), 2600); };   // celebrate briefly, then get out of the way
 
   // Sits a clear step below the floating top bar rather than tucked against it.
-  return <div className={cx('fixed z-[125] right-3 sm:right-5 top-[7.5rem] w-[min(92vw,330px)]',
+  return <div className={cx('fixed z-[125] right-3 sm:right-5 bottom-24 w-[min(92vw,330px)]',
       leaving?'anim-slideOutR':'anim-slideIn')} role="status">
     <div className="lux-card !p-0 overflow-hidden shadow-lift">
       <div className="relative px-4 py-3 flex items-center gap-3 overflow-hidden"
@@ -8353,7 +8310,7 @@ function LeafHabits(){
   let streak=0; for(let k=0;k<60;k++){ const d=new Date(Date.now()-k*864e5).toISOString().slice(0,10); const v=state[d]; if(v&&Object.values(v).some(Boolean)) streak++; else if(k>0) break; }
   const week=Array.from({length:7},(_,k)=>{ const d=new Date(Date.now()-(6-k)*864e5).toISOString().slice(0,10); const v=state[d]; return {d,on:!!(v&&Object.values(v).some(Boolean))}; });
   return <AppShell>
-    <PageHead eyebrow="Leaf · Money habits" title="Small habits, compounding results." desc="Tick off healthy money habits each day and grow your streak. Saved on this device."/>
+    <PageHead eyebrow="Leaf · Money habits" title="Small habits, compounding results." desc="Tick off healthy money habits each day and grow your streak. Saved in this browser."/>
     <div className="grid lg:grid-cols-3 gap-4 mb-4">
       <Card hover={false} className="flex items-center gap-4"><ScoreRing value={Math.round(doneN/habits.length*100)} size={96} stroke={9} label="today" color={LEAF_G}/>
         <div><Eyebrow>Today</Eyebrow><div className="font-serif text-2xl text-charcoal">{doneN}/{habits.length}</div><div className="text-xs text-muted">habits done</div></div></Card>
@@ -9175,7 +9132,7 @@ function CVLab(){
             <Eyebrow className="mb-2">Lab notes</Eyebrow>
             <p className="text-sm text-muted leading-relaxed">Recruiters spend about seven seconds on a first pass. Each reagent here is one thing that survives that scan. Aim to fill the cylinder before you apply anywhere.</p>
             <div className="mt-3 rounded-xl px-3 py-2.5 text-xs" style={{background:hue+'12',color:'rgb(var(--c-charcoal))'}}>
-              Progress is saved on this device, so you can come back and finish the mixture later.</div>
+              Progress is saved in this browser, so you can come back and finish the mixture later.</div>
           </Card>
         </div>
       </div>
@@ -10697,6 +10654,71 @@ function PostCard({ post, onChange, onRemove }){
       </div></div>
   </article>;
 }
+/* What the community looks like, for the demo account only. Every post and
+   member is invented and labelled "Example"; nothing is sent anywhere. */
+const DEMO_POSTS=[
+  {id:1, name:'Maya', headline:'Second-year nursing student', tag:'Milestone', ago:'2h', likes:24, body:'Hit three months of emergency savings today. Moving my coffee spend into a separate pot did more than any budget app ever did.',
+    replies:[['Jordan','That pot trick is underrated. How much were you spending a month?'],['Maya','Around £60. Now it goes straight to the fund on payday.']]},
+  {id:2, name:'Theo', headline:'Junior analyst, first full-time job', tag:'Question', ago:'5h', likes:11, body:'First payslip next week. Is it better to start a pension top-up or clear a £900 credit card first?',
+    replies:[['Priya','Card first at most card rates. Then the pension, especially if your employer matches.']]},
+  {id:3, name:'Priya', headline:'Freelance designer', tag:'Opportunity', ago:'1d', likes:38, body:'A design studio near me is running paid summer placements for students, applications close at the end of the month. Happy to share what my portfolio looked like.', replies:[]},
+  {id:4, name:'Sam', headline:'Saving for a first car', tag:'Update', ago:'2d', likes:16, body:'Cancelled two streaming services I had not opened since March. That is the insurance deposit sorted.', replies:[]},
+];
+const DEMO_MEMBERS=[['Maya','Second-year nursing student'],['Theo','Junior analyst'],['Priya','Freelance designer'],['Sam','Saving for a first car'],['Jordan','Apprentice electrician']];
+function DemoCommunity(){
+  const [liked,setLiked]=useState({}); const [open,setOpen]=useState({}); const [tab,setTab]=useState('Feed');
+  const shown = tab==='Opportunities' ? DEMO_POSTS.filter(p=>p.tag==='Opportunity') : DEMO_POSTS;
+  const Ex=()=> <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md" style={{background:'rgba(245,199,122,.18)',color:'#F5C77A'}}>Example</span>;
+  return <AppShell>
+    <PageHead eyebrow="Community · demo" title="Connect with the Lumera community." desc="A preview with example posts. Create an account to post, reply and connect with real members."/>
+    <div className="flex flex-wrap items-center gap-2 mb-5">
+      {[['Example members',DEMO_MEMBERS.length],['Example posts',DEMO_POSTS.length],['Opportunities',1]].map(([l,n])=>
+        <span key={l} className="lg-pill"><span className="tnum">{n}</span><span className="text-muted font-medium">{l}</span></span>)}
+    </div>
+    <div role="tablist" aria-label="Community" className="inline-flex flex-wrap gap-1 rounded-full p-1 mb-4 topbar-pill">
+      {['Feed','Members','Opportunities'].map(t=><button key={t} role="tab" aria-selected={tab===t} onClick={()=>setTab(t)}
+        className={cx('rounded-full px-4 py-2 text-[13px] font-semibold transition', tab===t?'topbar-on':'text-charcoal/75 hover:text-charcoal')}>{t}</button>)}
+    </div>
+    <div className="grid lg:grid-cols-3 gap-4">
+      <div className="lg:col-span-2 space-y-3">
+        <Card hover={false} className="flex items-center gap-3">
+          <MemberAvatar name="You"/><div className="flex-1 rounded-2xl border border-line bg-cream/50 px-3.5 py-3 text-sm text-faint">Posting needs an account</div>
+          <Btn variant="gold" to="/signup">Create account</Btn>
+        </Card>
+        {tab==='Members' ? <Card hover={false}><ul className="divide-y divide-line">
+          {DEMO_MEMBERS.map(([n,h])=><li key={n} className="flex items-center gap-3 py-3"><MemberAvatar name={n}/>
+            <span className="flex-1 min-w-0"><span className="flex items-center gap-2 text-sm font-semibold text-charcoal">{n} <Ex/></span><span className="block text-xs text-muted truncate">{h}</span></span></li>)}
+        </ul></Card>
+        : shown.map(p=><Card key={p.id} hover={false}>
+          <div className="flex items-start gap-3"><MemberAvatar name={p.name}/>
+            <div className="flex-1 min-w-0">
+              <div className="flex flex-wrap items-center gap-2"><span className="font-semibold text-charcoal text-sm">{p.name}</span><Ex/>
+                <span className="text-xs text-faint">{p.headline} · {p.ago}</span></div>
+              <span className="inline-block mt-1.5 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-gold/12 text-goldd">{p.tag}</span>
+              <p className="text-sm text-charcoal/90 mt-2 leading-relaxed">{p.body}</p>
+              <div className="flex items-center gap-2 mt-3">
+                <button onClick={()=>setLiked(l=>({...l,[p.id]:!l[p.id]}))} aria-pressed={!!liked[p.id]} className={cx('btn btn-ghost px-3 py-1.5 text-xs', liked[p.id]&&'text-berry')}>
+                  <Icon name="heart" size={13}/><span className="tnum">{p.likes+(liked[p.id]?1:0)}</span></button>
+                {p.replies.length>0 && <button onClick={()=>setOpen(o=>({...o,[p.id]:!o[p.id]}))} aria-expanded={!!open[p.id]} className="btn btn-ghost px-3 py-1.5 text-xs">
+                  <Icon name="chat" size={13}/>{p.replies.length} {p.replies.length===1?'reply':'replies'}</button>}
+              </div>
+              {open[p.id] && <div className="mt-3 space-y-2 border-l-2 border-line pl-3">
+                {p.replies.map(([n,b],i)=><div key={i} className="text-sm"><span className="font-semibold text-charcoal">{n}</span> <Ex/> <span className="text-charcoal/85">{b}</span></div>)}</div>}
+            </div></div>
+        </Card>)}
+      </div>
+      <div className="space-y-3">
+        <Card hover={false}><Eyebrow className="mb-2">How it works</Eyebrow>
+          <ul className="space-y-2 text-sm text-charcoal/85">
+            <li className="flex gap-2"><Icon name="lock" size={15} className="text-goldd mt-0.5 shrink-0"/>Your figures stay private. Members see only your name, headline and posts.</li>
+            <li className="flex gap-2"><Icon name="users" size={15} className="text-goldd mt-0.5 shrink-0"/>Connect with people on the same path.</li>
+            <li className="flex gap-2"><Icon name="flag" size={15} className="text-goldd mt-0.5 shrink-0"/>Anything unkind can be reported and is reviewed.</li>
+          </ul></Card>
+      </div>
+    </div>
+  </AppShell>;
+}
+
 function Community(){
   const app=useApp(); const server=app.apiMode==='server'; const demo=!!(app.user&&app.user.demo);
   const [tab,setTab]=useState('Feed');
@@ -10728,7 +10750,8 @@ function Community(){
     try{ const r=await API.post(`/api/community/connections/${mem.id}`); setMembers(ms=>ms.map(x=>x.id===mem.id?{...x,connected:r.connected}:x)); loadSide(); }
     catch(x){ setMembers(ms=>ms.map(x2=>x2.id===mem.id?{...x2,connected:mem.connected}:x2)); setErr(x.message); } };
 
-  if(!server || demo) return <AppShell>
+  if(demo) return <DemoCommunity/>;
+  if(!server) return <AppShell>
     <PageHead eyebrow="Community" title="Connect with the Lumera community." desc="Share what you are working on, find people on the same path, and swap opportunities."/>
     <Card hover={false} className="text-center py-12">
       <div className="mx-auto w-fit"><Mascot kind="lumera" color="#9D7CFF" size={72}/></div>
@@ -10742,7 +10765,7 @@ function Community(){
     <PageHead eyebrow="Community" title="Connect with the Lumera community." desc="Share what you are working on, find people on the same path, and swap opportunities."/>
     <div className="flex flex-wrap items-center gap-2 mb-5">
       {[['Members',stats&&stats.members],['Posts',stats&&stats.posts],['Opportunities',stats&&stats.opportunities],['Your connections',stats&&stats.connections]].map(([l,n])=>
-        <span key={l} className="sp-pill"><span className="tnum">{n==null?'–':n}</span><span className="text-muted font-medium">{l}</span></span>)}
+        <span key={l} className="lg-pill"><span className="tnum">{n==null?'–':n}</span><span className="text-muted font-medium">{l}</span></span>)}
     </div>
     {profile===undefined ? <div className="space-y-3" aria-label="Loading"><div className="skeleton h-28"/><div className="skeleton h-40"/></div>
     : profile===null ? <Card hover={false} className="max-w-2xl">
@@ -10899,7 +10922,7 @@ function loadFlags(){ let saved={}; try{ saved=JSON.parse(localStorage.getItem(F
 function flagForRoute(flags, path){ const f=FEATURES.find(x=>x.routes.includes(path)); return f? !!flags[f.key] : true; }
 
 const ROUTES = {
-  '/':Landing, '/login':Login, '/signup':Signup, '/forgot':Forgot,
+  '/':RootRoute, '/login':Login, '/signup':Signup, '/forgot':Forgot,
   '/insurance':Insurance, '/credit':Credit, '/badges':Badges, '/analytics':Analytics,
   '/reset':ResetPassword, '/onboarding':Onboarding, '/review':Review, '/dashboard':Dashboard, '/twin':FinancialTwin,
   '/simulator':WealthSimulator, '/invest':Investment, '/market':Market, '/news':News, '/assistant':AIAssistant,
@@ -10992,11 +11015,11 @@ function App(){
   const [lang,setLang] = useState(persisted.lang||'en');
   const [theme,setThemeState] = useState(()=>{ try{ return localStorage.getItem('lumera_theme')||'dark'; }catch(e){ return 'dark'; } });
   const [mode,setModeState] = useState(()=>{ try{ return localStorage.getItem('lumera_mode')||'spark'; }catch(e){ return 'spark'; } });
-  const [skin,setSkinState] = useState(()=>{ try{ const v=localStorage.getItem('lumera_skin')||'spatial'; return v==='nova'?'spatial':v; }catch(e){ return 'spatial'; } });
+  const [skin,setSkinState] = useState(()=>{ try{ const v=localStorage.getItem('lumera_skin')||'glass'; return (v==='nova'||v==='glass')?'glass':v; }catch(e){ return 'glass'; } });
   const setSkin = useCallback((v)=>{ setSkinState(v); try{ localStorage.setItem('lumera_skin', v); }catch(e){}
     document.documentElement.setAttribute('data-skin', v);
-    // Spatial is a dark design language, so it carries the dark theme with it.
-    if(v==='spatial'){ try{ localStorage.setItem('lumera_theme','dark'); }catch(e){} document.documentElement.setAttribute('data-theme','dark'); }
+    // Liquid Glass is a dark, colour-lit design language, so it carries the dark theme with it.
+    if(v==='glass'){ try{ localStorage.setItem('lumera_theme','dark'); }catch(e){} document.documentElement.setAttribute('data-theme','dark'); }
   },[]);
   // Spark-mode gamification (only surfaced when mode==='spark'; harmless otherwise)
   const [xp,setXp] = useState(()=>{ try{ return JSON.parse(localStorage.getItem('lumera_spark_xp'))||0; }catch(e){ return 0; } });
@@ -11036,29 +11059,29 @@ function App(){
     if(apiMode==='server'){
       const r=await API.post('/api/auth/signup',{ name, email, password, consent:true });
       clearSyncedLocal(); applyState({ profile:freshProfile(r.user.name) }); setUser(r.user); setSync('saving'); setDirtyTick(t=>t+1);
-      nav('/onboarding'); return;
+      nav('/onboarding',{replace:true}); return;
     }
     email=email||'you@email.com'; const accts=loadAccounts();
     if(accts[email]){ return login(email); }
     const u={name:name||email.split('@')[0], email, isAdmin:false};
-    setUser(u); setOnboarded(false); setProfile(freshProfile(u.name)); setExpenses({...BLANK_EXP}); setBalances({...BLANK_BAL}); nav('/onboarding'); };
+    setUser(u); setOnboarded(false); setProfile(freshProfile(u.name)); setExpenses({...BLANK_EXP}); setBalances({...BLANK_BAL}); nav('/onboarding',{replace:true}); };
   const login=async(email,password)=>{
     if(apiMode==='server'){
       const r=await API.post('/api/auth/login',{ email, password });
       const st=(await API.get('/api/me/state')).state;
       applyState(st || { profile:freshProfile(r.user.name) }); setUser(r.user); setSync('saved');
-      welcomeBack(st); nav(st && st.onboarded ? '/dashboard' : '/onboarding'); return;
+      welcomeBack(st); nav(st && st.onboarded ? '/dashboard' : '/onboarding',{replace:true}); return;
     }
     email=email||'you@email.com'; const accts=loadAccounts(); const acc=accts[email];
     if(acc){ const u={name:acc.name||email.split('@')[0], email, isAdmin:false}; setUser(u); loadInto(acc);
-      if(acc.onboarded){ welcomeBack(acc); nav('/dashboard'); } else nav('/onboarding'); }
-    else { const u={name:email.split('@')[0], email, isAdmin:false}; setUser(u); setOnboarded(false); setProfile(freshProfile(u.name)); setExpenses({...BLANK_EXP}); setBalances({...BLANK_BAL}); nav('/onboarding'); } };
+      if(acc.onboarded){ welcomeBack(acc); nav('/dashboard',{replace:true}); } else nav('/onboarding',{replace:true}); }
+    else { const u={name:email.split('@')[0], email, isAdmin:false}; setUser(u); setOnboarded(false); setProfile(freshProfile(u.name)); setExpenses({...BLANK_EXP}); setBalances({...BLANK_BAL}); nav('/onboarding',{replace:true}); } };
   // The demo walks the real survey, pre-filled with an example person, then
   // lands on a populated dashboard. It never touches a server account.
-  const demo=()=>{ setUser({name:'Avyan', email:'demo@lumera.app', isAdmin:false, demo:true}); setOnboarded(false);
-    setProfile({...DEFAULT_PROFILE}); setExpenses({...DEFAULT_EXPENSES}); setBalances({...DEFAULT_BALANCES}); nav('/onboarding'); };
+  const demo=()=>{ setUser({name:'Alex (example)', email:'demo@lumera.app', isAdmin:false, demo:true}); setOnboarded(false);
+    setProfile({...DEFAULT_PROFILE}); setExpenses({...DEFAULT_EXPENSES}); setBalances({...DEFAULT_BALANCES}); nav('/onboarding',{replace:true}); };
   // Silent demo: skips the survey (used when a sub-product site auto-enters a demo).
-  const demoSilent=()=>{ setUser({name:'Avyan', email:'demo@lumera.app', isAdmin:false, demo:true}); setOnboarded(true);
+  const demoSilent=()=>{ setUser({name:'Alex (example)', email:'demo@lumera.app', isAdmin:false, demo:true}); setOnboarded(true);
     setProfile({...DEFAULT_PROFILE}); setExpenses({...DEFAULT_EXPENSES}); setBalances({...DEFAULT_BALANCES}); };
   // Export everything held about the member, and delete the account. In server
   // mode these hit the API (UK GDPR access, portability and erasure); in local
@@ -11075,13 +11098,13 @@ function App(){
   const deleteAccount=async(password)=>{
     if(apiMode==='server' && user && !user.demo){ await API.del('/api/me',{ password }); }
     else if(user){ const a=loadAccounts(); delete a[user.email]; try{ localStorage.setItem(ACCT, JSON.stringify(a)); localStorage.removeItem(STORE); }catch(e){} }
-    clearSyncedLocal(); setUser(null); setOnboarded(false); setProfile({...BLANK_PROFILE}); setExpenses({...BLANK_EXP}); setBalances({...BLANK_BAL}); setSync('local'); nav('/');
+    clearSyncedLocal(); setUser(null); setOnboarded(false); setProfile({...BLANK_PROFILE}); setExpenses({...BLANK_EXP}); setBalances({...BLANK_BAL}); setSync('local'); goSiteHome();
   };
   const askLogout=()=> setShowLogout(true);
   const doLogout=()=>{ setShowLogout(false);
     if(apiMode==='server' && user && !user.demo){ API.post('/api/auth/logout').catch(()=>{}); clearSyncedLocal(); }
     setUser(null); setOnboarded(false); setProfile({...BLANK_PROFILE}); setExpenses({...BLANK_EXP}); setBalances({...BLANK_BAL});
-    setSync('local'); nav('/'); };
+    setSync('local'); goSiteHome(); };
   const completeOnboarding=()=>{ setOnboarded(true); setLastUpdated(Date.now()); setLastPrompt(Date.now()); };
   const checkIn=()=>{ const today=new Date().toISOString().slice(0,10); if(profile.lastCheckin===today) return;
     const y=new Date(Date.now()-864e5).toISOString().slice(0,10); const ns=(profile.lastCheckin===y)?(profile.streak||0)+1:1;
@@ -11154,6 +11177,8 @@ function App(){
       if(!dead) setBooting(false);
     });
     return ()=>{ dead=true; }; },[]);
+  // Design previews (previews/*.html) open a screen in the demo account.
+  useEffect(()=>{ if(booting) return; try{ if(new URLSearchParams(location.search).get('preview')==='demo' && !user){ try{ localStorage.setItem('lumera_guide_tut_done','1'); localStorage.setItem('lumera_guide_lumera','1'); }catch(e){} demoSilent(); setTimeout(()=>replaceRoute(PREVIEW_ROUTE),0); } }catch(e){} },[booting]);
   useEffect(()=>{ if(booting) return; const el=document.getElementById('loader'); if(el){ el.style.opacity='0'; setTimeout(()=>el.remove(),600);} },[booting]);
   // Tools that keep their own storage announce changes, so they sync too.
   useEffect(()=>{ const h=()=>setDirtyTick(t=>t+1); window.addEventListener('lumera:dirty',h); return ()=>window.removeEventListener('lumera:dirty',h); },[]);
@@ -11191,9 +11216,9 @@ function App(){
   // A feature switched off in the admin portal is not reachable by URL either.
   else if(!flagForRoute(flags, path)) redirect='/hub';
   // A world switched off in the admin portal is closed, by link and by URL.
-  else if(!routeAllowed(layout, path)) redirect = user ? '/dashboard' : '/';
+  else if(!routeAllowed(layout, path)) redirect = user ? '/dashboard' : '/login';
   // Redirect synchronously so there is no blank-frame flash before navigation fires
-  if(!booting && redirect && redirect!==route){ location.hash=redirect; }
+  if(!booting && redirect && redirect!==route){ replaceRoute(redirect); }
 
   // Which sub-product "world" we're in, recolours the whole shell in Spark mode.
   // In a sub-product site, every page (incl. the AI Assistant) stays in that world.
@@ -11211,7 +11236,7 @@ function App(){
     setRegion, resetAll, exportData, deleteAccount, fmt, metrics, mobileMenu, setMobileMenu, t: tfn(lang) };
 
   if(booting) return null;
-  const Page = redirect ? (()=> null) : (ROUTES[path]||Landing);
+  const Page = redirect ? (()=> null) : (ROUTES[path]||RootRoute);
   return <AppCtx.Provider value={value}>
     {isBetaPreview() && <div className="fixed top-0 inset-x-0 z-[200] text-center text-[11px] font-bold uppercase tracking-[.2em] py-1 pointer-events-none" style={{background:'linear-gradient(90deg,#D97706,#F59E0B)',color:'#fff'}}>Beta preview, unreleased features visible</div>}
     {mode==='spark' && <XPBurst fire={questBurst}/>}

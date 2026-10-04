@@ -3,15 +3,12 @@
 The surfaces Lumera is built from, pulled out of the app so they can be worked on
 on their own — in Claude Design, or just opened in a browser.
 
-> **Status:** these previews capture the earlier neon-morphism pass. The site,
-> app and admin portal have since moved to the **Spatial UI** (layered depth on
-> a dark ground, rim light on every surface, glass only on floating elements,
-> Instrument Serif for display and Manrope for the interface). For the current
-> components see the Spatial section of `ui-styles.html`; the tokens
-> (`--sp-glass`, `--sp-edge`, `--sp-rim`, `--sp-depth-1…3`, `--sp-blur`,
-> `--sp-sweep`) are defined at the top of `landing.html` and under
-> `html[data-skin="spatial"]` in `Lumera.html`. Regenerate this folder from those
-> before syncing it to Claude Design.
+> **Status:** these previews capture an earlier pass. Lumera now uses
+> **Liquid Glass**: translucent layers that blur and saturate a colour-lit
+> background, a light-catching gradient rim, soft highlights, Instrument Serif
+> for display and Manrope for the interface. See the Liquid Glass section of
+> `ui-styles.html` and the `previews/` folder; tokens (`--lg-*`) live at the top
+> of `landing.html` and under `html[data-skin="glass"]` in `Lumera.html`.
 
 ## What is here
 

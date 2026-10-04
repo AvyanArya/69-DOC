@@ -56,7 +56,7 @@ SUB_CSS = '''
 .page-title .grad {
     background-clip: text; -webkit-background-clip: text;
     color: transparent; -webkit-text-fill-color: transparent;
-    background-image: var(--sp-sweep);
+    background-image: var(--lg-sweep);
 }
 .page-lede { color: hsl(var(--hero-sub)); opacity: .8; font-size: 1.1rem; line-height: 1.75; max-width: 40rem; margin-top: 1.1rem; }
 .page-actions { display: flex; flex-wrap: wrap; gap: .8rem; margin-top: 2rem; }
@@ -263,7 +263,7 @@ def page(fname, title, desc, accents, head, grad, lede, body, actions=None):
 
 def panels(items, cols=3):
     return '<div class="grid-%d">%s</div>' % (cols, ''.join(
-        '<div class="panel sp-panel reveal"><h3>%s</h3><p>%s</p></div>' % (t, d) for t, d in items))
+        '<div class="panel lg-panel reveal"><h3>%s</h3><p>%s</p></div>' % (t, d) for t, d in items))
 
 
 def sec(eyebrow, head, grad, sub='', body=''):
@@ -341,14 +341,14 @@ STEPS = [
 
 
 # ---------------------------------------------------------------- the pages
-WORLD_CARD = ('<a class="panel sp-panel world-card reveal" href="{key}.html" style="text-decoration:none;color:inherit">'
+WORLD_CARD = ('<a class="panel lg-panel world-card reveal" href="{key}.html" style="text-decoration:none;color:inherit">'
               '<span class="wash" style="background:{c}"></span>'
               '<span class="badge" style="background:{c}22;color:{c}">{initial}</span>'
               '<span class="tag" style="color:{c}">{tag}</span>'
               '<h3>{name}</h3><p>{blurb}</p>'
               '<span class="link" style="color:{c}">Explore {name} &rarr;</span></a>')
 
-MINI_CARD = ('<a class="panel sp-panel reveal" href="{key}.html" style="text-decoration:none;color:inherit">'
+MINI_CARD = ('<a class="panel lg-panel reveal" href="{key}.html" style="text-decoration:none;color:inherit">'
              '<span class="badge" style="background:{c}22;color:{c}">{initial}</span>'
              '<h3>{name}</h3><p>{tag}</p></a>')
 
@@ -407,7 +407,7 @@ def build():
         actions=[('Start free', 'app.html#/signup', True), ('How it works', 'how-it-works.html', False)]))
 
     steps_html = '<div class="grid-3">' + ''.join(
-        '<div class="panel sp-panel reveal"><span class="step-n">%02d</span><h3>%s</h3><p>%s</p></div>'
+        '<div class="panel lg-panel reveal"><span class="step-n">%02d</span><h3>%s</h3><p>%s</p></div>'
         % (i + 1, t, d) for i, (t, d) in enumerate(STEPS)) + '</div>'
     made.append(page('how-it-works.html', 'How it works | Lumera',
         'Three steps, thirty days: track, compare, and get your plan.',
@@ -427,7 +427,7 @@ def build():
         actions=[('Start free', 'app.html#/signup', True), ('See the features', 'features.html', False)]))
 
     team_cards = ''.join(
-        '<div class="panel sp-panel reveal"><div class="person"><span class="avatar">%s</span>'
+        '<div class="panel lg-panel reveal"><div class="person"><span class="avatar">%s</span>'
         '<div><h3 style="margin:0">%s</h3><div class="role">%s</div></div></div></div>' % (c, n, r)
         for n, r, c in [('Founding team', 'Add names in Admin', 'L'), ('Product', 'Add names in Admin', 'P'),
                         ('Engineering', 'Add names in Admin', 'E'), ('Design', 'Add names in Admin', 'D'),
@@ -449,10 +449,10 @@ def build():
         'Financial clarity,', 'made accessible',
         'Lumera turns the financial intelligence once reserved for the wealthy into something anyone can use. Clear, calm, and jargon-free.',
         '    <section class="section tight"><div class="grid-2">'
-        '<div class="panel sp-panel reveal"><div class="eyebrow">Our mission</div><div class="prose">'
+        '<div class="panel lg-panel reveal"><div class="eyebrow">Our mission</div><div class="prose">'
         '<p>Lumera exists to give students and early-career professionals the financial intelligence that used to be '
         'reserved for the wealthy. No jargon, no complexity, just clarity.</p></div></div>'
-        '<div class="panel sp-panel reveal"><div class="eyebrow">The problem we solve</div><div class="prose">'
+        '<div class="panel lg-panel reveal"><div class="eyebrow">The problem we solve</div><div class="prose">'
         '<p>Most people do not understand their money, not because they are bad with it, but because no one ever taught '
         'them. Lumera closes that gap with tools that explain themselves.</p></div></div>'
         '</div></section>\n'
@@ -479,7 +479,7 @@ def build():
              ('Premium', 'Coming soon', False,
               ['Portfolio analytics', 'Family budgeting', 'Tax optimisation', 'Priority AI', 'Advisor-ready summaries'])]
     plans_html = '<div class="grid-3">' + ''.join(
-        '<div class="panel sp-panel reveal"><div class="plan-head"><h3 style="margin:0">%s</h3>'
+        '<div class="panel lg-panel reveal"><div class="plan-head"><h3 style="margin:0">%s</h3>'
         '<span class="pill%s">%s</span></div><p>%s</p><ul class="plan-list">%s</ul></div>'
         % (n, ' now' if now else '', 'Current' if now else 'Future', b, ''.join('<li>%s</li>' % f for f in feats))
         for n, b, now, feats in PLANS) + '</div>'

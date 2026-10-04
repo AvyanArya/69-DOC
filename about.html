@@ -22,7 +22,7 @@
    Theme tokens
    ============================================================ */
 :root {
-    --background: 248 21% 6%;      /* deep charcoal, a breath of violet: dark, not black */
+    --background: 252 46% 11%;     /* deep indigo, lit by colour: dark, never flat black */
     --foreground: 250 33% 97%;
     --hero-sub: 250 12% 80%;
 
@@ -30,17 +30,17 @@
     --font-display: 'Instrument Serif', Georgia, 'Times New Roman', serif;
 
     /* Spatial materials, shared with the app */
-    --sp-glass: rgba(26, 24, 38, .58);
-    --sp-glass-strong: rgba(22, 21, 33, .88);
-    --sp-edge: rgba(255, 255, 255, .10);
-    --sp-edge-hi: rgba(255, 255, 255, .20);
-    --sp-rim: inset 0 1px 0 rgba(255, 255, 255, .09), inset 0 0 0 1px rgba(255, 255, 255, .012);
-    --sp-depth-1: 0 1px 2px rgba(0, 0, 0, .30), 0 12px 28px -16px rgba(0, 0, 0, .62);
-    --sp-depth-2: 0 2px 4px rgba(0, 0, 0, .24), 0 20px 46px -20px rgba(0, 0, 0, .68), 0 46px 96px -50px rgba(30, 16, 74, .72);
-    --sp-depth-3: 0 6px 14px rgba(0, 0, 0, .26), 0 32px 72px -26px rgba(0, 0, 0, .74), 0 72px 150px -64px rgba(44, 24, 104, .62);
-    --sp-blur: blur(28px) saturate(150%);
-    --sp-sweep: linear-gradient(100deg, #EBC77A 0%, #C6A8FF 46%, #8E7BFF 100%);
-    --sp-ease: cubic-bezier(.22, 1, .36, 1);
+    --lg-glass: rgba(48, 38, 92, .42);
+    --lg-glass-strong: rgba(22, 21, 33, .88);
+    --lg-edge: rgba(255, 255, 255, .18);
+    --lg-edge-hi: rgba(255, 255, 255, .20);
+    --lg-rim: inset 0 1px 0 rgba(255, 255, 255, .09), inset 0 0 0 1px rgba(255, 255, 255, .012);
+    --lg-depth-1: 0 1px 2px rgba(0, 0, 0, .30), 0 12px 28px -16px rgba(0, 0, 0, .62);
+    --lg-depth-2: 0 2px 4px rgba(0, 0, 0, .24), 0 20px 46px -20px rgba(0, 0, 0, .68), 0 46px 96px -50px rgba(30, 16, 74, .72);
+    --lg-depth-3: 0 6px 14px rgba(0, 0, 0, .26), 0 32px 72px -26px rgba(0, 0, 0, .74), 0 72px 150px -64px rgba(44, 24, 104, .62);
+    --lg-blur: blur(22px) saturate(185%);
+    --lg-sweep: linear-gradient(100deg, #FFC98A 0%, #F08BC4 40%, #9D7CFF 75%, #6FD3FF 100%);
+    --lg-ease: cubic-bezier(.22, 1, .36, 1);
     --accent: #9D7CFF;
 }
 
@@ -49,7 +49,12 @@
 html { scroll-behavior: smooth; }
 
 body {
-    background: hsl(var(--background));
+    background:
+        radial-gradient(1200px 800px at 0% 0%, rgba(157,124,255,.30), transparent 60%),
+        radial-gradient(1000px 700px at 100% 30%, rgba(240,139,196,.20), transparent 60%),
+        radial-gradient(900px 700px at 40% 100%, rgba(255,201,138,.14), transparent 60%),
+        hsl(var(--background));
+    background-attachment: fixed;
     color: hsl(var(--foreground));
     font-family: var(--font-body);
     -webkit-font-smoothing: antialiased;
@@ -172,11 +177,11 @@ html[data-motion="off"] .atmo .aurora, html[data-motion="off"] .atmo .grain { an
     justify-content: space-between;
     gap: 1.5rem;
     border-radius: 22px;
-    background: var(--sp-glass);
-    border: 1px solid var(--sp-edge);
-    box-shadow: var(--sp-rim), var(--sp-depth-2);
-    backdrop-filter: var(--sp-blur);
-    -webkit-backdrop-filter: var(--sp-blur);
+    background: var(--lg-glass);
+    border: 1px solid var(--lg-edge);
+    box-shadow: var(--lg-rim), var(--lg-depth-2);
+    backdrop-filter: var(--lg-blur);
+    -webkit-backdrop-filter: var(--lg-blur);
 }
 .nav-actions { display: flex; align-items: center; gap: .4rem; flex-shrink: 0; }
 .nav-actions a { white-space: nowrap; }
@@ -307,7 +312,7 @@ html[data-motion="off"] .atmo .aurora, html[data-motion="off"] .atmo .grain { an
     -webkit-background-clip: text;
     color: transparent;
     -webkit-text-fill-color: transparent;
-    background-image: var(--sp-sweep);
+    background-image: var(--lg-sweep);
     padding: 0 .04em;
 }
 
@@ -449,7 +454,7 @@ html[data-motion="off"] .atmo .aurora, html[data-motion="off"] .atmo .grain { an
     -webkit-background-clip: text;
     color: transparent;
     -webkit-text-fill-color: transparent;
-    background-image: var(--sp-sweep);
+    background-image: var(--lg-sweep);
 }
 
 .sec-sub {
@@ -535,7 +540,7 @@ html[data-motion="off"] .atmo .aurora, html[data-motion="off"] .atmo .grain { an
     -webkit-background-clip: text;
     color: transparent;
     -webkit-text-fill-color: transparent;
-    background-image: var(--sp-sweep);
+    background-image: var(--lg-sweep);
     margin-bottom: .9rem;
     display: block;
 }
@@ -574,7 +579,7 @@ html[data-motion="off"] .atmo .aurora, html[data-motion="off"] .atmo .grain { an
     width: 6px; height: 6px;
     margin-top: .5rem;
     border-radius: 50%;
-    background: var(--sp-sweep);
+    background: var(--lg-sweep);
 }
 
 /* Invisible patterns: an opaque, lit stage, not a glass card. */
@@ -599,10 +604,10 @@ html[data-motion="off"] .atmo .aurora, html[data-motion="off"] .atmo .grain { an
 .patterns-grid { position: relative; display: grid; grid-template-columns: 1.25fr 1fr; gap: 3rem; align-items: end; }
 .patterns-title { font-family: var(--font-display); font-weight: 400; font-size: clamp(2.6rem, 6vw, 4.6rem); line-height: .98; letter-spacing: -.015em; }
 .patterns-title em { font-style: italic; color: #F4F0FF; }
-.patterns-title .grad { background-clip: text; -webkit-background-clip: text; color: transparent; -webkit-text-fill-color: transparent; background-image: var(--sp-sweep); }
+.patterns-title .grad { background-clip: text; -webkit-background-clip: text; color: transparent; -webkit-text-fill-color: transparent; background-image: var(--lg-sweep); }
 .patterns-rule { display: block; width: 4rem; height: 1px; margin-bottom: 1.25rem; background: linear-gradient(90deg, #EBC77A, transparent); }
 .patterns-copy p { font-size: 1.1rem; line-height: 1.7; color: hsl(var(--foreground) / .86); }
-.patterns-ghost { border: 1px solid var(--sp-edge-hi); padding: 1rem 1.6rem; }
+.patterns-ghost { border: 1px solid var(--lg-edge-hi); padding: 1rem 1.6rem; }
 .patterns-note { position: relative; margin-top: 3rem; padding-top: 1.25rem; border-top: 1px solid rgba(255,255,255,.10); font-size: .8rem; line-height: 1.6; color: hsl(var(--foreground) / .6); max-width: 48rem; }
 @media (max-width: 900px) { .patterns-grid { grid-template-columns: 1fr; gap: 2rem; } }
 @media (prefers-reduced-motion: reduce) { .pt-strand { stroke-dashoffset: 0; } .patterns-stage.in .pt-strand, .pt-star { animation: none; } }
@@ -643,7 +648,7 @@ html[data-motion="off"] .atmo .aurora, html[data-motion="off"] .atmo .grain { an
     transition: transform .3s ease, filter .3s ease;
 }
 
-.btn-solid { box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 12px 30px -14px rgba(235,199,122,.85); transition: transform .3s var(--sp-ease), box-shadow .3s var(--sp-ease), filter .3s ease; }
+.btn-solid { box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 12px 30px -14px rgba(235,199,122,.85); transition: transform .3s var(--lg-ease), box-shadow .3s var(--lg-ease), filter .3s ease; }
 .btn-solid:hover { transform: translateY(-2px) scale(1.03); filter: brightness(1.05); box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 18px 40px -14px rgba(235,199,122,1), 0 0 0 4px rgba(235,199,122,.16); }
 .btn-solid:active, .hero-secondary:active { transform: scale(.98); }
 
@@ -862,7 +867,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
    translucent fill, a fine edge, an overhead highlight and layered soft
    shadows; each section tints its panels with --accent.
    ============================================================ */
-.sp-panel {
+.lg-panel {
     position: relative;
     isolation: isolate;
     border-radius: 22px;
@@ -870,24 +875,24 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
         radial-gradient(120% 80% at 50% -20%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 60%),
         linear-gradient(180deg, rgba(255,255,255,.065), rgba(255,255,255,.03)),
         rgba(20,19,30,.58);
-    border: 1px solid var(--sp-edge);
-    box-shadow: var(--sp-rim), var(--sp-depth-1);
-    transition: transform .45s var(--sp-ease), box-shadow .45s var(--sp-ease), border-color .3s ease;
+    border: 1px solid var(--lg-edge);
+    box-shadow: var(--lg-rim), var(--lg-depth-1);
+    transition: transform .45s var(--lg-ease), box-shadow .45s var(--lg-ease), border-color .3s ease;
 }
-.sp-panel::before {
+.lg-panel::before {
     content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: -1;
     background: radial-gradient(120% 70% at 50% -16%, rgba(255,255,255,.08), transparent 58%);
 }
-a.sp-panel:hover, .sp-panel.lift:hover {
+a.lg-panel:hover, .lg-panel.lift:hover {
     transform: translateY(-4px) scale(1.02);
-    border-color: color-mix(in srgb, var(--accent) 45%, var(--sp-edge-hi));
-    box-shadow: var(--sp-rim), var(--sp-depth-2), 0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent),
+    border-color: color-mix(in srgb, var(--accent) 45%, var(--lg-edge-hi));
+    box-shadow: var(--lg-rim), var(--lg-depth-2), 0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent),
         0 18px 50px -20px color-mix(in srgb, var(--accent) 55%, transparent);
 }
 @supports not (color: color-mix(in srgb, red 50%, blue)) {
-    .sp-panel { background: linear-gradient(180deg, rgba(255,255,255,.065), rgba(255,255,255,.03)), rgba(20,19,30,.58); }
+    .lg-panel { background: linear-gradient(180deg, rgba(255,255,255,.065), rgba(255,255,255,.03)), rgba(20,19,30,.58); }
 }
-.sp-tag {
+.lg-tag {
     display: inline-flex; align-items: center; gap: .45rem;
     font-size: .66rem; letter-spacing: .2em; text-transform: uppercase; font-weight: 700;
     color: var(--accent);
@@ -915,7 +920,7 @@ a.sp-panel:hover, .sp-panel.lift:hover {
 .world-slab .who {
     position: absolute; left: 50%; bottom: -2px; height: 10.5rem; width: auto; transform: translateX(-50%);
     filter: drop-shadow(0 16px 24px color-mix(in srgb, var(--accent) 45%, transparent)) drop-shadow(0 2px 4px rgba(0,0,0,.35));
-    transition: transform .6s var(--sp-ease); pointer-events: none;
+    transition: transform .6s var(--lg-ease); pointer-events: none;
 }
 .world-slab:hover .who { transform: translateX(-50%) translateY(-6px); }
 .world-slab .body { padding: 1.2rem 1.4rem 1.4rem; display: flex; flex-direction: column; flex: 1; }
@@ -1072,7 +1077,7 @@ a.sp-panel:hover, .sp-panel.lift:hover {
 .page-title .grad {
     background-clip: text; -webkit-background-clip: text;
     color: transparent; -webkit-text-fill-color: transparent;
-    background-image: var(--sp-sweep);
+    background-image: var(--lg-sweep);
 }
 .page-lede { color: hsl(var(--hero-sub)); opacity: .8; font-size: 1.1rem; line-height: 1.75; max-width: 40rem; margin-top: 1.1rem; }
 .page-actions { display: flex; flex-wrap: wrap; gap: .8rem; margin-top: 2rem; }
@@ -1224,14 +1229,14 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
 </div>
 
 <main class="rest" id="main">
-    <section class="section tight"><div class="grid-2"><div class="panel sp-panel reveal"><div class="eyebrow">Our mission</div><div class="prose"><p>Lumera exists to give students and early-career professionals the financial intelligence that used to be reserved for the wealthy. No jargon, no complexity, just clarity.</p></div></div><div class="panel sp-panel reveal"><div class="eyebrow">The problem we solve</div><div class="prose"><p>Most people do not understand their money, not because they are bad with it, but because no one ever taught them. Lumera closes that gap with tools that explain themselves.</p></div></div></div></section>
+    <section class="section tight"><div class="grid-2"><div class="panel lg-panel reveal"><div class="eyebrow">Our mission</div><div class="prose"><p>Lumera exists to give students and early-career professionals the financial intelligence that used to be reserved for the wealthy. No jargon, no complexity, just clarity.</p></div></div><div class="panel lg-panel reveal"><div class="eyebrow">The problem we solve</div><div class="prose"><p>Most people do not understand their money, not because they are bad with it, but because no one ever taught them. Lumera closes that gap with tools that explain themselves.</p></div></div></div></section>
     <section class="section">
         <div class="sec-head left reveal">
             <div class="eyebrow">What Lumera gives you</div>
             <h2 class="sec-title">Six things it does <span class="grad">from day one</span></h2>
             
         </div>
-        <div class="grid-3"><div class="panel sp-panel reveal"><h3>Benchmark clarity</h3><p>See every spending category against realistic ranges for your income and region.</p></div><div class="panel sp-panel reveal"><h3>A learning engine</h3><p>Two-minute lessons, quizzes and a glossary that turn jargon into confidence.</p></div><div class="panel sp-panel reveal"><h3>Real tools</h3><p>Budget, goals, net worth, debt payoff, credit, investing and a wealth simulator.</p></div><div class="panel sp-panel reveal"><h3>Markets, decoded</h3><p>Live-style markets, a world monitor and plain-English news with the why.</p></div><div class="panel sp-panel reveal"><h3>A career head-start</h3><p>Finance careers, universities, CV lab and interview prep.</p></div><div class="panel sp-panel reveal"><h3>A community</h3><p>Connect with others on the same path and share opportunities.</p></div></div>
+        <div class="grid-3"><div class="panel lg-panel reveal"><h3>Benchmark clarity</h3><p>See every spending category against realistic ranges for your income and region.</p></div><div class="panel lg-panel reveal"><h3>A learning engine</h3><p>Two-minute lessons, quizzes and a glossary that turn jargon into confidence.</p></div><div class="panel lg-panel reveal"><h3>Real tools</h3><p>Budget, goals, net worth, debt payoff, credit, investing and a wealth simulator.</p></div><div class="panel lg-panel reveal"><h3>Markets, decoded</h3><p>Live-style markets, a world monitor and plain-English news with the why.</p></div><div class="panel lg-panel reveal"><h3>A career head-start</h3><p>Finance careers, universities, CV lab and interview prep.</p></div><div class="panel lg-panel reveal"><h3>A community</h3><p>Connect with others on the same path and share opportunities.</p></div></div>
     </section>
     <section class="section">
         <div class="sec-head left reveal">
@@ -1239,7 +1244,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
             <h2 class="sec-title">Built for people <span class="grad">starting out</span></h2>
             
         </div>
-        <div class="grid-3"><div class="panel sp-panel reveal"><h3>Students</h3><p>Build money habits early, while the stakes are low and the upside is decades long.</p></div><div class="panel sp-panel reveal"><h3>Young professionals</h3><p>Turn your first real income into a foundation for lasting wealth.</p></div><div class="panel sp-panel reveal"><h3>Anyone starting out</h3><p>It is never too late to start your financial journey.</p></div></div>
+        <div class="grid-3"><div class="panel lg-panel reveal"><h3>Students</h3><p>Build money habits early, while the stakes are low and the upside is decades long.</p></div><div class="panel lg-panel reveal"><h3>Young professionals</h3><p>Turn your first real income into a foundation for lasting wealth.</p></div><div class="panel lg-panel reveal"><h3>Anyone starting out</h3><p>It is never too late to start your financial journey.</p></div></div>
     </section>
     <section class="section">
         <div class="sec-head left reveal">

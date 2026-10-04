@@ -17,6 +17,13 @@ const TYPES = {
   '.mp4': 'video/mp4', '.txt': 'text/plain; charset=utf-8', '.xml': 'application/xml', '.webmanifest': 'application/manifest+json',
 };
 
+// Retired pages from earlier versions of Lumera, and the source file names,
+// send people to the one current site instead of an old copy.
+const LEGACY = {
+  '/launch': '/', '/hero': '/', '/font-options': '/', '/font-preview': '/', '/character-preview': '/',
+  '/landing': '/', '/lumera-site': '/', '/app/index': '/app.html',
+};
+
 function createApp(config, { fetchImpl, log = console, dbFile } = {}) {
   const db = dbm.open(dbFile || path.join(config.DATA_DIR, 'lumera.db'));
   const key = loadKey(config, log);
@@ -103,6 +110,8 @@ function createApp(config, { fetchImpl, log = console, dbFile } = {}) {
 
   function serveStatic(ctx) {
     if (ctx.req.method !== 'GET' && ctx.req.method !== 'HEAD') { send(ctx.res, 405, { error: 'Method not allowed.' }); return; }
+    const moved = LEGACY[ctx.url.pathname.replace(/\.html$/, '').toLowerCase()];
+    if (moved) { ctx.res.writeHead(301, { Location: moved, 'Cache-Control': 'public, max-age=86400' }); ctx.res.end(); return; }
     let rel = decodeURIComponent(ctx.url.pathname);
     if (rel.endsWith('/')) rel += 'index.html';
     const file = path.join(config.PUBLIC_DIR, path.normalize(rel).replace(/^([/\\])+/, ''));

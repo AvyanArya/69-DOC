@@ -230,6 +230,9 @@ window.__go = function (to) {
   catch (e) { var ev = document.createEvent('Event'); ev.initEvent('hashchange', true, true); window.dispatchEvent(ev); }
   try { window.scrollTo(0, 0); } catch (e) {}
 };
+/* Leaving the app (log out, the logo on sign-in pages) opens this file's own
+   landing route in the outer page, never an in-app copy of a landing page. */
+window.__exitToSite = function () { try { window.parent.location.hash = '#/'; } catch (e) {} };
 
 window.__SS = (function () {
   try {
@@ -408,12 +411,15 @@ ROUTER = '''<script>
         var f = frameFor(which);
         if (!f) return;
         f.hidden = false;
-        /* Carry a deep link through: #/app/signup opens the app on signup. */
+        /* Carry a deep link through: #/app/login opens the app on Log In.
+           The frame's document was written in, so it has no URL of its own:
+           pointing its src at "#/login" would load this whole file again
+           inside it. The page inside routes in memory, so tell it directly. */
         var deep = (location.hash || '').replace(/^#\\/(app|admin)\\/?/, '');
-        var target = f.src.split('#')[0] + (deep ? '#/' + deep : '');
-        if (f.getAttribute('data-at') !== target) {
-            f.setAttribute('data-at', target);
-            f.src = target;
+        if (deep) {
+            var w = f.contentWindow;
+            if (w && w.__go) w.__go('/' + deep);
+            else f.name = '/' + deep;
         }
         document.title = which === 'app' ? 'Lumera app' : 'Lumera admin portal';
 

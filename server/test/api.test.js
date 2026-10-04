@@ -305,3 +305,11 @@ test('plan waitlist: members join and leave, admins see the list', async () => {
   r = await anon('PUT', '/api/me/waitlist', { plan: 'Pro', on: true });
   assert.equal(r.status, 401);
 });
+
+test('retired pages from old versions redirect to the current site', async () => {
+  for (const p of ['/launch.html', '/hero', '/font-options.html', '/landing.html']) {
+    const r = await fetch(base + p, { redirect: 'manual' });
+    assert.equal(r.status, 301, p);
+    assert.equal(r.headers.get('location'), '/');
+  }
+});

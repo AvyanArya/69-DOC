@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self'; base-uri 'none'; form-action 'self'" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https://www.google.com https://*.gstatic.com; connect-src 'self'; base-uri 'none'; form-action 'self'" />
 <meta name="robots" content="noindex, nofollow"/>
 <title>Lumera — Admin</title>
 <link rel="icon" type="image/png" href="assets/brand/favicon-64.png"/>
@@ -11,27 +11,28 @@
   @font-face{ font-family:'Manrope'; src:url('assets/fonts/manrope-latin-wght-normal.woff2') format('woff2'); font-weight:200 800; font-style:normal; font-display:swap; }
   @font-face{ font-family:'Instrument Serif'; src:url('assets/fonts/instrument-serif-latin-400-normal.woff2') format('woff2'); font-weight:400; font-style:normal; font-display:swap; }
 
-  /* Spatial: the same ground, glass and depth as the site and the app. */
+  /* Liquid Glass: the same ground, glass and depth as the site and the app. */
   :root{
     color-scheme:dark;
-    --ivory:hsl(248 21% 6%); --cream:rgba(255,255,255,.035); --card:rgba(255,255,255,.035); --sand:rgba(255,255,255,.06);
+    --ivory:#140F2A; --cream:rgba(255,255,255,.035); --card:rgba(255,255,255,.035); --sand:rgba(255,255,255,.06);
     --line:rgba(255,255,255,.09); --line-hi:rgba(255,255,255,.18);
     --charcoal:#ECEAF6; --ink:#FAF9FD; --muted:#A9A7C2; --faint:#817F9C;
     --gold:#8E7BFF; --goldd:#B9AEFF; --golddd:#6E6CF6; --amber:#EBC77A;
     --sage:#4ADE9B; --saged:#5EE3A6; --clay:#F5B95C; --clayd:#F6C77F; --berry:#FB7185; --sky:#7CB4FF;
-    --sp-glass:rgba(26,24,38,.58); --sp-glass-strong:rgba(22,21,33,.9);
-    --sp-edge:rgba(255,255,255,.10); --sp-edge-hi:rgba(255,255,255,.20);
-    --sp-rim:inset 0 1px 0 rgba(255,255,255,.09), inset 0 0 0 1px rgba(255,255,255,.012);
-    --sp-depth-1:0 1px 2px rgba(0,0,0,.30), 0 12px 28px -16px rgba(0,0,0,.62);
-    --sp-depth-2:0 2px 4px rgba(0,0,0,.24), 0 20px 46px -20px rgba(0,0,0,.68), 0 46px 96px -50px rgba(30,16,74,.72);
-    --sp-blur:blur(28px) saturate(150%);
-    --sp-sweep:linear-gradient(100deg,#EBC77A 0%,#C6A8FF 46%,#8E7BFF 100%);
-    --sp-ease:cubic-bezier(.22,1,.36,1);
+    --lg-glass:rgba(48,38,92,.42); --lg-glass-strong:rgba(22,21,33,.9);
+    --lg-edge:rgba(255,255,255,.18); --lg-edge-hi:rgba(255,255,255,.20);
+    --lg-rim:inset 0 1px 0 rgba(255,255,255,.09), inset 0 0 0 1px rgba(255,255,255,.012);
+    --lg-depth-1:0 1px 2px rgba(0,0,0,.30), 0 12px 28px -16px rgba(0,0,0,.62);
+    --lg-depth-2:0 2px 4px rgba(0,0,0,.24), 0 20px 46px -20px rgba(0,0,0,.68), 0 46px 96px -50px rgba(30,16,74,.72);
+    --lg-blur:blur(22px) saturate(185%);
+    --lg-sweep:linear-gradient(100deg,#FFC98A 0%,#F08BC4 40%,#9D7CFF 75%,#6FD3FF 100%);
+    --lg-ease:cubic-bezier(.22,1,.36,1);
   }
   *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   body{ margin:0; font-family:'Manrope',system-ui,sans-serif; color:var(--charcoal); background:var(--ivory);
-    background-image:radial-gradient(1100px 600px at 100% -10%, rgba(142,123,255,.16), transparent 60%),
-                     radial-gradient(900px 520px at -10% 110%, rgba(110,108,246,.10), transparent 55%);
+    background-image:radial-gradient(1100px 600px at 100% -10%, rgba(157,124,255,.34), transparent 60%),
+                     radial-gradient(900px 520px at -10% 110%, rgba(240,139,196,.22), transparent 55%),
+                     radial-gradient(700px 500px at 50% 120%, rgba(94,230,208,.12), transparent 60%);
     background-attachment:fixed; min-height:100vh; -webkit-font-smoothing:antialiased; font-size:14px; }
   h1,h2,h3{ font-weight:600; letter-spacing:-.015em; }
   .serif{ font-family:'Instrument Serif',Georgia,serif; font-weight:400; letter-spacing:-.01em; }
@@ -45,8 +46,8 @@
   /* Shell: a floating glass sidebar beside the content. */
   .app{ display:grid; grid-template-columns:262px minmax(0,1fr); min-height:100vh; }
   .sidebar{ position:sticky; top:12px; height:calc(100vh - 24px); margin:12px 0 12px 12px; padding:16px 12px 18px; overflow-y:auto;
-    background:var(--sp-glass); border:1px solid var(--sp-edge); border-radius:22px; box-shadow:var(--sp-rim), var(--sp-depth-2);
-    backdrop-filter:var(--sp-blur); -webkit-backdrop-filter:var(--sp-blur); }
+    background:var(--lg-glass); border:1px solid var(--lg-edge); border-radius:22px; box-shadow:var(--lg-rim), var(--lg-depth-2);
+    backdrop-filter:var(--lg-blur); -webkit-backdrop-filter:var(--lg-blur); }
   .brand{ display:flex; align-items:center; gap:10px; padding:4px 8px 16px; }
   .brand img{ width:34px; height:34px; object-fit:contain; }
   .brand .mark{ font-weight:700; letter-spacing:.2em; font-size:14px; }
@@ -56,8 +57,8 @@
   .navg .label{ font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--faint); padding:0 10px 6px; font-weight:700; }
   .navi{ display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:11px; font:inherit; font-size:13px; font-weight:500; color:var(--muted); cursor:pointer; border:none; background:none; width:100%; text-align:left; transition:background .2s, color .2s; position:relative; }
   .navi:hover:not(:disabled){ background:var(--sand); color:var(--charcoal); }
-  .navi.active{ background:rgba(255,255,255,.075); color:var(--ink); box-shadow:var(--sp-rim); }
-  .navi.active::before{ content:""; position:absolute; left:0; top:22%; bottom:22%; width:3px; border-radius:99px; background:var(--sp-sweep); }
+  .navi.active{ background:rgba(255,255,255,.075); color:var(--ink); box-shadow:var(--lg-rim); }
+  .navi.active::before{ content:""; position:absolute; left:0; top:22%; bottom:22%; width:3px; border-radius:99px; background:var(--lg-sweep); }
   .navi.disabled{ cursor:not-allowed; opacity:.4; }
   .navi .count{ margin-left:auto; font-size:10.5px; font-weight:700; padding:1px 7px; border-radius:99px; background:rgba(251,113,133,.16); color:var(--berry); }
   body:not([data-mode]) [data-only], body[data-mode="server"] [data-only="local"], body[data-mode="local"] [data-only="server"]{ display:none !important; }
@@ -71,8 +72,8 @@
   .page-desc{ color:var(--muted); margin:0 0 20px; max-width:680px; font-size:14px; line-height:1.6; }
 
   /* Content panels: a lit translucent fill (no blur), raised by depth. */
-  .card{ background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.02)); border:1px solid var(--sp-edge); border-radius:20px; padding:18px;
-    box-shadow:var(--sp-rim), var(--sp-depth-1); min-width:0; }
+  .card{ background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.02)); border:1px solid var(--lg-edge); border-radius:20px; padding:18px;
+    box-shadow:var(--lg-rim), var(--lg-depth-1); min-width:0; }
   .card + .card{ margin-top:14px; }
   .row{ display:grid; gap:14px; margin-bottom:14px; }
   .row.cols-2{ grid-template-columns:1fr 1fr; }
@@ -95,21 +96,21 @@
   .bar{ display:flex; align-items:center; gap:10px; margin:7px 0; font-size:13px; }
   .bar .lab{ width:170px; color:var(--charcoal); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .bar .track{ flex:1; height:8px; border-radius:99px; background:var(--sand); overflow:hidden; }
-  .bar .fill{ height:100%; border-radius:99px; background:linear-gradient(90deg,#8E7BFF,#C6A8FF); transition:width .6s var(--sp-ease); }
+  .bar .fill{ height:100%; border-radius:99px; background:linear-gradient(90deg,#8E7BFF,#C6A8FF); transition:width .6s var(--lg-ease); }
   .bar .val{ width:54px; text-align:right; color:var(--muted); font-variant-numeric:tabular-nums; }
 
-  .btn{ border:1px solid var(--sp-edge); background:rgba(255,255,255,.04); border-radius:99px; padding:8px 14px; font:inherit; font-size:12.5px; font-weight:600; cursor:pointer; color:var(--charcoal);
-    transition:background .2s, border-color .2s, transform .2s var(--sp-ease), box-shadow .2s; display:inline-flex; align-items:center; gap:6px; text-decoration:none; box-shadow:var(--sp-rim); white-space:nowrap; }
-  .btn:hover:not(:disabled){ background:rgba(255,255,255,.08); border-color:var(--sp-edge-hi); }
+  .btn{ border:1px solid var(--lg-edge); background:rgba(255,255,255,.04); border-radius:99px; padding:8px 14px; font:inherit; font-size:12.5px; font-weight:600; cursor:pointer; color:var(--charcoal);
+    transition:background .2s, border-color .2s, transform .2s var(--lg-ease), box-shadow .2s; display:inline-flex; align-items:center; gap:6px; text-decoration:none; box-shadow:var(--lg-rim); white-space:nowrap; }
+  .btn:hover:not(:disabled){ background:rgba(255,255,255,.08); border-color:var(--lg-edge-hi); }
   .btn:active:not(:disabled){ transform:translateY(1px); }
   .btn:disabled{ opacity:.4; cursor:not-allowed; }
-  .btn.gold{ background:var(--sp-sweep); color:#17110A; border:none; box-shadow:inset 0 1px 0 rgba(255,255,255,.45), 0 10px 26px -14px rgba(198,168,255,.9); }
-  .btn.gold:hover:not(:disabled){ filter:brightness(1.06); background:var(--sp-sweep); }
+  .btn.gold{ background:var(--lg-sweep); color:#17110A; border:none; box-shadow:inset 0 1px 0 rgba(255,255,255,.45), 0 10px 26px -14px rgba(198,168,255,.9); }
+  .btn.gold:hover:not(:disabled){ filter:brightness(1.06); background:var(--lg-sweep); }
   .btn.danger{ background:transparent; color:var(--berry); border-color:rgba(251,113,133,.32); }
   .btn.danger:hover:not(:disabled){ background:rgba(251,113,133,.08); border-color:rgba(251,113,133,.5); }
   .btn.ghost{ background:transparent; }
   .btn.sm{ padding:5px 10px; font-size:11.5px; }
-  input,textarea,select{ font:inherit; font-size:14px; border:1px solid var(--sp-edge); border-radius:12px; padding:9px 12px; width:100%; background:rgba(255,255,255,.035); color:var(--charcoal); transition:border-color .2s, box-shadow .2s; }
+  input,textarea,select{ font:inherit; font-size:14px; border:1px solid var(--lg-edge); border-radius:12px; padding:9px 12px; width:100%; background:rgba(255,255,255,.035); color:var(--charcoal); transition:border-color .2s, box-shadow .2s; }
   select option{ background:#16141f; }
   input::placeholder,textarea::placeholder{ color:var(--faint); }
   input:focus,textarea:focus,select:focus{ outline:none; border-color:rgba(185,174,255,.6); box-shadow:0 0 0 4px rgba(142,123,255,.16); }
@@ -122,7 +123,7 @@
   .pill.gold{ background:rgba(142,123,255,.18); color:var(--goldd); }
   .muted{ color:var(--muted); } .faint{ color:var(--faint); } .tnum{ font-variant-numeric:tabular-nums; }
   .upd{ display:flex; gap:14px; padding:14px; border:1px solid var(--line); border-radius:16px; margin-bottom:10px; background:rgba(255,255,255,.02); transition:border-color .2s; }
-  .upd:hover{ border-color:var(--sp-edge-hi); }
+  .upd:hover{ border-color:var(--lg-edge-hi); }
   .upd .ic{ width:40px; height:40px; border-radius:12px; background:rgba(142,123,255,.14); color:var(--goldd); display:grid; place-items:center; flex-shrink:0; font-size:18px; }
   .upd .body{ flex:1; min-width:0; }
   .upd .ttl{ font-weight:600; font-size:14px; margin:0 0 4px; overflow-wrap:anywhere; }
@@ -132,11 +133,11 @@
   @media (max-width:640px){ .upd{ flex-wrap:wrap; } .upd .acts{ width:100%; justify-content:flex-start; } }
   .modal-bg{ position:fixed; inset:0; background:rgba(6,5,12,.62); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:grid; place-items:center; padding:20px; z-index:99; animation:fadeIn .2s; }
   @keyframes fadeIn{ from{opacity:0} to{opacity:1} }
-  .modal{ background:var(--sp-glass-strong); border:1px solid var(--sp-edge); border-radius:22px; padding:22px; max-width:520px; width:100%; box-shadow:var(--sp-rim), var(--sp-depth-2); max-height:90vh; overflow-y:auto; }
+  .modal{ background:var(--lg-glass-strong); border:1px solid var(--lg-edge); border-radius:22px; padding:22px; max-width:520px; width:100%; box-shadow:var(--lg-rim), var(--lg-depth-2); max-height:90vh; overflow-y:auto; }
   .modal h3{ font-size:20px; margin:0 0 6px; }
   .modal .acts{ display:flex; justify-content:flex-end; gap:8px; margin-top:18px; flex-wrap:wrap; }
   .gate{ min-height:100vh; display:grid; place-items:center; padding:24px; }
-  .gate .card{ max-width:400px; width:100%; padding:30px 28px; background:var(--sp-glass); backdrop-filter:var(--sp-blur); -webkit-backdrop-filter:var(--sp-blur); box-shadow:var(--sp-rim), var(--sp-depth-2); }
+  .gate .card{ max-width:400px; width:100%; padding:30px 28px; background:var(--lg-glass); backdrop-filter:var(--lg-blur); -webkit-backdrop-filter:var(--lg-blur); box-shadow:var(--lg-rim), var(--lg-depth-2); }
   .gate .logo{ display:block; width:64px; height:64px; margin:0 auto 14px; object-fit:contain; }
   .gate h1{ font-family:'Instrument Serif',Georgia,serif; font-weight:400; font-size:32px; margin:0 0 6px; text-align:center; }
   .gate .lede{ color:var(--muted); font-size:13px; margin:0 0 18px; text-align:center; line-height:1.55; }
@@ -152,12 +153,12 @@
   code{ background:rgba(255,255,255,.06); padding:1px 6px; border-radius:6px; font-size:.9em; overflow-wrap:anywhere; }
   .tbl{ overflow-x:auto; }
   table{ width:100%; border-collapse:collapse; font-size:13px; }
-  table th{ text-align:left; padding:10px 8px; font-weight:600; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--faint); border-bottom:1px solid var(--sp-edge-hi); white-space:nowrap; }
+  table th{ text-align:left; padding:10px 8px; font-weight:600; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--faint); border-bottom:1px solid var(--lg-edge-hi); white-space:nowrap; }
   table td{ padding:10px 8px; border-bottom:1px solid var(--line); vertical-align:middle; }
   table tr:last-child td{ border-bottom:none; }
-  .seg{ display:inline-flex; gap:0; border:1px solid var(--sp-edge); border-radius:99px; padding:3px; background:rgba(255,255,255,.03); flex-wrap:wrap; }
+  .seg{ display:inline-flex; gap:0; border:1px solid var(--lg-edge); border-radius:99px; padding:3px; background:rgba(255,255,255,.03); flex-wrap:wrap; }
   .seg button{ border:none; background:none; border-radius:99px; padding:5px 12px; font:inherit; font-size:12px; font-weight:600; color:var(--muted); cursor:pointer; }
-  .seg button.on{ background:rgba(255,255,255,.1); color:var(--ink); box-shadow:var(--sp-rim); }
+  .seg button.on{ background:rgba(255,255,255,.1); color:var(--ink); box-shadow:var(--lg-rim); }
   .toolbar{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
   .toolbar .grow{ flex:1; min-width:180px; }
   .logo-tile{ width:36px; height:36px; border-radius:10px; background:#fff; display:grid; place-items:center; overflow:hidden; flex-shrink:0; }
@@ -172,7 +173,7 @@
   .skel{ height:14px; border-radius:8px; background:linear-gradient(90deg,rgba(255,255,255,.04),rgba(255,255,255,.09),rgba(255,255,255,.04)); background-size:200% 100%; animation:sk 1.4s linear infinite; margin:10px 0; }
   @keyframes sk{ to{ background-position:-200% 0; } }
   .toast{ position:fixed; left:50%; bottom:22px; transform:translateX(-50%); z-index:120; padding:10px 16px; border-radius:99px; font-size:13px; font-weight:600;
-    background:var(--sp-glass-strong); border:1px solid var(--sp-edge); box-shadow:var(--sp-rim), var(--sp-depth-2); backdrop-filter:var(--sp-blur); -webkit-backdrop-filter:var(--sp-blur); max-width:calc(100vw - 32px); }
+    background:var(--lg-glass-strong); border:1px solid var(--lg-edge); box-shadow:var(--lg-rim), var(--lg-depth-2); backdrop-filter:var(--lg-blur); -webkit-backdrop-filter:var(--lg-blur); max-width:calc(100vw - 32px); }
   .toast.bad{ color:var(--berry); }
   @media (prefers-reduced-motion:reduce){ *{ animation:none !important; transition:none !important; } }
 </style>
@@ -292,7 +293,7 @@ const ROLES = {
   admin:    { label:'Administrator',          badge:'role-admin',    scope:['*'] },
 };
 let CURRENT_ROLE = null;
-let MODE = null, ME = null;            // MODE is 'server' or 'local' once detected
+let MODE = null, ME = null, SYS = {};            // MODE is 'server' or 'local' once detected
 const SERVER_EMPTY = {};
 // Tabs that only make sense with or without the server.
 const LOCAL_ONLY = ['dashboard','insights','usage','offers','brand','feedback','trends','market','permissions'];
@@ -1191,8 +1192,53 @@ function seedDemo(){
    Opened from disk or a static host there is no server, so it falls back
    to the offline key gate and edits this browser's storage only.
    ============================================================ */
+/* Preview mode (previews/admin.html): the real portal UI, running against
+   invented example data instead of a server. Nothing is saved anywhere. */
+const PREVIEW = /[?&]preview=1\b/.test(location.search);
+const DAYMS = 864e5, NOWMS = Date.now();
+const EX = {
+  user:{ id:1, email:'admin@example.com', name:'Example Admin', role:'admin', isAdmin:true },
+  users:[
+    { id:1, email:'admin@example.com', name:'Example Admin', role:'admin', status:'active', created_at:NOWMS-90*DAYMS, last_login_at:NOWMS-3600e3, onboarded:true, posts:2 },
+    { id:2, email:'maya@example.com', name:'Maya (example)', role:'user', status:'active', created_at:NOWMS-40*DAYMS, last_login_at:NOWMS-5*3600e3, onboarded:true, posts:4 },
+    { id:3, email:'theo@example.com', name:'Theo (example)', role:'user', status:'active', created_at:NOWMS-12*DAYMS, last_login_at:NOWMS-DAYMS, onboarded:true, posts:1 },
+    { id:4, email:'sam@example.com', name:'Sam (example)', role:'user', status:'disabled', created_at:NOWMS-8*DAYMS, last_login_at:NOWMS-6*DAYMS, onboarded:false, posts:0 },
+  ],
+  posts:[
+    { id:11, tag:'Milestone', body:'Hit three months of emergency savings today.', link:'', hidden:false, created_at:NOWMS-2*3600e3, email:'maya@example.com', name:'Maya (example)', reports:0, likes:24 },
+    { id:12, tag:'Question', body:'Pension top-up or clear a £900 card first?', link:'', hidden:false, created_at:NOWMS-5*3600e3, email:'theo@example.com', name:'Theo (example)', reports:1, likes:11 },
+  ],
+  reports:{ member:[{ id:21, kind:'post', target_id:12, reason:'Looks like financial advice', reporter:'maya@example.com', content:'Pension top-up or clear a £900 card first?', status:'open', created_at:NOWMS-3600e3 }],
+    error:[{ id:31, kind:'error', reason:'TypeError: cannot read properties of undefined', detail:{ path:'/budget', ua:'Example browser', stack:'at Budget (app.html:1:1)' }, reporter:null, status:'open', created_at:NOWMS-7200e3 }] },
+  companies:[
+    { key:'netflix', name:'Netflix', domain:'netflix.com', status:'found', source:'auto', locked:false, checkedAt:NOWMS-DAYMS, logoUrl:'https://www.google.com/s2/favicons?domain=netflix.com&sz=128' },
+    { key:'spotify', name:'Spotify', domain:'spotify.com', status:'found', source:'auto', locked:false, checkedAt:NOWMS-DAYMS, logoUrl:'https://www.google.com/s2/favicons?domain=spotify.com&sz=128' },
+    { key:'boutique gym app', name:'Boutique gym app', domain:null, status:'missing', source:'auto', locked:false, checkedAt:NOWMS-DAYMS, logoUrl:null },
+  ],
+  audit:[{ id:1, action:'post.hide', target:'9', at:NOWMS-86e5, actor:'admin@example.com' },{ id:2, action:'config.flags', target:'', at:NOWMS-2*86e5, actor:'admin@example.com' }],
+};
+function previewApi(method, path){
+  const u = new URL(path, 'http://x'); const p = u.pathname;
+  if(method !== 'GET'){
+    if(p === '/api/auth/login' || p === '/api/auth/logout') return { user:EX.user, ok:true };
+    if(/reset-link$/.test(p)) return { path:'/app.html#/reset?token=example-only', expiresAt:NOWMS+3600e3 };
+    toast('Preview only: example data, nothing is saved.'); return { ok:true, company:EX.companies[0] };
+  }
+  if(p === '/api/health') return { ok:true, service:'lumera', version:'preview', time:NOWMS };
+  if(p === '/api/auth/me') return { user:EX.user };
+  if(p === '/api/admin/overview') return { users:4, admins:1, disabled:1, activeThisWeek:3, onboarded:3, posts:2, hiddenPosts:0, openReports:1, openErrors:1, companies:3, companiesMissing:1, waitlist:{ Pro:12, Premium:5 } };
+  if(p === '/api/admin/users') return { users:EX.users, more:false };
+  if(p === '/api/admin/posts') return { posts:EX.posts };
+  if(p === '/api/admin/reports') return { reports: u.searchParams.get('status') === 'resolved' ? [] : EX.reports[u.searchParams.get('kind') === 'error' ? 'error' : 'member'] };
+  if(p === '/api/admin/companies') return { companies:EX.companies };
+  if(p === '/api/admin/audit') return { entries:EX.audit };
+  if(p === '/api/admin/config') return { flags:null, layout:null, updates:null, news:null, about:null };
+  if(p === '/api/admin/waitlist') return { entries:[{ plan:'Pro', name:'Maya (example)', email:'maya@example.com', created_at:NOWMS-DAYMS }] };
+  return {};
+}
 const API = {
   async req(method, path, body){
+    if(PREVIEW) return previewApi(method, path);
     const headers = { 'X-Lumera':'1' };
     if(body !== undefined) headers['Content-Type'] = 'application/json';
     let res;
@@ -1216,6 +1262,7 @@ const API = {
 };
 
 async function detectServer(){
+  if(PREVIEW) return true;
   if(!/^https?:$/.test(location.protocol)) return false;
   try{
     const r = await fetch('/api/health', { credentials:'same-origin', cache:'no-store' });
@@ -1269,7 +1316,7 @@ function setStatus(state){
   }
   if(state === 'saving'){ dot.classList.add('warn'); txt.textContent = 'Saving…'; return; }
   if(state === 'error'){ dot.classList.add('bad'); txt.textContent = 'Not saved'; return; }
-  txt.textContent = state === 'saved' ? 'Saved to the server' : 'Connected to the server';
+  txt.textContent = PREVIEW ? 'Preview · example data' : state === 'saved' ? 'Saved to the server' : 'Connected to the server';
 }
 let toastTimer = null;
 function toast(msg, bad){
@@ -1348,8 +1395,9 @@ async function refreshCounts(){
 
 /* ---- overview ---- */
 function renderOverview(){
-  serverView('overview', 'Overview', `Signed in as ${escapeHtml(ME.email)}. These figures come straight from the database.`, async()=>{
-    const o = await API.get('/api/admin/overview');
+  serverView('overview', 'Overview', PREVIEW ? 'Example figures for the preview. In the live portal these come straight from the database.' : `Signed in as ${escapeHtml(ME.email)}. These figures come straight from the database.`, async()=>{
+    const [o, health] = await Promise.all([API.get('/api/admin/overview'), API.get('/api/health').catch(()=>({}))]);
+    SYS = health || {};
     const todo = [];
     if(o.openReports) todo.push(`<button class="btn" onclick="R_STATE.kind='member';R_STATE.status='open';switchTab('reports')">${o.openReports} member report${o.openReports === 1 ? '' : 's'} to review</button>`);
     if(o.openErrors) todo.push(`<button class="btn" onclick="R_STATE.kind='error';R_STATE.status='open';switchTab('reports')">${o.openErrors} app error${o.openErrors === 1 ? '' : 's'} reported</button>`);
@@ -1366,9 +1414,14 @@ function renderOverview(){
         ${kpi('App errors', o.openErrors, 'Open')}
         ${kpi('Companies', o.companies, `${o.companiesMissing} without a logo`)}
       </div>
-      <div class="row cols-2">
+      <div class="row cols-3">
         <div class="card"><div class="eyebrow">Needs attention</div>
           ${todo.length ? `<div class="toolbar">${todo.join('')}</div>` : '<p class="muted" style="margin:0;">Nothing waiting. Reports, app errors and missing logos show up here.</p>'}
+        </div>
+        <div class="card"><div class="eyebrow">System status</div>
+          <div class="toolbar"><span class="pill live"><span class="live-dot"></span> Server ${escapeHtml(SYS.version || 'online')}</span>
+            <span class="pill">${SYS.time ? 'Checked ' + escapeHtml(fmtWhen(SYS.time)) : ''}</span></div>
+          <p class="muted" style="margin:10px 0 0;font-size:13px;">Logo lookups, sessions and the database are served by this server. See BACKEND.md for configuration.</p>
         </div>
         <div class="card"><div class="eyebrow">Plan waitlist</div>
           <p class="muted" style="margin:0 0 12px;font-size:13px;">Members who asked to be emailed when a paid plan launches.</p>
@@ -1653,6 +1706,7 @@ document.querySelectorAll('[data-icon]').forEach(el=>{
   const server = await detectServer();
   MODE = server ? 'server' : 'local';
   document.body.setAttribute('data-mode', MODE);
+  if(PREVIEW) document.body.insertAdjacentHTML('afterbegin', '<div role="note" style="position:sticky;top:0;z-index:200;text-align:center;padding:8px 12px;font-size:12.5px;font-weight:700;background:linear-gradient(90deg,#9D7CFF,#F08BC4);color:#fff">Admin portal preview · example data only, not connected to a server</div>');
   document.getElementById('lockBtn').lastChild.textContent = server ? 'Sign out' : 'Lock portal';
   if(!server){
     gateMsg('Enter your team key.');

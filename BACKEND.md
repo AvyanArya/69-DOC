@@ -200,6 +200,12 @@ found, the app shows the company's initial, and an admin can set the domain
 in the portal. All keys are optional; the free icon services work without
 any.
 
+Without the server (static hosting or the offline file), the browser falls
+back on its own: it maps the name to a domain from a built-in list of common
+services (`KNOWN_DOMAINS` in `Lumera.html`) or a single distinctive word plus
+`.com`, then loads that domain's icon from Google's or DuckDuckGo's public
+icon service. No key is involved, and generic names still get a monogram.
+
 Outbound hosts the server may call: `api.logo.dev`, `img.logo.dev`,
 `api.brandfetch.io`, `icons.duckduckgo.com`, `www.google.com`. Set
 `LOGO_LOOKUPS=false` to turn this off.
@@ -261,6 +267,15 @@ Steps:
 Run a single instance: SQLite and the in-memory rate limits are per
 process.
 
+## 10b. Retired pages
+
+Earlier versions of Lumera (`launch.html`, `hero.html`, `font-options.html`,
+`font-preview.html`, `character-preview.html`, `landing.html`) are deleted.
+Their URLs answer `301 → /` from the server (`LEGACY` in `server/app.js`) and
+from `vercel.json`. The app has no landing page of its own: `app.html#/`
+sends you to the dashboard or to Log In, and leaving the app goes to the
+site's landing page.
+
 ## 11. Build and test
 
 ```bash
@@ -291,8 +306,15 @@ What the build does:
 - `sync-public.sh` copies the sources and `assets/` into `public/` (and runs
   `build-app.py`).
 
+`previews/` holds one page per interface (site, dashboard, Financial Twin,
+community, admin, questionnaire, subscriptions, style showcase). Each frames
+the built page: app screens open in the demo account (`app.html?preview=demo`)
+and the admin preview runs the real portal on example data
+(`admin-portal.html?preview=1`), with no server calls. Serve `public/` and open
+`/previews/`.
+
 `ui-styles.html` is a component showcase (Brutalism, Neumorphism,
-Glassmorphism and Spatial UI). It is copied to `public/` but not linked from
+Glassmorphism and Liquid Glass). It is copied to `public/` but not linked from
 the site.
 
 ## 12. Before launch
