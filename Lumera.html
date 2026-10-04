@@ -82,11 +82,10 @@
       var site = window.__LUMERA_SITE;
       // Spatial is the house design language, matching the landing page.
       // Classic keeps the original warm-paper look for anyone who prefers it.
-      var skin = localStorage.getItem('lumera_skin') || 'glass';
-      if(skin==='nova'||skin==='glass'){ skin='glass'; localStorage.setItem('lumera_skin','glass'); }
+      var skin = 'glass';
       document.documentElement.setAttribute('data-skin', skin);
       if(skin==='glass'){ dark = true; document.documentElement.setAttribute('data-theme','dark'); }
-      var mode = (site && site!=='lumera') ? 'spark' : (localStorage.getItem('lumera_mode') || 'spark');
+      var mode = 'spark';
       document.documentElement.setAttribute('data-mode', mode==='spark'?'spark':'classic');
       if(site) document.documentElement.setAttribute('data-product', site);
     }catch(e){ document.documentElement.setAttribute('data-theme','light'); }
@@ -416,7 +415,7 @@
     --charcoal:#F2F1F8; --muted:#B8B5CA; --sage:#6EE7A0; --clay:#FBA976;
 
     /* materials */
-    --lg-ground:#0E0D14;
+    --lg-ground:#16122C;
     --lg-panel:linear-gradient(180deg, rgba(255,255,255,.062), rgba(255,255,255,.030)), rgba(20,19,30,.58);
     --lg-glass:rgba(26,24,38,.66);
     --lg-glass-strong:rgba(22,21,33,.90);
@@ -598,13 +597,12 @@
   .demo-banner-cta{ margin-left:4px; font-weight:700; font-size:10px; padding:1px 7px; border-radius:999px; background:rgba(255,255,255,.12); }
   .demo-banner-cta:hover{ background:rgba(255,255,255,.2); }
   /* ---- header search bar ---- */
-  .lg-searchbar{ display:flex; align-items:center; gap:10px; width:100%; max-width:440px; height:40px; padding:0 12px 0 14px; border-radius:999px;
-    color:rgb(var(--c-muted)); font-size:13px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12);
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.08); transition:background .2s ease, border-color .2s ease; }
-  .lg-searchbar:hover{ background:rgba(255,255,255,.11); border-color:rgba(255,255,255,.2); color:rgb(var(--c-charcoal)); }
-  .lg-searchbar-text{ flex:1; text-align:left; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .lg-searchbar-kbd{ font:600 10.5px/1 'Manrope',sans-serif; padding:4px 6px; border-radius:6px; background:rgba(255,255,255,.08); color:rgb(var(--c-faint)); }
-  @media (max-width:640px){ .lg-searchbar{ width:40px; padding:0; justify-content:center; } .lg-searchbar-text,.lg-searchbar-kbd{ display:none; } }
+  .lg-searchicon{ display:flex; align-items:center; gap:0; height:40px; width:40px; padding:0 11px; border-radius:999px; overflow:hidden; white-space:nowrap;
+    color:rgb(var(--c-charcoal)); background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12); transition:width .3s cubic-bezier(.22,1,.36,1), background .2s ease; }
+  .lg-searchicon svg{ flex-shrink:0; }
+  .lg-searchicon-text{ font-size:13px; color:rgb(var(--c-muted)); opacity:0; margin-left:8px; transition:opacity .2s ease; }
+  .lg-searchicon:hover, .lg-searchicon:focus-visible{ width:190px; background:rgba(255,255,255,.12); }
+  .lg-searchicon:hover .lg-searchicon-text, .lg-searchicon:focus-visible .lg-searchicon-text{ opacity:1; }
 
   /* ---- worlds: each one is washed in its own colour ---- */
   html[data-skin="glass"][data-product]:not([data-product="lumera"]) .atmo{
@@ -639,12 +637,13 @@
   /* ---- the ground: volumetric light that drifts very slowly ---- */
   html[data-skin="glass"] .atmo{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;
     background:
-      radial-gradient(1200px 820px at 10% -14%, rgba(var(--glow,157,124,255),.34), transparent 62%),
-      radial-gradient(980px 760px at 104% 18%, rgba(236,72,153,.18), transparent 64%),
-      radial-gradient(1100px 760px at 46% 124%, rgba(235,199,122,.16), transparent 62%),
-      radial-gradient(900px 700px at -6% 80%, rgba(45,212,191,.12), transparent 60%),
+      radial-gradient(1200px 820px at 10% -14%, rgba(var(--glow,157,124,255),.55), transparent 62%),
+      radial-gradient(980px 760px at 104% 18%, rgba(236,72,153,.32), transparent 64%),
+      radial-gradient(1100px 760px at 46% 124%, rgba(251,191,36,.24), transparent 62%),
+      radial-gradient(900px 700px at -6% 80%, rgba(45,212,191,.22), transparent 60%),
+      radial-gradient(700px 500px at 70% 55%, rgba(99,102,241,.16), transparent 60%),
       var(--lg-ground); }
-  html[data-skin="glass"] .atmo .aurora{ position:absolute; border-radius:50%; filter:blur(90px); opacity:.42; will-change:transform; }
+  html[data-skin="glass"] .atmo .aurora{ position:absolute; border-radius:50%; filter:blur(90px); opacity:.6; will-change:transform; }
   html[data-skin="glass"] .atmo .a1{ width:42vw; height:42vw; min-width:380px; min-height:380px; top:-16vw; left:-10vw;
     background:radial-gradient(circle, rgba(var(--glow,157,124,255),.9), transparent 66%); animation:lg-drift-a 70s ease-in-out infinite alternate; }
   html[data-skin="glass"] .atmo .a2{ width:36vw; height:36vw; min-width:340px; min-height:340px; top:30vh; right:-14vw;
@@ -662,15 +661,13 @@
   html[data-skin="glass"] :is(aside,header,main,nav):not(.lg-dock){ position:relative; z-index:1; }
 
   /* ---- shell: floating sidebar, floating top bar, dock ---- */
-  /* The sidebar runs the full length of the page and lists every feature;
-     nothing is cut off at the bottom of the window. */
+  /* The sidebar fills the window and stays put; its menu scrolls, so every
+     feature is reachable and the actions always sit at the bottom. */
   html[data-skin="glass"] .lg-sidebar{
-    position:relative; top:auto; height:auto !important; min-height:calc(100vh - 28px); align-self:stretch;
-    margin:14px 0 14px 14px; border-radius:28px; overflow:visible;
+    position:sticky; top:14px; height:calc(100vh - 28px); margin:14px 0 14px 14px; border-radius:28px; overflow:hidden;
   }
-  html[data-skin="glass"] .lg-sidebar nav{ overflow:visible !important; flex:none !important; }
-  html[data-skin="glass"] .lg-sidebar .sidebar-foot{ position:sticky; bottom:0; border-radius:0 0 28px 28px;
-    background:linear-gradient(180deg, transparent, rgba(22,21,33,.92) 22%); padding-top:22px; }
+  html[data-skin="glass"] .lg-sidebar nav{ flex:1 1 auto; min-height:0; overflow-y:auto; scrollbar-width:thin; }
+  html[data-skin="glass"] .lg-sidebar .sidebar-foot{ flex:none; border-top:1px solid rgba(255,255,255,.08); }
   html[data-skin="glass"] .lg-topbar{
     position:sticky; top:14px; z-index:30; margin:0 14px 0; border-radius:22px;
   }
@@ -2671,9 +2668,8 @@ function GlobalSearch(){
     }catch(e){ setVoiceErr('Voice search could not start.'); setListening(false); }
   };
   return <Fragment>
-    <button onClick={()=>setOpen(true)} aria-label="Search Lumera" title="Search (Ctrl+K)" className="lg-searchbar">
-      <Icon name="search" size={17}/><span className="lg-searchbar-text">Search tools, pages and topics</span>
-      <kbd className="lg-searchbar-kbd" aria-hidden="true">Ctrl K</kbd></button>
+    <button onClick={()=>setOpen(true)} aria-label="Search Lumera" title="Search (Ctrl+K)" className="lg-searchicon">
+      <Icon name="search" size={18}/><span className="lg-searchicon-text">Search Lumera</span></button>
     {open && ReactDOM.createPortal(<div className="fixed inset-0 z-[180] flex items-start justify-center p-4 pt-[12vh]">
       <div className="absolute inset-0" style={{background:'rgba(8,8,16,.6)',backdropFilter:'blur(4px)'}} onClick={()=>setOpen(false)}/>
       <div className="relative w-full max-w-xl lux-card !p-0 overflow-hidden anim-scaleIn">
@@ -2772,6 +2768,7 @@ function SyncStatus(){
     error:['bad','Not saved, retrying'], local:['off','Saved in this browser'] };
   const long={ saved:'Saved to your account', saving:'Saving to your account', offline:'You are offline. Changes will save when you reconnect.',
     error:'Could not save just now. Retrying.', local:'Not signed in to an account: your figures are saved in this browser only' };
+  if(st==='local') return null;   // nothing to report without an account
   const [cls,label]=map[st]||map.local;
   return <span className="hidden md:inline-flex lg-pill" role="status" title={long[st]||label}><span className={cx('lg-orb',cls)} aria-hidden="true"/>
     <span className="hidden 2xl:inline">{label}</span><span className="2xl:hidden sr-only">{long[st]||label}</span></span>;
@@ -2784,7 +2781,8 @@ function TopBar(){
       <button className="lg:hidden" onClick={()=>app.nav(app.user?'/dashboard':'/')} aria-label="Lumera home"><Logo size={16}/></button>
       {/* Search sits in the middle; language and currency live up here, where
           people look for them, rather than in a page switcher. */}
-      <div className="flex-1 flex justify-center min-w-0"><GlobalSearch/></div>
+      <GlobalSearch/>
+      <div className="flex-1"/>
       <span className="hidden md:inline-flex"><LanguageSwitcher compact/></span>
       <CurrencySwitcher/>
       <SyncStatus/>
@@ -2840,6 +2838,50 @@ function Atmosphere(){
 }
 
 /* The demo account runs on an invented example person. Every page says so. */
+/* Your data as a readable report: summary, spending, balances, goals and
+   subscriptions, styled for the screen and for printing to PDF. The complete
+   data is kept at the end in machine-readable form, so the export stays
+   portable. */
+function lumeraReport(d, m, fmt){
+  const e=(v)=>String(v==null?'':v).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const money=(v)=>e(fmt.money(Number(v)||0));
+  const name=(d.account&&d.account.name)||(d.profile&&d.profile.name)||'You';
+  const st=d.state||d; const exp=st.expenses||d.expenses||{}; const bal=st.balances||d.balances||{};
+  const goals=st.goals||d.goals||[]; const subs=st.subs||d.subs||[];
+  const rows=ITEMS.filter(i=>i.kind!=='income' && Number(exp[i.id])>0).map(i=>[i.label, Number(exp[i.id])]).sort((a,b)=>b[1]-a[1]);
+  const spend=rows.reduce((t,r)=>t+r[1],0), max=Math.max(1,...rows.map(r=>r[1]));
+  const tile=(l,v,c)=>`<div class="tile" style="--c:${c}"><div class="l">${e(l)}</div><div class="v">${v}</div></div>`;
+  const posts=(d.posts||[]).map(p=>`<li><b>${e(p.tag)}</b> · ${e(new Date(p.created_at).toLocaleDateString())}<br>${e(p.body)}</li>`).join('');
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lumera report · ${e(name)}</title><style>
+*{box-sizing:border-box} body{margin:0;font-family:Manrope,system-ui,-apple-system,sans-serif;color:#1d1b2b;background:#f6f4fb}
+.page{max-width:860px;margin:0 auto;padding:40px 28px 60px}
+header{border-radius:24px;padding:28px;color:#fff;background:linear-gradient(135deg,#7C3AED,#4F46E5 55%,#0D9488)}
+header h1{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:40px;margin:6px 0 4px} header p{margin:0;opacity:.85}
+.kicker{font-size:11px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;opacity:.9}
+h2{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:26px;margin:34px 0 12px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:20px}
+.tile{background:#fff;border-radius:16px;padding:14px 16px;border-top:4px solid var(--c);box-shadow:0 6px 20px -12px rgba(30,20,80,.35)}
+.tile .l{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#6b6880}.tile .v{font-size:24px;font-weight:700;margin-top:4px}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 6px 20px -12px rgba(30,20,80,.3)}
+td,th{padding:10px 14px;text-align:left;font-size:14px;border-bottom:1px solid #eeeaf6} th{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#6b6880;background:#faf8ff}
+td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap} .bar{height:8px;border-radius:9px;background:linear-gradient(90deg,#8B5CF6,#EC4899)}
+ul{padding-left:18px} li{margin:6px 0;line-height:1.5} .muted{color:#6b6880;font-size:13px}
+details{margin-top:36px;background:#fff;border-radius:16px;padding:14px 18px} pre{white-space:pre-wrap;font-size:11.5px;color:#444}
+@media print{body{background:#fff}.page{padding:0}details{display:none}header{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style></head><body><div class="page">
+<header><div class="kicker">Lumera · your report</div><h1>${e(name)}</h1><p>Generated ${e(new Date().toLocaleString())}${d.account&&d.account.email?' · '+e(d.account.email):''}</p></header>
+<div class="tiles">${tile('Health score', m && m.income>1 ? e(m.overall)+'/100' : '–', '#8B5CF6')}${tile('Monthly income', money(exp.incomeNet), '#22C55E')}${tile('Monthly spending', money(spend), '#EC4899')}${tile('Savings rate', m ? Math.round(m.savingsRate*100)+'%' : '–', '#F59E0B')}${tile('Safety net', m ? e(m.efMonths.toFixed(1))+' months' : '–', '#3B82F6')}</div>
+<h2>Where your money goes</h2>${rows.length?`<table><tr><th>Category</th><th></th><th class="n">Per month</th></tr>${rows.map(([l,v])=>`<tr><td>${e(l)}</td><td style="width:40%"><div class="bar" style="width:${Math.max(4,v/max*100)}%"></div></td><td class="n">${money(v)}</td></tr>`).join('')}</table>`:'<p class="muted">No spending figures saved yet.</p>'}
+<h2>Balances</h2><table><tr><th>Account</th><th class="n">Balance</th></tr>${[['Emergency fund',bal.emergencyFund],['Cash savings',bal.cashSavings],['Investments',bal.investmentsBal]].map(([l,v])=>`<tr><td>${l}</td><td class="n">${money(v)}</td></tr>`).join('')}</table>
+<h2>Goals</h2>${goals.length?`<table><tr><th>Goal</th><th class="n">Saved</th><th class="n">Target</th><th class="n">By</th></tr>${goals.map(g=>`<tr><td>${e(g.name)}</td><td class="n">${money(g.current)}</td><td class="n">${money(g.target)}</td><td class="n">${e(g.deadline||'')}</td></tr>`).join('')}</table>`:'<p class="muted">No goals yet.</p>'}
+<h2>Subscriptions</h2>${subs.length?`<table><tr><th>Service</th><th>Used</th><th>Decision</th><th class="n">Per month</th></tr>${subs.map(x=>`<tr><td>${e(x.name)}</td><td>${e(x.freq||'')}</td><td>${e(x.verdict||'')}</td><td class="n">${money(x.cost)}</td></tr>`).join('')}</table>`:'<p class="muted">No subscriptions yet.</p>'}
+${posts?`<h2>Your community posts</h2><ul>${posts}</ul>`:''}
+<p class="muted" style="margin-top:30px">Educational guidance only, not financial advice. To save as a PDF, use your browser’s Print option.</p>
+<details><summary>Complete data (machine-readable)</summary><pre>${e(JSON.stringify(d,null,2))}</pre></details>
+</div></body></html>`;
+}
+
 function DemoBanner(){
   const app=useApp(); if(!isDemo(app)) return null;
   return <div className="demo-banner" role="note">
@@ -3096,7 +3138,7 @@ function Review(){
     <header className="px-4 sm:px-6 h-16 flex items-center gap-3 border-b border-line glass sticky top-0 z-20">
       <button onClick={()=>logoHome(app)} aria-label="Lumera home"><Logo size={18}/></button>
       <span className="hidden sm:block text-sm text-muted ml-2">Monthly Expense Review</span>
-      <div className="flex-1"/><RegionSwitcher/>
+      <div className="flex-1"/><LanguageSwitcher compact/><CurrencySwitcher/>
       {!app.onboarded && <button onClick={finish} className="text-sm text-muted hover:text-charcoal">{t('skip')} →</button>}
     </header>
     <div className="h-1 bg-sand"><div className="h-full bg-gradient-to-r from-gold to-goldd transition-all duration-500" style={{width:progress+'%'}}/></div>
@@ -3107,25 +3149,39 @@ function Review(){
         </div>
         <div key={step} className="anim-fadeUp">
           {cur.type==='intro' && <>
-            <Eyebrow className="mb-2">Monthly Expense Review</Eyebrow>
-            <h1 className="font-serif text-3xl sm:text-4xl text-charcoal">What to have ready.</h1>
-            <p className="text-muted mt-2 max-w-xl">Made for when money is coming in, from a job, an allowance or side work. Rough monthly figures are fine.</p>
-            {[['Money in', [['wallet','Income','Take-home pay']]],
-              ['Money out', [['home','Housing','Rent or mortgage'],['cart','Food','Groceries, eating out'],['bus','Transport','Fuel, fares'],
-                ['tv','Bills','Utilities, subscriptions'],['gift','Lifestyle','Shopping, fun'],['credit','Debt','Cards, loans, BNPL']]],
-              ['Set aside', [['chart','Saving','Savings, investing']]]].map(([group, items])=>
+            <div className="relative overflow-hidden rounded-[26px] p-6 sm:p-7 mb-6" style={{background:'radial-gradient(90% 120% at 0% 0%, rgba(157,124,255,.55), transparent 60%), radial-gradient(80% 100% at 100% 100%, rgba(236,72,153,.35), transparent 60%), linear-gradient(160deg, rgba(255,255,255,.10), rgba(255,255,255,.03))', boxShadow:'inset 0 1px 0 rgba(255,255,255,.2), inset 0 0 0 1px rgba(255,255,255,.12)'}}>
+              <span className="absolute right-3 -bottom-2 hidden sm:block" aria-hidden="true"><Mascot kind="lumera" color="#9D7CFF" size={120} float={false}/></span>
+              <div className="relative sm:pr-32">
+                <div className="text-[11px] font-bold uppercase tracking-[.22em]" style={{color:'#F5D78A'}}>Monthly Expense Review</div>
+                <h1 className="font-serif text-3xl sm:text-4xl text-charcoal mt-1">What to have ready.</h1>
+                <p className="text-charcoal/85 mt-2 max-w-md">For when money is coming in, from a job, an allowance or side work. Rough monthly figures are fine.</p>
+              </div>
+            </div>
+            {/* Do the review in your language and currency */}
+            <div className="grid sm:grid-cols-2 gap-3 mb-2">
+              <label className="block"><span className="text-xs font-semibold text-muted mb-1.5 block">Language for this review</span>
+                <select value={app.lang} onChange={e=>app.setLang(e.target.value)} className="w-full rounded-xl border border-line bg-cream px-3 py-2.5 text-sm focus:border-gold focus:outline-none">
+                  {LANGS.map(l=><option key={l.code} value={l.code}>{l.native} · {l.label}</option>)}</select></label>
+              <label className="block"><span className="text-xs font-semibold text-muted mb-1.5 block">Currency for your figures</span>
+                <select value={app.profile.currency} onChange={e=>app.updateProfile({currency:e.target.value})} className="w-full rounded-xl border border-line bg-cream px-3 py-2.5 text-sm focus:border-gold focus:outline-none">
+                  {Object.values(CURRENCIES).map(c=><option key={c.code} value={c.code}>{c.flag} {c.code} · {c.name}</option>)}</select></label>
+            </div>
+            {[['Money in', [['wallet','Income','Take-home pay','#22C55E']]],
+              ['Money out', [['home','Housing','Rent or mortgage','#3B82F6'],['cart','Food','Groceries, eating out','#F97316'],['bus','Transport','Fuel, fares','#06B6D4'],
+                ['tv','Bills','Utilities, subscriptions','#8B5CF6'],['gift','Lifestyle','Shopping, fun','#EC4899'],['credit','Debt','Cards, loans, BNPL','#EF4444']]],
+              ['Set aside', [['chart','Saving','Savings, investing','#EAB308']]]].map(([group, items])=>
               <section key={group} className="mt-6">
                 <h2 className="text-[11px] font-semibold uppercase tracking-[.18em] text-faint mb-2.5">{group}</h2>
                 <div className="ready-grid">
-                  {items.map(([ic,ttl,hint])=><div key={ttl} className="ready-tile">
-                    <span className="ready-ic" aria-hidden="true"><Icon name={ic} size={18}/></span>
+                  {items.map(([ic,ttl,hint,col])=><div key={ttl} className="ready-tile" style={{background:`linear-gradient(150deg, ${col}33, ${col}0D 70%)`, borderColor:col+'55'}}>
+                    <span className="ready-ic" aria-hidden="true" style={{background:`linear-gradient(140deg, ${col}, ${col}AA)`, boxShadow:`0 8px 18px -8px ${col}`}}><Icon name={ic} size={18}/></span>
                     <span className="min-w-0"><span className="block text-sm font-semibold text-charcoal">{ttl}</span>
-                      <span className="block text-xs text-muted truncate">{hint}</span></span></div>)}
+                      <span className="block text-xs text-charcoal/70 truncate">{hint}</span></span></div>)}
                 </div>
               </section>)}
             <div className="mt-6 flex flex-wrap gap-2">
-              {[['bulb','Last month’s statement helps'],['clock','About five minutes'],['refresh','Edit any time']].map(([ic,l])=>
-                <span key={l} className="inline-flex items-center gap-1.5 rounded-full border border-line bg-cream/60 px-3 py-1.5 text-xs text-charcoal/85"><Icon name={ic} size={13} className="text-goldd"/>{l}</span>)}
+              {[['bulb','Last month’s statement helps','#F5D78A'],['clock','About five minutes','#7CB4FF'],['refresh','Edit any time','#86EFAC']].map(([ic,l,c])=>
+                <span key={l} className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-charcoal/90" style={{background:c+'1F', border:`1px solid ${c}55`}}><Icon name={ic} size={13} style={{color:c}}/>{l}</span>)}
             </div>
           </>}
           {cur.type==='group' && <>
@@ -3983,15 +4039,14 @@ function Dashboard(){
     <section aria-labelledby="ws-title" className="lg-workspace lux-card !p-5 sm:!p-7 mb-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2.5"><span className="lg-orb" aria-hidden="true"/>
-          <span className="text-[11px] tracking-[.22em] uppercase font-semibold text-muted">Active workspace</span></div>
+          <span className="text-[11px] tracking-[.22em] uppercase font-semibold text-muted">Active workspace</span>
+          <button onClick={()=>app.nav('/review')} className="btn btn-ghost px-3 py-1.5 text-xs ml-2"><Icon name="refresh" size={13}/>Update my figures</button>
+          <button onClick={()=>app.nav('/twin')} className="btn btn-ghost px-3 py-1.5 text-xs"><Icon name="user" size={13}/>Financial Twin</button></div>
         <div className="flex flex-wrap items-center gap-2">
           <span className="lg-pill"><span className={cx('lg-orb', !updated||stale?'warn':'')} aria-hidden="true"/>{updatedLabel}</span>
           {app.mode==='spark' && <span className="lg-pill tint" title={`${lvlNext-(app.xp||0)} XP to level ${lvl+1}`}>Level {lvl}
             <span className="inline-block w-14 h-1.5 rounded-full overflow-hidden bg-white/15" aria-hidden="true"><span className="block h-full rounded-full bg-white" style={{width:Math.max(6,lvlPct)+'%'}}/></span>
             <span className="tnum text-muted">{app.xp||0} XP</span></span>}
-          {/* utility actions: small, in the corner, out of the way of the figures */}
-          <button onClick={()=>app.nav('/review')} className="btn btn-ghost px-3 py-1.5 text-xs"><Icon name="refresh" size={13}/>Update my figures</button>
-          <button onClick={()=>app.nav('/twin')} className="btn btn-ghost px-3 py-1.5 text-xs"><Icon name="user" size={13}/>Financial Twin</button>
         </div>
       </div>
       <div className="grid lg:grid-cols-[1.1fr_1fr] gap-6 lg:gap-8 mt-5 items-end">
@@ -5474,12 +5529,13 @@ function Subscriptions(){
     </Card>}
     {/* Each subscription leads with the company, then the plan and the cost.
         The logo is a compact tile beside the name, not the whole card. */}
-    <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-3 stagger">
+    {/* Centred rows: a last row with fewer cards sits in the middle. */}
+    <div className="flex flex-wrap justify-center gap-3 stagger">
       {subs.map(s=>{
         const dead = s.freq==='Never'||s.freq==='Rarely';
         const hue = s.verdict==='cancelled' ? '#E0505A' : s.verdict==='paused' ? '#6E86A0'
                   : dead ? '#D97706' : '#16A34A';
-        return <div key={s.id} className="lux-card lift !p-0 overflow-hidden flex flex-col" style={{'--glow':hexToRgbList(hue)}}>
+        return <div key={s.id} className="lux-card lift !p-0 overflow-hidden flex flex-col w-full sm:w-[calc(50%-6px)] xl:w-[calc(33.333%-8px)]" style={{'--glow':hexToRgbList(hue)}}>
           <button onClick={()=>setOpenSub(s.id)} className="text-left w-full flex items-center gap-3 px-4 pt-4 pb-3" aria-label={`${s.name}, details`}>
             <CompanyLogo name={s.name} domain={s.domain} size={44} hue={hue}/>
             <span className="min-w-0 flex-1">
@@ -6084,12 +6140,18 @@ function Settings(){
   const app = useApp(); const { t } = app;
   const [notif,setNotif]=useState({weekly:true,leaks:true,market:false,goals:true});
   const [autoMT,setAutoMTState]=useState(_autoMT);
-  const Toggle=({on,onClick})=> <button onClick={onClick} className={cx('relative h-6 w-11 rounded-full transition', on?'bg-saged':'bg-stone')}><span className={cx('absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all', on?'left-[22px]':'left-0.5')}/></button>;
+  const Toggle=({on,onClick,label})=> <button role="switch" aria-checked={!!on} aria-label={label} onClick={onClick}
+    className="relative h-7 w-12 rounded-full transition-all shrink-0"
+    style={{background:on?'linear-gradient(120deg,#22C55E,#10B981)':'rgba(255,255,255,.16)', boxShadow:on?'0 0 0 1px rgba(255,255,255,.2), 0 6px 16px -6px rgba(16,185,129,.8)':'inset 0 0 0 1.5px rgba(255,255,255,.28)'}}>
+    <span className="absolute top-1 h-5 w-5 rounded-full bg-white transition-all" style={{left:on?'26px':'4px', boxShadow:'0 2px 6px rgba(0,0,0,.45)'}}/></button>;
+  const Head=({icon,color,title,desc})=> <div className="flex items-center gap-3 mb-4">
+    <span className="grid place-items-center h-10 w-10 rounded-xl text-white shrink-0" style={{background:`linear-gradient(140deg, ${color}, ${color}AA)`, boxShadow:`0 8px 20px -8px ${color}`}}><Icon name={icon} size={18}/></span>
+    <span><span className="block text-[15px] font-semibold text-charcoal">{title}</span>{desc && <span className="block text-xs text-muted">{desc}</span>}</span></div>;
   return <AppShell>
-    <PageHead eyebrow="Settings" title="Make Lumera yours."/>
+    <PageHead eyebrow="Settings" title="Make Lumera yours." desc="Your profile, language, currency, reminders and data, in one place."/>
     <div className="grid lg:grid-cols-3 gap-4">
       <div className="lg:col-span-2 space-y-4">
-        <Card><Eyebrow className="mb-4">Profile</Eyebrow>
+        <Card><Head icon="user" color="#8B5CF6" title="Profile" desc="How Lumera addresses you"/>
           <div className="grid sm:grid-cols-2 gap-x-6 gap-y-4">
             <label className="block"><span className="text-sm text-charcoal/85 mb-1.5 block">Name</span><input value={app.profile.name} onChange={e=>app.updateProfile({name:e.target.value})} className="w-full rounded-xl border border-line bg-cream px-3 py-2.5 focus:border-gold focus:outline-none"/></label>
             <label className="block"><span className="text-sm text-charcoal/85 mb-1.5 block">City <span className="text-faint">(optional)</span></span><input name="city" autoComplete="address-level2" value={app.profile.city||''} onChange={e=>app.updateProfile({city:e.target.value})} className="w-full rounded-xl border border-line bg-cream px-3 py-2.5 focus:border-gold focus:outline-none"/></label>
@@ -6098,45 +6160,7 @@ function Settings(){
           </div>
         </Card>
 
-        <Card><Eyebrow className="mb-4">Appearance</Eyebrow>
-          <div className="mb-5 pb-5 border-b border-line">
-            <div className="text-sm font-medium text-charcoal mb-2">Design</div>
-            <div className="grid grid-cols-2 gap-2.5">
-              {[['glass','Spatial','Floating panels, soft volumetric light and glass. The house look.'],
-                ['classic','Classic','The original warm paper look, in light or dark.']].map(([val,label,desc])=>
-                <button key={val} onClick={()=>app.setSkin(val)}
-                  className={cx('text-left rounded-xl2 border px-4 py-3 transition', app.skin===val?'border-gold bg-gold/10':'border-line bg-cream hover:bg-sand')}>
-                  <div className="flex items-center gap-2"><span className="text-lg">{val==='glass'?'✧':'🕮'}</span><span className="text-sm font-semibold text-charcoal">{label}</span>{app.skin===val&&<Icon name="check" size={14} className="text-goldd ml-auto"/>}</div>
-                  <div className="text-[11px] text-muted mt-1 leading-relaxed">{desc}</div>
-                </button>)}
-            </div>
-            {app.skin==='glass' && <p className="text-[11px] text-faint mt-2">Spatial is a dark design language, so the light/dark switch below applies to Classic.</p>}
-          </div>
-          <p className="text-sm text-muted mb-3">Switch between light and dark, or follow your device automatically.</p>
-          <div className="grid grid-cols-3 gap-2.5">
-            {[['light','Light','sun'],['dark','Dark','moon'],['system','System','gauge']].map(([val,label,icon])=>
-              <button key={val} onClick={()=>app.setTheme(val)}
-                className={cx('flex flex-col items-center gap-2 rounded-xl2 border px-3 py-4 transition', app.theme===val?'border-gold bg-gold/10':'border-line bg-cream hover:bg-sand')}>
-                <span className={cx('grid place-items-center h-9 w-9 rounded-xl', app.theme===val?'bg-charcoal text-gold':'bg-sand text-goldd')}><Icon name={icon} size={18}/></span>
-                <span className="text-sm font-medium text-charcoal">{label}</span>
-                {app.theme===val&&<Icon name="check" size={14} className="text-goldd"/>}
-              </button>)}
-          </div>
-          <div className="mt-4 pt-4 border-t border-line">
-            <div className="text-sm font-medium text-charcoal mb-2">Experience</div>
-            <div className="grid grid-cols-2 gap-2.5">
-              {[['classic','Classic','The original light look.'],['spark','Spark','Dark “Nebula” theme + gamification.']].map(([val,label,desc])=>
-                <button key={val} onClick={()=>app.setMode(val)}
-                  className={cx('text-left rounded-xl2 border px-4 py-3 transition', app.mode===val?'border-gold bg-gold/10':'border-line bg-cream hover:bg-sand')}>
-                  <div className="flex items-center gap-2"><span className="text-lg">{val==='spark'?'✦':'🪶'}</span><span className="text-sm font-semibold text-charcoal">{label}</span>{app.mode===val&&<Icon name="check" size={14} className="text-goldd ml-auto"/>}</div>
-                  <div className="text-[11px] text-muted mt-1 leading-relaxed">{desc}</div>
-                </button>)}
-            </div>
-            <p className="text-[11px] text-faint mt-2">Spark is a dark purple/blue theme with daily quests, XP and the Lumera Group product family, same tools and layout. Switch back anytime.</p>
-          </div>
-        </Card>
-
-        <Card><Eyebrow className="mb-4">{t('langName')} · multilingual</Eyebrow>
+        <Card><Head icon="globe" color="#3B82F6" title="Language" desc="Seven languages, including right-to-left"/>
           <p className="text-sm text-muted mb-3">Lumera is built for a global audience. Choose your language, Arabic switches the entire interface to right-to-left.</p>
           <div className="grid sm:grid-cols-2 gap-2.5">
             {LANGS.map(l=><button key={l.code} onClick={()=>app.setLang(l.code)} className={cx('flex items-center justify-between rounded-xl2 border px-4 py-3 transition', app.lang===l.code?'border-gold bg-gold/8':'border-line bg-cream hover:bg-sand')}>
@@ -6146,12 +6170,12 @@ function Settings(){
           <div className="mt-4 pt-3 border-t border-line flex items-start justify-between gap-3">
             <div><div className="text-sm font-medium text-charcoal">Auto-translate everything</div>
               <div className="text-[11px] text-faint leading-relaxed mt-0.5">Also translates dynamic text (AI replies, insights) via an online service (MyMemory / Google), cached locally for offline use. <b>On-screen text, which may include your financial figures, is sent to that service.</b> Turn off for zero external calls.</div></div>
-            <Toggle on={autoMT} onClick={()=>{ const v=!autoMT; setAutoMT(v); setAutoMTState(v); }}/>
+            <Toggle label="Auto-translate everything" on={autoMT} onClick={()=>{ const v=!autoMT; setAutoMT(v); setAutoMTState(v); }}/>
           </div>
           <p className="text-[11px] text-faint mt-2">Static interface uses a built-in dictionary (instant); the rest uses live translation when enabled.</p>
         </Card>
 
-        <Card><Eyebrow className="mb-4">Region & currency</Eyebrow>
+        <Card><Head icon="wallet" color="#F59E0B" title="Region & currency" desc="Benchmarks and every amount you see"/>
           <div className="grid gap-2.5">
             {Object.entries(REGIONS).map(([k,r])=><button key={k} onClick={()=>app.setRegion(k)} className={cx('flex items-center gap-3 rounded-xl2 border px-4 py-3 transition', app.profile.region===k?'border-gold bg-gold/8':'border-line bg-cream hover:bg-sand')}>
               <span className="text-2xl">{r.flag}</span><span className="flex-1 text-left"><span className="font-medium text-charcoal">{r.name}</span><span className="text-xs text-faint block">Benchmarks for this region</span></span>
@@ -6163,9 +6187,9 @@ function Settings(){
             <span className="text-[11px] text-faint mt-1 block">Applies across every amount: dashboard, budget, debt, investing, goals and reports.</span></label>
         </Card>
 
-        <Card><Eyebrow className="mb-4">Notifications</Eyebrow>
+        <Card><Head icon="bell" color="#10B981" title="Notifications" desc="What Lumera reminds you about"/>
           <div className="space-y-3">{[['weekly','Weekly financial digest'],['leaks','Money-leak alerts'],['market','Market brief'],['goals','Goal milestones'],['subs','Subscription renewal reminders'],['learn','Learning reminders']].map(([k,lab])=>
-            <div key={k} className="flex items-center justify-between"><span className="text-sm text-charcoal/85">{lab}</span><Toggle on={notif[k]} onClick={()=>setNotif(n=>({...n,[k]:!n[k]}))}/></div>)}</div>
+            <div key={k} className="flex items-center justify-between"><span className="text-sm text-charcoal/85">{lab}</span><Toggle label={lab} on={notif[k]} onClick={()=>setNotif(n=>({...n,[k]:!n[k]}))}/></div>)}</div>
           <div className="mt-4 pt-3 border-t border-line">
             <button onClick={()=>{ if(typeof Notification==='undefined') return; Notification.requestPermission().then(perm=>{ if(perm==='granted'){ try{ new Notification('Lumera notifications enabled',{body:'You’ll get reminders for renewals, goals and check-ins.'}); }catch(e){} } setNotif(n=>({...n,_perm:perm})); }); }} className="btn btn-ghost w-full px-4 py-2.5 text-sm justify-start"><Icon name="bell" size={15}/>Enable browser notifications</button>
             <p className="text-[11px] text-faint mt-2 leading-relaxed">{typeof Notification==='undefined'?'Notifications aren’t supported in this browser.':Notification.permission==='granted'?'Enabled, reminders for renewals, goals and check-ins are active.':Notification.permission==='denied'?'Blocked in your browser settings, re-enable there to receive reminders.':'Allow reminders for subscription renewals, goal milestones, market alerts and learning streaks.'}</p>
@@ -6174,8 +6198,8 @@ function Settings(){
       </div>
 
       <div className="space-y-4">
-        <Card hover={false} className="text-center">
-          <div className="mx-auto grid place-items-center h-20 w-20 rounded-full bg-gradient-to-br from-gold to-goldd text-cream font-serif text-3xl">{app.profile.name[0]}</div>
+        <Card hover={false} className="text-center relative overflow-hidden" style={{background:'radial-gradient(120% 90% at 50% 0%, rgba(157,124,255,.45), transparent 60%), radial-gradient(90% 80% at 100% 100%, rgba(236,72,153,.25), transparent 60%)'}}>
+          <div className="mx-auto grid place-items-center h-20 w-20 rounded-full text-white font-serif text-3xl" style={{background:'linear-gradient(140deg,#8B5CF6,#EC4899)', boxShadow:'0 12px 30px -10px rgba(236,72,153,.7)'}}>{app.profile.name[0]}</div>
           <div className="font-serif text-xl text-charcoal mt-3">{app.profile.name}</div>
           <div className="text-sm text-muted">{[app.profile.city, (REGIONS[app.profile.region]||{}).name].filter(Boolean).join(' · ') || 'Region not set yet'}</div>
           <div className="flex items-center justify-center gap-2 mt-3"><Pill tone="gold"><Icon name="flame" size={12}/> {app.profile.streak}-day streak</Pill></div>
@@ -6185,11 +6209,11 @@ function Settings(){
             <span className="mx-auto grid place-items-center h-9 w-9 rounded-lg bg-gold/12 text-goldd mb-1"><Icon name={b.icon} size={17}/></span>
             <div className="text-[11px] font-medium text-charcoal leading-tight">{b.name}</div></div>)}</div>
         </Card>
-        <Card hover={false}><Eyebrow className="mb-3">Account & data</Eyebrow>
+        <Card hover={false}><Head icon="lock" color="#EC4899" title="Account & data"/>
           {app.user && <div className="rounded-xl bg-cream/60 border border-line p-3 mb-2 text-sm"><div className="text-charcoal font-medium">{app.user.name}</div><div className="text-xs text-faint">{app.user.email}{app.user.isAdmin&&' · admin'}</div></div>}
           <button onClick={()=>app.nav('/privacy')} className="btn btn-ghost w-full px-4 py-2.5 text-sm justify-start mb-2"><Icon name="lock" size={15}/>Privacy controls</button>
           <button onClick={()=>app.nav('/onboarding')} className="btn btn-ghost w-full px-4 py-2.5 text-sm justify-start mb-2"><Icon name="refresh" size={15}/>Change my answers</button>
-          <button onClick={()=>app.exportData().catch(e=>alert(e.message))} className="btn btn-ghost w-full px-4 py-2.5 text-sm justify-start mb-2"><Icon name="download" size={15}/>Export my data</button>
+          <button onClick={()=>app.exportData().catch(e=>alert(e.message))} className="btn btn-ghost w-full px-4 py-2.5 text-sm justify-start mb-2"><Icon name="download" size={15}/>Download my report</button>
           {app.user && <button onClick={()=>app.logout()} className="btn w-full px-4 py-2.5 text-sm justify-start border border-berry/40 text-berry hover:bg-berry/5"><Icon name="x" size={15}/>Log out</button>}
         </Card>
       </div>
@@ -6940,7 +6964,7 @@ function DailyCheckIn(){
     setTimeout(()=>dismiss(), 2600); };   // celebrate briefly, then get out of the way
 
   // Sits a clear step below the floating top bar rather than tucked against it.
-  return <div className={cx('fixed z-[125] right-3 sm:right-5 bottom-24 w-[min(92vw,330px)]',
+  return <div className={cx('fixed z-[125] right-3 sm:right-5 top-[5.5rem] w-[min(92vw,330px)]',
       leaving?'anim-slideOutR':'anim-slideIn')} role="status">
     <div className="lux-card !p-0 overflow-hidden shadow-lift">
       <div className="relative px-4 py-3 flex items-center gap-3 overflow-hidden"
@@ -10960,25 +10984,32 @@ function DemoCommunity(){
       <a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" className="ml-auto btn bg-white/15 hover:bg-white/25 text-white text-sm">Open LinkedIn <Icon name="arrowR" size={13} className="-rotate-45"/></a>
     </div>
     <div className="flex gap-2 mb-4 flex-wrap">{['Feed','Members','Opportunities'].map(t=><button key={t} onClick={()=>setTab(t)} className={cx('chip',tab===t&&'on')}>{t}</button>)}</div>
-    {tab==='Feed' && <div className="grid lg:grid-cols-3 gap-4">
-      <div className="lg:col-span-2 space-y-3">
+    {tab==='Feed' && <div>
+      {/* People first, as a scrolling row of colourful cards */}
+      <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2 mb-4 -mx-1 px-1">
+        {DEMO_MEMBERS.map(mem=>{ const on=connected.includes(mem.name); const h=avatarHue(mem.name);
+          return <div key={mem.name} className="shrink-0 w-[190px] rounded-2xl p-4 text-center" style={{background:`linear-gradient(160deg, ${h}55, ${h}14 70%)`, boxShadow:`inset 0 0 0 1px ${h}66`}}>
+            <div className="mx-auto w-fit"><Avatar name={mem.name} size={52}/></div>
+            <div className="mt-2 text-sm font-semibold text-charcoal truncate">{mem.name}</div>
+            <div className="text-[11px] text-charcoal/75 truncate">{mem.head}</div>
+            <button onClick={()=>toggleConn(mem.name)} className="mt-3 w-full rounded-full py-1.5 text-[12px] font-bold transition"
+              style={on?{background:'rgba(255,255,255,.18)',color:'#fff'}:{background:'#ffffff',color:'#1d1b2b',boxShadow:`0 6px 16px -6px ${h}`}}>{on?'✓ Connected':'Connect'}</button>
+          </div>; })}
+      </div>
+      <div className="flex flex-wrap gap-1.5 mb-5">{['Saving','FirstJob','Apprenticeships','Investing','Budgeting','Placements','Freelance','Economics'].map(t=>
+        <span key={t} className="text-[12px] font-semibold rounded-full px-3 py-1" style={{background:avatarHue(t)+'2E',color:avatarHue(t)}}>#{t}</span>)}</div>
+      <div className="max-w-2xl mx-auto space-y-3">
         <Card hover={false}><div className="flex items-center gap-3"><Avatar name="You"/>
           <div className="flex-1 rounded-xl border border-line bg-cream/60 px-3 py-2.5 text-sm text-faint">Posting and linking your LinkedIn needs an account</div>
           <Btn variant="gold" to="/signup">Create account</Btn></div></Card>
-        {DEMO_POSTS.map((p,i)=><Card key={i}><div className="flex gap-3"><Avatar name={p.name}/><div className="flex-1 min-w-0">
+        {DEMO_POSTS.map((p,i)=>{ const h=avatarHue(p.name); return <Card key={i} style={{boxShadow:`inset 3px 0 0 ${h}`}}><div className="flex gap-3"><Avatar name={p.name}/><div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap"><span className="font-semibold text-charcoal text-sm">{p.name}</span><Ex/><span className="text-xs text-faint">· {p.ago}</span>
-            <span className="ml-auto text-[11px] rounded-full px-2 py-0.5" style={{background:avatarHue(p.name)+'22',color:avatarHue(p.name)}}>{p.tag}</span></div>
+            <span className="ml-auto text-[11px] font-semibold rounded-full px-2.5 py-0.5" style={{background:h+'2E',color:h}}>{p.tag}</span></div>
           <div className="text-xs text-faint">{p.head}</div>
-          <p className="text-sm text-charcoal/85 mt-2 leading-relaxed">{p.text}</p>
+          <p className="text-[15px] text-charcoal/90 mt-2 leading-relaxed">{p.text}</p>
           <div className="flex items-center gap-4 mt-3 pt-3 border-t border-line">
             <button onClick={()=>setLiked(l=>l.includes(i)?l.filter(x=>x!==i):[...l,i])} aria-pressed={liked.includes(i)} className={cx('text-xs flex items-center gap-1',liked.includes(i)?'text-berry':'text-muted')}><Icon name="heart" size={13}/>{p.likes+(liked.includes(i)?1:0)}</button>
-          </div></div></div></Card>)}
-      </div>
-      <div className="space-y-4">
-        <Card hover={false}><Eyebrow className="mb-2">People to connect with</Eyebrow><div className="space-y-2.5">{DEMO_MEMBERS.slice(0,4).map(mem=>{ const on=connected.includes(mem.name);
-          return <div key={mem.name} className="flex items-center gap-2.5"><Avatar name={mem.name} size={34}/><div className="min-w-0 flex-1"><div className="text-sm font-medium text-charcoal truncate">{mem.name}</div><div className="text-[11px] text-faint truncate">{mem.head}</div></div>
-            <button onClick={()=>toggleConn(mem.name)} className={cx('text-[11px] font-semibold rounded-lg px-2.5 py-1 shrink-0',on?'bg-sage/12 text-saged':'btn-primary text-white')}>{on?'✓':'Connect'}</button></div>; })}</div></Card>
-        <Card hover={false}><Eyebrow className="mb-2">Trending tags</Eyebrow><div className="flex flex-wrap gap-1.5">{['Saving','FirstJob','Apprenticeships','Investing','Budgeting','Placements','Freelance','Economics'].map(t=><span key={t} className="text-[11px] rounded-full px-2.5 py-1" style={{background:avatarHue(t)+'1F',color:avatarHue(t)}}>#{t}</span>)}</div></Card>
+          </div></div></div></Card>; })}
       </div>
     </div>}
     {tab==='Members' && <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">{DEMO_MEMBERS.map(mem=>{ const on=connected.includes(mem.name);
@@ -11291,8 +11322,8 @@ function App(){
   const [dirtyTick,setDirtyTick] = useState(0);
   const [lang,setLang] = useState(persisted.lang||'en');
   const [theme,setThemeState] = useState(()=>{ try{ return localStorage.getItem('lumera_theme')||'dark'; }catch(e){ return 'dark'; } });
-  const [mode,setModeState] = useState(()=>{ try{ return localStorage.getItem('lumera_mode')||'spark'; }catch(e){ return 'spark'; } });
-  const [skin,setSkinState] = useState(()=>{ try{ const v=localStorage.getItem('lumera_skin')||'glass'; return (v==='nova'||v==='glass')?'glass':v; }catch(e){ return 'glass'; } });
+  const [mode,setModeState] = useState('spark');   // always the Spark experience
+  const [skin,setSkinState] = useState('glass');   // one design, no switch
   const setSkin = useCallback((v)=>{ setSkinState(v); try{ localStorage.setItem('lumera_skin', v); }catch(e){}
     document.documentElement.setAttribute('data-skin', v);
     // Spatial is a dark design language, so it carries the dark theme with it.
@@ -11368,8 +11399,8 @@ function App(){
     if(apiMode==='server' && user && !user.demo){ data=await API.get('/api/me/export'); }
     else { data={ exportedAt:new Date().toISOString(), account:user?{ name:user.name, email:user.email }:null, profile, expenses, balances, onboarded, lastUpdated };
       Object.entries(SYNCED).forEach(([k,key])=>{ const v=lsRead(key); if(v!=null) data[k]=v; }); }
-    const blob=new Blob([JSON.stringify(data,null,2)],{ type:'application/json' });
-    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='lumera-export.json';
+    const blob=new Blob([lumeraReport(data, metrics, fmt)],{ type:'text/html' });
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='lumera-report-'+new Date().toISOString().slice(0,10)+'.html';
     document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },800);
   };
   const deleteAccount=async(password)=>{

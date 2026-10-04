@@ -49,7 +49,13 @@
 html { scroll-behavior: smooth; }
 
 body {
-    background: hsl(var(--background));
+    background:
+        radial-gradient(1300px 900px at -5% 0%, rgba(139,92,246,.42), transparent 60%),
+        radial-gradient(1100px 800px at 105% 20%, rgba(236,72,153,.28), transparent 62%),
+        radial-gradient(1000px 800px at 30% 60%, rgba(45,212,191,.14), transparent 62%),
+        radial-gradient(1100px 800px at 80% 100%, rgba(251,191,36,.20), transparent 62%),
+        linear-gradient(180deg, #16122C, #110E22);
+    background-attachment: fixed;
     color: hsl(var(--foreground));
     font-family: var(--font-body);
     -webkit-font-smoothing: antialiased;
@@ -1099,6 +1105,28 @@ a.lg-panel:hover, .lg-panel.lift:hover {
 .tool-list { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: .6rem 1.5rem; margin-top: 1.4rem; }
 .tool-list li { display: flex; gap: .6rem; align-items: flex-start; font-size: .95rem; color: hsl(var(--hero-sub)); opacity: .82; line-height: 1.6; }
 .tool-list li::before { content: ""; flex: 0 0 auto; width: 6px; height: 6px; margin-top: .58rem; border-radius: 50%; background: var(--accent-b); }
+/* Vibrant pages: every page is lit in its own accent colours. */
+body {
+    background:
+        radial-gradient(1300px 900px at -5% -10%, color-mix(in srgb, var(--accent-b) 55%, transparent), transparent 60%),
+        radial-gradient(1100px 800px at 105% 25%, color-mix(in srgb, var(--accent-a) 45%, transparent), transparent 62%),
+        radial-gradient(1000px 800px at 40% 115%, color-mix(in srgb, var(--accent-c) 30%, transparent), transparent 62%),
+        linear-gradient(180deg, #120F22, #0D0B18);
+    background-attachment: fixed;
+}
+.page-top .wash { opacity: .9; }
+.page-title .grad { background-image: linear-gradient(100deg, var(--accent-c), var(--accent-b) 55%, #ffffff); }
+.rest .panel.lg-panel, .rest .lg-panel {
+    background: linear-gradient(160deg, color-mix(in srgb, var(--accent-b) 22%, transparent), rgba(255,255,255,.035) 60%), rgba(18,16,30,.55);
+    border-color: color-mix(in srgb, var(--accent-b) 38%, rgba(255,255,255,.08));
+}
+.rest .panel h3, .rest .eyebrow { color: color-mix(in srgb, var(--accent-c) 70%, #ffffff); }
+.hero-mascot { position: absolute; right: 4%; bottom: -10px; width: min(300px, 34vw); height: auto; z-index: 0; pointer-events: none;
+    filter: drop-shadow(0 30px 60px color-mix(in srgb, var(--accent-b) 70%, transparent)); animation: heroFloat 6s ease-in-out infinite; }
+.page-hero > * { position: relative; z-index: 1; }
+@keyframes heroFloat { 50% { transform: translateY(-12px); } }
+@media (prefers-reduced-motion: reduce) { .hero-mascot { animation: none; } }
+@media (max-width: 720px) { .hero-mascot { opacity: .35; width: 180px; } }
 @media (max-width: 720px) {
     .page-hero { padding: 3.5rem 1.25rem .5rem; }
     .tool-list { grid-template-columns: 1fr; }
@@ -1227,6 +1255,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
                 <div class="nav-divider"></div>
             </header>
     <div class="page-hero">
+        <img class="hero-mascot" src="assets/brand/nova.webp" alt="" aria-hidden="true">
         <h1 class="page-title">Markets, <span class="grad">decoded</span></h1>
         <p class="page-lede">Every index, sector and stock with a plain-English read on why it moved. Spin the globe, watch the exchanges wake, and learn the language of money while you watch it.</p>
         <div class="page-actions"><a class="btn-solid" href="app.html#/atlas">Open Atlas</a><a class="hero-secondary liquid-glass" style="padding:1rem 1.9rem" href="worlds.html">See all four worlds</a></div>

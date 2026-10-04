@@ -49,7 +49,13 @@
 html { scroll-behavior: smooth; }
 
 body {
-    background: hsl(var(--background));
+    background:
+        radial-gradient(1300px 900px at -5% 0%, rgba(139,92,246,.42), transparent 60%),
+        radial-gradient(1100px 800px at 105% 20%, rgba(236,72,153,.28), transparent 62%),
+        radial-gradient(1000px 800px at 30% 60%, rgba(45,212,191,.14), transparent 62%),
+        radial-gradient(1100px 800px at 80% 100%, rgba(251,191,36,.20), transparent 62%),
+        linear-gradient(180deg, #16122C, #110E22);
+    background-attachment: fixed;
     color: hsl(var(--foreground));
     font-family: var(--font-body);
     -webkit-font-smoothing: antialiased;
@@ -1540,7 +1546,7 @@ a.lg-panel:hover, .lg-panel.lift:hover {
                 // The cards behind have to peek out, or the deck reads as one card.
                 el.style.transform =
                     `translate3d(0, ${place * 26}px, ${place * -70}px) scale(${1 - place * 0.075}) rotate(${place * -1.4}deg)`;
-                el.style.opacity = hidden ? '0' : String(1 - place * 0.16);
+                el.style.opacity = hidden ? '0' : '1';   // solid: nothing shows through
                 el.style.pointerEvents = place === 0 ? 'auto' : 'none';
                 el.setAttribute('aria-hidden', place === 0 ? 'false' : 'true');
                 el.querySelectorAll('a').forEach(a => a.tabIndex = place === 0 ? 0 : -1);
@@ -1556,8 +1562,10 @@ a.lg-panel:hover, .lg-panel.lift:hover {
             busy = true;
             const moved = cards[order[0]];
             // the card leaves in the direction it was thrown, then drops to the back
-            moved.style.transition = 'transform .32s ease, opacity .22s ease';
-            moved.style.transform = `translate3d(${dir * 60}%, -8%, 120px) rotate(${dir * 9}deg)`;
+            // Slide fully clear of the deck before fading, so it never sits
+            // half over the next card.
+            moved.style.transition = 'transform .34s cubic-bezier(.4,0,.2,1), opacity .12s ease .24s';
+            moved.style.transform = `translate3d(${dir * 130}%, -4%, 0) rotate(${dir * 10}deg)`;
             moved.style.opacity = '0';
             window.setTimeout(() => {
                 order = dir > 0 ? order.slice(1).concat(order[0])
@@ -1572,7 +1580,7 @@ a.lg-panel:hover, .lg-panel.lift:hover {
                     paint();
                     busy = false;
                 }));
-            }, 300);
+            }, 360);
         }
 
         document.getElementById('deckNext').addEventListener('click', () => send(1));

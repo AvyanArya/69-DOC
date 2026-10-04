@@ -74,6 +74,28 @@ SUB_CSS = '''
 .tool-list { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: .6rem 1.5rem; margin-top: 1.4rem; }
 .tool-list li { display: flex; gap: .6rem; align-items: flex-start; font-size: .95rem; color: hsl(var(--hero-sub)); opacity: .82; line-height: 1.6; }
 .tool-list li::before { content: ""; flex: 0 0 auto; width: 6px; height: 6px; margin-top: .58rem; border-radius: 50%; background: var(--accent-b); }
+/* Vibrant pages: every page is lit in its own accent colours. */
+body {
+    background:
+        radial-gradient(1300px 900px at -5% -10%, color-mix(in srgb, var(--accent-b) 55%, transparent), transparent 60%),
+        radial-gradient(1100px 800px at 105% 25%, color-mix(in srgb, var(--accent-a) 45%, transparent), transparent 62%),
+        radial-gradient(1000px 800px at 40% 115%, color-mix(in srgb, var(--accent-c) 30%, transparent), transparent 62%),
+        linear-gradient(180deg, #120F22, #0D0B18);
+    background-attachment: fixed;
+}
+.page-top .wash { opacity: .9; }
+.page-title .grad { background-image: linear-gradient(100deg, var(--accent-c), var(--accent-b) 55%, #ffffff); }
+.rest .panel.lg-panel, .rest .lg-panel {
+    background: linear-gradient(160deg, color-mix(in srgb, var(--accent-b) 22%, transparent), rgba(255,255,255,.035) 60%), rgba(18,16,30,.55);
+    border-color: color-mix(in srgb, var(--accent-b) 38%, rgba(255,255,255,.08));
+}
+.rest .panel h3, .rest .eyebrow { color: color-mix(in srgb, var(--accent-c) 70%, #ffffff); }
+.hero-mascot { position: absolute; right: 4%; bottom: -10px; width: min(300px, 34vw); height: auto; z-index: 0; pointer-events: none;
+    filter: drop-shadow(0 30px 60px color-mix(in srgb, var(--accent-b) 70%, transparent)); animation: heroFloat 6s ease-in-out infinite; }
+.page-hero > * { position: relative; z-index: 1; }
+@keyframes heroFloat { 50% { transform: translateY(-12px); } }
+@media (prefers-reduced-motion: reduce) { .hero-mascot { animation: none; } }
+@media (max-width: 720px) { .hero-mascot { opacity: .35; width: 180px; } }
 @media (max-width: 720px) {
     .page-hero { padding: 3.5rem 1.25rem .5rem; }
     .tool-list { grid-template-columns: 1fr; }
@@ -212,6 +234,9 @@ SCRIPT = '<script>\n' + CONSENT_JS + '''
 
 def page(fname, title, desc, accents, head, grad, lede, body, actions=None):
     a, b, c = accents
+    art = {'leaf.html': 'sprout', 'atlas.html': 'nova', 'shield.html': 'sentinel', 'forge.html': 'blaze', 'worlds.html': 'family',
+           'features.html': 'lumi', 'how-it-works.html': 'lumi', 'pricing.html': 'lumi'}.get(fname)
+    mascot = ('<img class="hero-mascot" src="assets/brand/%s.webp" alt="" aria-hidden="true">' % art) if art else ''
     actions_html = ''
     if actions:
         actions_html = '<div class="page-actions">' + ''.join(
@@ -238,6 +263,7 @@ def page(fname, title, desc, accents, head, grad, lede, body, actions=None):
     <div class="wash"></div>
 %s
     <div class="page-hero">
+        %s
         <h1 class="page-title">%s <span class="grad">%s</span></h1>
         <p class="page-lede">%s</p>
         %s
@@ -255,7 +281,7 @@ def page(fname, title, desc, accents, head, grad, lede, body, actions=None):
 </body>
 </html>
 ''' % (title, desc, HEAD_LINKS, STYLE, a, b, c, SUB_CSS, ATMO, NAV,
-       head, grad, lede, actions_html, body, FOOTER, CONSENT_HTML, SCRIPT)
+       mascot, head, grad, lede, actions_html, body, FOOTER, CONSENT_HTML, SCRIPT)
 
     open(os.path.join(ROOT, fname), 'w').write(html)
     return fname
