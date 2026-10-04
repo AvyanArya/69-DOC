@@ -408,15 +408,15 @@
     --c-ivory:14 13 20; --c-canvas:18 17 26; --c-cream:27 26 38; --c-card:32 31 45;
     --c-sand:44 42 59; --c-stone:60 57 79; --c-taupe:86 82 108; --c-line:58 55 78;
     /* text: muted is 8.6:1 and faint 5.5:1 on the ground */
-    --c-charcoal:242 241 248; --c-ink:250 250 253; --c-muted:184 181 202; --c-faint:146 143 168;
+    --c-charcoal:242 241 248; --c-ink:250 250 253; --c-muted:210 207 228; --c-faint:172 168 196;
     --c-sage:110 231 160; --c-saged:134 239 178; --c-clay:251 169 118; --c-clayd:253 186 140;
     --c-berry:251 133 150; --c-sky:125 180 255;
     --ivory:#0E0D14; --cream:#1B1A26; --card:#201F2D; --line:#3A374E;
     --charcoal:#F2F1F8; --muted:#B8B5CA; --sage:#6EE7A0; --clay:#FBA976;
 
     /* materials */
-    --lg-ground:#24195E;
-    --lg-panel:linear-gradient(180deg, rgba(255,255,255,.062), rgba(255,255,255,.030)), rgba(20,19,30,.58);
+    --lg-ground:#16122C;
+    --lg-panel:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05)), rgba(34,30,56,.62);
     --lg-glass:rgba(26,24,38,.66);
     --lg-glass-strong:rgba(22,21,33,.90);
     --lg-edge:rgba(255,255,255,.10);
@@ -637,12 +637,12 @@
   /* ---- the ground: volumetric light that drifts very slowly ---- */
   html[data-skin="glass"] .atmo{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;
     background:
-      radial-gradient(1200px 820px at 10% -14%, rgba(var(--glow,157,124,255),.55), transparent 62%),
+      radial-gradient(1200px 820px at 10% -14%, rgba(var(--glow,157,124,255),.70), transparent 62%),
       radial-gradient(980px 760px at 104% 18%, rgba(236,72,153,.45), transparent 64%),
       radial-gradient(1100px 760px at 46% 124%, rgba(251,191,36,.34), transparent 62%),
       radial-gradient(900px 700px at -6% 80%, rgba(45,212,191,.36), transparent 60%),
       radial-gradient(700px 500px at 70% 55%, rgba(99,102,241,.30), transparent 60%),
-      linear-gradient(155deg,#3A1878 0%,#24206E 38%,#123E6E 70%,#0F5A63 100%); }
+      var(--lg-ground); }
   html[data-skin="glass"] .atmo .aurora{ position:absolute; border-radius:50%; filter:blur(90px); opacity:.75; will-change:transform; }
   html[data-skin="glass"] .atmo .a1{ width:42vw; height:42vw; min-width:380px; min-height:380px; top:-16vw; left:-10vw;
     background:radial-gradient(circle, rgba(var(--glow,157,124,255),.9), transparent 66%); animation:lg-drift-a 70s ease-in-out infinite alternate; }
@@ -663,10 +663,15 @@
   /* ---- shell: floating sidebar, floating top bar, dock ---- */
   /* The sidebar fills the window and stays put; its menu scrolls, so every
      feature is reachable and the actions always sit at the bottom. */
-  html[data-skin="glass"] .lg-sidebar{
+  html[data-skin="glass"] aside.lg-sidebar.lg-sidebar{
     position:sticky; top:14px; height:calc(100vh - 28px); margin:14px 0 14px 14px; border-radius:28px; overflow:hidden;
   }
   html[data-skin="glass"] .lg-sidebar nav{ flex:1 1 auto; min-height:0; overflow-y:auto; scrollbar-width:thin; }
+  .fam-soon{ pointer-events:none; user-select:none; border-radius:14px; overflow:hidden; }
+  .fam-soon > button{ filter:saturate(.55) brightness(.8); opacity:.6; }
+  .fam-ribbon{ position:absolute; z-index:3; left:50%; top:50%; transform:translate(-50%,-50%) rotate(-24deg); white-space:nowrap;
+    padding:7px 70px; font-size:13px; font-weight:800; letter-spacing:.16em; text-transform:uppercase; color:#1A1206;
+    background:linear-gradient(100deg,#FCD34D,#F59E0B); box-shadow:0 8px 24px rgba(0,0,0,.45); }
   html[data-skin="glass"] .lg-sidebar .sidebar-foot{ flex:none; border-top:1px solid rgba(255,255,255,.08); }
   html[data-skin="glass"] .lg-topbar{
     position:sticky; top:14px; z-index:30; margin:0 14px 0; border-radius:22px;
@@ -2580,10 +2585,12 @@ function Sidebar(){
           </div>
           {products.length>0 && <div className="mb-4">
             <div className="px-3 mb-2 text-[10px] tracking-[.22em] uppercase text-faint">The Lumera family</div>
-            {/* Each product leads with its own colour rather than a faint accent. */}
+            {/* Not launched yet: shown under a diagonal "Coming soon" band, and inert. */}
+            <div className="relative fam-soon" aria-disabled="true">
+            <span className="fam-ribbon" aria-hidden="true">Coming soon</span>
             {products.map(s=>{
               const active = app.product===s.key;
-              return <button key={s.key} onClick={()=>s.live&&openProduct(app,s.key)} disabled={!s.live}
+              return <button key={s.key} tabIndex={-1} disabled
                 className={cx('w-full flex items-center gap-3 rounded-xl px-3 py-2.5 mb-1.5 text-sm transition-all duration-300 border',
                   !s.live&&'opacity-50 cursor-default', s.live&&'hover:-translate-y-0.5')}
                 style={active
@@ -2598,6 +2605,7 @@ function Sidebar(){
                   ? <Icon name="arrowR" size={14} style={{color:active?'#fff':s.accent}}/>
                   : null}
               </button>; })}
+            </div>
           </div>}
         </>;
       })()}
@@ -4187,22 +4195,6 @@ function Dashboard(){
     <div className="rule"/>
     {app.mode==='spark' && <div className="mb-6"><QuestsPanel/></div>}
 
-    {/* The family: each world with its character */}
-    {worlds.length>0 && <section aria-labelledby="fam-title" className="mb-2">
-      <h2 id="fam-title" className="text-[11px] tracking-[.22em] uppercase text-faint font-semibold mb-3">The Lumera family</h2>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {worlds.map(s=><button key={s.key} onClick={()=>app.nav('/'+s.key)} aria-label={`Open ${s.name}, ${s.tag}`}
-          className="lux-card lift relative overflow-hidden text-left !p-4 h-[140px] group" style={{'--glow':hexToRgbList(s.accent), borderColor:s.accent+'66'}}>
-          <span aria-hidden="true" className="absolute inset-0 -z-0 pointer-events-none" style={{background:`radial-gradient(130% 130% at 100% 100%, ${s.accent}88, transparent 58%), linear-gradient(150deg, ${s.accent}38, ${s.accent}0A 70%)`}}/>
-          <span className="relative block">
-            <span className="block font-display text-[1.7rem] leading-none text-charcoal">{s.name}</span>
-            <span className="block text-[11px] mt-1.5 font-semibold" style={{color:s.accent}}>{s.tag}</span>
-          </span>
-          <span className="absolute right-1 bottom-0 transition-transform duration-500 group-hover:-translate-y-1" aria-hidden="true">
-            <Mascot kind={s.key} color={s.accent} size={86} float={false}/></span>
-        </button>)}
-      </div>
-    </section>}
 
     {app.mode==='spark' && <AchievementsStrip/>}
     <HabitsStrip/>

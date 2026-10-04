@@ -72,21 +72,21 @@ SUB_CSS = '''
 }
 .person .role { font-size: .72rem; letter-spacing: .18em; text-transform: uppercase; color: hsl(var(--foreground)/.5); margin-top: .15rem; }
 .tool-list { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: .6rem 1.5rem; margin-top: 1.4rem; }
-.tool-list li { display: flex; gap: .6rem; align-items: flex-start; font-size: .95rem; color: hsl(var(--hero-sub)); opacity: .82; line-height: 1.6; }
+.tool-list li { display: flex; gap: .6rem; align-items: flex-start; font-size: .95rem; color: #fff; opacity: .92; line-height: 1.6; }
 .tool-list li::before { content: ""; flex: 0 0 auto; width: 6px; height: 6px; margin-top: .58rem; border-radius: 50%; background: var(--accent-b); }
 /* Vibrant pages: every page is lit in its own accent colours. */
 body {
     background:
-        radial-gradient(1300px 900px at -5% -10%, color-mix(in srgb, var(--accent-b) 55%, transparent), transparent 60%),
-        radial-gradient(1100px 800px at 105% 25%, color-mix(in srgb, var(--accent-a) 45%, transparent), transparent 62%),
+        radial-gradient(1300px 900px at -5% -10%, color-mix(in srgb, var(--accent-b) 70%, transparent), transparent 60%),
+        radial-gradient(1100px 800px at 105% 25%, color-mix(in srgb, var(--accent-a) 60%, transparent), transparent 62%),
         radial-gradient(1000px 800px at 40% 115%, color-mix(in srgb, var(--accent-c) 30%, transparent), transparent 62%),
-        linear-gradient(160deg, color-mix(in srgb, var(--accent-a) 45%, #1A1446), #1C1A52 55%, color-mix(in srgb, var(--accent-b) 30%, #0E2A4A));
+        linear-gradient(180deg, #16122C, #110E22);
     background-attachment: fixed;
 }
 .page-top .wash { opacity: .9; }
 .page-title .grad { background-image: linear-gradient(100deg, var(--accent-c), var(--accent-b) 55%, #ffffff); }
 .rest .panel.lg-panel, .rest .lg-panel {
-    background: linear-gradient(160deg, color-mix(in srgb, var(--accent-b) 22%, transparent), rgba(255,255,255,.035) 60%), rgba(18,16,30,.55);
+    background: linear-gradient(160deg, color-mix(in srgb, var(--accent-b) 38%, transparent), color-mix(in srgb, var(--accent-b) 12%, transparent) 70%), rgba(30,24,52,.6);
     border-color: color-mix(in srgb, var(--accent-b) 38%, rgba(255,255,255,.08));
 }
 .rest .panel h3, .rest .eyebrow { color: color-mix(in srgb, var(--accent-c) 70%, #ffffff); }
@@ -394,21 +394,21 @@ STEPS = [
 
 
 # ---------------------------------------------------------------- the pages
-WORLD_CARD = ('<a class="panel lg-panel world-card reveal" href="{key}.html" style="text-decoration:none;color:inherit">'
+WORLD_CARD = ('<a class="panel lg-panel world-card reveal" href="{key}.html" style="text-decoration:none;color:inherit;background:linear-gradient(165deg,{c}55,{c}1A 70%),rgba(26,22,44,.7) !important;border-color:{c}AA !important;box-shadow:0 22px 44px -26px {c}">'
               '<span class="wash" style="background:{c}"></span>'
               '<img class="card-mascot" src="assets/brand/{img}.webp" alt="" aria-hidden="true">'
               '<span class="tag" style="color:{c}">{tag}</span>'
               '<h3>{name}</h3><p>{blurb}</p>'
               '<span class="link" style="color:{c}">Explore {name} &rarr;</span></a>')
 
-MINI_CARD = ('<a class="panel lg-panel reveal" href="{key}.html" style="text-decoration:none;color:inherit">'
+MINI_CARD = ('<a class="panel lg-panel reveal" href="{key}.html" style="text-decoration:none;color:inherit;background:linear-gradient(165deg,{c}55,{c}1A 70%),rgba(26,22,44,.7) !important;border-color:{c}AA !important;box-shadow:0 22px 44px -26px {c}">'
              '<img class="card-mascot" src="assets/brand/{img}.webp" alt="" aria-hidden="true">'
-             '<h3>{name}</h3><p>{tag}</p></a>')
+             '<h3 style="color:#fff">{name}</h3><p style="color:{c};font-weight:600">{tag}</p></a>')
 
 
 def world_cards(worlds, tpl=WORLD_CARD):
     img = {'leaf': 'sprout', 'atlas': 'nova', 'shield': 'sentinel', 'forge': 'blaze'}
-    return ''.join(tpl.format(key=w['key'], c=w['accents'][1], initial=w['name'][0], tag=w['tag'], img=img[w['key']],
+    return ''.join(tpl.format(key=w['key'], c=('#94A8C8' if w['key']=='shield' else w['accents'][1]), initial=w['name'][0], tag=w['tag'], img=img[w['key']],
                               name=w['name'], blurb=w['lede'].split('.')[0] + '.') for w in worlds)
 
 
@@ -446,7 +446,7 @@ def build():
         made.append(page('%s.html' % w['key'],
             '%s by Lumera | %s' % (w['name'], w['tag'].replace('&amp;', '&')),
             w['lede'][:150], w['accents'], w['head'], w['grad'], w['lede'], body,
-            actions=[('Start free with Lumera', 'app.html#/signup', True),
+            actions=[('Sign up', 'app.html#/signup', True),
                      ('See all four worlds', 'worlds.html', False)]))
 
     made.append(page('features.html', 'Features | Lumera',
