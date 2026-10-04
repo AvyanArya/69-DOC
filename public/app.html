@@ -742,6 +742,25 @@
     box-shadow:var(--lg-rim), var(--lg-depth-3);
     backdrop-filter:blur(24px) saturate(140%); -webkit-backdrop-filter:blur(24px) saturate(140%);
   }
+  /* Workspace v19: a living, colourful hero */
+  html[data-skin="glass"][data-theme][data-mode] .lg-workspace.ws-live.ws-live{
+    background:linear-gradient(125deg,#5B21B6,#7C3AED 22%,#C026D3 46%,#DB2777 64%,#F59E0B 88%,#7C3AED) !important;
+    background-size:320% 320% !important; animation:ws-shift 18s ease-in-out infinite alternate;
+    border:1px solid rgba(255,255,255,.28); box-shadow:0 30px 70px -30px rgba(192,38,211,.75), inset 0 1px 0 rgba(255,255,255,.35);
+  }
+  @keyframes ws-shift{ 0%{background-position:0% 40%} 100%{background-position:100% 60%} }
+  .ws-blob{ position:absolute; border-radius:50%; filter:blur(40px); opacity:.55; z-index:-1; pointer-events:none; animation:ws-float 12s ease-in-out infinite alternate; }
+  @keyframes ws-float{ to{ transform:translate3d(30px,-24px,0) scale(1.12); } }
+  .ws-live .lg-inset{ background:rgba(20,8,40,.28) !important; border-color:rgba(255,255,255,.22) !important; }
+  .ws-live .text-muted,.ws-live .text-faint{ color:rgba(255,255,255,.82) !important; }
+  .ws-tile{ border-radius:20px; padding:16px; color:#fff; position:relative; overflow:hidden; transition:transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s; }
+  .ws-tile:hover{ transform:translateY(-6px) rotate(-.5deg); }
+  .ws-tile::after{ content:""; position:absolute; inset:0; background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.28) 50%,transparent 70%); transform:translateX(-120%); animation:ws-shine 6s ease-in-out infinite; }
+  @keyframes ws-shine{ 60%,100%{ transform:translateX(120%); } }
+  .ws-ring circle.fg{ transition:stroke-dashoffset 1.4s cubic-bezier(.2,.8,.2,1); }
+  .ws-btn{ background:rgba(255,255,255,.18) !important; color:#fff !important; border:1px solid rgba(255,255,255,.3) !important; }
+  .ws-btn:hover{ background:rgba(255,255,255,.3) !important; }
+  @media (prefers-reduced-motion: reduce){ .lg-workspace.ws-live,.ws-blob,.ws-tile::after{ animation:none; } }
   html[data-skin="glass"] .lg-inset{
     border-radius:20px; background:rgba(8,7,14,.32); border:1px solid rgba(255,255,255,.07);
     box-shadow:inset 0 1px 2px rgba(0,0,0,.35);
@@ -1365,6 +1384,68 @@ function useFmt(display, base) {
       display
     };
   }, [display, base, ratesTs]);
+}
+function WsRing({
+  value = 0,
+  size = 118
+}) {
+  const v = useCountUp(value, 1400, [value]);
+  const r = size / 2 - 10,
+    c = 2 * Math.PI * r;
+  const [on, setOn] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setOn(true), 60);
+    return () => clearTimeout(t);
+  }, []);
+  return React.createElement("div", {
+    className: "relative shrink-0 ws-ring",
+    style: {
+      width: size,
+      height: size
+    }
+  }, React.createElement("svg", {
+    width: size,
+    height: size,
+    className: "-rotate-90",
+    "aria-hidden": "true"
+  }, React.createElement("defs", null, React.createElement("linearGradient", {
+    id: "wsg",
+    x1: "0",
+    x2: "1"
+  }, React.createElement("stop", {
+    offset: "0",
+    stopColor: "#FDE68A"
+  }), React.createElement("stop", {
+    offset: "1",
+    stopColor: "#ffffff"
+  }))), React.createElement("circle", {
+    cx: size / 2,
+    cy: size / 2,
+    r: r,
+    fill: "none",
+    stroke: "rgba(255,255,255,.22)",
+    strokeWidth: "10"
+  }), React.createElement("circle", {
+    className: "fg",
+    cx: size / 2,
+    cy: size / 2,
+    r: r,
+    fill: "none",
+    stroke: "url(#wsg)",
+    strokeWidth: "10",
+    strokeLinecap: "round",
+    strokeDasharray: c,
+    strokeDashoffset: on ? c * (1 - clamp(value, 0, 100) / 100) : c,
+    style: {
+      filter: 'drop-shadow(0 0 8px rgba(253,230,138,.8))'
+    }
+  })), React.createElement("div", {
+    className: "absolute inset-0 grid place-items-center text-center"
+  }, React.createElement("div", null, React.createElement("div", {
+    className: "font-display tnum text-[2.6rem] leading-none text-white"
+  }, value ? Math.round(v) : '–'), React.createElement("div", {
+    className: "text-[10px] text-white/80"
+  }, "of 100"))));
 }
 function useCountUp(target, dur = 1100, deps = []) {
   const to = Number(target) || 0;
@@ -8889,40 +8970,61 @@ function Dashboard() {
   const hasData = m.income > 1;
   return React.createElement(AppShell, null, React.createElement("section", {
     "aria-labelledby": "ws-title",
-    className: "lg-workspace lux-card !p-5 sm:!p-7 mb-6"
-  }, React.createElement("div", {
+    className: "lg-workspace ws-live lux-card !p-5 sm:!p-7 mb-6 text-white"
+  }, React.createElement("span", {
+    className: "ws-blob",
+    "aria-hidden": "true",
+    style: {
+      width: 260,
+      height: 260,
+      top: -80,
+      left: -60,
+      background: '#22D3EE'
+    }
+  }), React.createElement("span", {
+    className: "ws-blob",
+    "aria-hidden": "true",
+    style: {
+      width: 220,
+      height: 220,
+      bottom: -90,
+      right: '30%',
+      background: '#FDE047',
+      animationDelay: '-5s'
+    }
+  }), React.createElement("div", {
     className: "flex flex-wrap items-center justify-between gap-3"
   }, React.createElement("div", {
-    className: "flex items-center gap-2.5"
+    className: "flex flex-wrap items-center gap-2.5"
   }, React.createElement("span", {
     className: "lg-orb",
     "aria-hidden": "true"
   }), React.createElement("span", {
-    className: "text-[11px] tracking-[.22em] uppercase font-semibold text-muted"
+    className: "text-[11px] tracking-[.22em] uppercase font-bold text-white/90"
   }, "Active workspace"), React.createElement("button", {
     onClick: () => app.nav('/review'),
-    className: "btn btn-ghost px-3 py-1.5 text-xs ml-2"
+    className: "btn ws-btn px-3 py-1.5 text-xs ml-2"
   }, React.createElement(Icon, {
     name: "refresh",
     size: 13
   }), "Update my figures"), React.createElement("button", {
     onClick: () => app.nav('/twin'),
-    className: "btn btn-ghost px-3 py-1.5 text-xs"
+    className: "btn ws-btn px-3 py-1.5 text-xs"
   }, React.createElement(Icon, {
     name: "user",
     size: 13
   }), "Financial Twin")), React.createElement("div", {
     className: "flex flex-wrap items-center gap-2"
   }, React.createElement("span", {
-    className: "lg-pill"
+    className: "lg-pill ws-btn"
   }, React.createElement("span", {
     className: cx('lg-orb', !updated || stale ? 'warn' : ''),
     "aria-hidden": "true"
   }), updatedLabel), app.mode === 'spark' && React.createElement("span", {
-    className: "lg-pill tint",
+    className: "lg-pill ws-btn",
     title: `${lvlNext - (app.xp || 0)} XP to level ${lvl + 1}`
   }, "Level ", lvl, React.createElement("span", {
-    className: "inline-block w-14 h-1.5 rounded-full overflow-hidden bg-white/15",
+    className: "inline-block w-14 h-1.5 rounded-full overflow-hidden bg-white/25",
     "aria-hidden": "true"
   }, React.createElement("span", {
     className: "block h-full rounded-full bg-white",
@@ -8930,53 +9032,66 @@ function Dashboard() {
       width: Math.max(6, lvlPct) + '%'
     }
   })), React.createElement("span", {
-    className: "tnum text-muted"
+    className: "tnum"
   }, app.xp || 0, " XP")))), React.createElement("div", {
-    className: "grid lg:grid-cols-[1.1fr_1fr] gap-6 lg:gap-8 mt-5 items-end"
+    className: "grid lg:grid-cols-[1.1fr_1fr] gap-6 lg:gap-8 mt-5 items-center"
   }, React.createElement("div", {
     className: "min-w-0"
   }, React.createElement("div", {
-    className: "text-sm text-muted"
-  }, greet, app.profile.name ? `, ${app.profile.name}` : '', "."), React.createElement("h1", {
+    className: "flex items-center gap-3"
+  }, React.createElement(Mascot, {
+    kind: "lumera",
+    color: "#ffffff",
+    size: 64
+  }), React.createElement("div", {
+    className: "rounded-2xl rounded-bl-sm bg-white/20 border border-white/30 px-3.5 py-2 text-sm font-medium"
+  }, greet, app.profile.name ? `, ${app.profile.name}` : '', "! ", hasData ? m.overall >= 70 ? 'You are on a roll. 🎉' : 'Let’s level up your money today. 🚀' : 'Add your income and I’ll score you. ✨')), React.createElement("h1", {
     id: "ws-title",
-    className: "font-display text-[2.5rem] sm:text-[3.3rem] text-charcoal leading-[1.02] mt-1"
+    className: "font-display text-[2.5rem] sm:text-[3.4rem] leading-[1.02] mt-3",
+    style: {
+      color: '#fff',
+      textShadow: '0 4px 24px rgba(0,0,0,.25)'
+    }
   }, "Your money, ", React.createElement("span", {
-    className: "gold-text"
+    style: {
+      color: '#FDE68A'
+    }
   }, "today"), "."), React.createElement("div", {
-    className: "flex flex-wrap items-end gap-4 mt-6"
-  }, React.createElement("div", {
-    className: "lg-inset px-5 py-4"
-  }, React.createElement("div", {
-    className: "text-[10.5px] tracking-[.2em] uppercase font-semibold",
-    style: {
-      color: 'var(--lg-gold,#EBC77A)'
-    }
+    className: "flex items-center gap-5 mt-5"
+  }, React.createElement(WsRing, {
+    value: hasData ? m.overall : 0
+  }), React.createElement("div", null, React.createElement("div", {
+    className: "text-[10.5px] tracking-[.2em] uppercase font-bold text-white/85"
   }, "Health score"), React.createElement("div", {
-    className: "flex items-baseline gap-2 mt-1"
-  }, React.createElement("span", {
-    className: "font-display tnum leading-[.9] text-[4.4rem]",
-    style: {
-      color: 'var(--lg-gold,#EBC77A)',
-      textShadow: '0 0 32px rgba(235,199,122,.35)'
-    }
-  }, hasData ? m.overall : '–'), React.createElement("span", {
-    className: "text-sm text-faint"
-  }, "of 100")), React.createElement("div", {
-    className: "text-sm text-charcoal/85 mt-1"
-  }, hasData ? scoreLabel : 'Add your income to get a score')))), React.createElement("div", {
-    className: "grid grid-cols-3 gap-2.5 sm:gap-3"
-  }, figures.map(([label, value, unit, note, tone]) => React.createElement("div", {
-    key: label,
-    className: "lg-inset p-3.5 sm:p-4 min-w-0"
-  }, React.createElement("div", {
-    className: "text-[10px] tracking-[.14em] uppercase font-semibold text-faint leading-tight"
-  }, label), React.createElement("div", {
-    className: cx('font-display tnum text-[1.9rem] sm:text-[2.3rem] leading-none mt-2 truncate', hasData ? tone : 'text-faint')
-  }, hasData ? value : '–'), React.createElement("div", {
-    className: "text-[11px] text-faint mt-1"
-  }, unit), hasData && React.createElement("div", {
-    className: "text-[11.5px] text-muted mt-2 leading-snug hidden sm:block"
-  }, note)))))), React.createElement(PageHead, {
+    className: "text-lg font-semibold mt-1"
+  }, hasData ? scoreLabel : 'Add your income to get a score'), React.createElement("button", {
+    onClick: () => app.nav('/recommendations'),
+    className: "btn ws-btn px-3 py-1.5 text-xs mt-2"
+  }, "See how to raise it ", React.createElement(Icon, {
+    name: "arrowR",
+    size: 12
+  }))))), React.createElement("div", {
+    className: "grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3 gap-3"
+  }, figures.map(([label, value, unit, note], i) => {
+    const g = [['#10B981', '#0D9488'], ['#3B82F6', '#6366F1'], ['#F59E0B', '#EF4444']][i];
+    return React.createElement("div", {
+      key: label,
+      className: "ws-tile min-w-0",
+      style: {
+        background: `linear-gradient(150deg,${g[0]},${g[1]})`,
+        boxShadow: `0 18px 36px -18px ${g[1]}`,
+        animation: `fadeUp .6s ${.1 + i * .12}s both`
+      }
+    }, React.createElement("div", {
+      className: "text-[10px] tracking-[.14em] uppercase font-bold text-white/90 leading-tight"
+    }, label), React.createElement("div", {
+      className: "font-display tnum text-[2.1rem] sm:text-[2.4rem] leading-none mt-2 truncate"
+    }, hasData ? value : '–'), React.createElement("div", {
+      className: "text-[11px] text-white/85 mt-1"
+    }, unit), hasData && React.createElement("div", {
+      className: "text-[11.5px] text-white/95 mt-2 leading-snug font-medium"
+    }, note));
+  })))), React.createElement(PageHead, {
     eyebrow: "Your monthly review",
     title: "Financial health, decoded.",
     desc: "A complete read on where you stand, benchmarked, scored, and turned into a plan you can act on this week.",
