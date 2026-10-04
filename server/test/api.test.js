@@ -313,3 +313,14 @@ test('retired pages from old versions redirect to the current site', async () =>
     assert.equal(r.headers.get('location'), '/');
   }
 });
+
+test('SITE_PASSWORD locks the whole site except the health check', async () => {
+  const h = createApp({ ...config, SITE_PASSWORD: 'preview-pass', DATA_DIR: tmp }, { fetchImpl: fakeFetch, dbFile: ':memory:', log: { warn() {}, error() {}, log() {} } });
+  const srv = http.createServer(h); await new Promise((r) => srv.listen(0, '127.0.0.1', r));
+  const u = `http://127.0.0.1:${srv.address().port}`;
+  assert.equal((await fetch(u + '/')).status, 401);
+  assert.equal((await fetch(u + '/api/health')).status, 200);
+  const ok = await fetch(u + '/', { headers: { Authorization: 'Basic ' + Buffer.from('x:preview-pass').toString('base64') } });
+  assert.notEqual(ok.status, 401);
+  srv.close(); h.close();
+});

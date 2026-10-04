@@ -38,4 +38,7 @@ module.exports = {
   LOGO_DEV_PUBLISHABLE_KEY: env.LOGO_DEV_PUBLISHABLE_KEY || '',
   BRANDFETCH_CLIENT_ID: env.BRANDFETCH_CLIENT_ID || '',
   LOGO_LOOKUPS: flag(env.LOGO_LOOKUPS, true),
+
+  // Optional: lock the whole site behind one password before launch.
+  SITE_PASSWORD: env.SITE_PASSWORD || '',
 };

@@ -426,17 +426,38 @@ def build():
                            ('Read the privacy page', 'privacy.html', False)])),
         actions=[('Start free', 'app.html#/signup', True), ('See the features', 'features.html', False)]))
 
-    team_cards = ''.join(
-        '<div class="panel lg-panel reveal"><div class="person"><span class="avatar">%s</span>'
-        '<div><h3 style="margin:0">%s</h3><div class="role">%s</div></div></div></div>' % (c, n, r)
-        for n, r, c in [('Founding team', 'Add names in Admin', 'L'), ('Product', 'Add names in Admin', 'P'),
-                        ('Engineering', 'Add names in Admin', 'E'), ('Design', 'Add names in Admin', 'D'),
-                        ('Research', 'Add names in Admin', 'R'), ('Operations', 'Add names in Admin', 'O')])
-    made.append(page('team.html', 'The team | Lumera', 'The people building Lumera.',
+    # My Team. Photos and details arrive person by person; anyone without a
+    # photo yet shows their initials.
+    TEAM = [
+        ('Avyan Arya', 'Founder', 'Product vision and strategy', '', ''),
+        ('Ernie Engmann', '', '', '', 'ernie-engmann'),
+        ('Alaya Ahmad', 'Outreach &amp; Marketing Associate', '&ldquo;In the future, I want to work in motorsport.&rdquo;',
+         'Creative, passionate and dedicated. Into Formula 1, music, films and reading, and planning a future in psychology.', 'alaya-ahmad'),
+        ('William Iantorno', '', '', '', ''), ('Reaan Verma', '', '', '', ''), ('Jonathan Jebin Thomas', '', '', '', ''),
+        ('Rishit Dhanak', '', '', '', ''), ('Zafar Masud', '', '', '', ''), ('Yannick Dsouza', '', '', '', ''),
+        ('Zaid Qadri', '', '', '', ''), ('Muhammad Suleman', '', '', '', ''), ('Aryaman Agarwalla', '', '', '', ''),
+        ('Nikesh Patel', '', '', '', ''),
+    ]
+    def member(n, role, quote, bio, img):
+        initials = ''.join(w[0] for w in n.split())[:2]
+        pic = ('<img src="assets/team/%s.webp" alt="%s" loading="lazy">' % (img, n)) if img else '<span class="initials">%s</span>' % initials
+        return ('<article class="member lg-panel reveal"><div class="portrait">%s</div><div class="info"><h3>%s</h3>'
+                '<div class="role">%s</div>%s%s</div></article>') % (
+            pic, n, role or 'Role coming soon', ('<p class="quote">%s</p>' % quote) if quote else '', ('<p>%s</p>' % bio) if bio else '')
+    team_cards = ''.join(member(*t) for t in TEAM)
+    team_css = ('<style>.team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px}'
+        '.member{padding:0;overflow:hidden;display:flex;flex-direction:column}'
+        '.member .portrait{aspect-ratio:4/5;display:grid;place-items:center;background:linear-gradient(150deg,rgba(157,124,255,.35),rgba(235,199,122,.15))}'
+        '.member .portrait img{width:100%;height:100%;object-fit:cover;object-position:50% 30%}'
+        '.member .initials{font-family:var(--font-display);font-size:3rem;color:#fff}'
+        '.member .info{padding:1rem 1.1rem 1.2rem}.member h3{font-family:var(--font-display);font-weight:400;font-size:1.7rem;margin:0}'
+        '.member .role{font-size:.85rem;color:#C6A8FF;margin-top:.2rem}.member .quote{font-style:italic;opacity:.85;margin:.6rem 0 0;font-size:.88rem}'
+        '.member p{font-size:.88rem;line-height:1.55;margin:.5rem 0 0;opacity:.85}</style>')
+    made.append(page('team.html', 'My Team | Lumera', 'The people building Lumera.',
         ('#7c3aed', '#a855f7', '#f0abfc'),
-        'The people', 'building it',
-        'Roles, bios and photos are managed in the admin portal, so this page stays current without a deploy.',
-        '    <section class="section tight"><div class="grid-3">' + team_cards + '</div></section>\n'
+        'My Team:', 'the people building Lumera',
+        'Students and early-career builders who want financial understanding to be for everyone.',
+        team_css + '    <section class="section tight"><div class="team-grid">' + team_cards + '</div></section>\n'
         + sec('Why we are building it', 'Financial clarity,', 'made accessible',
               'Lumera exists to give students and early-career professionals the financial intelligence that used to be reserved for the wealthy.',
               actions_row([('Read about Lumera', 'about.html', True),
@@ -467,7 +488,7 @@ def build():
               panels([('Students', 'Build money habits early, while the stakes are low and the upside is decades long.'),
                       ('Young professionals', 'Turn your first real income into a foundation for lasting wealth.'),
                       ('Anyone starting out', 'It is never too late to start your financial journey.')], 3))
-        + sec('The team', 'The people', 'building it',
+        + sec('My Team', 'The people', 'building it',
               'Roles, bios and photos are managed in the admin portal.',
               actions_row([('Meet the team', 'team.html', True)])),
         actions=[('Start free', 'app.html#/signup', True), ('See the features', 'features.html', False)]))

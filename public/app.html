@@ -404,8 +404,8 @@
      ============================================================ */
   html[data-skin="glass"][data-theme]{
     /* surfaces, ascending in elevation */
-    --c-ivory:22 17 42; --c-canvas:28 22 52; --c-cream:44 37 74; --c-card:52 44 86;
-    --c-sand:62 54 98; --c-stone:78 70 118; --c-taupe:104 96 146; --c-line:84 76 124;
+    --c-ivory:14 13 20; --c-canvas:18 17 26; --c-cream:27 26 38; --c-card:32 31 45;
+    --c-sand:44 42 59; --c-stone:60 57 79; --c-taupe:86 82 108; --c-line:58 55 78;
     /* text: muted is 8.6:1 and faint 5.5:1 on the ground */
     --c-charcoal:242 241 248; --c-ink:250 250 253; --c-muted:184 181 202; --c-faint:146 143 168;
     --c-sage:110 231 160; --c-saged:134 239 178; --c-clay:251 169 118; --c-clayd:253 186 140;
@@ -414,20 +414,20 @@
     --charcoal:#F2F1F8; --muted:#B8B5CA; --sage:#6EE7A0; --clay:#FBA976;
 
     /* materials */
-    --lg-ground:#140F2A;
-    --lg-panel:linear-gradient(155deg, rgba(255,255,255,.15), rgba(255,255,255,.06) 42%, rgba(255,255,255,.09)), rgba(36,28,70,.42);
-    --lg-glass:rgba(48,38,92,.42);
-    --lg-glass-strong:rgba(34,27,66,.86);
-    --lg-edge:rgba(255,255,255,.18);
-    --lg-edge-hi:rgba(255,255,255,.32);
-    --lg-rim:inset 0 1px 0 rgba(255,255,255,.32), inset 0 -1px 0 rgba(255,255,255,.06);
+    --lg-ground:#0E0D14;
+    --lg-panel:linear-gradient(180deg, rgba(255,255,255,.062), rgba(255,255,255,.030)), rgba(20,19,30,.58);
+    --lg-glass:rgba(26,24,38,.66);
+    --lg-glass-strong:rgba(22,21,33,.90);
+    --lg-edge:rgba(255,255,255,.10);
+    --lg-edge-hi:rgba(255,255,255,.20);
+    --lg-rim:inset 0 1px 0 rgba(255,255,255,.09), inset 0 0 0 1px rgba(255,255,255,.012);
     --lg-depth-1:0 1px 2px rgba(0,0,0,.30), 0 12px 28px -16px rgba(0,0,0,.62);
     --lg-depth-2:0 2px 4px rgba(0,0,0,.24), 0 20px 46px -20px rgba(0,0,0,.68), 0 46px 96px -50px rgba(30,16,74,.72);
     --lg-depth-3:0 6px 14px rgba(0,0,0,.26), 0 32px 72px -26px rgba(0,0,0,.74), 0 72px 150px -64px rgba(44,24,104,.62);
-    --lg-blur:blur(22px) saturate(185%);
+    --lg-blur:blur(28px) saturate(150%);
     /* brand light, taken from the logo: violet lines, gold star */
     --lg-violet:#9D7CFF; --lg-indigo:#6E6CF6; --lg-gold:#EBC77A;
-    --lg-sweep:linear-gradient(100deg, #FFC98A 0%, #F08BC4 40%, #9D7CFF 75%, #6FD3FF 100%);
+    --lg-sweep:linear-gradient(100deg, #EBC77A 0%, #C6A8FF 46%, #8E7BFF 100%);
     --lg-a1:#9D7CFF; --lg-a2:#F08BC4; --lg-a3:#FFC98A; --lg-a4:#5EE6D0;
     --lg-ease:cubic-bezier(.22,1,.36,1);
     color-scheme:dark;
@@ -464,19 +464,13 @@
     isolation:isolate;
     transition:transform .45s var(--lg-ease), box-shadow .45s var(--lg-ease), border-color .3s ease;
   }
-  /* Liquid Glass edge: a light-catching gradient rim, brightest at the top-left
-     like light refracting through a curved edge. Mask keeps it to 1px. */
-  html[data-skin="glass"] :is(.lux-card,.lg-workspace,.lg-glass)::after{
-    content:""; position:absolute; inset:0; border-radius:inherit; padding:1px; pointer-events:none;
-    background:linear-gradient(135deg, rgba(255,255,255,.6), rgba(255,255,255,.08) 34%, rgba(255,255,255,0) 58%, rgba(255,255,255,.28));
-    -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask-composite:exclude; }
   @media (prefers-reduced-transparency: reduce){
     html[data-skin="glass"] :is(.lux-card,.lg-glass,.glass,.lg-workspace){ background:rgb(var(--c-card)) !important; backdrop-filter:none !important; -webkit-backdrop-filter:none !important; }
   }
   /* a soft overhead light on every panel; sits behind the content */
   html[data-skin="glass"] .lux-card::before{
     content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none; z-index:-1;
-    background:radial-gradient(120% 70% at 18% -20%, rgba(255,255,255,.16), transparent 55%);
+    background:radial-gradient(120% 70% at 50% -16%, rgba(255,255,255,.075), transparent 58%);
   }
   html[data-skin="glass"][data-theme][data-mode] .lift:hover{
     transform:translateY(-3px) scale(1.01);
@@ -524,7 +518,7 @@
   html[data-skin="glass"][data-theme][data-mode] .btn:active{ transform:scale(.98); }
   html[data-skin="glass"][data-theme][data-mode] .btn:disabled{ transform:none; }
   html[data-skin="glass"][data-theme][data-mode] :is(.btn-gold,.btn-primary){
-    background:linear-gradient(120deg, var(--p1,#9D7CFF), var(--p2,#E86FB8)) !important; color:#fff !important;
+    background:linear-gradient(180deg, var(--p1,#8E7BFF), var(--p2,#6D4FE6)) !important; color:#fff !important;
     border-color:rgba(255,255,255,.14);
     box-shadow:inset 0 1px 0 rgba(255,255,255,.28), 0 10px 26px -12px rgba(var(--pshadow,109,79,230),.85) !important;
   }
@@ -593,10 +587,12 @@
     background-color:rgba(6,5,12,.62) !important; backdrop-filter:blur(6px);
   }
 
-  .demo-banner{ position:relative; z-index:2; display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:10px 16px 0; padding:8px 12px; border-radius:14px; font-size:12.5px;
+  .soon-pill{ display:inline-block; font-size:9.5px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; padding:3px 7px; border-radius:999px;
+    color:#1A1206; background:linear-gradient(100deg,#F5D78A,#EBC77A); box-shadow:0 0 0 1px rgba(255,255,255,.25), 0 4px 12px -4px rgba(235,199,122,.7); white-space:nowrap; }
+  .demo-banner{ position:relative; z-index:2; display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin:8px 16px 0; padding:3px 10px; border-radius:999px; font-size:11px; width:fit-content; max-width:calc(100% - 32px);
     color:rgb(var(--c-charcoal)); background:linear-gradient(100deg, rgba(240,139,196,.16), rgba(157,124,255,.16)); border:1px solid rgba(255,255,255,.14); }
   .demo-banner svg{ color:#F5C77A; flex-shrink:0; }
-  .demo-banner-cta{ margin-left:auto; font-weight:700; font-size:12px; padding:4px 10px; border-radius:999px; background:rgba(255,255,255,.12); }
+  .demo-banner-cta{ margin-left:6px; font-weight:700; font-size:11px; padding:2px 8px; border-radius:999px; background:rgba(255,255,255,.12); }
   .demo-banner-cta:hover{ background:rgba(255,255,255,.2); }
   /* ---- header search bar ---- */
   .lg-searchbar{ display:flex; align-items:center; gap:10px; width:100%; max-width:440px; height:40px; padding:0 12px 0 14px; border-radius:999px;
@@ -624,12 +620,11 @@
   /* ---- the ground: volumetric light that drifts very slowly ---- */
   html[data-skin="glass"] .atmo{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;
     background:
-      radial-gradient(1200px 820px at 10% -14%, rgba(var(--glow,157,124,255),.42), transparent 62%),
-      radial-gradient(980px 760px at 104% 18%, rgba(240,139,196,.30), transparent 64%),
-      radial-gradient(1100px 760px at 46% 124%, rgba(255,201,138,.22), transparent 62%),
-      radial-gradient(800px 600px at 0% 100%, rgba(94,230,208,.16), transparent 60%),
+      radial-gradient(1200px 820px at 10% -14%, rgba(var(--glow,157,124,255),.22), transparent 62%),
+      radial-gradient(980px 760px at 104% 18%, rgba(110,108,246,.15), transparent 64%),
+      radial-gradient(1100px 760px at 46% 124%, rgba(235,199,122,.085), transparent 62%),
       var(--lg-ground); }
-  html[data-skin="glass"] .atmo .aurora{ position:absolute; border-radius:50%; filter:blur(90px); opacity:.5; will-change:transform; }
+  html[data-skin="glass"] .atmo .aurora{ position:absolute; border-radius:50%; filter:blur(90px); opacity:.30; will-change:transform; }
   html[data-skin="glass"] .atmo .a1{ width:42vw; height:42vw; min-width:380px; min-height:380px; top:-16vw; left:-10vw;
     background:radial-gradient(circle, rgba(var(--glow,157,124,255),.9), transparent 66%); animation:lg-drift-a 70s ease-in-out infinite alternate; }
   html[data-skin="glass"] .atmo .a2{ width:36vw; height:36vw; min-width:340px; min-height:340px; top:30vh; right:-14vw;
@@ -647,9 +642,13 @@
   html[data-skin="glass"] :is(aside,header,main,nav):not(.lg-dock){ position:relative; z-index:1; }
 
   /* ---- shell: floating sidebar, floating top bar, dock ---- */
+  /* The sidebar runs the full length of the page and lists every feature;
+     nothing is cut off at the bottom of the window. */
   html[data-skin="glass"] .lg-sidebar{
-    position:sticky; top:14px; height:calc(100vh - 28px); margin:14px 0 14px 14px; border-radius:28px; overflow:hidden;
+    position:relative; top:auto; height:auto !important; min-height:calc(100vh - 28px); align-self:stretch;
+    margin:14px 0 14px 14px; border-radius:28px; overflow:visible;
   }
+  html[data-skin="glass"] .lg-sidebar nav{ overflow:visible !important; flex:none !important; }
   html[data-skin="glass"] .lg-topbar{
     position:sticky; top:14px; z-index:30; margin:14px 14px 0; border-radius:22px;
   }
@@ -714,17 +713,16 @@
   html[data-skin="glass"] .lg-workspace{
     position:relative; border-radius:30px; overflow:hidden; isolation:isolate;
     background:
-      radial-gradient(90% 120% at 0% 0%, rgba(157,124,255,.38), transparent 55%),
-      radial-gradient(70% 90% at 100% 100%, rgba(240,139,196,.26), transparent 60%),
-      radial-gradient(60% 80% at 60% 0%, rgba(94,230,208,.14), transparent 60%),
-      linear-gradient(160deg, rgba(255,255,255,.16), rgba(255,255,255,.05));
+      radial-gradient(90% 120% at 0% 0%, rgba(var(--glow,157,124,255),.20), transparent 55%),
+      radial-gradient(70% 90% at 100% 100%, rgba(235,199,122,.10), transparent 60%),
+      linear-gradient(180deg, rgba(255,255,255,.085), rgba(255,255,255,.035));
     border:1px solid var(--lg-edge-hi);
     box-shadow:var(--lg-rim), var(--lg-depth-3);
     backdrop-filter:blur(24px) saturate(140%); -webkit-backdrop-filter:blur(24px) saturate(140%);
   }
   html[data-skin="glass"] .lg-inset{
-    border-radius:20px; background:linear-gradient(160deg, rgba(255,255,255,.12), rgba(255,255,255,.04)); border:1px solid rgba(255,255,255,.16);
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.22);
+    border-radius:20px; background:rgba(8,7,14,.32); border:1px solid rgba(255,255,255,.07);
+    box-shadow:inset 0 1px 2px rgba(0,0,0,.35);
   }
 
   /* ---- numbers, tiles, tables, page rhythm ---- */
@@ -2613,8 +2611,8 @@ const DEFAULT_EXPENSES = {
   eduFees: 0,
   familySupport: 300,
   insurancePrem: 220,
-  savings: 1400,
-  investments: 700,
+  savings: 1900,
+  investments: 900,
   pension: 0
 };
 const DEFAULT_BALANCES = {
@@ -2811,6 +2809,29 @@ function pickArchetype(m) {
   if (m.savingsRate > 0.2 && m.invest < m.income * 0.05) return ARCHETYPES.saver;
   return ARCHETYPES.balanced;
 }
+const LEAK_STEPS = {
+  eatingOut: ['Pick two nights a week as eat-in nights and plan those meals on Sunday.', 'Set a monthly eating-out amount and pay for it from a separate card or pot.', 'Swap one delivery a week for a takeaway you collect: no fees, smaller bill.'],
+  coffee: ['Keep coffee-shop visits for one or two set days a week.', 'Make the rest at home or work; a reusable cup often gets a discount too.', 'Move the difference into savings each Friday so you see it add up.'],
+  shopping: ['Wait 48 hours before any non-essential purchase over a small set amount.', 'Unsubscribe from shop emails and remove saved cards from shopping sites.', 'Write a short list before you shop and stick to it.'],
+  clothes: ['Set a seasonal clothing budget instead of buying as you go.', 'Try resale apps and outlet sales before full price.', 'One in, one out: buy only to replace.'],
+  subscriptions: ['List every subscription and the last time you used it.', 'Cancel anything unused in the last month; rotate streaming services one at a time.', 'Switch annual plans only for services you use weekly.'],
+  entertainment: ['Set a monthly fun budget and track it weekly.', 'Look for free events, student and off-peak prices.', 'Share costs with friends where it makes sense.'],
+  groceries: ['Plan meals for the week and shop with a list.', 'Try supermarket own-brands for staples.', 'Shop once a week instead of topping up most days.'],
+  transport: ['Check for a monthly or student travel pass.', 'Walk or cycle the short trips.', 'Compare ride-hailing with public transport for regular journeys.'],
+  fuel: ['Combine errands into one trip.', 'Use a fuel price app before filling up.', 'Check tyre pressure: it cuts fuel use.'],
+  travel: ['Book travel further ahead and be flexible on dates.', 'Set a travel pot and save into it monthly.', 'Use price alerts instead of booking on impulse.'],
+  mobile: ['Check whether you are out of contract and paying for a phone you already own.', 'Move to a SIM-only plan sized to your actual data use.'],
+  internet: ['Call your provider at the end of the contract and ask for the retention price.', 'Compare plans: most people pay for more speed than they use.'],
+  rent: ['Housing is hard to cut quickly: look at it when your lease is up.', 'Ask about a longer lease for a lower rent, or consider sharing.'],
+  creditCards: ['Pay more than the minimum on the highest-interest card first.', 'Look at a 0% balance-transfer card if you can clear it in the offer period.', 'Stop new spending on cards you are paying off.'],
+  personalCare: ['Stretch the time between appointments a little.', 'Buy staples in bulk or own-brand.'],
+  gym: ['Use the gym at least weekly or switch to a cheaper or pay-as-you-go option.', 'Check off-peak and student memberships.']
+};
+const LEAK_TOOL = {
+  subscriptions: '/subscriptions',
+  creditCards: '/debt',
+  rent: '/budget'
+};
 function deriveInsights(m, fmt) {
   const out = [];
   m.topLeaks.slice(0, 3).forEach((r, i) => out.push({
@@ -2820,7 +2841,9 @@ function deriveInsights(m, fmt) {
     explanation: `You spend ${fmt.money(r.amount)}, about ${fmt.money(r.over)} above the typical upper range of ${fmt.money(r.hi)} for your income and region.`,
     action: `Trim ${r.label.toLowerCase()} toward ${fmt.money(r.hi)} to reclaim roughly ${fmt.money(r.over)}/mo.`,
     impact: r.over,
-    icon: r.icon
+    icon: r.icon,
+    steps: LEAK_STEPS[r.id] || ['Look at last month’s statement for this category and find the three biggest items.', 'Set a monthly limit at the typical range and check it weekly.', 'Move what you save into savings the same day.'],
+    tool: LEAK_TOOL[r.id] || '/budget'
   }));
   if (m.efMonths < 3) out.push({
     type: 'safety',
@@ -2829,7 +2852,9 @@ function deriveInsights(m, fmt) {
     explanation: `Your fund covers about ${m.efMonths.toFixed(1)} months of essentials. A 3-month buffer is the foundation everything else rests on.`,
     action: `Redirect part of your reclaimed savings into a separate emergency account until you reach 3 months.`,
     impact: 0,
-    icon: 'shield'
+    icon: 'shield',
+    steps: [`Open a separate easy-access savings account just for emergencies.`, `Your target is about ${fmt.money(m.essentialsTotal * 3)}: three months of essentials.`, 'Send a fixed amount there on payday until you reach it.'],
+    tool: '/emergency'
   });
   if (m.savingsRate < 0.15) out.push({
     type: 'growth',
@@ -2838,7 +2863,9 @@ function deriveInsights(m, fmt) {
     explanation: `Your current savings rate is ${(m.savingsRate * 100).toFixed(0)}%. Even a 5-point increase, automated on payday, compounds dramatically over a decade.`,
     action: `Set an automatic transfer the day after payday so saving happens before spending.`,
     impact: 0,
-    icon: 'pig'
+    icon: 'pig',
+    steps: [`Aim for 15% of income: about ${fmt.money(m.income * 0.15)} a month.`, 'If that is too much now, start with 5% and add 1% every month.', 'Set the transfer for the day after payday so it happens first.'],
+    tool: '/goals'
   });
   return out;
 }
@@ -5087,7 +5114,7 @@ function Sidebar() {
   const inProduct = spark && app.product !== 'lumera' && curSub;
   return React.createElement("aside", {
     "aria-label": "Main navigation",
-    className: "hidden lg:flex flex-col w-64 shrink-0 h-screen sticky top-0 border-r border-line bg-cream/60 glass lg-sidebar lg-glass"
+    className: "hidden lg:flex flex-col w-64 shrink-0 border-r border-line bg-cream/60 glass lg-sidebar lg-glass"
   }, React.createElement("div", {
     className: "px-5 py-5"
   }, inProduct ? React.createElement("button", {
@@ -5194,7 +5221,13 @@ function Sidebar() {
         style: {
           color: active ? 'rgba(255,255,255,.85)' : s.accent
         }
-      }, s.tag)), s.live ? React.createElement(Icon, {
+      }, s.tag), React.createElement("span", {
+        className: "soon-pill mt-1",
+        style: {
+          fontSize: '8.5px',
+          padding: '2px 6px'
+        }
+      }, "Coming soon")), s.live ? React.createElement(Icon, {
         name: "arrowR",
         size: 14,
         style: {
@@ -5312,7 +5345,7 @@ function GlobalSearch() {
         '/assistant': 'AI Assistant',
         '/settings': 'Settings',
         '/about': 'About Lumera',
-        '/team': 'Founding team',
+        '/team': 'My Team',
         '/pricing': 'Pricing',
         '/privacy': 'Privacy',
         '/hub': 'The Lumera family'
@@ -5399,7 +5432,7 @@ function GlobalSearch() {
   }, "Search tools, pages and topics"), React.createElement("kbd", {
     className: "lg-searchbar-kbd",
     "aria-hidden": "true"
-  }, "Ctrl K")), open && React.createElement("div", {
+  }, "Ctrl K")), open && ReactDOM.createPortal(React.createElement("div", {
     className: "fixed inset-0 z-[180] flex items-start justify-center p-4 pt-[12vh]"
   }, React.createElement("div", {
     className: "absolute inset-0",
@@ -5474,7 +5507,7 @@ function GlobalSearch() {
     className: "px-4 py-2 border-t border-line text-[11px] text-faint flex items-center gap-3"
   }, React.createElement("span", null, "\u2191\u2193 to move"), React.createElement("span", null, "\u21B5 to open"), React.createElement("span", null, "esc to close"), React.createElement("span", {
     className: "ml-auto"
-  }, "Ctrl / \u2318 + K")))));
+  }, "Ctrl / \u2318 + K")))), document.body));
 }
 function ProfileMenu() {
   const app = useApp();
@@ -5863,8 +5896,8 @@ function DemoBanner() {
     role: "note"
   }, React.createElement(Icon, {
     name: "info",
-    size: 14
-  }), React.createElement("span", null, React.createElement("b", null, "Demo account."), " Every figure, goal, subscription and post here is example data, not a real person."), React.createElement("button", {
+    size: 12
+  }), React.createElement("span", null, React.createElement("b", null, "Demo account"), " \xB7 example data, not a real person"), React.createElement("button", {
     onClick: () => app.nav('/signup'),
     className: "demo-banner-cta"
   }, "Create your own"));
@@ -8014,7 +8047,9 @@ function ProductPage({
     name: "chevron",
     size: 13,
     className: "rotate-180"
-  }), "Lumera"), React.createElement("div", {
+  }), "Lumera"), React.createElement("span", {
+    className: "soon-pill ml-2 align-middle"
+  }, "Coming soon \xB7 preview"), React.createElement("div", {
     className: "text-[11px] font-bold uppercase tracking-[.3em]",
     style: {
       color: 'rgba(255,255,255,.85)'
@@ -8495,7 +8530,7 @@ function Recommendations() {
   return React.createElement(AppShell, null, React.createElement(PageHead, {
     eyebrow: "AI recommendations",
     title: "What to do next, and why.",
-    desc: "Prioritised actions built from your own numbers, each with its reasoning one click away."
+    desc: "Prioritised actions built from your own numbers, each with the reasoning, the steps and what it is worth."
   }), insights.length > 0 && React.createElement("div", {
     className: "flex flex-wrap items-center gap-2 mb-4"
   }, React.createElement("span", {
@@ -8512,13 +8547,13 @@ function Recommendations() {
   }, insights.map((ins, i) => {
     const hi = ins.priority === 'High';
     const isOpen = open === i;
+    const yearly = (ins.impact || 0) * 12,
+      five = fvYearly(ins.impact || 0, 5, 0.05, 0)[5];
     return React.createElement("div", {
       key: i,
-      className: "lux-card !p-0 overflow-hidden"
-    }, React.createElement("button", {
-      onClick: () => setOpen(isOpen ? null : i),
-      "aria-expanded": isOpen,
-      className: "w-full text-left flex items-center gap-3 p-4"
+      className: "lux-card !p-4 flex flex-col"
+    }, React.createElement("div", {
+      className: "flex items-start gap-3"
     }, React.createElement("span", {
       className: cx('grid place-items-center h-10 w-10 rounded-xl shrink-0', hi ? 'bg-clay/15 text-clayd' : 'bg-gold/15 text-goldd')
     }, React.createElement(Icon, {
@@ -8527,30 +8562,36 @@ function Recommendations() {
     })), React.createElement("span", {
       className: "flex-1 min-w-0"
     }, React.createElement("span", {
-      className: "flex items-center gap-2"
-    }, React.createElement("span", {
       className: cx('text-[10px] font-bold uppercase tracking-[.14em]', hi ? 'text-clayd' : 'text-goldd')
-    }, ins.priority), ins.impact > 0 && React.createElement("span", {
-      className: "text-[11px] text-faint tnum"
-    }, "\xB7 ", fmt.money(ins.impact), "/mo")), React.createElement("span", {
-      className: "block text-[14.5px] font-semibold text-charcoal leading-snug mt-0.5"
-    }, ins.title), React.createElement("span", {
-      className: "block text-[13px] text-muted leading-snug mt-1 line-clamp-1"
-    }, ins.action)), React.createElement(Icon, {
-      name: "chevron",
-      size: 16,
-      className: cx('text-faint shrink-0 transition-transform', isOpen ? '-rotate-90' : 'rotate-90')
-    })), isOpen && React.createElement("div", {
-      className: "px-4 pb-4 -mt-1 anim-fadeUp"
-    }, React.createElement("p", {
-      className: "text-[13px] text-charcoal/85 leading-relaxed border-t border-line pt-3"
+    }, ins.priority, " priority"), React.createElement("span", {
+      className: "block text-[15px] font-semibold text-charcoal leading-snug mt-0.5"
+    }, ins.title))), React.createElement("p", {
+      className: "text-[13px] text-charcoal/85 leading-relaxed mt-3"
     }, React.createElement("b", {
       className: "text-charcoal"
-    }, "Why. "), ins.explanation), React.createElement("p", {
-      className: "text-[13px] text-charcoal/85 leading-relaxed mt-2"
-    }, React.createElement("b", {
-      className: "text-charcoal"
-    }, "Do this. "), ins.action)));
+    }, "Why. "), ins.explanation), ins.steps && React.createElement("ol", {
+      className: "mt-3 space-y-1.5"
+    }, ins.steps.map((st, k) => React.createElement("li", {
+      key: k,
+      className: "flex gap-2 text-[13px] text-charcoal/85 leading-snug"
+    }, React.createElement("span", {
+      className: "grid place-items-center h-5 w-5 rounded-full bg-gold/15 text-goldd text-[10.5px] font-bold shrink-0"
+    }, k + 1), st))), ins.impact > 0 && React.createElement("div", {
+      className: "grid grid-cols-3 gap-2 mt-3"
+    }, [['A month', fmt.money(ins.impact)], ['A year', fmt.money(yearly)], ['5 years saved', fmt.money(five)]].map(([l, v]) => React.createElement("div", {
+      key: l,
+      className: "rounded-xl px-2.5 py-2 bg-white/[.05]"
+    }, React.createElement("div", {
+      className: "text-[10px] uppercase tracking-wider text-faint"
+    }, l), React.createElement("div", {
+      className: "text-sm font-semibold text-saged tnum"
+    }, v)))), ins.tool && React.createElement("button", {
+      onClick: () => app.nav(ins.tool),
+      className: "btn btn-ghost mt-3 px-3 py-2 text-xs self-start"
+    }, "Open the tool ", React.createElement(Icon, {
+      name: "arrowR",
+      size: 12
+    })));
   }), !insights.length && React.createElement(Card, {
     hover: false,
     className: "lg:col-span-2 text-center py-10"
@@ -9013,23 +9054,28 @@ function Dashboard() {
   }, React.createElement("h2", {
     id: "fam-title",
     className: "text-[11px] tracking-[.22em] uppercase text-faint font-semibold mb-3"
-  }, "The Lumera family"), React.createElement("div", {
+  }, "The Lumera family \xB7 coming soon"), React.createElement("div", {
     className: "grid grid-cols-2 lg:grid-cols-4 gap-3"
   }, worlds.map(s => React.createElement("button", {
     key: s.key,
     onClick: () => app.nav('/' + s.key),
     "aria-label": `Open ${s.name}, ${s.tag}`,
-    className: "lux-card lift relative overflow-hidden text-left !p-4 h-[124px] group",
+    className: "lux-card lift relative overflow-hidden text-left !p-4 h-[140px] group",
     style: {
-      '--glow': hexToRgbList(s.accent)
+      '--glow': hexToRgbList(s.accent),
+      borderColor: s.accent + '66'
     }
   }, React.createElement("span", {
     "aria-hidden": "true",
     className: "absolute inset-0 -z-0 pointer-events-none",
     style: {
-      background: `radial-gradient(120% 120% at 100% 100%, ${s.accent}40, transparent 60%)`
+      background: `radial-gradient(130% 130% at 100% 100%, ${s.accent}88, transparent 58%), linear-gradient(150deg, ${s.accent}38, ${s.accent}0A 70%)`
     }
   }), React.createElement("span", {
+    className: "absolute bottom-3 left-4 z-[1]"
+  }, React.createElement("span", {
+    className: "soon-pill"
+  }, "Coming soon")), React.createElement("span", {
     className: "relative block"
   }, React.createElement("span", {
     className: "block font-display text-[1.7rem] leading-none text-charcoal"
@@ -9044,7 +9090,7 @@ function Dashboard() {
   }, React.createElement(Mascot, {
     kind: s.key,
     color: s.accent,
-    size: 68,
+    size: 86,
     float: false
   })))))), app.mode === 'spark' && React.createElement(AchievementsStrip, null), React.createElement(HabitsStrip, null), React.createElement(HeadlinesPanel, null));
 }
@@ -9439,8 +9485,8 @@ function FinancialTwin() {
     key: l,
     className: "rounded-2xl px-4 py-3",
     style: {
-      background: 'linear-gradient(160deg,rgba(255,255,255,.16),rgba(255,255,255,.06))',
-      boxShadow: 'inset 0 1px 0 rgba(255,255,255,.25), inset 0 0 0 1px rgba(255,255,255,.14)'
+      background: 'rgba(10,9,18,.38)',
+      boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.10)'
     }
   }, React.createElement("div", {
     className: "text-[10.5px] uppercase tracking-[.16em] text-muted font-semibold"
@@ -12632,6 +12678,19 @@ function CompanyLogo({
     }
   }));
 }
+const SUB_ALTS = [[/netflix|disney|hulu|max\b|hbo|paramount|peacock|prime video|now tv/i, 'Keep one streaming service at a time and rotate monthly, or use the ad-supported tier'], [/spotify|apple music|youtube music|tidal|deezer/i, 'A family or student plan, or the free ad-supported tier'], [/icloud|google one|dropbox|onedrive/i, 'Clear old photos and backups and drop to a smaller storage tier'], [/adobe|creative cloud/i, 'Affinity (one-time purchase), Canva or Photopea (free)'], [/microsoft|office|365/i, 'Google Docs / Sheets (free) or LibreOffice'], [/masterclass|skillshare|coursera|udemy/i, 'Free courses on YouTube, Khan Academy or your library’s online access'], [/gym|fitness|peloton|classpass/i, 'A pay-as-you-go or council gym, or a home workout plan'], [/news|times|economist|ft\b|journal/i, 'Free article limits, newsletters or library digital access'], [/chatgpt|openai|claude|grammarly|notion/i, 'The free tier, unless you use the paid features every week'], [/xbox|playstation|ps plus|nintendo|game pass/i, 'Subscribe only in months you are actively playing'], [/prime|amazon/i, 'Pay delivery per order, or a free trial when you need it'], [/audible|kindle/i, 'Your library app (Libby) for free audiobooks and ebooks']];
+function subAdvice(s, fmt) {
+  const dead = s.freq === 'Never' || s.freq === 'Rarely';
+  const altText = s.alt ? s.alt.name : (SUB_ALTS.find(([rx]) => rx.test(s.name || '')) || [])[1] || null;
+  const save = s.alt ? Math.max(0, s.cost - s.alt.cost) : null;
+  const fix = s.freq === 'Never' ? `You have not used it. Cancel it to save ${fmt.money(s.cost * 12)} a year.` : s.freq === 'Rarely' ? `You barely use it. Pause or cancel, and rejoin only when you need it.` : s.freq === 'Monthly' ? `Used about once a month. Check whether a cheaper tier covers what you use.` : `You use it often, so it is worth keeping. Check you are on the right plan.`;
+  return {
+    dead,
+    fix,
+    altText,
+    save
+  };
+}
 function Subscriptions() {
   const app = useApp();
   const fmt = app.fmt;
@@ -12812,7 +12871,22 @@ function Subscriptions() {
       className: "block font-semibold text-lg text-charcoal tnum leading-none"
     }, fmt.money(s.cost)), React.createElement("span", {
       className: "block text-[10.5px] text-faint mt-1"
-    }, "a month"))), React.createElement("div", {
+    }, "a month"))), (() => {
+      const a = subAdvice(s, fmt);
+      return React.createElement("div", {
+        className: "px-4 pb-3 -mt-1 text-[12px] leading-snug space-y-1"
+      }, React.createElement("p", {
+        className: "text-charcoal/85"
+      }, React.createElement("b", {
+        className: "text-charcoal"
+      }, "Fix. "), a.fix), a.altText && React.createElement("p", {
+        className: "text-charcoal/85"
+      }, React.createElement("b", {
+        className: "text-charcoal"
+      }, "Instead. "), a.altText, a.save > 0 && React.createElement("span", {
+        className: "text-saged font-semibold"
+      }, " \xB7 save ", fmt.money(a.save), "/mo")));
+    })(), React.createElement("div", {
       className: "mt-auto grid grid-cols-4 gap-1 px-2 pb-2"
     }, ['active', 'review', 'paused', 'cancelled'].map(v => React.createElement("button", {
       key: v,
@@ -14507,7 +14581,7 @@ function Settings() {
     className: "text-sm font-medium text-charcoal mb-2"
   }, "Design"), React.createElement("div", {
     className: "grid grid-cols-2 gap-2.5"
-  }, [['glass', 'Liquid Glass', 'Translucent, colour-lit glass surfaces. The house look.'], ['classic', 'Classic', 'The original warm paper look, in light or dark.']].map(([val, label, desc]) => React.createElement("button", {
+  }, [['glass', 'Spatial', 'Floating panels, soft volumetric light and glass. The house look.'], ['classic', 'Classic', 'The original warm paper look, in light or dark.']].map(([val, label, desc]) => React.createElement("button", {
     key: val,
     onClick: () => app.setSkin(val),
     className: cx('text-left rounded-xl2 border px-4 py-3 transition', app.skin === val ? 'border-gold bg-gold/10' : 'border-line bg-cream hover:bg-sand')
@@ -14525,7 +14599,7 @@ function Settings() {
     className: "text-[11px] text-muted mt-1 leading-relaxed"
   }, desc)))), app.skin === 'glass' && React.createElement("p", {
     className: "text-[11px] text-faint mt-2"
-  }, "Liquid Glass is a dark, colour-lit design language, so the light/dark switch below applies to Classic.")), React.createElement("p", {
+  }, "Spatial is a dark design language, so the light/dark switch below applies to Classic.")), React.createElement("p", {
     className: "text-sm text-muted mb-3"
   }, "Switch between light and dark, or follow your device automatically."), React.createElement("div", {
     className: "grid grid-cols-3 gap-2.5"
@@ -18105,15 +18179,15 @@ const TEAM_DEFAULT = [{
   name: 'Ernie Engmann',
   role: 'Add role',
   focus: '',
-  photo: null,
+  photo: 'assets/team/ernie-engmann.webp',
   bio: '',
   li: ''
 }, {
   name: 'Alaya Ahmad',
-  role: 'Add role',
-  focus: '',
-  photo: null,
-  bio: '',
+  role: 'Outreach & Marketing Associate',
+  focus: '“In the future, I want to work in motorsport.”',
+  photo: 'assets/team/alaya-ahmad.webp',
+  bio: 'Creative, passionate and dedicated. Into Formula 1, music, films and reading, and planning a future in psychology.',
   li: ''
 }, {
   name: 'William Iantorno',
@@ -18220,7 +18294,7 @@ function FoundingTeam() {
   const about = useAbout();
   const team = about.team && about.team.length ? about.team : TEAM_DEFAULT;
   return React.createElement(AppShell, null, React.createElement(PageHead, {
-    eyebrow: about.teamEyebrow || 'Our team',
+    eyebrow: about.teamEyebrow || 'My Team',
     title: about.teamTitle || 'The people building Lumera.',
     desc: about.teamDesc || 'A small team with one shared belief: financial understanding should not depend on who your parents are.'
   }), React.createElement("div", {
@@ -18233,13 +18307,17 @@ function FoundingTeam() {
     }, React.createElement("div", {
       className: "relative w-full",
       style: {
-        aspectRatio: '4/3',
-        background: `linear-gradient(135deg,${hue}26,${hue}0A)`
+        aspectRatio: '4/5',
+        background: `linear-gradient(135deg,${hue}40,${hue}12)`
       }
     }, p.photo ? React.createElement("img", {
       src: p.photo,
       alt: p.name,
-      className: "absolute inset-0 h-full w-full object-cover"
+      className: "absolute inset-0 h-full w-full object-cover",
+      style: {
+        objectPosition: '50% 30%'
+      },
+      loading: "lazy"
     }) : React.createElement("div", {
       className: "absolute inset-0 grid place-items-center"
     }, React.createElement("span", {
@@ -18288,10 +18366,12 @@ function FoundingTeam() {
     className: "font-serif text-xl text-charcoal"
   }, about.joinTitle || 'Want to join us?'), React.createElement("p", {
     className: "text-sm text-muted mt-1"
-  }, about.joinDesc || 'We are always happy to hear from people who care about this problem.'), React.createElement("a", {
-    href: `mailto:${about.email || 'hello@lumera.app'}`,
+  }, about.joinDesc || 'We are always happy to hear from people who care about this problem.'), about.email ? React.createElement("a", {
+    href: `mailto:${about.email}`,
     className: "btn btn-primary mt-4 px-5 py-2.5 text-sm"
-  }, about.email || 'hello@lumera.app')));
+  }, about.email) : React.createElement("p", {
+    className: "text-xs text-faint mt-3"
+  }, "Contact details are coming soon.")));
 }
 function AboutLumera() {
   const about = useAbout();
@@ -26723,7 +26803,7 @@ function App() {
   }), React.createElement("div", {
     key: (redirect || path) + '::' + lang,
     className: "anim-fadeIn"
-  }, React.createElement(Page, null)), user && !redirect && product === 'leaf' && React.createElement(WordOfDayPopup, null), user && onboarded && !redirect && path === '/dashboard' && React.createElement(DailyCheckIn, null), user && !redirect && path === '/dashboard' && React.createElement(WhatsNewPopup, null), showLogout && React.createElement("div", {
+  }, React.createElement(Page, null)), user && !redirect && product === 'leaf' && React.createElement(WordOfDayPopup, null), user && onboarded && !redirect && path === '/dashboard' && React.createElement(DailyCheckIn, null), user && !user.demo && !redirect && path === '/dashboard' && React.createElement(WhatsNewPopup, null), showLogout && React.createElement("div", {
     className: "fixed inset-0 z-[150] grid place-items-center p-4"
   }, React.createElement("div", {
     className: "absolute inset-0 bg-charcoal/45",

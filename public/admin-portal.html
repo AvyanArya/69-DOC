@@ -11,28 +11,27 @@
   @font-face{ font-family:'Manrope'; src:url('assets/fonts/manrope-latin-wght-normal.woff2') format('woff2'); font-weight:200 800; font-style:normal; font-display:swap; }
   @font-face{ font-family:'Instrument Serif'; src:url('assets/fonts/instrument-serif-latin-400-normal.woff2') format('woff2'); font-weight:400; font-style:normal; font-display:swap; }
 
-  /* Liquid Glass: the same ground, glass and depth as the site and the app. */
+  /* Spatial: the same ground, glass and depth as the site and the app. */
   :root{
     color-scheme:dark;
-    --ivory:#140F2A; --cream:rgba(255,255,255,.035); --card:rgba(255,255,255,.035); --sand:rgba(255,255,255,.06);
+    --ivory:hsl(248 21% 6%); --cream:rgba(255,255,255,.035); --card:rgba(255,255,255,.035); --sand:rgba(255,255,255,.06);
     --line:rgba(255,255,255,.09); --line-hi:rgba(255,255,255,.18);
     --charcoal:#ECEAF6; --ink:#FAF9FD; --muted:#A9A7C2; --faint:#817F9C;
     --gold:#8E7BFF; --goldd:#B9AEFF; --golddd:#6E6CF6; --amber:#EBC77A;
     --sage:#4ADE9B; --saged:#5EE3A6; --clay:#F5B95C; --clayd:#F6C77F; --berry:#FB7185; --sky:#7CB4FF;
-    --lg-glass:rgba(48,38,92,.42); --lg-glass-strong:rgba(22,21,33,.9);
-    --lg-edge:rgba(255,255,255,.18); --lg-edge-hi:rgba(255,255,255,.20);
+    --lg-glass:rgba(26,24,38,.58); --lg-glass-strong:rgba(22,21,33,.9);
+    --lg-edge:rgba(255,255,255,.10); --lg-edge-hi:rgba(255,255,255,.20);
     --lg-rim:inset 0 1px 0 rgba(255,255,255,.09), inset 0 0 0 1px rgba(255,255,255,.012);
     --lg-depth-1:0 1px 2px rgba(0,0,0,.30), 0 12px 28px -16px rgba(0,0,0,.62);
     --lg-depth-2:0 2px 4px rgba(0,0,0,.24), 0 20px 46px -20px rgba(0,0,0,.68), 0 46px 96px -50px rgba(30,16,74,.72);
-    --lg-blur:blur(22px) saturate(185%);
-    --lg-sweep:linear-gradient(100deg,#FFC98A 0%,#F08BC4 40%,#9D7CFF 75%,#6FD3FF 100%);
+    --lg-blur:blur(28px) saturate(150%);
+    --lg-sweep:linear-gradient(100deg,#EBC77A 0%,#C6A8FF 46%,#8E7BFF 100%);
     --lg-ease:cubic-bezier(.22,1,.36,1);
   }
   *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   body{ margin:0; font-family:'Manrope',system-ui,sans-serif; color:var(--charcoal); background:var(--ivory);
-    background-image:radial-gradient(1100px 600px at 100% -10%, rgba(157,124,255,.34), transparent 60%),
-                     radial-gradient(900px 520px at -10% 110%, rgba(240,139,196,.22), transparent 55%),
-                     radial-gradient(700px 500px at 50% 120%, rgba(94,230,208,.12), transparent 60%);
+    background-image:radial-gradient(1100px 600px at 100% -10%, rgba(142,123,255,.16), transparent 60%),
+                     radial-gradient(900px 520px at -10% 110%, rgba(110,108,246,.10), transparent 55%);
     background-attachment:fixed; min-height:100vh; -webkit-font-smoothing:antialiased; font-size:14px; }
   h1,h2,h3{ font-weight:600; letter-spacing:-.015em; }
   .serif{ font-family:'Instrument Serif',Georgia,serif; font-weight:400; letter-spacing:-.01em; }
@@ -944,7 +943,10 @@ const ABOUT='lumera_about';
 const TEAM_SEED=['Avyan Arya','Ernie Engmann','Alaya Ahmad','William Iantorno','Reaan Verma',
  'Jonathan Jebin Thomas','Rishit Dhanak','Zafar Masud','Yannick Dsouza','Zaid Qadri',
  'Muhammad Suleman','Aryaman Agarwalla','Nikesh Patel']
- .map(n=>({name:n, role:n==='Avyan Arya'?'Founder':'Add role', focus:n==='Avyan Arya'?'Product vision and strategy':'', photo:null, bio:'', li:''}));
+ .map(n=>({name:n, role:n==='Avyan Arya'?'Founder':'Add role', focus:n==='Avyan Arya'?'Product vision and strategy':'', photo:null, bio:'', li:''}))
+ .map(p=> p.name==='Alaya Ahmad' ? {...p, role:'Outreach & Marketing Associate', focus:'“In the future, I want to work in motorsport.”', photo:'assets/team/alaya-ahmad.webp',
+      bio:'Creative, passionate and dedicated. Into Formula 1, music, films and reading, and planning a future in psychology.'}
+   : p.name==='Ernie Engmann' ? {...p, photo:'assets/team/ernie-engmann.webp'} : p);
 function getAbout(){ const a=loadJSON(ABOUT,{})||{}; if(!Array.isArray(a.team)||!a.team.length) a.team=TEAM_SEED.slice(); return a; }
 function putAbout(a){ saveJSON(ABOUT,a); broadcast(ABOUT); }
 function renderAbout(){ const a=getAbout();

@@ -69,6 +69,7 @@ Then sign up in the app with that email, and open `/admin-portal.html`.
 | `LOGO_DEV_PUBLISHABLE_KEY` | none | Optional. Logo.dev publishable key, used server-side to fetch logo images. |
 | `BRANDFETCH_CLIENT_ID` | none | Optional. Brandfetch client ID, a second way to find a company's domain. |
 | `LOGO_LOOKUPS` | `true` | Set to `false` to stop all outbound logo lookups (members see monograms; admins can still set domains). |
+| `SITE_PASSWORD` | none | Optional pre-launch lock. When set, every page asks for this password (any username) before anything loads. `/api/health` stays open for your host's health check. Remove it at launch. |
 
 None of these values ever reach the browser. Logo keys are only used by the
 server.

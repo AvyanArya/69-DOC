@@ -133,7 +133,7 @@ def asset_uri(rel):
 
 def inline_assets(html):
     # every remaining assets/... reference becomes a data URI
-    return re.sub(r"assets/((?:brand|fonts)/[\w.-]+)", lambda m: asset_uri(m.group(1)), html)
+    return re.sub(r"assets/((?:brand|fonts|team)/[\w.-]+)", lambda m: asset_uri(m.group(1)), html)
 
 def defer_images(html):
     # <img src="assets/brand/x.webp"> (also inside JS templates) -> data-asset

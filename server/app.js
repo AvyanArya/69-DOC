@@ -1,4 +1,5 @@
 'use strict';
+const crypto = require('node:crypto');
 // Builds the request handler: security headers, CSRF check, sessions, the API
 // router and static files. index.js listens; tests call createApp directly.
 const fs = require('node:fs');
@@ -138,10 +139,25 @@ function createApp(config, { fetchImpl, log = console, dbFile } = {}) {
     });
   }
 
+  function sitePasswordOk(req) {
+    const m = /^Basic\s+(.+)$/i.exec(req.headers.authorization || '');
+    if (!m) return false;
+    const given = Buffer.from(m[1], 'base64').toString('utf8').split(':').slice(1).join(':');
+    const a = crypto.createHash('sha256').update(given).digest(), b = crypto.createHash('sha256').update(config.SITE_PASSWORD).digest();
+    return crypto.timingSafeEqual(a, b);
+  }
+
   async function handler(req, res) {
     const ctx = { req, res, url: new URL(req.url, 'http://local'), ip: clientIp(req), user: null };
     ctx.query = ctx.url.searchParams;
     securityHeaders(res);
+    // Optional pre-launch lock: with SITE_PASSWORD set, the whole site asks
+    // for it (any username). The health check stays open for the host.
+    if (config.SITE_PASSWORD && ctx.url.pathname !== '/api/health' && !sitePasswordOk(req)) {
+      res.writeHead(401, { 'WWW-Authenticate': 'Basic realm="Lumera preview", charset="UTF-8"', 'Content-Type': 'text/plain; charset=utf-8' });
+      res.end('This site is not public yet.');
+      return;
+    }
     try {
       if (ctx.url.pathname.startsWith('/api/')) {
         loadSession(ctx);
