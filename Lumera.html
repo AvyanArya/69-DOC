@@ -1087,13 +1087,15 @@ function useHashRoute(){
     const on=()=>{ setRoute(location.hash.replace('#','')||'/'); window.scrollTo({top:0,behavior:'instant'}); };
     window.addEventListener('hashchange',on); return ()=>window.removeEventListener('hashchange',on);
   },[]);
-  const nav = useCallback((to, opts)=>{ if(opts && opts.replace) replaceRoute(to); else location.hash = to; },[]);
+  // Inside the single-file build the app routes in memory (window.__go);
+  // on the site it uses the URL hash.
+  const nav = useCallback((to, opts)=>{ if(window.__go) window.__go(to); else if(opts && opts.replace) replaceRoute(to); else location.hash = to; },[]);
   return [route, nav];
 }
 // Redirects replace the current history entry instead of adding one, so the
 // browser's Back button never bounces between a page and its redirect.
 // The screen a design preview asked for, remembered before any redirect.
-const PREVIEW_ROUTE = (typeof location!=='undefined' && location.hash.replace('#','')) || '/dashboard';
+const PREVIEW_ROUTE = (typeof window!=='undefined' && window.__hash ? window.__hash.replace('#','') : (typeof location!=='undefined' && location.hash.replace('#',''))) || '/dashboard';
 function replaceRoute(to){
   if(window.__go){ window.__go(to); return; }
   const h='#'+to; if(location.hash!==h) location.replace(h);
@@ -3203,7 +3205,7 @@ function HeadlinesPanel(){
         <div className="text-sm font-medium text-charcoal">{n.title}</div>
         <div className="text-xs text-muted mt-0.5 leading-relaxed">{n.summary}</div>
       </a>)}
-      <button onClick={()=>{ location.hash='/news'; }} className="w-full text-left px-4 py-2.5 text-xs font-semibold text-goldd flex items-center gap-1 hover:bg-sand/40">View all financial headlines <Icon name="arrowR" size={12}/></button>
+      <button onClick={()=>{ if(window.__go) window.__go('/news'); else location.hash='/news'; }} className="w-full text-left px-4 py-2.5 text-xs font-semibold text-goldd flex items-center gap-1 hover:bg-sand/40">View all financial headlines <Icon name="arrowR" size={12}/></button>
     </div>}
   </div>;
 }
@@ -3386,7 +3388,7 @@ const SITE = (typeof window!=='undefined' && window.__LUMERA_SITE) || 'lumera';
 // Enter a product's world IN-APP (always the current build, never a stale file).
 // Each product still gets its own URL/theme/shell, so it feels like a separate site.
 function openProduct(app, key){ app.nav('/'+key); }
-const backToLumera = ()=>{ location.hash='/dashboard'; };
+const backToLumera = ()=>{ if(window.__go) window.__go('/dashboard'); else location.hash='/dashboard'; };
 const SUB_TOOL_DESC = {
   '/dashboard':'Your money at a glance.', '/budget':'See where every penny goes.', '/goals':'Save for the things that matter.',
   '/emergency':'Size your safety buffer.', '/subscriptions':'Catch the silent money leaks.', '/networth':'One honest number, tracked.',
@@ -3973,30 +3975,6 @@ function Dashboard(){
       </div>
     </section>
 
-    {app.mode==='spark' && <div className="mb-6"><QuestsPanel/></div>}
-
-    {/* The family: each world with its character */}
-    {worlds.length>0 && <section aria-labelledby="fam-title" className="mb-2">
-      <h2 id="fam-title" className="text-[11px] tracking-[.22em] uppercase text-faint font-semibold mb-3">The Lumera family</h2>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {worlds.map(s=><button key={s.key} onClick={()=>app.nav('/'+s.key)} aria-label={`Open ${s.name}, ${s.tag}`}
-          className="lux-card lift relative overflow-hidden text-left !p-4 h-[124px] group" style={{'--glow':hexToRgbList(s.accent)}}>
-          <span aria-hidden="true" className="absolute inset-0 -z-0 pointer-events-none" style={{background:`radial-gradient(120% 120% at 100% 100%, ${s.accent}40, transparent 60%)`}}/>
-          <span className="relative block">
-            <span className="block font-display text-[1.7rem] leading-none text-charcoal">{s.name}</span>
-            <span className="block text-[11px] mt-1.5 font-semibold" style={{color:s.accent}}>{s.tag}</span>
-          </span>
-          <span className="absolute right-1 bottom-0 transition-transform duration-500 group-hover:-translate-y-1" aria-hidden="true">
-            <Mascot kind={s.key} color={s.accent} size={68} float={false}/></span>
-        </button>)}
-      </div>
-    </section>}
-
-    <div className="rule"/>
-    {app.mode==='spark' && <AchievementsStrip/>}
-    <HabitsStrip/>
-    <HeadlinesPanel/>
-
     <PageHead eyebrow="Your monthly review" title="Financial health, decoded."
       desc="A complete read on where you stand, benchmarked, scored, and turned into a plan you can act on this week."
       action={<Btn variant="ghost" icon="sliders" to="/simulator">Simulate a change</Btn>}/>
@@ -4095,6 +4073,31 @@ function Dashboard(){
       </Card>
     </div>
     <Disclaimer/>
+    {/* Secondary: the family, daily quests, habits and headlines */}
+    <div className="rule"/>
+    {app.mode==='spark' && <div className="mb-6"><QuestsPanel/></div>}
+
+    {/* The family: each world with its character */}
+    {worlds.length>0 && <section aria-labelledby="fam-title" className="mb-2">
+      <h2 id="fam-title" className="text-[11px] tracking-[.22em] uppercase text-faint font-semibold mb-3">The Lumera family</h2>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {worlds.map(s=><button key={s.key} onClick={()=>app.nav('/'+s.key)} aria-label={`Open ${s.name}, ${s.tag}`}
+          className="lux-card lift relative overflow-hidden text-left !p-4 h-[124px] group" style={{'--glow':hexToRgbList(s.accent)}}>
+          <span aria-hidden="true" className="absolute inset-0 -z-0 pointer-events-none" style={{background:`radial-gradient(120% 120% at 100% 100%, ${s.accent}40, transparent 60%)`}}/>
+          <span className="relative block">
+            <span className="block font-display text-[1.7rem] leading-none text-charcoal">{s.name}</span>
+            <span className="block text-[11px] mt-1.5 font-semibold" style={{color:s.accent}}>{s.tag}</span>
+          </span>
+          <span className="absolute right-1 bottom-0 transition-transform duration-500 group-hover:-translate-y-1" aria-hidden="true">
+            <Mascot kind={s.key} color={s.accent} size={68} float={false}/></span>
+        </button>)}
+      </div>
+    </section>}
+
+    {app.mode==='spark' && <AchievementsStrip/>}
+    <HabitsStrip/>
+    <HeadlinesPanel/>
+
   </AppShell>;
 }
 
@@ -11178,7 +11181,8 @@ function App(){
     });
     return ()=>{ dead=true; }; },[]);
   // Design previews (previews/*.html) open a screen in the demo account.
-  useEffect(()=>{ if(booting) return; try{ if(new URLSearchParams(location.search).get('preview')==='demo' && !user){ try{ localStorage.setItem('lumera_guide_tut_done','1'); localStorage.setItem('lumera_guide_lumera','1'); }catch(e){} demoSilent(); setTimeout(()=>replaceRoute(PREVIEW_ROUTE),0); } }catch(e){} },[booting]);
+  useEffect(()=>{ if(booting) return; try{ let pv=new URLSearchParams(location.search).get('preview')==='demo'; try{ pv = pv || !!(window.parent!==window && window.parent.__LUMERA_DEMO); }catch(e){}
+      if(pv && !user){ try{ localStorage.setItem('lumera_guide_tut_done','1'); localStorage.setItem('lumera_guide_lumera','1'); }catch(e){} demoSilent(); setTimeout(()=>replaceRoute(PREVIEW_ROUTE),0); } }catch(e){} },[booting]);
   useEffect(()=>{ if(booting) return; const el=document.getElementById('loader'); if(el){ el.style.opacity='0'; setTimeout(()=>el.remove(),600);} },[booting]);
   // Tools that keep their own storage announce changes, so they sync too.
   useEffect(()=>{ const h=()=>setDirtyTick(t=>t+1); window.addEventListener('lumera:dirty',h); return ()=>window.removeEventListener('lumera:dirty',h); },[]);

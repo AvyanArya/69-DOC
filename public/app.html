@@ -1408,11 +1408,11 @@ function useHashRoute() {
     return () => window.removeEventListener('hashchange', on);
   }, []);
   const nav = useCallback((to, opts) => {
-    if (opts && opts.replace) replaceRoute(to);else location.hash = to;
+    if (window.__go) window.__go(to);else if (opts && opts.replace) replaceRoute(to);else location.hash = to;
   }, []);
   return [route, nav];
 }
-const PREVIEW_ROUTE = typeof location !== 'undefined' && location.hash.replace('#', '') || '/dashboard';
+const PREVIEW_ROUTE = (typeof window !== 'undefined' && window.__hash ? window.__hash.replace('#', '') : typeof location !== 'undefined' && location.hash.replace('#', '')) || '/dashboard';
 function replaceRoute(to) {
   if (window.__go) {
     window.__go(to);
@@ -6842,7 +6842,7 @@ function HeadlinesPanel() {
     className: "text-xs text-muted mt-0.5 leading-relaxed"
   }, n.summary))), React.createElement("button", {
     onClick: () => {
-      location.hash = '/news';
+      if (window.__go) window.__go('/news');else location.hash = '/news';
     },
     className: "w-full text-left px-4 py-2.5 text-xs font-semibold text-goldd flex items-center gap-1 hover:bg-sand/40"
   }, "View all financial headlines ", React.createElement(Icon, {
@@ -7371,7 +7371,7 @@ function openProduct(app, key) {
   app.nav('/' + key);
 }
 const backToLumera = () => {
-  location.hash = '/dashboard';
+  if (window.__go) window.__go('/dashboard');else location.hash = '/dashboard';
 };
 const SUB_TOOL_DESC = {
   '/dashboard': 'Your money at a glance.',
@@ -8775,50 +8775,7 @@ function Dashboard() {
     className: "text-[11px] text-faint mt-1"
   }, unit), hasData && React.createElement("div", {
     className: "text-[11.5px] text-muted mt-2 leading-snug hidden sm:block"
-  }, note)))))), app.mode === 'spark' && React.createElement("div", {
-    className: "mb-6"
-  }, React.createElement(QuestsPanel, null)), worlds.length > 0 && React.createElement("section", {
-    "aria-labelledby": "fam-title",
-    className: "mb-2"
-  }, React.createElement("h2", {
-    id: "fam-title",
-    className: "text-[11px] tracking-[.22em] uppercase text-faint font-semibold mb-3"
-  }, "The Lumera family"), React.createElement("div", {
-    className: "grid grid-cols-2 lg:grid-cols-4 gap-3"
-  }, worlds.map(s => React.createElement("button", {
-    key: s.key,
-    onClick: () => app.nav('/' + s.key),
-    "aria-label": `Open ${s.name}, ${s.tag}`,
-    className: "lux-card lift relative overflow-hidden text-left !p-4 h-[124px] group",
-    style: {
-      '--glow': hexToRgbList(s.accent)
-    }
-  }, React.createElement("span", {
-    "aria-hidden": "true",
-    className: "absolute inset-0 -z-0 pointer-events-none",
-    style: {
-      background: `radial-gradient(120% 120% at 100% 100%, ${s.accent}40, transparent 60%)`
-    }
-  }), React.createElement("span", {
-    className: "relative block"
-  }, React.createElement("span", {
-    className: "block font-display text-[1.7rem] leading-none text-charcoal"
-  }, s.name), React.createElement("span", {
-    className: "block text-[11px] mt-1.5 font-semibold",
-    style: {
-      color: s.accent
-    }
-  }, s.tag)), React.createElement("span", {
-    className: "absolute right-1 bottom-0 transition-transform duration-500 group-hover:-translate-y-1",
-    "aria-hidden": "true"
-  }, React.createElement(Mascot, {
-    kind: s.key,
-    color: s.accent,
-    size: 68,
-    float: false
-  })))))), React.createElement("div", {
-    className: "rule"
-  }), app.mode === 'spark' && React.createElement(AchievementsStrip, null), React.createElement(HabitsStrip, null), React.createElement(HeadlinesPanel, null), React.createElement(PageHead, {
+  }, note)))))), React.createElement(PageHead, {
     eyebrow: "Your monthly review",
     title: "Financial health, decoded.",
     desc: "A complete read on where you stand, benchmarked, scored, and turned into a plan you can act on this week.",
@@ -9046,7 +9003,50 @@ function Dashboard() {
     className: "text-[11px] text-faint"
   }, h.l), React.createElement("div", {
     className: "font-serif text-lg text-saged tnum"
-  }, "+", fmt.compact(plan[h.y] - nothing[h.y]))))))), React.createElement(Disclaimer, null));
+  }, "+", fmt.compact(plan[h.y] - nothing[h.y]))))))), React.createElement(Disclaimer, null), React.createElement("div", {
+    className: "rule"
+  }), app.mode === 'spark' && React.createElement("div", {
+    className: "mb-6"
+  }, React.createElement(QuestsPanel, null)), worlds.length > 0 && React.createElement("section", {
+    "aria-labelledby": "fam-title",
+    className: "mb-2"
+  }, React.createElement("h2", {
+    id: "fam-title",
+    className: "text-[11px] tracking-[.22em] uppercase text-faint font-semibold mb-3"
+  }, "The Lumera family"), React.createElement("div", {
+    className: "grid grid-cols-2 lg:grid-cols-4 gap-3"
+  }, worlds.map(s => React.createElement("button", {
+    key: s.key,
+    onClick: () => app.nav('/' + s.key),
+    "aria-label": `Open ${s.name}, ${s.tag}`,
+    className: "lux-card lift relative overflow-hidden text-left !p-4 h-[124px] group",
+    style: {
+      '--glow': hexToRgbList(s.accent)
+    }
+  }, React.createElement("span", {
+    "aria-hidden": "true",
+    className: "absolute inset-0 -z-0 pointer-events-none",
+    style: {
+      background: `radial-gradient(120% 120% at 100% 100%, ${s.accent}40, transparent 60%)`
+    }
+  }), React.createElement("span", {
+    className: "relative block"
+  }, React.createElement("span", {
+    className: "block font-display text-[1.7rem] leading-none text-charcoal"
+  }, s.name), React.createElement("span", {
+    className: "block text-[11px] mt-1.5 font-semibold",
+    style: {
+      color: s.accent
+    }
+  }, s.tag)), React.createElement("span", {
+    className: "absolute right-1 bottom-0 transition-transform duration-500 group-hover:-translate-y-1",
+    "aria-hidden": "true"
+  }, React.createElement(Mascot, {
+    kind: s.key,
+    color: s.accent,
+    size: 68,
+    float: false
+  })))))), app.mode === 'spark' && React.createElement(AchievementsStrip, null), React.createElement(HabitsStrip, null), React.createElement(HeadlinesPanel, null));
 }
 function twinFindings(m, fmt) {
   const inc = Math.max(m.income, 1);
@@ -26537,7 +26537,11 @@ function App() {
   useEffect(() => {
     if (booting) return;
     try {
-      if (new URLSearchParams(location.search).get('preview') === 'demo' && !user) {
+      let pv = new URLSearchParams(location.search).get('preview') === 'demo';
+      try {
+        pv = pv || !!(window.parent !== window && window.parent.__LUMERA_DEMO);
+      } catch (e) {}
+      if (pv && !user) {
         try {
           localStorage.setItem('lumera_guide_tut_done', '1');
           localStorage.setItem('lumera_guide_lumera', '1');

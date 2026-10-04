@@ -1194,7 +1194,7 @@ function seedDemo(){
    ============================================================ */
 /* Preview mode (previews/admin.html): the real portal UI, running against
    invented example data instead of a server. Nothing is saved anywhere. */
-const PREVIEW = /[?&]preview=1\b/.test(location.search);
+const PREVIEW = /[?&]preview=1\b/.test(location.search) || (function(){ try{ return window.parent!==window && !!window.parent.__LUMERA_ADMIN_PREVIEW; }catch(e){ return false; } })();
 const DAYMS = 864e5, NOWMS = Date.now();
 const EX = {
   user:{ id:1, email:'admin@example.com', name:'Example Admin', role:'admin', isAdmin:true },

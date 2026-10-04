@@ -339,7 +339,7 @@ EXTRA_CSS = '''
 body.on-home .site-nav { display: none; }
 /* The app and the portal run in their own document, framed full-bleed. */
 .app-frame { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; z-index: 40; background: #080610; }
-body.on-app .site-nav, body.on-app .atmo, body.on-app .site-footer { display: none; }
+body.on-app .site-nav, body.on-app .atmo, body.on-app .site-footer, body.on-app .consent { display: none !important; }
 </style>
 '''
 
