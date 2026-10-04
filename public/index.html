@@ -1719,7 +1719,8 @@ a.lg-panel:hover, .lg-panel.lift:hover {
     }
 
     var saved = read();
-    if (saved === 'no') disableThirdParty();
+    // The notice is gone, so an old 'Turn it off' choice can't be undone: forget it.
+    if (saved) { try { localStorage.removeItem(KEY); } catch (e) {} }
 
     if (box) {
         box.querySelectorAll('[data-consent]').forEach(function (b) {
