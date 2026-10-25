@@ -8,23 +8,30 @@
 @font-face{font-family:'Instrument Serif';font-weight:400;src:url(assets/fonts/InstrumentSerif-Regular.woff2) format('woff2')}
 @font-face{font-family:'Instrument Serif';font-style:italic;font-weight:400;src:url(assets/fonts/InstrumentSerif-Italic.woff2) format('woff2')}
 @font-face{font-family:'Manrope';font-weight:200 800;src:url(assets/fonts/Manrope-Variable.woff2) format('woff2')}
-:root{--violet:#5B2BE0;--deep:#2A1060;--ink:#1a1033;--cream:#FFF4E2;--gold:#FFC94D}
+:root{--ink:#07040F;--violet:#6B3BFF;--lilac:#B9A6FF;--gold:#FFC94D;--white:#F7F3FF;--muted:rgba(238,232,255,.6)}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{width:100%;height:100%;background:#000;overflow:hidden}
-#stage{position:absolute;left:0;top:0;width:1080px;height:1920px;overflow:hidden;background:var(--violet);transform-origin:0 0;font-family:'Manrope',sans-serif;-webkit-font-smoothing:antialiased}
-#shake{position:absolute;inset:0;transform-origin:540px 960px}
-.scene{position:absolute;left:0;top:0;width:1080px;height:1920px;overflow:hidden}
-.bg{position:absolute;inset:0}
-.el{position:absolute;left:0;top:0;transform-origin:50% 50%;white-space:nowrap}
+#stage{position:absolute;left:0;top:0;width:1080px;height:1920px;overflow:hidden;background:var(--ink);transform-origin:0 0;font-family:'Manrope',sans-serif;color:var(--white);-webkit-font-smoothing:antialiased}
+.fill{position:absolute;left:0;top:0;width:1080px;height:1920px}
+.blob{position:absolute;left:0;top:0;width:1700px;height:1700px;margin:-850px 0 0 -850px;border-radius:50%;mix-blend-mode:screen}
+#cam{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:540px 960px}
+.scene{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:540px 960px;display:none}
+.el{position:absolute;left:0;top:0;white-space:nowrap;transform-origin:50% 50%}
 .cx{left:0;width:1080px;text-align:center}
-.b{font-weight:800;letter-spacing:-.035em;text-transform:uppercase;line-height:.92}
-.s{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;letter-spacing:-.02em;line-height:.9}
-.sticker{filter:drop-shadow(5px 0 0 #fff) drop-shadow(-5px 0 0 #fff) drop-shadow(0 5px 0 #fff) drop-shadow(0 -5px 0 #fff) drop-shadow(0 16px 20px rgba(20,0,40,.28))}
-.rays{position:absolute;left:-660px;top:-660px;width:2400px;height:2400px;transform-origin:1200px 1200px}
-#confetti,#grain{position:absolute;left:0;top:0;width:1080px;height:1920px;pointer-events:none}
-#grain{mix-blend-mode:overlay;opacity:.07}
-#wipe{position:absolute;inset:0;pointer-events:none}
-.mark{display:inline-block;padding:0 .12em;background:linear-gradient(transparent 55%,rgba(255,201,77,.95) 55%,rgba(255,201,77,.95) 92%,transparent 92%);background-repeat:no-repeat;background-size:0% 100%}
+.serif{font-family:'Instrument Serif',serif;font-weight:400;letter-spacing:-.015em;line-height:1}
+.it{font-style:italic}
+.label{font-weight:700;font-size:30px;letter-spacing:.42em;text-transform:uppercase;color:var(--muted)}
+.cx.label{padding-left:.42em}
+.gold.dsc{padding-bottom:.32em!important}   /* room for descenders: the gold is painted only inside the box */
+.gold{background-image:linear-gradient(100deg,rgba(255,255,255,0) 42%,rgba(255,255,255,.95) 50%,rgba(255,255,255,0) 58%),linear-gradient(180deg,#FFF4D6 0%,#FFD46E 45%,#EFA233 100%);background-size:300% 100%,100% 100%;background-repeat:no-repeat;background-position:var(--sx,100%) 0,0 0;-webkit-background-clip:text;background-clip:text;color:transparent}
+.glass{background:linear-gradient(155deg,rgba(255,255,255,.15),rgba(255,255,255,.045) 45%,rgba(255,255,255,.08));border:1.5px solid rgba(255,255,255,.17);border-radius:48px;box-shadow:inset 0 1.5px 0 rgba(255,255,255,.3),0 50px 90px -40px rgba(0,0,0,.85)}
+.ico{fill:none;stroke:var(--gold);stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+.av{width:168px;height:168px;border-radius:50%;overflow:hidden;background:radial-gradient(circle at 50% 30%,rgba(185,166,255,.35),rgba(255,255,255,.05) 70%);border:2px solid rgba(255,255,255,.22)}
+.av img{position:absolute;left:50%;height:330px;transform:translateX(-50%)}
+.dig{display:inline-block;height:1em;overflow:hidden;vertical-align:top}
+.dig>span{display:block}
+.dig>span>b{display:block;height:1em;line-height:1em;font-weight:400}
+#grain{mix-blend-mode:overlay;opacity:.08}
 #ui{position:fixed;left:0;right:0;bottom:0;height:46px;background:rgba(10,8,20,.92);display:flex;align-items:center;gap:12px;padding:0 14px;color:#ddd;font:13px 'Manrope',sans-serif;z-index:99}
 #ui button{background:#8E7BFF;color:#fff;border:0;border-radius:8px;padding:7px 14px;font:600 13px 'Manrope';cursor:pointer}
 #ui input{flex:1}#ui span{font-variant-numeric:tabular-nums;width:110px;text-align:right}
@@ -32,158 +39,145 @@ html,body{width:100%;height:100%;background:#000;overflow:hidden}
 </style>
 </head>
 <body>
-<div id="stage"><div id="shake">
-
- <!-- 1. hook -->
- <div class="scene" id="s1"><div class="bg" style="background:radial-gradient(circle at 50% 46%,#7A4DFF,#5B2BE0 45%,#3A12A8)"></div>
-  <svg class="rays" id="rays1" viewBox="0 0 2400 2400"></svg>
-  <div class="el cx b" id="s1a" style="top:540px;font-size:250px;color:var(--cream)">Hey</div>
-  <div class="el cx b" id="s1b" style="top:780px;font-size:178px;color:var(--cream)">everyone,</div>
-  <div class="el cx b" id="s1c" style="top:760px;font-size:160px;color:var(--cream)">You&rsquo;re</div>
-  <div class="el cx s" id="s1d" style="top:900px;font-size:330px;color:var(--gold);padding:0 30px">invited!</div>
-  <svg class="el" id="s1stamp" style="left:690px;top:1220px;width:300px;height:300px"></svg>
+<div id="stage">
+ <div class="fill" id="sky">
+  <div class="blob" id="bA" style="background:radial-gradient(circle,rgba(107,59,255,.95) 0%,rgba(107,59,255,.38) 32%,rgba(107,59,255,0) 68%)"></div>
+  <div class="blob" id="bB" style="background:radial-gradient(circle,rgba(193,75,255,.85) 0%,rgba(193,75,255,.3) 32%,rgba(193,75,255,0) 68%)"></div>
+  <div class="blob" id="bC" style="background:radial-gradient(circle,rgba(255,176,64,.9) 0%,rgba(255,176,64,.3) 30%,rgba(255,176,64,0) 66%)"></div>
+  <div class="blob" id="bD" style="background:radial-gradient(circle,rgba(46,91,255,.85) 0%,rgba(46,91,255,.28) 32%,rgba(46,91,255,0) 68%)"></div>
  </div>
+ <canvas class="fill" id="dust" width="1080" height="1920"></canvas>
+ <div id="cam">
 
- <!-- 2. Lumera is launching / we want you -->
- <div class="scene" id="s2"><div class="bg" style="background:var(--cream)"></div>
-  <svg class="rays" id="rays2" viewBox="0 0 2400 2400" style="opacity:.55"></svg>
-  <img class="el" id="s2logo" src="assets/img/logo-mark.webp" alt="" style="left:410px;top:250px;width:260px">
-  <div class="el cx s" id="s2a" style="top:470px;font-size:270px;color:var(--violet)">Lumera</div>
-  <div class="el cx b" id="s2b" style="top:760px;font-size:118px;color:var(--deep)">is <span class="mark" id="s2mark">launching</span></div>
-  <div class="el cx b" id="s2c" style="top:600px;font-size:112px;color:var(--deep)">We want</div>
-  <div class="el cx s" id="s2d" style="top:690px;font-size:330px;color:var(--violet)">you</div>
-  <div class="el cx b" id="s2e" style="top:1050px;font-size:92px;color:var(--deep)">in the room.</div>
-  <div id="s2m"></div>
- </div>
+ <!-- 1. hey everyone, you're invited -->
+ <section class="scene" id="s1">
+  <div class="el cx" id="s1a" style="top:610px;font-weight:800;font-size:56px;letter-spacing:.3em;padding-left:.3em">HEY EVERYONE,</div>
+  <div class="el cx serif it" id="s1b" style="top:720px;font-size:170px">You&rsquo;re</div>
+  <div class="el cx serif it gold" id="s1c" style="top:860px;height:320px;font-size:330px;line-height:320px;padding:0 60px">invited.</div>
+  <div class="el" id="s1line" style="left:90px;top:1180px;width:900px;height:3px;background:linear-gradient(90deg,rgba(255,214,120,0),#FFE3A0 30%,#fff 50%,#FFE3A0 70%,rgba(255,214,120,0));box-shadow:0 0 22px 3px rgba(255,190,80,.55)"></div>
+  <div class="el glass" id="s1pill" style="left:300px;top:1250px;width:480px;height:84px;border-radius:999px;display:flex;align-items:center;justify-content:center;gap:20px;font-weight:700;font-size:27px;letter-spacing:.3em"><i id="s1dot" style="display:block;width:16px;height:16px;border-radius:50%;background:#FF5A6A;box-shadow:0 0 18px 2px #FF5A6A"></i>ONLY 60 SPOTS</div>
+ </section>
+
+ <!-- 2. Lumera is launching, and we want you in the room -->
+ <section class="scene" id="s2">
+  <div class="el" id="s2ring" style="left:240px;top:320px;width:600px;height:600px;border-radius:50%;border:3px solid rgba(255,214,140,.9);box-shadow:0 0 40px rgba(255,190,90,.5),inset 0 0 40px rgba(255,190,90,.3)"></div>
+  <img class="el" id="s2logo" src="assets/img/logo-mark-white.png" alt="" style="left:370px;top:500px;width:340px;filter:drop-shadow(0 0 18px rgba(205,190,255,.9)) drop-shadow(0 0 50px rgba(107,59,255,.9))">
+  <div class="el cx serif" id="s2a" style="top:780px;font-size:250px">Lumera</div>
+  <div class="el cx label" id="s2b" style="top:1075px;font-size:36px;color:var(--white)">is launching</div>
+  <div class="el" id="s2bl" style="left:300px;top:1140px;width:480px;height:3px;background:linear-gradient(90deg,rgba(255,201,77,0),var(--gold),rgba(255,201,77,0))"></div>
+  <div class="el cx serif" id="s2c" style="top:430px;font-size:150px">We want</div>
+  <div class="el cx serif it gold dsc" id="s2d" style="top:540px;font-size:420px;line-height:400px;padding:0 80px">you</div>
+  <div class="el cx serif" id="s2e" style="top:960px;font-size:130px">in the room.</div>
+  <div class="el" id="s2m" style="left:71px;top:1200px;width:938px;height:170px"></div>
+ </section>
 
  <!-- 3. Friday 4 September, 3:30, at Dubai College -->
- <div class="scene" id="s3"><div class="bg" style="background:var(--gold)"></div>
-  <svg class="rays" id="rays3" viewBox="0 0 2400 2400" style="opacity:.5"></svg>
-  <div class="el cx b" id="s3a" style="top:250px;font-size:170px;color:var(--deep)">Friday</div>
-  <div class="el" id="s3cal" style="width:520px;height:600px">
-    <div style="position:absolute;inset:0;background:#fff;border-radius:34px;box-shadow:0 30px 60px -20px rgba(60,20,0,.45);overflow:hidden">
-      <div style="height:150px;background:#E5484D;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:58px;letter-spacing:.08em">SEPTEMBER</div>
-      <div id="s3num" style="position:absolute;left:0;right:0;top:150px;height:360px;text-align:center;font-family:'Instrument Serif';font-size:400px;line-height:400px;color:var(--ink)">4</div>
-      <div style="position:absolute;left:0;right:0;bottom:30px;text-align:center;font-weight:800;font-size:46px;color:#E5484D;letter-spacing:.06em">2026</div>
-    </div>
-    <div style="position:absolute;left:120px;top:-26px;width:40px;height:70px;border-radius:20px;background:#3a2a50"></div>
-    <div style="position:absolute;right:120px;top:-26px;width:40px;height:70px;border-radius:20px;background:#3a2a50"></div>
+ <section class="scene" id="s3">
+  <div class="el cx label" id="s3h" style="top:300px">Save the date</div>
+  <div class="el" id="bento" style="left:0;top:0;width:1080px;height:1920px;perspective:1800px;perspective-origin:540px 840px">
+   <div class="el glass" id="cA" style="left:80px;top:380px;width:540px;height:540px">
+    <div class="el label" id="cAday" style="left:56px;top:56px;color:var(--gold)">Friday</div>
+    <div class="el serif" id="cAnum" style="left:48px;top:118px;font-size:330px;line-height:1"><span class="dig"><span><b>0</b></span></span><span class="dig" id="dDate"></span></div>
+    <div class="el label" style="left:56px;top:458px">September 2026</div>
+   </div>
+   <div class="el glass" id="cB" style="left:650px;top:380px;width:350px;height:540px">
+    <svg class="el" id="clk" style="left:55px;top:52px;width:240px;height:240px" viewBox="0 0 240 240">
+     <circle cx="120" cy="120" r="108" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="4"/>
+     <g id="clkTicks"></g>
+     <line id="hHand" x1="120" y1="120" x2="120" y2="66" stroke="#FFC94D" stroke-width="9" stroke-linecap="round"/>
+     <line id="mHand" x1="120" y1="120" x2="120" y2="36" stroke="#F7F3FF" stroke-width="5" stroke-linecap="round"/>
+     <circle cx="120" cy="120" r="8" fill="#FFC94D"/>
+    </svg>
+    <div class="el serif" id="cBt" style="left:0;width:350px;text-align:center;top:318px;font-size:130px">3:30</div>
+    <div class="el label" id="cBp" style="left:0;width:350px;text-align:center;top:458px;padding-left:.42em">PM</div>
+   </div>
+   <div class="el glass" id="cC" style="left:80px;top:960px;width:920px;height:330px">
+    <svg class="el ico" id="pin" style="left:58px;top:82px;width:150px;height:160px;stroke-width:4.5" viewBox="0 0 120 128"><path pathLength="1" d="M60 118s-38-42-38-68a38 38 0 0 1 76 0c0 26-38 68-38 68z"/><circle pathLength="1" cx="60" cy="50" r="13"/></svg>
+    <div class="el serif" id="cCt" style="left:240px;top:76px;font-size:118px">Dubai College</div>
+    <div class="el label" id="cCs" style="left:244px;top:218px">Jafar Center</div>
+   </div>
   </div>
-  <svg class="el" id="s3clock" style="width:480px;height:480px" viewBox="0 0 480 480">
-    <circle cx="240" cy="240" r="228" fill="#fff" stroke="#2A1060" stroke-width="24"/>
-    <g id="ticks"></g>
-    <line id="hHand" x1="240" y1="240" x2="240" y2="120" stroke="#2A1060" stroke-width="22" stroke-linecap="round"/>
-    <line id="mHand" x1="240" y1="240" x2="240" y2="64" stroke="#5B2BE0" stroke-width="14" stroke-linecap="round"/>
-    <circle cx="240" cy="240" r="20" fill="#FFC94D" stroke="#2A1060" stroke-width="6"/>
-  </svg>
-  <div class="el cx b" id="s3t" style="top:1210px;font-size:150px;color:var(--deep)">3:30 PM</div>
-  <svg class="el" id="s3pin" style="left:450px;top:910px;width:180px;height:240px" viewBox="0 0 180 240"><path d="M90 232C90 232 12 140 12 86a78 78 0 0 1 156 0c0 54-78 146-78 146z" fill="#5B2BE0" stroke="#2A1060" stroke-width="8"/><circle cx="90" cy="86" r="40" fill="#fff"/><image href="assets/img/logo-mark.webp" x="58" y="64" width="64" height="47"/></svg>
-  <div class="el cx b" id="s3v" style="top:1175px;font-size:120px;color:var(--deep)">Dubai College</div>
-  <div class="el cx" id="s3dc" style="top:1320px;font-size:46px;font-weight:800;letter-spacing:.24em;color:#7a3d00">JAFAR CENTER</div>
- </div>
+ </section>
 
- <!-- 4a. finance Kahoot with prizes -->
- <div class="scene" id="s4a"><div class="bg" style="background:#1FB45A"></div>
-  <svg class="rays" id="rays4" viewBox="0 0 2400 2400" style="opacity:.35"></svg>
-  <div class="el cx b" id="s4a1" style="top:260px;font-size:96px;color:#fff">A finance</div>
-  <div class="el cx b" id="s4a2" style="top:370px;font-size:236px;color:#FFF27A">Kahoot</div>
-  <div id="tiles"></div>
-  <div class="el cx b" id="s4a3" style="top:1080px;font-size:124px;color:#fff">with prizes</div>
-  <svg class="el" id="trophy" style="left:700px;top:1230px;width:260px;height:290px" viewBox="0 0 260 290"><path d="M60 20h140v70a70 70 0 0 1-140 0z" fill="#FFC94D" stroke="#7a4b00" stroke-width="8"/><path d="M60 40H18v20a42 42 0 0 0 46 42M200 40h42v20a42 42 0 0 1-46 42" fill="none" stroke="#7a4b00" stroke-width="10"/><rect x="112" y="158" width="36" height="52" fill="#FFC94D" stroke="#7a4b00" stroke-width="8"/><rect x="66" y="208" width="128" height="40" rx="8" fill="#FFC94D" stroke="#7a4b00" stroke-width="8"/><path d="M130 52l10 20 22 3-16 15 4 22-20-11-20 11 4-22-16-15 22-3z" fill="#fff"/></svg>
-  <img class="el sticker" id="sprout" src="assets/img/sprout.webp" alt="" style="left:110px;top:1190px;height:330px">
- </div>
+ <!-- 4. the programme -->
+ <section class="scene" id="s4">
+  <div class="el cx label" id="s4h" style="top:300px">The programme</div>
+  <div id="rows"></div>
+ </section>
 
- <!-- 4b. startup showcase -->
- <div class="scene" id="s4b"><div class="bg" style="background:#2D68E2"></div>
-  <svg class="rays" id="rays5" viewBox="0 0 2400 2400" style="opacity:.35"></svg>
-  <div class="el cx b" id="s4b1" style="top:280px;font-size:140px;color:#fff">A startup</div>
-  <div class="el cx s" id="s4b2" style="top:420px;font-size:250px;color:var(--gold)">showcase</div>
-  <div id="decks"></div>
-  <img class="el sticker" id="nova" src="assets/img/nova.webp" alt="" style="left:344px;top:760px;height:520px">
-  <div class="el cx b" id="s4b3" style="top:1330px;font-size:70px;color:#fff">Young founders, live</div>
- </div>
-
- <!-- 4c. raffle -->
- <div class="scene" id="s4c"><div class="bg" style="background:#F08A24"></div>
-  <svg class="rays" id="rays6" viewBox="0 0 2400 2400" style="opacity:.35"></svg>
-  <div class="el cx b" id="s4c1" style="top:300px;font-size:220px;color:#fff">A raffle</div>
-  <div class="el" id="rticket" style="left:170px;top:640px;width:740px;height:320px">
-    <div style="position:absolute;inset:0;background:var(--cream);border-radius:26px;box-shadow:0 24px 50px -16px rgba(80,30,0,.5)"></div>
-    <div style="position:absolute;left:530px;top:20px;bottom:20px;border-left:6px dashed #F08A24"></div>
-    <div style="position:absolute;left:50px;top:40px;font-weight:800;font-size:34px;letter-spacing:.2em;color:#b85c00">ENTRY</div>
-    <div style="position:absolute;left:44px;top:90px;font-family:'Instrument Serif';font-size:190px;line-height:1;color:var(--ink)">5 AED</div>
-    <div style="position:absolute;left:560px;top:110px;width:160px;text-align:center;font-weight:800;font-size:40px;line-height:1.1;color:#b85c00">No.<br>0409</div>
-  </div>
-  <div class="el cx b" id="s4c2" style="top:1050px;font-size:88px;color:#fff">Win Lumera merch</div>
-  <img class="el sticker" id="blaze" src="assets/img/blaze.webp" alt="" style="left:700px;top:1160px;height:350px">
- </div>
-
- <!-- 5. drinks + snacks on us -->
- <div class="scene" id="s5"><div class="bg" style="background:#F15BB5"></div>
-  <svg class="rays" id="rays7" viewBox="0 0 2400 2400" style="opacity:.35"></svg>
-  <div class="el cx b" id="s5a" style="top:260px;font-size:100px;color:#fff">And yes,</div>
+ <!-- 5. drinks and snacks are on us -->
+ <section class="scene" id="s5">
+  <div class="el cx serif it" id="s5a" style="top:390px;font-size:120px;color:var(--muted)">And yes,</div>
+  <div class="el cx serif" id="s5b" style="top:540px;font-size:190px">drinks</div>
+  <div class="el cx serif" id="s5c" style="top:740px;font-size:190px">&amp; snacks</div>
+  <div class="el cx serif it gold" id="s5d" style="top:945px;font-size:300px;line-height:300px;padding:0 60px">on us.</div>
   <div id="snacks"></div>
-  <div class="el cx b" id="s5b" style="top:820px;font-size:160px;color:#fff">Drinks</div>
-  <div class="el cx b" id="s5c" style="top:960px;font-size:160px;color:#fff">+ snacks</div>
-  <div class="el cx s" id="s5d" style="top:1150px;font-size:240px;color:var(--gold)">are on us</div>
-  <svg class="el" id="free" style="left:800px;top:330px;width:240px;height:240px"></svg>
- </div>
+ </section>
 
- <!-- 6. 7:25, we go live -->
- <div class="scene" id="s6"><div class="bg" style="background:radial-gradient(circle at 50% 55%,#3a1680,#12062A 60%)"></div>
-  <svg class="rays" id="rays8" viewBox="0 0 2400 2400" style="opacity:0"></svg>
-  <div class="el cx" id="s6a" style="top:250px;font-size:56px;font-weight:800;letter-spacing:.3em;color:#cdb8ff">THEN, AT</div>
-  <div class="el" id="flaps" style="left:90px;top:350px;width:900px;height:300px"></div>
-  <div class="el" id="laptop" style="left:90px;top:740px;width:900px;height:600px">
-    <div style="position:absolute;left:40px;top:0;width:820px;height:520px;border-radius:26px;background:#0c0816;border:3px solid #3a2f55;box-shadow:0 0 120px rgba(142,123,255,.45)"></div>
-    <img src="assets/img/dashboard.jpg" alt="" style="position:absolute;left:62px;top:22px;width:776px;height:476px;border-radius:10px;object-fit:cover;object-position:0 0">
-    <div style="position:absolute;left:0;top:520px;width:900px;height:36px;border-radius:0 0 30px 30px;background:linear-gradient(#cfc8dc,#8e86a0)"></div>
-    <div id="liveBadge" style="position:absolute;left:600px;top:-34px;padding:12px 26px;border-radius:999px;background:#E5484D;color:#fff;font-weight:800;font-size:40px;letter-spacing:.12em;box-shadow:0 10px 30px rgba(229,72,77,.6)"><span id="liveDot" style="display:inline-block;width:22px;height:22px;border-radius:50%;background:#fff;margin-right:14px;vertical-align:2px"></span>LIVE</div>
+ <!-- 6. 7:25 PM, we go live, together -->
+ <section class="scene" id="s6">
+  <div class="el cx label" id="s6a" style="top:300px">Then, at</div>
+  <div class="el cx serif" id="s6t" style="top:370px;height:290px;font-size:290px;line-height:1"><span class="dig" id="d7"></span><span class="gold">:</span><span class="dig" id="d2"></span><span class="dig" id="d5"></span><span id="s6pm" class="gold" style="font-family:Manrope;font-weight:800;font-size:64px;letter-spacing:.1em;margin-left:22px">PM</span></div>
+  <div class="el" id="scrwrap" style="left:0;top:0;width:1080px;height:1920px;perspective:1700px;perspective-origin:540px 1000px">
+   <div class="el" id="scr" style="left:90px;top:720px;width:900px;height:576px;padding:16px;border-radius:36px;background:#0d0a18;border:2px solid rgba(255,255,255,.16)">
+    <img src="assets/img/dashboard.jpg" alt="" style="display:block;width:864px;height:540px;border-radius:20px">
+    <div id="scrdim" style="position:absolute;left:16px;top:16px;width:864px;height:540px;border-radius:20px;background:#07040F"></div>
+    <div id="live" class="el" style="left:700px;top:-30px;padding:12px 26px;border-radius:999px;background:#E5484D;font-weight:800;font-size:34px;letter-spacing:.14em;box-shadow:0 0 40px rgba(229,72,77,.7)"><i id="liveDot" style="display:inline-block;width:18px;height:18px;border-radius:50%;background:#fff;margin-right:12px;vertical-align:2px"></i>LIVE</div>
+   </div>
   </div>
-  <div class="el cx b" id="s6b" style="top:1360px;font-size:150px;color:#fff">We go <span style="color:#FF5A6A">live</span></div>
-  <div class="el cx s" id="s6c" style="top:1360px;font-size:220px;color:var(--gold)">together.</div>
- </div>
+  <div class="el cx serif" id="s6b" style="top:1370px;font-size:150px">We go <span id="s6live">live.</span></div>
+  <div class="el cx serif it gold dsc" id="s6c" style="top:1340px;font-size:250px;line-height:250px;padding:0 60px">together.</div>
+ </section>
 
- <!-- 7. only 60 spots -->
- <div class="scene" id="s7"><div class="bg" style="background:radial-gradient(circle at 50% 45%,#3a1680,#170833 65%)"></div>
-  <svg class="rays" id="rays9" viewBox="0 0 2400 2400" style="opacity:.6"></svg>
-  <div class="el cx" id="s7a" style="top:250px;font-size:58px;font-weight:800;letter-spacing:.28em;color:#cdb8ff">BUT THERE ARE</div>
-  <div class="el cx b" id="s7b" style="top:335px;font-size:150px;color:var(--cream)">Only</div>
-  <div class="el cx s" id="s7c" style="top:470px;font-size:640px;color:var(--gold)">60</div>
-  <div class="el cx b" id="s7d" style="top:1030px;font-size:170px;color:var(--cream)">spots</div>
-  <div id="seats" class="el" style="left:165px;top:1250px;width:750px;height:280px"></div>
-  <svg class="el" id="limited" style="left:700px;top:420px;width:300px;height:300px"></svg>
- </div>
+ <!-- 7. but there are only sixty spots -->
+ <section class="scene" id="s7">
+  <div class="el cx label" id="s7a" style="top:300px">But there are</div>
+  <div class="el cx serif it" id="s7b" style="top:365px;font-size:140px">only</div>
+  <div class="el" id="ring" style="left:540px;top:1000px;width:0;height:0"></div>
+  <div class="el cx serif gold" id="s7c" style="top:735px;font-size:520px;line-height:520px;padding:0 60px">60</div>
+  <div class="el cx serif" id="s7d" style="top:1410px;font-size:140px">spots.</div>
+ </section>
 
- <!-- 8. first 60 to sign up, link in caption -->
- <div class="scene" id="s8"><div class="bg" style="background:radial-gradient(circle at 50% 40%,#7A4DFF,#5B2BE0 45%,#3A12A8)"></div>
-  <svg class="rays" id="rays10" viewBox="0 0 2400 2400"></svg>
-  <div class="el cx b" id="s8a" style="top:360px;font-size:128px;color:var(--cream)">The first <span style="color:var(--gold)">60</span></div>
-  <div class="el cx b" id="s8b" style="top:490px;font-size:128px;color:var(--cream)">to sign up</div>
-  <div class="el cx s" id="s8c" style="top:600px;font-size:230px;color:var(--gold)">get in.</div>
-  <div class="el" id="signup" style="left:190px;top:900px;width:700px;height:150px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:64px;letter-spacing:-.01em"></div>
-  <div class="el" id="tap" style="width:130px;height:130px;border-radius:50%;border:9px solid rgba(255,255,255,.9)"></div>
-  <div class="el cx b" id="s8d" style="top:1130px;font-size:112px;color:var(--cream)">Link in caption</div>
-  <svg class="el" id="arrow" style="left:440px;top:1255px;width:200px;height:300px" viewBox="0 0 200 300"><path d="M100 20 V230 M30 170 L100 245 L170 170" fill="none" stroke="#FFC94D" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/></svg>
- </div>
+ <!-- 8. the first sixty to sign up get in; the link is in our caption -->
+ <section class="scene" id="s8">
+  <div class="el cx serif" id="s8a" style="top:285px;font-size:112px">The first <span style="color:var(--gold)">60</span></div>
+  <div class="el cx serif" id="s8b" style="top:395px;font-size:112px">to sign up</div>
+  <div class="el cx serif it gold dsc" id="s8c" style="top:500px;font-size:190px;line-height:190px;padding:0 60px">get in.</div>
+  <div class="el glass" id="pass" style="left:160px;top:745px;width:760px;height:380px;border-radius:40px;overflow:hidden">
+   <div id="holo" style="position:absolute;inset:0;background:linear-gradient(115deg,rgba(255,255,255,0) 30%,rgba(255,255,255,.22) 44%,rgba(155,123,255,.3) 50%,rgba(255,201,77,.25) 56%,rgba(255,255,255,0) 70%);background-size:260% 100%;mix-blend-mode:screen"></div>
+   <img class="el" src="assets/img/logo-mark-white.png" alt="" style="left:44px;top:42px;width:62px">
+   <div class="el label" style="left:122px;top:50px;font-size:24px;color:var(--white)">Lumera</div>
+   <div class="el serif" style="left:42px;top:118px;font-size:88px">Launch event</div>
+   <div class="el" style="left:44px;top:248px;width:452px;height:1.5px;background:rgba(255,255,255,.2)"></div>
+   <div class="el label" style="left:44px;top:276px;font-size:22px;letter-spacing:.24em;color:var(--white)">Fri 04.09 &middot; 3:30 PM</div>
+   <div class="el label" style="left:44px;top:318px;font-size:22px;letter-spacing:.24em">Dubai College</div>
+   <div class="el" style="left:540px;top:28px;width:0;height:324px;border-left:2px dashed rgba(255,255,255,.28)"></div>
+   <div class="el label" style="left:540px;width:220px;text-align:center;top:58px;font-size:22px;letter-spacing:.3em;padding-left:.3em">Spot</div>
+   <div class="el serif" id="passNo" style="left:540px;width:220px;text-align:center;top:104px;font-size:150px">01</div>
+   <div class="el label" style="left:540px;width:220px;text-align:center;top:290px;font-size:22px;letter-spacing:.3em;padding-left:.3em">of 60</div>
+  </div>
+  <div class="el" id="btn" style="left:250px;top:1170px;width:580px;height:110px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:42px;letter-spacing:-.01em"></div>
+  <div class="el" id="tap" style="width:120px;height:120px;border-radius:50%;border:6px solid rgba(255,255,255,.9)"></div>
+  <div class="el cx serif it" id="s8d" style="top:1320px;font-size:110px">Link in caption</div>
+  <svg class="el ico" id="arrow" style="left:500px;top:1450px;width:80px;height:110px;stroke-width:7" viewBox="0 0 80 110"><path d="M40 6v92M12 70l28 30 28-30"/></svg>
+ </section>
 
- <!-- 9. tag a friend, see you there -->
- <div class="scene" id="s9"><div class="bg" style="background:var(--cream)"></div>
-  <svg class="rays" id="rays11" viewBox="0 0 2400 2400" style="opacity:.55"></svg>
-  <div class="el cx b" id="s9a" style="top:350px;font-size:128px;color:var(--deep)">Tag a friend</div>
-  <img class="el sticker" id="hiL" src="assets/img/lumi.webp" alt="" style="height:290px">
-  <img class="el sticker" id="hiR" src="assets/img/sprout.webp" alt="" style="height:265px">
-  <div class="el cx b" id="s9b" style="top:880px;font-size:76px;color:var(--violet)">Fri 4 Sep &middot; 3:30 PM</div>
-  <div class="el cx" id="s9c" style="top:975px;font-size:42px;font-weight:800;letter-spacing:.14em;color:var(--deep)">DUBAI COLLEGE &middot; JAFAR CENTER</div>
-  <div class="el cx s" id="s9d" style="top:1050px;font-size:150px;color:var(--violet)">See you there &#10022;</div>
-  <div class="el" id="s9pill" style="left:80px;top:1270px;width:920px;height:120px;border-radius:999px;background:var(--deep);color:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:41px;letter-spacing:.03em;white-space:nowrap">ONLY 60 SPOTS &middot; LINK IN CAPTION &darr;</div>
-  <div class="el cx" id="s9e" style="top:1420px;font-size:40px;font-weight:700;color:#6b5f80">@finance.with.lumera</div>
- </div>
+ <!-- 9. tag a friend, and see you at Dubai College -->
+ <section class="scene" id="s9">
+  <div class="el cx serif" id="s9a" style="top:290px;font-size:130px">Tag a friend</div>
+  <div class="el glass" id="chip" style="left:230px;top:450px;width:620px;height:116px;border-radius:999px;display:flex;align-items:center;padding-left:44px;font-size:52px;font-weight:600"><span class="serif it" style="color:var(--gold);font-size:76px;margin-right:10px">@</span><span id="typed"></span><i id="caret" style="display:inline-block;width:4px;height:58px;background:var(--gold);margin-left:6px"></i></div>
+  <div class="el cx serif it" id="s9b" style="top:690px;font-size:120px">See you at</div>
+  <div class="el cx serif gold dsc" id="s9c" style="top:815px;font-size:165px;line-height:170px;padding:0 40px">Dubai College</div>
+  <div class="el cx label" id="s9d" style="top:1030px;font-size:26px;letter-spacing:.3em;padding-left:.3em;color:var(--white)">Fri 4 Sep &middot; 3:30 PM &middot; Jafar Center</div>
+  <div class="el glass" id="s9pill" style="left:110px;top:1110px;width:860px;height:100px;border-radius:999px;display:flex;align-items:center;justify-content:center;color:var(--gold);font-weight:800;font-size:28px;letter-spacing:.12em;border-color:rgba(255,201,77,.45)">ONLY 60 SPOTS &middot; LINK IN CAPTION &darr;</div>
+  <div class="el cx" id="s9e" style="top:1290px;display:flex;align-items:center;justify-content:center;gap:18px;font-weight:600;font-size:34px;color:var(--muted)"><img src="assets/img/logo-mark-white.png" alt="" style="width:60px">@finance.with.lumera</div>
+ </section>
 
- <div id="wipe"></div>
- <canvas id="confetti" width="1080" height="1920"></canvas>
-</div>
-<canvas id="grain" width="540" height="960"></canvas>
+ </div>
+ <canvas class="fill" id="sparks" width="1080" height="1920"></canvas>
+ <div class="fill" id="flash" style="background:radial-gradient(circle at 50% 52%,rgba(255,244,214,1),rgba(255,201,77,.6) 35%,rgba(107,59,255,0) 75%);opacity:0;mix-blend-mode:screen"></div>
+ <div class="fill" style="background:radial-gradient(ellipse 80% 60% at 50% 46%,rgba(0,0,0,0) 55%,rgba(0,0,0,.55) 100%)"></div>
+ <canvas class="fill" id="grain" width="540" height="960"></canvas>
 </div>
 <div id="ui" class="hide"><button id="play">Play</button><input id="scrub" type="range" min="0" max="30" step="0.001" value="0"><span id="tc">0.00s</span></div>
 <audio id="music" src="assets/audio/soundtrack.m4a" preload="auto"></audio>
@@ -191,28 +185,23 @@ html,body{width:100%;height:100%;background:#000;overflow:hidden}
 <script src="timing.js"></script>
 <script>
 /* =====================================================================
-   Lumera launch event reel (Instagram, 1080x1920). Cut to the voiceover:
-   every big word lands on the frame it is spoken (times come from Whisper
-   word timestamps of the narration). seek(t) draws any frame from scratch.
+   Lumera launch event reel (Instagram, 1080x1920): a dark, warm "launch
+   night" look. Aurora light, glass cards and serif type, with the camera
+   pushing through one scene into the next. Cut to the voiceover: every
+   word that matters lands on the frame it is spoken (word times come from
+   audio/timing.py). seek(t) draws any frame from scratch.
    ===================================================================== */
 const RENDER = new URLSearchParams(location.search).has('render');
 const W = 1080, H = 1920, DUR = TIMING.dur;
-// spoken-word times (seconds) and line starts, from audio/timing.py
 const Wd = Object.assign({}, TIMING.W), L = TIMING.lines;
-Wd.free = Wd.onus + .35;                                   // the FREE sticker, just after "on us"
 Wd.tapf = Math.max(Wd.getin + .6, Wd.link - .3);           // the sign-up tap, in the breath before "the link"
-// scene cuts: most land just before their line, the three activities on their own words
-const SC = { s1: 0, s2: L.e2.t - .05, s3: L.e3.t - .1, s4a: L.e4.t - .05, s4b: Wd.startup - .17, s4c: Wd.raffle - .09,
-  s5: L.e5.t - .05, s6: L.e6.t - .1, s7: L.e7.t - .1, s8: L.e8.t - .1, s9: L.e9.t - .15 };
-// everything else that moves (and makes a sound) hangs off the words
+const SC = { s1: 0, s2: L.e2.t - .05, s3: L.e3.t - .1, s4: L.e4.t - .05, s5: L.e5.t - .05, s6: L.e6.t - .1, s7: L.e7.t - .1, s8: L.e8.t - .1, s9: L.e9.t - .15 };
+const ORDER = Object.keys(SC);
 const CUE = {
-  s1back: Wd.youre - .15, stamp: Wd.invited + .25,
-  s2lift: Wd.want - .32, s2m: Wd.want - .25,
-  cal: Wd.friday + .3, calMove: Wd.threethirty - .18, clock: Wd.threethirty - .13, spin: Wd.threethirty - .08, clockMove: Wd.venue - .22,
-  sprout: Wd.finance + .16, nova: Wd.startup - .02, s4b3: Wd.showcase + .43,
-  ticket: Wd.raffle + .06, blaze: Wd.raffle + .12, s4c2: Wd.raffle + .24,
-  laptop: Wd.we - .13, calm: Wd.together - .14,
-  signup: Wd.getin + .26
+  pill: Wd.invited + .45, ring: Wd.lumera - .08, phaseB: Wd.want - .38, av: Wd.room - .08, youGlow: Wd.room + .42,
+  cA: Wd.friday - .12, cB: Wd.four + .3, spin: Wd.four + .45, cC: Wd.venue - .38,
+  rows: [Wd.finance - .15, Wd.startup - .2, Wd.raffle - .2],
+  screen: Wd.we - .4, pass: Wd.signup - .08, btn: Wd.getin + .22, s9lock: Wd.last - .38
 };
 
 /* ---------------- helpers ---------------- */
@@ -221,133 +210,168 @@ const lerp = (a, b, t) => a + (b - a) * t;
 const prog = (t, a, b) => clamp((t - a) / (b - a));
 const E = {
   outCubic: x => 1 - Math.pow(1 - x, 3), inCubic: x => x * x * x, inOutCubic: x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2,
-  outExpo: x => x >= 1 ? 1 : 1 - Math.pow(2, -10 * x), inQuad: x => x * x,
+  outExpo: x => x >= 1 ? 1 : 1 - Math.pow(2, -10 * x), outQuint: x => 1 - Math.pow(1 - x, 5), inQuad: x => x * x,
   outBack: (x, s = 1.70158) => 1 + (s + 1) * Math.pow(x - 1, 3) + s * Math.pow(x - 1, 2)
 };
 const spring = (tau, fr = 3, z = .35) => tau <= 0 ? 0 : 1 - Math.exp(-z * 2 * Math.PI * fr * tau) * Math.cos(2 * Math.PI * fr * Math.sqrt(1 - z * z) * tau);
 function rng(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 const $ = id => document.getElementById(id);
-function S(el, o) { const c = el._c || (el._c = {}); for (const k in o) { const v = o[k]; if (c[k] !== v) { el.style[k] = v; c[k] = v; } } }
-function show(el, on) { if (el._v !== on) { el.style.display = on ? '' : 'none'; el._v = on; } }
+function S(el, o) { const c = el._c || (el._c = {}); for (const k in o) { const v = o[k]; if (c[k] !== v) { if (k.startsWith('--')) el.style.setProperty(k, v); else el.style[k] = v; c[k] = v; } } }
+function show(el, on) { if (el._v !== on) { el.style.display = on ? 'block' : 'none'; el._v = on; } }
 const f = (v, d = 2) => v.toFixed(d);
+const blurOf = b => b > .05 ? `blur(${f(b, 1)}px)` : 'none';
 
 /* ---------------- motion vocabulary ---------------- */
-// a word slams into place: oversized, then snaps down with a little wobble
-function slam(el, t, t0, { dx = 0, dy = 0, s = 1, rot = 0, from = 1.9, op = 1 } = {}) {
-  const p = prog(t, t0, t0 + .2);
-  const wob = p >= 1 ? 1 + .05 * Math.cos((t - t0) * 30) * Math.exp(-(t - t0) * 6) : 1;
-  const sc = t < t0 ? from : lerp(from, 1, E.outCubic(p)) * wob;
-  S(el, { opacity: t < t0 ? '0' : f(Math.min(1, p * 4) * op, 3), transform: `translate(${f(dx)}px,${f(dy)}px) rotate(${f(rot)}deg) scale(${f(sc * s, 4)})`, filter: p < 1 ? `blur(${f((1 - p) * 10, 1)}px)` : 'none' });
+// fades up out of a soft blur
+function fadeUp(el, t, t0, { d = .55, y = 50, blur = 14, s0 = 1, op = 1, dy = 0 } = {}) {
+  const p = E.outQuint(prog(t, t0, t0 + d));
+  S(el, { opacity: f(p * op, 3), transform: `translateY(${f(dy + (1 - p) * y)}px) scale(${f(lerp(s0, 1, p), 4)})`, filter: blurOf((1 - p) * blur) });
 }
-// a sticker pops up with a springy overshoot and keeps a gentle bob
-function pop(el, t, t0, { dx = 0, dy = 0, s = 1, rot = 0, bob = 1, seed = 0 } = {}) {
-  const q = t > t0 ? spring(t - t0, 2.6, .32) : 0;
-  const b = t > t0 ? bob * Math.sin((t - t0) * 3.4 + seed) * 8 : 0, r = t > t0 ? bob * Math.sin((t - t0) * 2.2 + seed) * 3 : 0;
-  S(el, { opacity: t < t0 ? '0' : '1', transform: `translate(${f(dx)}px,${f(dy + b)}px) rotate(${f(rot + r + (1 - q) * -20)}deg) scale(${f(Math.max(0, q) * s, 4)})` });
+// rises from behind its own baseline
+function rise(el, t, t0, { d = .6, h = null, op = 1, dy = 0 } = {}) {
+  const hh = h || el._h || (el._h = el.offsetHeight), p = E.outExpo(prog(t, t0, t0 + d)), ty = (1 - p) * hh;
+  S(el, { opacity: t < t0 ? '0' : f(op, 3), transform: `translateY(${f(dy + ty)}px)`, clipPath: `inset(-40% -10% ${f(ty)}px -10%)` });
 }
-// text rises from behind an invisible baseline
-function rise(el, t, t0, { dx = 0, dy = 0, s = 1, d = .32 } = {}) {
-  const p = E.outExpo(prog(t, t0, t0 + d));
-  S(el, { opacity: t < t0 ? '0' : '1', transform: `translate(${f(dx)}px,${f(dy + (1 - p) * 120)}px) scale(${f(s, 4)})`, clipPath: `inset(-40% -10% ${f((1 - p) * 100 - 40, 1)}% -10%)` });
+// letter by letter, each out of a blur
+function letters(el, t, t0, { st = .028, d = .5, op = 1, dy = 0 } = {}) {
+  S(el, { opacity: t < t0 - .01 ? '0' : f(op, 3), transform: `translateY(${f(dy)}px)` });
+  (el._ls || []).forEach((sp, i) => {
+    const p = E.outCubic(prog(t, t0 + i * st, t0 + i * st + d));
+    S(sp, { opacity: f(p, 3), transform: `translateY(${f((1 - p) * .35, 3)}em)`, filter: blurOf((1 - p) * 10) });
+  });
 }
-// eased move between two layouts {x, y, s, r}
-function moveTo(t, t0, d, a, b) {
+function split(el) {
+  const txt = el.textContent; el.textContent = '';
+  el._ls = [...txt].map(ch => { const s = document.createElement('span'); s.textContent = ch; s.style.display = 'inline-block'; if (ch === ' ') s.style.width = '.28em'; el.appendChild(s); return s; });
+}
+// springs in from small
+function popIn(el, t, t0, { s0 = .4, fr = 2.4, z = .42, x = 0, y = 0, op = 1 } = {}) {
+  const q = t > t0 ? spring(t - t0, fr, z) : 0;
+  S(el, { opacity: t < t0 ? '0' : f(Math.min(1, (t - t0) * 6) * op, 3), transform: `translate(${f(x)}px,${f(y)}px) scale(${f(lerp(s0, 1, q), 4)})` });
+}
+// a band of light runs across gold text
+function sweep(el, t, t0, d = .9) { S(el, { '--sx': f(lerp(100, 0, E.inOutCubic(prog(t, t0, t0 + d))), 1) + '%' }); }
+// line icons draw themselves on
+function draw(svg, t, t0, d = .7) {
   const p = E.inOutCubic(prog(t, t0, t0 + d));
-  return { dx: lerp(a.x || 0, b.x || 0, p), dy: lerp(a.y || 0, b.y || 0, p), s: lerp(a.s ?? 1, b.s ?? 1, p), rot: lerp(a.r || 0, b.r || 0, p), p };
+  svg.querySelectorAll('[pathLength]').forEach(pth => S(pth, { strokeDasharray: '1', strokeDashoffset: f(1 - p, 4) }));
 }
+// a column of digits that rolls to a value (a fraction sits between two digits)
+function digits(el, gold) {
+  const col = document.createElement('span');
+  for (let i = 0; i < 11; i++) { const b = document.createElement('b'); b.textContent = i % 10; if (gold) b.className = 'gold'; col.appendChild(b); }
+  el.appendChild(col); el._col = col;
+}
+function roll(el, v) { S(el._col, { transform: `translateY(${f(-v, 4)}em)`, filter: blurOf(Math.min(6, Math.abs(v - Math.round(v)) * 14)) }); }
 
 /* ---------------- builders ---------------- */
-function rays(svg, color, n = 18) {
-  let p = '';
-  for (let i = 0; i < n; i++) { const a0 = i / n * Math.PI * 2, a1 = a0 + Math.PI / n; p += `<path d="M1200 1200 L${1200 + Math.cos(a0) * 1700} ${1200 + Math.sin(a0) * 1700} L${1200 + Math.cos(a1) * 1700} ${1200 + Math.sin(a1) * 1700}Z"/>`; }
-  svg.innerHTML = `<g fill="${color}">${p}</g>`;
-}
-function badge(svg, txt, sub, fill, ink) {
-  let d = '';
-  for (let i = 0; i < 24; i++) { const a = i / 24 * Math.PI * 2, rr = i % 2 ? 128 : 146; d += (i ? 'L' : 'M') + f(150 + Math.cos(a) * rr, 1) + ' ' + f(150 + Math.sin(a) * rr, 1); }
-  svg.setAttribute('viewBox', '0 0 300 300');
-  svg.innerHTML = `<path d="${d}Z" fill="${fill}" stroke="${ink}" stroke-width="6"/><text x="150" y="150" text-anchor="middle" font-family="Manrope" font-weight="800" font-size="${txt.length > 5 ? 50 : 70}" fill="${ink}" letter-spacing="1">${txt}</text><text x="150" y="192" text-anchor="middle" font-family="Manrope" font-weight="800" font-size="24" letter-spacing="4" fill="${ink}">${sub}</text>`;
-}
-let tileEls = [], deckEls = [], snackEls = [], seatEls = [], s2mEls = [], flapEls = [];
+const ICONS = {
+  trophy: '<path pathLength="1" d="M38 18h44v28a22 22 0 0 1-44 0z"/><path pathLength="1" d="M38 26H22v6a16 16 0 0 0 16 16M82 26h16v6a16 16 0 0 1-16 16"/><path pathLength="1" d="M60 68v16M46 100h28M50 84h20v16H50z"/>',
+  rocket: '<path pathLength="1" d="M60 10c18 14 26 34 22 60H38c-4-26 4-46 22-60z"/><circle pathLength="1" cx="60" cy="44" r="9"/><path pathLength="1" d="M38 68l-14 16 16 2M82 68l14 16-16 2M50 86c2 10 5 16 10 22 5-6 8-12 10-22"/>',
+  ticket: '<path pathLength="1" d="M12 34h96v16a10 10 0 0 0 0 20v16H12V70a10 10 0 0 0 0-20z"/><path d="M80 40v40" stroke-dasharray="6 7"/>',
+  cup: '<path pathLength="1" d="M34 38h52l-7 70H41z"/><path pathLength="1" d="M28 38h64"/><path pathLength="1" d="M62 38l9-24h14"/>',
+  cookie: '<circle pathLength="1" cx="60" cy="60" r="44"/><circle pathLength="1" cx="46" cy="46" r="5"/><circle pathLength="1" cx="72" cy="52" r="5"/><circle pathLength="1" cx="54" cy="76" r="5"/><circle pathLength="1" cx="78" cy="78" r="4"/>',
+  popcorn: '<path pathLength="1" d="M32 52h56l-8 58H40z"/><path pathLength="1" d="M50 52l3 58M70 52l-3 58"/><path pathLength="1" d="M34 52a12 12 0 0 1 8-20 14 14 0 0 1 24-6 12 12 0 0 1 20 8 10 10 0 0 1 2 18"/>'
+};
+const ROWS = [
+  ['01', 'Finance <span id="kahoot">Kahoot</span>', 'Teams &middot; prizes to win', 'trophy'],
+  ['02', 'Startup showcase', 'Young founders, live', 'rocket'],
+  ['03', 'Raffle', '5 AED &middot; win Lumera merch', 'ticket']
+];
+let rowEls = [], avEls = [], snackEls = [], dotEls = [];
 function build() {
-  rays($('rays1'), 'rgba(255,214,120,.16)'); rays($('rays2'), 'rgba(91,43,224,.07)'); rays($('rays3'), 'rgba(255,255,255,.32)');
-  rays($('rays4'), 'rgba(255,255,255,.14)'); rays($('rays5'), 'rgba(255,255,255,.14)'); rays($('rays6'), 'rgba(255,255,255,.16)');
-  rays($('rays7'), 'rgba(255,255,255,.16)'); rays($('rays8'), 'rgba(142,123,255,.25)'); rays($('rays9'), 'rgba(255,201,77,.1)'); rays($('rays10'), 'rgba(255,214,120,.16)'); rays($('rays11'), 'rgba(91,43,224,.07)');
-  badge($('s1stamp'), 'ONLY 60', 'SPOTS', '#FFC94D', '#2A1060');
-  badge($('limited'), 'LIMITED', '60 SPOTS', '#FF5A6A', '#fff');
-  badge($('free'), 'FREE', 'ALL EVENING', '#FFF27A', '#2A1060');
-  // the five characters, as stickers along the bottom of scene 2
-  ['sprout', 'nova', 'lumi', 'sentinel', 'blaze'].forEach((n, i) => {
-    const im = document.createElement('img'); im.className = 'el sticker'; im.src = `assets/img/${n}.webp`; im.alt = '';
-    im.style.cssText = `left:${40 + i * 202}px;top:${1190 + (i === 2 ? -20 : 0)}px;height:${i === 2 ? 290 : 250}px`; $('s2m').appendChild(im); s2mEls.push(im);
+  ['s1a', 's2a', 's2b', 's3h', 's4h', 's6a', 's7a', 's9a', 'cAday'].forEach(id => split($(id)));
+  // the four characters, and an empty seat for you
+  ['lumi', 'nova', null, 'sentinel', 'blaze'].forEach((n, i) => {
+    const d = document.createElement('div'); d.className = 'el av'; d.style.left = (i * 192.5) + 'px';
+    if (n) { const im = document.createElement('img'); im.src = `assets/img/${n}.webp`; im.alt = ''; im.style.top = { lumi: '-28px', nova: '-38px', sentinel: '24px', blaze: '-58px' }[n]; d.appendChild(im); }
+    else { d.id = 'avYou'; d.style.background = 'rgba(255,201,77,.08)'; d.style.border = '3px dashed rgba(255,201,77,.85)'; d.innerHTML = '<div class="serif it" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:74px;color:#FFC94D;padding-bottom:8px">you</div>'; }
+    $('s2m').appendChild(d); avEls.push(d);
   });
-  // quiz answer tiles
-  const tiles = [['#E5484D', '<path d="M50 8 92 84H8z" fill="#fff"/>'], ['#2D68E2', '<path d="M50 4 94 50 50 96 6 50z" fill="#fff"/>'], ['#F2B705', '<circle cx="50" cy="50" r="42" fill="#fff"/>'], ['#14823F', '<rect x="10" y="10" width="80" height="80" rx="6" fill="#fff"/>']];
-  tiles.forEach(([c, shape], i) => {
-    const d = document.createElement('div'); d.className = 'el';
-    d.style.cssText = `left:${i % 2 ? 560 : 120}px;top:${660 + Math.floor(i / 2) * 190}px;width:400px;height:170px;border-radius:22px;background:${c};box-shadow:0 12px 0 rgba(0,0,0,.18);display:flex;align-items:center;padding-left:40px`;
-    d.innerHTML = `<svg width="90" height="90" viewBox="0 0 100 100">${shape}</svg><div style="margin-left:24px;width:200px;height:22px;border-radius:11px;background:rgba(255,255,255,.55)"></div>`;
-    $('tiles').appendChild(d); tileEls.push(d);
+  // clock ticks
+  let tk = ''; for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2, r0 = i % 3 ? 92 : 84; tk += `<line x1="${f(120 + Math.sin(a) * r0)}" y1="${f(120 - Math.cos(a) * r0)}" x2="${f(120 + Math.sin(a) * 100)}" y2="${f(120 - Math.cos(a) * 100)}" stroke="rgba(255,255,255,.7)" stroke-width="${i % 3 ? 3 : 6}" stroke-linecap="round"/>`; }
+  $('clkTicks').innerHTML = tk;
+  digits($('dDate')); digits($('d7'), 1); digits($('d2'), 1); digits($('d5'), 1);
+  // the programme
+  ROWS.forEach(([n, title, sub, ic], i) => {
+    const d = document.createElement('div'); d.className = 'el glass'; d.style.cssText = `left:80px;top:${400 + i * 340}px;width:920px;height:300px`;
+    d.innerHTML = `<div class="el label" style="left:54px;top:50px;color:var(--gold);letter-spacing:.3em">${n}</div>
+      <div class="el serif" style="left:50px;top:96px;font-size:94px">${title}</div>
+      <div class="el label" style="left:54px;top:222px;font-size:24px;letter-spacing:.26em">${sub}</div>
+      <svg class="el ico" style="left:738px;top:86px;width:128px;height:128px" viewBox="0 0 120 120">${ICONS[ic]}</svg>`;
+    $('rows').appendChild(d); rowEls.push(d);
   });
-  // pitch decks fanned around Nova
-  [[-1, '#FFC94D'], [1, '#fff'], [0, '#8E7BFF']].forEach(([s, c]) => {
-    const d = document.createElement('div'); d.className = 'el';
-    d.style.cssText = `left:${390 + s * 290}px;top:${800 + (s === 0 ? -60 : 40)}px;width:300px;height:220px;border-radius:22px;background:${c};box-shadow:0 20px 40px -12px rgba(0,0,40,.5);padding:26px`;
-    d.innerHTML = `<div style="width:60%;height:18px;border-radius:9px;background:rgba(26,16,51,.75)"></div><div style="display:flex;align-items:flex-end;gap:14px;height:120px;margin-top:22px">${[50, 80, 64, 110].map(h => `<div style="width:40px;height:${h}px;border-radius:8px;background:rgba(26,16,51,.55)"></div>`).join('')}</div>`;
-    $('decks').appendChild(d); deckEls.push(d);
-  });
-  // drinks and snacks
-  const snacks = [
-    `<svg viewBox="0 0 200 260" width="200" height="260"><path d="M40 70h120l-16 176H56z" fill="#fff" stroke="#2A1060" stroke-width="10" stroke-linejoin="round"/><path d="M48 120h104" stroke="#F15BB5" stroke-width="18"/><path d="M110 70 130 10h30" fill="none" stroke="#2A1060" stroke-width="10" stroke-linecap="round"/><ellipse cx="100" cy="70" rx="66" ry="12" fill="#FFC94D" stroke="#2A1060" stroke-width="10"/></svg>`,
-    `<svg viewBox="0 0 220 220" width="220" height="220"><circle cx="110" cy="110" r="96" fill="#D9A15A" stroke="#2A1060" stroke-width="10"/><g fill="#5a2d0c"><circle cx="80" cy="80" r="13"/><circle cx="140" cy="96" r="11"/><circle cx="100" cy="146" r="13"/><circle cx="150" cy="150" r="9"/><circle cx="62" cy="128" r="9"/></g></svg>`,
-    `<svg viewBox="0 0 220 270" width="220" height="270"><g stroke="#2A1060" stroke-width="10" fill="#FFF7E0"><circle cx="70" cy="70" r="34"/><circle cx="120" cy="52" r="36"/><circle cx="160" cy="80" r="32"/><circle cx="100" cy="92" r="30"/></g><path d="M30 104h160l-22 156H52z" fill="#fff" stroke="#2A1060" stroke-width="10" stroke-linejoin="round"/><path d="M70 104l8 156M110 104v156M150 104l-8 156" stroke="#E5484D" stroke-width="16"/></svg>`
-  ];
-  [[110, 500, -12], [380, 470, 6], [640, 520, -4]].forEach(([x, y, r], i) => {
-    const d = document.createElement('div'); d.className = 'el'; d.style.cssText = `left:${x}px;top:${y}px`; d.innerHTML = snacks[i]; d._r = r;
+  // drinks, snacks
+  ['cup', 'cookie', 'popcorn'].forEach((ic, i) => {
+    const d = document.createElement('div'); d.className = 'el glass'; d.style.cssText = `left:${200 + i * 250}px;top:1320px;width:180px;height:180px;border-radius:50%`;
+    d.innerHTML = `<svg class="el ico" style="left:30px;top:30px;width:120px;height:120px" viewBox="0 0 120 120">${ICONS[ic]}</svg>`;
     $('snacks').appendChild(d); snackEls.push(d);
   });
-  // sixty seats, one for each spot
+  // sixty spots around the 60
   for (let i = 0; i < 60; i++) {
-    const d = document.createElement('div'); d.className = 'el';
-    d.style.cssText = `left:${(i % 10) * 76}px;top:${Math.floor(i / 10) * 46}px;width:62px;height:36px;border-radius:12px 12px 6px 6px;background:${i % 7 === 3 ? '#FFC94D' : '#8E7BFF'};box-shadow:inset 0 -8px 0 rgba(0,0,0,.18)`;
-    $('seats').appendChild(d); seatEls.push(d);
+    const a = i / 60 * Math.PI * 2, d = document.createElement('div'); d.className = 'el';
+    d.style.cssText = `left:${f(Math.sin(a) * 360 - 9)}px;top:${f(-Math.cos(a) * 360 - 9)}px;width:18px;height:18px;border-radius:50%;background:#F7F3FF`;
+    $('ring').appendChild(d); dotEls.push(d);
   }
-  // split-flap digits for 7:25
-  ['7', ':', '2', '5'].forEach((ch, i) => {
-    const d = document.createElement('div'); d.className = 'el';
-    const x = [0, 230, 330, 560][i], w = ch === ':' ? 100 : 210;
-    d.style.cssText = `left:${x}px;top:0;width:${w}px;height:300px;border-radius:24px;background:${ch === ':' ? 'transparent' : 'linear-gradient(#2a1a4a 50%,#1f1238 50%)'};color:#FFC94D;font-weight:800;font-size:250px;line-height:300px;text-align:center;overflow:hidden;${ch === ':' ? '' : 'box-shadow:0 20px 40px rgba(0,0,0,.5),inset 0 0 0 3px rgba(255,255,255,.08)'}`;
-    d.innerHTML = `<span>${ch}</span>`; d._ch = ch; $('flaps').appendChild(d); flapEls.push(d);
-  });
-  const pm = document.createElement('div'); pm.className = 'el'; pm.textContent = 'PM';
-  pm.style.cssText = 'left:790px;top:150px;font-weight:800;font-size:110px;color:#FFC94D'; $('flaps').appendChild(pm); flapEls.push(pm);
-  // clock ticks
-  let tk = ''; for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; tk += `<line x1="${240 + Math.sin(a) * 180}" y1="${240 - Math.cos(a) * 180}" x2="${240 + Math.sin(a) * 200}" y2="${240 - Math.cos(a) * 200}" stroke="#2A1060" stroke-width="${i % 3 ? 6 : 12}" stroke-linecap="round"/>`; }
-  $('ticks').innerHTML = tk;
-  buildConfetti(); buildGrain();
+  buildDust(); buildSparks(); buildGrain();
 }
 
-/* ---------------- confetti bursts ---------------- */
-const BURSTS = [[Wd.invited, 540, 1050, 1], [Wd.prizes + .05, 830, 1360, .6], [Wd.live, 540, 1000, 1.3], [Wd.together, 540, 1450, .9], [Wd.sixty, 540, 800, .8], [Wd.tapf, 760, 975, .7], [Wd.friend, 540, 730, .8]];
-const CONF_C = ['#FFC94D', '#FF5A6A', '#8E7BFF', '#2DD4BF', '#FFFFFF', '#F15BB5', '#1FB45A', '#2D68E2'];
-let CONF = [];
-function buildConfetti() {
-  const r = rng(12);
-  BURSTS.forEach(([t0, x, y, k]) => {
-    for (let i = 0; i < 130 * k; i++) {
-      const a = -Math.PI / 2 + (r() - .5) * Math.PI * 1.6, sp = (500 + r() * 1500) * Math.sqrt(k);
-      CONF.push({ t0, x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: 1800 + r() * 900, rot: r() * 6, wr: (r() - .5) * 18, w: 12 + r() * 14, h: 18 + r() * 20, c: CONF_C[Math.floor(r() * CONF_C.length)], flip: 6 + r() * 12, life: 1.4 + r() * .8 });
+/* ---------------- light: aurora, dust, sparks, grain ---------------- */
+// [time, violet, magenta, gold, blue, seconds to get there]
+const MOOD = [
+  [0, 0, 0, 0, 0, .1], [.25, .32, .08, .3, .05, .9], [SC.s2, .75, .25, .12, .2, .7], [SC.s3, .6, .45, .15, .3, .7],
+  [SC.s4, .7, .3, .1, .4, .7], [SC.s5, .45, .75, .3, .1, .7], [SC.s6, .25, .12, .06, .22, .6], [Wd.live - .02, .85, .5, .95, .25, .18],
+  [Wd.together, .7, .4, .45, .2, .8], [SC.s7, .25, .15, .35, .05, .5], [SC.s8, .7, .35, .15, .35, .7], [SC.s9, .6, .3, .45, .15, .8]
+];
+function sky(t) {
+  let v = [0, 0, 0, 0];
+  for (let i = 0; i < MOOD.length; i++) {
+    const [t0, a, b, c, d, dd] = MOOD[i]; if (t < t0) break;
+    const p = E.inOutCubic(prog(t, t0, t0 + dd)); v = v.map((x, j) => lerp(x, [a, b, c, d][j], p));
+  }
+  const pos = [[300 + 140 * Math.sin(t * .23), 640 + 170 * Math.cos(t * .19)], [880 + 120 * Math.cos(t * .21), 1260 + 160 * Math.sin(t * .17)],
+    [540 + 200 * Math.sin(t * .15 + 1), 1560 + 120 * Math.cos(t * .2)], [160 + 150 * Math.cos(t * .18 + 2), 1500 + 140 * Math.sin(t * .22)]];
+  ['bA', 'bB', 'bC', 'bD'].forEach((id, i) => S($(id), { opacity: f(v[i], 3), transform: `translate(${f(pos[i][0])}px,${f(pos[i][1])}px) scale(${f(1 + .08 * Math.sin(t * .3 + i), 3)})` }));
+}
+let DUST = [];
+function buildDust() { const r = rng(5); for (let i = 0; i < 46; i++) DUST.push({ x: r() * W, y: r() * H, z: .3 + r() * .7, ph: r() * 6, gold: r() < .35 }); }
+function dust(t) {
+  const g = $('dust').getContext('2d'); g.clearRect(0, 0, W, H);
+  const on = clamp(t / .8);
+  for (const p of DUST) {
+    const y = ((p.y - t * 26 * p.z) % H + H) % H, x = p.x + Math.sin(t * .4 + p.ph) * 30 * p.z, r = 2 + p.z * 7;
+    const a = on * (.08 + .22 * p.z) * (.6 + .4 * Math.sin(t * 1.3 + p.ph));
+    const gr = g.createRadialGradient(x, y, 0, x, y, r * 2.2);
+    gr.addColorStop(0, p.gold ? `rgba(255,214,140,${f(a, 3)})` : `rgba(220,210,255,${f(a, 3)})`); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = gr; g.fillRect(x - r * 2.2, y - r * 2.2, r * 4.4, r * 4.4);
+  }
+}
+// [time, x, y, kind, strength]
+const BURSTS = [[Wd.invited + .05, 540, 1180, 'line', .8], [Wd.prizes + .05, 882, 615, 'radial', .35], [Wd.live, 540, 1010, 'radial', 1.5],
+  [Wd.sixty, 540, 1000, 'ring', 1], [Wd.tapf, 640, 1225, 'radial', .55], [Wd.last, 540, 900, 'radial', .6]];
+let SPARKS = [];
+function buildSparks() {
+  const r = rng(21);
+  BURSTS.forEach(([t0, x, y, kind, k]) => {
+    for (let i = 0; i < 140 * k; i++) {
+      let px = x, py = y, vx, vy;
+      if (kind === 'line') { px = 90 + r() * 900; vx = (r() - .5) * 120; vy = -(120 + r() * 520); }
+      else if (kind === 'ring') { const a = r() * Math.PI * 2; px = x + Math.sin(a) * 360; py = y - Math.cos(a) * 360; const sp = 150 + r() * 700; vx = Math.sin(a) * sp; vy = -Math.cos(a) * sp; }
+      else { const a = r() * Math.PI * 2, sp = (250 + r() * 1700) * Math.sqrt(k); vx = Math.cos(a) * sp; vy = Math.sin(a) * sp; }
+      SPARKS.push({ t0: t0 + r() * .06, x: px, y: py, vx, vy, life: .7 + r() * 1.1, w: 1.5 + r() * 3, hot: r() < .5 });
     }
   });
 }
-function renderConfetti(t) {
-  const g = $('confetti').getContext('2d'); g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, W, H);
-  for (const p of CONF) {
+function sparks(t) {
+  const g = $('sparks').getContext('2d'); g.clearRect(0, 0, W, H); g.globalCompositeOperation = 'lighter'; g.lineCap = 'round';
+  for (const p of SPARKS) {
     const tau = t - p.t0; if (tau < 0 || tau > p.life) continue;
-    const drag = 2.2, x = p.x + p.vx * (1 - Math.exp(-drag * tau)) / drag, y = p.y + p.vy * (1 - Math.exp(-drag * tau)) / drag + .5 * p.g * tau * tau * .35;
-    g.save(); g.translate(x, y); g.rotate(p.rot + p.wr * tau); g.scale(1, Math.cos(p.flip * tau));
-    g.globalAlpha = Math.min(1, 4 * (1 - tau / p.life)); g.fillStyle = p.c; g.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); g.restore();
+    const dr = 2.6, k = (1 - Math.exp(-dr * tau)) / dr, x = p.x + p.vx * k, y = p.y + p.vy * k + 140 * tau * tau;
+    const vx = p.vx * Math.exp(-dr * tau), vy = p.vy * Math.exp(-dr * tau) + 280 * tau, a = Math.pow(1 - tau / p.life, 1.5);
+    g.strokeStyle = p.hot ? `rgba(255,236,190,${f(a, 3)})` : `rgba(255,190,90,${f(a, 3)})`; g.lineWidth = p.w;
+    g.beginPath(); g.moveTo(x, y); g.lineTo(x - vx * .028, y - vy * .028); g.stroke();
   }
+  g.globalCompositeOperation = 'source-over';
 }
 let GRAIN = [];
 function buildGrain() {
@@ -359,178 +383,216 @@ function buildGrain() {
 /* =====================================================================
    seek(t)
    ===================================================================== */
-const ORDER = ['s1', 's2', 's3', 's4a', 's4b', 's4c', 's5', 's6', 's7', 's8', 's9'];
-const WIPES = { s2: ['circle', '#FFF4E2'], s3: ['diag', '#FFC94D'], s4a: ['right', '#1FB45A'], s4b: ['up', '#2D68E2'], s4c: ['diag', '#F08A24'], s5: ['circle', '#F15BB5'], s6: ['flash', '#000'], s7: ['flash', '#000'], s8: ['circle', '#6a3cf0'], s9: ['up', '#FFF4E2'] };
-// every slam shakes the frame a little; the big words shake it more
-const SLAMS = [[Wd.hey, .6], [Wd.everyone, .6], [Wd.invited, 1.1], [Wd.lumera, .7], [Wd.you, 1], [Wd.friday, .5], [Wd.four, .8], [Wd.threethirty, .6], [Wd.venue, .8],
-  [Wd.kahoot, .8], [Wd.prizes, .5], [Wd.showcase, .7], [Wd.raffle, .8], [Wd.drinks, .5], [Wd.snacks, .5], [Wd.onus, .8], [Wd.live, 1.3], [Wd.together, .8],
-  [Wd.only, .5], [Wd.sixty, 1.3], [Wd.spots, .7], [Wd.first, .6], [Wd.getin, .8], [Wd.link, .6], [Wd.tag, .6], [Wd.friend, .7], [Wd.see, .6]];
+// the camera leans in on the words that matter
+const PUNCH = [[Wd.invited, .8], [Wd.lumera, .5], [Wd.you, .7], [Wd.four, .3], [Wd.threethirty, .3], [Wd.venue, .5], [Wd.kahoot, .3], [Wd.startup, .3],
+  [Wd.raffle, .3], [Wd.onus, .5], [Wd.live, 1.3], [Wd.together, .5], [Wd.sixty, 1], [Wd.getin, .5], [Wd.tapf, .3], [Wd.last, .6]];
 const SCENES = {};
+// each scene comes out of the dark towards the camera and leaves past it
+function env(k, t) {
+  const i = ORDER.indexOf(k), t0 = SC[k], t1 = i < ORDER.length - 1 ? SC[ORDER[i + 1]] : DUR + 9;
+  if (t < t0 || t > t1 + .22) return null;
+  const pin = i === 0 ? 1 : E.outCubic(prog(t, t0 + .02, t0 + .5)), pout = E.inCubic(prog(t, t1 - .12, t1 + .22));
+  return { op: Math.pow(pin, 1.6) * Math.pow(1 - pout, 2.2), s: lerp(.86, 1, pin) * (1 + .03 * prog(t, t0, Math.min(t1, DUR))) * lerp(1, 1.24, pout), blur: (1 - pin) * 10 + pout * 16 };
+}
 function seek(t) {
   t = clamp(t, 0, DUR);
-  let cur = ORDER[0];
-  for (const k of ORDER) if (t >= SC[k]) cur = k;
-  ORDER.forEach(k => show($(k), k === cur));
-  renderWipe(t, cur);
-  let sx = 0, sy = 0, sr = 0;
-  for (const [st, k] of SLAMS) { const tau = t - st; if (tau < 0 || tau > .5) continue; const a = k * 22 * Math.exp(-tau * 12); sx += a * Math.sin(tau * 90 + st); sy += a * Math.cos(tau * 77 + st * 2); sr += k * .8 * Math.exp(-tau * 12) * Math.sin(tau * 60); }
-  S($('shake'), { transform: Math.abs(sx) + Math.abs(sy) > .01 ? `translate(${f(sx)}px,${f(sy)}px) rotate(${f(sr, 3)}deg) scale(1.03)` : 'none' });
-  SCENES[cur](t);
-  document.querySelectorAll('#' + cur + ' .rays').forEach(r => S(r, { transform: `rotate(${f(t * 9, 2)}deg)` }));
-  renderConfetti(t);
+  sky(t); dust(t);
+  for (const k of ORDER) {
+    const e = env(k, t), el = $(k); show(el, !!e);
+    if (!e) continue;
+    S(el, { opacity: f(e.op, 3), transform: `scale(${f(e.s, 4)})`, filter: blurOf(e.blur) });
+    SCENES[k](t);
+  }
+  let pz = 0; for (const [st, k] of PUNCH) { const tau = t - st; if (tau >= 0 && tau < .8) pz += k * .022 * Math.exp(-tau * 7) * Math.sin(Math.min(tau * 30, Math.PI / 2)); }
+  S($('cam'), { transform: pz > .0005 ? `scale(${f(1 + pz, 4)})` : 'none' });
+  sparks(t);
+  const ft = t - Wd.live; S($('flash'), { opacity: f(ft >= 0 && ft < 1.2 ? .85 * Math.exp(-ft * 4.5) : 0, 3) });
   const gg = $('grain').getContext('2d'); gg.fillStyle = GRAIN[Math.floor(t * 15) % GRAIN.length]; gg.fillRect(0, 0, 540, 960);
-}
-// each new scene arrives as a shape wipe in its colour
-function renderWipe(t, cur) {
-  const el = $('wipe'), w = WIPES[cur];
-  const p = w ? prog(t, SC[cur], SC[cur] + .22) : 1;
-  if (!w || p >= 1) { S(el, { opacity: '0' }); return; }
-  const [kind, col] = w, e = E.outCubic(p);
-  if (kind === 'flash') { S(el, { opacity: f(1 - p, 3), background: col, clipPath: 'none' }); return; }
-  S(el, { opacity: '1', background: col,
-    clipPath: kind === 'circle' ? `circle(${f((1 - e) * 140, 1)}% at 50% 50%)` : kind === 'right' ? `inset(0 0 0 ${f(e * 100, 1)}%)` : kind === 'up' ? `inset(0 0 ${f(e * 100, 1)}% 0)` : `polygon(${f(e * 160 - 30, 1)}% 0,130% 0,130% 100%,${f(e * 160 - 60, 1)}% 100%)` });
 }
 
 /* ---------------- scenes ---------------- */
 SCENES.s1 = t => {
-  // "Hey everyone," then they step back for "you're invited!"
-  const back = moveTo(t, CUE.s1back, .25, { y: 0, s: 1 }, { y: -340, s: .62 });
-  slam($('s1a'), t, Wd.hey, { dy: back.dy - 60 * (1 - back.s), s: back.s });
-  slam($('s1b'), t, Wd.everyone, { dy: back.dy - 160 * (1 - back.s), s: back.s });
-  slam($('s1c'), t, Wd.youre, { dy: -40 });
-  slam($('s1d'), t, Wd.invited, { dy: -20, from: 2.4 });
-  pop($('s1stamp'), t, CUE.stamp, { rot: -14, bob: .4 });
+  const lp = E.outExpo(prog(t, .05, .75));
+  S($('s1line'), { transform: `scaleX(${f(lp, 4)})`, opacity: f(Math.min(1, lp * 3), 3) });
+  letters($('s1a'), t, Wd.hey, { st: .018 });
+  fadeUp($('s1b'), t, Wd.youre - .03, { y: 40 });
+  rise($('s1c'), t, Wd.invited - .05, { h: 320, d: .65 });
+  sweep($('s1c'), t, Wd.invited + .35);
+  fadeUp($('s1pill'), t, CUE.pill, { y: 30 });
+  S($('s1dot'), { opacity: f(.55 + .45 * Math.abs(Math.sin(t * 4)), 3) });
 };
 SCENES.s2 = t => {
-  const lift = moveTo(t, CUE.s2lift, .28, { y: 0, s: 1 }, { y: -250, s: .62 });
-  const lp = E.outBack(prog(t, Wd.lumera - .05, Wd.lumera + .35), 2.2);
-  S($('s2logo'), { opacity: t < Wd.lumera - .05 ? '0' : '1', transform: `translate(0px,${f(lift.dy * .55)}px) rotate(${f((1 - E.outCubic(prog(t, Wd.lumera - .05, Wd.lumera + .45))) * -200)}deg) scale(${f(lp * lerp(1, .55, lift.p), 4)})` });
-  slam($('s2a'), t, Wd.lumera, { dy: lift.dy * .9, s: lift.s });
-  rise($('s2b'), t, Wd.is, { dy: lift.dy * 1.2 - 120 * (1 - lift.s), s: lift.s });
-  S($('s2mark'), { backgroundSize: `${f(E.outCubic(prog(t, Wd.launching + .1, Wd.launching + .45)) * 100, 1)}% 100%` });
-  slam($('s2c'), t, Wd.want, { dy: -30 });
-  slam($('s2d'), t, Wd.you, { from: 2.6 });
-  rise($('s2e'), t, Wd.room, { dy: 20 });
-  s2mEls.forEach((el, i) => pop(el, t, CUE.s2m + i * .09, { seed: i }));
+  const B = E.inOutCubic(prog(t, CUE.phaseB, CUE.phaseB + .35)), aOp = 1 - B, aDy = -150 * B;
+  const rp = prog(t, CUE.ring, CUE.ring + .8);
+  S($('s2ring'), { opacity: f(t < CUE.ring ? 0 : (1 - rp) * .9 * aOp, 3), transform: `scale(${f(lerp(.25, 1.7, E.outCubic(rp)), 4)})` });
+  // the ribbon draws itself on from left to right and ends on its star
+  const q = t > CUE.ring - .04 ? spring(t - CUE.ring + .04, 2.2, .45) : 0, wp = E.inOutCubic(prog(t, CUE.ring - .06, CUE.ring + .55));
+  S($('s2logo'), { opacity: f(t < CUE.ring - .06 ? 0 : aOp, 3), transform: `translateY(${f(aDy)}px) scale(${f(lerp(.85, 1, q), 4)})`, clipPath: `inset(-20% ${f((1 - wp) * 100, 2)}% -20% -20%)` });
+  letters($('s2a'), t, Wd.lumera, { st: .035, op: aOp, dy: aDy });
+  letters($('s2b'), t, Wd.is, { st: .02, op: aOp, dy: aDy });
+  S($('s2bl'), { opacity: f(aOp, 3), transform: `translateY(${f(aDy)}px) scaleX(${f(E.outExpo(prog(t, Wd.launching, Wd.launching + .7)), 4)})` });
+  rise($('s2c'), t, Wd.want - .06, { d: .55 });
+  const yp = E.outQuint(prog(t, Wd.you - .04, Wd.you + .5));
+  S($('s2d'), { opacity: f(yp, 3), transform: `scale(${f(lerp(1.35, 1, yp), 4)})`, filter: blurOf((1 - yp) * 18) });
+  sweep($('s2d'), t, Wd.you + .3);
+  rise($('s2e'), t, Wd.room - .05, { d: .55 });
+  avEls.forEach((el, i) => popIn(el, t, CUE.av + i * .075, { s0: .3 }));
+  const g = t > CUE.youGlow ? .5 + .5 * Math.sin((t - CUE.youGlow) * 6 - Math.PI / 2) : 0;
+  S($('avYou'), { boxShadow: `0 0 ${f(20 + 50 * g)}px rgba(255,201,77,${f(.25 + .45 * g, 3)})` });
 };
 SCENES.s3 = t => {
-  slam($('s3a'), t, Wd.friday);
-  // calendar: big in the middle, then up to the top left when the clock arrives
-  const c1 = moveTo(t, CUE.calMove, .3, { x: 280, y: 480, s: 1, r: -4 }, { x: 70, y: 480, s: .5, r: -6 });
-  const cp = t > CUE.cal ? spring(t - CUE.cal, 2.6, .34) : 0;
-  S($('s3cal'), { opacity: t < CUE.cal ? '0' : '1', transform: `translate(${f(c1.dx)}px,${f(c1.dy)}px) rotate(${f(c1.rot + (1 - cp) * -18)}deg) scale(${f(cp * c1.s, 4)})`, transformOrigin: '0 0' });
-  // the date rolls through the month and lands on 4
-  $('s3num').textContent = String(t < CUE.cal ? 1 : t < Wd.four ? Math.floor(1 + (t - CUE.cal) * 18) % 30 + 1 : 4);
-  const np = t >= Wd.four ? spring(t - Wd.four, 4, .35) : 0;
-  S($('s3num'), { transform: `scale(${f(t >= Wd.four ? 1 + .25 * (1 - np) : .9, 3)})` });
-  // the clock spins to 3:30
-  const k1 = moveTo(t, CUE.clockMove, .28, { x: 300, y: 560, s: 1 }, { x: 600, y: 470, s: .62 });
-  const kp = t > CUE.clock ? spring(t - CUE.clock, 2.6, .34) : 0;
-  S($('s3clock'), { opacity: t < CUE.clock ? '0' : '1', transform: `translate(${f(k1.dx)}px,${f(k1.dy)}px) scale(${f(kp * k1.s, 4)})`, transformOrigin: '0 0' });
-  const mins = lerp(0, 3 * 60 + 30, E.outCubic(prog(t, CUE.spin, CUE.spin + .7)));
-  $('mHand').setAttribute('transform', `rotate(${f((mins % 60) / 60 * 360)} 240 240)`);
-  $('hHand').setAttribute('transform', `rotate(${f((mins / 60) / 12 * 360)} 240 240)`);
-  const tl = moveTo(t, CUE.clockMove, .28, { x: 0, y: 0, s: 1 }, { x: 210, y: -470, s: .52 });
-  slam($('s3t'), t, Wd.threethirty, { dx: tl.dx, dy: tl.dy, s: tl.s });
-  // the pin drops onto the venue
-  const pd = prog(t, Wd.venue - .25, Wd.venue), tau = t - Wd.venue;
-  const sq = tau > 0 ? .14 * Math.exp(-tau * 7) * Math.cos(tau * 30) : 0;
-  S($('s3pin'), { opacity: t < Wd.venue - .25 ? '0' : '1', transform: `translate(0px,${f(t < Wd.venue ? lerp(-900, 0, E.inQuad(pd)) : 0)}px) scale(${f(1 + sq, 3)},${f(1 - sq, 3)})`, transformOrigin: '50% 100%' });
-  slam($('s3v'), t, Wd.venue);
-  rise($('s3dc'), t, Wd.dc + .15);
+  letters($('s3h'), t, SC.s3 + .1, { st: .02 });
+  const sway = Math.sin((t - SC.s3) * .9) * 4, tiltX = lerp(10, 4, prog(t, SC.s3, SC.s4));
+  const card = (el, t0) => {
+    const p = E.outCubic(prog(t, t0, t0 + .7));
+    S(el, { opacity: f(Math.min(1, p * 2.2), 3), transform: `translateY(${f((1 - p) * 160)}px) rotateX(${f(tiltX + (1 - p) * -55)}deg) rotateY(${f(sway)}deg) scale(${f(lerp(.88, 1, p), 4)})` });
+  };
+  card($('cA'), CUE.cA); card($('cB'), CUE.cB); card($('cC'), CUE.cC);
+  letters($('cAday'), t, Wd.friday + .05, { st: .03 });
+  roll($('dDate'), lerp(1, 4, E.outCubic(prog(t, Wd.friday + .1, Wd.four + .02))));
+  // the clock hands spin round to 3:30
+  const mins = lerp(0, 3 * 60 + 30, E.inOutCubic(prog(t, CUE.spin, Wd.threethirty + .1)));
+  $('mHand').setAttribute('transform', `rotate(${f((mins % 60) / 60 * 360)} 120 120)`);
+  $('hHand').setAttribute('transform', `rotate(${f(mins / 720 * 360)} 120 120)`);
+  fadeUp($('cBt'), t, Wd.threethirty - .04, { y: 30 }); fadeUp($('cBp'), t, Wd.threethirty + .15, { y: 20 });
+  // the pin drops onto Dubai College
+  draw($('pin'), t, CUE.cC + .1, .6);
+  const pd = prog(t, Wd.venue - .3, Wd.venue), tau = t - Wd.venue, sq = tau > 0 ? .12 * Math.exp(-tau * 7) * Math.cos(tau * 28) : 0;
+  S($('pin'), { transform: `translateY(${f(t < Wd.venue ? lerp(-120, 0, E.inQuad(pd)) : 0)}px) scale(${f(1 + sq, 3)},${f(1 - sq, 3)})`, transformOrigin: '50% 100%' });
+  fadeUp($('cCt'), t, Wd.venue - .04, { y: 30 });
+  fadeUp($('cCs'), t, Wd.dc + .15, { y: 20 });
 };
-SCENES.s4a = t => {
-  slam($('s4a1'), t, Wd.finance - .05);
-  slam($('s4a2'), t, Wd.kahoot, { from: 2.2, rot: -2 });
-  tileEls.forEach((el, i) => pop(el, t, Wd.kahoot + .2 + i * .07, { bob: .3, seed: i }));
-  slam($('s4a3'), t, Wd.prizes);
-  pop($('trophy'), t, Wd.prizes + .05, { rot: 8, seed: 2 });
-  pop($('sprout'), t, CUE.sprout, { rot: -6, seed: 1 });
-};
-SCENES.s4b = t => {
-  slam($('s4b1'), t, Wd.startup - .04);
-  slam($('s4b2'), t, Wd.showcase, { from: 2.2 });
-  pop($('nova'), t, CUE.nova, { seed: 3 });
-  deckEls.forEach((el, i) => pop(el, t, Wd.showcase + .15 + i * .08, { rot: [-10, 9, -3][i], bob: .5, seed: i + 4 }));
-  rise($('s4b3'), t, CUE.s4b3);
-};
-SCENES.s4c = t => {
-  slam($('s4c1'), t, Wd.raffle - .04, { from: 2.2, rot: -2 });
-  const rp = t > CUE.ticket ? spring(t - CUE.ticket, 2.4, .32) : 0;
-  S($('rticket'), { opacity: t < CUE.ticket ? '0' : '1', transform: `rotate(${f(-6 + (1 - rp) * 30)}deg) scale(${f(Math.max(0, rp), 4)})` });
-  rise($('s4c2'), t, CUE.s4c2);
-  pop($('blaze'), t, CUE.blaze, { seed: 5 });
+SCENES.s4 = t => {
+  letters($('s4h'), t, SC.s4 + .08, { st: .02 });
+  rowEls.forEach((el, i) => {
+    const t0 = CUE.rows[i], t1 = i < 2 ? CUE.rows[i + 1] : DUR, p = E.outQuint(prog(t, t0, t0 + .6));
+    const act = prog(t, t0, t0 + .3) * (1 - prog(t, t1, t1 + .3));
+    S(el, { opacity: f(p * lerp(.42, 1, act), 3), transform: `translateY(${f((1 - p) * 90)}px) scale(${f(lerp(.97, 1, act), 4)})`, filter: blurOf((1 - p) * 14),
+      borderColor: `rgba(255,${f(lerp(255, 201, act), 0)},${f(lerp(255, 77, act), 0)},${f(lerp(.17, .55, act), 3)})`, boxShadow: `inset 0 1.5px 0 rgba(255,255,255,.3),0 50px 90px -40px rgba(0,0,0,.85),0 0 ${f(70 * act)}px rgba(255,190,80,${f(.22 * act, 3)})` });
+    draw(el.querySelector('svg'), t, t0 + .15, .8);
+  });
+  const k = prog(t, Wd.kahoot, Wd.kahoot + .25);
+  S($('kahoot'), { color: `rgb(${f(lerp(247, 255, k), 0)},${f(lerp(243, 206, k), 0)},${f(lerp(255, 90, k), 0)})`, fontStyle: t >= Wd.kahoot ? 'italic' : 'normal' });
+  const tr = t > Wd.prizes ? spring(t - Wd.prizes, 3, .3) : 0;
+  S(rowEls[0].querySelector('svg'), { transform: `scale(${f(t > Wd.prizes ? 1 + .25 * (1 - tr) : 1, 3)}) rotate(${f(t > Wd.prizes ? (1 - tr) * 12 : 0)}deg)` });
 };
 SCENES.s5 = t => {
-  slam($('s5a'), t, Wd.yes - .04);
-  snackEls.forEach((el, i) => pop(el, t, [Wd.drinks - .1, Wd.drinks + .12, Wd.snacks - .05][i], { rot: el._r, seed: i * 2 }));
-  slam($('s5b'), t, Wd.drinks); slam($('s5c'), t, Wd.snacks); slam($('s5d'), t, Wd.onus, { from: 2.4 });
-  pop($('free'), t, Wd.free, { rot: 14, bob: .4, seed: 7 });
+  fadeUp($('s5a'), t, Wd.yes - .05, { y: 30 });
+  rise($('s5b'), t, Wd.drinks - .05); rise($('s5c'), t, Wd.snacks - .05);
+  const p = E.outQuint(prog(t, Wd.onus - .04, Wd.onus + .5));
+  S($('s5d'), { opacity: f(p, 3), transform: `scale(${f(lerp(1.3, 1, p), 4)})`, filter: blurOf((1 - p) * 18) });
+  sweep($('s5d'), t, Wd.onus + .3);
+  [Wd.drinks, Wd.snacks, Wd.onus].forEach((t0, i) => {
+    const el = snackEls[i]; popIn(el, t, t0 + .05, { s0: .5, y: Math.sin(t * 2.2 + i * 1.7) * 10 }); draw(el.querySelector('svg'), t, t0 + .1, .6);
+  });
 };
 SCENES.s6 = t => {
-  rise($('s6a'), t, Wd.then);
-  // split flaps roll to 7:25
-  flapEls.forEach((el, i) => {
-    const t0 = [Wd.seven, Wd.seven, Wd.tf, Wd.tf + .06, Wd.tf + .1][i];
-    const up = t > t0 - .25 ? spring(t - (t0 - .25), 3, .4) : 0;
-    S(el, { opacity: t < t0 - .25 ? '0' : '1', transform: `translateY(${f((1 - up) * 60)}px) scale(${f(.6 + .4 * Math.min(1, up), 3)})` });
-    if (el._ch && el._ch !== ':') el.firstChild.textContent = t < t0 ? String(Math.floor((t * 23 + i * 3) % 10)) : el._ch;
-  });
-  const lp = t > CUE.laptop ? spring(t - CUE.laptop, 2.2, .4) : 0;
-  const zoom = 1 + .06 * E.outCubic(prog(t, Wd.live, Wd.live + .5)) * (1 - prog(t, CUE.calm, CUE.calm + .6));
-  S($('laptop'), { opacity: t < CUE.laptop ? '0' : '1', transform: `scale(${f(lp * zoom, 4)})`, transformOrigin: '50% 60%' });
-  const lb = t > Wd.live ? spring(t - Wd.live, 3, .35) : 0;
-  S($('liveBadge'), { transform: `scale(${f(t < Wd.live ? 0 : lb, 3)}) rotate(${f(-6 + 6 * lb)}deg)` });
+  letters($('s6a'), t, Wd.then, { st: .025 });
+  const sp = E.outQuint(prog(t, Wd.seven - .4, Wd.seven + .3));
+  S($('s6t'), { opacity: f(sp, 3), transform: `translateY(${f((1 - sp) * 40)}px)` });
+  roll($('d7'), lerp(0, 7, E.outCubic(prog(t, Wd.seven - .4, Wd.seven + .02))));
+  roll($('d2'), lerp(0, 2, E.outCubic(prog(t, Wd.tf - .35, Wd.tf + .05))));
+  roll($('d5'), lerp(0, 5, E.outCubic(prog(t, Wd.tf - .3, Wd.tf + .12))));
+  S($('s6pm'), { opacity: f(prog(t, Wd.tf + .05, Wd.tf + .3), 3) });
+  // the screen leans back in the dark, then snaps up and lights on "live"
+  const ap = E.outCubic(prog(t, CUE.screen, CUE.screen + .6)), lv = t > Wd.live ? spring(t - Wd.live, 2.4, .42) : 0;
+  const rx = lerp(lerp(48, 26, ap), 0, lv), on = clamp(lv * 1.3);
+  S($('scr'), { opacity: f(ap, 3), transform: `translateY(${f((1 - ap) * 120)}px) rotateX(${f(rx)}deg) scale(${f(lerp(.9, 1, ap) * (1 + .03 * Math.sin(lv * Math.PI)), 4)})`,
+    boxShadow: `0 0 0 1px rgba(155,123,255,${f(.2 + .4 * on, 3)}),0 0 ${f(40 + 120 * on)}px ${f(10 * on)}px rgba(${on > .5 ? '255,190,90' : '107,59,255'},${f(.25 + .4 * on, 3)}),0 60px 120px -40px rgba(0,0,0,.9)` });
+  S($('scrdim'), { opacity: f(lerp(.82, 0, on), 3) });
+  const lb = t > Wd.live + .08 ? spring(t - Wd.live - .08, 3, .38) : 0;
+  S($('live'), { transform: `scale(${f(lb, 3)})`, opacity: t > Wd.live ? '1' : '0' });
   S($('liveDot'), { opacity: Math.sin(t * 9) > 0 ? '1' : '.35' });
-  S($('rays8'), { opacity: f(.9 * prog(t, Wd.live, Wd.live + .2) * (1 - .4 * prog(t, CUE.calm, CUE.calm + .8)), 3) });
-  slam($('s6b'), t, Wd.we, { op: 1 - prog(t, Wd.together - .12, Wd.together) });
-  slam($('s6c'), t, Wd.together, { from: 2.2 });
+  rise($('s6b'), t, Wd.we - .05, { op: 1 - prog(t, Wd.together - .2, Wd.together) });
+  S($('s6live'), { color: t >= Wd.live ? '#FFC94D' : '#F7F3FF', fontStyle: t >= Wd.live ? 'italic' : 'normal' });
+  const gp = E.outQuint(prog(t, Wd.together - .04, Wd.together + .5));
+  S($('s6c'), { opacity: f(gp, 3), transform: `scale(${f(lerp(1.3, 1, gp), 4)})`, filter: blurOf((1 - gp) * 18) });
+  sweep($('s6c'), t, Wd.together + .3);
 };
 SCENES.s7 = t => {
-  rise($('s7a'), t, Wd.but);
-  slam($('s7b'), t, Wd.only);
-  slam($('s7c'), t, Wd.sixty, { from: 2.8 });
-  slam($('s7d'), t, Wd.spots);
-  // sixty seats fill in, a row at a time
-  seatEls.forEach((el, i) => { const t0 = Wd.sixty + .05 + (i % 10) * .012 + Math.floor(i / 10) * .07; pop(el, t, t0, { bob: 0 }); });
-  pop($('limited'), t, Wd.spots + .25, { rot: 14, bob: .4, seed: 3 });
+  letters($('s7a'), t, Wd.but, { st: .02 });
+  rise($('s7b'), t, Wd.only - .05);
+  const p = E.outQuint(prog(t, Wd.sixty - .04, Wd.sixty + .55));
+  S($('s7c'), { opacity: f(p, 3), transform: `scale(${f(lerp(1.5, 1, p), 4)})`, filter: blurOf((1 - p) * 22) });
+  sweep($('s7c'), t, Wd.sixty + .35, 1);
+  S($('ring'), { transform: `rotate(${f((t - SC.s7) * 6)}deg)` });
+  dotEls.forEach((el, i) => {
+    const t0 = Wd.sixty - .12 + i * .011, q = t > t0 ? spring(t - t0, 3, .4) : 0;
+    const gold = prog(t, Wd.spots + .25 + i * .012, Wd.spots + .4 + i * .012);
+    S(el, { opacity: t < t0 ? '0' : f(lerp(.55, 1, gold), 3), transform: `scale(${f(q * lerp(.8, 1.15, gold), 3)})`, background: gold > .5 ? '#FFC94D' : '#F7F3FF', boxShadow: gold > .5 ? '0 0 14px rgba(255,201,77,.9)' : 'none' });
+  });
+  rise($('s7d'), t, Wd.spots - .05);
 };
 SCENES.s8 = t => {
-  slam($('s8a'), t, Wd.first);
-  slam($('s8b'), t, Wd.signup);
-  slam($('s8c'), t, Wd.getin, { from: 2.2 });
-  // the sign-up button gets tapped
+  rise($('s8a'), t, Wd.first - .06); rise($('s8b'), t, Wd.signup - .06);
+  const gp = E.outQuint(prog(t, Wd.getin - .04, Wd.getin + .5));
+  S($('s8c'), { opacity: f(gp, 3), transform: `scale(${f(lerp(1.3, 1, gp), 4)})`, filter: blurOf((1 - gp) * 16) });
+  sweep($('s8c'), t, Wd.getin + .3);
+  // the pass: a glass ticket with a holographic sheen
+  const pp = E.outCubic(prog(t, CUE.pass, CUE.pass + .7));
+  S($('pass'), { opacity: f(Math.min(1, pp * 2), 3), transform: `perspective(1600px) translateY(${f((1 - pp) * 140 + Math.sin(t * 1.6) * 6)}px) rotateX(${f((1 - pp) * -50 + 4)}deg) rotateY(${f(Math.sin(t * .9) * 4)}deg)` });
+  S($('holo'), { backgroundPosition: `${f(100 - ((t - CUE.pass) * 40 % 200), 1)}% 0` });
   const tapped = t >= Wd.tapf, bp = tapped ? spring(t - Wd.tapf, 4, .3) : 0;
-  S($('signup'), { opacity: t < CUE.signup ? '0' : '1', background: tapped ? '#1FB45A' : '#fff', color: tapped ? '#fff' : '#2A1060',
-    transform: `scale(${f(tapped ? .9 + .1 * bp : E.outBack(prog(t, CUE.signup, CUE.signup + .3), 2), 3)})`, boxShadow: '0 24px 50px -16px rgba(20,0,60,.6)' });
-  const label = tapped ? 'Spot saved \u2713' : 'Sign up \u2192';
-  if ($('signup').textContent !== label) $('signup').textContent = label;
-  const tp = prog(t, Wd.tapf - .05, Wd.tapf + .45);
-  S($('tap'), { opacity: f(tp > 0 && tp < 1 ? 1 - tp : 0, 3), transform: `translate(695px,910px) scale(${f(.3 + 1.4 * E.outCubic(tp), 3)})` });
-  slam($('s8d'), t, Wd.link);
-  const ap = prog(t, Wd.caption - .1, Wd.caption + .2);
-  S($('arrow'), { opacity: t < Wd.caption - .1 ? '0' : '1', transform: `translateY(${f((1 - E.outCubic(ap)) * -60 + Math.abs(Math.sin((t - Wd.caption) * 7)) * 34)}px)` });
+  S($('passNo'), { color: tapped ? '#FFC94D' : '#F7F3FF', textShadow: tapped ? `0 0 ${f(30 * (1 - .5 * bp))}px rgba(255,201,77,.8)` : 'none' });
+  const bi = E.outBack(prog(t, CUE.btn, CUE.btn + .35), 2);
+  S($('btn'), { opacity: t < CUE.btn ? '0' : '1', background: tapped ? 'linear-gradient(180deg,#FFE9A8,#FFC94D)' : '#F7F3FF', color: '#1a0f33',
+    transform: `scale(${f(tapped ? .92 + .08 * bp : bi, 3)})`, boxShadow: tapped ? '0 0 50px rgba(255,201,77,.55)' : '0 20px 50px -14px rgba(0,0,0,.7)' });
+  const label = tapped ? 'You’re in ✓' : 'Reserve my spot →';
+  if ($('btn').textContent !== label) $('btn').textContent = label;
+  const tp = prog(t, Wd.tapf - .05, Wd.tapf + .5);
+  S($('tap'), { opacity: f(tp > 0 && tp < 1 ? 1 - tp : 0, 3), transform: `translate(580px,1165px) scale(${f(.3 + 1.5 * E.outCubic(tp), 3)})` });
+  rise($('s8d'), t, Wd.link - .06);
+  const ap = prog(t, Wd.caption - .15, Wd.caption + .25);
+  S($('arrow'), { opacity: f(ap, 3), transform: `translateY(${f((1 - E.outCubic(ap)) * -40 + Math.abs(Math.sin((t - Wd.caption) * 6)) * 22)}px)` });
 };
 SCENES.s9 = t => {
-  slam($('s9a'), t, Wd.tag);
-  // a high five on "friend"
-  const meet = E.inCubic(prog(t, Wd.tag + .05, Wd.friend)), back = t > Wd.friend ? spring(t - Wd.friend, 3, .3) : 0;
-  const gap = lerp(240, 6, meet) + (t > Wd.friend ? 50 * back : 0);
-  pop($('hiL'), t, Wd.tag - .05, { dx: 540 - gap - 159, dy: 530, rot: 10, bob: .3, seed: 1 });
-  pop($('hiR'), t, Wd.tag + .02, { dx: 540 + gap, dy: 548, rot: -10, bob: .3, seed: 2 });
-  rise($('s9b'), t, Wd.friend + .15); rise($('s9c'), t, Wd.friend + .25);
-  slam($('s9d'), t, Wd.see, { from: 1.8 });
-  const pp = t > Wd.last + .1 ? spring(t - Wd.last - .1, 2.6, .35) : 0;
-  S($('s9pill'), { opacity: t < Wd.last + .1 ? '0' : '1', transform: `translateY(${f((1 - pp) * 80)}px) scale(${f(.8 + .2 * pp, 4)})` });
-  rise($('s9e'), t, Wd.last + .3);
+  letters($('s9a'), t, Wd.tag - .03, { st: .025 });
+  fadeUp($('chip'), t, Wd.tag + .05, { y: 30 });
+  const word = 'your.bestie', n = Math.floor(clamp((t - Wd.tag - .2) / (Wd.friend + .35 - Wd.tag - .2)) * word.length);
+  if ($('typed').textContent !== word.slice(0, n)) $('typed').textContent = word.slice(0, n);
+  S($('caret'), { opacity: Math.floor(t * 2.6) % 2 ? '0' : '1' });
+  rise($('s9b'), t, Wd.see - .06);
+  const lp = E.outQuint(prog(t, CUE.s9lock, CUE.s9lock + .6));
+  S($('s9c'), { opacity: f(lp, 3), transform: `scale(${f(lerp(1.25, 1, lp), 4)})`, filter: blurOf((1 - lp) * 16) });
+  sweep($('s9c'), t, Wd.last + .2, 1.1);
+  fadeUp($('s9d'), t, Wd.last + .3, { y: 24 });
+  fadeUp($('s9pill'), t, Wd.last + .5, { y: 30 });
+  fadeUp($('s9e'), t, Wd.last + .72, { y: 20 });
 };
 
+/* ---------------- sounds the picture asks for (played by audio/build_soundtrack.py) ---------------- */
+// times where a rolling counter clicks over to its next value
+function rollTicks(t0, t1, n, ease) { const out = []; let last = 0; for (let x = t0; x <= t1; x += .002) { const v = Math.floor(n * ease(prog(x, t0, t1)) + 1e-9); if (v > last) { out.push(x); last = v; } } return out; }
+// [time, sample, semitones, gain]
+function sfx() {
+  const s = [[.05, 'glass_004', -5, .3], [CUE.pill, 'select_002', 0, .35], [CUE.ring, 'maximize_003', 0, .45], [Wd.launching + .05, 'glass_002', 3, .25]];
+  avEls.forEach((_, i) => s.push([CUE.av + i * .075, 'pluck_001', i * 2, .38]));
+  s.push([CUE.youGlow, 'glass_002', 0, .4]);
+  [CUE.cA, CUE.cB, CUE.cC].forEach((t0, i) => s.push([t0 + .1, 'drop_003', i * 2 - 2, .38]));
+  rollTicks(Wd.friday + .1, Wd.four + .02, 3, E.outCubic).forEach(x => s.push([x, 'tick_002', 4, .3]));
+  for (let i = 0; i < 12; i++) s.push([CUE.spin + i * (Wd.threethirty + .1 - CUE.spin) / 12, 'tick_002', 7, .22]);
+  CUE.rows.forEach((t0, i) => s.push([t0 + .05, 'drop_002', i * 2, .38]));
+  s.push([Wd.prizes + .05, 'confirmation_002', 0, .38]);
+  [Wd.drinks, Wd.snacks, Wd.onus].forEach((t0, i) => s.push([t0 + .05, 'pluck_002', [0, 3, 7][i], .38]));
+  rollTicks(Wd.seven - .4, Wd.seven + .02, 7, E.outCubic).forEach(x => s.push([x, 'tick_004', -2, .28]));
+  rollTicks(Wd.tf - .3, Wd.tf + .12, 5, E.outCubic).forEach(x => s.push([x, 'tick_004', 1, .28]));
+  s.push([CUE.screen, 'maximize_005', -2, .4]);
+  for (let i = 0; i < 12; i++) s.push([Wd.sixty - .12 + i * 5 * .011, 'tick_002', i, .2]);
+  s.push([Wd.spots + .3, 'glass_002', 2, .35]);
+  s.push([CUE.pass, 'card-place-1', 0, .5], [CUE.btn, 'maximize_003', 0, .38], [Wd.tapf, 'click_004', 0, .5], [Wd.tapf + .04, 'confirmation_002', 0, .45], [Wd.caption - .1, 'drop_001', 2, .38]);
+  s.push([Wd.tag + .05, 'select_002', 0, .3]);
+  const word = 'your.bestie';
+  for (let i = 1; i <= word.length; i++) s.push([Wd.tag + .2 + i / word.length * (Wd.friend + .35 - Wd.tag - .2), 'click_002', (i % 3) - 1, .18]);
+  s.push([CUE.s9lock, 'glass_002', 0, .35], [Wd.last + .5, 'drop_003', 0, .38]);
+  return s.map(([a, b, c, d]) => [+a.toFixed(3), b, c, d]);
+}
+
 window.seek = seek; window.DUR = DUR; window.seekAsync = async t => seek(t);
-window.events = () => ({ SC, W: Wd, cue: CUE, bursts: BURSTS.map(b => b[0]), slams: SLAMS, end: DUR });
+window.events = () => ({ SC, W: Wd, cue: CUE, bursts: BURSTS.map(b => b[0]), slams: PUNCH, sfx: sfx(), end: DUR });
 
 /* ---------------- boot ---------------- */
 async function boot() {
-  await Promise.all(["400 40px 'Instrument Serif'", "italic 400 40px 'Instrument Serif'", "800 40px Manrope", "700 40px Manrope"].map(x => document.fonts.load(x)));
+  await Promise.all(["400 40px 'Instrument Serif'", "italic 400 40px 'Instrument Serif'", "800 40px Manrope", "700 40px Manrope", "600 40px Manrope"].map(x => document.fonts.load(x)));
   await document.fonts.ready;
   build();
   await Promise.all([...document.images].map(i => i.decode ? i.decode().catch(() => {}) : 0));

@@ -3,10 +3,10 @@
 An upbeat house groove (about 124 BPM, A minor / C major) on recorded piano and
 bass with synthesised drums. The tempo is set so a bar line lands exactly on
 the spoken word "live": the beat drops out for a build under "then at 7:25"
-and comes back in on "we go LIVE". All timings come from the page
-(events.json), which takes them from the voiceover (timing.py). Every big word gets a hit, every sticker a
-pop (Kenney UI sounds, CC0), every scene cut a whoosh. The narration sits on
-top and the music ducks under it.
+and comes back in on "we go LIVE". Every big word gets a hit, every card and
+icon a sound (Kenney UI sounds, CC0), every scene change a whoosh. All timings
+come from the page (events.json), which takes them from the voiceover
+(timing.py). The narration sits on top and the music ducks under it.
 
     node ../render.js --events-only && python build_soundtrack.py   -> soundtrack.wav (+ ../assets/audio/soundtrack.m4a)
 Run fetch_samples.py once first.
@@ -26,7 +26,7 @@ SR = 48000
 HERE = os.path.dirname(os.path.abspath(__file__))
 EV = json.load(open(os.path.join(HERE, 'events.json')))
 VO = json.load(open(os.path.join(HERE, 'vo_lines.json')))
-Wd, SC, CUE = EV['W'], EV['SC'], EV['cue']
+Wd, SC = EV['W'], EV['SC']
 DUR = EV['end']
 N = int(DUR * SR)
 R = np.random.default_rng(77)
@@ -262,35 +262,13 @@ for b in range(nbars):
 for k, t0 in SC.items():
     if t0 > 0:
         fx.add(whoosh(.32, 500, 6000), t0 - .16, .55, pan=R.uniform(-.3, .3))
-for st, k in EV['slams']:
-    fx.add(hit(.5 + .4 * k), st, .7)
-POPS = [  # (time, sample, pitch)
-    (CUE['stamp'], 'drop_002', 0), (Wd['lumera'], 'maximize_003', 0),
-    *[(CUE['s2m'] + i * .09, 'pluck_001', i * 2) for i in range(5)],
-    (CUE['cal'], 'drop_003', -2), (CUE['clock'], 'drop_001', 0), (Wd['dc'] + .15, 'select_002', 0),
-    *[(Wd['kahoot'] + .2 + i * .07, 'tick_002', i * 2) for i in range(4)], (CUE['sprout'], 'pluck_002', 0), (Wd['prizes'] + .05, 'confirmation_002', 0),
-    (CUE['nova'], 'pluck_001', 3), *[(Wd['showcase'] + .15 + i * .08, 'drop_004', i) for i in range(3)],
-    (CUE['ticket'], 'drop_002', 2), (CUE['blaze'], 'pluck_002', 4),
-    (Wd['drinks'] - .1, 'pluck_001', 0), (Wd['drinks'] + .12, 'pluck_001', 3), (Wd['snacks'] - .05, 'pluck_001', 7), (Wd['free'], 'confirmation_001', 0),
-    (CUE['laptop'], 'maximize_005', 0),
-    *[(Wd['sixty'] + .05 + r * .07, 'pluck_002', r * 2) for r in range(6)],      # the seats fill, row by row
-    (Wd['spots'] + .25, 'drop_002', 0),                                              # LIMITED badge
-    (CUE['signup'], 'maximize_003', 0), (Wd['tapf'], 'click_004', 0), (Wd['tapf'] + .04, 'confirmation_002', 0),
-    (Wd['caption'] - .1, 'drop_001', 2),
-    (Wd['tag'] - .05, 'pluck_001', 0), (Wd['tag'] + .02, 'pluck_001', 4), (Wd['last'] + .1, 'drop_003', 0),
-]
-for t0, name, pitch in POPS:
-    fx.add(ui(name, pitch), t0, .45, pan=R.uniform(-.35, .35))
-# the clock ticking round to 3:30 and the flaps rolling to 7:25
-for i in range(14):
-    fx.add(ui('tick_002', 5), CUE['spin'] + i * .05, .25, pan=.2)
-for i in range(16):
-    fx.add(ui('tick_004', -3), Wd['seven'] - .25 + i * .04, .25, pan=-.2)
-fx.add(FOLEY['bookFlip1'] / np.abs(FOLEY['bookFlip1']).max(), CUE['cal'] - .02, .4)
-fx.add(FOLEY['card-place-1'] / np.abs(FOLEY['card-place-1']).max(), CUE['ticket'], .5)
-fx.add(hit(1.2), Wd['venue'], .8)                                    # the pin lands
-fx.add(clap(), Wd['friend'], .9); send.add(clap(), Wd['friend'], .3)       # the high five
-# confetti sparkle
+for st, k in EV['slams']:                       # the camera leans in on the big words
+    fx.add(hit(.5 + .4 * k), st, .6)
+# every card, icon, counter and tap: the page lists what it needs (events.json "sfx")
+for t0, name, pitch, gain in EV['sfx']:
+    a = FOLEY[name] / np.abs(FOLEY[name]).max() if name in FOLEY else ui(name, pitch)
+    fx.add(a, t0, gain, pan=R.uniform(-.3, .3))
+# a shimmer on each burst of sparks
 for b in EV['bursts']:
     for i in range(6):
         y = harp(['E6', 'G6', 'A6', 'C7', 'E7', 'G6'][i], .5, .4, release=.5)
