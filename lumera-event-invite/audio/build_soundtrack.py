@@ -1,13 +1,14 @@
-"""Music and foley for the Lumera launch invitation.
+"""Music, sound design and voiceover mix for the Lumera launch event reel.
 
-A warm bossa nova at 120 BPM in F: nylon guitar, bass, brushes and a rim-click
-clave, a flute melody, with piano and harp around the key moments. The band
-comes in as the wax seal cracks (3.6s), stops dead when the ticket tears
-(23.6s) and resolves as the closing seal is stamped down (25.6s). Foley is
-recorded paper, card, cloth and stamp sounds (Kenney, CC0); run
-fetch_samples.py once first.
+An upbeat house groove (about 125 BPM, A minor / C major) on recorded piano and
+bass with synthesised drums. The tempo is set so a bar line lands exactly on
+the spoken word "live": the beat drops out for a build under "then at 7:25"
+and comes back in on "we go LIVE". Every big word gets a hit, every sticker a
+pop (Kenney UI sounds, CC0), every scene cut a whoosh. The narration sits on
+top and the music ducks under it.
 
     node ../render.js --events-only && python build_soundtrack.py   -> soundtrack.wav (+ ../assets/audio/soundtrack.m4a)
+Run fetch_samples.py once first.
 """
 import glob
 import json
@@ -23,11 +24,14 @@ from scipy import signal
 SR = 48000
 HERE = os.path.dirname(os.path.abspath(__file__))
 EV = json.load(open(os.path.join(HERE, 'events.json')))
+VO = json.load(open(os.path.join(HERE, 'vo_lines.json')))
+Wd, SC = EV['W'], EV['SC']
 DUR = EV['end']
 N = int(DUR * SR)
-R = np.random.default_rng(904)
-BAR = 2.0                        # 120 BPM, 4/4
-B0 = EV['crack']                 # the first downbeat
+R = np.random.default_rng(77)
+DROP = Wd['live']
+BEAT = DROP / 36                 # 36 beats from the top to the drop: ~125 BPM, bar 9 lands on "live"
+BAR = BEAT * 4
 
 
 def tt(d):
@@ -72,8 +76,6 @@ class Bus:
 
 
 class Sampler:
-    """Nearest recorded note, repitched by resampling, with a natural release."""
-
     def __init__(self, folder):
         self.notes = {}
         for f in glob.glob(os.path.join(HERE, 'samples', folder, '*.flac')):
@@ -83,270 +85,270 @@ class Sampler:
         if not self.notes:
             raise SystemExit(f'no samples for {folder}: run fetch_samples.py first')
 
-    def __call__(self, name, dur, vel=1., release=.25, attack=0.):
+    def __call__(self, name, dur, vel=1., release=.2):
         m = midi(name) if isinstance(name, str) else name
         base = min(self.notes, key=lambda k: abs(k - m))
         src = self.notes[base]
         pos = np.arange(int((dur + release) * SR)) * 2 ** ((m - base) / 12)
         pos = pos[pos < len(src) - 1]
         y = np.interp(pos, np.arange(len(src)), src)
-        env = np.ones(len(y))
         k = int(dur * SR)
         if k < len(y):
-            env[k:] = np.cos(np.linspace(0, np.pi / 2, len(y) - k)) ** 2
-        if attack > 0:
-            a = min(len(y), int(attack * SR))
-            env[:a] *= np.sin(np.linspace(0, np.pi / 2, a)) ** 2
-        return y * env * vel
+            y[k:] *= np.cos(np.linspace(0, np.pi / 2, len(y) - k)) ** 2
+        return y * vel
 
 
-piano, guitar, flute, harp, bass = (Sampler(f) for f in ('piano', 'guitar-nylon', 'flute', 'harp', 'bass-electric'))
+piano, bass, harp = Sampler('piano'), Sampler('bass-electric'), Sampler('harp')
+UI = {os.path.basename(f)[:-5]: sf.read(f)[0] for f in glob.glob(os.path.join(HERE, 'samples', 'ui', '*.flac'))}
 FOLEY = {os.path.basename(f)[:-5]: sf.read(f)[0] for f in glob.glob(os.path.join(HERE, 'samples', 'foley', '*.flac'))}
 
 
-def foley(name):
-    return FOLEY[name] / np.abs(FOLEY[name]).max()
+def ui(name, pitch=0.):
+    a = UI[name] / np.abs(UI[name]).max()
+    if pitch:
+        a = np.interp(np.arange(0, len(a) - 1, 2 ** (pitch / 12)), np.arange(len(a)), a)
+    return a
 
 
-def strum(inst, notes, dur, vel, gap=.012, **kw):
-    n = int((dur + kw.get('release', .25) + gap * len(notes) + .05) * SR)
-    out = np.zeros((n, 2))
+def chord(notes, dur, vel, spread=.6, release=.15):
+    out = np.zeros((int((dur + release + .05) * SR), 2))
     for i, nm in enumerate(notes):
-        y = inst(nm, dur, vel * (.85 + .15 * R.random()), **kw)
-        pan = -.3 + .6 * i / max(1, len(notes) - 1)
+        y = piano(nm, dur, vel * (.9 + .1 * R.random()), release)
+        pan = (i / max(1, len(notes) - 1) - .5) * spread
         a = (pan + 1) * np.pi / 4
-        o = int(i * gap * SR)
-        out[o:o + len(y), 0] += y * np.cos(a)
-        out[o:o + len(y), 1] += y * np.sin(a)
+        out[:len(y), 0] += y * np.cos(a)
+        out[:len(y), 1] += y * np.sin(a)
     return out
 
 
-# ---------------------------------------------------------------- percussion (synthesised, soft)
-def brush_tap():
-    t = tt(.18)
-    return signal.sosfilt(bp(1500, 7000), R.standard_normal(len(t))) * np.exp(-t / .045) * .35
+# ---------------------------------------------------------------- drums and design (synthesised)
+def kick(p=1.):
+    t = tt(.45)
+    f = 48 + 110 * np.exp(-t / .03)
+    y = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t / .22)
+    y += signal.sosfilt(hp(2500), R.standard_normal(len(t))) * np.exp(-t / .0015) * .3
+    return np.tanh(y * 1.4 * p) * .8
 
 
-def brush_swirl(dur):
-    t = tt(dur)
-    y = signal.sosfilt(bp(2200, 8000), R.standard_normal(len(t)))
-    return y * (np.sin(np.pi * t / dur) ** 1.5) * .12
-
-
-def rim():
-    t = tt(.08)
-    y = np.sin(2 * np.pi * 1750 * t) * np.exp(-t / .012) * .5 + signal.sosfilt(bp(2000, 6000), R.standard_normal(len(t))) * np.exp(-t / .004) * .4
-    return y * .6
-
-
-def kick():
+def clap():
     t = tt(.35)
-    f = 50 + 70 * np.exp(-t / .03)
-    return np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t / .18) * .5
+    e = np.zeros_like(t)
+    for d in (0, .008, .017, .027):
+        e += np.where(t >= d, np.exp(-np.clip(t - d, 0, None) / .006), 0)
+    e += np.where(t > .027, .5 * np.exp(-(t - .027) / .09), 0)
+    return signal.sosfilt(bp(1000, 3800), R.standard_normal(len(t)) * e) * .8
 
 
-def shaker():
-    t = tt(.09)
-    return signal.sosfilt(bp(4500, 11000), R.standard_normal(len(t))) * np.minimum(1, t / .012) * np.exp(-t / .035) * .1
+def hat(open_=False):
+    t = tt(.3 if open_ else .06)
+    return signal.sosfilt(hp(8000, 3), R.standard_normal(len(t))) * np.exp(-t / (.08 if open_ else .014)) * .25
 
 
-def pen(dur):
-    """Ink on paper: a scratchy, uneven nib stroke."""
+def snare():
+    t = tt(.2)
+    return (signal.sosfilt(bp(1500, 8000), R.standard_normal(len(t))) * np.exp(-t / .05) + np.sin(2 * np.pi * 200 * t) * np.exp(-t / .035) * .5) * .4
+
+
+def crash(dur=2.4):
     t = tt(dur)
-    y = signal.sosfilt(bp(2500, 9000), R.standard_normal(len(t)))
-    strokes = np.abs(np.sin(2 * np.pi * (6 + 3 * R.random()) * t + R.random() * 6)) ** 3
-    return y * strokes * np.sin(np.pi * t / dur) ** .5 * .12
+    nz = R.standard_normal((len(t), 2))
+    y = signal.sosfilt(hp(4500), nz, axis=0) + .3 * signal.sosfilt(bp(3000, 7000), nz[:, ::-1], axis=0)
+    return y * (np.exp(-t / .8) * np.minimum(1, t / .002))[:, None] * .22
 
 
-def snap():
-    """Wax cracking: a sharp crack and a few crumbs."""
-    t = tt(.35)
-    y = signal.sosfilt(hp(1800), R.standard_normal(len(t))) * np.exp(-t / .006) * .9
-    y += np.sin(2 * np.pi * 140 * t) * np.exp(-t / .03) * .4
-    for d in R.uniform(.03, .25, 6):
-        i = int(d * SR)
-        y[i:i + 200] += signal.sosfilt(hp(3000), R.standard_normal(200)) * np.exp(-np.arange(200) / 40) * .25
-    return y
+def sub(dur=.9, f0=90, f1=40):
+    t = tt(dur)
+    f = f1 + (f0 - f1) * np.exp(-t / .12)
+    return np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t / (dur * .4)) * .8
 
 
-def whoosh(dur=.5, f0=500, f1=3000):
+def sweep(dur, f0, f1, q=2.):
     n = int(dur * SR)
-    nz = R.standard_normal(n)
-    out = np.zeros(n)
+    nz = R.standard_normal((n, 2))
+    out = np.zeros_like(nz)
     zi = None
     for i in range(0, n, 256):
         fc = f0 * (f1 / f0) ** (i / n)
-        sos = bp(fc * .7, fc * 1.4)
+        sos = bp(fc / (1 + 1 / (2 * q)), fc * (1 + 1 / (2 * q)))
         if zi is None:
-            zi = np.zeros((sos.shape[0], 2))
-        out[i:i + 256], zi = signal.sosfilt(sos, nz[i:i + 256], zi=zi)
-    return out * np.sin(np.pi * np.linspace(0, 1, n)) ** 2 * .3
+            zi = np.zeros((sos.shape[0], 2, 2))
+        out[i:i + 256], zi = signal.sosfilt(sos, nz[i:i + 256], axis=0, zi=zi)
+    return out
 
 
-def reverb(x, dur=2.2, decay=.5, tone=7000):
+def whoosh(dur=.35, f0=600, f1=5000):
+    y = sweep(dur, f0, f1)
+    t = np.linspace(0, 1, len(y))
+    return y * (np.sin(np.pi * t) ** 2)[:, None] * .4
+
+
+def hit(k=1.):
+    """A word landing: short low thump plus a bit of snap."""
+    t = tt(.3)
+    y = np.sin(2 * np.pi * np.cumsum(70 + 80 * np.exp(-t / .02)) / SR) * np.exp(-t / .09) * .7
+    y += signal.sosfilt(bp(1500, 6000), R.standard_normal(len(t))) * np.exp(-t / .01) * .3
+    return y * k
+
+
+def reverb(x, dur=1.8, decay=.4):
     t = tt(dur)
-    ir = signal.sosfilt(lp(tone, 1), R.standard_normal((len(t), 2)), axis=0) * np.exp(-t / decay)[:, None]
-    ir[:int(.012 * SR)] = 0
-    for d, g in ((.006, .5), (.011, .35), (.019, .3)):
-        ir[int(d * SR)] += g * np.array([1, .8])
+    ir = signal.sosfilt(lp(7000, 1), R.standard_normal((len(t), 2)), axis=0) * np.exp(-t / decay)[:, None]
+    ir[:int(.01 * SR)] = 0
     ir /= np.sqrt((ir ** 2).sum(0))
     return np.stack([signal.fftconvolve(x[:, c], ir[:, c])[:len(x)] for c in (0, 1)], 1)
 
 
 music, drums, fx, send = Bus(), Bus(), Bus(), Bus()
+kicks = []
 
-# ---------------------------------------------------------------- 1. intro: piano alone, before the seal breaks
-for i, nm in enumerate(['F2', 'C3', 'A3', 'E4', 'G4', 'C5']):                 # Fmaj9, rolled
-    music.add(piano(nm, 2.2, .45, release=1.0), .5 + i * .07, .8, pan=-.3 + i * .12)
-for i, nm in enumerate(['C2', 'Bb2', 'F3', 'A3', 'D4', 'G4']):                # C9sus, rolled, leading in
-    music.add(piano(nm, 1.3, .42, release=.8), 2.25 + i * .06, .8, pan=-.3 + i * .12)
-
-# ---------------------------------------------------------------- 2. the bossa
-CH = {   # guitar voicing, bass root, fifth
-    'Fmaj7': (['A3', 'C4', 'E4'], 'F2', 'C2'), 'Dm7': (['A3', 'C4', 'F4'], 'D2', 'A1'),
-    'Gm7': (['Bb3', 'D4', 'F4'], 'G1', 'D2'), 'C7': (['Bb3', 'E4', 'G4'], 'C2', 'G1'),
-    'Am7': (['G3', 'C4', 'E4'], 'A1', 'E2'), 'D7': (['F#3', 'A3', 'C4'], 'D2', 'A1'),
-    'Bbmaj7': (['A3', 'D4', 'F4'], 'Bb1', 'F2'), 'C9sus': (['Bb3', 'D4', 'G4'], 'C2', 'G1'),
-}
-SONG = ['Fmaj7', 'Dm7', 'Gm7', 'C7', 'Fmaj7', 'Am7|D7', 'Gm7', 'C7', 'Fmaj7', 'Dm7']   # 3.6 .. 23.6
-STOP = EV['tear']
-END_IN = EV['seal']
-TAIL = ['Bbmaj7|C9sus']                                                                   # 25.6 .. 27.6
-FINAL = END_IN + BAR
-
-
-def play_bar(b0, name, full=True):
-    halves = name.split('|')
-    for h, ch in enumerate(halves):
-        voic, root, fifth = CH[ch]
-        hb = b0 + h * BAR / len(halves)
-        span = BAR / len(halves)
-        # nylon guitar: syncopated bossa comping
-        hits = [0, .75, 1.25] if len(halves) == 1 else [0, .75]
-        for k, off in enumerate(hits + ([1.75] if len(halves) == 1 else [])):
-            if off >= span:
-                continue
-            music.add(strum(guitar, voic, .32, .55 if k == 0 else .42, release=.12), hb + off, .55)
-        # bass: root on 1, fifth on 3
-        music.add(bass(root, .45, .85, release=.08), hb, .6)
-        if len(halves) == 1:
-            music.add(bass(fifth, .45, .75, release=.08), hb + 1.0, .6)
-            music.add(bass(root, .2, .5, release=.05), hb + 1.75, .5)
-    if not full:
-        return
-    for bt in range(4):                                      # brushes + soft kick
-        tb = b0 + bt * .5
-        drums.add(brush_swirl(.5), tb, 1, pan=.3)
+# ---------------------------------------------------------------- the groove
+PROG = [(['A3', 'C4', 'E4', 'G4'], 'A1'), (['A3', 'C4', 'E4', 'F4'], 'F1'), (['G3', 'C4', 'E4', 'G4'], 'C2'), (['G3', 'B3', 'D4', 'G4'], 'G1')]
+STABS = [0, 3, 6, 10, 13]                       # 16th-note positions of the piano stabs in a bar
+BREAK = 8                                       # bar 8 is the build, bar 9 (= "live") the drop
+ENDBAR = int(round((Wd['friend'] - 0) / BAR))   # the last full bar lands on "friend"
+nbars = int(np.ceil(DUR / BAR))
+for b in range(nbars):
+    b0 = b * BAR
+    if b0 >= DUR:
+        break
+    voic, root = PROG[b % 4]
+    if b == BREAK:
+        # the build: held chord through a filter, a snare roll and a riser, then a breath
+        held = chord(voic, BAR - .1, .45, release=.05)
+        music.add(signal.sosfilt(lp(900), held, axis=0), b0, .9)
+        roll = b0
+        while roll < b0 + BAR - .08:
+            p = (roll - b0) / BAR
+            drums.add(snare(), roll, .1 + .55 * p ** 2)
+            roll += BEAT / 2 if p < .5 else BEAT / 4
+        rs = sweep(BAR - .06, 300, 9000) * (np.linspace(0, 1, int((BAR - .06) * SR)) ** 2)[:, None] * .5
+        fx.add(rs, b0, .9)
+        continue
+    if b >= ENDBAR:
+        # the close: one big chord on "friend", a last stab, and the room rings out
+        music.add(chord(['A2', 'E3', 'A3', 'C4', 'E4', 'A4'], 1.6, .8, release=1.2), b0, .9)
+        music.add(bass(root, 1.4, .9, release=.6), b0, .7)
+        drums.add(kick(1.2), b0, 1); kicks.append(b0)
+        drums.add(crash(2.0), b0, .8)
+        music.add(chord(['C4', 'E4', 'G4', 'C5'], .5, .6, release=.8), b0 + BEAT * 2, .7)
+        break
+    for s in STABS:
+        music.add(chord(voic, BEAT * .45, .6 + .1 * (s == 0)), b0 + s * BEAT / 4, .75)
+    for e in range(8):                          # offbeat house bass
+        if e % 2 == 1:
+            music.add(bass(root, BEAT * .42, .9, release=.05), b0 + e * BEAT / 2, .6)
+            music.add(bass(midi(root) + 12, BEAT * .2, .4, release=.04), b0 + e * BEAT / 2 + BEAT / 4, .35)
+    for bt in range(4):
+        tb = b0 + bt * BEAT
+        drums.add(kick(), tb, 1); kicks.append(tb)
         if bt in (1, 3):
-            drums.add(brush_tap(), tb, .8, pan=.2)
-        if bt in (0, 2):
-            drums.add(kick(), tb, .7)
-        for s in range(2):
-            drums.add(shaker(), tb + s * .25 + .125, 1, pan=-.35)
+            drums.add(clap(), tb, .55); send.add(clap(), tb, .15)
+        drums.add(hat(True), tb + BEAT / 2, .45, pan=.2)
+        for s in range(4):
+            drums.add(hat(), tb + s * BEAT / 4, .25 + .15 * (s == 2), pan=-.25)
+    if b == BREAK + 1:                          # the drop
+        drums.add(crash(2.6), b0, 1.0)
+        fx.add(sub(1.4, 110, 35), b0, .9)
+        harp_notes = ['A5', 'C6', 'E6', 'G6', 'A6', 'C7']
+        for i, nm in enumerate(harp_notes):
+            y = harp(nm, .8, .6, release=.6)
+            fx.add(y, b0 + i * .05, .3, pan=-.5 + i * .2); send.add(y, b0 + i * .05, .2)
+    if b == 0:
+        drums.add(crash(2.0), 0, .7)
 
-
-for i, name in enumerate(SONG):
-    b0 = B0 + i * BAR
-    play_bar(b0, name)
-    clave = [0, 1.5, 3] if i % 2 == 0 else [1, 2]            # 3-2 son clave, in beats
-    for c in clave:
-        drums.add(rim(), b0 + c * .5, .5, pan=.4)
-
-# flute melody, from when the invitation is in view (bar 0 is the first downbeat)
-MEL = [  # bar, beat, note, beats
-    (2, 0, 'Bb4', 1), (2, 1, 'D5', .5), (2, 1.5, 'F5', 1.5), (2, 3, 'E5', 1),        # Gm7
-    (3, 0, 'E5', 1), (3, 1, 'D5', .5), (3, 1.5, 'C5', .5), (3, 2, 'Bb4', 2),          # C7
-    (4, 0, 'A4', 1), (4, 1, 'C5', .5), (4, 1.5, 'E5', 1.5), (4, 3, 'D5', 1),          # Fmaj7
-    (5, 0, 'C5', 1.5), (5, 1.5, 'A4', .5), (5, 2, 'F#4', 1), (5, 3, 'A4', 1),         # Am7 | D7
-    (6, 0, 'Bb4', 1.5), (6, 1.5, 'D5', .5), (6, 2, 'G5', 2),                          # Gm7
-    (7, 0, 'E5', 1), (7, 1, 'C5', 1), (7, 2, 'Bb4', 1), (7, 3, 'G4', 1),              # C7
-    (8, 0, 'A4', 1.5), (8, 1.5, 'C5', .5), (8, 2, 'F5', 2),                           # Fmaj7
-    (9, 0, 'E5', 2), (9, 2, 'D5', 1), (9, 3, 'C5', 1),                                # Dm7
+# ---------------------------------------------------------------- sound design on the picture
+for k, t0 in SC.items():
+    if t0 > 0:
+        fx.add(whoosh(.32, 500, 6000), t0 - .16, .55, pan=R.uniform(-.3, .3))
+for st, k in EV['slams']:
+    fx.add(hit(.5 + .4 * k), st, .7)
+POPS = [  # (time, sample, pitch)
+    (1.55, 'drop_002', 0), (Wd['lumera'], 'maximize_003', 0),
+    *[(3.55 + i * .09, 'pluck_001', i * 2) for i in range(5)],
+    (5.38, 'drop_003', -2), (6.75, 'drop_001', 0), (Wd['dc'], 'select_002', 0),
+    *[(Wd['kahoot'] + .2 + i * .07, 'tick_002', i * 2) for i in range(4)], (9.5, 'pluck_002', 0), (Wd['prizes'] + .05, 'confirmation_002', 0),
+    (11.2, 'pluck_001', 3), *[(Wd['showcase'] + .15 + i * .08, 'drop_004', i) for i in range(3)],
+    (12.6, 'drop_002', 2), (12.66, 'pluck_002', 4),
+    (Wd['drinks'] - .1, 'pluck_001', 0), (Wd['drinks'] + .12, 'pluck_001', 3), (Wd['snacks'] - .05, 'pluck_001', 7), (Wd['free'], 'confirmation_001', 0),
+    (16.55, 'maximize_005', 0),
+    *[(Wd['sixty'] + .05 + r * .07, 'pluck_002', r * 2) for r in range(6)],      # the seats fill, row by row
+    (Wd['spots'] + .25, 'drop_002', 0),                                              # LIMITED badge
+    (22.55, 'maximize_003', 0), (Wd['tapf'], 'click_004', 0), (Wd['tapf'] + .04, 'confirmation_002', 0),
+    (Wd['caption'] - .1, 'drop_001', 2),
+    (Wd['tag'] - .05, 'pluck_001', 0), (Wd['tag'] + .02, 'pluck_001', 4), (Wd['there'] + .1, 'drop_003', 0),
 ]
-for b, beat, nm, beats in MEL:
-    tn = B0 + b * BAR + beat * .5
-    y = flute(nm, beats * .5 * .92, .5, release=.25, attack=.04)
-    music.add(y, tn, .5, pan=.15)
-    send.add(y, tn, .25)
+for t0, name, pitch in POPS:
+    fx.add(ui(name, pitch), t0, .45, pan=R.uniform(-.35, .35))
+# the clock ticking round to 3:30 and the flaps rolling to 7:25
+for i in range(14):
+    fx.add(ui('tick_002', 5), 6.8 + i * .05, .25, pan=.2)
+for i in range(16):
+    fx.add(ui('tick_004', -3), Wd['seven'] - .25 + i * .04, .25, pan=-.2)
+fx.add(FOLEY['bookFlip1'] / np.abs(FOLEY['bookFlip1']).max(), 5.36, .4)
+fx.add(FOLEY['card-place-1'] / np.abs(FOLEY['card-place-1']).max(), 12.6, .5)
+fx.add(hit(1.2), Wd['jafar'], .8)                                    # the pin lands
+fx.add(clap(), Wd['friend'], .9); send.add(clap(), Wd['friend'], .3)       # the high five
+# confetti sparkle
+for b in EV['bursts']:
+    for i in range(6):
+        y = harp(['E6', 'G6', 'A6', 'C7', 'E7', 'G6'][i], .5, .4, release=.5)
+        fx.add(y, b + .02 + i * .04, .16, pan=R.uniform(-.7, .7)); send.add(y, b + .02 + i * .04, .1)
 
-# piano colour while the cards are dealt
-for i, lt in enumerate(EV['deal']):
-    y = piano(['C5', 'E5', 'G5', 'A5', 'C6', 'E6'][i], .6, .4, release=.6)
-    music.add(y, lt, .5, pan=-.4 + i * .16)
-    send.add(y, lt, .2)
-
-# the stop: the band hits once with the tear, then only piano and a held bass
-music.add(strum(guitar, ['A3', 'C4', 'E4', 'G4'], .6, .7, release=.4), STOP, .6)
-music.add(bass('F1', 1.8, .8, release=.4), STOP, .55)
-for i, nm in enumerate(['A4', 'C5', 'E5', 'G5', 'C6']):
-    music.add(piano(nm, .9, .32, release=.8), STOP + .45 + i * .32, .6, pan=-.2 + i * .1)
-
-# back in for the close, resolving on Fmaj9
-play_bar(END_IN, TAIL[0])
-for i, nm in enumerate(['F2', 'C3', 'A3', 'E4', 'G4', 'C5', 'A5']):
-    music.add(piano(nm, 1.6, .55, release=1.0), FINAL + i * .05, .7, pan=-.35 + i * .1)
-music.add(strum(guitar, ['A3', 'E4', 'G4', 'C5'], 1.3, .6, gap=.03, release=.6), FINAL + .02, .55)
-music.add(bass('F1', 1.4, .85, release=.5), FINAL, .6)
-y = flute('A5', 1.2, .5, release=.4, attack=.05)
-music.add(y, FINAL, .45)
-send.add(y, FINAL, .3)
-
-# ---------------------------------------------------------------- harp glints
-def harp_gliss(notes, t0, dur, gain=.4):
-    for i, nm in enumerate(notes):
-        p = i / max(1, len(notes) - 1)
-        y = harp(nm, 1.2, .5 + .3 * p, release=.7)
-        fx.add(y, t0 + dur * p ** 1.1, gain, pan=-.5 + p)
-        send.add(y, t0 + dur * p ** 1.1, gain * .5)
+# ---------------------------------------------------------------- voiceover
+vo = Bus()
+for ln in VO:
+    a, sr = sf.read(os.path.join(HERE, 'vo', ln['id'] + '.wav'))
+    if a.ndim > 1:
+        a = a.mean(1)
+    sp = signal.sosfilt(bp(250, 6000), a)                  # level every line to the same speech loudness
+    a = a * 10 ** ((-21 - 20 * np.log10(np.sqrt(np.mean(sp ** 2)) + 1e-9)) / 20)
+    vo.add(a, ln['t'], 1.0)
+    send.add(a, ln['t'], .05)
 
 
-harp_gliss(['C6', 'F6', 'A6', 'C7'], EV['glint'], .3, .3)
-harp_gliss(['F5', 'A5', 'C6', 'E6', 'F6', 'A6', 'C7'], EV['shimmer'], .55, .3)
-harp_gliss(['C5', 'E5', 'F5', 'A5', 'C6', 'E6', 'F6', 'A6'], END_IN + .05, .6, .35)
+def follower(x, att=.015, rel=.4):
+    e = np.convolve(np.abs(x).max(1), np.ones(480) / 480, 'same')
+    out = np.empty_like(e)
+    a, r, v = np.exp(-1 / (att * SR)), np.exp(-1 / (rel * SR)), 0.
+    for i in range(0, len(e), 64):
+        s = e[i:i + 64].max()
+        v = a * v + (1 - a) * s if s > v else r * v + (1 - r) * s
+        out[i:i + 64] = v
+    return out
 
-# ---------------------------------------------------------------- foley
-fx.add(foley('card-slide-2'), EV['envIn'] + .2, .55)
-fx.add(foley('cloth2'), EV['envIn'] + .4, .25)
-fx.add(foley('bookPlace1'), EV['envLand'] - .03, .5)
-fx.add(snap(), EV['crack'], .7)
-fx.add(foley('bookOpen'), EV['flap'] + .05, .35)
-fx.add(foley('cards-pack-take-out-1'), EV['cardOut'] + .1, .6)
-fx.add(foley('card-slide-5'), EV['envAway'], .4)
-fx.add(whoosh(.9, 400, 2200), EV['cardCam'] + .1, .5)
-fx.add(foley('card-place-2'), EV['cardSet'] - .05, .35)
-fx.add(pen(.95), EV['invited'], .9, pan=-.1)
-fx.add(foley('impactSoft_medium_001'), EV['lumera'] + .02, .2)
-fx.add(foley('bookFlip2'), EV['flip'], .55)
-fx.add(pen(.55), EV['bFriday'], .9)
-fx.add(foley('impactSoft_heavy_002'), EV['stamp'], .7)
-fx.add(foley('impactWood_light_001'), EV['stamp'] + .005, .3)
-fx.add(foley('card-slide-7'), EV['cardAway'], .45)
-fx.add(pen(.8), EV['head'] + .1, .6)
-for i, lt in enumerate(EV['deal']):
-    fx.add(foley(f'card-slide-{1 + i % 8}'), lt - .36, .35, pan=-.3 + .12 * i)
-    fx.add(foley(f'card-place-{1 + i % 4}'), lt - .01, .55, pan=-.3 + .12 * i)
-    fx.add(foley(f'card-fan-{1 + i % 2}'), lt + .08, .2, pan=-.3 + .12 * i)
-fx.add(foley('card-shove-2'), EV['sweep'], .6)
-fx.add(foley('card-slide-4'), EV['ticketIn'], .5)
-fx.add(foley('card-place-3'), EV['ticketSet'] - .03, .5)
-fx.add(foley('cards-pack-open-1'), STOP - .08, .85)
-fx.add(foley('card-slide-6'), EV['endOut'], .35)
-fx.add(foley('impactSoft_heavy_000'), END_IN, .8)
-fx.add(pen(1.0), EV['see'], .9)
 
-# ---------------------------------------------------------------- mix
-send.x += music.x * .18 + drums.x * .05
+pump = np.ones(N)
+for kt in kicks:
+    i = int(kt * SR)
+    n = min(N - i, int(.25 * SR))
+    if n > 0:
+        pump[i:i + n] = np.minimum(pump[i:i + n], 1 - .35 * np.exp(-np.arange(n) / (.07 * SR)))
+music.x *= pump[:, None]
+venv = follower(vo.x)
+duck = 1 - .66 * np.clip(venv / .15, 0, 1)                 # about -9 dB under the voice
+bed = (music.x * .6 + drums.x * .75) * duck[:, None]
+fxm = fx.x * (1 - .55 * np.clip(venv / .15, 0, 1))[:, None]
+send.x += music.x * .08
 wet = reverb(send.x)
-mix = music.x * 1.0 + drums.x * .75 + fx.x * .9 + wet * .5
-mix = signal.sosfilt(hp(30), mix, axis=0)
-mix = mix / np.abs(mix).max() * 1.2
-mix = np.tanh(mix) / np.tanh(1.2)
-fi, fo = int(.25 * SR), int(.5 * SR)
-mix[:fi] *= np.linspace(0, 1, fi)[:, None]
+# a breath of silence just before the drop
+gate = np.ones(N)
+g0, g1 = int((DROP - .06) * SR), int(DROP * SR)
+gate[g0 - 200:g0] = np.linspace(1, 0, 200); gate[g0:g1] = 0
+mix = (bed + fxm + wet * .35) * gate[:, None] + vo.x * 1.9
+mix = signal.sosfilt(hp(28), mix, axis=0)
+mix = mix / np.abs(mix).max() * 1.7
+mix = np.tanh(mix) / np.tanh(1.7)
+fo = int(.25 * SR)
 mix[-fo:] *= np.cos(np.linspace(0, np.pi / 2, fo))[:, None] ** 2
 mix *= 10 ** (-1 / 20) / np.abs(mix).max()
+
 rms = lambda x: 20 * np.log10(np.sqrt(np.mean(x ** 2)) + 1e-9)
-print(f'mix RMS {rms(mix):.1f} dBFS; music {rms(music.x):.1f}  drums {rms(drums.x):.1f}  foley {rms(fx.x):.1f}')
+SPEECH = bp(250, 6000)
+print(f'tempo {60 / BEAT:.1f} BPM, drop at {DROP:.2f}s; mix RMS {rms(mix):.1f} dBFS')
+for ln in VO:
+    a = int(ln['t'] * SR); b = a + len(sf.read(os.path.join(HERE, 'vo', ln['id'] + '.wav'))[0])
+    v = rms(signal.sosfilt(SPEECH, vo.x[a:b] * 1.9, axis=0)); m = rms(signal.sosfilt(SPEECH, (bed + fxm + wet * .35)[a:b], axis=0))
+    print(f"  {ln['id']} voice {v:6.1f} dB, margin {v - m:5.1f} dB")
 out = os.path.join(HERE, 'soundtrack.wav')
 sf.write(out, mix, SR, subtype='PCM_24')
 print('wrote', out)

@@ -6,7 +6,7 @@ Sources and licences (see README):
   piano         Salamander Grand Piano, Alexander Holm, CC-BY 3.0 (via tonejs.github.io/audio/salamander)
   guitar-nylon, flute, harp, bass-electric
                 nbrosowsky/tonejs-instruments, CC-BY 3.0
-  foley         Kenney "Casino Audio", "RPG Audio" and "Impact Sounds", CC0
+  foley, ui     Kenney "Casino Audio", "RPG Audio", "Impact Sounds" and "Interface Sounds", CC0
 Needs ffmpeg on PATH.
 """
 import io
@@ -34,6 +34,8 @@ KENNEY = {
     'https://kenney.nl/media/pages/assets/impact-sounds/87b4ddecda-1677589768/kenney_impact-sounds.zip':
         ('impactSoft_heavy', 'impactSoft_medium', 'impactWood_light'),
 }
+UI_PACK = 'https://kenney.nl/media/pages/assets/interface-sounds/fa43c1dd4d-1677589452/kenney_interface-sounds.zip'
+UI_KEEP = ('click_', 'tick_', 'select_', 'drop_', 'pluck_', 'glass_', 'confirmation_', 'maximize_', 'scroll_')
 
 
 def get(url):
@@ -63,6 +65,11 @@ def main():
             base = os.path.basename(member)
             if member.lower().endswith('.ogg') and base.startswith(keep):
                 to_flac(z.read(member), os.path.join(OUT, 'foley', base[:-4] + '.flac'), 'ogg')
+    z = zipfile.ZipFile(io.BytesIO(get(UI_PACK)))
+    for member in z.namelist():
+        base = os.path.basename(member)
+        if member.lower().endswith('.ogg') and base.startswith(UI_KEEP):
+            to_flac(z.read(member), os.path.join(OUT, 'ui', base[:-4] + '.flac'), 'ogg')
     print('samples in', OUT)
 
 
