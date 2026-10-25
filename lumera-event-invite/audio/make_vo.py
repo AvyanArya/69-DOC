@@ -1,10 +1,11 @@
-"""Voiceover for the Lumera launch film.
+"""Voiceover for the Lumera event reel.
 
 Generates each line in vo_lines.json with the Kokoro neural TTS model, then
-gives it a light "keynote narrator" polish: a warm male voice with a touch of a
-deeper one blended in, natural pitch and pace, gentle EQ and compression.
+gives it a light polish: gentle EQ and compression. A line can carry its own
+"speed" to fit its slot in the edit.
 
-    python make_vo.py --model kokoro-v1.0.onnx --voices voices-v1.0.bin --out vo/
+    python make_vo.py --model kokoro-v1.0.onnx --voices voices-v1.0.bin              # the launch film narrator
+    python make_vo.py ... --voice bf_emma                                            # or any other Kokoro voice
 
 Needs: kokoro-onnx, soundfile, scipy, numpy.
 """
@@ -60,14 +61,17 @@ def compress(x, thresh_db=-22, ratio=3.0, attack=.004, release=.12):
 
 
 # The brand is said "loo-MAIR-uh" and the city "doo-BYE"; the default G2P stresses the first syllable of both.
-PRONOUNCE = {'Lumera': 'luːmˈɛɹə', 'Dubai': 'duːbˈaɪ'}
+PRONOUNCE = {
+    'en-us': {'Lumera': 'luːmˈɛɹə', 'Dubai': 'duːbˈaɪ'},
+    'en-gb': {'Lumera': 'luːmˈɛəɹə', 'Dubai': 'duːbˈaɪ'},
+}
 
 
-def narrate(k, style, text, speed):
-    ph = k.tokenizer.phonemize(text, 'en-us')
-    for word, ipa in PRONOUNCE.items():
-        ph = ph.replace(k.tokenizer.phonemize(word, 'en-us').strip(' .'), ipa)
-    audio, sr = k.create(ph, voice=style, speed=speed, lang='en-us', is_phonemes=True)
+def narrate(k, style, text, speed, lang='en-us'):
+    ph = k.tokenizer.phonemize(text, lang)
+    for word, ipa in PRONOUNCE[lang].items():
+        ph = ph.replace(k.tokenizer.phonemize(word, lang).strip(' .'), ipa)
+    audio, sr = k.create(ph, voice=style, speed=speed, lang=lang, is_phonemes=True)
     audio = signal.resample_poly(audio.astype(np.float64), SR // sr, 1)
     # trim silence, keep a short breath either side
     idx = np.where(np.abs(audio) > .01)[0]
@@ -93,17 +97,22 @@ def main():
     ap.add_argument('--voices', required=True)
     ap.add_argument('--lines', default=os.path.join(os.path.dirname(__file__), 'vo_lines.json'))
     ap.add_argument('--out', default=os.path.join(os.path.dirname(__file__), 'vo'))
-    ap.add_argument('--speed', type=float, default=1.0)
-    ap.add_argument('--depth', type=float, default=.15, help='share of the deeper voice in the blend')
+    ap.add_argument('--voice', default='am_michael:.85,am_onyx:.15', help='a Kokoro voice or a blend; the default is the launch film narrator')
+    ap.add_argument('--speed', type=float, default=1.0, help='used for lines without their own speed')
+    ap.add_argument('--only', nargs='*', help='line ids to (re)generate')
     args = ap.parse_args()
     os.makedirs(args.out, exist_ok=True)
     k = Kokoro(args.model, args.voices)
-    style = (1 - args.depth) * k.get_voice_style('am_michael') + args.depth * k.get_voice_style('am_onyx')
+    parts = [(v.split(':')[0], float(v.split(':')[1]) if ':' in v else 1.) for v in args.voice.split(',')]
+    style = sum(w * k.get_voice_style(v) for v, w in parts) / sum(w for _, w in parts)
+    lang = 'en-gb' if parts[0][0].startswith('b') else 'en-us'
     lines = json.load(open(args.lines))
     for ln in lines:
-        a = narrate(k, style, ln['text'], args.speed)
+        if args.only and ln['id'] not in args.only:
+            continue
+        a = narrate(k, style, ln['text'], ln.get('speed', args.speed), lang)
         sf.write(os.path.join(args.out, ln['id'] + '.wav'), a, SR, subtype='PCM_24')
-        print(f"{ln['id']}  {ln['t']:6.2f}s  +{len(a) / SR:4.2f}s  {ln['text']}")
+        print(f"{ln['id']}  +{len(a) / SR:4.2f}s  {ln['text']}")
 
 
 if __name__ == '__main__':

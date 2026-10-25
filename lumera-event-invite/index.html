@@ -37,8 +37,8 @@ html,body{width:100%;height:100%;background:#000;overflow:hidden}
  <!-- 1. hook -->
  <div class="scene" id="s1"><div class="bg" style="background:radial-gradient(circle at 50% 46%,#7A4DFF,#5B2BE0 45%,#3A12A8)"></div>
   <svg class="rays" id="rays1" viewBox="0 0 2400 2400"></svg>
-  <div class="el cx b" id="s1a" style="top:560px;font-size:212px;color:var(--cream)">Dubai</div>
-  <div class="el cx b" id="s1b" style="top:760px;font-size:212px;color:var(--cream)">College,</div>
+  <div class="el cx b" id="s1a" style="top:540px;font-size:250px;color:var(--cream)">Hey</div>
+  <div class="el cx b" id="s1b" style="top:780px;font-size:178px;color:var(--cream)">everyone,</div>
   <div class="el cx b" id="s1c" style="top:760px;font-size:160px;color:var(--cream)">You&rsquo;re</div>
   <div class="el cx s" id="s1d" style="top:900px;font-size:330px;color:var(--gold);padding:0 30px">invited!</div>
   <svg class="el" id="s1stamp" style="left:690px;top:1220px;width:300px;height:300px"></svg>
@@ -56,7 +56,7 @@ html,body{width:100%;height:100%;background:#000;overflow:hidden}
   <div id="s2m"></div>
  </div>
 
- <!-- 3. Friday 4 September, 3:30, Jafar Center -->
+ <!-- 3. Friday 4 September, 3:30, at Dubai College -->
  <div class="scene" id="s3"><div class="bg" style="background:var(--gold)"></div>
   <svg class="rays" id="rays3" viewBox="0 0 2400 2400" style="opacity:.5"></svg>
   <div class="el cx b" id="s3a" style="top:250px;font-size:170px;color:var(--deep)">Friday</div>
@@ -78,8 +78,8 @@ html,body{width:100%;height:100%;background:#000;overflow:hidden}
   </svg>
   <div class="el cx b" id="s3t" style="top:1210px;font-size:150px;color:var(--deep)">3:30 PM</div>
   <svg class="el" id="s3pin" style="left:450px;top:910px;width:180px;height:240px" viewBox="0 0 180 240"><path d="M90 232C90 232 12 140 12 86a78 78 0 0 1 156 0c0 54-78 146-78 146z" fill="#5B2BE0" stroke="#2A1060" stroke-width="8"/><circle cx="90" cy="86" r="40" fill="#fff"/><image href="assets/img/logo-mark.webp" x="58" y="64" width="64" height="47"/></svg>
-  <div class="el cx b" id="s3v" style="top:1175px;font-size:128px;color:var(--deep)">Jafar Center</div>
-  <div class="el cx" id="s3dc" style="top:1320px;font-size:46px;font-weight:800;letter-spacing:.24em;color:#7a3d00">DUBAI COLLEGE</div>
+  <div class="el cx b" id="s3v" style="top:1175px;font-size:120px;color:var(--deep)">Dubai College</div>
+  <div class="el cx" id="s3dc" style="top:1320px;font-size:46px;font-weight:800;letter-spacing:.24em;color:#7a3d00">JAFAR CENTER</div>
  </div>
 
  <!-- 4a. finance Kahoot with prizes -->
@@ -174,7 +174,7 @@ html,body{width:100%;height:100%;background:#000;overflow:hidden}
   <img class="el sticker" id="hiL" src="assets/img/lumi.webp" alt="" style="height:290px">
   <img class="el sticker" id="hiR" src="assets/img/sprout.webp" alt="" style="height:265px">
   <div class="el cx b" id="s9b" style="top:880px;font-size:76px;color:var(--violet)">Fri 4 Sep &middot; 3:30 PM</div>
-  <div class="el cx" id="s9c" style="top:975px;font-size:42px;font-weight:800;letter-spacing:.14em;color:var(--deep)">JAFAR CENTER &middot; DUBAI COLLEGE</div>
+  <div class="el cx" id="s9c" style="top:975px;font-size:42px;font-weight:800;letter-spacing:.14em;color:var(--deep)">DUBAI COLLEGE &middot; JAFAR CENTER</div>
   <div class="el cx s" id="s9d" style="top:1050px;font-size:150px;color:var(--violet)">See you there &#10022;</div>
   <div class="el" id="s9pill" style="left:80px;top:1270px;width:920px;height:120px;border-radius:999px;background:var(--deep);color:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:41px;letter-spacing:.03em;white-space:nowrap">ONLY 60 SPOTS &middot; LINK IN CAPTION &darr;</div>
   <div class="el cx" id="s9e" style="top:1420px;font-size:40px;font-weight:700;color:#6b5f80">@finance.with.lumera</div>
@@ -185,9 +185,10 @@ html,body{width:100%;height:100%;background:#000;overflow:hidden}
 </div>
 <canvas id="grain" width="540" height="960"></canvas>
 </div>
-<div id="ui" class="hide"><button id="play">Play</button><input id="scrub" type="range" min="0" max="27" step="0.001" value="0"><span id="tc">0.00s</span></div>
+<div id="ui" class="hide"><button id="play">Play</button><input id="scrub" type="range" min="0" max="30" step="0.001" value="0"><span id="tc">0.00s</span></div>
 <audio id="music" src="assets/audio/soundtrack.m4a" preload="auto"></audio>
 
+<script src="timing.js"></script>
 <script>
 /* =====================================================================
    Lumera launch event reel (Instagram, 1080x1920). Cut to the voiceover:
@@ -195,19 +196,23 @@ html,body{width:100%;height:100%;background:#000;overflow:hidden}
    word timestamps of the narration). seek(t) draws any frame from scratch.
    ===================================================================== */
 const RENDER = new URLSearchParams(location.search).has('render');
-const W = 1080, H = 1920, DUR = 27.0;
-// scene cuts and spoken-word times (seconds)
-const SC = { s1: 0, s2: 2.1, s3: 5.0, s4a: 9.15, s4b: 11.05, s4c: 12.45, s5: 13.25, s6: 15.6, s7: 18.9, s8: 20.85, s9: 24.6 };
-const Wd = {
-  dubai: .02, college: .3, youre: 1.2, invited: 1.3,
-  lumera: 2.15, is: 2.65, launching: 2.75, want: 3.8, you: 4.03, room: 4.25,
-  friday: 5.08, four: 5.9, threethirty: 6.88, jafar: 7.94, dc: 8.4,
-  finance: 9.34, kahoot: 9.7, prizes: 10.3, startup: 11.22, showcase: 11.52, raffle: 12.54,
-  yes: 13.42, drinks: 13.88, snacks: 14.34, onus: 14.7, free: 15.05,
-  then: 15.68, seven: 16.0, tf: 16.3, we: 16.68, live: 17.3, together: 18.14,
-  but: 18.98, only: 19.32, sixty: 19.6, spots: 20.0,
-  first: 21.07, signup: 21.85, getin: 22.29, tapf: 22.95, link: 23.23, caption: 23.95,
-  tag: 24.73, friend: 25.07, see: 25.51, there: 25.89
+const W = 1080, H = 1920, DUR = TIMING.dur;
+// spoken-word times (seconds) and line starts, from audio/timing.py
+const Wd = Object.assign({}, TIMING.W), L = TIMING.lines;
+Wd.free = Wd.onus + .35;                                   // the FREE sticker, just after "on us"
+Wd.tapf = Math.max(Wd.getin + .6, Wd.link - .3);           // the sign-up tap, in the breath before "the link"
+// scene cuts: most land just before their line, the three activities on their own words
+const SC = { s1: 0, s2: L.e2.t - .05, s3: L.e3.t - .1, s4a: L.e4.t - .05, s4b: Wd.startup - .17, s4c: Wd.raffle - .09,
+  s5: L.e5.t - .05, s6: L.e6.t - .1, s7: L.e7.t - .1, s8: L.e8.t - .1, s9: L.e9.t - .15 };
+// everything else that moves (and makes a sound) hangs off the words
+const CUE = {
+  s1back: Wd.youre - .15, stamp: Wd.invited + .25,
+  s2lift: Wd.want - .32, s2m: Wd.want - .25,
+  cal: Wd.friday + .3, calMove: Wd.threethirty - .18, clock: Wd.threethirty - .13, spin: Wd.threethirty - .08, clockMove: Wd.venue - .22,
+  sprout: Wd.finance + .16, nova: Wd.startup - .02, s4b3: Wd.showcase + .43,
+  ticket: Wd.raffle + .06, blaze: Wd.raffle + .12, s4c2: Wd.raffle + .24,
+  laptop: Wd.we - .13, calm: Wd.together - .14,
+  signup: Wd.getin + .26
 };
 
 /* ---------------- helpers ---------------- */
@@ -357,7 +362,7 @@ function buildGrain() {
 const ORDER = ['s1', 's2', 's3', 's4a', 's4b', 's4c', 's5', 's6', 's7', 's8', 's9'];
 const WIPES = { s2: ['circle', '#FFF4E2'], s3: ['diag', '#FFC94D'], s4a: ['right', '#1FB45A'], s4b: ['up', '#2D68E2'], s4c: ['diag', '#F08A24'], s5: ['circle', '#F15BB5'], s6: ['flash', '#000'], s7: ['flash', '#000'], s8: ['circle', '#6a3cf0'], s9: ['up', '#FFF4E2'] };
 // every slam shakes the frame a little; the big words shake it more
-const SLAMS = [[Wd.dubai, .6], [Wd.college, .6], [Wd.invited, 1.1], [Wd.lumera, .7], [Wd.you, 1], [Wd.friday, .5], [Wd.four, .8], [Wd.threethirty, .6], [Wd.jafar, .8],
+const SLAMS = [[Wd.hey, .6], [Wd.everyone, .6], [Wd.invited, 1.1], [Wd.lumera, .7], [Wd.you, 1], [Wd.friday, .5], [Wd.four, .8], [Wd.threethirty, .6], [Wd.venue, .8],
   [Wd.kahoot, .8], [Wd.prizes, .5], [Wd.showcase, .7], [Wd.raffle, .8], [Wd.drinks, .5], [Wd.snacks, .5], [Wd.onus, .8], [Wd.live, 1.3], [Wd.together, .8],
   [Wd.only, .5], [Wd.sixty, 1.3], [Wd.spots, .7], [Wd.first, .6], [Wd.getin, .8], [Wd.link, .6], [Wd.tag, .6], [Wd.friend, .7], [Wd.see, .6]];
 const SCENES = {};
@@ -388,16 +393,16 @@ function renderWipe(t, cur) {
 
 /* ---------------- scenes ---------------- */
 SCENES.s1 = t => {
-  // "Dubai College," then they step back for "you're invited!"
-  const back = moveTo(t, 1.05, .25, { y: 0, s: 1 }, { y: -340, s: .62 });
-  slam($('s1a'), t, Wd.dubai, { dy: back.dy, s: back.s });
-  slam($('s1b'), t, Wd.college, { dy: back.dy - 150 * (1 - back.s), s: back.s });
+  // "Hey everyone," then they step back for "you're invited!"
+  const back = moveTo(t, CUE.s1back, .25, { y: 0, s: 1 }, { y: -340, s: .62 });
+  slam($('s1a'), t, Wd.hey, { dy: back.dy - 60 * (1 - back.s), s: back.s });
+  slam($('s1b'), t, Wd.everyone, { dy: back.dy - 160 * (1 - back.s), s: back.s });
   slam($('s1c'), t, Wd.youre, { dy: -40 });
   slam($('s1d'), t, Wd.invited, { dy: -20, from: 2.4 });
-  pop($('s1stamp'), t, 1.55, { rot: -14, bob: .4 });
+  pop($('s1stamp'), t, CUE.stamp, { rot: -14, bob: .4 });
 };
 SCENES.s2 = t => {
-  const lift = moveTo(t, 3.48, .28, { y: 0, s: 1 }, { y: -250, s: .62 });
+  const lift = moveTo(t, CUE.s2lift, .28, { y: 0, s: 1 }, { y: -250, s: .62 });
   const lp = E.outBack(prog(t, Wd.lumera - .05, Wd.lumera + .35), 2.2);
   S($('s2logo'), { opacity: t < Wd.lumera - .05 ? '0' : '1', transform: `translate(0px,${f(lift.dy * .55)}px) rotate(${f((1 - E.outCubic(prog(t, Wd.lumera - .05, Wd.lumera + .45))) * -200)}deg) scale(${f(lp * lerp(1, .55, lift.p), 4)})` });
   slam($('s2a'), t, Wd.lumera, { dy: lift.dy * .9, s: lift.s });
@@ -406,33 +411,33 @@ SCENES.s2 = t => {
   slam($('s2c'), t, Wd.want, { dy: -30 });
   slam($('s2d'), t, Wd.you, { from: 2.6 });
   rise($('s2e'), t, Wd.room, { dy: 20 });
-  s2mEls.forEach((el, i) => pop(el, t, 3.55 + i * .09, { seed: i }));
+  s2mEls.forEach((el, i) => pop(el, t, CUE.s2m + i * .09, { seed: i }));
 };
 SCENES.s3 = t => {
   slam($('s3a'), t, Wd.friday);
   // calendar: big in the middle, then up to the top left when the clock arrives
-  const c1 = moveTo(t, 6.7, .3, { x: 280, y: 480, s: 1, r: -4 }, { x: 70, y: 480, s: .5, r: -6 });
-  const cp = t > 5.38 ? spring(t - 5.38, 2.6, .34) : 0;
-  S($('s3cal'), { opacity: t < 5.38 ? '0' : '1', transform: `translate(${f(c1.dx)}px,${f(c1.dy)}px) rotate(${f(c1.rot + (1 - cp) * -18)}deg) scale(${f(cp * c1.s, 4)})`, transformOrigin: '0 0' });
+  const c1 = moveTo(t, CUE.calMove, .3, { x: 280, y: 480, s: 1, r: -4 }, { x: 70, y: 480, s: .5, r: -6 });
+  const cp = t > CUE.cal ? spring(t - CUE.cal, 2.6, .34) : 0;
+  S($('s3cal'), { opacity: t < CUE.cal ? '0' : '1', transform: `translate(${f(c1.dx)}px,${f(c1.dy)}px) rotate(${f(c1.rot + (1 - cp) * -18)}deg) scale(${f(cp * c1.s, 4)})`, transformOrigin: '0 0' });
   // the date rolls through the month and lands on 4
-  $('s3num').textContent = String(t < 5.38 ? 1 : t < Wd.four ? Math.floor(1 + (t - 5.38) * 18) % 30 + 1 : 4);
+  $('s3num').textContent = String(t < CUE.cal ? 1 : t < Wd.four ? Math.floor(1 + (t - CUE.cal) * 18) % 30 + 1 : 4);
   const np = t >= Wd.four ? spring(t - Wd.four, 4, .35) : 0;
   S($('s3num'), { transform: `scale(${f(t >= Wd.four ? 1 + .25 * (1 - np) : .9, 3)})` });
   // the clock spins to 3:30
-  const k1 = moveTo(t, 7.72, .28, { x: 300, y: 560, s: 1 }, { x: 600, y: 470, s: .62 });
-  const kp = t > 6.75 ? spring(t - 6.75, 2.6, .34) : 0;
-  S($('s3clock'), { opacity: t < 6.75 ? '0' : '1', transform: `translate(${f(k1.dx)}px,${f(k1.dy)}px) scale(${f(kp * k1.s, 4)})`, transformOrigin: '0 0' });
-  const mins = lerp(0, 3 * 60 + 30, E.outCubic(prog(t, 6.8, 7.5)));
+  const k1 = moveTo(t, CUE.clockMove, .28, { x: 300, y: 560, s: 1 }, { x: 600, y: 470, s: .62 });
+  const kp = t > CUE.clock ? spring(t - CUE.clock, 2.6, .34) : 0;
+  S($('s3clock'), { opacity: t < CUE.clock ? '0' : '1', transform: `translate(${f(k1.dx)}px,${f(k1.dy)}px) scale(${f(kp * k1.s, 4)})`, transformOrigin: '0 0' });
+  const mins = lerp(0, 3 * 60 + 30, E.outCubic(prog(t, CUE.spin, CUE.spin + .7)));
   $('mHand').setAttribute('transform', `rotate(${f((mins % 60) / 60 * 360)} 240 240)`);
   $('hHand').setAttribute('transform', `rotate(${f((mins / 60) / 12 * 360)} 240 240)`);
-  const tl = moveTo(t, 7.72, .28, { x: 0, y: 0, s: 1 }, { x: 210, y: -470, s: .52 });
+  const tl = moveTo(t, CUE.clockMove, .28, { x: 0, y: 0, s: 1 }, { x: 210, y: -470, s: .52 });
   slam($('s3t'), t, Wd.threethirty, { dx: tl.dx, dy: tl.dy, s: tl.s });
   // the pin drops onto the venue
-  const pd = prog(t, Wd.jafar - .25, Wd.jafar), tau = t - Wd.jafar;
+  const pd = prog(t, Wd.venue - .25, Wd.venue), tau = t - Wd.venue;
   const sq = tau > 0 ? .14 * Math.exp(-tau * 7) * Math.cos(tau * 30) : 0;
-  S($('s3pin'), { opacity: t < Wd.jafar - .25 ? '0' : '1', transform: `translate(0px,${f(t < Wd.jafar ? lerp(-900, 0, E.inQuad(pd)) : 0)}px) scale(${f(1 + sq, 3)},${f(1 - sq, 3)})`, transformOrigin: '50% 100%' });
-  slam($('s3v'), t, Wd.jafar);
-  rise($('s3dc'), t, Wd.dc);
+  S($('s3pin'), { opacity: t < Wd.venue - .25 ? '0' : '1', transform: `translate(0px,${f(t < Wd.venue ? lerp(-900, 0, E.inQuad(pd)) : 0)}px) scale(${f(1 + sq, 3)},${f(1 - sq, 3)})`, transformOrigin: '50% 100%' });
+  slam($('s3v'), t, Wd.venue);
+  rise($('s3dc'), t, Wd.dc + .15);
 };
 SCENES.s4a = t => {
   slam($('s4a1'), t, Wd.finance - .05);
@@ -440,21 +445,21 @@ SCENES.s4a = t => {
   tileEls.forEach((el, i) => pop(el, t, Wd.kahoot + .2 + i * .07, { bob: .3, seed: i }));
   slam($('s4a3'), t, Wd.prizes);
   pop($('trophy'), t, Wd.prizes + .05, { rot: 8, seed: 2 });
-  pop($('sprout'), t, 9.5, { rot: -6, seed: 1 });
+  pop($('sprout'), t, CUE.sprout, { rot: -6, seed: 1 });
 };
 SCENES.s4b = t => {
   slam($('s4b1'), t, Wd.startup - .04);
   slam($('s4b2'), t, Wd.showcase, { from: 2.2 });
-  pop($('nova'), t, 11.2, { seed: 3 });
+  pop($('nova'), t, CUE.nova, { seed: 3 });
   deckEls.forEach((el, i) => pop(el, t, Wd.showcase + .15 + i * .08, { rot: [-10, 9, -3][i], bob: .5, seed: i + 4 }));
-  rise($('s4b3'), t, 11.95);
+  rise($('s4b3'), t, CUE.s4b3);
 };
 SCENES.s4c = t => {
   slam($('s4c1'), t, Wd.raffle - .04, { from: 2.2, rot: -2 });
-  const rp = t > 12.6 ? spring(t - 12.6, 2.4, .32) : 0;
-  S($('rticket'), { opacity: t < 12.6 ? '0' : '1', transform: `rotate(${f(-6 + (1 - rp) * 30)}deg) scale(${f(Math.max(0, rp), 4)})` });
-  rise($('s4c2'), t, 12.78);
-  pop($('blaze'), t, 12.66, { seed: 5 });
+  const rp = t > CUE.ticket ? spring(t - CUE.ticket, 2.4, .32) : 0;
+  S($('rticket'), { opacity: t < CUE.ticket ? '0' : '1', transform: `rotate(${f(-6 + (1 - rp) * 30)}deg) scale(${f(Math.max(0, rp), 4)})` });
+  rise($('s4c2'), t, CUE.s4c2);
+  pop($('blaze'), t, CUE.blaze, { seed: 5 });
 };
 SCENES.s5 = t => {
   slam($('s5a'), t, Wd.yes - .04);
@@ -471,13 +476,13 @@ SCENES.s6 = t => {
     S(el, { opacity: t < t0 - .25 ? '0' : '1', transform: `translateY(${f((1 - up) * 60)}px) scale(${f(.6 + .4 * Math.min(1, up), 3)})` });
     if (el._ch && el._ch !== ':') el.firstChild.textContent = t < t0 ? String(Math.floor((t * 23 + i * 3) % 10)) : el._ch;
   });
-  const lp = t > 16.55 ? spring(t - 16.55, 2.2, .4) : 0;
-  const zoom = 1 + .06 * E.outCubic(prog(t, Wd.live, Wd.live + .5)) * (1 - prog(t, 18.0, 18.6));
-  S($('laptop'), { opacity: t < 16.55 ? '0' : '1', transform: `scale(${f(lp * zoom, 4)})`, transformOrigin: '50% 60%' });
+  const lp = t > CUE.laptop ? spring(t - CUE.laptop, 2.2, .4) : 0;
+  const zoom = 1 + .06 * E.outCubic(prog(t, Wd.live, Wd.live + .5)) * (1 - prog(t, CUE.calm, CUE.calm + .6));
+  S($('laptop'), { opacity: t < CUE.laptop ? '0' : '1', transform: `scale(${f(lp * zoom, 4)})`, transformOrigin: '50% 60%' });
   const lb = t > Wd.live ? spring(t - Wd.live, 3, .35) : 0;
   S($('liveBadge'), { transform: `scale(${f(t < Wd.live ? 0 : lb, 3)}) rotate(${f(-6 + 6 * lb)}deg)` });
   S($('liveDot'), { opacity: Math.sin(t * 9) > 0 ? '1' : '.35' });
-  S($('rays8'), { opacity: f(.9 * prog(t, Wd.live, Wd.live + .2) * (1 - .4 * prog(t, 18.0, 18.8)), 3) });
+  S($('rays8'), { opacity: f(.9 * prog(t, Wd.live, Wd.live + .2) * (1 - .4 * prog(t, CUE.calm, CUE.calm + .8)), 3) });
   slam($('s6b'), t, Wd.we, { op: 1 - prog(t, Wd.together - .12, Wd.together) });
   slam($('s6c'), t, Wd.together, { from: 2.2 });
 };
@@ -496,8 +501,8 @@ SCENES.s8 = t => {
   slam($('s8c'), t, Wd.getin, { from: 2.2 });
   // the sign-up button gets tapped
   const tapped = t >= Wd.tapf, bp = tapped ? spring(t - Wd.tapf, 4, .3) : 0;
-  S($('signup'), { opacity: t < 22.55 ? '0' : '1', background: tapped ? '#1FB45A' : '#fff', color: tapped ? '#fff' : '#2A1060',
-    transform: `scale(${f(tapped ? .9 + .1 * bp : E.outBack(prog(t, 22.55, 22.85), 2), 3)})`, boxShadow: '0 24px 50px -16px rgba(20,0,60,.6)' });
+  S($('signup'), { opacity: t < CUE.signup ? '0' : '1', background: tapped ? '#1FB45A' : '#fff', color: tapped ? '#fff' : '#2A1060',
+    transform: `scale(${f(tapped ? .9 + .1 * bp : E.outBack(prog(t, CUE.signup, CUE.signup + .3), 2), 3)})`, boxShadow: '0 24px 50px -16px rgba(20,0,60,.6)' });
   const label = tapped ? 'Spot saved \u2713' : 'Sign up \u2192';
   if ($('signup').textContent !== label) $('signup').textContent = label;
   const tp = prog(t, Wd.tapf - .05, Wd.tapf + .45);
@@ -515,13 +520,13 @@ SCENES.s9 = t => {
   pop($('hiR'), t, Wd.tag + .02, { dx: 540 + gap, dy: 548, rot: -10, bob: .3, seed: 2 });
   rise($('s9b'), t, Wd.friend + .15); rise($('s9c'), t, Wd.friend + .25);
   slam($('s9d'), t, Wd.see, { from: 1.8 });
-  const pp = t > Wd.there + .1 ? spring(t - Wd.there - .1, 2.6, .35) : 0;
-  S($('s9pill'), { opacity: t < Wd.there + .1 ? '0' : '1', transform: `translateY(${f((1 - pp) * 80)}px) scale(${f(.8 + .2 * pp, 4)})` });
-  rise($('s9e'), t, Wd.there + .3);
+  const pp = t > Wd.last + .1 ? spring(t - Wd.last - .1, 2.6, .35) : 0;
+  S($('s9pill'), { opacity: t < Wd.last + .1 ? '0' : '1', transform: `translateY(${f((1 - pp) * 80)}px) scale(${f(.8 + .2 * pp, 4)})` });
+  rise($('s9e'), t, Wd.last + .3);
 };
 
 window.seek = seek; window.DUR = DUR; window.seekAsync = async t => seek(t);
-window.events = () => ({ SC, W: Wd, bursts: BURSTS.map(b => b[0]), slams: SLAMS, end: DUR });
+window.events = () => ({ SC, W: Wd, cue: CUE, bursts: BURSTS.map(b => b[0]), slams: SLAMS, end: DUR });
 
 /* ---------------- boot ---------------- */
 async function boot() {
@@ -535,6 +540,7 @@ async function boot() {
   if (RENDER) return;
   $('ui').classList.remove('hide');
   const btn = $('play'), music = $('music'), scrub = $('scrub'), tc = $('tc');
+  scrub.max = DUR;
   let playing = false, t0 = performance.now(), base = 0;
   function tick(now) {
     let t = playing ? base + (now - t0) / 1000 : base;

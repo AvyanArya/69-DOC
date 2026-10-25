@@ -1,9 +1,10 @@
 """Music, sound design and voiceover mix for the Lumera launch event reel.
 
-An upbeat house groove (about 125 BPM, A minor / C major) on recorded piano and
+An upbeat house groove (about 124 BPM, A minor / C major) on recorded piano and
 bass with synthesised drums. The tempo is set so a bar line lands exactly on
 the spoken word "live": the beat drops out for a build under "then at 7:25"
-and comes back in on "we go LIVE". Every big word gets a hit, every sticker a
+and comes back in on "we go LIVE". All timings come from the page
+(events.json), which takes them from the voiceover (timing.py). Every big word gets a hit, every sticker a
 pop (Kenney UI sounds, CC0), every scene cut a whoosh. The narration sits on
 top and the music ducks under it.
 
@@ -25,12 +26,13 @@ SR = 48000
 HERE = os.path.dirname(os.path.abspath(__file__))
 EV = json.load(open(os.path.join(HERE, 'events.json')))
 VO = json.load(open(os.path.join(HERE, 'vo_lines.json')))
-Wd, SC = EV['W'], EV['SC']
+Wd, SC, CUE = EV['W'], EV['SC'], EV['cue']
 DUR = EV['end']
 N = int(DUR * SR)
 R = np.random.default_rng(77)
 DROP = Wd['live']
-BEAT = DROP / 36                 # 36 beats from the top to the drop: ~125 BPM, bar 9 lands on "live"
+DROPBAR = int(round(DROP / (4 * 60 / 124)))     # whole bars from the top to "live", as near 124 BPM as they fit
+BEAT = DROP / (4 * DROPBAR)
 BAR = BEAT * 4
 
 
@@ -204,8 +206,8 @@ kicks = []
 # ---------------------------------------------------------------- the groove
 PROG = [(['A3', 'C4', 'E4', 'G4'], 'A1'), (['A3', 'C4', 'E4', 'F4'], 'F1'), (['G3', 'C4', 'E4', 'G4'], 'C2'), (['G3', 'B3', 'D4', 'G4'], 'G1')]
 STABS = [0, 3, 6, 10, 13]                       # 16th-note positions of the piano stabs in a bar
-BREAK = 8                                       # bar 8 is the build, bar 9 (= "live") the drop
-ENDBAR = int(round((Wd['friend'] - 0) / BAR))   # the last full bar lands on "friend"
+BREAK = DROPBAR - 1                             # the bar before "live" is the build, "live" the drop
+ENDBAR = int(round(Wd['see'] / BAR))            # the last bar lands near "see you at Dubai College"
 nbars = int(np.ceil(DUR / BAR))
 for b in range(nbars):
     b0 = b * BAR
@@ -225,7 +227,7 @@ for b in range(nbars):
         fx.add(rs, b0, .9)
         continue
     if b >= ENDBAR:
-        # the close: one big chord on "friend", a last stab, and the room rings out
+        # the close: one big chord, a last stab, and the room rings out
         music.add(chord(['A2', 'E3', 'A3', 'C4', 'E4', 'A4'], 1.6, .8, release=1.2), b0, .9)
         music.add(bass(root, 1.4, .9, release=.6), b0, .7)
         drums.add(kick(1.2), b0, 1); kicks.append(b0)
@@ -263,30 +265,30 @@ for k, t0 in SC.items():
 for st, k in EV['slams']:
     fx.add(hit(.5 + .4 * k), st, .7)
 POPS = [  # (time, sample, pitch)
-    (1.55, 'drop_002', 0), (Wd['lumera'], 'maximize_003', 0),
-    *[(3.55 + i * .09, 'pluck_001', i * 2) for i in range(5)],
-    (5.38, 'drop_003', -2), (6.75, 'drop_001', 0), (Wd['dc'], 'select_002', 0),
-    *[(Wd['kahoot'] + .2 + i * .07, 'tick_002', i * 2) for i in range(4)], (9.5, 'pluck_002', 0), (Wd['prizes'] + .05, 'confirmation_002', 0),
-    (11.2, 'pluck_001', 3), *[(Wd['showcase'] + .15 + i * .08, 'drop_004', i) for i in range(3)],
-    (12.6, 'drop_002', 2), (12.66, 'pluck_002', 4),
+    (CUE['stamp'], 'drop_002', 0), (Wd['lumera'], 'maximize_003', 0),
+    *[(CUE['s2m'] + i * .09, 'pluck_001', i * 2) for i in range(5)],
+    (CUE['cal'], 'drop_003', -2), (CUE['clock'], 'drop_001', 0), (Wd['dc'] + .15, 'select_002', 0),
+    *[(Wd['kahoot'] + .2 + i * .07, 'tick_002', i * 2) for i in range(4)], (CUE['sprout'], 'pluck_002', 0), (Wd['prizes'] + .05, 'confirmation_002', 0),
+    (CUE['nova'], 'pluck_001', 3), *[(Wd['showcase'] + .15 + i * .08, 'drop_004', i) for i in range(3)],
+    (CUE['ticket'], 'drop_002', 2), (CUE['blaze'], 'pluck_002', 4),
     (Wd['drinks'] - .1, 'pluck_001', 0), (Wd['drinks'] + .12, 'pluck_001', 3), (Wd['snacks'] - .05, 'pluck_001', 7), (Wd['free'], 'confirmation_001', 0),
-    (16.55, 'maximize_005', 0),
+    (CUE['laptop'], 'maximize_005', 0),
     *[(Wd['sixty'] + .05 + r * .07, 'pluck_002', r * 2) for r in range(6)],      # the seats fill, row by row
     (Wd['spots'] + .25, 'drop_002', 0),                                              # LIMITED badge
-    (22.55, 'maximize_003', 0), (Wd['tapf'], 'click_004', 0), (Wd['tapf'] + .04, 'confirmation_002', 0),
+    (CUE['signup'], 'maximize_003', 0), (Wd['tapf'], 'click_004', 0), (Wd['tapf'] + .04, 'confirmation_002', 0),
     (Wd['caption'] - .1, 'drop_001', 2),
-    (Wd['tag'] - .05, 'pluck_001', 0), (Wd['tag'] + .02, 'pluck_001', 4), (Wd['there'] + .1, 'drop_003', 0),
+    (Wd['tag'] - .05, 'pluck_001', 0), (Wd['tag'] + .02, 'pluck_001', 4), (Wd['last'] + .1, 'drop_003', 0),
 ]
 for t0, name, pitch in POPS:
     fx.add(ui(name, pitch), t0, .45, pan=R.uniform(-.35, .35))
 # the clock ticking round to 3:30 and the flaps rolling to 7:25
 for i in range(14):
-    fx.add(ui('tick_002', 5), 6.8 + i * .05, .25, pan=.2)
+    fx.add(ui('tick_002', 5), CUE['spin'] + i * .05, .25, pan=.2)
 for i in range(16):
     fx.add(ui('tick_004', -3), Wd['seven'] - .25 + i * .04, .25, pan=-.2)
-fx.add(FOLEY['bookFlip1'] / np.abs(FOLEY['bookFlip1']).max(), 5.36, .4)
-fx.add(FOLEY['card-place-1'] / np.abs(FOLEY['card-place-1']).max(), 12.6, .5)
-fx.add(hit(1.2), Wd['jafar'], .8)                                    # the pin lands
+fx.add(FOLEY['bookFlip1'] / np.abs(FOLEY['bookFlip1']).max(), CUE['cal'] - .02, .4)
+fx.add(FOLEY['card-place-1'] / np.abs(FOLEY['card-place-1']).max(), CUE['ticket'], .5)
+fx.add(hit(1.2), Wd['venue'], .8)                                    # the pin lands
 fx.add(clap(), Wd['friend'], .9); send.add(clap(), Wd['friend'], .3)       # the high five
 # confetti sparkle
 for b in EV['bursts']:
@@ -303,7 +305,7 @@ for ln in VO:
     sp = signal.sosfilt(bp(250, 6000), a)                  # level every line to the same speech loudness
     a = a * 10 ** ((-21 - 20 * np.log10(np.sqrt(np.mean(sp ** 2)) + 1e-9)) / 20)
     vo.add(a, ln['t'], 1.0)
-    send.add(a, ln['t'], .05)
+    send.add(a, ln['t'], .08)
 
 
 def follower(x, att=.015, rel=.4):
