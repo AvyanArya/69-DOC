@@ -47,7 +47,7 @@ async function renderSegment(browser, k, f0, f1, file) {
   const done = new Promise((res, rej) => ff.on('close', c => c === 0 ? res() : rej(new Error('ffmpeg segment ' + k))));
   const t0 = Date.now();
   for (let f = f0; f < f1; f++) {
-    await page.evaluate(t => window.seek(t), f / FPS);
+    await page.evaluate(t => window.seekAsync(t), f / FPS);
     const buf = await page.screenshot({ type: 'jpeg', quality: 96 });
     if (!ff.stdin.write(buf)) await new Promise(r => ff.stdin.once('drain', r));
     if ((f - f0) % 60 === 0) {

@@ -1,8 +1,8 @@
 """Voiceover for the Lumera launch film.
 
 Generates each line in vo_lines.json with the Kokoro neural TTS model, then
-gives it the "keynote narrator" treatment: a blend of a warm and a deep male
-voice, pitched down a semitone, warmed with EQ and gently compressed.
+gives it a light "keynote narrator" polish: a warm male voice with a touch of a
+deeper one blended in, natural pitch and pace, gentle EQ and compression.
 
     python make_vo.py --model kokoro-v1.0.onnx --voices voices-v1.0.bin --out vo/
 
@@ -68,22 +68,19 @@ def narrate(k, style, text, speed):
     for word, ipa in PRONOUNCE.items():
         ph = ph.replace(k.tokenizer.phonemize(word, 'en-us').strip(' .'), ipa)
     audio, sr = k.create(ph, voice=style, speed=speed, lang='en-us', is_phonemes=True)
-    audio = audio.astype(np.float64)
-    # one semitone down: stretch by 2^(1/12) and keep the playback rate
-    audio = signal.resample_poly(audio, 89, 84)
-    audio = signal.resample_poly(audio, SR // sr, 1)
+    audio = signal.resample_poly(audio.astype(np.float64), SR // sr, 1)
     # trim silence, keep a short breath either side
     idx = np.where(np.abs(audio) > .01)[0]
     audio = audio[max(0, idx[0] - int(.03 * SR)): idx[-1] + int(.12 * SR)]
     sos = np.vstack([
         signal.butter(2, 70, 'highpass', fs=SR, output='sos'),
-        biquad_shelf(170, 3.5, 'low'),
+        biquad_shelf(170, 1.5, 'low'),
         biquad_peak(320, -1.5, 1.0),
         biquad_peak(3200, 2.0, .9),
         biquad_shelf(9000, -1.5, 'high'),
     ])
     audio = signal.sosfilt(sos, audio)
-    audio = compress(audio)
+    audio = compress(audio, thresh_db=-20, ratio=2.2)
     fade = int(.01 * SR)
     audio[:fade] *= np.linspace(0, 1, fade)
     audio[-fade * 4:] *= np.linspace(1, 0, fade * 4)
@@ -96,11 +93,12 @@ def main():
     ap.add_argument('--voices', required=True)
     ap.add_argument('--lines', default=os.path.join(os.path.dirname(__file__), 'vo_lines.json'))
     ap.add_argument('--out', default=os.path.join(os.path.dirname(__file__), 'vo'))
-    ap.add_argument('--speed', type=float, default=.95)
+    ap.add_argument('--speed', type=float, default=1.0)
+    ap.add_argument('--depth', type=float, default=.15, help='share of the deeper voice in the blend')
     args = ap.parse_args()
     os.makedirs(args.out, exist_ok=True)
     k = Kokoro(args.model, args.voices)
-    style = .6 * k.get_voice_style('am_michael') + .4 * k.get_voice_style('am_onyx')
+    style = (1 - args.depth) * k.get_voice_style('am_michael') + args.depth * k.get_voice_style('am_onyx')
     lines = json.load(open(args.lines))
     for ln in lines:
         a = narrate(k, style, ln['text'], args.speed)

@@ -70,12 +70,9 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased}
 #chrome .plus{position:absolute;left:448px;top:12px;color:rgba(255,255,255,.4);font-size:18px}
 #vp{position:absolute;left:0;top:44px;width:1440px;height:900px;overflow:hidden}
 .vpbg{position:absolute;inset:0}
-#bgHero{background:
-  radial-gradient(760px 470px at 50% 46%,#04030a 0%,rgba(4,3,10,.92) 42%,rgba(4,3,10,0) 78%),
-  radial-gradient(760px 980px at -6% 30%,rgba(118,88,230,.85),rgba(118,88,230,0) 70%),
-  radial-gradient(760px 980px at 106% 36%,rgba(118,88,230,.78),rgba(118,88,230,0) 70%),
-  radial-gradient(900px 300px at 50% 104%,rgba(160,118,64,.55),rgba(160,118,64,0) 72%),
-  linear-gradient(180deg,#30256c 0%,#141030 34%,#0b0918 100%)}
+#bgHero{background:#000}
+#heroVid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#heroBlur{position:absolute;left:50%;top:47%;width:1100px;height:600px;margin:-300px 0 0 -550px;background:radial-gradient(closest-side,rgba(3,7,18,.82),rgba(3,7,18,.6) 50%,rgba(3,7,18,0))}
 #bgWorlds{background:
   radial-gradient(1000px 560px at 50% -14%,rgba(112,104,250,.85),rgba(112,104,250,0) 70%),
   radial-gradient(700px 900px at -8% 20%,rgba(118,88,230,.6),rgba(118,88,230,0) 70%),
@@ -195,11 +192,10 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased}
 /* reveal overlay */
 #revealOv{position:absolute;left:0;top:0;width:1440px;height:944px}
 .mark{position:absolute;overflow:visible}
-.mark path.ml{fill:none;stroke-width:6;stroke-linecap:round;stroke-dasharray:1 1}
 #revealTag{position:absolute;left:0;top:565px;width:1440px;text-align:center}
 #revealTag .orn{position:relative;height:16px;width:600px;margin:0 auto 14px}
-#revealTag .orn i{position:absolute;top:8px;height:1px;width:270px;background:linear-gradient(90deg,rgba(80,60,140,0),rgba(80,60,140,.55))}
-#revealTag .orn i.r{right:0;transform:scaleX(-1)}
+#revealTag .orn i{position:absolute;left:0;top:8px;height:1px;width:270px;background:linear-gradient(90deg,rgba(80,60,140,0),rgba(80,60,140,.55))}
+#revealTag .orn i.r{left:auto;right:0;transform:scaleX(-1)}
 #revealTag .orn svg{position:absolute;left:50%;top:0;width:16px;height:16px;margin-left:-8px}
 #revealTag .tx{font-size:17px;letter-spacing:.42em;font-weight:600;color:#2a2346;white-space:nowrap}
 
@@ -209,8 +205,8 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased}
 #endWord{position:absolute;left:960px;top:560px;width:640px;height:73px;margin-left:-320px}
 #endTag{position:absolute;left:0;width:1920px;top:668px;text-align:center}
 #endTag .orn{position:relative;height:16px;width:640px;margin:0 auto 16px}
-#endTag .orn i{position:absolute;top:8px;height:1px;width:290px;background:linear-gradient(90deg,rgba(80,60,140,0),rgba(80,60,140,.5))}
-#endTag .orn i.r{right:0;transform:scaleX(-1)}
+#endTag .orn i{position:absolute;left:0;top:8px;height:1px;width:290px;background:linear-gradient(90deg,rgba(80,60,140,0),rgba(80,60,140,.5))}
+#endTag .orn i.r{left:auto;right:0;transform:scaleX(-1)}
 #endTag .orn svg{position:absolute;left:50%;top:0;width:16px;height:16px;margin-left:-8px}
 #endTag .tx{font-size:17px;letter-spacing:.42em;font-weight:600;color:#3a3160;white-space:nowrap}
 #endCta{position:absolute;left:960px;top:780px;height:70px;width:380px;margin-left:-190px;border-radius:999px;
@@ -226,6 +222,7 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased}
 .cghost{position:absolute;left:0;top:0;width:34px;height:42px;transform-origin:3px 3px}
 #ripple{position:absolute;left:0;top:0;width:80px;height:80px;margin:-40px 0 0 -40px;border-radius:50%;border:2.5px solid rgba(157,124,255,.9);opacity:0}
 #ripple2{position:absolute;left:0;top:0;width:80px;height:80px;margin:-40px 0 0 -40px;border-radius:50%;background:radial-gradient(circle,rgba(157,124,255,.35),rgba(157,124,255,0) 70%);opacity:0}
+#world{transform-origin:960px 540px}
 #vignette{background:radial-gradient(ellipse 75% 70% at 50% 50%,rgba(0,0,0,0) 55%,rgba(0,0,0,.55) 100%)}
 #grain{mix-blend-mode:overlay;opacity:.09}
 #fxAdd{mix-blend-mode:screen}
@@ -238,7 +235,7 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased}
 </style>
 </head>
 <body>
-<div id="stage">
+<div id="stage"><div id="world" class="L">
   <canvas id="bg" class="L" width="1920" height="1080"></canvas>
   <canvas id="field" class="L" width="1920" height="1080"></canvas>
   <div id="words" class="L"><div id="tooMuch"></div></div>
@@ -253,7 +250,7 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased}
         <div class="plus">+</div>
       </div>
       <div id="vp">
-        <div id="bgHero" class="vpbg"></div>
+        <div id="bgHero" class="vpbg"><img id="heroVid" alt=""><div id="heroBlur"></div></div>
         <div id="bgWorlds" class="vpbg"></div>
         <!-- hero -->
         <div id="pgHero" class="pg">
@@ -366,6 +363,7 @@ body{font-family:var(--sans);-webkit-font-smoothing:antialiased}
     <svg class="cghost" id="cg2" viewBox="0 0 34 42"><path d="M3 3 L3 33 L10.5 26 L15.8 38.2 L21 36 L15.8 24 L26 24 Z" fill="#111" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/></svg>
     <svg id="cursor" viewBox="0 0 34 42"><path d="M3 3 L3 33 L10.5 26 L15.8 38.2 L21 36 L15.8 24 L26 24 Z" fill="#111" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/></svg>
   </div>
+  </div>
   <div id="vignette" class="L"></div>
   <canvas id="grain" class="L" width="960" height="540" style="width:1920px;height:1080px"></canvas>
   <div id="flash" class="L" style="background:#fff;opacity:0"></div>
@@ -387,7 +385,7 @@ const DUR = 32.6, W = 1920, H = 1080, CX = 960, CY = 540;
 const T = {
   freeze: 5.55, collapse: 5.8, pop: 6.55,
   line: 7.05, barOpen: 7.28, typeStart: 7.9,
-  click1: 10.85, think: 10.9, barCollapse: 11.42, boom: 12.0,
+  click1: 10.85, think: 10.9, barCollapse: 11.42, blackout: 11.92, boom: 12.0,
   pill: 15.35, expand: 15.6, formed: 16.45,
   clickWorlds: 17.8, worldsIn: 17.9,
   hov: [19.25, 19.9, 20.55, 21.2], hovEnd: 21.85,
@@ -829,9 +827,9 @@ function glow(ctx, x, y, I, wide = 1) {
 function renderGlowDust(t) {
   const ctx = fxA;
   // dust disk
-  if (t > T.collapse && t < T.boom) {
+  if (t > T.collapse && t < T.blackout) {
     ctx.globalCompositeOperation = 'lighter';
-    const inflow = t < 7.2, suckIn = prog(t, 11.42, 11.95);
+    const suckIn = prog(t, 11.42, 11.88);
     const dim = t < 7.3 ? 1 : lerp(1, .55, prog(t, 7.3, 7.9));
     for (const d of DUST) {
       const fin = E.outCubic(prog(t, T.collapse + .05 + d.d * .35, 6.9 + d.d * .2));
@@ -854,7 +852,7 @@ function renderGlowDust(t) {
     I *= 1 - .75 * E.outCubic(prog(t, T.line, 7.35));
     I *= 1 - prog(t, 7.35, 7.5);
   }
-  if (t > 11.68 && t < T.boom + .02) I = E.inCubic(prog(t, 11.68, T.boom)) * 2.6;
+  if (t > 11.6 && t < T.blackout) I = E.inCubic(prog(t, 11.6, 11.9)) * 2.8;
   glow(ctx, CX, CY, I, t > 11 ? 1.6 : 1);
   // the line the search bar opens from
   if (t > T.line && t < 7.55) {
@@ -885,11 +883,11 @@ function buildSearch() {
 }
 const HL0 = PROMPT.indexOf('one website');
 function renderSearch(t) {
-  const on = t > T.barOpen && t < T.boom;
+  const on = t > T.barOpen && t < T.blackout;
   show($('search'), on); if (!on) return;
   const open = prog(t, T.barOpen, 7.62);
   let w = 1240, h = lerp(6, 104, E.outBack(open, 1.3));
-  const sq = prog(t, T.barCollapse, 11.78), sh = prog(t, 11.78, 11.97);
+  const sq = prog(t, T.barCollapse, 11.7), sh = prog(t, 11.7, 11.88);
   if (sq > 0) w = lerp(1240, 104, E.inBack(sq, 1.1));
   if (sh > 0) { w = 104 * (1 - E.inCubic(sh)); h = w; }
   w = Math.max(w, h);
@@ -939,15 +937,17 @@ function renderSearch(t) {
 /* =====================================================================
    SCENE 3: boom + white world
    ===================================================================== */
-let BURST = [], SPARK = [];
+let BURST = [], SPARK = [], SHARDS = [], SPEED = [];
 const PAL = ['#8E7BFF', '#A78BFF', '#C6A8FF', '#E0B04F', '#F2C45C', '#F45AAA', '#2DD4BF', '#6E6CF6', '#60A5FA'];
 function buildBurst() {
   const r = rng(77);
-  for (let i = 0; i < 1100; i++) {
-    const a = r() * Math.PI * 2, sp = 300 + 2600 * Math.pow(r(), 1.8);
-    BURST.push({ a, sp, k: 2.2 + r() * 2.4, life: .7 + r() * 1.9, s: .8 + r() * 3.2, c: PAL[Math.floor(r() * PAL.length)], wob: (r() - .5) * .6, dot: r() < .35 });
+  for (let i = 0; i < 1800; i++) {
+    const a = r() * Math.PI * 2, sp = 400 + 3400 * Math.pow(r(), 1.7);
+    BURST.push({ a, sp, k: 2.0 + r() * 2.4, life: .8 + r() * 2.0, s: 1 + r() * 3.6, c: PAL[Math.floor(r() * PAL.length)], wob: (r() - .5) * .6, dot: r() < .3 });
   }
-  for (let i = 0; i < 26; i++) { const a = r() * Math.PI * 2; SPARK.push({ a, sp: 500 + r() * 900, k: 2.6, rot: r() * 3, s: 10 + r() * 16, c: r() < .5 ? '#E0B04F' : '#8E7BFF', life: 1.1 + r() * .9 }); }
+  for (let i = 0; i < 44; i++) SPARK.push({ a: r() * Math.PI * 2, sp: 600 + r() * 1300, k: 2.4, rot: r() * 3, s: 12 + r() * 22, c: r() < .5 ? '#E0B04F' : '#8E7BFF', life: 1.2 + r() * 1.0 });
+  for (let i = 0; i < 140; i++) SHARDS.push({ a: r() * Math.PI * 2, sp: 500 + 1900 * Math.pow(r(), 1.3), k: 1.6 + r() * 1.2, rot: r() * 6, wr: (r() - .5) * 14, flip: 4 + r() * 10, w: 10 + r() * 16, h: 13 + r() * 20, c: PAL[Math.floor(r() * PAL.length)], life: 1.6 + r() * 1.4, g: 260 + r() * 300 });
+  for (let i = 0; i < 90; i++) SPEED.push({ a: r() * Math.PI * 2, r0: 120 + r() * 300, sp: 2600 + r() * 2600, len: 120 + r() * 360, w: .8 + r() * 2.2 });
 }
 function star4(ctx, x, y, r, rot) {
   ctx.save(); ctx.translate(x, y); ctx.rotate(rot); ctx.beginPath(); ctx.moveTo(0, -r); ctx.quadraticCurveTo(0, 0, r, 0); ctx.quadraticCurveTo(0, 0, 0, r); ctx.quadraticCurveTo(0, 0, -r, 0); ctx.quadraticCurveTo(0, 0, 0, -r); ctx.fill(); ctx.restore();
@@ -969,36 +969,73 @@ function burstAt(ctx, t, tb, ox, oy, list, scale = 1) {
 }
 function renderBoom(t) {
   const tau = t - T.boom;
-  if (tau < 0 || tau > 3.2) return;
+  if (tau < 0 || tau > 3.6) return;
   const n = fxN;
-  // rays (soft sunburst behind the reveal)
-  if (tau < 2.2) {
-    const a = .09 * (1 - E.outCubic(prog(tau, .1, 2.2)));
-    n.save(); n.translate(CX, 420); n.rotate(tau * .12);
-    for (let i = 0; i < 18; i++) {
-      n.rotate(Math.PI * 2 / 18);
-      const g = n.createLinearGradient(0, 0, 1300, 0); g.addColorStop(0, `rgba(142,123,255,${a})`); g.addColorStop(1, 'rgba(142,123,255,0)');
-      n.fillStyle = i % 2 ? g : g; n.beginPath(); n.moveTo(0, 0); n.lineTo(1300, -70); n.lineTo(1300, 70); n.closePath(); n.fill();
+  // a coloured sunburst behind the reveal
+  if (tau < 2.6) {
+    const a = .2 * (1 - E.outCubic(prog(tau, .05, 2.6)));
+    n.save(); n.translate(CX, 470); n.rotate(tau * .16);
+    for (let i = 0; i < 24; i++) {
+      n.rotate(Math.PI * 2 / 24);
+      const c = i % 3 === 0 ? '235,180,90' : i % 3 === 1 ? '142,123,255' : '244,120,190';
+      const g = n.createLinearGradient(0, 0, 1700, 0); g.addColorStop(0, `rgba(${c},${a})`); g.addColorStop(1, `rgba(${c},0)`);
+      n.fillStyle = g; n.beginPath(); n.moveTo(0, 0); n.lineTo(1700, -90); n.lineTo(1700, 90); n.closePath(); n.fill();
     }
     n.restore();
   }
+  // speed lines tearing outward
+  if (tau < .5) {
+    n.lineCap = 'round'; n.strokeStyle = '#4b2fc9';
+    for (const s of SPEED) {
+      const r = s.r0 + s.sp * tau;
+      n.globalAlpha = .55 * (1 - tau / .5); n.lineWidth = s.w;
+      n.beginPath(); n.moveTo(CX + Math.cos(s.a) * r, CY + Math.sin(s.a) * r); n.lineTo(CX + Math.cos(s.a) * (r + s.len), CY + Math.sin(s.a) * (r + s.len)); n.stroke();
+    }
+    n.globalAlpha = 1;
+  }
   // shockwave rings
-  [[0, '#8E7BFF', 22], [.06, '#E0B04F', 14], [.15, '#F45AAA', 9]].forEach(([dl, c, lw]) => {
-    const p = prog(tau, dl, dl + 1.05); if (p <= 0 || p >= 1) return;
-    n.globalAlpha = Math.pow(1 - p, 1.6); n.strokeStyle = c; n.lineWidth = lw * (1 - p) + 1;
-    n.beginPath(); n.arc(CX, CY, 1500 * E.outExpo(p), 0, 7); n.stroke();
+  [[0, '#8E7BFF', 44], [.05, '#E0B04F', 28], [.12, '#F45AAA', 18], [.22, '#2DD4BF', 10]].forEach(([dl, c, lw]) => {
+    const p = prog(tau, dl, dl + 1.25); if (p <= 0 || p >= 1) return;
+    n.globalAlpha = Math.pow(1 - p, 1.4); n.strokeStyle = c; n.lineWidth = lw * (1 - p) + 1.5;
+    n.beginPath(); n.arc(CX, CY, 1750 * E.outExpo(p), 0, 7); n.stroke();
   });
   n.globalAlpha = 1;
   burstAt(n, t, T.boom, CX, CY, BURST);
+  // paper shards: the clutter comes back as confetti
+  for (const s of SHARDS) {
+    if (tau > s.life) continue;
+    const d = s.sp * (1 - Math.exp(-s.k * tau)) / s.k;
+    n.save(); n.translate(CX + Math.cos(s.a) * d, CY + Math.sin(s.a) * d + .5 * s.g * tau * tau);
+    n.rotate(s.rot + s.wr * tau); n.scale(1, Math.cos(s.flip * tau));
+    n.globalAlpha = Math.min(1, 3 * (1 - tau / s.life)); n.fillStyle = s.c; n.fillRect(-s.w / 2, -s.h / 2, s.w, s.h);
+    n.restore();
+  }
   for (const s of SPARK) {
     if (tau > s.life) continue; const d = s.sp * (1 - Math.exp(-s.k * tau)) / s.k;
     n.globalAlpha = Math.pow(1 - tau / s.life, 1.2); n.fillStyle = s.c;
     star4(n, CX + Math.cos(s.a) * d, CY + Math.sin(s.a) * d, s.s * (.4 + .6 * E.outBack(prog(tau, 0, .4))), s.rot + tau * 2);
   }
   n.globalAlpha = 1;
-  // flash
-  const fl = tau < .02 ? E.outQuad(prog(tau, -.02, .02)) : 1 - E.outCubic(prog(tau, .02, .5));
-  S($('flash'), { opacity: (fl * .95).toFixed(3), background: '#fff' });
+  // full white flash, held for two frames
+  const fl = tau < .035 ? 1 : 1 - E.outCubic(prog(tau, .035, .55));
+  S($('flash'), { opacity: fl.toFixed(3), background: '#fff' });
+}
+// whole-frame camera: a push-in and rumble as everything implodes, then the hit
+function worldCam(t) {
+  let sx = 0, sy = 0, rot = 0, z = 1;
+  if (t < T.boom) {
+    const an = prog(t, 11.4, T.blackout);
+    z = 1 + .1 * E.inCubic(an);
+    const a = 7 * E.inQuad(an);
+    sx = a * Math.sin(t * 91); sy = a * Math.cos(t * 77);
+  } else if (t < T.boom + 1.6) {
+    const tau = t - T.boom, a = 46 * Math.exp(-tau / .17);
+    sx = a * (Math.sin(tau * 83) * .7 + Math.sin(tau * 137 + 1) * .3);
+    sy = a * (Math.cos(tau * 71) * .7 + Math.sin(tau * 119 + 2) * .3);
+    rot = 1.6 * Math.exp(-tau / .2) * Math.sin(tau * 47);
+    z = 1 + .12 * Math.exp(-tau / .28);
+  }
+  return { sx, sy, rot, z };
 }
 
 /* =====================================================================
@@ -1015,6 +1052,14 @@ function renderBg(t) {
     const R = 2400 * E.outQuart(prog(t, T.boom + .01, T.boom + .9));
     g.save(); g.beginPath(); g.arc(CX, CY, R, 0, 7); g.clip();
     drawWhite(g, t);
+    // a colour bloom that settles into the white canvas
+    const nv = 1 - E.inOutCubic(prog(t, T.boom + .15, T.boom + 1.5));
+    if (nv > 0) {
+      const r = g.createRadialGradient(CX, CY, 0, CX, CY, Math.max(40, R * .95));
+      r.addColorStop(0, `rgba(255,255,255,${nv})`); r.addColorStop(.2, `rgba(232,220,255,${nv})`); r.addColorStop(.45, `rgba(170,140,255,${.9 * nv})`);
+      r.addColorStop(.66, `rgba(246,150,206,${.8 * nv})`); r.addColorStop(.84, `rgba(246,206,120,${.7 * nv})`); r.addColorStop(1, 'rgba(255,255,255,0)');
+      g.fillStyle = r; g.fillRect(0, 0, W, H);
+    }
     g.restore();
     if (R < 2300) { // bright rim of the white flood
       g.strokeStyle = 'rgba(198,168,255,.9)'; g.lineWidth = 26; g.beginPath(); g.arc(CX, CY, R, 0, 7); g.stroke();
@@ -1037,7 +1082,8 @@ function drawWhite(g, t) {
 }
 
 /* =====================================================================
-   LOGO MARK (traced as strokes so it can draw itself on)
+   LOGO MARK: the real artwork, drawn on through a mask that runs along
+   the ribbon's spine, with a twinkle on the star
    ===================================================================== */
 function cr(P) {
   let d = `M${P[0][0].toFixed(1)} ${P[0][1].toFixed(1)}`;
@@ -1048,27 +1094,30 @@ function cr(P) {
   }
   return d;
 }
-const MARK_LIGHT = ['#D69A35', '#9A72FF', '#7A55F2', '#B78AE8', '#D9A443'];
-const MARK_BRAND = ['#EBD08A', '#A98BFF', '#9B7BFF', '#E2C49C', '#F0D795'];
+// spine of the ribbon in the mark's 960x702 space (3x the 320x234 artwork)
+const MARK_SPINE = cr([[70, 730], [90, 652], [120, 440], [227, 337], [435, 440], [565, 523], [802, 360], [908, 95], [912, 10]]);
 function makeMark(id) {
-  let paths = '';
-  for (let i = 0; i < 9; i++) {
-    const s = i / 8;
-    const P = [[15 + 150 * s, 690 - 75 * s], [70 + 100 * s, 430 + 20 * s], [215 + 25 * s, 265 + 145 * s], [420 + 30 * s, 440], [620 - 110 * s, 628 - 210 * s], [845 - 85 * s, 420 - 120 * s], [908, 95]];
-    paths += `<path class="ml" d="${cr(P)}" pathLength="1" stroke="url(#${id}g)"/>`;
-  }
-  return `<svg class="mark" id="${id}" viewBox="0 0 960 702" width="960" height="702"><defs><linearGradient id="${id}g" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="960" y2="0">
-    <stop offset="0"/><stop offset=".22"/><stop offset=".6"/><stop offset=".86"/><stop offset="1"/></linearGradient></defs>${paths}
-    <path class="mstar" d="M912 2Q912 48 958 48Q912 48 912 94Q912 48 866 48Q912 48 912 2Z"/></svg>`;
+  return `<svg class="mark" id="${id}" viewBox="0 0 960 702" width="960" height="702"><defs>
+    <filter id="${id}f" filterUnits="userSpaceOnUse" x="-400" y="-400" width="1760" height="1502"><feGaussianBlur stdDeviation="24"/></filter>
+    <mask id="${id}m" maskUnits="userSpaceOnUse" x="-120" y="-120" width="1200" height="942">
+      <path class="mm" d="${MARK_SPINE}" fill="none" stroke="#fff" stroke-width="290" stroke-linecap="round" pathLength="1" stroke-dasharray="1 1" filter="url(#${id}f)"/>
+      <rect class="mfull" x="-120" y="-120" width="1200" height="942" fill="#fff" opacity="0"/>
+    </mask></defs>
+    <image class="mimg" href="assets/img/logo-mark.webp" x="0" y="0" width="960" height="702" preserveAspectRatio="none" mask="url(#${id}m)"/>
+    <path class="mglint" d="M912 -40Q912 48 1000 48Q912 48 912 136Q912 48 824 48Q912 48 912 -40Z" fill="#F7DA8C" opacity="0"/>
+  </svg>`;
 }
-function setMark(svg, p, colorK, starP) { // p 0..1 draw progress
-  const st = svg.querySelectorAll('stop');
-  st.forEach((s, i) => s.setAttribute('stop-color', colorK <= 0 ? MARK_LIGHT[i] : colorK >= 1 ? MARK_BRAND[i] : mix(MARK_LIGHT[i], MARK_BRAND[i], colorK)));
-  svg.querySelectorAll('.ml').forEach((pth, i) => { const q = E.inOutCubic(clamp((p - i * .045) / .64)); pth.style.strokeDashoffset = (1 - q).toFixed(4); });
-  const star = svg.querySelector('.mstar');
-  star.setAttribute('fill', colorK >= 1 ? MARK_BRAND[4] : MARK_LIGHT[4]);
-  star.style.transformOrigin = '912px 48px';
-  star.style.transform = `scale(${(starP <= 0 ? 0 : E.outBack(clamp(starP), 3)).toFixed(3)}) rotate(${((1 - clamp(starP)) * -90).toFixed(1)}deg)`;
+// p: draw progress 0..1, colorK: 0 = deepened for white, 1 = true colours, starP: twinkle 0..1.
+// Returns the colour filter for the caller to combine with its shadow.
+function setMark(svg, p, colorK, starP) {
+  const q = E.inOutCubic(clamp(p));
+  svg.querySelector('.mm').style.strokeDashoffset = (1 - q).toFixed(4);
+  svg.querySelector('.mfull').setAttribute('opacity', prog(p, .9, 1).toFixed(3));
+  const gl = svg.querySelector('.mglint'), s = Math.sin(Math.PI * clamp(starP));
+  gl.style.transformOrigin = '912px 48px';
+  gl.style.transform = `scale(${(.3 + .9 * s).toFixed(3)}) rotate(${(clamp(starP) * 90).toFixed(1)}deg)`;
+  gl.setAttribute('opacity', (starP > 0 && starP < 1 ? .95 * s : 0).toFixed(3));
+  return colorK >= 1 ? '' : `brightness(${lerp(.78, 1, colorK).toFixed(3)}) saturate(${lerp(1.5, 1, colorK).toFixed(3)}) contrast(${lerp(1.15, 1, colorK).toFixed(3)})`;
 }
 
 /* =====================================================================
@@ -1174,29 +1223,29 @@ function renderBrowser(t) {
   S($('bgHero'), { opacity: framed ? (1 - toWorlds).toFixed(3) : '0' });
   S($('bgWorlds'), { opacity: toWorlds.toFixed(3) });
   show($('bgHero'), framed && toWorlds < 1); show($('bgWorlds'), toWorlds > 0);
+  if (framed && toWorlds < 1) setHeroFrame(t);
 
   // ---- reveal: mark, word, tagline ----
   const colK = E.inOutCubic(prog(t, T.pill, T.expand + .3));
   heroLetters.forEach((s, i) => {
-    const t0 = T.boom + .28 + i * .07, p = prog(t, t0, t0 + .75);
-    const y = lerp(80, 0, E.outExpo(p)), sc = lerp(1.5, 1, E.outExpo(p)), bl = lerp(26, 0, E.outCubic(p));
+    const t0 = T.boom + .14 + i * .05, p = prog(t, t0, t0 + .65);
+    const y = lerp(140, 0, E.outExpo(p)), sc = lerp(2.4, 1, E.outExpo(p)), bl = lerp(30, 0, E.outCubic(p));
     const ex = E.inCubic(prog(t, T.clickWorlds + .05 + i * .015, T.clickWorlds + .35 + i * .015));
     S(s, { transform: `translateY(${(y - ex * 70).toFixed(2)}px) scale(${sc.toFixed(3)})`, filter: bl + ex * 12 > .2 ? `blur(${(bl + ex * 12).toFixed(1)}px)` : 'none', opacity: (E.outCubic(p) * (1 - ex)).toFixed(3),
       backgroundImage: heroGrad(colK), backgroundSize: `${s._tw}px 100%`, backgroundPosition: `${-s._off}px 0` });
   });
-  const track = lerp(.1, -.024, E.outCubic(prog(t, T.boom + .25, T.boom + 1.6)));
+  const track = lerp(.1, -.024, E.outCubic(prog(t, T.boom + .14, T.boom + 1.4)));
   S($('heroHead'), { letterSpacing: track.toFixed(4) + 'em', filter: `drop-shadow(0 0 ${lerp(34, 22, colK)}px rgba(${colK > .5 ? '198,168,255,.35' : '142,110,255,.28'}))`, display: t > T.clickWorlds + .6 ? 'none' : '' });
 
   // mark: draws on, then flies into the nav logo
   const mk = $('rmk');
-  const drawP = prog(t, T.boom + .12, T.boom + 1.15), starP = prog(t, T.boom + 1.0, T.boom + 1.45);
+  const drawP = prog(t, T.boom + .1, T.boom + 1.0), starP = prog(t, T.boom + .85, T.boom + 1.5);
   const fly = E.inOutCubic(prog(t, 15.25, 16.3));
   const mw = lerp(225, 41, fly), mx = lerp(720, 138.5 + 100, fly), my = lerp(210, 45 + 44 + 14, fly);
-  setMark(mk, drawP, E.inOutCubic(prog(t, 15.4, 16.1)), starP);
+  const markF = setMark(mk, drawP, E.inOutCubic(prog(t, 15.4, 16.1)), starP);
   const markOp = 1 - prog(t, 16.22, 16.36);
   S(mk, { width: mw.toFixed(2) + 'px', height: (mw * 702 / 960).toFixed(2) + 'px', left: (mx - mw / 2).toFixed(2) + 'px', top: (my - mw * 702 / 960 / 2).toFixed(2) + 'px', opacity: markOp.toFixed(3),
-    filter: `drop-shadow(0 6px ${lerp(18, 4, fly).toFixed(1)}px rgba(120,90,240,${lerp(.35, .2, fly).toFixed(2)}))`, display: markOp <= 0 ? 'none' : '' });
-  mk.querySelectorAll('.ml').forEach(p => p.style.strokeWidth = lerp(6, 10, fly));
+    filter: `${markF} drop-shadow(0 6px ${lerp(18, 4, fly).toFixed(1)}px rgba(120,90,240,${lerp(.3, .2, fly).toFixed(2)}))`, display: markOp <= 0 ? 'none' : '' });
   // tagline under the word
   const tagIn = prog(t, T.boom + 1.35, T.boom + 2.3), tagOut = prog(t, 15.2, 15.45);
   S($('revealTag'), { opacity: (1 - tagOut).toFixed(3), transform: `translateY(${(tagOut * 16).toFixed(1)}px)`, display: tagIn <= 0 || tagOut >= 1 ? 'none' : '' });
@@ -1357,11 +1406,10 @@ function renderEnd(t) {
   const w0 = 41 * c.s, w1 = 330;
   const mw = lerp(w0, w1, fly), mx = lerp(sx0, CX, fly), my = lerp(sy0, 392, fly) - Math.sin(Math.PI * fly) * 120;
   const mk = $('emk');
-  setMark(mk, 1, 1 - E.inOutCubic(prog(t, T.exit + .1, 29.0)), 1);
+  const markF = setMark(mk, 1, 1 - E.inOutCubic(prog(t, T.exit + .1, 29.0)), prog(t, 29.3, 29.95));
   const pulse = prog(t, 29.35, 30.2);
   S(mk, { width: mw.toFixed(2) + 'px', height: (mw * 702 / 960).toFixed(2) + 'px', left: (mx - mw / 2).toFixed(2) + 'px', top: (my - mw * 702 / 960 / 2).toFixed(2) + 'px',
-    filter: `drop-shadow(0 ${lerp(4, 18, fly).toFixed(1)}px ${lerp(6, 30, fly).toFixed(1)}px rgba(110,80,240,${lerp(.2, .3, fly).toFixed(2)}))`, transform: `rotate(${(Math.sin(Math.PI * fly) * -8).toFixed(2)}deg) scale(${(1 + .04 * Math.sin(Math.PI * pulse)).toFixed(4)})` });
-  mk.querySelectorAll('.ml').forEach(p => p.style.strokeWidth = lerp(10, 6, fly));
+    filter: `${markF} drop-shadow(0 ${lerp(4, 18, fly).toFixed(1)}px ${lerp(6, 30, fly).toFixed(1)}px rgba(110,80,240,${lerp(.2, .3, fly).toFixed(2)}))`, transform: `rotate(${(Math.sin(Math.PI * fly) * -8).toFixed(2)}deg) scale(${(1 + .04 * Math.sin(Math.PI * pulse)).toFixed(4)})` });
   // wordmark wipe
   const wp = E.inOutCubic(prog(t, 29.25, 30.05));
   S($('endWord'), { opacity: prog(t, 29.25, 29.5).toFixed(3), clipPath: `inset(-20px ${((1 - wp) * 100).toFixed(2)}% -20px 0)`, transform: `translateY(${((1 - E.outCubic(prog(t, 29.25, 30.0))) * 16).toFixed(1)}px)`, filter: `blur(${((1 - prog(t, 29.25, 29.8)) * 6).toFixed(1)}px)` });
@@ -1409,6 +1457,9 @@ function seek(t) {
   fxN.setTransform(1, 0, 0, 1, 0, 0); fxN.clearRect(0, 0, W, H);
   fxA.setTransform(1, 0, 0, 1, 0, 0); fxA.clearRect(0, 0, W, H); fxA.globalAlpha = 1; fxA.globalCompositeOperation = 'source-over';
   S($('flash'), { opacity: '0' });
+  const wc = worldCam(t);
+  S($('world'), { transform: wc.z === 1 && wc.sx === 0 ? 'none' : `translate(${wc.sx.toFixed(2)}px,${wc.sy.toFixed(2)}px) rotate(${wc.rot.toFixed(3)}deg) scale(${wc.z.toFixed(4)})` });
+  S($('stage'), { background: t >= T.boom ? '#F8F7FC' : '#05040b' });
   renderBg(t);
   renderField(t);
   renderWords(t);
@@ -1421,9 +1472,22 @@ function seek(t) {
   renderGrain(t);
 }
 window.seek = seek;
+// the hero's background film is a JPEG sequence, so the renderer waits for each frame to decode
+const HERO_FRAMES = 84, HERO_T0 = 15.0;
+let heroIdx = -1, pendingDecode = null;
+function heroSrc(i) { return `assets/herobg/f_${String(i + 1).padStart(3, '0')}.jpg`; }
+function setHeroFrame(t) {
+  const i = clamp(Math.floor((t - HERO_T0) * 24), 0, HERO_FRAMES - 1);
+  if (i === heroIdx) return;
+  heroIdx = i;
+  const img = $('heroVid');
+  img.src = heroSrc(i);
+  pendingDecode = img.decode().catch(() => {});
+}
+window.seekAsync = async t => { seek(t); if (pendingDecode) { const p = pendingDecode; pendingDecode = null; await p; } };
 window.DUR = DUR;
 window.events = () => ({
-  type: typeT.slice(), clicks: CLICKS.slice(), boom: T.boom, pop: T.pop, collapse: T.collapse, freeze: T.freeze, line: T.line, barOpen: T.barOpen,
+  type: typeT.slice(), clicks: CLICKS.slice(), boom: T.boom, blackout: T.blackout, pop: T.pop, collapse: T.collapse, freeze: T.freeze, line: T.line, barOpen: T.barOpen,
   think: T.think, implode: 11.42, hovers: [10.62, 17.42, ...T.hov, 22.55, 25.3, 25.88, 26.5, 31.15],
   whoosh: [T.pill, T.clickWorlds + .05, T.clickApp + .05, 25.0, 26.1, 27.2, T.exit, 30.25], words: WORDS.map(w => w.t0), tooMuch: 4.3,
   fly: 15.25, formed: T.formed, scroll: T.scroll, end: DUR
@@ -1440,6 +1504,7 @@ async function boot() {
   window.__ready = true;
   if (RENDER) { seek(0); return; }
   $('ui').classList.remove('hide');
+  for (let i = 0; i < HERO_FRAMES; i++) new Image().src = heroSrc(i);
   const btn = $('play');
   let playing = false, t0 = performance.now(), base = 0;
   btn.textContent = 'Play';
