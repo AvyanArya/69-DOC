@@ -1,29 +1,30 @@
 # Lumera launch event reel
 
 A 31-second vertical (1080×1920, 30 fps) Instagram Reel inviting everyone to the Lumera
-launch event at Dubai College (@finance.with.lumera). The look is a dark, warm "launch
-night": aurora light in Lumera violet and gold, glass cards, Instrument Serif type with
-gold highlights, gold sparks, and a camera that pushes through each scene into the next.
-It runs on a 128 BPM house groove, and the narrator is the launch film's voice: calm,
-warm and unhurried. Entry is capped: **the first 60 people to sign up get in**, through
-the link in the post's caption.
+launch event at Dubai College (@finance.with.lumera). **Nine panels, one poster:** the
+camera flies over a 3×3 poster, one panel per line of the voiceover. Each panel floods
+with colour as we arrive and builds its frame word by word, and at the end the camera pulls
+back to the finished poster, which carries every detail. The look is loud colour blocks,
+slam typography, gold serif, stickers and confetti, on a 128 BPM house groove. The narrator
+is the launch film's voice. Entry is capped: **the first 60 people to sign up get in**,
+through the link in the post's caption.
 
 **Watch:** [`lumera-invite.mp4`](lumera-invite.mp4)
 **Scrub it live:** open [`index.html`](index.html) in Chrome (space = play/pause).
 
 ## The story
 
-| Time | Voiceover | On screen |
+| Time | Voiceover | Panel |
 | --- | --- | --- |
-| 0 – 2.2s | *Hey everyone, you're invited!* | A line of light draws across the dark; *invited.* rises out of it in gold, with an ONLY 60 SPOTS pill. |
-| 2.2 – 5.5s | *Lumera is launching, and we want you in the room.* | The Lumera ribbon draws itself on inside a ring of light. Then a gold *you*, and a row of seats: four Lumera characters and an empty one marked "you". |
-| 5.5 – 9.8s | *Friday, September the fourth. Three thirty, at Dubai College.* | Glass cards fold up out of the dark: the date rolls to 04, a clock spins to 3:30, a pin drops on Dubai College (Jafar Center). |
-| 9.8 – 14.3s | *A finance Kahoot with prizes. A startup showcase. A raffle.* | The programme: three glass rows light up in turn as each line icon draws itself on. |
-| 14.3 – 16.9s | *And yes, the drinks and snacks are on us.* | *on us.* in gold, with drink, cookie and popcorn icons. |
-| 16.9 – 20.4s | *Then at seven twenty five, we go live. Together.* | 7:25 PM rolls in; a dark screen tilts up and lights with the real Lumera dashboard on "live", with a flash and a burst of sparks. The beat drops. |
-| 20.4 – 22.6s | *But there are only sixty spots.* | A giant gold 60 inside a ring of 60 lights that turn gold one by one. |
-| 22.6 – 26.6s | *The first sixty to sign up get in. The link is in our caption!* | A holographic glass pass (Spot 01 of 60); "Reserve my spot" is tapped and becomes "You're in ✓"; *Link in caption* with an arrow down to the caption. |
-| 26.6 – 30.8s | *Tag a friend, and see you at Dubai College.* | An @ mention types itself out, then the close: *See you at Dubai College*, the date and time, ONLY 60 SPOTS · LINK IN CAPTION, @finance.with.lumera. |
+| 0 – 2.2s | *Hey everyone, you're invited!* | **1, violet.** HEY EVERYONE slams in, *invited!* in gold, an ONLY 60 SPOTS sticker. |
+| 2.2 – 5.6s | *Lumera is launching, and we want you in the room.* | **2, cream.** The logo spins in, *Lumera*, a marker under LAUNCHING; Lumi and Blaze pop up beside a big *you*. |
+| 5.6 – 9.9s | *Friday, September the fourth. Three thirty, at Dubai College.* | **3, gold.** FRIDAY, a calendar rolling to 4, a clock spinning to 3:30 PM, a pin dropping onto a map: DUBAI COLLEGE, Jafar Center. |
+| 9.9 – 14.3s | *A finance Kahoot with prizes. A startup showcase. A raffle.* | **4, green.** The plan: three cards slide in (Kahoot with a trophy, startup showcase with Nova, raffle with Blaze). |
+| 14.3 – 17.0s | *And yes, the drinks and snacks are on us.* | **5, pink.** A receipt prints line by line (drinks 0.00, snacks 0.00, total 0.00 AED) and gets stamped ON US! |
+| 17.0 – 20.5s | *Then at seven twenty five, we go live. Together.* | **6, night.** Split flaps roll to 7:25 PM; a switch flips from OFF to LIVE and the lights come on, the dashboard pops up, *together.* The beat drops. |
+| 20.5 – 22.7s | *But there are only sixty spots.* | **7, blue.** ONLY *60* SPOTS, a velvet rope with a FULL AT 60 sign, and Sentinel on the door. |
+| 22.7 – 26.8s | *The first sixty to sign up get in. The link is in our caption!* | **8, violet.** A phone: 60 spots left; Sign up is tapped, "You're in ✓", 59 left. A LINK IN CAPTION banner slams on. |
+| 26.8 – 31.4s | *Tag a friend, and see you at Dubai College.* | **9, cream.** @your.bestie types itself into a tag, two tickets (YOU and +1), *see you at* DUBAI COLLEGE. Then the camera pulls back to the whole poster and a LINK IN CAPTION badge lands on the last chord. |
 
 Speakers are intentionally left out until they are confirmed. The proposal marks the venue
 "on approval", so confirm it before posting. Put the sign-up link in the caption (or in the
@@ -46,9 +47,10 @@ node render.js --workers 4             # -> lumera-invite.mp4
 
 The edit follows the voice. The script and the words the picture cuts on ("marks") live in
 `audio/vo_lines.json`. `timing.py` finds each mark with Whisper and writes `timing.js`, and
-`index.html` hangs every scene cut, slam and sticker off those times, as does the soundtrack.
-To change a line or the voice (`make_vo.py --voice bf_emma`, for example), re-run the steps
-above and everything re-times itself. The on-screen event details are plain text in `index.html`.
+`index.html` hangs every camera move, slam and sticker off those times. The page also lists
+the sounds its picture needs (`events.json` "sfx"), which the soundtrack plays. To change a
+line or the voice (`make_vo.py --voice bf_emma`, for example), re-run the steps above and
+everything re-times itself. The on-screen event details are plain text in `index.html`.
 
 ## Credits
 

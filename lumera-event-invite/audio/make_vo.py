@@ -60,10 +60,11 @@ def compress(x, thresh_db=-22, ratio=3.0, attack=.004, release=.12):
     return x * gain
 
 
-# The brand is said "loo-MAIR-uh" and the city "doo-BYE"; the default G2P stresses the first syllable of both.
+# The brand is said "loo-MAIR-uh", the city "doo-BYE" and the quiz "kuh-HOOT"; the default G2P
+# stresses the first syllable of all three.
 PRONOUNCE = {
-    'en-us': {'Lumera': 'luːmˈɛɹə', 'Dubai': 'duːbˈaɪ'},
-    'en-gb': {'Lumera': 'luːmˈɛəɹə', 'Dubai': 'duːbˈaɪ'},
+    'en-us': {'Lumera': 'luːmˈɛɹə', 'Dubai': 'duːbˈaɪ', 'Kahoot': 'kɐhˈuːt'},
+    'en-gb': {'Lumera': 'luːmˈɛəɹə', 'Dubai': 'duːbˈaɪ', 'Kahoot': 'kəhˈuːt'},
 }
 
 

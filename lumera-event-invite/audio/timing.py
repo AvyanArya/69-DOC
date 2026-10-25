@@ -27,7 +27,7 @@ from scipy import signal
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 GAP = .3          # breath between lines unless a line sets its own "gap"
-TAIL = 1.5        # hold on the end card after the last word
+TAIL = 2.0        # hold on the closing shot after the last word
 LEAD = .02        # a cut lands a frame or so before the word itself
 
 norm = lambda w: re.sub(r'[^a-z0-9]', '', w.lower())

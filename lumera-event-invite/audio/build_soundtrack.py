@@ -207,7 +207,7 @@ kicks = []
 PROG = [(['A3', 'C4', 'E4', 'G4'], 'A1'), (['A3', 'C4', 'E4', 'F4'], 'F1'), (['G3', 'C4', 'E4', 'G4'], 'C2'), (['G3', 'B3', 'D4', 'G4'], 'G1')]
 STABS = [0, 3, 6, 10, 13]                       # 16th-note positions of the piano stabs in a bar
 BREAK = DROPBAR - 1                             # the bar before "live" is the build, "live" the drop
-ENDBAR = int(round(Wd['see'] / BAR))            # the last bar lands near "see you at Dubai College"
+ENDBAR = int(round(EV['cue']['final'] / BAR))  # the last chord lands with the closing badge
 nbars = int(np.ceil(DUR / BAR))
 for b in range(nbars):
     b0 = b * BAR
