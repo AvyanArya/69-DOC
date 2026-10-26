@@ -23,23 +23,11 @@ enum ProcessRunner {
 
         return try await withTaskCancellationHandler {
             try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Result, Error>) in
-                let lock = NSLock()
-                var finished = false
-                func finish(_ result: Swift.Result<Result, Error>) {
-                    lock.lock()
-                    defer { lock.unlock() }
-                    guard !finished else { return }
-                    finished = true
-                    continuation.resume(with: result)
-                }
+                let state = RunState(continuation)
                 // Drain both pipes while the process runs so large outputs can't block it.
                 let reads = DispatchGroup()
-                var out = Data()
-                var err = Data()
                 process.terminationHandler = { process in
-                    reads.notify(queue: .global()) {
-                        finish(.success(Result(status: process.terminationStatus, output: String(decoding: out, as: UTF8.self), error: String(decoding: err, as: UTF8.self))))
-                    }
+                    reads.notify(queue: .global()) { state.succeed(status: process.terminationStatus) }
                 }
                 // Enter before launching so a process that exits instantly can't
                 // report completion before its output has been read.
@@ -50,26 +38,67 @@ enum ProcessRunner {
                 } catch {
                     reads.leave()
                     reads.leave()
-                    finish(.failure(ToolError.failed("Could not start \(executable): \(error.localizedDescription)")))
+                    state.finish(.failure(ToolError.failed("Could not start \(executable): \(error.localizedDescription)")))
                     return
                 }
                 DispatchQueue.global().async {
-                    out = stdout.fileHandleForReading.readDataToEndOfFile()
+                    state.setOutput(stdout.fileHandleForReading.readDataToEndOfFile())
                     reads.leave()
                 }
                 DispatchQueue.global().async {
-                    err = stderr.fileHandleForReading.readDataToEndOfFile()
+                    state.setError(stderr.fileHandleForReading.readDataToEndOfFile())
                     reads.leave()
                 }
                 DispatchQueue.global().asyncAfter(deadline: .now() + timeout) {
                     if process.isRunning {
                         process.terminate()
-                        finish(.failure(ToolError.timeout("\((executable as NSString).lastPathComponent) did not finish in \(Int(timeout)) seconds.")))
+                        state.finish(.failure(ToolError.timeout("\((executable as NSString).lastPathComponent) did not finish in \(Int(timeout)) seconds.")))
                     }
                 }
             }
         } onCancel: {
             if process.isRunning { process.terminate() }
+        }
+    }
+
+    /// Output and completion shared by the process's handlers, which run on
+    /// different queues; every access goes through `lock`.
+    private final class RunState: @unchecked Sendable {
+        private let lock = NSLock()
+        private var continuation: CheckedContinuation<Result, Error>?
+        private var output = Data()
+        private var error = Data()
+
+        init(_ continuation: CheckedContinuation<Result, Error>) {
+            self.continuation = continuation
+        }
+
+        func setOutput(_ data: Data) {
+            lock.lock()
+            output = data
+            lock.unlock()
+        }
+
+        func setError(_ data: Data) {
+            lock.lock()
+            error = data
+            lock.unlock()
+        }
+
+        func succeed(status: Int32) {
+            lock.lock()
+            let output = self.output, error = self.error
+            lock.unlock()
+            finish(.success(Result(status: status, output: String(decoding: output, as: UTF8.self), error: String(decoding: error, as: UTF8.self))))
+        }
+
+        /// Resumes the continuation once; later calls are ignored.
+        func finish(_ result: Swift.Result<Result, Error>) {
+            lock.lock()
+            let continuation = self.continuation
+            self.continuation = nil
+            lock.unlock()
+            continuation?.resume(with: result)
         }
     }
 }

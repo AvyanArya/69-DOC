@@ -77,10 +77,15 @@ enum SmokeTest {
             for pane in SettingsPane.allCases {
                 model.settingsPane = pane
                 await pause(0.35)
-                if let screenshots, let view = settings.window?.contentView,
-                   let rep = view.bitmapImageRepForCachingDisplay(in: view.bounds) {
-                    view.cacheDisplay(in: view.bounds, to: rep)
-                    try? rep.representation(using: .png, properties: [:])?.write(to: screenshots.appendingPathComponent("settings-\(pane.rawValue).png"))
+                if let screenshots, let window = settings.window {
+                    let url = screenshots.appendingPathComponent("settings-\(pane.rawValue).png")
+                    // AppKit-backed lists, forms and sidebar materials don't draw through
+                    // cacheDisplay, so ask the window server first and fall back to it.
+                    if !(await captureWindow(window, to: url)), let view = window.contentView,
+                       let rep = view.bitmapImageRepForCachingDisplay(in: view.bounds) {
+                        view.cacheDisplay(in: view.bounds, to: rep)
+                        try? rep.representation(using: .png, properties: [:])?.write(to: url)
+                    }
                 }
             }
             check(settings.window?.isVisible == true, "settings window opens")
@@ -99,6 +104,15 @@ enum SmokeTest {
             print(failures.isEmpty ? "SMOKE TEST PASSED" : "SMOKE TEST FAILED: \(failures.joined(separator: "; "))")
             exit(failures.isEmpty ? 0 : 1)
         }
+    }
+
+    /// Captures a window as the window server composites it, using the system
+    /// `screencapture` tool. Best effort: it needs screen-recording access, which
+    /// CI runners normally have; returns false when nothing was written.
+    private static func captureWindow(_ window: NSWindow, to url: URL) async -> Bool {
+        try? FileManager.default.removeItem(at: url)
+        let result = try? await ProcessRunner.run("/usr/sbin/screencapture", ["-x", "-o", "-l\(window.windowNumber)", url.path], timeout: 10)
+        return result?.status == 0 && FileManager.default.fileExists(atPath: url.path)
     }
 
     /// Clearly labelled sample content for the smoke test's temporary directory.

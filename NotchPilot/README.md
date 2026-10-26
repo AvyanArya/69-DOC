@@ -10,14 +10,15 @@ Native Swift, SwiftUI and AppKit. No Electron, no web views, no private APIs.
 
 | Area | State |
 |---|---|
-| Core: agent loop, providers, 40 tools, permissions, persistence, timer | ✅ Built and tested — 83 automated tests pass on Linux locally and in GitHub Actions |
+| Core: agent loop, providers, 40 tools, permissions, persistence, timer | ✅ Built and tested — 83 automated tests pass on Linux and on macOS in GitHub Actions |
 | Multi-step agent workflow over real HTTP (mock Anthropic & OpenAI servers) | ✅ Verified end-to-end, including verbatim thinking-block replay and persistence across restarts |
 | CLI (`notchpilot-cli`) | ✅ Built; workflow, persistence across processes and missing-credential handling verified |
-| macOS app (notch window, SwiftUI UI, EventKit, Keychain, media, notifications) | ⚠️ Fully written and syntax-checked; **not yet compiled** — the GitHub macOS runner never picked up the job during development (see below) |
+| macOS app (notch window, SwiftUI UI, EventKit, Keychain, media, notifications) | ✅ Compiled and smoke-tested on macOS in GitHub Actions (Xcode 26.6, universal arm64 + x86_64 `.app`): the real app launches, shows the island, expands and collapses, renders every tab, a live timer and an approval card, opens Settings and reports an unreachable provider cleanly — screenshots are in each run's artifacts |
+| Interactive use on a physical notched MacBook | ⚠️ Not yet done — hover and click-through, focus hand-back, permission prompts, notifications and launch at login need a person at a Mac (checklist in [docs/TESTING.md](docs/TESTING.md)) |
 | Live calls to Anthropic / OpenAI with real keys | ⚠️ Implemented to current API docs; not exercised (no credentials available) |
 | Signing / notarisation | Ad-hoc signing only (no Developer ID available) |
 
-**What you need to do:** on your Mac run `cd NotchPilot && swift test && ./scripts/build_app.sh` (Xcode 15.3+), or re-run the *NotchPilot (macOS)* workflow in the Actions tab once macOS runners are available to the repository; then add an API key in Settings. Details and every caveat: [docs/KNOWN_LIMITATIONS.md](docs/KNOWN_LIMITATIONS.md).
+**What you need to do:** download `NotchPilot-macOS` from the latest successful *NotchPilot (macOS)* run in the Actions tab (or build it yourself: `cd NotchPilot && swift test && ./scripts/build_app.sh`, Xcode 15.3+), unzip it, right-click NotchPilot.app → **Open** the first time (it is ad-hoc signed, not notarised), then add an API key in Settings. Details and every caveat: [docs/KNOWN_LIMITATIONS.md](docs/KNOWN_LIMITATIONS.md).
 
 ## What it does
 
