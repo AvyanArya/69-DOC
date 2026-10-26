@@ -114,7 +114,7 @@ final class AppModel {
     var isModalOpen = false
     var toast: String?
     var notch = NotchMetrics.fallback
-    var reduceMotionSystem = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
+    var reduceMotionSystem = false
     private(set) var showDoneBadge = false
     private(set) var keyStatus: [ProviderKind: Bool] = [:]
     var connectionTest: ConnectionTestState = .idle
@@ -169,6 +169,7 @@ final class AppModel {
         }
         proactive = ProactiveScheduler(services: services, notifications: notifications)
         calendarAuthorization = calendarService.eventsAuthorization()
+        reduceMotionSystem = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
         refreshKeyStatus()
         wire()
     }
