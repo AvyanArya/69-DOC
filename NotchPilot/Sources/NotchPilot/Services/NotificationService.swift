@@ -54,7 +54,7 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
         }
         let settings = await center.notificationSettings()
         switch settings.authorizationStatus {
-        case .authorized, .provisional, .ephemeral: authorization = .authorized
+        case .authorized, .provisional: authorization = .authorized
         case .denied: authorization = .denied
         case .notDetermined: authorization = .notDetermined
         @unknown default: authorization = .denied

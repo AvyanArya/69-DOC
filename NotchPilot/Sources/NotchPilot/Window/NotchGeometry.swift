@@ -56,22 +56,23 @@ final class NotchPanel: NSPanel {
     override var canBecomeKey: Bool { true }
     override var canBecomeMain: Bool { false }
 
-    init() {
-        super.init(contentRect: NSRect(x: 0, y: 0, width: 400, height: 200), styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
-        isFloatingPanel = true
-        level = NotchPanel.notchLevel
-        collectionBehavior = [.canJoinAllSpaces, .stationary, .fullScreenAuxiliary, .ignoresCycle]
-        backgroundColor = .clear
-        isOpaque = false
-        hasShadow = false
-        isMovable = false
-        isMovableByWindowBackground = false
-        hidesOnDeactivate = false
-        becomesKeyOnlyIfNeeded = true
-        acceptsMouseMovedEvents = true
-        isReleasedWhenClosed = false
-        animationBehavior = .none
-        ignoresMouseEvents = true
+    static func make() -> NotchPanel {
+        let panel = NotchPanel(contentRect: NSRect(x: 0, y: 0, width: 400, height: 200), styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
+        panel.isFloatingPanel = true
+        panel.level = notchLevel
+        panel.collectionBehavior = [.canJoinAllSpaces, .stationary, .fullScreenAuxiliary, .ignoresCycle]
+        panel.backgroundColor = .clear
+        panel.isOpaque = false
+        panel.hasShadow = false
+        panel.isMovable = false
+        panel.isMovableByWindowBackground = false
+        panel.hidesOnDeactivate = false
+        panel.becomesKeyOnlyIfNeeded = true
+        panel.acceptsMouseMovedEvents = true
+        panel.isReleasedWhenClosed = false
+        panel.animationBehavior = .none
+        panel.ignoresMouseEvents = true
+        return panel
     }
 
     /// Just above the menu bar so the island can cover the notch area.

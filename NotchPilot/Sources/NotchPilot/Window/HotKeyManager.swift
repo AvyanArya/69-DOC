@@ -72,11 +72,13 @@ final class HotKeyManager {
 @MainActor
 final class StatusItemController: NSObject, NSMenuDelegate {
     private let model: AppModel
-    private let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
-    private let menu = NSMenu()
+    private let item: NSStatusItem
+    private let menu: NSMenu
 
     init(model: AppModel) {
         self.model = model
+        item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+        menu = NSMenu()
         super.init()
         if let button = item.button {
             let image = NSImage(systemSymbolName: "sparkles", accessibilityDescription: "NotchPilot")
@@ -91,53 +93,66 @@ final class StatusItemController: NSObject, NSMenuDelegate {
 
     func menuNeedsUpdate(_ menu: NSMenu) {
         menu.removeAllItems()
+        ActionMenuItem.prune()
         let settings = model.services.settings.settings
         let shortcut = settings.toggleHotKeyEnabled ? "  (\(settings.toggleHotKey.display))" : ""
-        menu.addItem(ActionMenuItem("Open Assistant\(shortcut)", symbol: "sparkles") { [model] in model.expand(focusComposer: true, tab: .assistant) })
-        menu.addItem(ActionMenuItem("Today", symbol: "sun.max") { [model] in model.expand(tab: .today) })
-        menu.addItem(ActionMenuItem("New Conversation", symbol: "square.and.pencil") { [model] in
+        menu.addItem(ActionMenuItem.make("Open Assistant\(shortcut)", symbol: "sparkles") { [model] in model.expand(focusComposer: true, tab: .assistant) })
+        menu.addItem(ActionMenuItem.make("Today", symbol: "sun.max") { [model] in model.expand(tab: .today) })
+        menu.addItem(ActionMenuItem.make("New Conversation", symbol: "square.and.pencil") { [model] in
             model.newConversation()
             model.expand(focusComposer: true, tab: .assistant)
         })
         if model.orchestrator.isRunning {
-            menu.addItem(ActionMenuItem("Stop Current Task", symbol: "stop.circle") { [model] in model.stop() })
+            menu.addItem(ActionMenuItem.make("Stop Current Task", symbol: "stop.circle") { [model] in model.stop() })
         }
         menu.addItem(.separator())
         let timer = model.services.timer
         switch timer.state.phase {
         case .running:
-            menu.addItem(ActionMenuItem("Pause Timer", symbol: "pause.circle") { _ = try? timer.pause() })
-            menu.addItem(ActionMenuItem("Reset Timer", symbol: "arrow.counterclockwise") { _ = timer.reset() })
+            menu.addItem(ActionMenuItem.make("Pause Timer", symbol: "pause.circle") { _ = try? timer.pause() })
+            menu.addItem(ActionMenuItem.make("Reset Timer", symbol: "arrow.counterclockwise") { _ = timer.reset() })
         case .paused:
-            menu.addItem(ActionMenuItem("Resume Timer", symbol: "play.circle") { _ = try? timer.resume() })
-            menu.addItem(ActionMenuItem("Reset Timer", symbol: "arrow.counterclockwise") { _ = timer.reset() })
+            menu.addItem(ActionMenuItem.make("Resume Timer", symbol: "play.circle") { _ = try? timer.resume() })
+            menu.addItem(ActionMenuItem.make("Reset Timer", symbol: "arrow.counterclockwise") { _ = timer.reset() })
         default:
             let minutes = model.services.settings.preferences.defaultFocusMinutes
-            menu.addItem(ActionMenuItem("Start \(minutes)-min Focus", symbol: "timer") { [model] in model.startTimer(minutes: minutes, kind: .focus) })
+            menu.addItem(ActionMenuItem.make("Start \(minutes)-min Focus", symbol: "timer") { [model] in model.startTimer(minutes: minutes, kind: .focus) })
         }
         menu.addItem(.separator())
-        menu.addItem(ActionMenuItem("Settings…", symbol: "gearshape", key: ",") { [model] in model.openSettings(.general) })
-        menu.addItem(ActionMenuItem("Quit NotchPilot", symbol: nil, key: "q") { NSApp.terminate(nil) })
+        menu.addItem(ActionMenuItem.make("Settings…", symbol: "gearshape", key: ",") { [model] in model.openSettings(.general) })
+        menu.addItem(ActionMenuItem.make("Quit NotchPilot", symbol: nil, key: "q") { NSApp.terminate(nil) })
     }
 }
 
-/// NSMenuItem that runs a closure.
-final class ActionMenuItem: NSMenuItem {
-    private let handler: @MainActor () -> Void
+/// Builds NSMenuItems that run closures, without subclassing NSMenuItem.
+@MainActor
+enum ActionMenuItem {
+    private final class Handler: NSObject {
+        let action: @MainActor () -> Void
 
-    init(_ title: String, symbol: String?, key: String = "", handler: @escaping @MainActor () -> Void) {
-        self.handler = handler
-        super.init(title: title, action: #selector(fire), keyEquivalent: key)
-        target = self
-        if let symbol { image = NSImage(systemSymbolName: symbol, accessibilityDescription: nil) }
+        init(_ action: @escaping @MainActor () -> Void) {
+            self.action = action
+        }
+
+        @objc func fire(_ sender: Any?) {
+            MainActor.assumeIsolated { action() }
+        }
     }
 
-    @available(*, unavailable)
-    required init(coder: NSCoder) {
-        fatalError("init(coder:) is not supported")
+    /// Menu items do not retain their target, so handlers are kept here.
+    private static var handlers: [NSMenuItem: Handler] = [:]
+
+    static func make(_ title: String, symbol: String?, key: String = "", handler: @escaping @MainActor () -> Void) -> NSMenuItem {
+        let target = Handler(handler)
+        let item = NSMenuItem(title: title, action: #selector(Handler.fire(_:)), keyEquivalent: key)
+        item.target = target
+        if let symbol { item.image = NSImage(systemSymbolName: symbol, accessibilityDescription: nil) }
+        handlers[item] = target
+        return item
     }
 
-    @objc private func fire() {
-        MainActor.assumeIsolated { handler() }
+    /// Drops handlers for items that were removed from their menu.
+    static func prune() {
+        handlers = handlers.filter { $0.key.menu != nil }
     }
 }

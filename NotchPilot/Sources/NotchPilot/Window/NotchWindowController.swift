@@ -8,7 +8,7 @@ import SwiftUI
 @MainActor
 final class NotchWindowController: NSObject {
     private let model: AppModel
-    let panel = NotchPanel()
+    let panel: NotchPanel
     private var hosting: NSHostingView<NotchRootView>!
     private var monitors: [Any] = []
     private var observers: [NSObjectProtocol] = []
@@ -18,6 +18,7 @@ final class NotchWindowController: NSObject {
 
     init(model: AppModel) {
         self.model = model
+        panel = NotchPanel.make()
         super.init()
         hosting = NSHostingView(rootView: NotchRootView(model: model))
         hosting.sizingOptions = []
@@ -89,7 +90,8 @@ final class NotchWindowController: NSObject {
         }) { monitors.append(outside) }
         if let keys = NSEvent.addLocalMonitorForEvents(matching: .keyDown, handler: { [weak self] event in
             guard let self else { return event }
-            return MainActor.assumeIsolated { self.handleKey(event) ? nil : event }
+            let handled = MainActor.assumeIsolated { self.handleKey(event) }
+            return handled ? nil : event
         }) { monitors.append(keys) }
     }
 
