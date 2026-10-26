@@ -108,7 +108,7 @@ final class SettingsWindowController {
             window.center()
             self.window = window
         }
-        NSApp.activate(ignoringOtherApps: true)
+        NSApp.activate()
         window?.makeKeyAndOrderFront(nil)
     }
 }

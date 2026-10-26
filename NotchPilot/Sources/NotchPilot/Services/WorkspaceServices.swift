@@ -163,7 +163,7 @@ enum DocumentImporter {
         panel.canChooseDirectories = false
         panel.allowedContentTypes = allowedTypes
         panel.level = NSWindow.Level(rawValue: level.rawValue + 1)
-        NSApp.activate(ignoringOtherApps: true)
+        NSApp.activate()
         return panel.runModal() == .OK ? panel.urls : []
     }
 

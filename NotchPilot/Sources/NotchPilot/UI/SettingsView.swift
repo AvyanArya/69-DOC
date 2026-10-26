@@ -455,7 +455,7 @@ struct MemorySettings: View {
             Button("Cancel", role: .cancel) {}
         }
         .alert("Delete all memories?", isPresented: $confirmClearMemories) {
-            Button("Delete", role: .destructive) { try? model.services.memory.deleteAll() }
+            Button("Delete", role: .destructive) { _ = try? model.services.memory.deleteAll() }
             Button("Cancel", role: .cancel) {}
         }
     }
