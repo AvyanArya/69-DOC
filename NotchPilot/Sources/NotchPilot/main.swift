@@ -1,9 +1,12 @@
 import AppKit
-import NotchPilotCore
 
-// Temporary stub used to validate the macOS build pipeline.
-if CommandLine.arguments.contains("--smoke-test") {
-    print("NotchPilot stub launched; tools: \(MainActor.assumeIsolated { BuiltinTools.makeRegistry().specs.count })")
-    exit(0)
+// NotchPilot runs as an accessory app: no Dock icon, a menu-bar item and the notch island.
+MainActor.assumeIsolated {
+    let app = NSApplication.shared
+    let delegate = AppDelegate()
+    app.delegate = delegate
+    app.setActivationPolicy(.accessory)
+    withExtendedLifetime(delegate) {
+        app.run()
+    }
 }
-NSApplication.shared.run()
