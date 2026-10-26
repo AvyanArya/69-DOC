@@ -29,6 +29,11 @@ public enum DateCoding {
         public let date: Date
         /// False when only a calendar day was given (`2026-10-27`).
         public let hasTime: Bool
+
+        public init(date: Date, hasTime: Bool) {
+            self.date = date
+            self.hasTime = hasTime
+        }
     }
 
     /// Parses the date formats tools accept:

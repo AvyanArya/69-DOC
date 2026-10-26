@@ -140,6 +140,8 @@ public struct ActionRecord: Codable, Identifiable, Equatable, Sendable {
     public var id: UUID
     public var conversationID: UUID?
     public var runID: UUID
+    /// The provider's id for the tool call this record belongs to.
+    public var toolUseID: String?
     public var toolName: String
     public var title: String
     public var argumentsPreview: String
@@ -150,13 +152,14 @@ public struct ActionRecord: Codable, Identifiable, Equatable, Sendable {
     public var requiredConfirmation: Bool
 
     public init(
-        id: UUID = UUID(), conversationID: UUID?, runID: UUID, toolName: String, title: String,
+        id: UUID = UUID(), conversationID: UUID?, runID: UUID, toolUseID: String? = nil, toolName: String, title: String,
         argumentsPreview: String, status: Status, resultSummary: String = "", startedAt: Date,
         finishedAt: Date? = nil, requiredConfirmation: Bool = false
     ) {
         self.id = id
         self.conversationID = conversationID
         self.runID = runID
+        self.toolUseID = toolUseID
         self.toolName = toolName
         self.title = title
         self.argumentsPreview = argumentsPreview

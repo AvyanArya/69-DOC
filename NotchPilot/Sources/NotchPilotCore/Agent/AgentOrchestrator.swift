@@ -312,7 +312,7 @@ public final class AgentOrchestrator {
 
     private func executeTool(_ use: ToolUseBlock, malformedInput: String?, run: AgentRun, session: ConversationSession, limits: AgentLimits, state: inout LoopState) async -> (ToolResultBlock, ActionRecord.Status) {
         let started = services.clock.now()
-        var record = ActionRecord(conversationID: session.id, runID: run.id, toolName: use.name, title: use.name, argumentsPreview: TextUtilities.preview(use.input.serialized(), limit: 160), status: .running, startedAt: started)
+        var record = ActionRecord(conversationID: session.id, runID: run.id, toolUseID: use.id, toolName: use.name, title: use.name, argumentsPreview: TextUtilities.preview(use.input.serialized(), limit: 160), status: .running, startedAt: started)
 
         func result(_ status: ActionRecord.Status, summary: String, content: String, isError: Bool) -> (ToolResultBlock, ActionRecord.Status) {
             record.status = status

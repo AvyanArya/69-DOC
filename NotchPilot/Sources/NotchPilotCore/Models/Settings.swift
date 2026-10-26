@@ -165,6 +165,9 @@ public struct FeatureToggles: Codable, Equatable, Sendable {
 public struct ProactiveSettings: Codable, Equatable, Sendable {
     public var morningBriefing: Bool = false
     public var morningBriefingTime: String = "08:30"
+    /// Tapping the briefing notification asks the assistant for a briefing
+    /// (data is only sent to the AI provider after that tap).
+    public var briefingTapAsksAssistant: Bool = true
     public var deadlineReminders: Bool = true
     public var deadlineLeadMinutes: Int = 60
     public var focusSessionNotifications: Bool = true

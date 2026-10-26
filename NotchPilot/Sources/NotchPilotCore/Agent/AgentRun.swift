@@ -148,6 +148,16 @@ public final class ConversationSession {
         conversation.lastModel = model
     }
 
+    /// Adds a turn outside an agent run (sample data, imports). Normal turns
+    /// are appended by the orchestrator.
+    public func appendForPreview(_ turn: ConversationTurn) {
+        append(turn)
+    }
+
+    public func recordForPreview(_ record: ActionRecord) {
+        upsertAction(record)
+    }
+
     public func rename(_ title: String) {
         guard let clean = title.nilIfBlank else { return }
         conversation.title = clean

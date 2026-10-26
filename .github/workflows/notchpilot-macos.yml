@@ -16,6 +16,23 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  core-linux:
+    # The platform-independent core (agent, providers, tools, persistence) on Linux.
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container: swift:6.1
+    defaults:
+      run:
+        working-directory: NotchPilot
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test core
+        run: |
+          apt-get update -qq && apt-get install -y -qq python3 > /dev/null
+          swift test > test-output.txt 2>&1 && status=0 || status=$?
+          grep -E "error:|failed|Executed|skipped" test-output.txt | tail -n 60 || true
+          exit $status
+
   build-and-test:
     runs-on: macos-15
     timeout-minutes: 40
