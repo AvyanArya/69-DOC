@@ -1,0 +1,64 @@
+name: NotchPilot (macOS)
+
+on:
+  push:
+    paths:
+      - "NotchPilot/**"
+      - ".github/workflows/notchpilot-macos.yml"
+  pull_request:
+    paths:
+      - "NotchPilot/**"
+      - ".github/workflows/notchpilot-macos.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: notchpilot-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: macos-15
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: NotchPilot
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Toolchain
+        run: |
+          sw_vers
+          xcodebuild -version
+          swift --version
+
+      - name: Unit and end-to-end tests
+        run: |
+          swift test > test-output.txt 2>&1 && status=0 || status=$?
+          grep -E "error:|failed|Executed|skipped" test-output.txt | tail -n 80 || true
+          exit $status
+
+      - name: Build app bundle
+        run: ./scripts/build_app.sh
+
+      - name: Smoke test the bundle
+        run: |
+          plutil -p dist/NotchPilot.app/Contents/Info.plist | grep -E "CFBundleIdentifier|LSUIElement|NSCalendarsFullAccessUsageDescription"
+          ./dist/notchpilot-cli tools | head -5
+          # Launch the app headlessly for a few seconds to catch start-up crashes.
+          ./dist/NotchPilot.app/Contents/MacOS/NotchPilot --smoke-test
+
+      - name: Upload app
+        uses: actions/upload-artifact@v4
+        with:
+          name: NotchPilot-macOS
+          path: |
+            NotchPilot/dist/NotchPilot-macOS.zip
+            NotchPilot/dist/notchpilot-cli-macOS.zip
+          if-no-files-found: error
+
+      - name: Upload test log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-output
+          path: NotchPilot/test-output.txt
