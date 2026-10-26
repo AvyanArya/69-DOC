@@ -14,7 +14,7 @@ struct TodayView: View {
                         .foregroundStyle(palette.primary)
                     Spacer()
                     if model.isProviderConfigured {
-                        PillButton(title: "Brief me", symbol: "sparkles", prominent: true) {
+                        PanelButton(title: "Brief me", symbol: "sparkles", prominent: true) {
                             model.ask("Summarise my day and tell me what I need to prioritise.")
                         }
                     }
@@ -52,17 +52,17 @@ struct TimerCard: View {
                                     .monospacedDigit()
                                     .foregroundStyle(palette.primary)
                             }
-                            Text(timer.state.label).font(.system(size: 11.5)).foregroundStyle(palette.secondary).lineLimit(1)
+                            Text(timer.state.label).font(.system(size: 12)).foregroundStyle(palette.secondary).lineLimit(1)
                         }
                     }
                     HStack(spacing: 6) {
                         if timer.state.phase == .running {
-                            PillButton(title: "Pause", symbol: "pause.fill") { _ = try? timer.pause() }
+                            PanelButton(title: "Pause", symbol: "pause.fill") { _ = try? timer.pause() }
                         } else {
-                            PillButton(title: "Resume", symbol: "play.fill", prominent: true) { _ = try? timer.resume() }
+                            PanelButton(title: "Resume", symbol: "play.fill", prominent: true) { _ = try? timer.resume() }
                         }
-                        PillButton(title: "+5", symbol: nil) { _ = try? timer.extend(by: 300) }
-                        PillButton(title: "Reset", symbol: nil) { _ = timer.reset() }
+                        PanelButton(title: "+5", symbol: nil) { _ = try? timer.extend(by: 300) }
+                        PanelButton(title: "Reset", symbol: nil) { _ = timer.reset() }
                     }
                 } else {
                     if timer.state.phase == .finished {
@@ -73,10 +73,10 @@ struct TimerCard: View {
                             .foregroundStyle(palette.secondary)
                     }
                     HStack(spacing: 6) {
-                        PillButton(title: "Focus \(prefs.defaultFocusMinutes)", symbol: "brain.head.profile", prominent: true) {
+                        PanelButton(title: "Focus \(prefs.defaultFocusMinutes)", symbol: "brain.head.profile", prominent: true) {
                             model.startTimer(minutes: prefs.defaultFocusMinutes, kind: .focus, label: "Focus")
                         }
-                        PillButton(title: "Break \(prefs.defaultBreakMinutes)", symbol: "cup.and.saucer") {
+                        PanelButton(title: "Break \(prefs.defaultBreakMinutes)", symbol: "cup.and.saucer") {
                             model.startTimer(minutes: prefs.defaultBreakMinutes, kind: .shortBreak, label: "Break")
                         }
                     }
@@ -87,7 +87,7 @@ struct TimerCard: View {
                     }
                     .menuStyle(.button)
                     .buttonStyle(.plain)
-                    .font(.system(size: 11.5, weight: .medium))
+                    .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(palette.secondary)
                     .fixedSize()
                 }
@@ -111,7 +111,7 @@ struct MediaCard: View {
                         ArtworkView(image: model.media.artwork, size: 44, corner: 8)
                         VStack(alignment: .leading, spacing: 2) {
                             Text(playing.title).font(.system(size: 13, weight: .semibold)).foregroundStyle(palette.primary).lineLimit(1)
-                            Text(playing.artist).font(.system(size: 11.5)).foregroundStyle(palette.secondary).lineLimit(1)
+                            Text(playing.artist).font(.system(size: 12)).foregroundStyle(palette.secondary).lineLimit(1)
                         }
                     }
                     HStack(spacing: 4) {
@@ -121,7 +121,7 @@ struct MediaCard: View {
                     }
                 } else {
                     Text("Nothing playing in Music or Spotify.").font(.system(size: 12)).foregroundStyle(palette.secondary)
-                    PillButton(title: "Play Music", symbol: "play.fill") { control(.play) }
+                    PanelButton(title: "Play Music", symbol: "play.fill") { control(.play) }
                 }
             }
         }
@@ -159,7 +159,7 @@ struct EventsCard: View {
                             HStack(spacing: 10) {
                                 RoundedRectangle(cornerRadius: 2).fill(palette.accent).frame(width: 3, height: 26)
                                 VStack(alignment: .leading, spacing: 1) {
-                                    Text(event.title).font(.system(size: 12.5, weight: .medium)).foregroundStyle(palette.primary).lineLimit(1)
+                                    Text(event.title).font(.system(size: 13, weight: .medium)).foregroundStyle(palette.primary).lineLimit(1)
                                     Text(event.isAllDay ? "All day" : "\(Formatters.time(event.start)) – \(Formatters.time(event.end))\(event.location.map { " · \($0)" } ?? "")")
                                         .font(.system(size: 11))
                                         .foregroundStyle(palette.secondary)
@@ -173,7 +173,7 @@ struct EventsCard: View {
                                 .font(.system(size: 12))
                                 .foregroundStyle(palette.secondary)
                             Spacer()
-                            PillButton(title: "Connect Calendar", symbol: "calendar.badge.plus") {
+                            PanelButton(title: "Connect Calendar", symbol: "calendar.badge.plus") {
                                 Task { await model.requestCalendarAccess() }
                             }
                         }
@@ -183,7 +183,7 @@ struct EventsCard: View {
                                 .font(.system(size: 12))
                                 .foregroundStyle(palette.secondary)
                             Spacer()
-                            PillButton(title: "Open Privacy Settings", symbol: nil) {
+                            PanelButton(title: "Open Privacy Settings", symbol: nil) {
                                 SystemSettingsLink.open(.calendars)
                             }
                         }

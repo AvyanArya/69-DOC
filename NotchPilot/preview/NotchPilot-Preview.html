@@ -2,404 +2,574 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 <style>
-/* Layout: one desktop "stage" with the notch island as the hero; the page chrome around it stays quiet. */
+/* Designed in the macOS idiom: system font, system colours, SF Symbols-style glyphs,
+   vibrancy materials, a Dynamic Island-style black island, and a System Settings window.
+   Inter is only a fallback for devices without Apple's system font. */
 :root {
-  /* Page chrome — dark first (the island itself is always black, like the hardware notch) */
-  --page: #0d0e12;
-  --page-raised: #15171d;
-  --ink: #eceef4;
-  --ink-soft: #a2a7b6;
-  --ink-faint: #6c7182;
-  --line: #262933;
-  --accent: #8a98ff;
-  --accent-ink: #0d0e12;
-  --wall-a: #1b2030;
-  --wall-b: #2a2338;
-  --wall-c: #111522;
-  --menubar: rgba(18, 20, 28, 0.72);
-  --menubar-ink: #e6e8ef;
-  /* The island (fixed: always the app's dark theme) */
-  --island: #000;
-  --surface: rgba(255, 255, 255, 0.065);
-  --surface-2: rgba(255, 255, 255, 0.11);
-  --stroke: rgba(255, 255, 255, 0.08);
-  --t1: rgba(255, 255, 255, 0.94);
-  --t2: rgba(255, 255, 255, 0.62);
-  --t3: rgba(255, 255, 255, 0.38);
-  --indigo: #7b8dff;
-  --ok: #5cd98f;
-  --warn: #ffb84d;
-  --bad: #ff6b6b;
-  --bubble: #3d4469;
-  --grad: linear-gradient(135deg, #7d5eff 0%, #4299ff 55%, #4ddbc7 100%);
-  /* Type */
-  --font-page: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
-  --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Geist", "Segoe UI", Roboto, sans-serif;
-  --spring: cubic-bezier(0.3, 1.32, 0.52, 1);
-  color-scheme: dark;
+  --sf: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", system-ui, sans-serif;
+  --sf-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Segoe UI", system-ui, sans-serif;
+  --sf-rounded: ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+  --spring: cubic-bezier(0.32, 1.22, 0.42, 1);
+
+  /* Page — light */
+  --page: #f5f5f7; --tile: #ffffff; --ink: #1d1d1f; --ink-2: #6e6e73; --ink-3: #86868b;
+  --hair: rgba(0, 0, 0, 0.1); --link: #0066cc; --chip: #e8e8ed; --chip-hover: #dcdce1; --focus: #0071e3;
+  --bezel: #0d0d0e; --base-top: #e4e5e7; --base-bottom: #b8b9bd; --base-groove: #9c9da1;
+  /* macOS chrome — light appearance */
+  --accent: #007aff;
+  --menubar: rgba(246, 246, 246, 0.6); --menubar-ink: rgba(0, 0, 0, 0.86); --menubar-hover: rgba(0, 0, 0, 0.1);
+  --menu-bg: rgba(238, 238, 240, 0.8); --menu-ink: rgba(0, 0, 0, 0.86); --menu-ink-2: rgba(0, 0, 0, 0.42);
+  --menu-line: rgba(0, 0, 0, 0.1); --menu-edge: rgba(0, 0, 0, 0.16);
+  --win-bg: #ececec; --win-side: rgba(226, 226, 229, 0.86); --win-box: #ffffff; --win-box-edge: rgba(0, 0, 0, 0.07);
+  --win-ink: rgba(0, 0, 0, 0.86); --win-ink-2: rgba(0, 0, 0, 0.5); --win-sep: rgba(0, 0, 0, 0.08);
+  --ctl: #ffffff; --ctl-ink: rgba(0, 0, 0, 0.86); --ctl-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.16), 0 0.5px 1.5px rgba(0, 0, 0, 0.14);
+  --switch-off: rgba(0, 0, 0, 0.1); --field: #ffffff; --field-edge: rgba(0, 0, 0, 0.16);
+  --banner: rgba(240, 240, 242, 0.84);
+  --wall:
+    radial-gradient(70% 90% at 10% 105%, #f7a597 0%, transparent 60%),
+    radial-gradient(60% 80% at 95% 5%, #87afff 0%, transparent 62%),
+    radial-gradient(55% 70% at 62% 112%, #b499ff 0%, transparent 60%),
+    radial-gradient(55% 60% at 28% 6%, #cfe4ff 0%, transparent 70%),
+    linear-gradient(160deg, #dde8fb, #efe0ef);
+  color-scheme: light;
 }
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) {
-    --page: #f3f4f8; --page-raised: #ffffff; --ink: #161821; --ink-soft: #505668; --ink-faint: #8a8fa0;
-    --line: #dfe1e9; --accent: #4351d6; --accent-ink: #ffffff;
-    --wall-a: #c9d3f2; --wall-b: #e6d6ee; --wall-c: #aebde6;
-    --menubar: rgba(246, 247, 251, 0.72); --menubar-ink: #1b1d26;
-    color-scheme: light;
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --page: #000000; --tile: #161617; --ink: #f5f5f7; --ink-2: #a1a1a6; --ink-3: #6e6e73;
+    --hair: rgba(255, 255, 255, 0.14); --link: #2997ff; --chip: #2a2a2c; --chip-hover: #3a3a3c; --focus: #0a84ff;
+    --bezel: #0d0d0e; --base-top: #3b3c40; --base-bottom: #1d1e21; --base-groove: #141416;
+    --accent: #0a84ff;
+    --menubar: rgba(28, 28, 30, 0.45); --menubar-ink: rgba(255, 255, 255, 0.92); --menubar-hover: rgba(255, 255, 255, 0.16);
+    --menu-bg: rgba(42, 42, 44, 0.8); --menu-ink: rgba(255, 255, 255, 0.88); --menu-ink-2: rgba(255, 255, 255, 0.4);
+    --menu-line: rgba(255, 255, 255, 0.12); --menu-edge: rgba(255, 255, 255, 0.16);
+    --win-bg: #1e1e1f; --win-side: rgba(42, 42, 45, 0.86); --win-box: rgba(255, 255, 255, 0.05); --win-box-edge: rgba(255, 255, 255, 0.08);
+    --win-ink: rgba(255, 255, 255, 0.88); --win-ink-2: rgba(255, 255, 255, 0.5); --win-sep: rgba(255, 255, 255, 0.08);
+    --ctl: rgba(255, 255, 255, 0.17); --ctl-ink: rgba(255, 255, 255, 0.9); --ctl-shadow: 0 0 0 0.5px rgba(255, 255, 255, 0.06), 0 0.5px 1.5px rgba(0, 0, 0, 0.3);
+    --switch-off: rgba(255, 255, 255, 0.16); --field: rgba(255, 255, 255, 0.06); --field-edge: rgba(255, 255, 255, 0.12);
+    --banner: rgba(44, 44, 46, 0.82);
+    --wall:
+      radial-gradient(70% 90% at 10% 105%, #7b2c58 0%, transparent 60%),
+      radial-gradient(60% 80% at 95% 5%, #1c4aa6 0%, transparent 62%),
+      radial-gradient(55% 70% at 62% 112%, #4a2c9e 0%, transparent 60%),
+      radial-gradient(55% 60% at 28% 6%, #123061 0%, transparent 70%),
+      linear-gradient(160deg, #0b1330, #1a0f2a);
+    color-scheme: dark;
   }
 }
-:root[data-theme="light"] {
-  --page: #f3f4f8; --page-raised: #ffffff; --ink: #161821; --ink-soft: #505668; --ink-faint: #8a8fa0;
-  --line: #dfe1e9; --accent: #4351d6; --accent-ink: #ffffff;
-  --wall-a: #c9d3f2; --wall-b: #e6d6ee; --wall-c: #aebde6;
-  --menubar: rgba(246, 247, 251, 0.72); --menubar-ink: #1b1d26;
-  color-scheme: light;
+:root[data-theme="dark"] {
+  --page: #000000; --tile: #161617; --ink: #f5f5f7; --ink-2: #a1a1a6; --ink-3: #6e6e73;
+  --hair: rgba(255, 255, 255, 0.14); --link: #2997ff; --chip: #2a2a2c; --chip-hover: #3a3a3c; --focus: #0a84ff;
+  --bezel: #0d0d0e; --base-top: #3b3c40; --base-bottom: #1d1e21; --base-groove: #141416;
+  --accent: #0a84ff;
+  --menubar: rgba(28, 28, 30, 0.45); --menubar-ink: rgba(255, 255, 255, 0.92); --menubar-hover: rgba(255, 255, 255, 0.16);
+  --menu-bg: rgba(42, 42, 44, 0.8); --menu-ink: rgba(255, 255, 255, 0.88); --menu-ink-2: rgba(255, 255, 255, 0.4);
+  --menu-line: rgba(255, 255, 255, 0.12); --menu-edge: rgba(255, 255, 255, 0.16);
+  --win-bg: #1e1e1f; --win-side: rgba(42, 42, 45, 0.86); --win-box: rgba(255, 255, 255, 0.05); --win-box-edge: rgba(255, 255, 255, 0.08);
+  --win-ink: rgba(255, 255, 255, 0.88); --win-ink-2: rgba(255, 255, 255, 0.5); --win-sep: rgba(255, 255, 255, 0.08);
+  --ctl: rgba(255, 255, 255, 0.17); --ctl-ink: rgba(255, 255, 255, 0.9); --ctl-shadow: 0 0 0 0.5px rgba(255, 255, 255, 0.06), 0 0.5px 1.5px rgba(0, 0, 0, 0.3);
+  --switch-off: rgba(255, 255, 255, 0.16); --field: rgba(255, 255, 255, 0.06); --field-edge: rgba(255, 255, 255, 0.12);
+  --banner: rgba(44, 44, 46, 0.82);
+  --wall:
+    radial-gradient(70% 90% at 10% 105%, #7b2c58 0%, transparent 60%),
+    radial-gradient(60% 80% at 95% 5%, #1c4aa6 0%, transparent 62%),
+    radial-gradient(55% 70% at 62% 112%, #4a2c9e 0%, transparent 60%),
+    radial-gradient(55% 60% at 28% 6%, #123061 0%, transparent 70%),
+    linear-gradient(160deg, #0b1330, #1a0f2a);
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html, body { background: var(--page); color: var(--ink); }
 body {
-  font-family: var(--font-page);
-  line-height: 1.5;
+  margin: 0;
+  font-family: var(--sf);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.47;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
-  padding-block: 28px 48px;
+  padding-block: 44px 64px;
 }
-button { font: inherit; color: inherit; }
-button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button, input, select, textarea { font-family: inherit; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+svg { display: block; }
 
-.wrap { max-width: 1120px; margin: 0 auto; display: grid; gap: 22px; }
+.wrap { max-width: 1120px; margin: 0 auto; display: grid; gap: 28px; }
 
-/* ---------- Page header ---------- */
-.head { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 22px; justify-content: space-between; }
-.brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
-.brand h1 { margin: 0; font-size: 1.6rem; font-weight: 600; letter-spacing: -0.02em; text-wrap: balance; }
-.brand p { margin: 2px 0 0; color: var(--ink-soft); font-size: 0.92rem; }
-.badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; font-size: 0.8rem; color: var(--ink-soft); background: var(--page-raised); }
-.badge i { width: 7px; height: 7px; border-radius: 50%; background: var(--warn); display: block; }
+/* ---------- Hero ---------- */
+.hero { display: grid; justify-items: center; text-align: center; gap: 10px; }
+.hero .appicon { width: 84px; height: 84px; filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.18)); }
+.hero h1 { margin: 6px 0 0; font-family: var(--sf-display); font-size: clamp(2.3rem, 5vw, 3.4rem); font-weight: 600; letter-spacing: -0.015em; line-height: 1.05; }
+.hero p.tag { margin: 0; font-family: var(--sf-display); font-size: clamp(1.1rem, 2.2vw, 1.45rem); color: var(--ink-2); letter-spacing: 0.005em; text-wrap: balance; }
+.hero .pill { margin-top: 6px; display: inline-flex; align-items: center; gap: 7px; font-size: 0.8rem; color: var(--ink-2); background: var(--chip); padding: 5px 12px; border-radius: 999px; }
+.hero .pill i { width: 6px; height: 6px; border-radius: 50%; background: #ff9f0a; }
 
-/* ---------- The desktop stage ---------- */
+/* ---------- MacBook ---------- */
+.mac { display: grid; justify-items: center; }
+.screen { width: 100%; padding: 11px; border-radius: 22px; background: var(--bezel); box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.07) inset, 0 0 0 1px rgba(0, 0, 0, 0.35), 0 40px 70px -34px rgba(0, 0, 0, 0.5); }
+.base { width: calc(100% + 56px); max-width: calc(100vw - 8px); height: 15px; border-radius: 2px 2px 14px 14px / 2px 2px 12px 12px; background: linear-gradient(var(--base-top), var(--base-bottom)); position: relative; box-shadow: 0 14px 22px -14px rgba(0, 0, 0, 0.45); }
+.base::before { content: ""; position: absolute; left: 50%; top: 0; transform: translateX(-50%); width: 16%; height: 6px; border-radius: 0 0 8px 8px; background: var(--base-groove); opacity: 0.55; }
+.caption { margin: 14px 0 0; text-align: center; font-size: 0.88rem; color: var(--ink-2); }
+.kbd { font-family: var(--sf); font-size: 0.78rem; padding: 1px 6px; border-radius: 5px; background: var(--chip); }
+
 .stage {
-  position: relative;
-  border-radius: 18px;
-  overflow: hidden;
-  min-height: 600px;
-  aspect-ratio: 16 / 10;
-  max-width: 100%;
-  background:
-    radial-gradient(120% 90% at 15% 110%, var(--wall-b) 0%, transparent 60%),
-    radial-gradient(90% 80% at 95% 0%, var(--wall-a) 0%, transparent 65%),
-    var(--wall-c);
-  box-shadow: 0 0 0 1px var(--line), 0 30px 80px -30px rgba(0, 0, 0, 0.6);
-  font-family: var(--font-ui);
-  user-select: none;
+  position: relative; overflow: hidden; overflow: clip; border-radius: 12px;
+  aspect-ratio: 16 / 10; min-height: 560px;
+  background: var(--wall);
+  font-family: var(--sf); font-size: 13px; line-height: 1.38; user-select: none;
+  -webkit-font-smoothing: antialiased;
 }
+
+/* Menu bar */
 .menubar {
-  position: absolute; inset: 0 0 auto 0; height: 34px;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 14px; font-size: 13px; color: var(--menubar-ink);
-  background: var(--menubar); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
-  z-index: 1;
+  position: absolute; inset: 0 0 auto 0; height: 32px; z-index: 2;
+  display: flex; align-items: center; justify-content: space-between; padding: 0 8px 0 14px;
+  color: var(--menubar-ink); background: var(--menubar);
+  -webkit-backdrop-filter: blur(28px) saturate(180%); backdrop-filter: blur(28px) saturate(180%);
 }
-.menubar .left, .menubar .right { display: flex; align-items: center; gap: 16px; min-width: 0; }
-.menubar .left b { font-weight: 600; }
-.menubar .left span:nth-child(n+4) { display: none; }
-@media (min-width: 760px) { .menubar .left span:nth-child(n+4) { display: inline; } }
-.menubar .tray { display: flex; align-items: center; gap: 4px; padding: 2px 6px; border-radius: 6px; background: none; border: 0; cursor: pointer; }
-.menubar .tray:hover, .menubar .tray[aria-expanded="true"] { background: rgba(127, 127, 127, 0.22); }
-.menubar svg { width: 15px; height: 15px; }
-.clock { font-variant-numeric: tabular-nums; }
+.menubar .left, .menubar .right { display: flex; align-items: center; gap: 2px; min-width: 0; }
+.menubar .left span { padding: 3px 8px; border-radius: 5px; white-space: nowrap; }
+.menubar .left b { padding: 3px 8px 3px 0; font-weight: 700; }
+.menubar .si { height: 24px; min-width: 26px; padding: 0 6px; display: inline-flex; align-items: center; justify-content: center; gap: 5px; border-radius: 5px; border: 0; background: none; color: inherit; font: inherit; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.menubar button.si { cursor: default; }
+.menubar button.si:hover, .menubar button.si[aria-expanded="true"] { background: var(--menubar-hover); }
+.menubar .si svg { width: 16px; height: 16px; }
+.menubar .si svg.batt { width: 25px; height: 13px; }
 
-.traymenu {
-  position: absolute; top: 38px; right: 70px; width: 230px; z-index: 30;
-  background: rgba(32, 34, 42, 0.96); color: #eef0f5; border-radius: 10px; padding: 5px;
-  box-shadow: 0 0 0 0.5px rgba(255,255,255,0.15), 0 14px 40px rgba(0,0,0,0.45); font-size: 13px;
+/* Menus (status item, agent mode) */
+.menu {
+  position: absolute; z-index: 40; min-width: 236px; padding: 5px;
+  border-radius: 10px; background: var(--menu-bg); color: var(--menu-ink);
+  -webkit-backdrop-filter: blur(40px) saturate(180%); backdrop-filter: blur(40px) saturate(180%);
+  box-shadow: 0 0 0 0.5px var(--menu-edge), 0 12px 32px rgba(0, 0, 0, 0.26);
+  font: 13px/1.25 var(--sf); text-align: left;
 }
-.traymenu button { display: flex; width: 100%; align-items: center; gap: 9px; text-align: left; border: 0; background: none; padding: 5px 9px; border-radius: 6px; cursor: pointer; }
-.traymenu button:hover { background: #4b5bd6; }
-.traymenu hr { border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 4px 6px; }
-.traymenu svg { width: 14px; height: 14px; opacity: 0.85; }
+.menu.dark { --menu-bg: rgba(42, 42, 44, 0.86); --menu-ink: rgba(255, 255, 255, 0.88); --menu-ink-2: rgba(255, 255, 255, 0.42); --menu-line: rgba(255, 255, 255, 0.12); --menu-edge: rgba(255, 255, 255, 0.16); }
+.menu .mi {
+  display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; align-items: center; column-gap: 2px;
+  width: 100%; min-height: 22px; padding: 2px 9px 2px 3px; border: 0; border-radius: 5px;
+  background: none; color: inherit; font: inherit; text-align: left; cursor: default;
+}
+.menu .mi:hover, .menu .mi:focus-visible { background: var(--accent); color: #fff; outline: none; }
+.menu .mi .ck { font-size: 12px; text-align: center; }
+.menu .mi kbd { font: inherit; color: var(--menu-ink-2); letter-spacing: 0.5px; padding-left: 18px; }
+.menu .mi small { display: block; font-size: 11px; color: var(--menu-ink-2); line-height: 1.3; padding: 1px 0 2px; }
+.menu .mi:hover kbd, .menu .mi:hover small, .menu .mi:focus-visible small { color: rgba(255, 255, 255, 0.82); }
+.menu hr { border: 0; height: 1px; background: var(--menu-line); margin: 5px 9px; }
+.menu .mh { padding: 4px 9px 3px 21px; font-size: 11px; font-weight: 600; color: var(--menu-ink-2); }
 
-.desk-note { position: absolute; left: 22px; bottom: 18px; right: 22px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; color: rgba(255,255,255,0.55); font-size: 12px; pointer-events: none; }
-:root[data-theme="light"] .desk-note { color: rgba(20,24,40,0.55); }
-@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .desk-note { color: rgba(20,24,40,0.55); } }
-.kbd { font-family: var(--font-mono); font-size: 11px; padding: 1px 6px; border-radius: 5px; border: 1px solid rgba(127,127,127,0.4); }
+/* Notification banner (Notification Center style) */
+.banner {
+  position: absolute; top: 40px; right: 10px; z-index: 35; width: min(344px, calc(100% - 20px));
+  display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 10px; align-items: center;
+  padding: 11px 13px; border-radius: 17px; color: var(--menu-ink); background: var(--banner);
+  -webkit-backdrop-filter: blur(30px) saturate(180%); backdrop-filter: blur(30px) saturate(180%);
+  box-shadow: 0 0 0 0.5px var(--menu-edge), 0 10px 28px rgba(0, 0, 0, 0.22);
+  transform: translateX(calc(100% + 24px)); transition: transform 0.5s var(--spring); cursor: default;
+}
+.banner.show { transform: none; }
+.banner .appicon { width: 34px; height: 34px; }
+.banner .bh { display: flex; justify-content: space-between; gap: 8px; font-weight: 600; }
+.banner .bh span { font-weight: 400; color: var(--menu-ink-2); font-size: 12px; }
+.banner .bb { color: var(--menu-ink); }
 
 /* ---------- The island ---------- */
 .island {
-  --w: 196px; --h: 34px; --ear: 7px; --br: 13px;
-  position: absolute; top: 0; left: 50%; z-index: 20;
-  width: var(--w); height: var(--h);
-  transform: translateX(-50%);
-  background: var(--island);
+  /* The island is always dark, like the hardware notch; colours are macOS's dark system colours. */
+  --island: #000; --t1: #fff; --t2: rgba(235, 235, 245, 0.6); --t3: rgba(235, 235, 245, 0.3);
+  --surface: rgba(255, 255, 255, 0.09); --surface-2: rgba(255, 255, 255, 0.15); --stroke: rgba(255, 255, 255, 0.11);
+  --blue: #0a84ff; --green: #30d158; --orange: #ff9f0a; --red: #ff453a; --pink: #ff375f; --purple: #bf5af2; --indigo: #5e5ce6;
+  --btn: rgba(255, 255, 255, 0.17); --btn-ink: #fff; --btn-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.3);
+  --w: 184px; --h: 32px; --ear: 8px; --br: 12px;
+  position: absolute; top: 0; left: 50%; z-index: 32; /* floats above windows, like the app's panel */
+  width: var(--w); height: var(--h); transform: translateX(-50%);
+  background: var(--island); color: var(--t1);
   border-radius: 0 0 var(--br) var(--br);
-  transition: width 0.55s var(--spring), height 0.55s var(--spring), border-radius 0.45s ease, box-shadow 0.4s ease;
-  color: var(--t1);
-  cursor: pointer;
+  transition: width 0.52s var(--spring), height 0.52s var(--spring), border-radius 0.45s var(--spring), box-shadow 0.35s ease, background-color 0.3s ease;
+  cursor: default;
 }
-.island::before, .island::after {
-  content: ""; position: absolute; top: 0; width: var(--ear); height: var(--ear);
-  transition: width 0.4s ease, height 0.4s ease;
-}
+.island::before, .island::after { content: ""; position: absolute; top: 0; width: var(--ear); height: var(--ear); transition: width 0.4s ease, height 0.4s ease; }
 .island::before { left: calc(-1 * var(--ear)); background: radial-gradient(circle at 0 100%, transparent calc(var(--ear) - 0.5px), var(--island) var(--ear)); }
 .island::after { right: calc(-1 * var(--ear)); background: radial-gradient(circle at 100% 100%, transparent calc(var(--ear) - 0.5px), var(--island) var(--ear)); }
-.island.expanded { --ear: 14px; --br: 30px; cursor: default; box-shadow: 0 22px 50px -14px rgba(0, 0, 0, 0.75); }
-.island.peek { --w: 214px; --h: 40px; }
+.island.expanded { --ear: 14px; --br: 36px; box-shadow: 0 24px 60px -16px rgba(0, 0, 0, 0.7); }
+.island.peek { --w: 202px; --h: 37px; }
+.island.light.expanded {
+  --island: #ececec; --t1: rgba(0, 0, 0, 0.86); --t2: rgba(0, 0, 0, 0.5); --t3: rgba(0, 0, 0, 0.26);
+  --surface: rgba(0, 0, 0, 0.05); --surface-2: rgba(0, 0, 0, 0.09); --stroke: rgba(0, 0, 0, 0.1);
+  --blue: #007aff; --green: #34c759; --orange: #ff9500; --red: #ff3b30; --pink: #ff2d55; --purple: #af52de; --indigo: #5856d6;
+  --btn: #fff; --btn-ink: rgba(0, 0, 0, 0.86); --btn-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.16), 0 0.5px 1.5px rgba(0, 0, 0, 0.14);
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.12), 0 24px 60px -16px rgba(0, 0, 0, 0.45);
+}
 .reduce .island, .reduce .island::before, .reduce .island::after { transition-duration: 0.16s; transition-timing-function: ease; }
+/* The camera housing itself: always black, drawn above the island so a light panel still shows the hardware notch. */
+.hwnotch { --ear: 8px; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 184px; height: 32px; background: #000; border-radius: 0 0 11px 11px; z-index: 33; pointer-events: none; }
+.hwnotch::before, .hwnotch::after { content: ""; position: absolute; top: 0; width: var(--ear); height: var(--ear); }
+.hwnotch::before { left: calc(-1 * var(--ear)); background: radial-gradient(circle at 0 100%, transparent calc(var(--ear) - 0.5px), #000 var(--ear)); }
+.hwnotch::after { right: calc(-1 * var(--ear)); background: radial-gradient(circle at 100% 100%, transparent calc(var(--ear) - 0.5px), #000 var(--ear)); }
 
-.collapsed { position: absolute; inset: 0; display: flex; flex-direction: column; opacity: 1; transition: opacity 0.18s ease; }
-.collapsed .row { height: 34px; display: flex; align-items: center; justify-content: space-between; padding: 0 13px; }
+.collapsed { position: absolute; inset: 0; display: flex; flex-direction: column; transition: opacity 0.16s ease; cursor: pointer; border-radius: inherit; }
+.collapsed:focus-visible { outline-offset: -2px; }
+.collapsed .row { height: 32px; display: flex; align-items: center; justify-content: space-between; padding: 0 12px; }
+.island.peek .collapsed .row { height: 37px; }
 .island.expanded .collapsed { opacity: 0; pointer-events: none; }
-.wing { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; min-width: 0; }
-.preview-line { display: flex; align-items: center; gap: 7px; font-size: 11.5px; color: rgba(255,255,255,0.85); padding: 0 18px 8px; white-space: nowrap; overflow: hidden; }
-.preview-line span { overflow: hidden; text-overflow: ellipsis; }
+.wing { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; min-width: 0; color: var(--t1); }
+.preview-line { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 500; color: rgba(255, 255, 255, 0.86); padding: 0 18px 9px; white-space: nowrap; overflow: hidden; }
+.preview-line span:last-child { overflow: hidden; text-overflow: ellipsis; }
 
-.ring { width: 17px; height: 17px; }
-.ring circle { fill: none; stroke-width: 3; }
-.art { width: 20px; height: 20px; border-radius: 5px; background: linear-gradient(140deg, #ff8a5c, #c2457e 55%, #3b2a7a); flex: none; }
-.eq { display: flex; align-items: flex-end; gap: 2px; height: 12px; }
-.eq i { width: 3px; border-radius: 2px; background: var(--grad); height: 4px; animation: eq 0.9s ease-in-out infinite alternate; }
+.ring { width: 18px; height: 18px; }
+.ring circle { fill: none; stroke-width: 2.6; }
+.art { width: 20px; height: 20px; border-radius: 5px; background: linear-gradient(140deg, #ff9b6a, #e0457b 52%, #4b2e8c); flex: none; }
+.eq { display: flex; align-items: center; gap: 2px; height: 14px; }
+.eq i { width: 2.5px; border-radius: 2px; background: #fff; height: 4px; animation: eq 0.85s ease-in-out infinite alternate; }
 .eq i:nth-child(2) { animation-delay: -0.3s; } .eq i:nth-child(3) { animation-delay: -0.6s; } .eq i:nth-child(4) { animation-delay: -0.45s; }
-@keyframes eq { from { height: 4px; } to { height: 12px; } }
+@keyframes eq { from { height: 4px; } to { height: 13px; } }
 .reduce .eq i { animation: none; height: 8px; }
 
-.orb { width: 16px; height: 16px; border-radius: 50%; background: conic-gradient(from 0deg, #7d5eff, #4299ff, #4ddbc7, #7d5eff); position: relative; flex: none; box-shadow: 0 0 10px rgba(110, 130, 255, 0.45); }
-.orb::after { content: ""; position: absolute; inset: 30%; background: #fff; clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); }
-.orb.spin { animation: spin 2.4s linear infinite; }
-.orb.big { width: 40px; height: 40px; }
+.glyph { color: var(--blue); display: grid; }
+.glyph.pulse { animation: pulse 1.4s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: 0.35; } }
+.reduce .glyph.pulse { animation: none; }
+.spin { animation: spin 0.8s steps(8) infinite; color: var(--t2); }
 @keyframes spin { to { transform: rotate(360deg); } }
-.reduce .orb.spin { animation: none; }
+.reduce .spin { animation-duration: 2.4s; }
 
 /* ---------- Expanded panel ---------- */
-.panel { position: absolute; inset: 0; display: flex; flex-direction: column; opacity: 0; pointer-events: none; transition: opacity 0.22s ease 0.08s; font-size: 13px; cursor: default; }
+.panel { position: absolute; inset: 0; display: flex; flex-direction: column; opacity: 0; pointer-events: none; transition: opacity 0.22s ease 0.1s; }
 .island.expanded .panel { opacity: 1; pointer-events: auto; }
-.phead { height: 38px; flex: none; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 10px; }
-.phead .gap { width: 190px; }
-.phead .tabs, .phead .acts { display: flex; gap: 2px; }
+.phead { height: 34px; flex: none; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; padding: 0 12px; }
+.phead .gap { width: 184px; }
+.phead .tabs, .phead .acts { display: flex; gap: 1px; min-width: 0; }
 .phead .acts { justify-content: flex-end; }
-.ibtn { width: 27px; height: 25px; display: grid; place-items: center; border: 0; border-radius: 7px; background: none; color: var(--t2); cursor: pointer; }
+.ibtn { width: 28px; height: 24px; display: grid; place-items: center; flex: none; border: 0; border-radius: 6px; background: none; color: var(--t2); cursor: default; padding: 0; }
 .ibtn:hover { background: var(--surface-2); color: var(--t1); }
 .ibtn[aria-pressed="true"], .ibtn[aria-selected="true"] { background: var(--surface-2); color: var(--t1); }
-.ibtn svg { width: 14px; height: 14px; }
-.pbody { flex: 1; min-height: 0; padding: 4px 14px 14px; display: flex; flex-direction: column; gap: 8px; }
+.ibtn svg { width: 15px; height: 15px; }
+.pbody { flex: 1; min-height: 0; padding: 4px 16px 16px; display: flex; flex-direction: column; gap: 8px; position: relative; }
 
-.scroll { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: none; display: flex; flex-direction: column; gap: 9px; padding: 4px 0; }
+.scroll { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: none; display: flex; flex-direction: column; gap: 8px; padding: 4px 0; }
 .scroll::-webkit-scrollbar { display: none; }
 
-.card { background: var(--surface); border: 0.5px solid var(--stroke); border-radius: 14px; padding: 12px; }
-.label { font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--t3); display: flex; align-items: center; gap: 5px; }
-.label svg { width: 11px; height: 11px; }
-.pill { display: inline-flex; align-items: center; gap: 5px; border: 0; border-radius: 999px; padding: 6px 11px; font-size: 12px; font-weight: 600; background: var(--surface); color: var(--t1); cursor: pointer; white-space: nowrap; }
-.pill:hover { background: var(--surface-2); }
-.pill.primary { background: var(--grad); color: #fff; }
-.pill.danger { background: var(--bad); color: #fff; }
-.pill svg { width: 12px; height: 12px; }
+.card { background: var(--surface); border-radius: 12px; padding: 12px; }
+.label { font-size: 11px; font-weight: 600; color: var(--t2); display: flex; align-items: center; gap: 5px; }
+.label svg { width: 12px; height: 12px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 5px; height: 22px; padding: 0 10px; border: 0; border-radius: 6px; background: var(--btn); color: var(--btn-ink); box-shadow: var(--btn-shadow); font: 400 12px/1 var(--sf); cursor: default; white-space: nowrap; }
+.btn:hover { filter: brightness(1.12); }
+.btn:active { filter: brightness(0.88); }
+.btn.default { background: var(--blue); color: #fff; }
+.btn.destructive { background: var(--red); color: #fff; }
+.btn svg { width: 12px; height: 12px; }
+.btn.sm { height: 20px; padding: 0 8px; font-size: 11px; }
 
 /* Transcript */
-.msg-user { align-self: flex-end; max-width: 78%; background: var(--bubble); padding: 8px 12px; border-radius: 14px; color: var(--t1); line-height: 1.4; }
-.msg-ai { color: var(--t1); line-height: 1.5; max-width: 94%; }
+.msg-user { align-self: flex-end; max-width: 78%; background: var(--blue); color: #fff; padding: 6px 12px 7px; border-radius: 17px; line-height: 1.38; }
+.msg-ai { color: var(--t1); line-height: 1.47; max-width: 96%; }
 .msg-ai p { margin: 0 0 6px; } .msg-ai p:last-child { margin: 0; }
 .msg-ai ul { margin: 2px 0 6px; padding-left: 18px; } .msg-ai li { margin: 2px 0; }
-.caret { display: inline-block; width: 2px; height: 13px; background: var(--t1); vertical-align: -2px; margin-left: 1px; animation: blink 1s steps(2) infinite; }
+.caret { display: inline-block; width: 2px; height: 14px; background: var(--t1); vertical-align: -2px; margin-left: 1px; animation: blink 1s steps(2) infinite; }
 @keyframes blink { 50% { opacity: 0; } }
-.progress { display: flex; gap: 6px; align-items: baseline; color: var(--t2); font-style: italic; font-size: 12px; }
-.progress svg { width: 10px; height: 10px; color: var(--indigo); flex: none; }
+.progress { display: flex; gap: 6px; align-items: center; color: var(--t2); font-size: 12px; }
+.progress .glyph svg { width: 12px; height: 12px; }
 .tool { display: flex; align-items: center; gap: 9px; background: var(--surface); border-radius: 10px; padding: 7px 10px; }
-.tool .st { width: 15px; height: 15px; flex: none; display: grid; place-items: center; }
-.tool .st svg { width: 14px; height: 14px; }
+.tool .st { width: 16px; height: 16px; flex: none; display: grid; place-items: center; }
+.tool .st svg { width: 16px; height: 16px; }
 .tool .tt { min-width: 0; flex: 1; }
 .tool .t-title { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tool .t-sum { font-size: 11px; color: var(--t2); }
-.tool .who { font-size: 10px; color: var(--t3); white-space: nowrap; }
-.spinner { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--surface-2); border-top-color: var(--indigo); animation: spin 0.8s linear infinite; }
-.approval { border-radius: 14px; padding: 12px; background: rgba(255, 184, 77, 0.1); border: 1px solid rgba(255, 184, 77, 0.35); display: grid; gap: 10px; }
-.approval.destructive { background: rgba(255, 107, 107, 0.1); border-color: rgba(255, 107, 107, 0.4); }
+.tool .who { color: var(--t3); display: grid; } .tool .who svg { width: 13px; height: 13px; }
+.approval { background: var(--surface); border-radius: 14px; padding: 12px; display: grid; gap: 10px; }
+.approval .a-top { display: flex; gap: 10px; align-items: flex-start; }
+.tile { width: 28px; height: 28px; border-radius: 7px; display: grid; place-items: center; color: #fff; flex: none; }
+.tile svg { width: 15px; height: 15px; }
 .approval .a-title { font-weight: 600; color: var(--t1); }
 .approval .a-why { font-size: 11px; color: var(--t2); }
 .approval .a-row { display: flex; justify-content: flex-end; gap: 8px; }
-.plan { display: grid; gap: 6px; }
-.plan .bar { height: 3px; border-radius: 3px; background: var(--surface-2); overflow: hidden; }
-.plan .bar i { display: block; height: 100%; background: var(--indigo); transition: width 0.3s ease; }
+.plan { display: grid; gap: 7px; }
+.plan .bar { height: 4px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
+.plan .bar i { display: block; height: 100%; border-radius: 4px; background: var(--blue); transition: width 0.3s ease; }
 .plan .step { display: flex; gap: 8px; align-items: center; font-size: 12px; }
-.plan .step svg { width: 12px; height: 12px; flex: none; }
-.notice { font-size: 11.5px; color: var(--t2); display: flex; gap: 6px; align-items: center; }
+.plan .step svg { width: 14px; height: 14px; flex: none; }
+.notice { font-size: 12px; color: var(--t2); display: flex; gap: 6px; align-items: center; }
+.notice svg { width: 13px; height: 13px; flex: none; }
 
-.runbar { display: flex; align-items: center; gap: 9px; background: var(--surface); border-radius: 12px; padding: 6px 10px; }
+.runbar { display: flex; align-items: center; gap: 9px; background: var(--surface); border-radius: 12px; padding: 6px 8px 6px 10px; }
 .runbar .rb-text { flex: 1; min-width: 0; }
-.runbar .rb-phase { font-weight: 500; font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.runbar .rb-sub { font-size: 10.5px; color: var(--t3); font-variant-numeric: tabular-nums; }
+.runbar .rb-phase { font-weight: 500; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.runbar .rb-sub { font-size: 11px; color: var(--t3); font-variant-numeric: tabular-nums; }
 
-.composer { display: flex; align-items: flex-end; gap: 7px; }
-.composer .field { flex: 1; display: flex; align-items: center; background: var(--surface); border: 1px solid var(--stroke); border-radius: 12px; padding: 0 10px; min-width: 0; }
-.composer .field:focus-within { border-color: rgba(123, 141, 255, 0.6); }
-.composer input { flex: 1; min-width: 0; background: none; border: 0; outline: none; color: var(--t1); font: inherit; font-size: 13px; padding: 9px 0; }
-.composer input::placeholder { color: var(--t3); }
+.composer { display: flex; align-items: center; gap: 4px; }
+.field { flex: 1; display: flex; align-items: center; min-width: 0; height: 32px; border-radius: 16px; border: 1px solid var(--stroke); background: var(--surface); padding: 0 12px; }
+.field:focus-within { border-color: color-mix(in srgb, var(--blue) 75%, transparent); }
+.field input { flex: 1; min-width: 0; background: none; border: 0; outline: none; color: var(--t1); font: 13px var(--sf); }
+.field input::placeholder { color: var(--t3); }
+.send { width: 30px; height: 30px; display: grid; place-items: center; border: 0; background: none; padding: 0; color: var(--blue); cursor: default; }
+.send svg { width: 24px; height: 24px; }
+.send:disabled { color: var(--t3); }
+.send.stop { color: var(--red); }
 .modebtn { position: relative; }
-.modemenu { position: absolute; bottom: 32px; right: 0; width: 240px; background: #23252d; border-radius: 10px; padding: 5px; box-shadow: 0 0 0 0.5px rgba(255,255,255,0.15), 0 12px 30px rgba(0,0,0,0.5); z-index: 5; }
-.modemenu button { display: block; width: 100%; text-align: left; border: 0; background: none; color: var(--t1); padding: 6px 8px; border-radius: 6px; cursor: pointer; }
-.modemenu button:hover { background: #4b5bd6; }
-.modemenu small { display: block; color: var(--t2); font-size: 10.5px; line-height: 1.35; }
-.modemenu button:hover small { color: rgba(255,255,255,0.85); }
+.modebtn .menu { bottom: 30px; right: -40px; width: 268px; }
 
-.empty { display: grid; justify-items: center; text-align: center; gap: 12px; padding-top: 6px; }
-.empty h3 { margin: 0; font-size: 16px; font-weight: 600; }
+.empty { display: grid; justify-items: center; text-align: center; gap: 10px; padding-top: 6px; }
+.empty .glyph svg { width: 34px; height: 34px; }
+.empty h3 { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
 .empty p { margin: 0; color: var(--t2); font-size: 12px; }
-.sugs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; width: 100%; }
-.sug { display: flex; align-items: center; gap: 8px; border: 0; border-radius: 10px; padding: 8px 10px; background: var(--surface); color: var(--t1); font-size: 12px; font-weight: 500; text-align: left; cursor: pointer; min-width: 0; }
+.sugs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; width: 100%; margin-top: 4px; }
+.sug { display: flex; align-items: center; gap: 8px; border: 0; border-radius: 10px; padding: 8px 10px; background: var(--surface); color: var(--t1); font: 500 12px var(--sf); text-align: left; cursor: default; min-width: 0; }
 .sug:hover { background: var(--surface-2); }
-.sug svg { width: 14px; height: 14px; color: var(--indigo); flex: none; }
+.sug svg { width: 15px; height: 15px; color: var(--blue); flex: none; }
 .sug span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* Today */
-.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-.big-time { font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.big-time { font-family: var(--sf-rounded); font-size: 26px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; color: var(--orange); line-height: 1.1; }
+.big-time.brk { color: var(--green); }
 .row { display: flex; align-items: center; gap: 10px; }
-.wrapr { display: flex; flex-wrap: wrap; gap: 6px; }
+.wrapr { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .ev { display: flex; gap: 10px; align-items: center; }
-.ev i { width: 3px; height: 26px; border-radius: 2px; background: var(--indigo); flex: none; }
-.ev .e-t { font-weight: 500; } .ev .e-s { font-size: 11px; color: var(--t2); }
-.sysline { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11px; color: var(--t3); padding: 0 4px; font-variant-numeric: tabular-nums; }
+.ev i { width: 3px; height: 28px; border-radius: 2px; background: var(--blue); flex: none; }
+.ev i.g { background: var(--green); } .ev i.o { background: var(--orange); }
+.ev .e-s { font-size: 11px; color: var(--t2); }
+.sysline { display: flex; gap: 16px; flex-wrap: wrap; font-size: 11px; color: var(--t3); padding: 0 4px; font-variant-numeric: tabular-nums; }
+.sysline span { display: inline-flex; align-items: center; gap: 5px; }
+.sysline svg { width: 15px; height: 15px; }
+.sysline svg.batt { width: 22px; height: 11px; }
 .today-h { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-.today-h h3 { margin: 0; font-size: 17px; font-weight: 600; }
+.today-h h3 { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
+.media-ctl { display: flex; gap: 2px; }
+.media-ctl .ibtn { color: var(--t1); width: 32px; height: 28px; }
+.media-ctl .ibtn svg { width: 17px; height: 17px; }
 
-/* Tasks */
-.task { display: flex; gap: 10px; align-items: flex-start; padding: 6px 8px; border-radius: 10px; }
+/* Tasks — Reminders-style rows */
+.task { display: flex; gap: 10px; align-items: flex-start; padding: 6px 8px; border-radius: 8px; }
 .task:hover { background: var(--surface); }
-.check { width: 16px; height: 16px; border-radius: 50%; border: 1.6px solid currentColor; background: none; flex: none; margin-top: 1px; cursor: pointer; display: grid; place-items: center; padding: 0; }
+.check { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--t3); background: none; flex: none; margin-top: 0; cursor: default; display: grid; place-items: center; padding: 0; color: #fff; }
 .check svg { width: 10px; height: 10px; opacity: 0; }
-.task.done .check { background: var(--ok); border-color: var(--ok); color: #0b1a10; }
+.task.done .check { background: var(--blue); border-color: var(--blue); }
 .task.done .check svg { opacity: 1; }
-.task.done .tk-title { color: var(--t3); text-decoration: line-through; }
+.task.done .tk-title { color: var(--t3); }
 .tk-main { flex: 1; min-width: 0; }
+.tk-title .pri { color: var(--orange); font-weight: 600; margin-right: 4px; }
 .tk-meta { font-size: 11px; color: var(--t2); display: flex; gap: 8px; flex-wrap: wrap; }
-.tk-meta .late { color: var(--bad); }
+.tk-meta .late { color: var(--red); }
 .task .del { opacity: 0; } .task:hover .del, .task .del:focus-visible { opacity: 1; }
-.seg { display: inline-flex; background: var(--surface); border-radius: 8px; padding: 2px; }
-.seg button { border: 0; background: none; color: var(--t2); padding: 4px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; }
-.seg button[aria-pressed="true"] { background: var(--surface-2); color: var(--t1); }
-.addrow { display: flex; gap: 8px; align-items: center; background: var(--surface); border-radius: 12px; padding: 7px 10px; }
-.addrow input { flex: 1; min-width: 0; background: none; border: 0; outline: none; color: var(--t1); font: inherit; }
-.addrow select { background: var(--surface-2); color: var(--t1); border: 0; border-radius: 6px; padding: 3px 6px; font: inherit; font-size: 12px; }
+.seg { display: inline-flex; background: var(--surface); border-radius: 7px; padding: 2px; gap: 1px; }
+.seg button { border: 0; background: none; color: var(--t1); padding: 2px 12px; border-radius: 5px; font: 12px var(--sf); cursor: default; }
+.seg button[aria-pressed="true"] { background: var(--surface-2); box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.3); }
+.addrow { display: flex; gap: 8px; align-items: center; padding: 4px 8px; }
+.addrow .plus { color: var(--blue); display: grid; } .addrow .plus svg { width: 18px; height: 18px; }
+.addrow input { flex: 1; min-width: 0; background: none; border: 0; outline: none; color: var(--t1); font: 13px var(--sf); }
+.addrow input::placeholder { color: var(--t3); }
+.popup { appearance: none; -webkit-appearance: none; height: 22px; border: 0; border-radius: 6px; padding: 0 22px 0 9px; background: var(--btn) no-repeat right 6px center / 8px 12px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 12'%3E%3Cpath d='M1.2 4.4L4 1.6l2.8 2.8M1.2 7.6L4 10.4l2.8-2.8' fill='none' stroke='%23999' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); color: var(--btn-ink); box-shadow: var(--btn-shadow); font: 12px var(--sf); }
+.popup option { color: #000; }
 
-/* Notes */
-.notes { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 10px; flex: 1; min-height: 0; }
-.nlist { display: flex; flex-direction: column; gap: 2px; overflow-y: auto; min-height: 0; }
-.nitem { text-align: left; border: 0; background: none; border-radius: 9px; padding: 7px 8px; cursor: pointer; color: var(--t1); }
-.nitem[aria-current="true"], .nitem:hover { background: var(--surface-2); }
-.nitem b { display: block; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Notes — Notes.app-style split */
+.notes { display: grid; grid-template-columns: 188px minmax(0, 1fr); gap: 12px; flex: 1; min-height: 0; }
+.nlist { display: flex; flex-direction: column; gap: 1px; overflow-y: auto; min-height: 0; scrollbar-width: none; }
+.nitem { text-align: left; border: 0; background: none; border-radius: 8px; padding: 7px 9px; cursor: default; color: var(--t1); font: inherit; }
+.nitem[aria-current="true"] { background: var(--surface-2); }
+.nitem:hover { background: var(--surface); }
+.nitem b { display: block; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .nitem span { display: block; font-size: 11px; color: var(--t2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .neditor { display: flex; flex-direction: column; gap: 6px; min-height: 0; min-width: 0; }
-.neditor input { background: none; border: 0; outline: none; color: var(--t1); font: inherit; font-size: 15px; font-weight: 600; }
-.neditor textarea { flex: 1; min-height: 80px; resize: none; background: var(--surface); border: 0; border-radius: 10px; padding: 9px; color: var(--t1); font: inherit; line-height: 1.5; outline: none; }
+.neditor input { background: none; border: 0; outline: none; color: var(--t1); font: 700 18px var(--sf); letter-spacing: -0.01em; padding: 0; }
+.neditor textarea { flex: 1; min-height: 80px; resize: none; background: none; border: 0; padding: 0; color: var(--t1); font: 13px/1.5 var(--sf); outline: none; }
+.neditor .when { font-size: 11px; color: var(--t3); }
 
-/* Activity */
-.act { display: flex; gap: 10px; align-items: flex-start; padding: 6px 4px; }
-.act svg { width: 14px; height: 14px; flex: none; margin-top: 2px; }
-.act .a-main { flex: 1; min-width: 0; }
-.act .a-sub { font-size: 11px; color: var(--t2); }
-.act time { font-size: 10.5px; color: var(--t3); white-space: nowrap; font-variant-numeric: tabular-nums; }
+/* Activity & lists */
+.group { background: var(--surface); border-radius: 12px; overflow: hidden; }
+.lrow { display: flex; gap: 10px; align-items: center; padding: 8px 12px; position: relative; }
+.lrow + .lrow::before { content: ""; position: absolute; top: 0; left: 38px; right: 0; height: 0.5px; background: var(--stroke); }
+.lrow > svg, .lrow > span > svg { width: 16px; height: 16px; flex: none; }
+.lrow .l-main { flex: 1; min-width: 0; }
+.lrow .l-main b { display: block; font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lrow .l-sub { font-size: 11px; color: var(--t2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lrow time { font-size: 11px; color: var(--t3); white-space: nowrap; font-variant-numeric: tabular-nums; }
+button.lrow { width: 100%; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: default; }
+button.lrow:hover { background: var(--surface); }
+button.lrow[aria-current="true"] .l-main b { font-weight: 600; }
+.search { display: flex; align-items: center; gap: 6px; height: 28px; padding: 0 9px; border-radius: 8px; background: var(--surface); color: var(--t2); }
+.search svg { width: 13px; height: 13px; flex: none; }
+.search input { flex: 1; min-width: 0; background: none; border: 0; outline: none; color: var(--t1); font: 13px var(--sf); }
+.search input::placeholder { color: var(--t3); }
 
-/* History + settings overlays inside the panel */
-.hist { display: flex; flex-direction: column; gap: 6px; }
-.hrow { display: flex; align-items: center; gap: 10px; border: 0; background: none; color: var(--t1); text-align: left; padding: 8px 10px; border-radius: 10px; cursor: pointer; width: 100%; }
-.hrow:hover, .hrow[aria-current="true"] { background: var(--surface-2); }
-.hrow .h-main { flex: 1; min-width: 0; }
-.hrow b { display: block; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.hrow span { display: block; font-size: 11px; color: var(--t2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.hrow time { font-size: 10.5px; color: var(--t3); }
-.set { display: grid; gap: 10px; }
-.set h4 { margin: 0 0 6px; font-size: 12px; color: var(--t2); font-weight: 600; }
-.radio { display: flex; gap: 9px; align-items: flex-start; padding: 7px 9px; border-radius: 9px; cursor: pointer; }
-.radio:hover { background: var(--surface-2); }
-.radio input { margin-top: 3px; accent-color: #7b8dff; }
-.radio small { display: block; color: var(--t2); font-size: 11px; line-height: 1.4; }
-.tog { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 6px 9px; }
-.tog input { accent-color: #7b8dff; width: 16px; height: 16px; }
-.kv { display: flex; justify-content: space-between; gap: 10px; padding: 4px 9px; font-size: 12px; }
-.kv span:last-child { color: var(--t2); text-align: right; }
+.hud { position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); background: rgba(58, 58, 60, 0.96); color: #fff; font-size: 12px; font-weight: 500; padding: 7px 14px; border-radius: 999px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4); white-space: nowrap; max-width: 92%; overflow: hidden; text-overflow: ellipsis; z-index: 5; }
 
-.toast { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); background: #2a2c34; color: var(--t1); font-size: 12px; font-weight: 500; padding: 7px 14px; border-radius: 999px; box-shadow: 0 6px 20px rgba(0,0,0,0.4); white-space: nowrap; max-width: 92%; overflow: hidden; text-overflow: ellipsis; }
+/* ---------- Settings window (System Settings style) ---------- */
+.win {
+  position: absolute; z-index: 30; left: 50%; top: 64px; transform: translateX(-50%);
+  width: min(720px, calc(100% - 32px)); height: min(468px, calc(100% - 84px));
+  display: grid; grid-template-columns: 208px minmax(0, 1fr);
+  border-radius: 12px; overflow: hidden; background: var(--win-bg); color: var(--win-ink);
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.06) inset, 0 24px 70px rgba(0, 0, 0, 0.38);
+  font: 13px/1.35 var(--sf);
+}
+.win.zoomed { left: 6px; top: 38px; transform: none; width: calc(100% - 12px); height: calc(100% - 44px); }
+.win.opening { animation: winIn 0.28s var(--spring); }
+@keyframes winIn { from { opacity: 0; transform: translateX(-50%) scale(0.96); } }
+.reduce .win.opening { animation-duration: 0.12s; }
+.side { background: var(--win-side); -webkit-backdrop-filter: blur(30px) saturate(160%); backdrop-filter: blur(30px) saturate(160%); padding: 12px 10px; display: flex; flex-direction: column; gap: 10px; min-height: 0; border-right: 0.5px solid var(--win-sep); }
+.lights { display: flex; gap: 8px; padding: 2px 4px 4px; }
+.tl { width: 12px; height: 12px; border-radius: 50%; border: 0; padding: 0; display: grid; place-items: center; box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.18); cursor: default; color: rgba(0, 0, 0, 0.55); }
+.tl svg { width: 8px; height: 8px; opacity: 0; }
+.lights:hover .tl svg, .tl:focus-visible svg { opacity: 1; }
+.tl.close { background: #ff5f57; } .tl.min { background: #febc2e; } .tl.zoom { background: #28c840; }
+.side .search { background: rgba(127, 127, 127, 0.14); color: var(--win-ink-2); height: 26px; border-radius: 7px; }
+.side .search input { color: var(--win-ink); }
+.side .search input::placeholder { color: var(--win-ink-2); }
+.side nav { display: flex; flex-direction: column; gap: 1px; overflow-y: auto; min-height: 0; scrollbar-width: none; }
+.side nav button { display: flex; align-items: center; gap: 8px; height: 28px; padding: 0 6px; border: 0; border-radius: 6px; background: none; color: var(--win-ink); font: 13px var(--sf); text-align: left; cursor: default; }
+.side nav button[aria-current="page"] { background: var(--accent); color: #fff; }
+.stile { width: 20px; height: 20px; border-radius: 5px; display: grid; place-items: center; color: #fff; flex: none; box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.12); }
+.stile svg { width: 12px; height: 12px; }
+.detail { display: flex; flex-direction: column; min-height: 0; min-width: 0; }
+.dtitle { height: 48px; flex: none; display: flex; align-items: center; padding: 0 20px; font-size: 15px; font-weight: 700; border-bottom: 0.5px solid var(--win-sep); }
+.dbody { flex: 1; overflow-y: auto; padding: 16px 20px 22px; display: grid; align-content: start; gap: 16px; }
+.fsec h4 { margin: 0 0 7px 2px; font-size: 13px; font-weight: 600; }
+.fbox { background: var(--win-box); border-radius: 9px; box-shadow: 0 0 0 0.5px var(--win-box-edge); }
+.frow { display: flex; align-items: center; justify-content: space-between; gap: 14px; min-height: 38px; padding: 6px 12px; position: relative; }
+.frow + .frow::before { content: ""; position: absolute; top: 0; left: 12px; right: 12px; height: 0.5px; background: var(--win-sep); }
+.frow .fl { min-width: 0; flex: 1; }
+.frow .fl small { display: block; font-size: 11px; color: var(--win-ink-2); line-height: 1.3; margin-top: 1px; }
+.frow .fv { color: var(--win-ink-2); text-align: right; min-width: 0; max-width: 62%; overflow-wrap: anywhere; }
+.ffoot { margin: 6px 2px 0; font-size: 11px; color: var(--win-ink-2); }
+.hero-row { display: flex; gap: 14px; align-items: center; }
+.hero-row .appicon { width: 64px; height: 64px; flex: none; }
+.hero-row b { font-size: 17px; }
+.keycap { display: inline-block; min-width: 20px; padding: 1px 6px; border-radius: 5px; background: var(--ctl); box-shadow: var(--ctl-shadow); color: var(--ctl-ink); font-size: 12px; text-align: center; margin-left: 3px; }
+.mbtn { height: 22px; padding: 0 10px; border: 0; border-radius: 6px; background: var(--ctl); color: var(--ctl-ink); box-shadow: var(--ctl-shadow); font: 13px var(--sf); cursor: default; white-space: nowrap; }
+.mbtn:active { filter: brightness(0.92); }
+.mbtn.default { background: var(--accent); color: #fff; box-shadow: none; }
+.mbtn.destructive { color: #ff3b30; }
+.mpop { appearance: none; -webkit-appearance: none; height: 22px; border: 0; border-radius: 6px; padding: 0 24px 0 8px; background: transparent no-repeat right 6px center / 8px 12px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 12'%3E%3Cpath d='M1.2 4.4L4 1.6l2.8 2.8M1.2 7.6L4 10.4l2.8-2.8' fill='none' stroke='%23888' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); color: var(--win-ink-2); font: 13px var(--sf); text-align: right; cursor: default; }
+.mpop:hover { background-color: rgba(127, 127, 127, 0.14); color: var(--win-ink); }
+.mpop option { color: #000; }
+.switch { appearance: none; -webkit-appearance: none; width: 26px; height: 15px; border-radius: 999px; background: var(--switch-off); position: relative; flex: none; margin: 0; cursor: default; transition: background 0.2s ease; box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.08); }
+.switch::after { content: ""; position: absolute; top: 1px; left: 1px; width: 13px; height: 13px; border-radius: 50%; background: #fff; box-shadow: 0 0.5px 2px rgba(0, 0, 0, 0.35); transition: transform 0.2s var(--spring); }
+.switch:checked { background: var(--accent); }
+.switch:checked::after { transform: translateX(11px); }
+.radio { display: flex; gap: 9px; align-items: flex-start; cursor: default; }
+.radio input { appearance: none; -webkit-appearance: none; width: 14px; height: 14px; margin: 2px 0 0; border-radius: 50%; background: var(--ctl); box-shadow: var(--ctl-shadow); flex: none; }
+.radio input:checked { background: var(--accent); box-shadow: inset 0 0 0 4px var(--accent), inset 0 0 0 7px #fff; }
+.radio small { display: block; color: var(--win-ink-2); font-size: 11px; }
+.memrow { display: flex; align-items: center; gap: 10px; }
+.memrow .tagc { font-size: 11px; color: var(--win-ink-2); }
 
-/* ---------- Below the stage ---------- */
-.below { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 18px; }
+/* ---------- Below the Mac ---------- */
+.below { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 18px; margin-top: 10px; }
 @media (max-width: 860px) { .below { grid-template-columns: minmax(0, 1fr); } }
-.panelbox { background: var(--page-raised); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; min-width: 0; }
-.panelbox h2 { margin: 0 0 10px; font-size: 0.95rem; font-weight: 600; }
+.tilebox { background: var(--tile); border-radius: 18px; padding: 24px 26px; min-width: 0; }
+.tilebox h2 { margin: 0 0 14px; font-family: var(--sf-display); font-size: 1.3rem; font-weight: 600; letter-spacing: -0.01em; }
 .trylist { display: flex; flex-wrap: wrap; gap: 8px; }
-.trylist button { border: 1px solid var(--line); background: var(--page); color: var(--ink); border-radius: 999px; padding: 7px 13px; font-size: 0.84rem; cursor: pointer; text-align: left; }
-.trylist button:hover { border-color: var(--accent); color: var(--accent); }
-.facts { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; font-size: 0.88rem; color: var(--ink-soft); }
-.facts li { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 10px; }
-.facts b { color: var(--ink); font-weight: 600; font-size: 0.8rem; letter-spacing: 0.04em; text-transform: uppercase; padding-top: 2px; }
-.facts a { color: var(--accent); }
+.trylist button { border: 0; background: var(--chip); color: var(--ink); border-radius: 999px; padding: 8px 15px; font-size: 0.86rem; cursor: pointer; text-align: left; }
+.trylist button:hover { background: var(--chip-hover); }
+.facts { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; font-size: 0.9rem; color: var(--ink-2); }
+.facts b { display: block; color: var(--ink); font-weight: 600; }
+.facts a { color: var(--link); text-decoration: none; }
+.facts a:hover { text-decoration: underline; }
+.facts code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.85em; }
 
-/* Narrow screens: the stage becomes a phone-sized frame and the panel uses the full width */
-@media (max-width: 640px) {
-  .stage { aspect-ratio: auto; min-height: 640px; border-radius: 14px; }
-  .phead .gap { width: 64px; }
+/* ---------- Narrow screens ---------- */
+@media (max-width: 700px) {
+  body { padding-block: 28px 48px; }
+  .screen { padding: 6px; border-radius: 16px; }
+  .base { display: none; }
+  .stage { aspect-ratio: auto; min-height: 640px; border-radius: 11px; }
+  .menubar .left span, .menubar .si.opt { display: none; }
+  .phead .gap { width: 120px; }
+  .phead { padding: 0 6px; }
+  .ibtn { width: 25px; }
   .notes { grid-template-columns: minmax(0, 1fr); }
-  .nlist { max-height: 110px; }
-  .sugs { grid-template-columns: minmax(0, 1fr); }
-  .grid2 { grid-template-columns: minmax(0, 1fr); }
-  .desk-note { display: none; }
+  .nlist { max-height: 120px; }
+  .sugs, .grid2 { grid-template-columns: minmax(0, 1fr); }
+  .win { grid-template-columns: 52px minmax(0, 1fr); width: calc(100% - 12px); top: 40px; height: calc(100% - 48px); }
+  .side { padding: 10px 6px; }
+  .side .search, .side nav button span.t { display: none; }
+  .lights { gap: 4px; padding: 2px 0 4px; }
+  .tl { width: 11px; height: 11px; }
+  .side nav button { justify-content: center; padding: 0; }
+  .dbody { padding: 12px 12px 18px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .island, .island::before, .island::after { transition-duration: 0.16s !important; transition-timing-function: ease !important; }
+  .island, .island::before, .island::after, .banner { transition-duration: 0.16s !important; transition-timing-function: ease !important; }
 }
 </style>
 
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="iconBg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4f8dff"/><stop offset="1" stop-color="#6a3df0"/></linearGradient>
+    <radialGradient id="iconGlow" cx="0.5" cy="0.15" r="0.75"><stop offset="0" stop-color="#ffffff" stop-opacity="0.35"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
+    <symbol id="appicon" viewBox="0 0 100 100">
+      <rect x="9" y="9" width="82" height="82" rx="19" fill="url(#iconBg)"/>
+      <rect x="9" y="9" width="82" height="82" rx="19" fill="url(#iconGlow)"/>
+      <path fill="#000" d="M25 9h50c-4 0-5 2-5 5v14c0 7-4 11-11 11H41c-7 0-11-4-11-11V14c0-3-1-5-5-5z"/>
+      <path fill="#fff" d="M50 14.5Q51.1 22.9 59.5 24 51.1 25.1 50 33.5 48.9 25.1 40.5 24 48.9 22.9 50 14.5Z"/>
+      <path fill="#fff" opacity=".6" d="M58.6 13.6Q59 16.1 61.5 16.5 59 16.9 58.6 19.4 58.2 16.9 55.7 16.5 58.2 16.1 58.6 13.6Z"/>
+      <rect x="9.4" y="9.4" width="81.2" height="81.2" rx="18.6" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width=".8"/>
+    </symbol>
+  </defs>
+</svg>
+
 <div class="wrap">
-  <header class="head">
-    <div class="brand">
-      <div class="orb big" aria-hidden="true"></div>
-      <div>
-        <h1>NotchPilot</h1>
-        <p>An AI assistant that lives in your MacBook's notch. Hover over the notch below to try it.</p>
-      </div>
-    </div>
-    <span class="badge"><i></i>Browser preview · sample data · scripted replies</span>
+  <header class="hero">
+    <svg class="appicon" viewBox="0 0 100 100" role="img" aria-label="NotchPilot icon"><use href="#appicon"/></svg>
+    <h1>NotchPilot</h1>
+    <p class="tag">An assistant that lives in your Mac's notch.</p>
+    <span class="pill"><i></i>Interactive preview · sample data · scripted replies</span>
   </header>
 
-  <section class="stage" id="stage" aria-label="Simulated Mac desktop">
-    <div class="menubar">
-      <div class="left"><b>Pages</b><span>File</span><span>Edit</span><span>Insert</span><span>Format</span><span>View</span><span>Window</span></div>
-      <div class="right">
-        <button class="tray" id="trayBtn" aria-haspopup="menu" aria-expanded="false" aria-label="NotchPilot menu" type="button"></button>
-        <span id="batteryTop" class="clock" aria-label="Battery">86%</span>
-        <span id="clockTop" class="clock"></span>
-      </div>
-    </div>
-    <div class="traymenu" id="trayMenu" role="menu" hidden></div>
-
-    <div class="island" id="island" role="region" aria-label="NotchPilot island">
-      <div class="collapsed" id="collapsed" tabindex="0" role="button" aria-label="Open NotchPilot"></div>
-      <div class="panel" id="panel">
-        <div class="phead">
-          <div class="tabs" id="tabs" role="tablist"></div>
-          <div class="gap" aria-hidden="true"></div>
-          <div class="acts" id="acts"></div>
+  <div class="mac">
+    <div class="screen">
+      <section class="stage" id="stage" aria-label="Simulated Mac desktop">
+        <div class="menubar">
+          <div class="left"><b>Finder</b><span>File</span><span>Edit</span><span>View</span><span>Go</span><span>Window</span><span>Help</span></div>
+          <div class="right" id="statusItems"></div>
         </div>
-        <div class="pbody" id="pbody"></div>
-      </div>
-      <div class="toast" id="toast" hidden></div>
-    </div>
+        <div class="menu" id="trayMenu" role="menu" hidden></div>
+        <div class="banner" id="banner" role="status" aria-live="polite"></div>
 
-    <div class="desk-note"><span>Hover or click the notch · <span class="kbd">Esc</span> closes · click outside to dismiss</span><span>Simulated desktop</span></div>
-  </section>
+        <div class="hwnotch" id="hwnotch" aria-hidden="true"></div>
+        <div class="island" id="island" role="region" aria-label="NotchPilot island">
+          <div class="collapsed" id="collapsed" tabindex="0" role="button" aria-label="Open NotchPilot"></div>
+          <div class="panel" id="panel">
+            <div class="phead">
+              <div class="tabs" id="tabs" role="tablist" aria-label="Sections"></div>
+              <div class="gap" aria-hidden="true"></div>
+              <div class="acts" id="acts"></div>
+            </div>
+            <div class="pbody" id="pbody"></div>
+          </div>
+          <div class="hud" id="hud" hidden></div>
+        </div>
+
+        <div class="win" id="settingsWin" role="dialog" aria-label="NotchPilot Settings" hidden>
+          <aside class="side">
+            <div class="lights" id="lights"></div>
+            <label class="search"><span id="sideSearchIcon"></span><input id="sideSearch" placeholder="Search" aria-label="Search settings"></label>
+            <nav id="sideNav" aria-label="Settings sections"></nav>
+          </aside>
+          <section class="detail">
+            <header class="dtitle" id="dTitle"></header>
+            <div class="dbody" id="dBody"></div>
+          </section>
+        </div>
+      </section>
+    </div>
+    <div class="base" aria-hidden="true"></div>
+    <p class="caption">Hover over the notch or click it. Press <span class="kbd">esc</span> to close.</p>
+  </div>
 
   <div class="below">
-    <section class="panelbox">
-      <h2>Try these requests</h2>
+    <section class="tilebox">
+      <h2>Try asking</h2>
       <div class="trylist" id="tryList"></div>
     </section>
-    <section class="panelbox">
+    <section class="tilebox">
       <h2>About this preview</h2>
       <ul class="facts">
-        <li><b>Real</b><span>The interface, notch behaviour, approval cards, agent modes, Stop, and the effects on your sample tasks, timer, notes, calendar and activity log.</span></li>
-        <li><b>Simulated</b><span>Assistant replies are scripted for the requests on the left. The Mac app sends any request to Claude, OpenAI or a local model and acts on your real calendar and Mac.</span></li>
-        <li><b>Source</b><span><a href="https://github.com/AvyanArya/69-DOC/tree/claude/festive-tesla-bpkoxq/NotchPilot" target="_blank" rel="noopener">NotchPilot on GitHub</a> — build it with <code>./scripts/build_app.sh</code> on macOS 14+.</span></li>
+        <li><b>What's real here</b>The design, notch behaviour, approval prompts, agent modes, Stop, Settings, and the changes made to the sample tasks, timer, notes, calendar and activity log.</li>
+        <li><b>What's simulated</b>Replies are scripted for the suggested requests and all data is made up. Nothing leaves this page and nothing on your device is touched.</li>
+        <li><b>In the Mac app</b>Requests go to Claude, OpenAI or a local model using your own key, kept in the macOS Keychain, and act on your real calendar, music and Mac. <a href="https://github.com/AvyanArya/69-DOC/tree/claude/festive-tesla-bpkoxq/NotchPilot" target="_blank" rel="noopener">Source on GitHub</a>; build with <code>./scripts/build_app.sh</code> on macOS 14 or later.</li>
       </ul>
     </section>
   </div>
@@ -409,49 +579,85 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
 (() => {
   "use strict";
 
-  // ---------- Icons (24×24, stroke unless noted) ----------
-  const P = {
-    sparkle: '<path fill="currentColor" stroke="none" d="M12 2.5l2 6 6 2-6 2-2 6.5-2-6.5-6-2 6-2z"/>',
-    sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
-    checklist: '<path d="M10 6h10M10 12h10M10 18h10M3.5 6l1.5 1.5L8 4.5M3.5 12l1.5 1.5L8 10.5M3.5 18l1.5 1.5L8 16.5"/>',
-    note: '<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 12h7M9 16h5"/>',
-    activity: '<path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1L3.5 8.5"/><path d="M3.5 3.5v5h5M12 7.5V12l3 2"/>',
-    clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
-    compose: '<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/>',
-    pin: '<path d="M9 3.5h6l-1 5.5 3 3H7l3-3z"/><path d="M12 12v8.5"/>',
-    pinFill: '<path fill="currentColor" d="M9 3.5h6l-1 5.5 3 3H7l3-3z"/><path d="M12 12v8.5"/>',
-    gear: '<circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M2.5 12h3M18.5 12h3M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/>',
-    send: '<path d="M12 19V5M6 11l6-6 6 6"/>',
-    stop: '<rect x="6.5" y="6.5" width="11" height="11" rx="2" fill="currentColor" stroke="none"/>',
-    check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
-    x: '<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>',
-    calendar: '<rect x="4" y="5.5" width="16" height="14.5" rx="2"/><path d="M4 10h16M8.5 3v4M15.5 3v4"/>',
-    trash: '<path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13"/>',
-    play: '<path fill="currentColor" stroke="none" d="M7.5 5l11.5 7-11.5 7z"/>',
-    pause: '<path fill="currentColor" stroke="none" d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/>',
-    next: '<path fill="currentColor" stroke="none" d="M5 5.5l9.5 6.5L5 18.5zM16 5.5h2.5v13H16z"/>',
-    prev: '<path fill="currentColor" stroke="none" d="M19 5.5L9.5 12l9.5 6.5zM5.5 5.5H8v13H5.5z"/>',
-    shield: '<path d="M12 3l7 3v5.5c0 4.5-3 7.8-7 9.5-4-1.7-7-5-7-9.5V6z"/>',
-    timer: '<circle cx="12" cy="13.5" r="7.5"/><path d="M12 9.5v4l2.5 1.5M9.5 2.5h5"/>',
-    music: '<path d="M9 18V5.5l11-2V16"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/>',
-    chip: '<rect x="7" y="7" width="10" height="10" rx="1.5"/><path d="M9.5 3.5v3.5M14.5 3.5v3.5M9.5 17v3.5M14.5 17v3.5M3.5 9.5H7M3.5 14.5H7M17 9.5h3.5M17 14.5h3.5"/>',
-    bolt: '<path d="M13 2.5L5 13.5h6l-1 8 8-11h-6z"/>',
-    person: '<circle cx="11" cy="8" r="4"/><path d="M3.5 20.5c1-4 4-6 7.5-6 1.2 0 2.3.2 3.3.6M15 19l2 2 4-4"/>',
-    hand: '<path d="M8 13V6.5a1.5 1.5 0 0 1 3 0V12M11 11V4.5a1.5 1.5 0 0 1 3 0V11M14 11V6a1.5 1.5 0 0 1 3 0v8c0 4-2.5 6.5-6 6.5-2.5 0-4-1-5.5-3L3 13.5a1.5 1.5 0 0 1 2.4-1.8L8 14"/>',
-    info: '<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.8v.2"/>',
-    warn: '<path d="M12 3.5l9 16H3z"/><path d="M12 10v4.5M12 17v.2"/>',
-    nosign: '<circle cx="12" cy="12" r="8.5"/><path d="M6 6l12 12"/>',
-    circle: '<circle cx="12" cy="12" r="7.5"/>',
-    dotted: '<circle cx="12" cy="12" r="7.5" stroke-dasharray="2.5 2.5"/>',
-    doneCircle: '<circle cx="12" cy="12" r="8.5" fill="currentColor" stroke="none"/><path d="M8 12.3l2.7 2.7L16 9.5" stroke="#0b1a10"/>',
-    battery: '<rect x="2.5" y="8" width="17" height="8.5" rx="2"/><path d="M21.5 11v3"/><rect x="4.5" y="10" width="11" height="4.5" rx="1" fill="currentColor" stroke="none"/>',
-    wifi: '<path d="M3 9.5a13 13 0 0 1 18 0M6 12.8a8.5 8.5 0 0 1 12 0M9 16a4 4 0 0 1 6 0"/><circle cx="12" cy="19" r="1" fill="currentColor"/>',
+  // ---------- SF Symbols-style glyphs (24×24) ----------
+  const star = (cx, cy, r, k = 0.15) => {
+    const a = r * k;
+    return `M${cx} ${cy - r}Q${cx + a} ${cy - a} ${cx + r} ${cy}Q${cx + a} ${cy + a} ${cx} ${cy + r}Q${cx - a} ${cy + a} ${cx - r} ${cy}Q${cx - a} ${cy - a} ${cx} ${cy - r}Z`;
   };
-  const icon = (name, extra = "") => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra}>${P[name] || ""}</svg>`;
+  const F = 'fill="currentColor" stroke="none"';
+  const P = {
+    sparkles: `<path ${F} d="${star(9.5, 13.5, 8.5)}"/><path ${F} d="${star(18.6, 5.2, 3.6)}"/><path ${F} d="${star(19.2, 17.6, 2.6)}"/>`,
+    sparklesH: `<path ${F} d="${star(9.5, 13.5, 8.5)}"/><path ${F} opacity=".5" d="${star(18.6, 5.2, 3.6)}"/><path ${F} opacity=".5" d="${star(19.2, 17.6, 2.6)}"/>`,
+    sun: '<circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/>',
+    checklist: '<path d="M3.5 6.5l1.7 1.7L8.5 5M3.5 13.5l1.7 1.7L8.5 12M11.5 7h9M11.5 14h9M4 20h.01M11.5 20h9"/>',
+    note: '<rect x="4.5" y="3.5" width="15" height="17" rx="2.5"/><path d="M8 8.5h8M8 12h8M8 15.5h5"/>',
+    history: '<path d="M4.2 12a7.8 7.8 0 1 0 2.3-5.5L4.2 8.8"/><path d="M4 4.5v4.5h4.5M12 8v4.2l2.8 1.8"/>',
+    clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+    compose: '<path d="M12.5 4.5H7A2.5 2.5 0 0 0 4.5 7v10A2.5 2.5 0 0 0 7 19.5h10a2.5 2.5 0 0 0 2.5-2.5v-5.5"/><path d="M10 14l.6-2.6 7.6-7.6a1.5 1.5 0 0 1 2.1 2.1l-7.6 7.6z"/>',
+    pin: '<path d="M8.5 3.5h7M9.8 3.5v5.3L6.8 13h10.4l-3-4.2V3.5M12 13v7.5"/>',
+    pinFill: `<path ${F} d="M8.5 2.8h7a.8.8 0 0 1 0 1.6h-.6v4.2l3 4.1c.4.6 0 1.3-.7 1.3h-4.4v6.5a.8.8 0 0 1-1.6 0V14H6.8c-.7 0-1.1-.7-.7-1.3l3-4.1V4.4h-.6a.8.8 0 0 1 0-1.6z"/>`,
+    gear: '<circle cx="12" cy="12" r="8.4" stroke-width="2.4" stroke-linecap="butt" stroke-dasharray="2.2 2.2"/><circle cx="12" cy="12" r="6.6"/><circle cx="12" cy="12" r="2.5"/>',
+    gearFill: `<circle cx="12" cy="12" r="8.4" stroke-width="2.8" stroke-linecap="butt" stroke-dasharray="2.2 2.2"/><path ${F} fill-rule="evenodd" d="M12 4.8a7.2 7.2 0 1 1 0 14.4 7.2 7.2 0 0 1 0-14.4zm0 4.5a2.7 2.7 0 1 0 0 5.4 2.7 2.7 0 0 0 0-5.4z"/>`,
+    xmark: '<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>',
+    paperclip: '<path d="M18 11.2l-6.6 6.6a4.2 4.2 0 0 1-5.9-5.9l7.3-7.3a2.8 2.8 0 0 1 4 4l-7.2 7.2a1.4 1.4 0 0 1-2-2l6.6-6.6"/>',
+    send: `<circle ${F} cx="12" cy="12" r="10.5"/><path d="M12 17V7.5M7.8 11.5L12 7.3l4.2 4.2" stroke="#fff" stroke-width="2.2"/>`,
+    stopCircle: `<circle ${F} cx="12" cy="12" r="10.5"/><rect x="8.3" y="8.3" width="7.4" height="7.4" rx="1.4" fill="#fff" stroke="none"/>`,
+    stop: `<rect ${F} x="6" y="6" width="12" height="12" rx="2.2"/>`,
+    check: '<path d="M5 12.5l4.5 4.5L19 7.5" stroke-width="2.6"/>',
+    checkCircle: `<circle ${F} cx="12" cy="12" r="10"/><path d="M7.6 12.3l3 3 5.8-6.2" stroke="#fff" stroke-width="2.1"/>`,
+    xCircle: `<circle ${F} cx="12" cy="12" r="10"/><path d="M8.8 8.8l6.4 6.4M15.2 8.8l-6.4 6.4" stroke="#fff" stroke-width="2"/>`,
+    warn: `<path ${F} d="M10.3 3.9a2 2 0 0 1 3.4 0l8 13.9a2 2 0 0 1-1.7 3H4a2 2 0 0 1-1.7-3z"/><path d="M12 9v4.6M12 16.7v.1" stroke="#000" stroke-width="2.1"/>`,
+    hand: '<path d="M8.5 12.5V6a1.5 1.5 0 0 1 3 0v5.5M11.5 11V4.5a1.5 1.5 0 0 1 3 0V11M14.5 11V6a1.5 1.5 0 0 1 3 0v8.5c0 4-2.6 6.5-6.2 6.5-2.4 0-4-1-5.4-3.1L3.4 14a1.5 1.5 0 0 1 2.4-1.8l2.7 2.6"/>',
+    handFill: `<path ${F} d="M10 2.9a1.6 1.6 0 0 1 1.6 1.6V10h.8V3.9a1.6 1.6 0 0 1 3.2 0V10h.8V5.7a1.6 1.6 0 0 1 3.2 0V14c0 4.5-3 7.5-7.1 7.5-2.7 0-4.4-1.1-6-3.5l-3-4.6a1.6 1.6 0 0 1 2.6-1.8l2.3 2.4V6.3a1.6 1.6 0 0 1 3.2 0V10h.8V4.5A1.6 1.6 0 0 1 10 2.9z"/>`,
+    nosign: '<circle cx="12" cy="12" r="8.5"/><path d="M6 6l12 12"/>',
+    circle: '<circle cx="12" cy="12" r="8.5"/>',
+    dotted: '<circle cx="12" cy="12" r="8.5" stroke-dasharray="2.2 2.4"/>',
+    calendar: '<rect x="3.5" y="4.5" width="17" height="16" rx="3"/><path d="M3.5 9.5h17M8 2.8v3.4M16 2.8v3.4"/>',
+    calendarFill: `<path ${F} d="M7 2.8a.9.9 0 0 1 1.8 0V4h6.4V2.8a.9.9 0 0 1 1.8 0V4h.5A3 3 0 0 1 20.5 7v1.8h-17V7A3 3 0 0 1 6.5 4H7zM3.5 10.4h17v7.1a3 3 0 0 1-3 3h-11a3 3 0 0 1-3-3z"/>`,
+    trash: '<path d="M4 6.5h16M9.5 6.5V4.8c0-.7.5-1.3 1.3-1.3h2.4c.8 0 1.3.6 1.3 1.3v1.7M6 6.5l.9 12.2c.1 1 .9 1.8 2 1.8h6.2c1.1 0 1.9-.8 2-1.8L18 6.5M10 10v7M14 10v7"/>',
+    trashFill: `<path ${F} d="M9.6 3h4.8c.8 0 1.4.6 1.4 1.4V5.5H20a.9.9 0 0 1 0 1.8H4a.9.9 0 0 1 0-1.8h4.2V4.4C8.2 3.6 8.8 3 9.6 3zM5.6 8.6h12.8l-.9 10.3a2.3 2.3 0 0 1-2.3 2.1H8.8a2.3 2.3 0 0 1-2.3-2.1z"/>`,
+    play: `<path ${F} d="M7 4.6c0-.9 1-1.4 1.7-.9l11 7.3c.7.5.7 1.4 0 1.9l-11 7.3c-.8.5-1.7 0-1.7-.9z"/>`,
+    pause: `<rect ${F} x="6" y="4.5" width="4" height="15" rx="1.2"/><rect ${F} x="14" y="4.5" width="4" height="15" rx="1.2"/>`,
+    forward: `<path ${F} d="M2.5 7.2c0-.8.9-1.3 1.6-.8l7.4 4.8c.6.4.6 1.3 0 1.7l-7.4 4.8c-.7.5-1.6 0-1.6-.8zM12 7.2c0-.8.9-1.3 1.6-.8l7.4 4.8c.6.4.6 1.3 0 1.7l-7.4 4.8c-.7.5-1.6 0-1.6-.8z"/>`,
+    backward: `<path ${F} d="M21.5 7.2c0-.8-.9-1.3-1.6-.8l-7.4 4.8c-.6.4-.6 1.3 0 1.7l7.4 4.8c.7.5 1.6 0 1.6-.8zM12 7.2c0-.8-.9-1.3-1.6-.8l-7.4 4.8c-.6.4-.6 1.3 0 1.7l7.4 4.8c.7.5 1.6 0 1.6-.8z"/>`,
+    timer: '<circle cx="12" cy="13" r="8"/><path d="M12 13V8.6M12 2.8v2.2M5.6 6.4L4.4 5.2"/>',
+    music: '<path d="M9 17.5V5.8l10-2.3v11.7"/><ellipse cx="6.5" cy="17.6" rx="2.6" ry="2.2"/><ellipse cx="16.5" cy="15.3" rx="2.6" ry="2.2"/>',
+    chip: '<rect x="6.5" y="6.5" width="11" height="11" rx="2"/><path d="M9.5 3.5v3M14.5 3.5v3M9.5 17.5v3M14.5 17.5v3M3.5 9.5h3M3.5 14.5h3M17.5 9.5h3M17.5 14.5h3"/>',
+    chipFill: `<rect ${F} x="6" y="6" width="12" height="12" rx="2.2"/><path d="M9.5 3v3M14.5 3v3M9.5 18v3M14.5 18v3M3 9.5h3M3 14.5h3M18 9.5h3M18 14.5h3" stroke-width="2"/>`,
+    bolt: '<path d="M13.5 2.8L5.5 13.4h6.2l-1.2 7.8 8-10.6h-6.2z"/>',
+    boltCircle: '<circle cx="12" cy="12" r="8.8"/><path d="M13 6.2L8.2 13h3.6l-.8 4.8 4.8-6.8h-3.6z" stroke-width="1.5"/>',
+    personCheck: '<circle cx="11" cy="11" r="8.2"/><circle cx="11" cy="9" r="2.8"/><path d="M5.6 17.2c1.2-2 3.1-3 5.4-3 1.3 0 2.5.3 3.4.9"/><circle cx="18" cy="18" r="4.2" fill="currentColor" stroke="none"/><path d="M16.1 18.1l1.3 1.3 2.5-2.6" stroke="#000" stroke-width="1.5"/>',
+    info: '<circle cx="12" cy="12" r="8.8"/><path d="M12 11v5.5M12 7.8v.2" stroke-width="2"/>',
+    infoFill: `<circle ${F} cx="12" cy="12" r="10"/><path d="M12 11v6M12 7.6v.2" stroke="#fff" stroke-width="2.2"/>`,
+    battery: '<rect x="1.8" y="3" width="20" height="10" rx="3" stroke-width="1.2" opacity=".55"/><path d="M23.6 6.4v3.2" stroke-width="1.4" opacity=".55"/><rect x="3.4" y="4.6" width="14" height="6.8" rx="1.8" fill="currentColor" stroke="none"/>',
+    wifi: `<path ${F} d="M12 18.6l2.4-2.8a3.6 3.6 0 0 0-4.8 0zM12 9.8c2.4 0 4.6.9 6.3 2.4l1.6-1.9A12.3 12.3 0 0 0 12 7.3c-3 0-5.8 1.1-7.9 3l1.6 1.9A9.6 9.6 0 0 1 12 9.8zm0 3.8c1.4 0 2.6.5 3.6 1.3l1.6-1.9a8.1 8.1 0 0 0-10.4 0l1.6 1.9c1-.8 2.2-1.3 3.6-1.3zM12 3.5c4 0 7.6 1.5 10.4 3.9l-1.6 1.9A13.7 13.7 0 0 0 12 6c-3.4 0-6.4 1.2-8.8 3.3L1.6 7.4A16.2 16.2 0 0 1 12 3.5z"/>`,
+    control: '<rect x="2.5" y="4.5" width="19" height="6.4" rx="3.2"/><circle cx="17.7" cy="7.7" r="1.8" fill="currentColor" stroke="none"/><rect x="2.5" y="13.1" width="19" height="6.4" rx="3.2"/><circle cx="6.3" cy="16.3" r="1.8" fill="currentColor" stroke="none"/>',
+    search: '<circle cx="10.5" cy="10.5" r="6.3"/><path d="M15.2 15.2l5.3 5.3" stroke-width="2"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    plusCircle: `<circle ${F} cx="12" cy="12" r="10"/><path d="M12 7.5v9M7.5 12h9" stroke="#fff" stroke-width="2"/>`,
+    minus: '<path d="M6 12h12" stroke-width="2.4"/>',
+    switch2: '<rect x="2.5" y="4.5" width="19" height="6.4" rx="3.2"/><circle cx="17.7" cy="7.7" r="1.9" fill="currentColor" stroke="none"/><rect x="2.5" y="13.1" width="19" height="6.4" rx="3.2"/><circle cx="6.3" cy="16.3" r="1.9" fill="currentColor" stroke="none"/>',
+    shieldCheck: '<path d="M12 3l7 2.9v5.6c0 4.4-3 7.6-7 9.2-4-1.6-7-4.8-7-9.2V5.9z"/><path d="M8.8 12l2.2 2.2 4.2-4.4"/>',
+    shieldFill: `<path ${F} d="M12 2.6l7.6 3.1v6c0 4.7-3.2 8.2-7.6 9.8-4.4-1.6-7.6-5.1-7.6-9.8v-6z"/><path d="M8.6 12.2l2.4 2.4 4.5-4.8" stroke="#fff" stroke-width="2"/>`,
+    halfCircle: `<circle cx="12" cy="12" r="8.6"/><path ${F} d="M12 3.4a8.6 8.6 0 0 0 0 17.2z"/>`,
+    key: '<circle cx="8" cy="12" r="4.2"/><path d="M12.2 12h8.3M17.5 12v3M20.5 12v2.4"/>',
+    externalLink: '<path d="M14 4.5h5.5V10M19.5 4.5L11 13M17 14v3.5A2 2 0 0 1 15 19.5H6.5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2H10"/>',
+    clipboard: '<rect x="5" y="4.5" width="14" height="16.5" rx="2.5"/><path d="M9 4.5V3.5h6v1"/>',
+  };
+  const icon = (name, attrs = {}) => {
+    const a = { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", "stroke-width": "1.7", "stroke-linecap": "round", "stroke-linejoin": "round", "aria-hidden": "true", ...attrs };
+    return `<svg ${Object.entries(a).map(([k, v]) => `${k}="${v}"`).join(" ")}>${P[name] || ""}</svg>`;
+  };
+  const spinner = (size = 14) => {
+    let spokes = "";
+    for (let i = 0; i < 8; i++) spokes += `<line x1="12" y1="3.2" x2="12" y2="7.6" transform="rotate(${i * 45} 12 12)" opacity="${(0.22 + (0.78 * i) / 7).toFixed(2)}"/>`;
+    return `<svg class="spin" width="${size}" height="${size}" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true">${spokes}</svg>`;
+  };
+  const appIcon = (cls = "appicon") => `<svg class="${cls}" viewBox="0 0 100 100" aria-hidden="true"><use href="#appicon"/></svg>`;
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const $ = (id) => document.getElementById(id);
 
-  // ---------- Time helpers (everything is relative to the viewer's "now") ----------
+  // ---------- Time helpers (relative to the viewer's "now") ----------
   const now = () => Date.now();
   const hhmm = (t) => new Date(t).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
   const countdown = (ms) => {
@@ -466,7 +672,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
   // ---------- Sample state ----------
   const S = {
     expanded: false, pinned: false, peek: false, tab: "assistant", overlay: null,
-    mode: "standard", reduce: matchMedia("(prefers-reduced-motion: reduce)").matches, live: true,
+    mode: "standard", reduce: matchMedia("(prefers-reduced-motion: reduce)").matches,
     timer: { phase: "idle", kind: "focus", label: "", total: 0, end: 0, left: 0 },
     media: { playing: false, track: 0 },
     tasks: [
@@ -479,13 +685,21 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
       { id: 1, title: "Lecture 5 — Elasticity", body: "Price elasticity of demand = % change in quantity ÷ % change in price.\n- Elastic goods: luxuries, many substitutes\n- Inelastic: necessities (petrol, salt)\n- Cross-price elasticity tells us substitutes vs complements\nTODO: practice question 3 before Thursday, re-read the tax incidence section, ask about the exam formula sheet.", updated: now() - 2 * H },
       { id: 2, title: "Essay outline", body: "1. Introduction — why market failure matters\n2. Externalities and public goods\n3. Policy responses: taxes, regulation, nudges\n4. Conclusion", updated: now() - 26 * H },
     ],
-    memories: [{ text: "Studying economics at university", cat: "project" }],
+    memories: [{ id: 1, text: "Studying economics at university", cat: "Project" }],
     events: [
-      { title: "Microeconomics seminar", start: startOfNextHour + 2 * H, end: startOfNextHour + 3.5 * H, where: "Room 2.14" },
-      { title: "Gym with Sam", start: startOfNextHour + 5 * H, end: startOfNextHour + 6 * H, where: "" },
+      { title: "Microeconomics seminar", start: startOfNextHour + 2 * H, end: startOfNextHour + 3.5 * H, where: "Room 2.14", c: "" },
+      { title: "Gym with Sam", start: startOfNextHour + 4 * H, end: startOfNextHour + 5 * H, where: "", c: "g" },
     ],
     activity: [],
-    prefs: { length: "balanced", tone: "friendly" },
+    prefs: { length: "Balanced", tone: "Friendly" },
+    set: {
+      login: true, hotkey: true, hover: true,
+      briefing: false, deadlines: true, focusNotes: true, endOfDay: false,
+      provider: "anthropic", askMemory: true, calendarNoAsk: false, linksNoAsk: false,
+      features: { calendar: true, reminders: true, media: true, apps: true, links: true, shortcuts: false, systemInfo: true, clipboard: true, email: true, memory: true },
+      history: true, island: "black", live: true, motion: "system",
+    },
+    pane: "general",
     convId: 1,
     convs: [
       { id: 2, title: "Plan for the statistics exam", when: now() - 30 * H, items: [
@@ -497,12 +711,10 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
         { type: "assistant", text: "Your battery was at 41% and discharging. The apps using the most memory were Google Chrome and Zoom; closing unused Chrome tabs usually helps most." },
       ] },
     ],
-    items: [],          // current conversation transcript
-    run: null,          // active agent run
-    pending: null,      // approval card
-    doneUntil: 0,       // collapsed "done" badge
-    nextId: 10,
+    items: [], run: null, pending: null, doneUntil: 0, nextId: 10, wiped: false,
   };
+  const FEATURE_NAMES = { calendar: "Calendar", media: "Music & Spotify", systemInfo: "System information", memory: "Long-term memory" };
+  const PROVIDERS = { anthropic: ["Anthropic (Claude)", "claude-opus-5-5"], openai: ["OpenAI", "gpt-6.1-sol"], compatible: ["OpenAI-compatible (e.g. Ollama)", "llama3.1"] };
   const tracks = [
     { title: "Weightless", artist: "Marconi Union" },
     { title: "Clair de Lune", artist: "Claude Debussy" },
@@ -511,23 +723,29 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
 
   // ---------- Elements ----------
   const island = $("island"), collapsed = $("collapsed"), pbody = $("pbody"), stage = $("stage");
+  const pageLight = () => {
+    const forced = document.documentElement.getAttribute("data-theme");
+    return forced ? forced === "light" : !matchMedia("(prefers-color-scheme: dark)").matches;
+  };
 
   // ---------- Layout ----------
+  const notchW = () => (stage.clientWidth < 560 ? 150 : 184);
   function sizes() {
     const sw = stage.clientWidth, sh = stage.clientHeight;
-    return { ew: Math.min(640, sw - 24), eh: Math.min(452, sh - 24) };
+    return { ew: Math.min(640, sw - 14), eh: Math.min(430, sh - 40) };
   }
   function activity() {
     if (S.pending) return "approval";
     if (S.run && S.run.active) return "working";
     if (S.doneUntil > now()) return "done";
-    if (!S.live) return "none";
+    if (!S.set.live) return "none";
     if (S.timer.phase === "running" || S.timer.phase === "paused") return "timer";
     if (S.media.playing) return "media";
     return "none";
   }
   function layout() {
     island.classList.toggle("expanded", S.expanded);
+    island.classList.toggle("light", S.set.island === "system" && pageLight());
     stage.classList.toggle("reduce", S.reduce);
     if (S.expanded) {
       const { ew, eh } = sizes();
@@ -537,23 +755,25 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
     } else {
       const act = activity();
       const preview = act === "done" && lastAnswer();
-      let w = 196 + (act !== "none" ? 156 : 0);
-      let h = 34;
-      if (preview) { w = Math.max(w, Math.min(420, stage.clientWidth - 30)); h = 64; }
+      let w = notchW() + (act !== "none" ? 148 : 0);
+      let h = 32;
+      if (preview) { w = Math.max(w, Math.min(420, stage.clientWidth - 24)); h = 62; }
       island.style.setProperty("--w", w + "px");
       island.style.setProperty("--h", h + "px");
       island.classList.toggle("peek", S.peek && act === "none" && !preview);
     }
+    document.querySelector(".phead .gap").style.width = notchW() + "px";
+    $("hwnotch").style.width = notchW() + "px";
   }
 
   // ---------- Collapsed island ----------
-  function ring(progress, color) {
-    const c = 2 * Math.PI * 6.5;
-    return `<svg class="ring" viewBox="0 0 17 17"><circle cx="8.5" cy="8.5" r="6.5" stroke="rgba(255,255,255,0.18)"/><circle cx="8.5" cy="8.5" r="6.5" stroke="${color}" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - progress)}" transform="rotate(-90 8.5 8.5)"/></svg>`;
+  function ring(progress, color, size = 18) {
+    const c = 2 * Math.PI * 7;
+    return `<svg class="ring" viewBox="0 0 18 18" style="width:${size}px;height:${size}px"><circle cx="9" cy="9" r="7" stroke="rgba(255,255,255,0.18)"/><circle cx="9" cy="9" r="7" stroke="${color}" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - progress)}" transform="rotate(-90 9 9)"/></svg>`;
   }
-  function timerLeft() { return S.timer.phase === "running" ? S.timer.end - now() : S.timer.phase === "paused" ? S.timer.left : 0; }
-  function timerProgress() { return S.timer.total ? Math.max(0, Math.min(1, timerLeft() / S.timer.total)) : 0; }
-  function timerColor() { return S.timer.kind === "break" ? "#5cd98f" : "#ff9e4d"; }
+  const timerLeft = () => (S.timer.phase === "running" ? S.timer.end - now() : S.timer.phase === "paused" ? S.timer.left : 0);
+  const timerProgress = () => (S.timer.total ? Math.max(0, Math.min(1, timerLeft() / S.timer.total)) : 0);
+  const timerColor = () => (S.timer.kind === "break" ? "var(--green)" : "var(--orange)");
   function lastAnswer() {
     for (let i = S.items.length - 1; i >= 0; i--) if (S.items[i].type === "assistant" && S.items[i].text) return S.items[i].text.replace(/[*_#]/g, "").replace(/\n+/g, " ");
     return "";
@@ -562,41 +782,40 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
     const act = activity();
     let left = "", right = "";
     if (act === "working") {
-      left = `<span class="orb spin"></span>`;
+      left = `<span class="glyph pulse">${icon("sparkles", { "width": "17", "height": "17" })}</span>`;
       const plan = S.run.plan;
-      right = plan.length ? `${plan.filter((p) => p.s === "done").length}/${plan.length}` : S.run.tools ? `Step ${S.run.tools}` : "Thinking";
+      right = `<span style="color:var(--t2)">${plan.length ? `${plan.filter((p) => p.s === "done").length} of ${plan.length}` : S.run.tools ? `Step ${S.run.tools}` : "Thinking"}</span>`;
     } else if (act === "approval") {
-      left = `<span style="color:var(--warn);display:grid">${icon("hand", 'width="15" height="15"')}</span>`;
-      right = `<span style="color:var(--warn)">Approve?</span>`;
+      left = `<span style="color:var(--orange);display:grid">${icon("handFill", { "width": "16", "height": "16" })}</span>`;
+      right = `<span style="color:var(--orange)">Approve?</span>`;
     } else if (act === "done") {
-      left = `<span style="color:var(--ok);display:grid">${icon("doneCircle", 'width="16" height="16"')}</span>`;
+      left = `<span style="color:var(--green);display:grid">${icon("checkCircle", { "width": "17", "height": "17" })}</span>`;
       right = "Done";
     } else if (act === "timer") {
       left = ring(timerProgress(), timerColor());
-      right = `<span data-bind="timer" style="${S.timer.phase === "paused" ? "opacity:.5" : ""}">${countdown(timerLeft())}</span>`;
+      right = `<span data-bind="timer" style="color:${timerColor()};${S.timer.phase === "paused" ? "opacity:.5" : ""}">${countdown(timerLeft())}</span>`;
     } else if (act === "media") {
       left = `<span class="art"></span>`;
-      right = `<span class="eq"><i></i><i></i><i></i><i></i></span>`;
+      right = `<span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>`;
     }
     const preview = act === "done" ? lastAnswer() : "";
     collapsed.innerHTML = `<div class="row"><span class="wing">${left}</span><span class="wing">${right}</span></div>` +
-      (preview ? `<div class="preview-line"><span style="color:var(--ok);display:grid">${icon("doneCircle", 'width="13" height="13"')}</span><span>${esc(preview)}</span></div>` : "");
+      (preview ? `<div class="preview-line"><span>${esc(preview)}</span></div>` : "");
     collapsed.setAttribute("aria-label", act === "none" ? "Open NotchPilot" : `Open NotchPilot (${act})`);
   }
 
   // ---------- Panel header ----------
-  const TABS = [["assistant", "sparkle", "Assistant"], ["today", "sun", "Today"], ["tasks", "checklist", "Tasks"], ["notes", "note", "Notes"], ["activity", "activity", "Activity"]];
+  const TABS = [["assistant", "sparkles", "Assistant"], ["today", "sun", "Today"], ["tasks", "checklist", "Tasks"], ["notes", "note", "Notes"], ["activity", "history", "Activity"]];
   function renderHead() {
     $("tabs").innerHTML = TABS.map(([id, ic, label]) =>
       `<button class="ibtn" role="tab" aria-selected="${S.tab === id && !S.overlay}" data-tab="${id}" title="${label}" aria-label="${label}">${icon(ic)}</button>`).join("");
     const acts = [];
-    if (S.tab === "assistant" && !S.overlay) {
+    if (S.tab === "assistant") {
       acts.push(`<button class="ibtn" data-act="history" title="Conversation history" aria-label="Conversation history" aria-pressed="${S.overlay === "history"}">${icon("clock")}</button>`);
       acts.push(`<button class="ibtn" data-act="new" title="New conversation" aria-label="New conversation">${icon("compose")}</button>`);
     }
     acts.push(`<button class="ibtn" data-act="pin" title="${S.pinned ? "Unpin" : "Keep open"}" aria-label="Keep open" aria-pressed="${S.pinned}">${icon(S.pinned ? "pinFill" : "pin")}</button>`);
-    acts.push(`<button class="ibtn" data-act="settings" title="Settings" aria-label="Settings" aria-pressed="${S.overlay === "settings"}">${icon("gear")}</button>`);
-    acts.push(`<button class="ibtn" data-act="close" title="Close (Esc)" aria-label="Close panel">${icon("x")}</button>`);
+    acts.push(`<button class="ibtn" data-act="settings" title="Settings" aria-label="Settings">${icon("gear")}</button>`);
     $("acts").innerHTML = acts.join("");
   }
 
@@ -606,7 +825,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
     const out = []; let list = null;
     for (const line of text.split("\n")) {
       const m = line.match(/^\s*[-•]\s+(.*)/);
-      if (m) { if (!list) { list = []; } list.push(`<li>${inline(m[1])}</li>`); continue; }
+      if (m) { if (!list) list = []; list.push(`<li>${inline(m[1])}</li>`); continue; }
       if (list) { out.push(`<ul>${list.join("")}</ul>`); list = null; }
       if (line.trim()) out.push(`<p>${inline(line)}</p>`);
     }
@@ -623,48 +842,44 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
     ["chip", "What's using memory?", "Explain what is using the most memory on my Mac."],
     ["music", "Play some music", "Start playing some focus music."],
   ];
-  const EXTRA_TRY = [
-    "Remember that I prefer short, direct answers.",
-    "Delete the task about emailing my tutor.",
-    "Help me plan my week around my deadlines.",
-  ];
+  const EXTRA_TRY = ["Remember that I prefer short, direct answers.", "Delete the task about emailing my tutor.", "Help me plan my week around my deadlines."];
 
   function statusIcon(st) {
-    if (st === "running") return `<span class="spinner"></span>`;
-    const map = { succeeded: ["doneCircle", "var(--ok)"], failed: ["warn", "var(--bad)"], declined: ["hand", "var(--t2)"], cancelled: ["stop", "var(--t3)"], denied: ["nosign", "var(--bad)"] };
+    if (st === "running" || st === "waiting") return spinner(14);
+    const map = { succeeded: ["checkCircle", "var(--green)"], failed: ["warn", "var(--orange)"], declined: ["handFill", "var(--t2)"], cancelled: ["stop", "var(--t3)"], denied: ["nosign", "var(--red)"] };
     const [ic, color] = map[st] || ["circle", "var(--t3)"];
     return `<span style="color:${color};display:grid">${icon(ic)}</span>`;
   }
+  const APPROVAL_TILE = { destructive: ["trashFill", "linear-gradient(#ff6b60,#e5352b)"], memory: ["chipFill", "linear-gradient(#ff6a8a,#e62e5c)"], external: ["calendarFill", "linear-gradient(#4aa3ff,#0a6cf0)"], app: ["checklist", "linear-gradient(#4aa3ff,#0a6cf0)"], low: ["music", "linear-gradient(#ff6a8a,#e62e5c)"] };
 
   function transcriptHTML() {
     const parts = [];
     if (!S.items.length && !S.run) {
-      parts.push(`<div class="empty"><div class="orb big"></div><div><h3>${greeting()}</h3><p>Ask anything, or let me take care of a task.</p></div>
+      parts.push(`<div class="empty"><span class="glyph">${icon("sparklesH")}</span><div><h3>${greeting()}</h3><p>Ask anything, or let me take care of a task.</p></div>
         <div class="sugs">${SUGGESTIONS.map(([ic, t, p]) => `<button class="sug" data-say="${esc(p)}">${icon(ic)}<span>${esc(t)}</span></button>`).join("")}</div></div>`);
     }
     for (const it of S.items) {
       if (it.type === "user") parts.push(`<div class="msg-user">${esc(it.text)}</div>`);
       else if (it.type === "assistant") parts.push(`<div class="msg-ai">${md(it.text)}${it.streaming ? '<span class="caret"></span>' : ""}</div>`);
-      else if (it.type === "progress") parts.push(`<div class="progress">${icon("sparkle")}<span>${esc(it.text)}</span></div>`);
-      else if (it.type === "tool") parts.push(`<div class="tool"><span class="st">${statusIcon(it.status)}</span><span class="tt"><div class="t-title">${esc(it.title)}</div>${it.summary && it.status !== "running" ? `<div class="t-sum">${esc(it.summary)}</div>` : ""}</span>${it.approved ? `<span class="who">approved by you</span>` : ""}</div>`);
+      else if (it.type === "progress") parts.push(`<div class="progress"><span class="glyph">${icon("sparkles")}</span><span>${esc(it.text)}</span></div>`);
+      else if (it.type === "tool") parts.push(`<div class="tool"><span class="st">${statusIcon(it.status)}</span><span class="tt"><div class="t-title">${esc(it.title)}</div>${it.summary && it.status !== "running" && it.status !== "waiting" ? `<div class="t-sum">${esc(it.summary)}</div>` : ""}</span>${it.approved ? `<span class="who" title="Approved by you">${icon("personCheck")}</span>` : ""}</div>`);
       else if (it.type === "plan") {
         const done = it.steps.filter((s) => s.s === "done").length;
-        parts.push(`<div class="card plan"><div class="row" style="justify-content:space-between"><span class="label">${icon("checklist")}Plan</span><span style="font-size:10.5px;color:var(--t3)">${done} of ${it.steps.length}</span></div>
+        parts.push(`<div class="card plan"><div class="row" style="justify-content:space-between"><span class="label">${icon("checklist")}Plan</span><span style="font-size:11px;color:var(--t3)">${done} of ${it.steps.length}</span></div>
           <div class="bar"><i style="width:${(100 * done) / it.steps.length}%"></i></div>
-          ${it.steps.map((s) => `<div class="step"><span style="color:${s.s === "done" ? "var(--ok)" : s.s === "doing" ? "var(--indigo)" : "var(--t3)"};display:grid">${icon(s.s === "done" ? "doneCircle" : s.s === "doing" ? "dotted" : "circle")}</span><span style="${s.s === "done" ? "color:var(--t2)" : ""}">${esc(s.t)}</span></div>`).join("")}</div>`);
-      } else if (it.type === "notice") parts.push(`<div class="notice">${icon(it.tone === "bad" ? "warn" : "info", 'width="13" height="13"')}<span>${esc(it.text)}</span></div>`);
+          ${it.steps.map((s) => `<div class="step"><span style="color:${s.s === "done" ? "var(--green)" : s.s === "doing" ? "var(--blue)" : "var(--t3)"};display:grid">${icon(s.s === "done" ? "checkCircle" : s.s === "doing" ? "dotted" : "circle")}</span><span style="${s.s === "done" ? "color:var(--t2)" : ""}">${esc(s.t)}</span></div>`).join("")}</div>`);
+      } else if (it.type === "notice") parts.push(`<div class="notice">${icon("info")}<span>${esc(it.text)}</span></div>`);
     }
-    if (S.run && S.run.active && S.run.thinking) parts.push(`<div class="row" style="gap:8px;color:var(--t2);font-size:12px"><span class="orb spin" style="width:14px;height:14px"></span>${S.run.model ? "Reviewing results…" : "Thinking…"}</div>`);
+    if (S.run && S.run.active && S.run.thinking) parts.push(`<div class="row" style="gap:8px;color:var(--t2);font-size:12px">${spinner(14)}${S.run.model ? "Reviewing results…" : "Thinking…"}</div>`);
     if (S.pending) {
       const p = S.pending;
-      parts.push(`<div class="approval ${p.risk === "destructive" ? "destructive" : ""}" role="alertdialog" aria-label="Approval needed">
-        <div class="row" style="align-items:flex-start"><span style="color:${p.risk === "destructive" ? "var(--bad)" : "var(--warn)"};display:grid;width:20px">${icon(p.risk === "destructive" ? "trash" : p.risk === "memory" ? "chip" : "calendar", 'width="16" height="16"')}</span>
-        <div><div class="a-title">${esc(p.title)}</div><div class="a-why">${esc(p.why)}</div></div></div>
-        <div class="a-row"><button class="pill" data-approve="no">${icon("x")}Don't allow</button><button class="pill ${p.risk === "destructive" ? "danger" : "primary"}" data-approve="yes">${icon("check")}${p.risk === "destructive" ? "Allow" : "Approve"}</button></div></div>`);
+      const [ic, bg] = APPROVAL_TILE[p.risk] || APPROVAL_TILE.app;
+      parts.push(`<div class="approval" role="alertdialog" aria-label="Approval needed">
+        <div class="a-top"><span class="tile" style="background:${bg}">${icon(ic)}</span><div><div class="a-title">${esc(p.title)}</div><div class="a-why">${esc(p.why)}</div></div></div>
+        <div class="a-row"><button class="btn" data-approve="no">Don’t Allow</button><button class="btn ${p.risk === "destructive" ? "destructive" : "default"}" data-approve="yes">Allow</button></div></div>`);
     }
     return parts.join("");
   }
-
   function greeting() {
     const h = new Date().getHours();
     return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
@@ -672,8 +887,8 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
 
   const MODES = {
     cautious: ["hand", "Ask before every change", "Reading is automatic; every change asks first."],
-    standard: ["person", "Standard", "Tasks, notes, timers, apps and music run directly. Calendar, links and deletions ask."],
-    autonomous: ["bolt", "Autonomous", "Bigger step budget and a live plan. Consequential actions still ask."],
+    standard: ["personCheck", "Standard", "Tasks, notes, timers, apps and music run directly. Calendar, links and deletions ask."],
+    autonomous: ["boltCircle", "Autonomous", "Bigger step budget and a live plan. Consequential actions still ask."],
   };
 
   function renderAssistant() {
@@ -681,44 +896,30 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
     const running = S.run && S.run.active;
     const composerValue = $("msg") ? $("msg").value : "";
     pbody.innerHTML = `<div class="scroll" id="scroll">${transcriptHTML()}</div>
-      ${running ? `<div class="runbar"><span class="orb spin" style="width:14px;height:14px"></span><div class="rb-text"><div class="rb-phase">${esc(S.run.phase)}</div><div class="rb-sub">${S.mode === "autonomous" ? "Autonomous · " : ""}${S.run.tools} step${S.run.tools === 1 ? "" : "s"} · <span data-bind="elapsed">${Math.round((now() - S.run.started) / 1000)}s</span></div></div><button class="pill" data-act="stop">${icon("stop")}Stop</button></div>` : ""}
+      ${running ? `<div class="runbar">${spinner(14)}<div class="rb-text"><div class="rb-phase">${esc(S.run.phase)}</div><div class="rb-sub">${S.mode === "autonomous" ? "Autonomous · " : ""}${S.run.tools} step${S.run.tools === 1 ? "" : "s"} · <span data-bind="elapsed">${Math.round((now() - S.run.started) / 1000)}s</span></div></div><button class="btn" data-act="stop">Stop</button></div>` : ""}
       <form class="composer" id="composer" autocomplete="off">
+        <button type="button" class="ibtn" data-act="attach" title="Attach documents" aria-label="Attach documents">${icon("paperclip")}</button>
         <div class="field"><input id="msg" aria-label="Message" placeholder="Ask NotchPilot…" value="${esc(composerValue)}"></div>
-        <span class="modebtn"><button type="button" class="ibtn" data-act="mode" title="Agent mode: ${MODES[S.mode][1]}" aria-label="Agent mode" style="color:${S.mode === "autonomous" ? "var(--indigo)" : ""}">${icon(MODES[S.mode][0])}</button>
-          <div class="modemenu" id="modeMenu" hidden>${Object.entries(MODES).map(([k, [, t, d]]) => `<button type="button" data-mode="${k}">${S.mode === k ? "✓ " : ""}${t}<small>${d}</small></button>`).join("")}</div></span>
-        ${running ? `<button type="button" class="ibtn" data-act="stop" title="Stop" aria-label="Stop" style="color:var(--bad)">${icon("stop", 'width="18" height="18"')}</button>`
-                  : `<button type="submit" class="ibtn" title="Send" aria-label="Send" style="color:var(--indigo)">${icon("send", 'width="18" height="18"')}</button>`}
+        <span class="modebtn"><button type="button" class="ibtn" data-act="mode" title="Agent mode: ${MODES[S.mode][1]}" aria-label="Agent mode" aria-haspopup="menu" style="${S.mode === "autonomous" ? "color:var(--blue)" : ""}">${icon(MODES[S.mode][0])}</button>
+          <div class="menu dark" id="modeMenu" role="menu" hidden><div class="mh">Agent mode</div>${Object.entries(MODES).map(([k, [, t, d]]) => `<button type="button" class="mi" role="menuitemradio" aria-checked="${S.mode === k}" data-mode="${k}"><span class="ck">${S.mode === k ? "✓" : ""}</span><span>${t}<small>${d}</small></span><span></span></button>`).join("")}<hr><button type="button" class="mi" data-act="agentsettings"><span class="ck"></span><span>Agent Settings…</span><span></span></button></div></span>
+        ${running ? `<button type="button" class="send stop" data-act="stop" title="Stop" aria-label="Stop">${icon("stopCircle")}</button>`
+                  : `<button type="submit" class="send" id="sendBtn" title="Send" aria-label="Send" ${composerValue.trim() ? "" : "disabled"}>${icon("send")}</button>`}
       </form>`;
     const sc = $("scroll"); sc.scrollTop = sc.scrollHeight;
   }
 
   function renderHistory() {
-    const all = [{ id: S.convId, title: S.items.find((i) => i.type === "user")?.text || "New conversation", when: now(), current: true }, ...S.convs];
-    pbody.innerHTML = `<div class="row" style="justify-content:space-between"><span class="label">${icon("clock")}Conversation history</span><button class="pill" data-act="new">${icon("compose")}New</button></div>
-      <div class="scroll hist">${all.map((c) => `<button class="hrow" data-conv="${c.id}" aria-current="${!!c.current}"><span class="h-main"><b>${esc(c.title)}</b><span>${c.current ? "Current conversation" : esc((c.items.at(-1) || {}).text || "").replace(/[*]/g, "")}</span></span><time>${relTime(c.when)}</time></button>`).join("")}</div>
-      <div class="notice">${icon("info", 'width="13" height="13"')}<span>History stays on your Mac and is separate from long-term memory.</span></div>`;
+    const all = [{ id: S.convId, title: S.items.find((i) => i.type === "user")?.text || "New conversation", when: now(), current: true, items: [] }, ...S.convs];
+    const q = ($("histQ") && $("histQ").value) || "";
+    const shown = all.filter((c) => !q || (c.title + " " + c.items.map((i) => i.text).join(" ")).toLowerCase().includes(q.toLowerCase()));
+    pbody.innerHTML = `<div class="row" style="gap:8px"><label class="search" style="flex:1">${icon("search")}<input id="histQ" placeholder="Search conversations" aria-label="Search conversations" value="${esc(q)}"></label><button class="btn" data-act="new">${icon("compose")}New</button></div>
+      ${S.set.history ? "" : `<div class="notice">${icon("info")}<span>History is off: conversations are kept only until NotchPilot quits.</span></div>`}
+      <div class="scroll"><div class="group">${shown.map((c) => `<button class="lrow" data-conv="${c.id}" aria-current="${!!c.current}"><span style="color:var(--t3);display:grid">${icon(c.current ? "sparkles" : "clock")}</span><span class="l-main"><b>${esc(c.title)}</b><span class="l-sub">${c.current ? "Current conversation" : esc((c.items.at(-1) || {}).text || "").replace(/[*]/g, "")}</span></span><time>${relTime(c.when)}</time></button>`).join("") || `<div class="lrow"><span class="l-main" style="color:var(--t2)">No matches.</span></div>`}</div></div>`;
   }
-
   function relTime(t) {
     const d = (now() - t) / 1000;
-    if (d < 60) return "now"; if (d < 3600) return `${Math.round(d / 60)} min ago`; if (d < 86400) return `${Math.round(d / 3600)} h ago`;
-    return `${Math.round(d / 86400)} d ago`;
-  }
-
-  // ---------- Settings overlay ----------
-  function renderSettings() {
-    pbody.innerHTML = `<div class="scroll set">
-      <div class="card"><h4>Agent mode</h4>${Object.entries(MODES).map(([k, [, t, d]]) => `<label class="radio"><input type="radio" name="mode" value="${k}" ${S.mode === k ? "checked" : ""}><span>${t}<small>${d}</small></span></label>`).join("")}</div>
-      <div class="card"><h4>AI provider</h4>
-        <div class="kv"><span>Provider</span><span>Anthropic (Claude)</span></div>
-        <div class="kv"><span>Model</span><span>claude-opus-5-5</span></div>
-        <div class="kv"><span>API key</span><span>Stored in your Mac's Keychain (not used in this preview)</span></div></div>
-      <div class="card"><h4>Appearance</h4>
-        <label class="tog" for="optLive"><span>Show timer, music and agent status beside the notch</span><input type="checkbox" id="optLive" ${S.live ? "checked" : ""}></label>
-        <label class="tog" for="optMotion"><span>Reduce motion</span><input type="checkbox" id="optMotion" ${S.reduce ? "checked" : ""}></label></div>
-      <div class="card"><h4>Memory</h4>${S.memories.map((m) => `<div class="kv"><span>${esc(m.text)}</span><span>${esc(m.cat)}</span></div>`).join("")}
-        <div class="kv"><span>Answer length</span><span>${S.prefs.length}</span></div><div class="kv"><span>Tone</span><span>${S.prefs.tone}</span></div></div>
-    </div>`;
+    if (d < 60) return "Now"; if (d < 3600) return `${Math.round(d / 60)} min ago`; if (d < 86400) return `${Math.round(d / 3600)} hr ago`;
+    return `${Math.round(d / 86400)} days ago`;
   }
 
   // ---------- Today tab ----------
@@ -727,26 +928,28 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
     const tr = tracks[S.media.track];
     const upcoming = S.events.filter((e) => e.end > now()).sort((a, b) => a.start - b.start).slice(0, 4);
     const focus = S.tasks.filter((x) => !x.done && (isOverdue(x) || isToday(x) || x.pri === "high")).slice(0, 5);
+    const cal = S.set.features.calendar, media = S.set.features.media;
     pbody.innerHTML = `<div class="scroll">
-      <div class="today-h"><h3>${new Date().toLocaleDateString([], { weekday: "long", day: "numeric", month: "long" })}</h3><button class="pill primary" data-say="Summarise my day and tell me what I need to prioritise.">${icon("sparkle")}Brief me</button></div>
+      <div class="today-h"><h3>${new Date().toLocaleDateString([], { weekday: "long", day: "numeric", month: "long" })}</h3><button class="btn default" data-say="Summarise my day and tell me what I need to prioritise.">${icon("sparkles")}Brief Me</button></div>
       <div class="grid2">
         <div class="card" style="display:grid;gap:10px"><span class="label">${icon("timer")}${act ? (t.kind === "break" ? "Break" : "Focus") : "Timer"}</span>
-          ${act ? `<div class="row">${ring(timerProgress(), timerColor()).replace('class="ring"', 'class="ring" style="width:44px;height:44px"')}<div><div class="big-time" data-bind="timer">${countdown(timerLeft())}</div><div style="color:var(--t2);font-size:11.5px">${esc(t.label)}</div></div></div>
-             <div class="wrapr">${t.phase === "running" ? `<button class="pill" data-timer="pause">${icon("pause")}Pause</button>` : `<button class="pill primary" data-timer="resume">${icon("play")}Resume</button>`}<button class="pill" data-timer="plus">+5</button><button class="pill" data-timer="reset">Reset</button></div>`
-          : `<div style="color:var(--t2);font-size:12px">${t.phase === "finished" ? esc(t.label) + " finished" : "No timer running"}</div><div class="wrapr"><button class="pill primary" data-timer="focus">${icon("timer")}Focus 25</button><button class="pill" data-timer="break">Break 5</button></div>`}
+          ${act ? `<div class="row">${ring(timerProgress(), timerColor(), 44)}<div><div class="big-time ${t.kind === "break" ? "brk" : ""}" data-bind="timer">${countdown(timerLeft())}</div><div style="color:var(--t2);font-size:12px">${esc(t.label)}</div></div></div>
+             <div class="wrapr">${t.phase === "running" ? `<button class="btn" data-timer="pause">${icon("pause")}Pause</button>` : `<button class="btn default" data-timer="resume">${icon("play")}Resume</button>`}<button class="btn" data-timer="plus">+5 min</button><button class="btn" data-timer="reset">Reset</button></div>`
+          : `<div style="color:var(--t2);font-size:12px">${t.phase === "finished" ? esc(t.label) + " finished" : "No timer running"}</div><div class="wrapr"><button class="btn default" data-timer="focus">${icon("timer")}Focus 25</button><button class="btn" data-timer="break">Break 5</button></div>`}
         </div>
-        <div class="card" style="display:grid;gap:10px"><span class="label">${icon("music")}${S.media.playing ? "Music" : "Now playing"}</span>
-          <div class="row"><span class="art" style="width:44px;height:44px;border-radius:8px"></span><div style="min-width:0"><div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(tr.title)}</div><div style="color:var(--t2);font-size:11.5px">${esc(tr.artist)}${S.media.playing ? "" : " · paused"}</div></div></div>
-          <div class="wrapr"><button class="ibtn" data-media="prev" aria-label="Previous">${icon("prev")}</button><button class="ibtn" data-media="toggle" aria-label="${S.media.playing ? "Pause" : "Play"}">${icon(S.media.playing ? "pause" : "play")}</button><button class="ibtn" data-media="next" aria-label="Next">${icon("next")}</button></div>
+        <div class="card" style="display:grid;gap:8px"><span class="label">${icon("music")}Now Playing</span>
+          ${media ? `<div class="row"><span class="art" style="width:44px;height:44px;border-radius:8px"></span><div style="min-width:0"><div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(tr.title)}</div><div style="color:var(--t2);font-size:12px">${esc(tr.artist)}${S.media.playing ? "" : " · Paused"}</div></div></div>
+          <div class="media-ctl"><button class="ibtn" data-media="prev" aria-label="Previous track">${icon("backward")}</button><button class="ibtn" data-media="toggle" aria-label="${S.media.playing ? "Pause" : "Play"}">${icon(S.media.playing ? "pause" : "play")}</button><button class="ibtn" data-media="next" aria-label="Next track">${icon("forward")}</button></div>`
+          : `<div style="color:var(--t2);font-size:12px">Music controls are turned off in Settings → Features.</div>`}
         </div>
       </div>
-      <div class="card" style="display:grid;gap:8px"><span class="label">${icon("calendar")}Up next</span>
-        ${upcoming.length ? upcoming.map((e) => `<div class="ev"><i></i><div><div class="e-t">${esc(e.title)}</div><div class="e-s">${hhmm(e.start)} – ${hhmm(e.end)}${e.where ? " · " + esc(e.where) : ""}</div></div></div>`).join("") : `<div style="color:var(--t2);font-size:12px">Nothing else on your calendar today.</div>`}
+      <div class="card" style="display:grid;gap:9px"><span class="label">${icon("calendar")}Up Next</span>
+        ${!cal ? `<div style="color:var(--t2);font-size:12px">Calendar is turned off in Settings → Features.</div>` : upcoming.length ? upcoming.map((e) => `<div class="ev"><i class="${e.c}"></i><div><div>${esc(e.title)}</div><div class="e-s">${hhmm(e.start)} – ${hhmm(e.end)}${e.where ? " · " + esc(e.where) : ""}</div></div></div>`).join("") : `<div style="color:var(--t2);font-size:12px">Nothing else on your calendar today.</div>`}
       </div>
-      <div class="card" style="display:grid;gap:4px"><div class="row" style="justify-content:space-between"><span class="label">${icon("checklist")}Focus list</span><button class="pill" data-tab="tasks" style="padding:3px 9px;font-size:11px">All tasks</button></div>
-        ${focus.length ? focus.map(taskRow).join("") : `<div style="color:var(--t2);font-size:12px">Nothing due today.</div>`}
+      <div class="card" style="display:grid;gap:2px;padding:10px 6px 8px"><div class="row" style="justify-content:space-between;padding:0 6px 4px"><span class="label">${icon("checklist")}Focus List</span><button class="btn sm" data-tab="tasks">All Tasks</button></div>
+        ${focus.length ? focus.map(taskRow).join("") : `<div style="color:var(--t2);font-size:12px;padding:0 8px">Nothing due today.</div>`}
       </div>
-      <div class="sysline"><span>${icon("battery", 'width="13" height="13" style="vertical-align:-2px"')} 86%</span><span>${icon("chip", 'width="13" height="13" style="vertical-align:-2px"')} 11.8 / 16 GB</span><span>214 GB free</span></div>
+      ${S.set.features.systemInfo ? `<div class="sysline"><span>${icon("battery", { "class": "batt", "viewBox": "0 0 26 16" })}86%</span><span>${icon("chip")}11.8 of 16 GB</span><span>214 GB available</span></div>` : ""}
     </div>`;
   }
   const isToday = (t) => t.due && new Date(t.due).toDateString() === new Date().toDateString();
@@ -755,15 +958,15 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
     if (!t.due) return "";
     const d = new Date(t.due), today = new Date();
     const tomorrow = new Date(dayStart + 24 * H), yesterday = new Date(dayStart - 24 * H);
-    let day = d.toDateString() === today.toDateString() ? "Today" : d.toDateString() === tomorrow.toDateString() ? "Tomorrow" : d.toDateString() === yesterday.toDateString() ? "Yesterday" : d.toLocaleDateString([], { weekday: "short", day: "numeric", month: "short" });
-    return t.time ? `${day} ${hhmm(t.due)}` : day;
+    const day = d.toDateString() === today.toDateString() ? "Today" : d.toDateString() === tomorrow.toDateString() ? "Tomorrow" : d.toDateString() === yesterday.toDateString() ? "Yesterday" : d.toLocaleDateString([], { weekday: "short", day: "numeric", month: "short" });
+    return t.time ? `${day}, ${hhmm(t.due)}` : day;
   }
-  const PRI = { high: "var(--bad)", medium: "var(--warn)", low: "var(--t3)" };
+  const PRI = { high: "!!!", medium: "!!", low: "!" };
   function taskRow(t) {
     return `<div class="task ${t.done ? "done" : ""}" data-task="${t.id}">
-      <button class="check" data-check="${t.id}" style="color:${PRI[t.pri]}" aria-label="${t.done ? "Mark as not done" : "Mark as done"}">${icon("check")}</button>
-      <div class="tk-main"><div class="tk-title">${esc(t.title)}</div><div class="tk-meta">${t.due ? `<span class="${isOverdue(t) ? "late" : ""}">${dueLabel(t)}</span>` : ""}${t.ai ? `<span>✦ added by assistant</span>` : ""}</div></div>
-      ${t.confirm ? `<span class="row" style="gap:6px;font-size:11.5px">Delete?<button class="pill danger" data-del-yes="${t.id}" style="padding:3px 9px">Delete</button><button class="pill" data-del-no="${t.id}" style="padding:3px 9px">Keep</button></span>`
+      <button class="check" data-check="${t.id}" aria-label="${t.done ? "Mark as not done" : "Mark as done"}">${icon("check")}</button>
+      <div class="tk-main"><div class="tk-title">${t.done ? "" : `<span class="pri">${PRI[t.pri]}</span>`}${esc(t.title)}</div><div class="tk-meta">${t.due ? `<span class="${isOverdue(t) ? "late" : ""}">${dueLabel(t)}</span>` : ""}${t.ai ? `<span>Added by NotchPilot</span>` : ""}</div></div>
+      ${t.confirm ? `<span class="row" style="gap:6px;font-size:12px">Delete?<button class="btn sm" data-del-no="${t.id}">Cancel</button><button class="btn sm destructive" data-del-yes="${t.id}">Delete</button></span>`
                   : `<button class="ibtn del" data-del="${t.id}" aria-label="Delete task" title="Delete">${icon("trash")}</button>`}
     </div>`;
   }
@@ -773,26 +976,28 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
   function renderTasks() {
     const list = S.tasks.filter((t) => taskFilter === "all" || (taskFilter === "open" ? !t.done : t.done))
       .sort((a, b) => (a.done - b.done) || ((a.due ?? 9e15) - (b.due ?? 9e15)));
-    pbody.innerHTML = `<form class="addrow" id="addTask" autocomplete="off"><span style="color:var(--indigo);display:grid">${icon("compose")}</span><input id="newTask" aria-label="New task" placeholder="Add a task"><select id="newPri" aria-label="Priority"><option value="medium">Medium</option><option value="high">High</option><option value="low">Low</option></select><button class="pill" type="submit">Add</button></form>
-      <div class="row" style="justify-content:space-between"><div class="seg" role="group" aria-label="Filter">${["open", "done", "all"].map((f) => `<button data-filter="${f}" aria-pressed="${taskFilter === f}">${f[0].toUpperCase() + f.slice(1)}</button>`).join("")}</div>
-      <button class="pill" data-say="Help me plan my week around my deadlines.">${icon("sparkle")}Plan with AI</button></div>
-      <div class="scroll" style="gap:2px">${list.length ? list.map(taskRow).join("") : `<div class="empty" style="padding-top:30px"><p>${taskFilter === "done" ? "No completed tasks yet." : "You're all clear."}</p></div>`}</div>`;
+    pbody.innerHTML = `<div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:8px"><div class="seg" role="group" aria-label="Show">${[["open", "Open"], ["done", "Completed"], ["all", "All"]].map(([f, l]) => `<button data-filter="${f}" aria-pressed="${taskFilter === f}">${l}</button>`).join("")}</div>
+      <button class="btn" data-say="Help me plan my week around my deadlines.">${icon("sparkles")}Plan with AI</button></div>
+      <div class="scroll" style="gap:0">${list.length ? list.map(taskRow).join("") : `<div class="empty" style="padding-top:30px"><p>${taskFilter === "done" ? "No completed tasks yet." : "You're all clear."}</p></div>`}</div>
+      <form class="addrow" id="addTask" autocomplete="off"><span class="plus">${icon("plusCircle")}</span><input id="newTask" aria-label="New task" placeholder="New Task"><select class="popup" id="newPri" aria-label="Priority"><option value="medium">Medium</option><option value="high">High</option><option value="low">Low</option></select><button class="btn" type="submit">Add</button></form>`;
   }
 
   // ---------- Notes tab ----------
   let currentNote = 1;
   function renderNotes() {
     const n = S.notes.find((x) => x.id === currentNote) || S.notes[0];
-    pbody.innerHTML = `<div class="notes"><div class="nlist">${S.notes.map((x) => `<button class="nitem" data-note="${x.id}" aria-current="${n && x.id === n.id}"><b>${esc(x.title)}</b><span>${esc(x.body.split("\n")[0])}</span></button>`).join("")}
-      <button class="pill" data-act="newnote" style="justify-self:start;margin-top:4px">${icon("compose")}New note</button></div>
-      ${n ? `<div class="neditor"><input id="noteTitle" aria-label="Note title" value="${esc(n.title)}"><textarea id="noteBody" aria-label="Note text">${esc(n.body)}</textarea>
-        <div class="row" style="justify-content:space-between;flex-wrap:wrap"><span style="font-size:10.5px;color:var(--t3)">Edited ${relTime(n.updated)}</span><span class="wrapr"><button class="pill" data-say="Summarise my note “${esc(n.title)}” in a few bullet points.">${icon("note")}Summarise</button><button class="pill" data-say="Turn my lecture note into three tasks for tomorrow.">${icon("checklist")}Make tasks</button></span></div></div>` : ""}</div>`;
+    pbody.innerHTML = `<div class="notes"><div class="nlist">${S.notes.map((x) => `<button class="nitem" data-note="${x.id}" aria-current="${!!n && x.id === n.id}"><b>${esc(x.title)}</b><span>${relTime(x.updated)}  ${esc(x.body.split("\n")[0])}</span></button>`).join("")}
+      <button class="btn" data-act="newnote" style="align-self:flex-start;margin:6px 0 0 4px">${icon("compose")}New Note</button></div>
+      ${n ? `<div class="neditor"><span class="when">Edited ${relTime(n.updated).toLowerCase()}</span><input id="noteTitle" aria-label="Note title" value="${esc(n.title)}"><textarea id="noteBody" aria-label="Note text">${esc(n.body)}</textarea>
+        <div class="wrapr" style="justify-content:flex-end"><button class="btn" data-say="Summarise my note “${esc(n.title)}” in a few bullet points.">${icon("sparkles")}Summarise</button><button class="btn" data-say="Turn my lecture note into three tasks for tomorrow.">${icon("checklist")}Make Tasks</button></div></div>`
+           : `<div class="empty" style="padding-top:30px"><p>No notes.</p></div>`}</div>`;
   }
 
   // ---------- Activity tab ----------
   function renderActivity() {
-    pbody.innerHTML = `<div class="row" style="justify-content:space-between"><span style="color:var(--t2);font-size:12px">Everything the assistant did, newest first.</span>${S.activity.length ? `<button class="pill" data-act="clearlog">${icon("trash")}Clear</button>` : ""}</div>
-      <div class="scroll" style="gap:0">${S.activity.length ? S.activity.map((a) => `<div class="act"><span style="color:${a.status === "succeeded" ? "var(--ok)" : a.status === "declined" ? "var(--t2)" : "var(--bad)"}">${icon(a.status === "succeeded" ? "doneCircle" : a.status === "declined" ? "hand" : "warn")}</span><div class="a-main"><div>${esc(a.title)}</div><div class="a-sub">${a.status[0].toUpperCase() + a.status.slice(1)}${a.summary ? " · " + esc(a.summary) : ""}${a.approved ? " · approved by you" : ""}</div></div><time>${hhmm(a.at)}</time></div>`).join("")
+    const ACT_ICON = { succeeded: ["checkCircle", "var(--green)"], declined: ["handFill", "var(--t2)"], denied: ["nosign", "var(--red)"], cancelled: ["stop", "var(--t3)"] };
+    pbody.innerHTML = `<div class="row" style="justify-content:space-between"><span style="color:var(--t2);font-size:12px">Everything the assistant did, newest first.</span>${S.activity.length ? `<button class="btn" data-act="clearlog">Clear</button>` : ""}</div>
+      <div class="scroll">${S.activity.length ? `<div class="group">${S.activity.map((a) => { const [ic, c] = ACT_ICON[a.status] || ["warn", "var(--orange)"]; return `<div class="lrow"><span style="color:${c};display:grid">${icon(ic)}</span><div class="l-main"><b>${esc(a.title)}</b><div class="l-sub">${a.status[0].toUpperCase() + a.status.slice(1)}${a.summary ? " · " + esc(a.summary) : ""}${a.approved ? " · Approved by you" : ""}</div></div><time>${hhmm(a.at)}</time></div>`; }).join("")}</div>`
         : `<div class="empty" style="padding-top:34px"><p>No actions yet. Ask the assistant to do something.</p></div>`}</div>`;
   }
 
@@ -800,16 +1005,16 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
   function render() {
     layout();
     renderCollapsed();
+    renderStatusItems();
     if (!S.expanded) return;
     renderHead();
-    if (S.overlay === "settings") return renderSettings();
     if (S.tab === "assistant") renderAssistant();
     else if (S.tab === "today") renderToday();
     else if (S.tab === "tasks") renderTasks();
     else if (S.tab === "notes") renderNotes();
     else renderActivity();
   }
-  // Updates only the transcript (keeps the composer's focus and text while streaming).
+  // Updates only the transcript, keeping the composer's focus and text while streaming.
   function renderTranscript() {
     layout(); renderCollapsed();
     if (!S.expanded || S.tab !== "assistant" || S.overlay) return;
@@ -833,35 +1038,47 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
     if (!S.expanded) return;
     S.expanded = false; S.overlay = null;
     if (document.activeElement && island.contains(document.activeElement)) document.activeElement.blur();
+    $("hud").hidden = true;
     render();
   }
-  const canAutoCollapse = () => !S.pinned && !S.pending && !($("msg") && document.activeElement === $("msg") && $("msg").value.trim());
+  const canAutoCollapse = () => !S.pinned && !S.pending && !($("msg") && document.activeElement === $("msg") && $("msg").value.trim()) && $("modeMenu")?.hidden !== false;
 
   let hoverTimer = null, leaveTimer = null;
   island.addEventListener("mouseenter", () => {
     clearTimeout(leaveTimer);
-    if (!S.expanded) hoverTimer = setTimeout(() => expand(), 180);
+    if (!S.expanded && S.set.hover) {
+      S.peek = true; layout();
+      hoverTimer = setTimeout(() => expand(), 220);
+    }
   });
   island.addEventListener("mouseleave", () => {
     clearTimeout(hoverTimer);
+    if (S.peek) { S.peek = false; layout(); }
     if (S.expanded) leaveTimer = setTimeout(() => { if (canAutoCollapse()) collapse(); }, 750);
   });
   collapsed.addEventListener("click", () => {
     const act = activity();
     expand(act === "timer" || act === "media" ? "today" : act === "none" ? undefined : "assistant");
-    setTimeout(() => $("msg") && S.tab === "assistant" && $("msg").focus(), 300);
+    setTimeout(() => $("msg") && S.tab === "assistant" && $("msg").focus(), 320);
   });
   collapsed.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); collapsed.click(); } });
   document.addEventListener("mousedown", (e) => {
-    if (!island.contains(e.target) && !$("trayMenu").contains(e.target) && e.target !== $("trayBtn") && !e.target.closest(".trylist") && S.expanded && !S.pinned && !S.pending) collapse();
-    if (!$("trayMenu").contains(e.target) && !$("trayBtn").contains(e.target)) closeTray();
+    const inMenu = $("trayMenu").contains(e.target) || e.target.closest("#trayBtn");
+    if (!island.contains(e.target) && !inMenu && !e.target.closest(".trylist") && !$("settingsWin").contains(e.target) && S.expanded && !S.pinned && !S.pending) collapse();
+    if (!inMenu) closeTray();
+    if ($("modeMenu") && !e.target.closest(".modebtn")) $("modeMenu").hidden = true;
   });
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") { if (!$("modeMenu")?.hidden) { $("modeMenu").hidden = true; return; } closeTray(); collapse(); }
+    if (e.key !== "Escape") return;
+    if ($("modeMenu") && !$("modeMenu").hidden) { $("modeMenu").hidden = true; return; }
+    if (!$("trayMenu").hidden) { closeTray(); return; }
+    if (!$("settingsWin").hidden && $("settingsWin").contains(document.activeElement)) { closeSettings(); return; }
+    collapse();
   });
-  window.addEventListener("resize", () => { layout(); });
+  window.addEventListener("resize", () => layout());
+  matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", () => layout());
 
-  // ---------- Panel interactions (event delegation) ----------
+  // ---------- Panel interactions ----------
   island.addEventListener("click", (e) => {
     const b = e.target.closest("button, [data-tab]");
     if (!b || !S.expanded) return;
@@ -874,20 +1091,21 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
     if (d.check) { const t = S.tasks.find((x) => x.id === +d.check); t.done = !t.done; return render(); }
     if (d.del) { S.tasks.find((x) => x.id === +d.del).confirm = true; return render(); }
     if (d.delNo) { delete S.tasks.find((x) => x.id === +d.delNo).confirm; return render(); }
-    if (d.delYes) { S.tasks = S.tasks.filter((x) => x.id !== +d.delYes); toast("Task deleted."); return render(); }
+    if (d.delYes) { S.tasks = S.tasks.filter((x) => x.id !== +d.delYes); hud("Task deleted"); return render(); }
     if (d.filter) { taskFilter = d.filter; return render(); }
     if (d.note) { saveNote(); currentNote = +d.note; return render(); }
     if (d.timer) { timerAction(d.timer); return render(); }
     if (d.media) { mediaAction(d.media); return render(); }
     switch (d.act) {
-      case "close": collapse(); break;
-      case "pin": S.pinned = !S.pinned; toast(S.pinned ? "Panel stays open until you unpin it." : "Panel closes when you move away."); render(); break;
-      case "settings": S.overlay = S.overlay === "settings" ? null : "settings"; render(); break;
+      case "pin": S.pinned = !S.pinned; hud(S.pinned ? "Stays open until you unpin it" : "Closes when you move away"); render(); break;
+      case "settings": openSettings(); break;
+      case "agentsettings": $("modeMenu").hidden = true; openSettings("agent"); break;
       case "history": S.overlay = S.overlay === "history" ? null : "history"; render(); break;
       case "new": newConversation(); break;
       case "stop": stopRun(); break;
+      case "attach": hud("In the Mac app this opens a file picker"); break;
       case "mode": { const m = $("modeMenu"); m.hidden = !m.hidden; break; }
-      case "newnote": { saveNote(); const id = S.nextId++; S.notes.unshift({ id, title: "New note", body: "", updated: now() }); currentNote = id; render(); $("noteTitle")?.select(); break; }
+      case "newnote": { saveNote(); const id = S.nextId++; S.notes.unshift({ id, title: "New Note", body: "", updated: now() }); currentNote = id; render(); $("noteTitle")?.select(); break; }
       case "clearlog": S.activity = []; render(); break;
     }
   });
@@ -900,29 +1118,24 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
       render(); $("newTask").focus();
     }
   });
-  island.addEventListener("change", (e) => {
-    if (e.target.name === "mode") setMode(e.target.value, true);
-    if (e.target.id === "optLive") { S.live = e.target.checked; layout(); renderCollapsed(); }
-    if (e.target.id === "optMotion") { S.reduce = e.target.checked; layout(); }
-  });
   island.addEventListener("input", (e) => {
     if (e.target.id === "noteTitle" || e.target.id === "noteBody") saveNote();
+    if (e.target.id === "msg" && $("sendBtn")) $("sendBtn").disabled = !e.target.value.trim();
+    if (e.target.id === "histQ") { const pos = e.target.selectionStart; renderHistory(); $("histQ").focus(); $("histQ").setSelectionRange(pos, pos); }
   });
   function saveNote() {
     const n = S.notes.find((x) => x.id === currentNote);
     if (!n || !$("noteTitle") || !$("noteBody")) return;
-    if (n.title !== $("noteTitle").value || n.body !== $("noteBody").value) { n.title = $("noteTitle").value || "Untitled note"; n.body = $("noteBody").value; n.updated = now(); }
+    if (n.title !== $("noteTitle").value || n.body !== $("noteBody").value) { n.title = $("noteTitle").value || "Untitled"; n.body = $("noteBody").value; n.updated = now(); }
   }
-  function setMode(m, keepOverlay) {
+  function setMode(m) {
     S.mode = m;
-    toast(`Agent mode: ${MODES[m][1]}`);
-    if (!keepOverlay) render(); else { renderHead(); }
+    if (S.expanded) { hud(`Agent mode: ${MODES[m][1]}`); render(); }
+    if (!$("settingsWin").hidden) renderSettings();
   }
 
   // ---------- Timer & media ----------
-  function startTimer(min, kind, label) {
-    S.timer = { phase: "running", kind, label, total: min * 60e3, end: now() + min * 60e3, left: 0 };
-  }
+  function startTimer(min, kind, label) { S.timer = { phase: "running", kind, label, total: min * 60e3, end: now() + min * 60e3, left: 0 }; }
   function timerAction(a) {
     const t = S.timer;
     if (a === "focus") startTimer(25, "focus", "Focus");
@@ -937,10 +1150,16 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
     if (a === "next") { S.media.track = (S.media.track + 1) % tracks.length; S.media.playing = true; }
     if (a === "prev") { S.media.track = (S.media.track + tracks.length - 1) % tracks.length; S.media.playing = true; }
   }
+  const clockText = () => {
+    const d = new Date();
+    // Narrow screens show only the time so the menu-bar item stays clear of the notch.
+    if (stage.clientWidth < 560) return d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+    return `${d.toLocaleDateString([], { weekday: "short", day: "numeric", month: "short" }).replace(/,/g, "")}  ${d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`;
+  };
   setInterval(() => {
     if (S.timer.phase === "running" && S.timer.end <= now()) {
       S.timer.phase = "finished";
-      toast(S.timer.kind === "focus" ? "Focus session complete — time for a 5-minute break." : "Break over.");
+      if (S.set.focusNotes) notify(S.timer.kind === "focus" ? "Focus session complete" : "Break over", S.timer.kind === "focus" ? "Time for a 5-minute break." : "Ready for the next session?");
       render();
     }
     document.querySelectorAll('[data-bind="timer"]').forEach((el) => { el.textContent = countdown(timerLeft()); });
@@ -949,28 +1168,38 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
     });
     const el = document.querySelector('[data-bind="elapsed"]'); if (el && S.run) el.textContent = Math.round((now() - S.run.started) / 1000) + "s";
     if (S.doneUntil && S.doneUntil < now()) { S.doneUntil = 0; layout(); renderCollapsed(); }
-    $("clockTop").textContent = new Date().toLocaleString([], { weekday: "short", hour: "2-digit", minute: "2-digit" });
+    const ck = $("clockTop"); if (ck) ck.textContent = clockText();
   }, 1000);
 
-  // ---------- Toast ----------
-  let toastTimer = null;
-  function toast(text) {
-    const t = $("toast"); t.textContent = text; t.hidden = false;
-    clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 3200);
+  // ---------- HUD and notification banners ----------
+  let hudTimer = null;
+  function hud(text) {
+    if (!S.expanded) return;
+    const t = $("hud"); t.textContent = text; t.hidden = false;
+    clearTimeout(hudTimer); hudTimer = setTimeout(() => { t.hidden = true; }, 2600);
   }
+  let bannerTimer = null;
+  function notify(title, body) {
+    const b = $("banner");
+    b.innerHTML = `${appIcon()}<div><div class="bh">${esc(title)}<span>now</span></div><div class="bb">${esc(body)}</div></div>`;
+    b.classList.add("show");
+    clearTimeout(bannerTimer); bannerTimer = setTimeout(() => b.classList.remove("show"), 5000);
+  }
+  $("banner").addEventListener("click", () => { $("banner").classList.remove("show"); expand("today"); });
 
   // ---------- Conversations ----------
+  const archive = () => { if (S.items.length) S.convs.unshift({ id: S.convId, title: S.items.find((i) => i.type === "user")?.text || "Conversation", when: now(), items: S.items.filter((i) => i.type === "user" || i.type === "assistant") }); };
   function newConversation() {
-    if (S.run && S.run.active) return toast("Stop the current task first.");
-    if (S.items.length) S.convs.unshift({ id: S.convId, title: S.items.find((i) => i.type === "user")?.text || "Conversation", when: now(), items: S.items.filter((i) => i.type === "user" || i.type === "assistant") });
+    if (S.run && S.run.active) return hud("Stop the current task first");
+    archive();
     S.convId = S.nextId++; S.items = []; S.overlay = null; S.tab = "assistant"; render();
     setTimeout(() => $("msg")?.focus(), 50);
   }
   function openConv(id) {
     if (id === S.convId) { S.overlay = null; return render(); }
-    if (S.run && S.run.active) return toast("Stop the current task first.");
+    if (S.run && S.run.active) return hud("Stop the current task first");
     const c = S.convs.find((x) => x.id === id); if (!c) return;
-    if (S.items.length) S.convs.unshift({ id: S.convId, title: S.items.find((i) => i.type === "user")?.text || "Conversation", when: now(), items: S.items.filter((i) => i.type === "user" || i.type === "assistant") });
+    archive();
     S.convs = S.convs.filter((x) => x.id !== id);
     S.convId = c.id; S.items = c.items.map((i) => ({ ...i })); S.overlay = null; render();
   }
@@ -982,19 +1211,27 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
     const t = setTimeout(() => (run && run.cancelled ? reject(new Cancelled()) : resolve()), S.reduce ? Math.min(ms, 120) : ms);
     if (run) run.timers.push(() => { clearTimeout(t); reject(new Cancelled()); });
   });
-  function checkCancel() { if (S.run && S.run.cancelled) throw new Cancelled(); }
+  const checkCancel = () => { if (S.run && S.run.cancelled) throw new Cancelled(); };
   function push(item) { S.items.push(item); renderTranscript(); return item; }
   function phase(text, thinking = false) { if (S.run) { S.run.phase = text; S.run.thinking = thinking; } renderTranscript(); }
-
   async function think(ms = 900) { phase(S.run.model ? "Reviewing results…" : "Thinking…", true); await sleep(ms); S.run.thinking = false; S.run.model++; }
   async function progress(text) { push({ type: "progress", text }); await sleep(350); }
   function plan(steps) { const p = push({ type: "plan", steps: steps.map((t) => ({ t, s: "todo" })) }); S.run.plan = p.steps; return p; }
   function stepState(p, i, s) { p.steps[i].s = s; renderTranscript(); }
 
-  function needsApproval(risk) {
+  // Mirrors the app's permission policy (Sources/NotchPilotCore/Tools/Permissions.swift).
+  function needsApproval(risk, kind) {
     if (risk === "read") return false;
-    if (risk === "app" || risk === "low") return S.mode === "cautious";
-    return true; // external, memory, destructive
+    if (risk === "memory") return S.set.askMemory || S.mode === "cautious";
+    if (S.mode === "cautious") return true;
+    if (risk === "app" || risk === "low") return false;
+    if (kind === "calendarWrite") return !S.set.calendarNoAsk;
+    return true;
+  }
+  function reasonFor(risk) {
+    if (risk === "memory") return "Saving a long-term memory needs your approval.";
+    if (S.mode === "cautious" && (risk === "app" || risk === "low")) return "You asked to approve every change.";
+    return { external: "This acts outside NotchPilot.", destructive: "This deletes data." }[risk] || "You asked to approve every change.";
   }
   function ask(title, why, risk) {
     return new Promise((resolve) => {
@@ -1004,15 +1241,20 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
       S.run.timers.push(() => { if (S.pending) { S.pending = null; resolve(false); } });
     });
   }
-  const REASON = { app: "You asked to approve every change.", low: "You asked to approve every change.", external: "This acts outside NotchPilot.", memory: "Saving a long-term memory needs your approval.", destructive: "This deletes data." };
 
-  async function tool(title, risk, effect, summary) {
+  async function tool({ title, risk = "read", kind, feature, effect, summary }) {
     checkCancel();
     const item = push({ type: "tool", title, status: "running", summary: "" });
     S.run.tools++;
-    if (needsApproval(risk)) {
+    if (feature && !S.set.features[feature]) {
+      await sleep(250);
+      item.status = "denied"; item.summary = `${FEATURE_NAMES[feature]} is turned off in Settings → Features`;
+      S.run.denied = FEATURE_NAMES[feature];
+      log(item); renderTranscript(); return false;
+    }
+    if (needsApproval(risk, kind)) {
       item.status = "waiting";
-      const ok = await ask(title, REASON[risk], risk);
+      const ok = await ask(title, reasonFor(risk), risk);
       checkCancel();
       if (!ok) { item.status = "declined"; item.summary = "You declined"; log(item); renderTranscript(); return false; }
       item.approved = true; item.status = "running";
@@ -1026,126 +1268,126 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
     return result === undefined ? true : result;
   }
   function log(item) { S.activity.unshift({ title: item.title, status: item.status, summary: item.summary, approved: item.approved, at: now() }); }
+  const no = (text) => (S.run && S.run.denied ? `${S.run.denied} is turned off in Settings → Features, so I left it alone. You can turn it back on there.` : text);
 
   async function answer(text) {
     phase("Writing…");
     const item = push({ type: "assistant", text: "", streaming: true });
-    if (S.reduce) { item.text = text; }
+    if (S.reduce) item.text = text;
     else {
       const words = text.split(/(\s+)/);
       for (let i = 0; i < words.length; i += 3) { checkCancel(); item.text += words.slice(i, i + 3).join(""); renderTranscript(); await sleep(28); }
     }
     item.streaming = false; renderTranscript();
   }
-
   const fmtTask = (t) => `**${t.title}**${t.due ? ` (${dueLabel(t).toLowerCase()})` : ""}`;
+  const short = () => S.prefs.length === "Short";
 
   const SCENARIOS = [
-    { test: /\b(25|focus|essay)\b/i, run: async () => {
+    { test: /\b(25|focus|essay)\b/i, skip: /music/i, run: async () => {
       await think(800);
       await progress("Setting up a 25-minute focus session and adding the essay to your tasks.");
       const p = plan(["Start a 25-minute focus timer", "Add the essay to your tasks", "Check the timer is running"]);
       stepState(p, 0, "doing");
-      if (!await tool("Start 25-minute timer for “Economics essay”", "app", () => startTimer(25, "focus", "Economics essay"), "Started 25-minute focus timer · break of 5 min after")) { stepState(p, 0, "todo"); return answer("OK, I didn't start the timer."); }
+      if (!await tool({ title: "Start 25-minute timer for “Economics essay”", risk: "app", effect: () => startTimer(25, "focus", "Economics essay"), summary: "Started 25-minute focus timer · 5-minute break after" })) { stepState(p, 0, "todo"); return answer("OK, I didn't start the timer."); }
       stepState(p, 0, "done"); stepState(p, 1, "doing");
-      const created = await tool("Create task “Finish economics essay”", "app", () => { const t = { id: S.nextId++, title: "Finish economics essay", pri: "high", due: now() + 25 * 60e3, time: true, done: false, ai: true }; S.tasks.push(t); return t; }, "Created task · due " + hhmm(now() + 25 * 60e3));
+      const created = await tool({ title: "Create task “Finish economics essay”", risk: "app", effect: () => { const t = { id: S.nextId++, title: "Finish economics essay", pri: "high", due: now() + 25 * 60e3, time: true, done: false, ai: true }; S.tasks.push(t); return t; }, summary: "Created task · due " + hhmm(now() + 25 * 60e3) });
       stepState(p, 1, created ? "done" : "todo"); stepState(p, 2, "doing");
       await think(700);
-      await tool("Check the timer", "read", null, () => `Timer is running · ${countdown(timerLeft())} left`);
+      await tool({ title: "Check the timer", effect: null, summary: () => `Timer is running · ${countdown(timerLeft())} left` });
       stepState(p, 2, "done");
-      await answer(`Your **25-minute focus session** is running and *Finish economics essay* is on your list.\n- I'll suggest a **5-minute break** when it ends (${hhmm(S.timer.end)})\n- Ask me to pause or extend it any time`);
+      await answer(short() ? `Timer's running — 25 minutes, break at ${hhmm(S.timer.end)}.` : `Your **25-minute focus session** is running and *Finish economics essay* is on your list.\n- I'll suggest a **5-minute break** when it ends (${hhmm(S.timer.end)})\n- Ask me to pause or extend it any time`);
     } },
     { test: /summari[sz]e my day|prioriti|brief/i, run: async () => {
       await think(900);
-      await tool("Gather today’s overview", "read", null, `${S.events.filter((e) => e.end > now()).length} events · ${S.tasks.filter((t) => !t.done).length} open tasks`);
+      const okCal = await tool({ title: "Read today’s calendar", feature: "calendar", summary: `${S.events.filter((e) => e.end > now()).length} events left today` });
+      await tool({ title: "List open tasks", summary: `${S.tasks.filter((t) => !t.done).length} open tasks` });
       await think(900);
       const overdue = S.tasks.filter(isOverdue), today = S.tasks.filter((t) => !t.done && isToday(t) && !isOverdue(t));
-      const ev = S.events.filter((e) => e.end > now());
-      await answer(`Here's your day:\n${ev.map((e) => `- **${hhmm(e.start)}** ${e.title}${e.where ? ` (${e.where})` : ""}`).join("\n") || "- No more events today"}\n\nPrioritise:\n${[...overdue, ...today].slice(0, 3).map((t, i) => `- ${i === 0 ? "First: " : ""}${fmtTask(t)}${isOverdue(t) ? " — overdue" : ""}`).join("\n") || "- Nothing urgent"}\n\nYou have a free stretch before ${hhmm(S.events[0].start)} — good for deep work.`);
+      const ev = okCal ? S.events.filter((e) => e.end > now()) : [];
+      const prio = [...overdue, ...today].slice(0, 3).map((t, i) => `- ${i === 0 ? "First: " : ""}${fmtTask(t)}${isOverdue(t) ? " — overdue" : ""}`).join("\n") || "- Nothing urgent";
+      await answer(`${okCal ? `Here's your day:\n${ev.map((e) => `- **${hhmm(e.start)}** ${e.title}${e.where ? ` (${e.where})` : ""}`).join("\n") || "- No more events today"}` : "I couldn't read your calendar (it's turned off in Settings → Features)."}\n\nPrioritise:\n${prio}${okCal && S.events[0] ? `\n\nYou have a free stretch before ${hhmm(S.events[0].start)} — good for deep work.` : ""}`);
     } },
     { test: /study|free time|90[- ]?min|book it/i, run: async () => {
       await think(800);
       await progress("Checking your calendar for a 90-minute gap.");
       const slotStart = startOfNextHour, slotEnd = startOfNextHour + 1.5 * H;
-      await tool("Find 90-minute free slots", "read", null, `Free ${hhmm(slotStart)}–${hhmm(S.events[0].start)} and after ${hhmm(S.events[1].end)}`);
+      if (!await tool({ title: "Find 90-minute free slots", feature: "calendar", summary: `Free ${hhmm(slotStart)}–${hhmm(S.events[0].start)} and after ${hhmm(S.events[1].end)}` })) return answer(no("I couldn't check your calendar."));
       await think(700);
-      const ok = await tool(`Add “Study session” to Calendar at ${hhmm(slotStart)}–${hhmm(slotEnd)}`, "external",
-        () => { S.events.push({ title: "Study session", start: slotStart, end: slotEnd, where: "" }); }, "Added to Home calendar");
-      if (!ok) return answer(`No problem — I didn't add anything. Your best 90-minute window today is **${hhmm(slotStart)}–${hhmm(slotEnd)}**, before the seminar at ${hhmm(S.events[0].start)}.`);
+      const ok = await tool({ title: `Add “Study session” to Calendar, ${hhmm(slotStart)}–${hhmm(slotEnd)}`, risk: "external", kind: "calendarWrite", feature: "calendar",
+        effect: () => { S.events.push({ title: "Study session", start: slotStart, end: slotEnd, where: "", c: "o" }); }, summary: "Added to your Home calendar" });
+      if (!ok) return answer(no(`No problem — I didn't add anything. Your best 90-minute window today is **${hhmm(slotStart)}–${hhmm(slotEnd)}**, before the seminar at ${hhmm(S.events[0].start)}.`));
       await answer(`Booked **Study session, ${hhmm(slotStart)}–${hhmm(slotEnd)}** — it ends half an hour before your seminar at ${hhmm(S.events[0].start)}. Want a focus timer when it starts?`);
     } },
     { test: /\bnote\b.*\btask|\btasks?\b.*\bnote|turn my/i, run: async () => {
       await think(800);
       const p = plan(["Read the lecture note", "Pick three concrete actions", "Add them as tasks for tomorrow"]);
       stepState(p, 0, "doing");
-      await tool("Read note “Lecture 5 — Elasticity”", "read", null, "Read 6 lines");
+      await tool({ title: "Read note “Lecture 5 — Elasticity”", summary: "Read 6 lines" });
       stepState(p, 0, "done"); stepState(p, 1, "doing");
       await think(900);
       stepState(p, 1, "done"); stepState(p, 2, "doing");
       const tomorrow = dayStart + 24 * H;
       const titles = ["Practice question 3 (elasticity)", "Re-read the tax incidence section", "Ask about the exam formula sheet"];
-      const ok = await tool("Create 3 tasks: “Practice question 3…”, “Re-read the tax…”, “Ask about the exam…”", "app",
-        () => titles.forEach((title) => S.tasks.push({ id: S.nextId++, title, pri: "medium", due: tomorrow, time: false, done: false, ai: true })), "Created 3 tasks due tomorrow");
+      const ok = await tool({ title: "Create 3 tasks for tomorrow", risk: "app", effect: () => titles.forEach((title) => S.tasks.push({ id: S.nextId++, title, pri: "medium", due: tomorrow, time: false, done: false, ai: true })), summary: "Created 3 tasks due tomorrow" });
       stepState(p, 2, ok ? "done" : "todo");
       await answer(ok ? `Added three tasks for tomorrow from your lecture note:\n${titles.map((t) => `- ${t}`).join("\n")}` : "OK, I didn't add any tasks.");
     } },
     { test: /summari[sz]e my note/i, run: async () => {
       await think(700);
       const n = S.notes.find((x) => x.id === currentNote) || S.notes[0];
-      await tool(`Read note “${n.title}”`, "read", null, `Read ${n.body.split("\n").length} lines`);
+      if (!n) return answer("You don't have any notes yet.");
+      await tool({ title: `Read note “${n.title}”`, summary: `Read ${n.body.split("\n").length} lines` });
       await think(800);
       const lines = n.body.split("\n").filter(Boolean).slice(0, 4);
-      await answer(`**${n.title}** in brief:\n${lines.map((l) => `- ${l.replace(/^[-\d.\s]+/, "")}`).join("\n")}`);
+      await answer(`**${n.title}** in brief:\n${lines.map((l) => `- ${l.replace(/^[-\d.\s]+/, "")}`).join("\n") || "- (empty note)"}`);
     } },
     { test: /memory|ram\b/i, skip: /remember/i, run: async () => {
       await think(700);
-      await tool("Check memory usage by app", "read", null, "Listed 5 apps");
+      if (!await tool({ title: "Check memory usage by app", feature: "systemInfo", summary: "Listed 5 apps" })) return answer(no("I couldn't read memory usage."));
       await think(800);
       await answer(`You're using **11.8 GB of 16 GB**; memory pressure is normal.\n- **Google Chrome** — 3.4 GB (38 tabs and helpers)\n- **Xcode** — 2.1 GB\n- **Slack** — 890 MB\n- **Spotify** — 610 MB\n\nClosing unused Chrome tabs would free the most. *(Sample figures in this preview.)*`);
     } },
     { test: /remember|prefer/i, run: async () => {
       await think(700);
-      const ok = await tool("Remember: “Prefers short, direct answers”", "memory", () => { S.memories.push({ text: "Prefers short, direct answers", cat: "preference" }); }, "Saved memory");
-      const ok2 = await tool("Update preferences: answer length, tone", "app", () => { S.prefs = { length: "short", tone: "direct" }; }, "Answers: short · tone: direct");
-      await answer(ok ? "Got it — short and direct from now on." : ok2 ? "I won't save that as a memory, but I've set your answers to short and direct for now." : "OK, nothing changed.");
+      const ok = await tool({ title: "Remember: “Prefers short, direct answers”", risk: "memory", feature: "memory", effect: () => { S.memories.push({ id: S.nextId++, text: "Prefers short, direct answers", cat: "Preference" }); }, summary: "Saved to memory" });
+      const ok2 = await tool({ title: "Update preferences: answer length and tone", risk: "app", effect: () => { S.prefs = { length: "Short", tone: "Direct" }; }, summary: "Answers: short · tone: direct" });
+      await answer(ok ? "Got it — short and direct from now on." : ok2 ? "I won't save that as a memory, but I've set your answers to short and direct." : "OK, nothing changed.");
     } },
     { test: /music|play|song/i, run: async () => {
       await think(600);
-      const ok = await tool("Play Music", "low", () => { S.media.playing = true; }, `Playing “${tracks[S.media.track].title}”`);
-      await answer(ok ? `Playing **${tracks[S.media.track].title}** by ${tracks[S.media.track].artist}. Its controls are on the Today tab and beside the notch.` : "OK, I left the music alone.");
+      const ok = await tool({ title: "Play Music", risk: "low", feature: "media", effect: () => { S.media.playing = true; }, summary: `Playing “${tracks[S.media.track].title}”` });
+      await answer(ok ? `Playing **${tracks[S.media.track].title}** by ${tracks[S.media.track].artist}. The controls are on the Today tab and beside the notch.` : no("OK, I left the music alone."));
     } },
     { test: /delete|remove/i, run: async () => {
       await think(700);
-      await tool("Search tasks for “tutor”", "read", null, "Found 1 task");
+      await tool({ title: "Search tasks for “tutor”", summary: S.tasks.some((x) => /tutor/i.test(x.title)) ? "Found 1 task" : "No matches" });
       const t = S.tasks.find((x) => /tutor/i.test(x.title));
       if (!t) return answer("I couldn't find a task about your tutor — it may already be gone.");
-      const ok = await tool(`Delete task “${t.title}”`, "destructive", () => { S.tasks = S.tasks.filter((x) => x !== t); }, "Deleted");
+      const ok = await tool({ title: `Delete task “${t.title}”`, risk: "destructive", effect: () => { S.tasks = S.tasks.filter((x) => x !== t); }, summary: "Deleted" });
       await answer(ok ? `Deleted *${t.title}*.` : `OK, I kept *${t.title}*. It's overdue — want me to move it to tomorrow instead?`);
     } },
     { test: /week|deadline|plan/i, run: async () => {
       await think(800);
-      await tool("List open tasks", "read", null, `${S.tasks.filter((t) => !t.done).length} open tasks`);
-      await tool("Read calendar for the next 7 days", "read", null, `${S.events.length} events`);
+      await tool({ title: "List open tasks", summary: `${S.tasks.filter((t) => !t.done).length} open tasks` });
+      await tool({ title: "Read calendar for the next 7 days", feature: "calendar", summary: `${S.events.length} events` });
       await think(1000);
       const open = S.tasks.filter((t) => !t.done).sort((a, b) => (a.due ?? 9e15) - (b.due ?? 9e15));
-      await answer(`A plan for the week:\n${open.slice(0, 4).map((t, i) => `- **${["Today", "Tomorrow", "Wednesday", "Thursday"][i]}:** ${t.title}`).join("\n")}\n\nKeep Friday light as a buffer. Want me to block these as calendar events?`);
+      await answer(open.length ? `A plan for the week:\n${open.slice(0, 4).map((t, i) => `- **${["Today", "Tomorrow", "Wednesday", "Thursday"][i]}:** ${t.title}`).join("\n")}\n\nKeep Friday light as a buffer. Want me to block these as calendar events?` : "You have no open tasks — a light week! Want me to help you plan ahead?");
     } },
   ];
 
   async function send(text) {
-    if (S.run && S.run.active) return toast("Wait for the current task to finish, or press Stop.");
+    if (S.run && S.run.active) return hud("Wait for the current task to finish, or press Stop");
     expand("assistant");
     S.overlay = null;
     S.items.push({ type: "user", text });
-    S.run = { active: true, cancelled: false, started: now(), tools: 0, model: 0, plan: [], phase: "Thinking…", thinking: true, timers: [] };
+    S.run = { active: true, cancelled: false, started: now(), tools: 0, model: 0, plan: [], phase: "Thinking…", thinking: true, timers: [], denied: null };
     render();
     const scenario = SCENARIOS.find((s) => s.test.test(text) && !(s.skip && s.skip.test(text)));
     try {
       if (scenario) await scenario.run();
-      else {
-        await think(700);
-        await answer(`In this browser preview I can only run a few scripted requests — try one of the suggestions below the window. In the Mac app, anything you ask goes to your AI provider (Claude by default), which can use all 40 tools.`);
-      }
+      else { await think(700); await answer("In this browser preview I can only run a few scripted requests — try one of the suggestions below the Mac. In the Mac app, anything you ask goes to your AI provider (Claude by default), which can use all 40 tools."); }
       finish();
     } catch (err) {
       if (!(err instanceof Cancelled)) throw err;
@@ -1169,40 +1411,212 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
     S.pending = null;
   }
 
-  // ---------- Menu-bar item ----------
-  $("trayBtn").innerHTML = `<span style="display:grid">${icon("sparkle")}</span>`;
+  // ---------- Menu bar ----------
+  function renderStatusItems() {
+    const hadFocus = document.activeElement && document.activeElement.id === "trayBtn";
+    const open = !$("trayMenu").hidden;
+    $("statusItems").innerHTML =
+      `<button class="si" id="trayBtn" aria-haspopup="menu" aria-expanded="${open}" aria-label="NotchPilot menu" type="button">${icon("sparkles")}</button>` +
+      `<span class="si opt" aria-label="Battery 86%">${icon("battery", { "class": "batt", "viewBox": "0 0 26 16" })}</span>` +
+      `<span class="si opt" aria-label="Wi-Fi">${icon("wifi")}</span>` +
+      `<span class="si opt" aria-hidden="true">${icon("search")}</span>` +
+      `<span class="si opt" aria-hidden="true">${icon("control")}</span>` +
+      `<span class="si" id="clockTop">${clockText()}</span>`;
+    if (hadFocus) $("trayBtn").focus();
+  }
   function openTray() {
-    const m = $("trayMenu");
-    const t = S.timer;
-    m.innerHTML = `<button data-tray="open">${icon("sparkle")}Open Assistant</button><button data-tray="today">${icon("sun")}Today</button><button data-tray="new">${icon("compose")}New Conversation</button><hr>
-      ${t.phase === "running" ? `<button data-tray="pause">${icon("pause")}Pause Timer</button>` : t.phase === "paused" ? `<button data-tray="resume">${icon("play")}Resume Timer</button>` : `<button data-tray="focus">${icon("timer")}Start 25-min Focus</button>`}
-      <hr><button data-tray="settings">${icon("gear")}Settings…</button>`;
+    const m = $("trayMenu"), t = S.timer;
+    const btn = $("trayBtn").getBoundingClientRect(), st = stage.getBoundingClientRect();
+    m.style.top = "34px";
+    m.style.left = Math.max(6, Math.min(btn.left - st.left - 6, st.width - 250)) + "px";
+    m.innerHTML = `<div class="mh">NotchPilot</div>
+      <button class="mi" role="menuitem" data-tray="open"><span class="ck"></span><span>Open Assistant</span><kbd>⇧⌘Space</kbd></button>
+      <button class="mi" role="menuitem" data-tray="today"><span class="ck"></span><span>Today</span><kbd></kbd></button>
+      <button class="mi" role="menuitem" data-tray="new"><span class="ck"></span><span>New Conversation</span><kbd>⌘N</kbd></button><hr>
+      ${t.phase === "running" ? `<button class="mi" role="menuitem" data-tray="pause"><span class="ck"></span><span>Pause Timer</span><kbd>${countdown(timerLeft())}</kbd></button>` : t.phase === "paused" ? `<button class="mi" role="menuitem" data-tray="resume"><span class="ck"></span><span>Resume Timer</span><kbd></kbd></button>` : `<button class="mi" role="menuitem" data-tray="focus"><span class="ck"></span><span>Start 25-Minute Focus</span><kbd></kbd></button>`}
+      <button class="mi" role="menuitemcheckbox" aria-checked="${S.pinned}" data-tray="pin"><span class="ck">${S.pinned ? "✓" : ""}</span><span>Keep Panel Open</span><kbd></kbd></button><hr>
+      <button class="mi" role="menuitem" data-tray="settings"><span class="ck"></span><span>Settings…</span><kbd>⌘,</kbd></button>`;
     m.hidden = false; $("trayBtn").setAttribute("aria-expanded", "true");
   }
-  function closeTray() { $("trayMenu").hidden = true; $("trayBtn").setAttribute("aria-expanded", "false"); }
-  $("trayBtn").addEventListener("click", () => ($("trayMenu").hidden ? openTray() : closeTray()));
+  function closeTray() { $("trayMenu").hidden = true; $("trayBtn")?.setAttribute("aria-expanded", "false"); }
+  $("statusItems").addEventListener("click", (e) => { if (e.target.closest("#trayBtn")) ($("trayMenu").hidden ? openTray() : closeTray()); });
   $("trayMenu").addEventListener("click", (e) => {
     const b = e.target.closest("[data-tray]"); if (!b) return;
     closeTray();
     const a = b.dataset.tray;
-    if (a === "open") { expand("assistant"); setTimeout(() => $("msg")?.focus(), 300); }
+    if (a === "open") { expand("assistant"); setTimeout(() => $("msg")?.focus(), 320); }
     if (a === "today") expand("today");
     if (a === "new") { expand("assistant"); newConversation(); }
-    if (a === "focus") { timerAction("focus"); render(); toast("25-minute focus started."); }
-    if (a === "pause" || a === "resume") { timerAction(a); render(); }
-    if (a === "settings") { expand(); S.overlay = "settings"; render(); }
+    if (a === "focus" || a === "pause" || a === "resume") { timerAction(a); render(); }
+    if (a === "pin") { S.pinned = !S.pinned; render(); }
+    if (a === "settings") openSettings();
   });
 
-  // ---------- Try list below the stage ----------
+  // ---------- Settings window ----------
+  const PANES = [
+    ["general", "General", "gearFill", "linear-gradient(#a2a2a7,#8a8a8f)"],
+    ["ai", "AI Provider", "sparkles", "linear-gradient(#c77dff,#9b4dea)"],
+    ["agent", "Agent", "shieldCheck", "linear-gradient(#4aa3ff,#0a6cf0)"],
+    ["features", "Features", "switch2", "linear-gradient(#ffb340,#ff8a00)"],
+    ["memory", "Memory", "chipFill", "linear-gradient(#ff6a8a,#e62e5c)"],
+    ["privacy", "Privacy", "handFill", "linear-gradient(#4aa3ff,#0a6cf0)"],
+    ["appearance", "Appearance", "halfCircle", "linear-gradient(#7a78ff,#4f4ddb)"],
+    ["about", "About", "info", "linear-gradient(#a2a2a7,#8a8a8f)"],
+  ];
+  const sw = (key, label, on) => `<input type="checkbox" role="switch" class="switch" id="sw-${key}" data-sw="${key}" ${on ? "checked" : ""} aria-label="${esc(label)}">`;
+  const frow = (label, control, sub, forId) => `<div class="frow"><div class="fl">${forId ? `<label for="${forId}">${label}</label>` : label}${sub ? `<small>${sub}</small>` : ""}</div>${control}</div>`;
+  const swRow = (key, label, on, sub) => frow(label, sw(key, label, on), sub, `sw-${key}`);
+  const sec = (title, rows, foot) => `<div class="fsec">${title ? `<h4>${title}</h4>` : ""}<div class="fbox">${rows.join("")}</div>${foot ? `<p class="ffoot">${foot}</p>` : ""}</div>`;
+  const val = (text) => `<span class="fv">${text}</span>`;
+  const pop = (key, label, options, current) => `<select class="mpop" data-pop="${key}" aria-label="${esc(label)}">${options.map(([v, l]) => `<option value="${v}" ${v === current ? "selected" : ""}>${esc(l)}</option>`).join("")}</select>`;
+
+  function paneHTML(p) {
+    const s = S.set, f = s.features;
+    switch (p) {
+      case "general": return [
+        sec("", [swRow("login", "Launch NotchPilot at login", s.login)]),
+        sec("Keyboard", [swRow("hotkey", "Keyboard shortcut to show or hide the panel", s.hotkey),
+          frow("Shortcut", `<span><span class="keycap">⇧</span><span class="keycap">⌘</span><span class="keycap">Space</span></span>`),
+          frow("In the panel", val("Esc close · ⌘N new chat · ⌘. stop"))]),
+        sec("Notifications", [swRow("briefing", "Morning briefing at 08:30", s.briefing, "Tapping it asks the assistant — nothing is sent before you tap."),
+          swRow("deadlines", "Deadline reminders", s.deadlines, "One hour before a task is due."),
+          swRow("focusNotes", "Focus session alerts", s.focusNotes),
+          swRow("endOfDay", "End-of-day summary at 18:00", s.endOfDay)]),
+      ].join("");
+      case "ai": return [
+        sec("Provider", [frow("Provider", pop("provider", "Provider", Object.entries(PROVIDERS).map(([k, [l]]) => [k, l]), s.provider)),
+          frow("Model", val(esc(PROVIDERS[s.provider][1]))),
+          frow("API key", val(s.provider === "compatible" ? "Not needed for local servers" : "Saved in your Mac's Keychain"))],
+          "In this preview no key is used and nothing is sent anywhere. In the app, your key never leaves the Keychain except to authenticate with the provider you choose."),
+      ].join("");
+      case "agent": return [
+        sec("Mode", [`<div class="frow" style="display:grid;gap:10px;padding:10px 12px">${Object.entries(MODES).map(([k, [, t, d]]) => `<label class="radio"><input type="radio" name="agentMode" value="${k}" ${S.mode === k ? "checked" : ""}><span>${t}<small>${d}</small></span></label>`).join("")}</div>`]),
+        sec("Approvals", [swRow("askMemory", "Ask before saving memories", s.askMemory),
+          swRow("calendarNoAsk", "Add calendar events without asking", s.calendarNoAsk),
+          swRow("linksNoAsk", "Open links without asking", s.linksNoAsk)],
+          "Deleting data always asks. The assistant can't send messages, run shell commands or read files you haven't attached."),
+        sec("Limits per request", [frow("Standard", val("14 actions · 3 minutes")), frow("Autonomous", val("32 actions · 7 minutes"))]),
+      ].join("");
+      case "features": return [
+        sec("Integrations", [swRow("f-calendar", "Calendar", f.calendar), swRow("f-reminders", "Reminders", f.reminders), swRow("f-media", "Music & Spotify", f.media),
+          swRow("f-apps", "Open apps", f.apps), swRow("f-links", "Open links", f.links), swRow("f-shortcuts", "Shortcuts", f.shortcuts, "Off by default: Shortcuts can do almost anything.")]),
+        sec("Information", [swRow("f-systemInfo", "Battery, memory and storage", f.systemInfo), swRow("f-clipboard", "Copy to clipboard", f.clipboard), swRow("f-email", "Draft emails (never sent)", f.email)],
+          "Turned-off features are removed from what the assistant can do, and it tells you when a request needs one."),
+      ].join("");
+      case "memory": return [
+        sec("", [swRow("f-memory", "Use long-term memory", f.memory, "Approved memories are included with your requests.")]),
+        sec("Saved memories", S.memories.length ? S.memories.map((m) => frow(`<span class="memrow">${esc(m.text)}<span class="tagc">${esc(m.cat)}</span></span>`, `<button class="mbtn destructive" data-forget="${m.id}">Forget</button>`)) : [frow(`<span style="color:var(--win-ink-2)">No memories yet.</span>`, "")]),
+        sec("Preferences", [frow("Answer length", pop("length", "Answer length", ["Short", "Balanced", "Detailed"].map((x) => [x, x]), S.prefs.length)),
+          frow("Tone", pop("tone", "Tone", ["Friendly", "Direct", "Formal"].map((x) => [x, x]), S.prefs.tone))]),
+      ].join("");
+      case "privacy": return [
+        sec("Conversations", [swRow("history", "Save conversation history", s.history, "Stored only on this Mac.")]),
+        sec("macOS permissions", [frow("Calendars", val("Full Access")), frow("Reminders", val("Full Access")), frow("Automation (Music)", val("Allowed"))],
+          "Change these in System Settings → Privacy & Security. NotchPilot never asks for Accessibility, screen recording or Full Disk Access."),
+        sec("Data", [S.wiped ? frow("All NotchPilot data was deleted.", val("Reload the page to restore the sample data.")) : frow("Delete all NotchPilot data", S.confirmWipe ? `<span class="wrapr"><button class="mbtn" data-wipe="no">Cancel</button><button class="mbtn default" data-wipe="yes" style="background:#ff3b30">Delete</button></span>` : `<button class="mbtn destructive" data-wipe="ask">Delete…</button>`, "Tasks, notes, memories, conversations and the activity log.")]),
+      ].join("");
+      case "appearance": return [
+        sec("Island", [frow("Expanded panel", pop("island", "Expanded panel", [["black", "Black, like the notch"], ["system", "Match system appearance"]], s.island)),
+          swRow("hover", "Expand when the pointer rests on the notch", s.hover),
+          swRow("live", "Show timer, music and agent status beside the notch", s.live)]),
+        sec("Motion", [frow("Animations", pop("motion", "Animations", [["system", "Follow system setting"], ["reduced", "Reduced"], ["full", "Full"]], s.motion))]),
+      ].join("");
+      case "about": return [
+        sec("", [`<div class="frow" style="padding:14px 12px"><div class="hero-row">${appIcon()}<div><b>NotchPilot</b><div style="color:var(--win-ink-2)">Version 1.0 (1) · browser preview</div></div></div></div>`,
+          frow("Tools available", val("40")), frow("Provider", val(`${esc(PROVIDERS[s.provider][0])} · ${esc(PROVIDERS[s.provider][1])}`)),
+          frow("Source code", `<a class="mbtn" style="text-decoration:none;display:inline-flex;align-items:center" href="https://github.com/AvyanArya/69-DOC/tree/claude/festive-tesla-bpkoxq/NotchPilot" target="_blank" rel="noopener">View on GitHub</a>`)]),
+      ].join("");
+    }
+    return "";
+  }
+  function renderSettings() {
+    const q = $("sideSearch").value.trim().toLowerCase();
+    $("sideNav").innerHTML = PANES.filter(([id, t]) => !q || t.toLowerCase().includes(q) || paneHTML(id).toLowerCase().includes(q))
+      .map(([id, t, ic, bg]) => `<button data-pane="${id}" ${S.pane === id ? 'aria-current="page"' : ""} title="${t}"><span class="stile" style="background:${bg}">${icon(ic)}</span><span class="t">${t}</span></button>`).join("");
+    const pane = PANES.find((p) => p[0] === S.pane);
+    $("dTitle").textContent = pane[1];
+    const top = $("dBody").scrollTop;
+    $("dBody").innerHTML = paneHTML(S.pane);
+    $("dBody").scrollTop = top;
+  }
+  function openSettings(pane) {
+    if (pane) S.pane = pane;
+    if (!S.pinned) collapse();
+    closeTray();
+    const w = $("settingsWin");
+    const wasHidden = w.hidden;
+    w.hidden = false;
+    if (wasHidden) { w.classList.remove("opening"); void w.offsetWidth; w.classList.add("opening"); }
+    renderSettings();
+    setTimeout(() => w.querySelector("[aria-current='page']")?.focus(), 60);
+  }
+  function closeSettings() { const w = $("settingsWin"); w.hidden = true; w.classList.remove("zoomed"); w.style.cssText = ""; }
+  $("lights").innerHTML = `<button class="tl close" data-light="close" aria-label="Close" title="Close">${icon("xmark", { "stroke-width": "3.4" })}</button><button class="tl min" data-light="min" aria-label="Minimise" title="Minimise">${icon("minus", { "stroke-width": "3.4" })}</button><button class="tl zoom" data-light="zoom" aria-label="Zoom" title="Zoom">${icon("plus", { "stroke-width": "3.4" })}</button>`;
+  $("sideSearchIcon").innerHTML = icon("search", { "width": "13", "height": "13" });
+  $("settingsWin").addEventListener("click", (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    const d = b.dataset;
+    if (d.light === "close" || d.light === "min") return closeSettings();
+    if (d.light === "zoom") { $("settingsWin").style.cssText = ""; $("settingsWin").classList.toggle("zoomed"); return; }
+    if (d.pane) { S.pane = d.pane; renderSettings(); $("sideNav").querySelector("[aria-current='page']")?.focus(); return; }
+    if (d.forget) { S.memories = S.memories.filter((m) => m.id !== +d.forget); return renderSettings(); }
+    if (d.wipe === "ask") { S.confirmWipe = true; return renderSettings(); }
+    if (d.wipe === "no") { S.confirmWipe = false; return renderSettings(); }
+    if (d.wipe === "yes") {
+      stopRun();
+      Object.assign(S, { tasks: [], notes: [], memories: [], activity: [], convs: [], items: [], confirmWipe: false, wiped: true });
+      timerAction("reset"); render(); renderSettings(); return;
+    }
+  });
+  $("settingsWin").addEventListener("change", (e) => {
+    const t = e.target;
+    if (t.dataset.sw) {
+      const k = t.dataset.sw;
+      if (k.startsWith("f-")) S.set.features[k.slice(2)] = t.checked; else S.set[k] = t.checked;
+      if (k === "live" || k === "hover") layout();
+      render();
+    } else if (t.name === "agentMode") setMode(t.value);
+    else if (t.dataset.pop) {
+      const k = t.dataset.pop;
+      if (k === "length" || k === "tone") S.prefs[k] = t.value;
+      else S.set[k] = t.value;
+      if (k === "motion") S.reduce = t.value === "reduced" || (t.value === "system" && matchMedia("(prefers-reduced-motion: reduce)").matches);
+      render(); renderSettings();
+    }
+  });
+  $("sideSearch").addEventListener("input", renderSettings);
+  // Drag the window by its title area, like a real window.
+  (() => {
+    let drag = null;
+    const start = (e) => {
+      if (e.target.closest("button, input, select, a, label") || $("settingsWin").classList.contains("zoomed") || stage.clientWidth < 700) return;
+      const w = $("settingsWin"), r = w.getBoundingClientRect(), st = stage.getBoundingClientRect();
+      drag = { dx: e.clientX - r.left, dy: e.clientY - r.top, st, w: r.width, h: r.height };
+      w.style.transform = "none"; w.style.left = r.left - st.left + "px"; w.style.top = r.top - st.top + "px";
+      e.preventDefault();
+    };
+    $("dTitle").addEventListener("pointerdown", start);
+    $("lights").addEventListener("pointerdown", start);
+    window.addEventListener("pointermove", (e) => {
+      if (!drag) return;
+      const x = Math.max(-drag.w + 80, Math.min(drag.st.width - 80, e.clientX - drag.st.left - drag.dx));
+      const y = Math.max(32, Math.min(drag.st.height - 40, e.clientY - drag.st.top - drag.dy));
+      $("settingsWin").style.left = x + "px"; $("settingsWin").style.top = y + "px";
+    });
+    window.addEventListener("pointerup", () => { drag = null; });
+  })();
+
+  // ---------- Try list ----------
   $("tryList").innerHTML = [...SUGGESTIONS.map((s) => s[2]), ...EXTRA_TRY].map((p) => `<button type="button" data-try="${esc(p)}">${esc(p)}</button>`).join("");
   $("tryList").addEventListener("click", (e) => {
     const b = e.target.closest("[data-try]"); if (!b) return;
-    S.pinned = S.pinned || false;
+    // Bring the Mac back into view so the island's response is visible.
+    const r = stage.getBoundingClientRect();
+    if (r.top < 0 || r.top > innerHeight * 0.4) stage.scrollIntoView({ behavior: S.reduce ? "auto" : "smooth", block: "start" });
     send(b.dataset.try);
   });
 
   // ---------- Start ----------
-  $("clockTop").textContent = new Date().toLocaleString([], { weekday: "short", hour: "2-digit", minute: "2-digit" });
   render();
 })();
 </script>

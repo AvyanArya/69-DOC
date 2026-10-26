@@ -5,7 +5,6 @@ Requires Pillow. The .icns container is written directly (PNG-encoded
 entries), so no macOS tools are needed.
 """
 import io
-import math
 import struct
 import sys
 from pathlib import Path
@@ -21,85 +20,76 @@ def lerp(a, b, t):
     return tuple(int(a[i] + (b[i] - a[i]) * t) for i in range(len(a)))
 
 
+def star_points(cx, cy, r, k=0.12, steps=24):
+    """A four-point sparkle (the SF Symbols "sparkle" shape) as a polygon."""
+    a = r * k
+    corners = [(cx, cy - r), (cx + r, cy), (cx, cy + r), (cx - r, cy)]
+    controls = [(cx + a, cy - a), (cx + a, cy + a), (cx - a, cy + a), (cx - a, cy - a)]
+    points = []
+    for i in range(4):
+        p0, p1, c = corners[i], corners[(i + 1) % 4], controls[i]
+        for step in range(steps):
+            t = step / steps
+            points.append(((1 - t) ** 2 * p0[0] + 2 * (1 - t) * t * c[0] + t * t * p1[0],
+                           (1 - t) ** 2 * p0[1] + 2 * (1 - t) * t * c[1] + t * t * p1[1]))
+    return points
+
+
 def render(size=SIZE):
     s = size * SCALE
     img = Image.new("RGBA", (s, s), (0, 0, 0, 0))
 
-    # Squircle-ish rounded square body with a charcoal vertical gradient.
+    # macOS icon grid: an 824/1024 rounded-square body with a soft drop shadow.
     inset = int(s * 0.098)
     body = (inset, inset, s - inset, s - inset)
-    radius = int((body[2] - body[0]) * 0.225)
-    gradient = Image.new("RGBA", (s, s))
-    gd = ImageDraw.Draw(gradient)
-    top, bottom = (44, 46, 54, 255), (10, 10, 13, 255)
-    for y in range(s):
-        gd.line([(0, y), (s, y)], fill=lerp(top, bottom, y / s))
+    bw = body[2] - body[0]
+    radius = int(bw * 0.225)
     mask = Image.new("L", (s, s), 0)
     ImageDraw.Draw(mask).rounded_rectangle(body, radius=radius, fill=255)
 
-    # Soft drop shadow.
     shadow = Image.new("RGBA", (s, s), (0, 0, 0, 0))
-    ImageDraw.Draw(shadow).rounded_rectangle((body[0], body[1] + int(s * 0.012), body[2], body[3] + int(s * 0.012)), radius=radius, fill=(0, 0, 0, 120))
+    ImageDraw.Draw(shadow).rounded_rectangle((body[0], body[1] + int(s * 0.012), body[2], body[3] + int(s * 0.012)), radius=radius, fill=(0, 0, 0, 110))
     shadow = shadow.filter(ImageFilter.GaussianBlur(s * 0.018))
-    img.alpha_composite(shadow)
-    img.paste(gradient, (0, 0), mask)
 
-    # Subtle top highlight ring.
-    ring = Image.new("RGBA", (s, s), (0, 0, 0, 0))
-    ImageDraw.Draw(ring).rounded_rectangle(body, radius=radius, outline=(255, 255, 255, 34), width=int(s * 0.004))
-    img.alpha_composite(ring)
-
-    # The "notch": a black pill hanging from the top edge with concave shoulders.
-    cx = s // 2
-    notch_w, notch_h = int(s * 0.36), int(s * 0.115)
-    nd = ImageDraw.Draw(img)
-    nx0, nx1 = cx - notch_w // 2, cx + notch_w // 2
-    ny0 = body[1]
-    nd.rounded_rectangle((nx0, ny0 - notch_h, nx1, ny0 + notch_h), radius=int(notch_h * 0.62), fill=(0, 0, 0, 255))
-    # Re-clip to the body so the notch never pokes outside the icon.
-    clip = Image.new("RGBA", (s, s), (0, 0, 0, 0))
-    clip.paste(img, (0, 0), mask)
-    img = Image.alpha_composite(Image.new("RGBA", (s, s), (0, 0, 0, 0)), shadow)
-    img.alpha_composite(clip)
-
-    # Glowing orb with an indigo → cyan → mint gradient (the assistant).
-    orb_r = int(s * 0.19)
-    ocx, ocy = cx, int(s * 0.565)
+    # Blue → violet vertical gradient with a soft highlight at the top.
+    face = Image.new("RGBA", (s, s))
+    fd = ImageDraw.Draw(face)
+    top, bottom = (79, 141, 255, 255), (106, 61, 240, 255)
+    for y in range(s):
+        fd.line([(0, y), (s, y)], fill=lerp(top, bottom, max(0.0, min(1.0, (y - body[1]) / bw))))
     glow = Image.new("RGBA", (s, s), (0, 0, 0, 0))
-    ImageDraw.Draw(glow).ellipse((ocx - orb_r * 1.7, ocy - orb_r * 1.7, ocx + orb_r * 1.7, ocy + orb_r * 1.7), fill=(90, 120, 255, 70))
-    glow = glow.filter(ImageFilter.GaussianBlur(s * 0.05))
-    img.alpha_composite(glow)
+    gr = bw * 0.6
+    gcx, gcy = s / 2, body[1]
+    ImageDraw.Draw(glow).ellipse((gcx - gr, gcy - gr * 0.6, gcx + gr, gcy + gr * 0.6), fill=(255, 255, 255, 46))
+    face.alpha_composite(glow.filter(ImageFilter.GaussianBlur(s * 0.12)))
 
-    orb = Image.new("RGBA", (s, s), (0, 0, 0, 0))
-    od = ImageDraw.Draw(orb)
-    colors = [(122, 92, 255), (64, 156, 255), (72, 220, 200)]
-    for i in range(orb_r, 0, -1):
-        t = 1 - i / orb_r
-        # Diagonal blend + radial brightening.
-        c = lerp(colors[0], colors[1], min(1, t * 1.6)) if t < 0.6 else lerp(colors[1], colors[2], (t - 0.6) / 0.4)
-        bright = 1 + 0.25 * t
-        c = tuple(min(255, int(v * bright)) for v in c)
-        od.ellipse((ocx - i, ocy - i, ocx + i, ocy + i), fill=c + (255,))
-    img.alpha_composite(orb)
+    # The island: black, hanging from the top edge, with concave "ears" like the notch.
+    island = Image.new("L", (s, s), 0)
+    idraw = ImageDraw.Draw(island)
+    x0, x1 = body[0] + bw * 0.256, body[0] + bw * 0.744
+    y1 = body[1] + bw * 0.366
+    r = bw * 0.134
+    ear = bw * 0.061
+    idraw.rounded_rectangle((x0, body[1] - r, x1, y1), radius=r, fill=255)
+    idraw.rectangle((x0 - ear, body[1], x0, body[1] + ear), fill=255)
+    idraw.ellipse((x0 - 2 * ear, body[1], x0, body[1] + 2 * ear), fill=0)
+    idraw.rectangle((x1, body[1], x1 + ear, body[1] + ear), fill=255)
+    idraw.ellipse((x1, body[1], x1 + 2 * ear, body[1] + 2 * ear), fill=0)
+    face.paste((0, 0, 0, 255), (0, 0), island)
 
-    # A four-point sparkle inside the orb.
-    sp = Image.new("RGBA", (s, s), (0, 0, 0, 0))
-    sd = ImageDraw.Draw(sp)
-    arm, waist = orb_r * 0.62, orb_r * 0.16
-    points = []
-    for k in range(8):
-        ang = math.pi / 4 * k - math.pi / 2
-        r = arm if k % 2 == 0 else waist
-        points.append((ocx + r * math.cos(ang), ocy + r * math.sin(ang)))
-    sd.polygon(points, fill=(255, 255, 255, 240))
-    img.alpha_composite(sp.filter(ImageFilter.GaussianBlur(s * 0.0015)))
+    # White sparkles inside the island.
+    sd = ImageDraw.Draw(face)
+    scx, scy = s / 2, body[1] + bw * 0.183
+    sd.polygon(star_points(scx, scy, bw * 0.116), fill=(255, 255, 255, 255))
+    sd.polygon(star_points(body[0] + bw * 0.605, body[1] + bw * 0.092, bw * 0.035), fill=(255, 255, 255, 160))
 
-    # Thin "island" line beneath the notch, echoing the expanded panel.
-    nd = ImageDraw.Draw(img)
-    line_w = int(s * 0.2)
-    ly = ny0 + notch_h + int(s * 0.05)
-    nd.rounded_rectangle((cx - line_w // 2, ly, cx + line_w // 2, ly + int(s * 0.012)), radius=int(s * 0.006), fill=(255, 255, 255, 46))
+    # Hairline highlight around the body.
+    ImageDraw.Draw(face).rounded_rectangle(body, radius=radius, outline=(255, 255, 255, 56), width=max(1, int(s * 0.004)))
 
+    img.alpha_composite(shadow)
+    clipped = Image.new("RGBA", (s, s), (0, 0, 0, 0))
+    clipped.paste(face, (0, 0), mask)
+    img.alpha_composite(clipped)
     return img.resize((size, size), Image.LANCZOS)
 
 

@@ -34,9 +34,13 @@ Native Swift, SwiftUI and AppKit. No Electron, no web views, no private APIs.
 
 **Built-in tools** — tasks, notes, focus/break timers, preferences, approved long-term memory, conversation search, daily overview, calendar events, free-time search, calendar events and reminders (with approval), open apps and links, system/battery/top-memory processes, now playing and playback control, Shortcuts, clipboard, email drafts (never sent), date extraction and attached-document reading. Full list: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#tools).
 
+**Designed to feel like part of macOS** — the system font and SF Symbols throughout; macOS system colours and your own accent colour (System Settings → Appearance); standard Mac push buttons, switches and spinners; Messages-style chat bubbles; approval prompts worded like the system's ("Don’t Allow" / "Allow"); and a settings window laid out like System Settings, with coloured sidebar icons and grouped sections. The island stays black like the hardware notch, Dynamic Island–style, unless you choose *Match system appearance*.
+
 **Around the assistant** — Today dashboard (timer, now playing, next events, focus list, battery/memory/disk), Tasks with priorities and due dates, Notes with search and “Summarise / Make tasks”, an Activity log of every action, and proactive notifications (morning briefing, deadline reminders, event preparation, end-of-day summary, focus-session end) — each optional.
 
 ## Try it
+
+**Without a Mac:** open [`preview/NotchPilot-Preview.html`](preview/NotchPilot-Preview.html) in a browser for an interactive simulation of the notch, assistant, menu-bar item and Settings window. Its replies are scripted and all data is sample data; nothing is sent anywhere.
 
 After adding a key (Settings → AI Provider):
 
@@ -73,6 +77,7 @@ NotchPilot/
 ├─ Resources/                       Info.plist, entitlements, app icon
 ├─ scripts/build_app.sh             builds, signs and zips NotchPilot.app
 ├─ scripts/make_icon.py             renders the icon
+├─ preview/NotchPilot-Preview.html  interactive browser simulation (scripted, sample data)
 └─ docs/
 ```
 

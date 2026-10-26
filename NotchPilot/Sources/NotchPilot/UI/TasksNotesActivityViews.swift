@@ -25,7 +25,7 @@ struct TasksView: View {
                 }
                 .labelsHidden()
                 .frame(width: 86)
-                Toggle("Due", isOn: $hasDue).toggleStyle(.checkbox).font(.system(size: 11.5))
+                Toggle("Due", isOn: $hasDue).toggleStyle(.checkbox).font(.system(size: 12))
                 if hasDue {
                     DatePicker("", selection: $newDue, displayedComponents: [.date, .hourAndMinute])
                         .labelsHidden()
@@ -47,7 +47,7 @@ struct TasksView: View {
                 .frame(width: 180)
                 Spacer()
                 if model.isProviderConfigured {
-                    PillButton(title: "Plan with AI", symbol: "sparkles") {
+                    PanelButton(title: "Plan with AI", symbol: "sparkles") {
                         model.ask("Help me plan my week around my deadlines.")
                     }
                 }
@@ -65,7 +65,7 @@ struct TasksView: View {
                                 .font(.system(size: 22))
                                 .foregroundStyle(palette.tertiary)
                             Text(filter == .completed ? "No completed tasks yet." : "You're all clear.")
-                                .font(.system(size: 12.5))
+                                .font(.system(size: 13))
                                 .foregroundStyle(palette.secondary)
                         }
                         .padding(.top, 30)
@@ -221,7 +221,7 @@ struct NotesView: View {
                     LazyVStack(spacing: 2) {
                         ForEach(model.services.notes.search(query, limit: 200)) { note in
                             VStack(alignment: .leading, spacing: 2) {
-                                Text(note.title).font(.system(size: 12.5, weight: .medium)).foregroundStyle(palette.primary).lineLimit(1)
+                                Text(note.title).font(.system(size: 13, weight: .medium)).foregroundStyle(palette.primary).lineLimit(1)
                                 Text(TextUtilities.preview(note.body, limit: 60)).font(.system(size: 11)).foregroundStyle(palette.secondary).lineLimit(1)
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -253,15 +253,15 @@ struct NotesView: View {
                         .onChange(of: draftBody) { _, _ in scheduleSave() }
                     HStack(spacing: 6) {
                         Text("Edited \(note.updatedAt.formatted(.relative(presentation: .named)))")
-                            .font(.system(size: 10.5))
+                            .font(.system(size: 11))
                             .foregroundStyle(palette.tertiary)
                         Spacer()
                         if model.isProviderConfigured {
-                            PillButton(title: "Summarise", symbol: "text.append") {
+                            PanelButton(title: "Summarise", symbol: "text.append") {
                                 save()
                                 model.ask("Summarise my note “\(note.title)” (id \(ShortID.make(note.id))) in a few bullet points.")
                             }
-                            PillButton(title: "Make tasks", symbol: "checklist") {
+                            PanelButton(title: "Make tasks", symbol: "checklist") {
                                 save()
                                 model.ask("Turn my note “\(note.title)” (id \(ShortID.make(note.id))) into three tasks for tomorrow.")
                             }
@@ -278,8 +278,8 @@ struct NotesView: View {
             } else {
                 VStack(spacing: 8) {
                     Image(systemName: "note.text").font(.system(size: 26)).foregroundStyle(palette.tertiary)
-                    Text("Select a note or create one.").font(.system(size: 12.5)).foregroundStyle(palette.secondary)
-                    PillButton(title: "New note", symbol: "plus", prominent: true) { newNote() }
+                    Text("Select a note or create one.").font(.system(size: 13)).foregroundStyle(palette.secondary)
+                    PanelButton(title: "New note", symbol: "plus", prominent: true) { newNote() }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
@@ -344,7 +344,7 @@ struct ActivityView: View {
                     .foregroundStyle(palette.secondary)
                 Spacer()
                 if !model.services.activity.records.isEmpty {
-                    PillButton(title: "Clear", symbol: "trash") { confirmClear = true }
+                    PanelButton(title: "Clear", symbol: "trash") { confirmClear = true }
                 }
             }
             ScrollView(showsIndicators: false) {
@@ -356,7 +356,7 @@ struct ActivityView: View {
                                 .font(.system(size: 12))
                                 .frame(width: 16)
                             VStack(alignment: .leading, spacing: 2) {
-                                Text(record.title).font(.system(size: 12.5, weight: .medium)).foregroundStyle(palette.primary).lineLimit(2)
+                                Text(record.title).font(.system(size: 13, weight: .medium)).foregroundStyle(palette.primary).lineLimit(2)
                                 HStack(spacing: 6) {
                                     Text(record.status.rawValue.capitalized)
                                     if !record.resultSummary.isEmpty { Text("· \(record.resultSummary)").lineLimit(1) }
@@ -367,7 +367,7 @@ struct ActivityView: View {
                             }
                             Spacer()
                             Text(record.startedAt, style: .relative)
-                                .font(.system(size: 10.5))
+                                .font(.system(size: 11))
                                 .foregroundStyle(palette.tertiary)
                         }
                         .padding(.horizontal, 8)
@@ -376,7 +376,7 @@ struct ActivityView: View {
                     if model.services.activity.records.isEmpty {
                         VStack(spacing: 6) {
                             Image(systemName: "clock.arrow.circlepath").font(.system(size: 22)).foregroundStyle(palette.tertiary)
-                            Text("No actions yet.").font(.system(size: 12.5)).foregroundStyle(palette.secondary)
+                            Text("No actions yet.").font(.system(size: 13)).foregroundStyle(palette.secondary)
                         }
                         .padding(.top, 30)
                     }

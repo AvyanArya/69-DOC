@@ -1,3 +1,4 @@
+import AppKit
 import NotchPilotCore
 import ServiceManagement
 import SwiftUI
@@ -38,34 +39,24 @@ struct SettingsView: View {
     @Bindable var model: AppModel
 
     var body: some View {
-        HStack(spacing: 0) {
-            VStack(alignment: .leading, spacing: 2) {
-                HStack(spacing: 8) {
-                    AssistantOrb(size: 22, reduceMotion: true)
-                    Text("NotchPilot").font(.system(size: 14, weight: .semibold))
-                }
-                .padding(.horizontal, 10)
-                .padding(.top, 36)
-                .padding(.bottom, 12)
+        NavigationSplitView {
+            List(selection: Binding<SettingsPane?>(
+                get: { model.settingsPane },
+                set: { if let pane = $0 { model.settingsPane = pane } }
+            )) {
                 ForEach(SettingsPane.allCases) { pane in
-                    Button {
-                        model.settingsPane = pane
-                    } label: {
-                        Label(pane.title, systemImage: pane.symbol)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 6)
-                            .background(RoundedRectangle(cornerRadius: 7).fill(model.settingsPane == pane ? Color.accentColor.opacity(0.18) : .clear))
-                            .contentShape(Rectangle())
+                    Label {
+                        Text(pane.title)
+                    } icon: {
+                        SettingsIcon(symbol: pane.tileSymbol, color: pane.tint)
                     }
-                    .buttonStyle(.plain)
+                    .tag(pane)
                 }
-                Spacer()
             }
-            .frame(width: 190)
-            .padding(.horizontal, 8)
-            .background(.regularMaterial)
-            Divider()
+            .listStyle(.sidebar)
+            .navigationSplitViewColumnWidth(min: 190, ideal: 210, max: 260)
+            .toolbar(removing: .sidebarToggle)
+        } detail: {
             Group {
                 switch model.settingsPane {
                 case .general: GeneralSettings(model: model)
@@ -79,9 +70,49 @@ struct SettingsView: View {
                 }
             }
             .formStyle(.grouped)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .navigationTitle(model.settingsPane.title)
         }
-        .frame(minWidth: 680, minHeight: 480)
+        .frame(minWidth: 700, minHeight: 480)
+    }
+}
+
+/// A System Settings–style sidebar icon: a white symbol on a coloured rounded square.
+struct SettingsIcon: View {
+    let symbol: String
+    let color: Color
+
+    var body: some View {
+        Image(systemName: symbol)
+            .font(.system(size: 11, weight: .semibold))
+            .foregroundStyle(.white)
+            .frame(width: 20, height: 20)
+            .background(RoundedRectangle(cornerRadius: 5, style: .continuous).fill(color.gradient))
+    }
+}
+
+extension SettingsPane {
+    var tileSymbol: String {
+        switch self {
+        case .general: return "gearshape.fill"
+        case .ai: return "sparkles"
+        case .agent: return "checkmark.shield.fill"
+        case .features: return "switch.2"
+        case .memory: return "memorychip.fill"
+        case .privacy: return "hand.raised.fill"
+        case .appearance: return "circle.lefthalf.filled"
+        case .about: return "info.circle.fill"
+        }
+    }
+
+    var tint: Color {
+        switch self {
+        case .general, .about: return .gray
+        case .ai: return .purple
+        case .agent, .privacy: return .blue
+        case .features: return .orange
+        case .memory: return .pink
+        case .appearance: return .indigo
+        }
     }
 }
 
@@ -627,7 +658,10 @@ struct AboutPane: View {
         Form {
             Section {
                 HStack(spacing: 14) {
-                    AssistantOrb(size: 44, reduceMotion: true)
+                    Image(nsImage: NSApp.applicationIconImage)
+                        .resizable()
+                        .frame(width: 64, height: 64)
+                        .accessibilityHidden(true)
                     VStack(alignment: .leading, spacing: 3) {
                         Text("NotchPilot").font(.title2.weight(.semibold))
                         Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "dev") (\(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "0"))")

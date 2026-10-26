@@ -1,3 +1,4 @@
+import AppKit
 import NotchPilotCore
 import SwiftUI
 
@@ -126,11 +127,11 @@ struct UserMessageView: View {
                 if !turn.visibleText.isEmpty {
                     Text(turn.visibleText)
                         .font(.system(size: 13))
-                        .foregroundStyle(palette.primary)
+                        .foregroundStyle(.white)
                         .textSelection(.enabled)
                         .padding(.horizontal, 12)
-                        .padding(.vertical, 8)
-                        .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(palette.userBubble))
+                        .padding(.vertical, 7)
+                        .background(RoundedRectangle(cornerRadius: 17, style: .continuous).fill(palette.userBubble))
                 }
             }
         }
@@ -174,7 +175,7 @@ struct AssistantMessageView: View {
                     .foregroundStyle(palette.secondary)
                 }
             }
-            .font(.system(size: 10.5, weight: .medium))
+            .font(.system(size: 11, weight: .medium))
             .frame(height: 14)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -199,7 +200,6 @@ struct ProgressNoteView: View {
                 .symbolEffect(.pulse, isActive: live)
             Text(text)
                 .font(.system(size: 12))
-                .italic()
                 .foregroundStyle(palette.secondary)
         }
     }
@@ -266,7 +266,7 @@ struct LiveRunView: View {
                 }
             } else if run.phase == .waitingForModel && run.progressNote.isEmpty {
                 HStack(spacing: 8) {
-                    AssistantOrb(size: 14, active: true, reduceMotion: model.reduceMotion)
+                    ProgressView().controlSize(.small)
                     Text(run.modelCalls == 0 ? "Thinking…" : "Working…")
                         .font(.system(size: 12))
                         .foregroundStyle(palette.secondary)
@@ -302,7 +302,7 @@ struct PlanChecklist: View {
                     SectionLabel(title: "Plan", symbol: "list.bullet.clipboard")
                     Spacer()
                     Text("\(plan.filter { $0.status == .done }.count) of \(plan.count)")
-                        .font(.system(size: 10.5, weight: .medium))
+                        .font(.system(size: 11, weight: .medium))
                         .foregroundStyle(palette.tertiary)
                 }
                 ProgressView(value: Double(plan.filter { $0.status == .done || $0.status == .skipped }.count), total: Double(max(1, plan.count)))
@@ -355,41 +355,41 @@ struct ConfirmationCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(alignment: .top, spacing: 10) {
                 Image(systemName: symbol)
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(destructive ? palette.danger : palette.warning)
-                    .frame(width: 22)
-                VStack(alignment: .leading, spacing: 3) {
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(.white)
+                    .frame(width: 28, height: 28)
+                    .background(RoundedRectangle(cornerRadius: 7, style: .continuous).fill((destructive ? palette.danger : palette.accent).gradient))
+                VStack(alignment: .leading, spacing: 2) {
                     Text(request.title)
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundStyle(palette.primary)
                         .fixedSize(horizontal: false, vertical: true)
-                    Text("\(request.reason) · \(request.risk.label)")
+                    Text(request.reason)
                         .font(.system(size: 11))
                         .foregroundStyle(palette.secondary)
                 }
             }
             HStack(spacing: 8) {
                 Spacer()
-                PillButton(title: "Don’t allow", symbol: "xmark") { model.decline(request) }
+                PanelButton(title: "Don’t Allow") { model.decline(request) }
                     .keyboardShortcut(.cancelAction)
-                PillButton(title: destructive ? "Allow" : "Approve", symbol: "checkmark", prominent: true, destructive: destructive) { model.approve(request) }
+                PanelButton(title: "Allow", prominent: true, destructive: destructive) { model.approve(request) }
                     .keyboardShortcut(.defaultAction)
             }
         }
         .padding(12)
-        .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill((destructive ? palette.danger : palette.warning).opacity(0.1)))
-        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder((destructive ? palette.danger : palette.warning).opacity(0.35), lineWidth: 1))
+        .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(palette.surface))
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Approval needed: \(request.title)")
     }
 
     private var symbol: String {
         switch request.risk {
-        case .destructive: return "trash"
-        case .sensitive: return "bolt.shield"
-        case .external: return "arrow.up.forward.app"
+        case .destructive: return "trash.fill"
+        case .sensitive: return "bolt.shield.fill"
+        case .external: return "arrow.up.forward.app.fill"
         case .appWrite: return "pencil"
-        case .read: return "eye"
+        case .read: return "eye.fill"
         }
     }
 }
@@ -416,21 +416,21 @@ struct RunOutcomeView: View {
                             .fixedSize(horizontal: false, vertical: true)
                         HStack(spacing: 8) {
                             if model.orchestrator.canRetry(model.session) {
-                                PillButton(title: "Retry", symbol: "arrow.clockwise") { model.retry() }
+                                PanelButton(title: "Retry", symbol: "arrow.clockwise") { model.retry() }
                             }
                             if !model.isProviderConfigured || error.contains("API key") || error.contains("Settings") {
-                                PillButton(title: "AI Settings", symbol: "gearshape") { model.openSettings(.ai) }
+                                PanelButton(title: "AI Settings", symbol: "gearshape") { model.openSettings(.ai) }
                             }
                         }
                     }
                 }
             } else if let reason = run.incompleteReason {
                 Label(reason + (model.orchestrator.canRetry(model.session) ? " You can ask me to continue." : ""), systemImage: "pause.circle")
-                    .font(.system(size: 11.5))
+                    .font(.system(size: 12))
                     .foregroundStyle(palette.warning)
             } else if run.phase == .cancelled {
                 Label("Stopped. Completed steps were kept.", systemImage: "stop.circle")
-                    .font(.system(size: 11.5))
+                    .font(.system(size: 12))
                     .foregroundStyle(palette.secondary)
             }
         }
@@ -444,17 +444,17 @@ struct RunStatusBar: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            AssistantOrb(size: 14, active: true, reduceMotion: model.reduceMotion)
+            ProgressView().controlSize(.small)
             VStack(alignment: .leading, spacing: 1) {
-                Text(phaseText).font(.system(size: 11.5, weight: .medium)).foregroundStyle(palette.primary).lineLimit(1)
+                Text(phaseText).font(.system(size: 12, weight: .medium)).foregroundStyle(palette.primary).lineLimit(1)
                 TimelineView(.periodic(from: .now, by: 1)) { context in
                     Text("\(run.mode == .autonomous ? "Autonomous · " : "")\(run.toolCalls) step\(run.toolCalls == 1 ? "" : "s") · \(Int(context.date.timeIntervalSince(run.startedAt)))s")
-                        .font(.system(size: 10.5))
+                        .font(.system(size: 11))
                         .foregroundStyle(palette.tertiary)
                 }
             }
             Spacer()
-            PillButton(title: "Stop", symbol: "stop.fill") { model.stop() }
+            PanelButton(title: "Stop", symbol: "stop.fill") { model.stop() }
                 .keyboardShortcut(".", modifiers: .command)
         }
         .padding(.horizontal, 10)
@@ -498,10 +498,10 @@ struct EmptyAssistantView: View {
 
     var body: some View {
         VStack(spacing: 14) {
-            AssistantOrb(size: 38, active: false, reduceMotion: model.reduceMotion)
+            AssistantGlyph(size: 34, active: false, reduceMotion: model.reduceMotion)
                 .padding(.top, 10)
             VStack(spacing: 4) {
-                Text(greeting).font(.system(size: 16, weight: .semibold)).foregroundStyle(palette.primary)
+                Text(greeting).font(.system(size: 17, weight: .semibold)).foregroundStyle(palette.primary)
                 Text("Ask anything, or let me take care of a task.")
                     .font(.system(size: 12))
                     .foregroundStyle(palette.secondary)
@@ -577,8 +577,8 @@ struct ProviderSetupCard: View {
                     SecureField(kind == .anthropic ? "sk-ant-…" : "API key", text: $key)
                         .textFieldStyle(.roundedBorder)
                         .onSubmit(save)
-                    PillButton(title: "Save", symbol: "lock.fill", prominent: true, action: save)
-                    PillButton(title: "More…", symbol: nil) { model.openSettings(.ai) }
+                    PanelButton(title: "Save", symbol: "lock.fill", prominent: true, action: save)
+                    PanelButton(title: "More…", symbol: nil) { model.openSettings(.ai) }
                 }
             }
         }
@@ -635,10 +635,10 @@ struct ComposerView: View {
                     .lineLimit(1...5)
                     .focused($focused)
                     .onSubmit { model.send() }
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 8)
-                    .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(palette.surface))
-                    .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(focused ? palette.accent.opacity(0.6) : palette.stroke, lineWidth: 1))
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 7)
+                    .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(palette.surface))
+                    .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(focused ? palette.accent.opacity(0.7) : palette.stroke, lineWidth: 1))
                     .accessibilityLabel("Message")
                 ModeMenu(model: model)
                 if running {
@@ -680,7 +680,7 @@ struct ModeMenu: View {
             Button("Agent settings…") { model.openSettings(.agent) }
         } label: {
             Image(systemName: modeSymbol)
-                .font(.system(size: 13, weight: .semibold))
+                .font(.system(size: 13))
                 .foregroundStyle(model.settings.agent.mode == .autonomous ? palette.accent : palette.secondary)
         }
         .menuStyle(.button)
@@ -711,8 +711,8 @@ struct ConversationHistoryView: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 8) {
                 Image(systemName: "magnifyingglass").foregroundStyle(palette.tertiary)
-                TextField("Search conversations", text: $query).textFieldStyle(.plain).font(.system(size: 12.5))
-                PillButton(title: "New", symbol: "square.and.pencil") { model.newConversation() }
+                TextField("Search conversations", text: $query).textFieldStyle(.plain).font(.system(size: 13))
+                PanelButton(title: "New", symbol: "square.and.pencil") { model.newConversation() }
             }
             .padding(8)
             .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(palette.surface))
@@ -762,11 +762,11 @@ struct HistoryRow: View {
     var body: some View {
         HStack(spacing: 10) {
             VStack(alignment: .leading, spacing: 2) {
-                Text(summary.title).font(.system(size: 12.5, weight: .medium)).foregroundStyle(palette.primary).lineLimit(1)
+                Text(summary.title).font(.system(size: 13, weight: .medium)).foregroundStyle(palette.primary).lineLimit(1)
                 Text(summary.preview).font(.system(size: 11)).foregroundStyle(palette.secondary).lineLimit(1)
             }
             Spacer()
-            Text(summary.updatedAt, style: .relative).font(.system(size: 10.5)).foregroundStyle(palette.tertiary)
+            Text(summary.updatedAt, style: .relative).font(.system(size: 11)).foregroundStyle(palette.tertiary)
             if hovering {
                 IconButton(symbol: "trash", help: "Delete conversation", size: 11, tint: palette.danger, action: onDelete)
             }

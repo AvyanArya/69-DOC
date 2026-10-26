@@ -2,6 +2,9 @@ import AppKit
 import NotchPilotCore
 import SwiftUI
 
+/// Colours for the island. The island is black like the hardware notch;
+/// everything in it uses macOS system colours and the user's accent colour,
+/// so it reads as part of the system rather than a themed app.
 struct Palette {
     var background: Color
     var surface: Color
@@ -17,41 +20,37 @@ struct Palette {
     var userBubble: Color
     var isDark: Bool
 
+    /// Label opacities follow macOS's dark-appearance label colours.
     static let dark = Palette(
         background: .black,
-        surface: Color.white.opacity(0.065),
-        surfaceHover: Color.white.opacity(0.11),
-        stroke: Color.white.opacity(0.08),
-        primary: Color.white.opacity(0.94),
-        secondary: Color.white.opacity(0.62),
-        tertiary: Color.white.opacity(0.38),
-        accent: Color(red: 0.47, green: 0.55, blue: 1.0),
-        success: Color(red: 0.36, green: 0.85, blue: 0.56),
-        warning: Color(red: 1.0, green: 0.72, blue: 0.3),
-        danger: Color(red: 1.0, green: 0.42, blue: 0.42),
-        userBubble: Color(red: 0.24, green: 0.27, blue: 0.42),
+        surface: Color.white.opacity(0.09),
+        surfaceHover: Color.white.opacity(0.15),
+        stroke: Color.white.opacity(0.1),
+        primary: Color.white,
+        secondary: Color(red: 0.92, green: 0.92, blue: 0.96).opacity(0.6),
+        tertiary: Color(red: 0.92, green: 0.92, blue: 0.96).opacity(0.3),
+        accent: .accentColor,
+        success: .green,
+        warning: .orange,
+        danger: .red,
+        userBubble: .accentColor,
         isDark: true
     )
 
     static let light = Palette(
-        background: Color(white: 0.965),
-        surface: Color.black.opacity(0.045),
-        surfaceHover: Color.black.opacity(0.08),
-        stroke: Color.black.opacity(0.08),
-        primary: Color.black.opacity(0.88),
-        secondary: Color.black.opacity(0.56),
-        tertiary: Color.black.opacity(0.36),
-        accent: Color(red: 0.33, green: 0.38, blue: 0.95),
-        success: Color(red: 0.15, green: 0.62, blue: 0.36),
-        warning: Color(red: 0.85, green: 0.5, blue: 0.05),
-        danger: Color(red: 0.86, green: 0.2, blue: 0.22),
-        userBubble: Color(red: 0.86, green: 0.88, blue: 0.98),
+        background: Color(nsColor: .windowBackgroundColor),
+        surface: Color.black.opacity(0.05),
+        surfaceHover: Color.black.opacity(0.09),
+        stroke: Color.black.opacity(0.1),
+        primary: Color.black.opacity(0.85),
+        secondary: Color.black.opacity(0.5),
+        tertiary: Color.black.opacity(0.25),
+        accent: .accentColor,
+        success: .green,
+        warning: .orange,
+        danger: .red,
+        userBubble: .accentColor,
         isDark: false
-    )
-
-    static let accentGradient = LinearGradient(
-        colors: [Color(red: 0.49, green: 0.37, blue: 1.0), Color(red: 0.26, green: 0.6, blue: 1.0), Color(red: 0.3, green: 0.86, blue: 0.78)],
-        startPoint: .topLeading, endPoint: .bottomTrailing
     )
 }
 
@@ -99,11 +98,11 @@ struct NotchShape: Shape {
 
 // MARK: - Components
 
-/// Borderless icon button with a hover highlight.
+/// Borderless toolbar-style icon button with a hover highlight.
 struct IconButton: View {
     let symbol: String
     var help: String = ""
-    var size: CGFloat = 12
+    var size: CGFloat = 13
     var isActive = false
     var tint: Color?
     let action: () -> Void
@@ -113,10 +112,10 @@ struct IconButton: View {
     var body: some View {
         Button(action: action) {
             Image(systemName: symbol)
-                .font(.system(size: size, weight: .semibold))
+                .font(.system(size: size, weight: .regular))
                 .foregroundStyle(tint ?? (isActive ? palette.primary : palette.secondary))
-                .frame(width: size + 15, height: size + 12)
-                .background(RoundedRectangle(cornerRadius: 7, style: .continuous).fill(isActive || hovering ? palette.surfaceHover : .clear))
+                .frame(width: size + 15, height: size + 11)
+                .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(isActive || hovering ? palette.surfaceHover : .clear))
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -135,8 +134,7 @@ struct Card<Content: View>: View {
         content()
             .padding(padding)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(palette.surface))
-            .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(palette.stroke, lineWidth: 0.5))
+            .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(palette.surface))
     }
 }
 
@@ -147,75 +145,56 @@ struct SectionLabel: View {
 
     var body: some View {
         HStack(spacing: 5) {
-            if let symbol { Image(systemName: symbol).font(.system(size: 10, weight: .semibold)) }
-            Text(title.uppercased()).font(.system(size: 10, weight: .semibold)).tracking(0.6)
+            if let symbol { Image(systemName: symbol).font(.system(size: 11)) }
+            Text(title).font(.system(size: 11, weight: .semibold))
         }
-        .foregroundStyle(palette.tertiary)
+        .foregroundStyle(palette.secondary)
     }
 }
 
-/// Capsule button used for primary actions inside the panel.
-struct PillButton: View {
+/// A standard macOS push button: bordered, or filled with the accent colour
+/// (red when destructive) for the default action.
+struct PanelButton: View {
     let title: String
     var symbol: String?
     var prominent = false
     var destructive = false
     let action: () -> Void
-    @Environment(\.palette) private var palette
-    @State private var hovering = false
 
     var body: some View {
-        Button(action: action) {
-            HStack(spacing: 5) {
-                if let symbol { Image(systemName: symbol).font(.system(size: 11, weight: .semibold)) }
-                Text(title).font(.system(size: 12, weight: .semibold))
-            }
-            .padding(.horizontal, 11)
-            .padding(.vertical, 6)
-            .foregroundStyle(prominent ? Color.white : (destructive ? palette.danger : palette.primary))
-            .background(Capsule().fill(fill))
-            .opacity(hovering ? 0.92 : 1)
-            .contentShape(Capsule())
+        if prominent {
+            button.buttonStyle(.borderedProminent).tint(destructive ? Color.red : Color.accentColor)
+        } else {
+            button.buttonStyle(.bordered)
         }
-        .buttonStyle(.plain)
-        .onHover { hovering = $0 }
     }
 
-    private var fill: AnyShapeStyle {
-        if prominent {
-            return destructive ? AnyShapeStyle(palette.danger) : AnyShapeStyle(Palette.accentGradient)
+    private var button: some View {
+        Button(role: destructive && !prominent ? .destructive : nil, action: action) {
+            if let symbol {
+                Label(title, systemImage: symbol).labelStyle(.titleAndIcon)
+            } else {
+                Text(title)
+            }
         }
-        return AnyShapeStyle(hovering ? palette.surfaceHover : palette.surface)
+        .controlSize(.small)
     }
 }
 
-/// An animated gradient orb representing the assistant.
-struct AssistantOrb: View {
-    var size: CGFloat = 18
+/// The assistant's glyph: SF Symbols' sparkles in the accent colour,
+/// pulsing while it works.
+struct AssistantGlyph: View {
+    var size: CGFloat = 16
     var active = false
     var reduceMotion = false
-    @State private var rotation = 0.0
 
     var body: some View {
-        ZStack {
-            Circle().fill(AngularGradient(colors: [Color(red: 0.49, green: 0.37, blue: 1.0), Color(red: 0.26, green: 0.6, blue: 1.0), Color(red: 0.3, green: 0.86, blue: 0.78), Color(red: 0.49, green: 0.37, blue: 1.0)], center: .center))
-                .rotationEffect(.degrees(rotation))
-            Image(systemName: "sparkle")
-                .font(.system(size: size * 0.5, weight: .bold))
-                .foregroundStyle(.white)
-        }
-        .frame(width: size, height: size)
-        .shadow(color: Color(red: 0.4, green: 0.5, blue: 1).opacity(active ? 0.7 : 0.3), radius: active ? size * 0.4 : size * 0.2)
-        .onAppear { animate() }
-        .onChange(of: active) { _, _ in animate() }
-    }
-
-    private func animate() {
-        guard active, !reduceMotion else {
-            withAnimation(.easeOut(duration: 0.3)) { rotation = 0 }
-            return
-        }
-        withAnimation(.linear(duration: 2.4).repeatForever(autoreverses: false)) { rotation = 360 }
+        Image(systemName: "sparkles")
+            .font(.system(size: size * 0.82, weight: .medium))
+            .symbolRenderingMode(.hierarchical)
+            .foregroundStyle(Color.accentColor)
+            .symbolEffect(.pulse, isActive: active && !reduceMotion)
+            .frame(width: size, height: size)
     }
 }
 

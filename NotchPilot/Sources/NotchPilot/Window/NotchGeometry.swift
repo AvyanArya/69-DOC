@@ -42,7 +42,7 @@ enum NotchGeometry {
 enum NotchLayout {
     /// Concave "ear" radius where the island meets the top edge.
     static func earRadius(expanded: Bool) -> CGFloat { expanded ? 14 : 7 }
-    static func bottomRadius(expanded: Bool, height: CGFloat) -> CGFloat { expanded ? 30 : min(12, height / 2.4) }
+    static func bottomRadius(expanded: Bool, height: CGFloat) -> CGFloat { expanded ? 34 : min(12, height / 2.4) }
     /// Width added on each side for live activities in the collapsed state.
     static let wing: CGFloat = 78
     static let peekGrowth = CGSize(width: 18, height: 6)

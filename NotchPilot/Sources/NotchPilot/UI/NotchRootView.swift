@@ -66,7 +66,7 @@ struct ToastView: View {
             .foregroundStyle(palette.primary)
             .padding(.horizontal, 14)
             .padding(.vertical, 8)
-            .background(Capsule().fill(palette.isDark ? Color(white: 0.16) : Color.white).shadow(color: .black.opacity(0.25), radius: 8, y: 3))
+            .background(Capsule().fill(palette.isDark ? Color(white: 0.17) : Color.white).shadow(color: .black.opacity(0.2), radius: 8, y: 3))
             .padding(.horizontal, 24)
     }
 }
@@ -87,7 +87,7 @@ struct CollapsedView: View {
                 }
                 Spacer(minLength: 0)
                 if !model.notch.hasNotch && model.liveActivity == .none {
-                    AssistantOrb(size: 14, reduceMotion: model.reduceMotion)
+                    AssistantGlyph(size: 14, reduceMotion: model.reduceMotion)
                 }
                 Spacer(minLength: 0)
                 if model.liveActivity != .none {
@@ -102,7 +102,7 @@ struct CollapsedView: View {
                     Image(systemName: "checkmark.circle.fill").foregroundStyle(Palette.dark.success)
                     Text(preview).lineLimit(1)
                 }
-                .font(.system(size: 11.5, weight: .medium))
+                .font(.system(size: 12, weight: .medium))
                 .foregroundStyle(Color.white.opacity(0.85))
                 .padding(.horizontal, 18)
                 .frame(height: NotchLayout.previewHeight)
@@ -130,7 +130,7 @@ struct CollapsedView: View {
     @ViewBuilder private var leading: some View {
         switch model.liveActivity {
         case .working:
-            AssistantOrb(size: 16, active: true, reduceMotion: model.reduceMotion)
+            AssistantGlyph(size: 16, active: true, reduceMotion: model.reduceMotion)
         case .needsApproval:
             Image(systemName: "hand.raised.fill").foregroundStyle(Palette.dark.warning).font(.system(size: 13, weight: .semibold))
         case .done:
@@ -155,7 +155,7 @@ struct CollapsedView: View {
         case .timer:
             TimelineView(.periodic(from: .now, by: 1)) { context in
                 Text(Formatters.countdown(model.services.timer.remaining(at: context.date)))
-                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    .font(.system(size: 12, weight: .semibold))
                     .monospacedDigit()
                     .foregroundStyle(model.services.timer.state.phase == .paused ? .white.opacity(0.5) : .white)
             }
@@ -196,9 +196,9 @@ struct TimerRing: View {
 
     private var color: Color {
         switch timer.state.kind {
-        case .focus: return Color(red: 1.0, green: 0.62, blue: 0.3)
-        case .shortBreak: return Color(red: 0.36, green: 0.85, blue: 0.56)
-        case .custom: return Color(red: 0.47, green: 0.6, blue: 1.0)
+        case .focus: return .orange
+        case .shortBreak: return .green
+        case .custom: return .accentColor
         }
     }
 }
@@ -234,7 +234,7 @@ struct EqualizerBars: View {
         HStack(alignment: .bottom, spacing: 2) {
             ForEach(0..<4, id: \.self) { index in
                 Capsule()
-                    .fill(Palette.accentGradient)
+                    .fill(Color.white.opacity(0.9))
                     .frame(width: 3, height: active ? (phase ? high[index] : low[index]) : 4)
             }
         }

@@ -218,7 +218,7 @@ final class AppModel {
     }
 
     var animation: Animation {
-        reduceMotion ? .easeInOut(duration: 0.16) : .spring(response: 0.42, dampingFraction: 0.82)
+        reduceMotion ? .easeInOut(duration: 0.16) : .spring(response: 0.45, dampingFraction: 0.78)
     }
 
     var expandedSize: CGSize {
