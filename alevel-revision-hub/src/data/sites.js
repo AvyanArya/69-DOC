@@ -5,6 +5,8 @@
   // Every external site the hub links to. `yt` is the YouTube handle used for
   // per-topic channel searches (opens that channel's search for the topic).
   RH.SITES = {
+    gale:    { name: "Mr Gale's Resources", short: 'Mr Gale', url: 'https://www.mrgaleresources.com/maths-student/gcse-menu/a-level-menu', blurb: 'Chapter-by-chapter PowerPoints, crib sheets, video tutorials, question sheets with answers and past papers for A-level Maths and Further Maths.' },
+    gill:    { name: 'Physics With Mr Gill', short: 'Mr Gill', url: 'https://www.youtube.com/@MrGillPhysics/playlists', yt: '@MrGillPhysics', blurb: 'A-level physics exam walkthroughs and "all of a topic in 30 minutes" chapter summaries.' },
     pmt:     { name: 'Physics & Maths Tutor', short: 'PMT', url: 'https://www.physicsandmathstutor.com/', blurb: 'Free notes, cheat sheets, flashcards, questions by topic and every past paper with mark schemes.' },
     mam:     { name: 'Mad Asmaths', short: 'MadAsMaths', url: 'https://madasmaths.com/', blurb: 'Huge free topic booklets with worked answers, plus the IYGB practice papers (harder than the real thing).' },
     fcm:     { name: '1st Class Maths', short: '1stClassMaths', url: 'https://www.1stclassmaths.com/alevelrevision', yt: '@1stClassMaths', blurb: 'Short, exam-focused video tutorials with matching question sheets and solutions.' },
@@ -32,6 +34,7 @@
 
   // What kind of help a resource gives. Order here is the order on topic pages.
   RH.KINDS = {
+    mine:  'My links',
     notes: 'Notes & cheat sheets',
     video: 'Video tutorials',
     qs:    'Practice & exam questions',

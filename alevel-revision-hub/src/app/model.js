@@ -52,19 +52,44 @@
     return topics.reduce((a, t) => a + M.conf(state, t.gid), 0) / (3 * topics.length);
   };
 
-  // Every resource for a topic: its own, its component's, and a search on each of the subject's video channels.
-  M.resources = function (t) {
-    const seen = {};
-    const list = [];
-    const add = (r) => { if (r && r.u && !seen[r.u]) { seen[r.u] = 1; list.push(r); } };
+  const ytId = (u) => { const m = /(?:v=|youtu\.be\/)([\w-]{11})/.exec(u || ''); return m ? m[1] : null; };
+  const galeRes = (list) => (list || []).map((g) => L.r('gale', g[0] === 'page' ? 'notes' : g[0], g[1], g[2]));
+
+  // Direct videos for a topic: Mr Gale's picks first, then the channels mapped to it, then any direct links in the data.
+  M.videos = function (t) {
+    const out = [], seen = {};
+    const add = (ch, id, title) => { if (id && !seen[id]) { seen[id] = 1; out.push({ ch: ch, id: id, title: title }); } };
+    (RH.VIDEOS[t.gid] || []).forEach((v) => add(v[0], v[1], v[2]));
+    (t.res || []).forEach((r) => { if (r.k === 'video') add(r.s, ytId(r.u), r.t.replace(/^[^:]+: /, '')); });
+    (RH.GALE[t.gid] || []).forEach((g) => { if (g[0] === 'video') add('gale', ytId(g[2]), g[1].replace(/^Mr Gale video: /, '')); });
+    return out;
+  };
+  // Channel searches for more videos on the topic.
+  M.videoSearches = (t) => (t.subject.video || []).map((site) => L.r(site, 'video', RH.SITES[site].name, L.ytSearch(site, t.q)));
+
+  // Every non-video resource for a topic, grouped by kind: the topic's own, Mr Gale's, then the section's.
+  M.resources = function (t, state) {
+    const seen = {}, list = [];
+    const add = (r) => { if (r && r.u && r.k !== 'video' && !seen[r.u]) { seen[r.u] = 1; list.push(r); } };
+    const mine = state && state.topics[t.gid] && state.topics[t.gid].links;
+    (mine || []).forEach((x) => add(L.r('mine', 'mine', x.t, x.u)));
+    galeRes(RH.GALE[t.gid]).forEach(add);
     (t.res || []).forEach(add);
+    galeRes(RH.GALE_COMP[t.comp.gid]).forEach(add);
     (t.comp.res || []).forEach(add);
-    (t.subject.video || []).forEach(function (site) {
-      add(L.r(site, 'video', RH.SITES[site].name + ' videos: "' + t.q + '"', L.ytSearch(site, t.q)));
-    });
     const order = Object.keys(RH.KINDS);
     return list.sort((a, b) => order.indexOf(a.k) - order.indexOf(b.k));
   };
+  M.compResources = function (c) {
+    const seen = {}, list = [];
+    const add = (r) => { if (r && r.u && !seen[r.u]) { seen[r.u] = 1; list.push(r); } };
+    galeRes(RH.GALE_COMP[c.gid]).forEach(add);
+    (c.res || []).forEach(add);
+    return list;
+  };
+  M.compVideos = (c) => c.topics.reduce((a, t) => a + M.videos(t).length, 0);
+  M.comp = {};
+  M.subjects.forEach((s) => s.comps.forEach((c) => { M.comp[c.gid] = c; }));
 
   M.paperTopics = (state, s, paperId) => M.subjectTopics(state, s).filter((t) => t.comp.papers.indexOf(paperId) !== -1);
 

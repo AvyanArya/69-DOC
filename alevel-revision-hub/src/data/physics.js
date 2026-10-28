@@ -41,7 +41,7 @@
   RH.SUBJECT_LIST = RH.SUBJECT_LIST || [];
   RH.SUBJECT_LIST.push({
     id: 'physics', short: 'phy', name: 'Physics', board: 'Pearson Edexcel', spec: '9PH0',
-    video: ['phyo', 'cog'],
+    video: ['phyo', 'gill', 'cog'],
     papers: [
       { id: 'p1', code: '9PH0/01', name: 'Paper 1: Advanced Physics I', dur: 105, marks: 90, weight: '30%', what: 'Topics 1–3 and 6–8: mechanics, circuits, further mechanics, fields, nuclear & particle physics.' },
       { id: 'p2', code: '9PH0/02', name: 'Paper 2: Advanced Physics II', dur: 105, marks: 90, weight: '30%', what: 'Topics 1, 4, 5 and 9–13: materials, waves, thermodynamics, space, radiation, gravity, oscillations.' },
