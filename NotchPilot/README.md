@@ -41,7 +41,7 @@ Native Swift, SwiftUI and AppKit. No Electron, no web views, no private APIs.
 
 ## Try it
 
-**Without a Mac:** open [`preview/NotchPilot-Preview.html`](preview/NotchPilot-Preview.html) in a browser for an interactive simulation of the notch, assistant, menu-bar item and Settings window. Its replies are scripted and all data is sample data; nothing is sent anywhere.
+**Without a Mac:** open [`preview/NotchPilot-Preview.html`](preview/NotchPilot-Preview.html) in a browser. It's a playable Mac desktop with the notch island, assistant, Dock, menu-bar item, Settings window, generated music, timers and a file shelf you can drop files onto. Opened as a file, the assistant follows scripts for the suggested requests; published as a claude.ai artifact, it talks to Claude, whose tools act on the page's sample data. Nothing touches your real calendar or files.
 
 After adding a key (Settings → AI Provider):
 
