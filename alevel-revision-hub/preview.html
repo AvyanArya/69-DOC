@@ -2823,18 +2823,27 @@ input[type="checkbox"] { accent-color: var(--pen); width: 16px; height: 16px; }
       req.onerror = () => reject(req.error || new Error('File storage is blocked in this browser.'));
     });
   }
+  // If the browser blocks IndexedDB (private windows, some embeds), files are kept for this visit only.
+  const memFiles = {};
   RH.files = {
     put: async function (key, blob) {
-      const db = await idb();
-      return new Promise((res, rej) => { const tx = db.transaction('files', 'readwrite'); tx.objectStore('files').put(blob, key); tx.oncomplete = () => res(); tx.onerror = () => rej(tx.error); });
+      memFiles[key] = blob;
+      try {
+        const db = await idb();
+        await new Promise((res, rej) => { const tx = db.transaction('files', 'readwrite'); tx.objectStore('files').put(blob, key); tx.oncomplete = () => res(); tx.onerror = () => rej(tx.error); });
+        delete memFiles[key];
+        return true;
+      } catch (e) { return false; }
     },
     get: async function (key) {
+      if (memFiles[key]) return memFiles[key];
       try {
         const db = await idb();
         return await new Promise((res) => { const r = db.transaction('files').objectStore('files').get(key); r.onsuccess = () => res(r.result || null); r.onerror = () => res(null); });
       } catch (e) { return null; }
     },
     del: async function (key) {
+      delete memFiles[key];
       try {
         const db = await idb();
         await new Promise((res) => { const tx = db.transaction('files', 'readwrite'); tx.objectStore('files').delete(key); tx.oncomplete = () => res(); tx.onerror = () => res(); });
