@@ -33,5 +33,9 @@
   U.clamp = (x, a, b) => Math.max(a, Math.min(b, x));
   // Stable 0..1 pseudo-random number from a string, used to break ties without reshuffling plans.
   U.hash01 = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return ((h >>> 0) % 10000) / 10000; };
+  // Clock times: "08:40" <-> minutes after midnight. Times past midnight (bed at 00:30) come back as 1470.
+  U.tm = (s) => { if (typeof s === 'number') return s; const p = String(s || '0:0').split(':').map(Number); return (p[0] || 0) * 60 + (p[1] || 0); };
+  U.hm = (m) => { m = ((Math.round(m) % 1440) + 1440) % 1440; return pad(Math.floor(m / 60)) + ':' + pad(m % 60); };
+  U.dur = (m) => { m = Math.round(m); const h = Math.floor(m / 60), r = m % 60; return h ? h + 'h' + (r ? ' ' + pad(r) : '') : r + 'm'; };
   U.countdown = (days) => days === 0 ? 'today' : days === 1 ? 'tomorrow' : days < 0 ? U.plural(-days, 'day') + ' ago' : 'in ' + U.plural(days, 'day');
 })(window.RH = window.RH || {});

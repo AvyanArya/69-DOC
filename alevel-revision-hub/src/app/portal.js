@@ -262,7 +262,7 @@
   async function drawQuestion(box, paper, qi) {
     const q = paper.questions[qi];
     const doc = await getDoc(paper, 'qp');
-    if (!doc) { box.innerHTML = '<div class="empty"><p><b>The PDF for this paper is not on this device.</b> Upload it again on the paper page to see the questions here.</p><a class="btn btn-sm" href="#paper-' + paper.id + '">Open paper</a></div>'; return; }
+    if (!doc) { box.innerHTML = '<div class="empty"><p><b>The PDF for this paper is not on this device.</b> Upload it again on the paper page to see the questions here.</p><a class="btn sm" href="#paper-' + paper.id + '">Open paper</a></div>'; return; }
     const cssW = Math.min(box.clientWidth || 760, 900);
     const frag = document.createDocumentFragment();
     for (const r of q.r) {
@@ -297,6 +297,36 @@
     box.appendChild(img);
   }
 
+  // Images for the AI checker: each region of a question, and one mark scheme page, as JPEG blobs.
+  const toBlob = (canvas) => new Promise((res) => canvas.toBlob((b) => res(b), 'image/jpeg', 0.88));
+  P.questionImages = async function (paperId, qi) {
+    const paper = st().portal.papers[paperId], q = paper.questions[qi];
+    const doc = await getDoc(paper, 'qp');
+    if (!doc) throw new Error('The PDF for this paper is not on this device. Upload it again on the paper page.');
+    const out = [];
+    for (const r of q.r) {
+      const pc = await pageCanvas(paper, 'qp', doc, r[0], 900);
+      const yA = pc.vp.convertToViewportPoint(0, r[1])[1], yB = pc.vp.convertToViewportPoint(0, r[2])[1];
+      const y0 = Math.max(0, Math.floor(Math.min(yA, yB))), y1 = Math.min(pc.canvas.height, Math.ceil(Math.max(yA, yB)));
+      const c = document.createElement('canvas');
+      c.width = pc.canvas.width; c.height = Math.max(1, y1 - y0);
+      const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height);
+      g.drawImage(pc.canvas, 0, y0, c.width, y1 - y0, 0, 0, c.width, y1 - y0);
+      out.push(await toBlob(c));
+    }
+    return out.slice(0, 3);
+  };
+  P.msImage = async function (paperId, page) {
+    const paper = st().portal.papers[paperId];
+    const doc = await getDoc(paper, 'ms');
+    if (!doc) return null;
+    const pc = await pageCanvas(paper, 'ms', doc, U.clamp(page, 0, doc.numPages - 1), 900);
+    const c = document.createElement('canvas');
+    c.width = pc.canvas.width; c.height = pc.canvas.height;
+    const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(pc.canvas, 0, 0);
+    return toBlob(c);
+  };
+
   // Fill any question or page placeholders after a page renders.
   RH.afterRender.push(function () {
     document.querySelectorAll('[data-qdraw]').forEach(function (box) {
@@ -329,57 +359,57 @@
     return list;
   }
 
-  RH.views.portal = function () {
+  RH.views.papers = RH.views.portal = function () {
     const tab = C.tab('portal', 'papers');
-    let html = C.head('Practise', 'Exam portal', 'Upload a past paper PDF. The portal splits it into questions, runs a timed exam with a pace guide, then helps you mark it against the mark scheme.');
-    html += C.tabs('portal', [['papers', 'My papers', 'portal', Object.keys(st().portal.papers).length], ['results', 'Results', 'log', st().portal.attempts.length + st().papers.length], ['find', 'Find papers', 'link']], tab);
+    let html = C.subnav('study', 'papers') + C.head('Study', 'Past papers', 'Upload a past paper PDF. It is split into questions, you sit it against the clock with a pace guide, then mark it against the mark scheme or have Claude mark each answer.');
+    html += C.tabs('portal', [['papers', 'My papers', 'paper', Object.keys(st().portal.papers).length], ['results', 'Results', 'list', st().portal.attempts.length + st().papers.length], ['find', 'Find papers', 'link']], tab);
     if (tab === 'results') return html + RH.views.results();
     if (tab === 'find') {
       return html + '<p class="help">Download a question paper and its mark scheme, then upload both on the <b>My papers</b> tab.</p><div class="res-cols">' +
-        M.subjects.map((s) => '<section class="panel" data-subj="' + s.id + '"><h2>' + C.stag(s.id) + esc(s.name) + '</h2>' + C.resList(findPapers(s.id)) + '</section>').join('') + '</div>';
+        M.subjects.map((s) => '<section class="card" data-subj="' + s.id + '"><h2>' + C.stag(s.id) + esc(s.name) + '</h2>' + C.resList(findPapers(s.id)) + '</section>').join('') + '</div>';
     }
-    html += '<section class="sheet upload"><h2>Add a paper</h2><form id="uploadForm" class="upload-form">' +
+    html += '<section class="card upload"><h2>Add a paper</h2><form id="uploadForm" class="upload-form">' +
       '<label class="drop" for="up-qp">' + C.icon('upload') + '<b>Question paper (PDF)</b><span class="muted small" id="up-qp-name">Choose or drop the file</span><input type="file" id="up-qp" name="qp" accept="application/pdf,.pdf" required></label>' +
       '<label class="drop" for="up-ms">' + C.icon('notes') + '<b>Mark scheme (PDF, optional)</b><span class="muted small" id="up-ms-name">Add it now or later</span><input type="file" id="up-ms" name="ms" accept="application/pdf,.pdf"></label>' +
-      '<button type="submit" class="btn btn-lg" id="up-go">' + C.icon('portal') + 'Read paper</button></form>' +
+      '<button type="submit" class="btn lg" id="up-go">' + C.icon('paper') + 'Read paper</button></form>' +
       '<p class="help" id="up-status">Works best with Pearson Edexcel papers from PMT, Mr Gale\'s past paper pages or the Pearson website. Files stay on this device.</p></section>';
     const list = papers();
-    html += list.length ? '<section class="panel"><h2>Your papers</h2><ul class="paper-list">' + list.map(function (p) {
+    html += list.length ? '<section class="card"><h2>Your papers</h2><ul class="paper-list">' + list.map(function (p) {
       const b = best(p.id);
-      return '<li class="paper-item"' + (p.subject ? ' data-subj="' + p.subject + '"' : '') + '>' + (p.subject ? C.stag(p.subject) : '<span class="stag stag-none">PDF</span>') +
+      return '<li class="paper-item"' + (p.subject ? ' data-subj="' + p.subject + '"' : '') + '>' + (p.subject ? C.stag(p.subject) : '<span class="tag stag-none">PDF</span>') +
         '<a class="pi-main" href="#paper-' + p.id + '"><b>' + esc(p.title) + '</b><span class="muted small">' + U.plural(p.questions.length, 'question') + (p.marks ? ' · ' + p.marks + ' marks' : '') + ' · ' + U.mins(p.dur) + (p.msFile ? ' · mark scheme added' : '') + '</span></a>' +
-        (b >= 0 ? '<span class="cd mono">Best ' + U.pct(b) + '</span>' : '') +
-        '<button type="button" class="btn btn-sm" data-action="exam-start" data-id="' + p.id + '">' + C.icon('timer') + 'Sit paper</button></li>';
+        (b >= 0 ? '<span class="cd num">Best ' + U.pct(b) + '</span>' : '') +
+        '<button type="button" class="btn sm" data-action="exam-start" data-id="' + p.id + '">' + C.icon('timer') + 'Sit paper</button></li>';
     }).join('') + '</ul></section>' : C.empty('No papers yet.', 'Download one from the "Find papers" tab, then add it above.');
     return html;
   };
 
   RH.views.paper = function (id) {
     const p = st().portal.papers[id];
-    if (!p) return C.head('', 'Paper not found', '') + '<a class="btn" href="#portal">Back to the exam portal</a>';
+    if (!p) return C.head('', 'Paper not found', '') + '<a class="btn" href="#papers">Back to the exam portal</a>';
     const mpm = p.marks ? p.dur / p.marks : null;
     const attempts = attemptsFor(id);
-    let html = C.crumbs([['Exam portal', 'portal'], [p.title]]);
+    let html = C.subnav('study', 'papers') + C.crumbs([['Past papers', 'papers'], [p.title]]);
     html += C.head((p.subject ? C.stag(p.subject) + ' ' : '') + esc(p.code || 'Uploaded paper'), esc(p.title), U.plural(p.questions.length, 'question') + (p.marks ? ' · ' + p.marks + ' marks' : '') + ' · ' + U.mins(p.dur) + (mpm ? ' · about ' + (Math.round(mpm * 10) / 10) + ' min per mark' : ''),
-      '<button type="button" class="btn btn-lg" data-action="exam-start" data-id="' + p.id + '">' + C.icon('timer') + 'Sit full paper</button>');
+      '<button type="button" class="btn lg" data-action="exam-start" data-id="' + p.id + '">' + C.icon('timer') + 'Sit full paper</button>');
     const qsum = totals(p, p.questions.map((q, i) => i)).max;
-    if (p.method === 'markers' && p.marks && qsum !== p.marks) html += '<div class="banner"><p><b>Check the marks.</b> The questions add up to ' + qsum + ' but the paper is out of ' + p.marks + '. Fix any question marks below that look wrong.</p></div>';
-    if (p.method !== 'markers') html += '<div class="banner"><p><b>Check the questions.</b> The paper didn\'t have "Total for Question" lines, so it was split ' + (p.questions.length && p.questions[0].marks == null ? 'by page' : 'by question numbers') + '. Fix the marks below if they look wrong.</p></div>';
-    html += '<section class="panel"><h2>Paper details</h2><div class="three">' +
+    if (p.method === 'markers' && p.marks && qsum !== p.marks) html += '<div class="note"><p><b>Check the marks.</b> The questions add up to ' + qsum + ' but the paper is out of ' + p.marks + '. Fix any question marks below that look wrong.</p></div>';
+    if (p.method !== 'markers') html += '<div class="note"><p><b>Check the questions.</b> The paper didn\'t have "Total for Question" lines, so it was split ' + (p.questions.length && p.questions[0].marks == null ? 'by page' : 'by question numbers') + '. Fix the marks below if they look wrong.</p></div>';
+    html += '<section class="card"><h2>Paper details</h2><div class="form-grid">' +
       '<div class="field"><label for="pp-title">Title</label><input id="pp-title" data-paper="' + id + '" data-pf="title" value="' + esc(p.title) + '"></div>' +
       '<div class="field"><label for="pp-subj">Subject</label><select id="pp-subj" data-paper="' + id + '" data-pf="subject"><option value="">Other</option>' + M.subjects.map((s) => '<option value="' + s.id + '"' + (p.subject === s.id ? ' selected' : '') + '>' + esc(s.name) + '</option>').join('') + '</select></div>' +
-      '<div class="two"><div class="field"><label for="pp-dur">Minutes</label><input id="pp-dur" type="number" min="5" max="300" data-paper="' + id + '" data-pf="dur" value="' + p.dur + '"></div><div class="field"><label for="pp-marks">Marks</label><input id="pp-marks" type="number" min="1" max="400" data-paper="' + id + '" data-pf="marks" value="' + (p.marks || '') + '"></div></div></div>' +
-      '<div class="row-actions"><label class="btn-ghost file-btn">' + C.icon('upload') + (p.msFile ? 'Replace mark scheme' : 'Add mark scheme') + '<input type="file" accept="application/pdf,.pdf" data-paperfile="ms" data-paper="' + id + '"></label>' +
-      '<label class="btn-ghost file-btn">' + C.icon('upload') + 'Re-upload question paper<input type="file" accept="application/pdf,.pdf" data-paperfile="qp" data-paper="' + id + '"></label>' +
-      '<button type="button" class="btn-ghost danger" data-action="paper-remove" data-id="' + id + '">' + C.icon('trash') + 'Delete paper</button></div></section>';
-    html += '<section class="panel"><div class="sec-head"><h2>Questions</h2><span class="muted small">Click a question to preview it</span></div><div class="table-wrap"><table class="tbl qtbl"><thead><tr><th>Question</th><th class="num">Marks</th><th class="num">Suggested time</th><th>Pages</th><th>Topic</th><th></th></tr></thead><tbody>' +
-      p.questions.map((q, i) => '<tr><td><button type="button" class="btn-link" data-action="q-preview" data-id="' + id + '" data-i="' + i + '"><b>Q' + esc(q.n) + '</b></button>' + (q.choice ? ' <span class="pill" title="' + esc(choiceNote(p, q)) + '">choice</span>' : '') + '</td>' +
+      '<div class="form-grid"><div class="field"><label for="pp-dur">Minutes</label><input id="pp-dur" type="number" min="5" max="300" data-paper="' + id + '" data-pf="dur" value="' + p.dur + '"></div><div class="field"><label for="pp-marks">Marks</label><input id="pp-marks" type="number" min="1" max="400" data-paper="' + id + '" data-pf="marks" value="' + (p.marks || '') + '"></div></div></div>' +
+      '<div class="row-actions"><label class="btn alt file-btn">' + C.icon('upload') + (p.msFile ? 'Replace mark scheme' : 'Add mark scheme') + '<input type="file" accept="application/pdf,.pdf" data-paperfile="ms" data-paper="' + id + '"></label>' +
+      '<label class="btn alt file-btn">' + C.icon('upload') + 'Re-upload question paper<input type="file" accept="application/pdf,.pdf" data-paperfile="qp" data-paper="' + id + '"></label>' +
+      '<button type="button" class="btn alt danger" data-action="paper-remove" data-id="' + id + '">' + C.icon('trash') + 'Delete paper</button></div></section>';
+    html += '<section class="card"><div class="card-head"><h2>Questions</h2><span class="muted small">Click a question to preview it</span></div><div class="table-wrap"><table class="tbl qtbl"><thead><tr><th>Question</th><th class="num">Marks</th><th class="num">Suggested time</th><th>Pages</th><th>Topic</th><th></th></tr></thead><tbody>' +
+      p.questions.map((q, i) => '<tr><td><button type="button" class="btn link" data-action="q-preview" data-id="' + id + '" data-i="' + i + '"><b>Q' + esc(q.n) + '</b></button>' + (q.choice ? ' <span class="pill" title="' + esc(choiceNote(p, q)) + '">choice</span>' : '') + '</td>' +
         '<td class="num"><input type="number" class="num-in" min="0" max="200" data-paper="' + id + '" data-qm="' + i + '" value="' + (q.marks == null ? '' : q.marks) + '" aria-label="Marks for question ' + esc(q.n) + '"></td>' +
-        '<td class="num mono">' + (mpm && q.marks ? U.mins(Math.round(q.marks * mpm)) : '–') + '</td><td class="mono small">' + q.r.map((r) => r[0] + 1).filter((v, k, a) => a.indexOf(v) === k).join(', ') + '</td>' +
+        '<td class="num num">' + (mpm && q.marks ? U.mins(Math.round(q.marks * mpm)) : '–') + '</td><td class="num small">' + q.r.map((r) => r[0] + 1).filter((v, k, a) => a.indexOf(v) === k).join(', ') + '</td>' +
         '<td><select class="topic-sel" data-paper="' + id + '" data-qt="' + i + '" aria-label="Topic for question ' + esc(q.n) + '"><option value="">–</option>' + topicOpts(p.subject, q.topic) + '</select></td>' +
-        '<td class="row-actions"><button type="button" class="btn-ghost btn-sm" data-action="exam-start" data-id="' + id + '" data-q="' + i + '">Practise</button>' + (i ? '<button type="button" class="btn-icon" data-action="q-merge" data-id="' + id + '" data-i="' + i + '" title="Merge into previous question" aria-label="Merge into previous question">' + C.icon('x') + '</button>' : '') + '</td></tr>').join('') +
+        '<td class="row-actions"><button type="button" class="btn alt sm" data-action="exam-start" data-id="' + id + '" data-q="' + i + '">Practise</button>' + (i ? '<button type="button" class="icon-btn" data-action="q-merge" data-id="' + id + '" data-i="' + i + '" title="Merge into previous question" aria-label="Merge into previous question">' + C.icon('x') + '</button>' : '') + '</td></tr>').join('') +
       '</tbody></table></div><p class="help">Linking questions to topics lets the portal add lost marks to that topic\'s mistakes log when you mark the paper.</p></section>';
-    if (attempts.length) html += '<section class="panel"><h2>Your attempts</h2>' + attemptTable(attempts) + '</section>';
+    if (attempts.length) html += '<section class="card"><h2>Your attempts</h2>' + attemptTable(attempts) + '</section>';
     return html;
   };
 
@@ -390,9 +420,9 @@
 
   function attemptTable(list) {
     return '<div class="table-wrap"><table class="tbl"><thead><tr><th>Date</th><th>Paper</th><th class="num">Score</th><th class="num">%</th><th class="num">Time used</th><th></th></tr></thead><tbody>' +
-      list.slice().sort((a, b) => b.date.localeCompare(a.date)).map((a) => '<tr' + (a.subject ? ' data-subj="' + a.subject + '"' : '') + '><td class="mono">' + esc(U.fmtShort(a.date)) + '</td><td>' + (a.subject ? C.stag(a.subject) : '') + esc(a.title) + (a.single ? ' <span class="muted small">(Q' + esc(a.single) + ')</span>' : '') + '</td>' +
-        '<td class="num mono">' + a.score + '/' + a.max + '</td><td class="num mono"><b>' + U.pct(a.score / a.max) + '</b></td><td class="num mono">' + RH.timer.fmt(a.used) + ' / ' + U.mins(a.dur) + '</td>' +
-        '<td><button type="button" class="btn-icon" data-action="attempt-del" data-id="' + a.id + '" aria-label="Delete attempt">' + C.icon('trash') + '</button></td></tr>').join('') + '</tbody></table></div>';
+      list.slice().sort((a, b) => b.date.localeCompare(a.date)).map((a) => '<tr' + (a.subject ? ' data-subj="' + a.subject + '"' : '') + '><td class="num">' + esc(U.fmtShort(a.date)) + '</td><td>' + (a.subject ? C.stag(a.subject) : '') + esc(a.title) + (a.single ? ' <span class="muted small">(Q' + esc(a.single) + ')</span>' : '') + '</td>' +
+        '<td class="num num">' + a.score + '/' + a.max + '</td><td class="num num"><b>' + U.pct(a.score / a.max) + '</b></td><td class="num num">' + RH.timer.fmt(a.used) + ' / ' + U.mins(a.dur) + '</td>' +
+        '<td><button type="button" class="icon-btn" data-action="attempt-del" data-id="' + a.id + '" aria-label="Delete attempt">' + C.icon('trash') + '</button></td></tr>').join('') + '</tbody></table></div>';
   }
 
   // ---------- Exam mode ----------
@@ -426,7 +456,7 @@
 
   RH.views.exam = function () {
     const L = live();
-    if (!L) return C.empty('No exam in progress.', 'Start one from a paper in the exam portal.', '<a class="btn" href="#portal">Exam portal</a>');
+    if (!L) return C.empty('No exam in progress.', 'Start one from a paper in the exam portal.', '<a class="btn" href="#papers">Exam portal</a>');
     const p = st().portal.papers[L.paper];
     if (!p) return C.empty('That paper was deleted.', '', '<button type="button" class="btn" data-action="exam-quit">Close exam</button>');
     const pos = L.qs.indexOf(L.current);
@@ -435,25 +465,25 @@
     const sugg = q.marks ? Math.round(q.marks * mpm * 60) : null;
     let html = '<div class="exam-mode" data-subj="' + (p.subject || '') + '">' +
       '<div class="exam-bar"><div class="eb-title"><b>' + esc(p.title) + '</b><span class="muted small">' + (L.single ? 'Practice: question ' + esc(L.single) : U.plural(L.qs.length, 'question') + ' · ' + L.marks + ' marks') + (L.strict ? ' · exam conditions' : '') + '</span></div>' +
-      '<div class="eb-clock"><span class="mono big" id="ex-left">' + RH.timer.fmt(leftSec(L)) + '</span><span class="small" id="ex-pace"></span></div>' +
-      '<div class="eb-actions">' + (L.strict ? '' : '<button type="button" class="btn-ghost btn-sm" data-action="exam-pause">' + C.icon(L.paused ? 'play' : 'pause') + (L.paused ? 'Resume' : 'Pause') + '</button>') +
-      '<button type="button" class="btn-ghost btn-sm" data-action="exam-full" title="Full screen">' + C.icon('expand') + '</button>' +
-      '<button type="button" class="btn btn-sm" data-action="exam-finish">' + C.icon('check') + 'Finish</button></div></div>' +
+      '<div class="eb-clock"><span class="num big" id="ex-left">' + RH.timer.fmt(leftSec(L)) + '</span><span class="small" id="ex-pace"></span></div>' +
+      '<div class="eb-actions">' + (L.strict ? '' : '<button type="button" class="btn alt sm" data-action="exam-pause">' + C.icon(L.paused ? 'play' : 'pause') + (L.paused ? 'Resume' : 'Pause') + '</button>') +
+      '<button type="button" class="btn alt sm" data-action="exam-full" title="Full screen">' + C.icon('expand') + '</button>' +
+      '<button type="button" class="btn sm" data-action="exam-finish">' + C.icon('tick') + 'Finish</button></div></div>' +
       '<div class="meter exam-meter"><span id="ex-meter" style="width:0%"></span></div>';
     html += '<div class="exam-cols"><nav class="qnav" aria-label="Questions">' + L.qs.map((i) => {
       const qq = p.questions[i];
       const cls = (i === L.current ? ' on' : '') + (L.done[i] ? ' done' : L.visited[i] ? ' seen' : '') + (L.flags[i] ? ' flag' : '');
-      return '<button type="button" class="qchip' + cls + '" data-action="exam-go" data-i="' + i + '" aria-current="' + (i === L.current) + '"' + (qq.choice ? ' title="' + esc(choiceNote(p, qq)) + '"' : '') + '><b>Q' + esc(qq.n) + (qq.choice ? ' <span class="or">or</span>' : '') + '</b><span class="mono small">' + (qq.marks == null ? '?' : qq.marks) + 'm</span></button>';
+      return '<button type="button" class="qchip' + cls + '" data-action="exam-go" data-i="' + i + '" aria-current="' + (i === L.current) + '"' + (qq.choice ? ' title="' + esc(choiceNote(p, qq)) + '"' : '') + '><b>Q' + esc(qq.n) + (qq.choice ? ' <span class="or">or</span>' : '') + '</b><span class="num small">' + (qq.marks == null ? '?' : qq.marks) + 'm</span></button>';
     }).join('') + '<p class="qnav-key small muted"><span class="k done"></span>done <span class="k flag"></span>flagged <span class="k seen"></span>seen</p></nav>';
     html += '<section class="qpane">' + (L.paused ? '<div class="paused"><b>Paused</b><p class="muted">The clock is stopped. Questions are hidden until you resume.</p><button type="button" class="btn" data-action="exam-pause">' + C.icon('play') + 'Resume</button></div>' :
-      '<div class="q-head"><h2>Question ' + esc(q.n) + '</h2><span class="muted small">' + (q.marks == null ? 'marks unknown' : U.plural(q.marks, 'mark')) + (sugg ? ' · aim for ' + RH.timer.fmt(sugg) : '') + ' · on it for <span class="mono" id="ex-qtime">' + RH.timer.fmt(elapsedOn(L, L.current)) + '</span></span></div>' +
-      (q.choice ? '<p class="hint choice-note">' + C.icon('flag') + esc(choiceNote(p, q)) + '</p>' : '') +
+      '<div class="q-head"><h2>Question ' + esc(q.n) + '</h2><span class="muted small">' + (q.marks == null ? 'marks unknown' : U.plural(q.marks, 'mark')) + (sugg ? ' · aim for ' + RH.timer.fmt(sugg) : '') + ' · on it for <span class="num" id="ex-qtime">' + RH.timer.fmt(elapsedOn(L, L.current)) + '</span></span></div>' +
+      (q.choice ? '<p class="note choice-note">' + C.icon('flag') + esc(choiceNote(p, q)) + '</p>' : '') +
       '<div class="qcrop" data-qdraw="' + L.current + '" data-paper="' + p.id + '"></div>' +
       '<div class="field"><label for="ex-notes">Working or answer notes (optional)</label><textarea id="ex-notes" data-exnote="' + L.current + '" rows="3" placeholder="Most people write on paper. Use this for quick notes, or to type answers for essay questions.">' + esc(L.notes[L.current] || '') + '</textarea></div>' +
-      '<div class="q-actions"><button type="button" class="btn-ghost" data-action="exam-go" data-i="' + (L.qs[pos - 1] != null ? L.qs[pos - 1] : '') + '"' + (pos > 0 ? '' : ' disabled') + '>' + C.icon('left') + 'Previous</button>' +
-      '<button type="button" class="btn-ghost' + (L.flags[L.current] ? ' on' : '') + '" data-action="exam-flag">' + C.icon('flag') + (L.flags[L.current] ? 'Flagged' : 'Flag to come back') + '</button>' +
-      '<button type="button" class="btn-ghost" data-action="exam-done">' + C.icon('check') + (L.done[L.current] ? 'Marked as done' : 'Mark as done') + '</button>' +
-      (pos < L.qs.length - 1 ? '<button type="button" class="btn" data-action="exam-go" data-i="' + L.qs[pos + 1] + '">Next' + C.icon('right') + '</button>' : '<button type="button" class="btn" data-action="exam-finish">Finish' + C.icon('check') + '</button>') + '</div>') +
+      '<div class="q-actions"><button type="button" class="btn alt" data-action="exam-go" data-i="' + (L.qs[pos - 1] != null ? L.qs[pos - 1] : '') + '"' + (pos > 0 ? '' : ' disabled') + '>' + C.icon('left') + 'Previous</button>' +
+      '<button type="button" class="btn alt' + (L.flags[L.current] ? ' on' : '') + '" data-action="exam-flag">' + C.icon('flag') + (L.flags[L.current] ? 'Flagged' : 'Flag to come back') + '</button>' +
+      '<button type="button" class="btn alt" data-action="exam-done">' + C.icon('tick') + (L.done[L.current] ? 'Marked as done' : 'Mark as done') + '</button>' +
+      (pos < L.qs.length - 1 ? '<button type="button" class="btn" data-action="exam-go" data-i="' + L.qs[pos + 1] + '">Next' + C.icon('right') + '</button>' : '<button type="button" class="btn" data-action="exam-finish">Finish' + C.icon('tick') + '</button>') + '</div>') +
       '</section></div><p class="muted small center keys">Keys: ← → move between questions · F flag</p></div>';
     return html;
   };
@@ -504,34 +534,35 @@
   // ---------- Marking ----------
   RH.views.mark = function () {
     const K = st().portal.marking;
-    if (!K) return C.empty('Nothing to mark.', '', '<a class="btn" href="#portal">Exam portal</a>');
+    if (!K) return C.empty('Nothing to mark.', '', '<a class="btn" href="#papers">Exam portal</a>');
     const p = st().portal.papers[K.paper];
-    if (!p) return C.empty('That paper was deleted.', '', '<a class="btn" href="#portal">Exam portal</a>');
+    if (!p) return C.empty('That paper was deleted.', '', '<a class="btn" href="#papers">Exam portal</a>');
     const q = p.questions[K.current];
     const tt = totals(p, K.qs, K.scores), total = tt.max, score = tt.score;
     const msPage = K.msPage != null ? K.msPage : (q.ms != null ? q.ms : 0);
     const mpm = p.marks ? p.dur / p.marks : 1.2;
-    let html = C.crumbs([['Exam portal', 'portal'], [p.title, 'paper-' + p.id], ['Marking']]);
-    html += C.head('Marking', esc(p.title), 'Time used ' + RH.timer.fmt(K.used) + ' of ' + U.mins(K.dur) + ' · running score <b class="mono">' + score + ' / ' + total + '</b>' + (total ? ' (' + U.pct(score / total) + ')' : ''),
-      '<button type="button" class="btn btn-lg" data-action="mark-save">' + C.icon('check') + 'Save result</button>');
+    let html = C.subnav('study', 'papers') + C.crumbs([['Past papers', 'papers'], [p.title, 'paper-' + p.id], ['Marking']]);
+    html += C.head('Marking', esc(p.title), 'Time used ' + RH.timer.fmt(K.used) + ' of ' + U.mins(K.dur) + ' · running score <b class="num">' + score + ' / ' + total + '</b>' + (total ? ' (' + U.pct(score / total) + ')' : ''),
+      '<button type="button" class="btn lg" data-action="mark-save">' + C.icon('tick') + 'Save result</button>');
     html += '<div class="mark-nav">' + K.qs.map((i) => {
       const qq = p.questions[i];
       const has = K.scores[i] != null && K.scores[i] !== '';
-      return '<button type="button" class="qchip' + (i === K.current ? ' on' : '') + (has ? ' done' : '') + '" data-action="mark-go" data-i="' + i + '"><b>Q' + esc(qq.n) + '</b><span class="mono small">' + (has ? K.scores[i] : '–') + '/' + (qq.marks == null ? '?' : qq.marks) + '</span></button>';
+      return '<button type="button" class="qchip' + (i === K.current ? ' on' : '') + (has ? ' done' : '') + '" data-action="mark-go" data-i="' + i + '"><b>Q' + esc(qq.n) + '</b><span class="num small">' + (has ? K.scores[i] : '–') + '/' + (qq.marks == null ? '?' : qq.marks) + '</span></button>';
     }).join('') + '</div>';
     const t = K.timeOn[K.current] || 0, sugg = q.marks ? q.marks * mpm * 60 : 0;
-    html += '<div class="mark-cols"><section class="sheet"><div class="q-head"><h2>Question ' + esc(q.n) + '</h2><span class="muted small">You spent <b class="mono">' + RH.timer.fmt(t) + '</b>' + (sugg ? ' (aim ' + RH.timer.fmt(sugg) + ')' + (t > sugg * 1.3 ? ' · <span class="pace-bad">too long</span>' : '') : '') + '</span></div>' +
-      (q.choice ? '<p class="hint choice-note">' + C.icon('flag') + esc(choiceNote(p, q)) + ' Only your better mark counts.</p>' : '') +
+    html += '<div class="mark-cols"><section class="card"><div class="q-head"><h2>Question ' + esc(q.n) + '</h2><span class="muted small">You spent <b class="num">' + RH.timer.fmt(t) + '</b>' + (sugg ? ' (aim ' + RH.timer.fmt(sugg) + ')' + (t > sugg * 1.3 ? ' · <span class="pace-bad">too long</span>' : '') : '') + '</span></div>' +
+      (q.choice ? '<p class="note choice-note">' + C.icon('flag') + esc(choiceNote(p, q)) + ' Only your better mark counts.</p>' : '') +
       '<div class="qcrop" data-qdraw="' + K.current + '" data-paper="' + p.id + '"></div>' +
       (K.notes[K.current] ? '<div class="tip"><span class="label">Your notes</span><p>' + esc(K.notes[K.current]) + '</p></div>' : '') +
-      '<div class="score-row"><label for="mk-score"><b>Marks scored</b></label><input id="mk-score" type="number" min="0" max="' + (q.marks || 200) + '" data-mscore="' + K.current + '" value="' + (K.scores[K.current] != null ? esc(K.scores[K.current]) : '') + '" inputmode="numeric"><span class="mono">/ ' + (q.marks == null ? '?' : q.marks) + '</span>' +
-      '<button type="button" class="btn-ghost btn-sm" data-action="mark-full" data-i="' + K.current + '">Full marks</button><button type="button" class="btn-ghost btn-sm" data-action="mark-zero" data-i="' + K.current + '">0</button>' +
-      '<button type="button" class="btn btn-sm" data-action="mark-next">Next question' + C.icon('right') + '</button></div>' +
+      '<div class="score-row"><label for="mk-score"><b>Marks scored</b></label><input id="mk-score" type="number" min="0" max="' + (q.marks || 200) + '" data-mscore="' + K.current + '" value="' + (K.scores[K.current] != null ? esc(K.scores[K.current]) : '') + '" inputmode="numeric"><span class="num">/ ' + (q.marks == null ? '?' : q.marks) + '</span>' +
+      '<button type="button" class="btn alt sm" data-action="mark-full" data-i="' + K.current + '">Full marks</button><button type="button" class="btn alt sm" data-action="mark-zero" data-i="' + K.current + '">0</button>' +
+      '<button type="button" class="btn sm" data-action="mark-next">Next question' + C.icon('right') + '</button></div>' +
+      '<div class="note ai-mark"><p>' + C.icon('spark') + '<b>Get this answer marked by Claude.</b> Photograph what you wrote; the question' + (p.msFile ? ' and mark scheme page are' : ' is') + ' added for you.</p><button type="button" class="btn alt sm" data-action="mark-ai" data-i="' + K.current + '">' + C.icon('check') + 'Check with AI</button></div>' +
       '<div class="field"><label for="mk-topic">Topic this question tests</label><select id="mk-topic" data-paper="' + p.id + '" data-qt="' + K.current + '"><option value="">–</option>' + topicOpts(p.subject, q.topic) + '</select></div></section>' +
-      '<section class="sheet ms-pane"><div class="sec-head"><h2>Mark scheme</h2>' + (p.msFile ? '<span class="row-actions"><button type="button" class="btn-icon" data-action="ms-page" data-v="-1" aria-label="Previous page">' + C.icon('left') + '</button><span class="mono small">page ' + (msPage + 1) + (p.msPagesCount ? ' / ' + p.msPagesCount : '') + '</span><button type="button" class="btn-icon" data-action="ms-page" data-v="1" aria-label="Next page">' + C.icon('right') + '</button></span>' : '') + '</div>' +
+      '<section class="card ms-pane"><div class="card-head"><h2>Mark scheme</h2>' + (p.msFile ? '<span class="row-actions"><button type="button" class="icon-btn" data-action="ms-page" data-v="-1" aria-label="Previous page">' + C.icon('left') + '</button><span class="num small">page ' + (msPage + 1) + (p.msPagesCount ? ' / ' + p.msPagesCount : '') + '</span><button type="button" class="icon-btn" data-action="ms-page" data-v="1" aria-label="Next page">' + C.icon('right') + '</button></span>' : '') + '</div>' +
       (p.msFile ? '<div class="qcrop" data-pagedraw="' + msPage + '" data-kind="ms" data-paper="' + p.id + '"></div>'
-        : '<p class="muted">No mark scheme added for this paper.</p><label class="btn-ghost file-btn">' + C.icon('upload') + 'Add the mark scheme PDF<input type="file" accept="application/pdf,.pdf" data-paperfile="ms" data-paper="' + p.id + '"></label>') + '</section></div>';
-    html += '<label class="toggle"><input type="checkbox" data-mlog="1"' + (K.logMistakes ? ' checked' : '') + '><span class="tg-ui" aria-hidden="true"></span><span class="tg-text"><b>Add lost marks to topic mistakes logs</b><span class="help">For questions linked to a topic, a line goes into that topic\'s notes when you lose more than half the marks.</span></span></label>';
+        : '<p class="muted">No mark scheme added for this paper.</p><label class="btn alt file-btn">' + C.icon('upload') + 'Add the mark scheme PDF<input type="file" accept="application/pdf,.pdf" data-paperfile="ms" data-paper="' + p.id + '"></label>') + '</section></div>';
+    html += '<label class="toggle"><input type="checkbox" data-mlog="1"' + (K.logMistakes ? ' checked' : '') + '><span class="tg" aria-hidden="true"></span><span class="tg-t"><b>Add lost marks to topic mistakes logs</b><span class="help">For questions linked to a topic, a line goes into that topic\'s notes when you lose more than half the marks.</span></span></label>';
     return html;
   };
 
@@ -557,7 +588,7 @@
     });
     RH.ui.tabs.portal = 'results';
     C.toast('Saved: ' + score + '/' + max + ' (' + U.pct(score / max) + ')');
-    location.hash = 'portal';
+    location.hash = 'papers';
     RH.render();
   }
 
@@ -578,23 +609,23 @@
       const pcts = mine.map((p) => p.score / p.max);
       const last3 = pcts.slice(-3);
       const avg = last3.length ? last3.reduce((a, x) => a + x, 0) / last3.length : null;
-      return '<div class="trend" data-subj="' + sub.id + '">' + C.stag(sub.id) + '<span class="tr-n mono">' + (avg == null ? '–' : U.pct(avg)) + '</span><span class="muted small">' + (mine.length ? 'average of last ' + last3.length : 'no papers yet') + '</span>' + spark(pcts) + '</div>';
+      return '<div class="trend" data-subj="' + sub.id + '">' + C.stag(sub.id) + '<span class="tr-n num">' + (avg == null ? '–' : U.pct(avg)) + '</span><span class="muted small">' + (mine.length ? 'average of last ' + last3.length : 'no papers yet') + '</span>' + spark(pcts) + '</div>';
     }).join('') + '</div>';
-    if (s.portal.attempts.length) html += '<section class="panel"><h2>Papers sat in the portal</h2>' + attemptTable(s.portal.attempts) + '</section>';
+    if (s.portal.attempts.length) html += '<section class="card"><h2>Papers sat in the portal</h2>' + attemptTable(s.portal.attempts) + '</section>';
     const sid = RH.ui.paperSubj || 'physics', sub = M.subject[sid];
-    html += '<section class="panel"><h2>Log a paper you did on paper</h2><form id="paperForm" class="paper-form">' +
-      '<div class="three"><div class="field"><label for="p-subj">Subject</label><select id="p-subj" name="subject">' + M.subjects.map((x) => '<option value="' + x.id + '"' + (x.id === sid ? ' selected' : '') + '>' + esc(x.name) + '</option>').join('') + '</select></div>' +
+    html += '<section class="card"><h2>Log a paper you did on paper</h2><form id="paperForm" class="paper-form">' +
+      '<div class="form-grid"><div class="field"><label for="p-subj">Subject</label><select id="p-subj" name="subject">' + M.subjects.map((x) => '<option value="' + x.id + '"' + (x.id === sid ? ' selected' : '') + '>' + esc(x.name) + '</option>').join('') + '</select></div>' +
       '<div class="field"><label for="p-paper">Paper</label><select id="p-paper" name="paper">' + sub.papers.map((p) => '<option value="' + esc(p.code) + '">' + esc(p.code + ' ' + p.name.replace(/^Paper \w+: /, '')) + '</option>').join('') + '<option value="Other">Other / practice paper</option></select></div>' +
       '<div class="field"><label for="p-series">Series</label><input id="p-series" name="series" placeholder="e.g. June 2023"></div></div>' +
-      '<div class="three"><div class="field"><label for="p-score">Score</label><input id="p-score" name="score" type="number" min="0" step="1" required></div>' +
+      '<div class="form-grid"><div class="field"><label for="p-score">Score</label><input id="p-score" name="score" type="number" min="0" step="1" required></div>' +
       '<div class="field"><label for="p-max">Out of</label><input id="p-max" name="max" type="number" min="1" step="1" required value="' + (sub.papers[0] ? sub.papers[0].marks : 100) + '"></div>' +
       '<div class="field"><label for="p-date">Date</label><input id="p-date" name="date" type="date" value="' + today + '"></div></div>' +
       '<div class="field"><label for="p-notes">What went wrong?</label><input id="p-notes" name="notes" placeholder="Topics to fix"></div>' +
       '<button type="submit" class="btn">' + C.icon('plus') + 'Log paper</button></form></section>';
     const list = s.papers.slice().sort((a, b) => b.date.localeCompare(a.date));
-    html += '<section class="panel"><h2>All paper scores</h2>' + (list.length ? '<div class="table-wrap"><table class="tbl"><thead><tr><th>Date</th><th>Subject</th><th>Paper</th><th class="num">Score</th><th class="num">%</th><th>Notes</th><th></th></tr></thead><tbody>' +
-      list.map((p) => '<tr data-subj="' + p.subject + '"><td class="mono">' + esc(U.fmtShort(p.date)) + '</td><td>' + C.stag(p.subject) + '</td><td>' + esc(p.paper) + (p.series ? ' <span class="muted">' + esc(p.series) + '</span>' : '') + '</td><td class="num mono">' + p.score + '/' + p.max + '</td><td class="num mono"><b>' + U.pct(p.score / p.max) + '</b></td><td class="small">' + esc(p.notes || '') + '</td>' +
-        '<td><button type="button" class="btn-icon" data-action="paper-del" data-id="' + p.id + '" aria-label="Delete">' + C.icon('trash') + '</button></td></tr>').join('') + '</tbody></table></div>' : '<p class="muted">No scores yet. Sit a paper in the portal or log one above.</p>') + '</section>';
+    html += '<section class="card"><h2>All paper scores</h2>' + (list.length ? '<div class="table-wrap"><table class="tbl"><thead><tr><th>Date</th><th>Subject</th><th>Paper</th><th class="num">Score</th><th class="num">%</th><th>Notes</th><th></th></tr></thead><tbody>' +
+      list.map((p) => '<tr data-subj="' + p.subject + '"><td class="num">' + esc(U.fmtShort(p.date)) + '</td><td>' + C.stag(p.subject) + '</td><td>' + esc(p.paper) + (p.series ? ' <span class="muted">' + esc(p.series) + '</span>' : '') + '</td><td class="num num">' + p.score + '/' + p.max + '</td><td class="num num"><b>' + U.pct(p.score / p.max) + '</b></td><td class="small">' + esc(p.notes || '') + '</td>' +
+        '<td><button type="button" class="icon-btn" data-action="paper-del" data-id="' + p.id + '" aria-label="Delete">' + C.icon('trash') + '</button></td></tr>').join('') + '</tbody></table></div>' : '<p class="muted">No scores yet. Sit a paper in the portal or log one above.</p>') + '</section>';
     return html;
   };
 
@@ -611,7 +642,7 @@
       location.hash = 'paper-' + paper.id;
       RH.render();
     } catch (e) {
-      btn.disabled = false; btn.innerHTML = C.icon('portal') + 'Read paper';
+      btn.disabled = false; btn.innerHTML = C.icon('paper') + 'Read paper';
       status.textContent = 'That file could not be read: ' + (e && e.message ? e.message : 'unknown error') + '. Make sure it is a PDF, not a scan inside a ZIP.';
     }
   };
@@ -681,8 +712,8 @@
     C.openModal(single != null ? 'Practise question ' + esc(q.n) : 'Sit ' + esc(p.title),
       '<p>' + (single != null ? U.plural(q.marks || 0, 'mark') + '. The timer is set from the paper\'s minutes per mark.' : U.plural(p.questions.length, 'question') + (p.marks ? ', ' + p.marks + ' marks' : '') + ', ' + U.mins(p.dur) + '.') + '</p>' +
       '<div class="field"><label for="ex-extra">Extra time</label><select id="ex-extra"><option value="0">None</option><option value="10">10%</option><option value="25">25%</option><option value="50">50%</option></select></div>' +
-      '<label class="toggle"><input type="checkbox" id="ex-strict"><span class="tg-ui" aria-hidden="true"></span><span class="tg-text"><b>Exam conditions</b><span class="help">No pausing. Have paper, pen and calculator ready.</span></span></label>' +
-      '<div class="row-actions"><button type="button" class="btn btn-lg" data-action="exam-go-start" data-id="' + p.id + '"' + (single != null ? ' data-q="' + single + '"' : '') + '>' + C.icon('play') + 'Start the clock</button><button type="button" class="btn-ghost" data-action="modal-close">Cancel</button></div>');
+      '<label class="toggle"><input type="checkbox" id="ex-strict"><span class="tg" aria-hidden="true"></span><span class="tg-t"><b>Exam conditions</b><span class="help">No pausing. Have paper, pen and calculator ready.</span></span></label>' +
+      '<div class="row-actions"><button type="button" class="btn lg" data-action="exam-go-start" data-id="' + p.id + '"' + (single != null ? ' data-q="' + single + '"' : '') + '>' + C.icon('play') + 'Start the clock</button><button type="button" class="btn alt" data-action="modal-close">Cancel</button></div>');
   }
   RH.actions['exam-go-start'] = function (el) {
     const extra = Number(($('#ex-extra') || {}).value || 0), strict = !!($('#ex-strict') || {}).checked;
@@ -716,7 +747,7 @@
     if (left > 60 && !L.over) C.confirm('Finish the exam?', U.plural(Math.round(left / 60), 'minute') + ' left. You will move on to marking.', 'Finish and mark', finish);
     else finish();
   };
-  RH.actions['exam-quit'] = () => { store.update(function (s) { s.portal.live = null; }); location.hash = 'portal'; };
+  RH.actions['exam-quit'] = () => { store.update(function (s) { s.portal.live = null; }); location.hash = 'papers'; };
   RH.actions['mark-go'] = (el) => { store.update(function (s) { s.portal.marking.current = Number(el.dataset.i); s.portal.marking.msPage = null; }, { silent: true }); RH.render(); };
   RH.actions['mark-next'] = function () {
     const K = st().portal.marking, pos = K.qs.indexOf(K.current);
@@ -733,6 +764,17 @@
     RH.render({ keepScroll: true });
   };
   RH.actions['mark-save'] = saveResult;
+  RH.actions['mark-ai'] = function (el) {
+    const K = st().portal.marking, p = st().portal.papers[K.paper], i = Number(el.dataset.i), q = p.questions[i];
+    RH.ui.tabs['ck-src'] = 'paper';
+    RH.checker.prefill({ subject: p.subject || 'maths', topic: q.topic || '', marks: q.marks ? String(q.marks) : '', answer: K.notes[i] || '', source: { kind: 'paper', paper: p.id, q: i, loading: true } });
+    P.questionImages(p.id, i).then(async function (imgs) {
+      const d = RH.ui.ck; d.qImgs = imgs;
+      const ms = q.ms != null && p.msFile ? await P.msImage(p.id, q.ms) : null;
+      d.msImgs = ms ? [ms] : []; d.source.loading = false; RH.ui.ckOpenMs = !!ms;
+      RH.render({ keepScroll: true });
+    }).catch((e) => C.toast(e.message));
+  };
   RH.actions['q-preview'] = function (el) {
     const p = st().portal.papers[el.dataset.id], i = Number(el.dataset.i);
     C.openModal('Question ' + esc(p.questions[i].n), '<div class="qcrop" data-qdraw="' + i + '" data-paper="' + p.id + '"></div>', { wide: true });
@@ -751,7 +793,7 @@
     C.confirm('Delete "' + p.title + '"?', 'The PDF is removed from this device. Your saved results stay.', 'Delete paper', function () {
       RH.files.del(p.id + ':qp'); RH.files.del(p.id + ':ms');
       store.update(function (s) { delete s.portal.papers[p.id]; if (s.portal.live && s.portal.live.paper === p.id) s.portal.live = null; }, { silent: true });
-      location.hash = 'portal';
+      location.hash = 'papers';
       RH.render();
     });
   };

@@ -20,6 +20,11 @@
       decks: {},
       portal: { papers: {}, attempts: [] },
       prefs: { pomo: { focus: 25, short: 5, long: 15, cycles: 4, auto: true, sound: true }, cardsDaily: 50 },
+      routine: RH.ROUTINE_DEFAULTS(),
+      deliv: { settings: { day: 6, time: '20:00', count: 6, strict: true, carry: true, partner: '' }, weeks: {} },
+      checks: [],
+      focus: { log: [], prefs: { pauseAway: true, awaySecs: 20, sideways: true, chime: true } },
+      cardLog: {},
       ratedAt: 0
     };
   }
@@ -49,7 +54,14 @@
     s.portal.attempts = Array.isArray(s.portal.attempts) ? s.portal.attempts : [];
     s.prefs = Object.assign(defaults().prefs, obj(raw.prefs) ? raw.prefs : {});
     s.prefs.pomo = Object.assign(defaults().prefs.pomo, (raw.prefs || {}).pomo || {});
-    s.v = 2;
+    s.routine = RH.routine.normalise(raw.routine, (raw.plan || {}).settings);
+    const dv = obj(raw.deliv) ? raw.deliv : {};
+    s.deliv = { settings: Object.assign(defaults().deliv.settings, dv.settings || {}), weeks: obj(dv.weeks) ? dv.weeks : {} };
+    s.checks = Array.isArray(raw.checks) ? raw.checks : [];
+    const fc = obj(raw.focus) ? raw.focus : {};
+    s.focus = { log: Array.isArray(fc.log) ? fc.log : [], prefs: Object.assign(defaults().focus.prefs, fc.prefs || {}) };
+    s.cardLog = obj(raw.cardLog) ? raw.cardLog : {};
+    s.v = 3;
     return s;
   }
 
@@ -72,11 +84,12 @@
   };
 
   // Change state through here so every change is saved and the page re-renders.
-  // opts.plan marks the plan dirty; opts.decks lists deck ids that changed (or were deleted).
+  // opts.plan marks the plan dirty; opts.decks lists deck ids that changed (or were deleted); opts.checks marks AI checks dirty.
   S.update = function (fn, opts) {
     fn(S.state);
     S.state.updatedAt = Date.now();
     if (opts && opts.plan) planDirty = true;
+    if (opts && opts.checks) checksDirty = true;
     if (opts && opts.decks) opts.decks.forEach((id) => { deckDirty[id] = 1; });
     writeLocal();
     schedulePush();
@@ -84,7 +97,14 @@
   };
 
   // ---- Cloud sync (claude.ai only) ----
-  let cloud = null, timer = null, inflight = false, again = false, planDirty = true;
+  let cloud = null, timer = null, inflight = false, again = false, planDirty = true, checksDirty = true;
+  // The newest AI checks that fit in one cloud document.
+  function checksDoc(st) {
+    const list = [];
+    let size = 200;
+    for (const c of st.checks) { const n = JSON.stringify(c).length + 1; if (size + n > MAX_DOC) break; size += n; list.push(c); }
+    return { checks: list, updatedAt: st.updatedAt };
+  }
   let deckDirty = {};
 
   function stateDoc(st) {
@@ -92,6 +112,7 @@
     delete body.plan.sessions;
     body.deckIds = Object.keys(st.decks || {});
     delete body.decks;
+    delete body.checks;
     return body;
   }
 
@@ -113,6 +134,7 @@
       if (!full) {
         await cloud.state.set(body);
         if (planDirty) { planDirty = false; await cloud.plan.set(planBody); }
+        if (checksDirty) { checksDirty = false; await cloud.user.doc('checks').set(checksDoc(st)); }
         const ids = Object.keys(deckDirty);
         deckDirty = {};
         for (const id of ids) {
@@ -155,6 +177,8 @@
         const deckSnaps = await Promise.all((remote.deckIds || []).map((d) => folder.doc('deck-' + d).get()));
         deckSnaps.forEach((snap, i) => { if (snap.exists) remote.decks[remote.deckIds[i]] = clone(snap.data()).deck; });
         delete remote.deckIds;
+        const ck = await folder.doc('checks').get();
+        remote.checks = ck.exists ? (clone(ck.data()).checks || []) : [];
         S.state = normalise(remote);
         S.isNew = false;
         writeLocal();
@@ -163,7 +187,7 @@
       } else {
         S.sync = 'cloud';
         if (S.state.updatedAt) {
-          planDirty = true;
+          planDirty = true; checksDirty = true;
           Object.keys(S.state.decks).forEach((d) => { deckDirty[d] = 1; });
           push();
         } else emit('sync');
@@ -186,12 +210,12 @@
     delete raw.app;
     const before = Object.keys(S.state.decks);
     S.state = normalise(raw);
-    S.update(() => {}, { plan: true, decks: before.concat(Object.keys(S.state.decks)) });
+    S.update(() => {}, { plan: true, checks: true, decks: before.concat(Object.keys(S.state.decks)) });
   };
   S.reset = function () {
     const before = Object.keys(S.state.decks);
     S.state = defaults();
-    S.update(() => {}, { plan: true, decks: before });
+    S.update(() => {}, { plan: true, checks: true, decks: before });
   };
   S.defaults = defaults;
 

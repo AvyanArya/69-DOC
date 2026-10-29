@@ -6,35 +6,37 @@
 <!-- page:start -->
 <title>A-Level Revision Hub</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="Topic-by-topic revision for Edexcel A-level Physics, Maths, Further Maths and Economics, with videos, resources, an exam-aware study planner, an exam portal for past-paper PDFs and a Leitner flashcard terminal.">
+<meta name="description" content="Edexcel A-level Physics, Maths, Further Maths and Economics revision: a timed weekly plan around your routine, weekly deliverables, an AI answer checker, past-paper exams, flashcards and a webcam focus tracker.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:wght@400;500&family=Atkinson+Hyperlegible+Next:wght@400;500;600;700&family=Schibsted+Grotesk:wght@600;700;800&display=swap">
 <link rel="stylesheet" href="src/styles.css">
 <!-- head:end -->
 </head>
 <body>
 <div class="app">
-  <aside class="side" aria-label="Main">
-    <a class="brand" href="#today"><span class="brand-mark" aria-hidden="true">A*</span><span class="brand-text">Revision Hub<span>Edexcel · Summer 2027</span></span></a>
-    <nav class="nav" id="nav"></nav>
-    <p class="side-foot">Progress saves automatically.</p>
+  <aside class="rail" aria-label="Main">
+    <a class="brand" href="#home"><span class="brand-mark" aria-hidden="true">A*</span><span class="brand-name">Revision Hub<small>Edexcel · Summer 2027</small></span></a>
+    <nav class="rail-nav" id="nav"></nav>
+    <div class="rail-foot" id="railFoot"></div>
   </aside>
   <div class="main">
-    <header class="top">
-      <a class="brand-mark top-brand" href="#today" aria-label="Revision Hub home">A*</a>
+    <header class="topbar">
+      <a class="brand-mark mini" href="#home" aria-label="Revision Hub home">A*</a>
       <div class="search" role="search">
         <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>
         <input id="q" type="search" placeholder="Search topics, e.g. capacitors, PED, binomial" aria-label="Search topics" autocomplete="off" aria-controls="qres">
         <kbd>/</kbd>
         <div class="search-results" id="qres" role="listbox" hidden></div>
       </div>
-      <button type="button" class="timer-btn" id="timerBtn" data-action="timer-open"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 10v3.5l2.5 1.5M9.5 2.5h5"/></svg><span id="timerLabel">Focus timer</span></button>
+      <a class="timer-pill" id="timerBtn" href="#focus"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 10v3.5l2.5 1.5M9.5 2.5h5"/></svg><span id="timerLabel">Focus</span></a>
+      <a class="icon-btn top-gear" href="#preferences" aria-label="Settings"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></a>
     </header>
     <main id="view" class="view" tabindex="-1"></main>
   </div>
   <nav class="tabbar" id="tabbar" aria-label="Main"></nav>
 </div>
+<div class="cam-dock" id="camDock" hidden><video id="camVideo" muted playsinline aria-label="Your webcam, used by the focus tracker"></video><span class="cam-status"><i></i><span id="camLabel">Off</span></span></div>
 <div id="modal-root" hidden></div>
 <div id="toasts" class="toasts" aria-live="polite"></div>
 <script src="src/data/sites.js"></script>
@@ -48,13 +50,21 @@
 <script src="src/data/decks.js"></script>
 <script src="src/app/util.js"></script>
 <script src="src/app/model.js"></script>
+<script src="src/app/routine.js"></script>
 <script src="src/app/planner.js"></script>
 <script src="src/app/store.js"></script>
+<script src="src/app/ai.js"></script>
 <script src="src/app/ui.js"></script>
+<script src="src/app/deliverables.js"></script>
 <script src="src/app/views.js"></script>
-<script src="src/app/timers.js"></script>
+<script src="src/app/home.js"></script>
+<script src="src/app/study.js"></script>
+<script src="src/app/plan.js"></script>
+<script src="src/app/focus.js"></script>
 <script src="src/app/cards.js"></script>
 <script src="src/app/portal.js"></script>
+<script src="src/app/checker.js"></script>
+<script src="src/app/settings.js"></script>
 <script src="src/app/main.js"></script>
 <!-- page:end -->
 </body>

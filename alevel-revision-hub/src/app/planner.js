@@ -41,11 +41,8 @@
     };
   };
 
-  // Minutes available on a date: a holiday range wins over the normal week.
-  function capacity(S, d) {
-    const h = (S.holidays || []).find((x) => x.from && x.to && d >= x.from && d <= x.to);
-    return h ? Number(h.mins) || 0 : Number(S.week[U.dow(d)]) || 0;
-  }
+  // Minutes of revision a date can hold, from the routine (school, activities, sleep, protected free time).
+  function capacity(state, d) { return RH.routine.day(state, d).cap; }
 
   function weakness(conf) {
     // 0 = not started, 3 = green. Fractions appear while simulating repeated sessions.
@@ -71,7 +68,7 @@
       // Done sessions and anything before the start date stay as history.
       const kept = state.plan.sessions.filter((s) => s.d < start || s.done);
       const keptMins = {};
-      kept.forEach((s) => { if (s.d >= start) { const k = num(s.d); keptMins[k] = (keptMins[k] || 0) + s.m + S.breakLen; } });
+      kept.forEach((s) => { if (s.d >= start) { const k = num(s.d); keptMins[k] = (keptMins[k] || 0) + s.m; } });
 
       const topicExams = {};
       ex.forEach((e) => e.topicIds.forEach((id) => { (topicExams[id] = topicExams[id] || []).push(e); }));
@@ -90,8 +87,8 @@
       const spent = {};
       let spentAll = 0;
 
-      const capOf = [];
-      for (let n = 0; n <= last; n++) capOf[n] = capacity(S, dateOf(n));
+      const capOf = [], winOf = [];
+      for (let n = 0; n <= last; n++) { const info = RH.routine.day(state, dateOf(n)); capOf[n] = info.cap; winOf[n] = info.maxWin; }
 
       const out = [];
       const lastPaper = {};
@@ -116,7 +113,7 @@
             if (cap < 20) return;
             const m = Math.min(S.sessionLen, cap);
             out.push({ id: U.uid(), d: d, k: 'eve', s: e.subject, e: e.id, m: m, why: e.title + ' is tomorrow' });
-            cap -= m + S.breakLen;
+            cap -= m;
           });
         }
         if (S.focusNext && upcoming.length && !only) {
@@ -137,10 +134,10 @@
             const score = Math.min(gap / need, 3) + 3 / (left + 1);
             if (score > bestScore) { best = e; bestScore = score; bestLeft = left; }
           });
-          if (best && cap >= best.dur + 30) {
+          if (best && cap >= best.dur + 30 && winOf[n] >= best.dur + 30) {
             const m = best.dur + 30;
             out.push({ id: U.uid(), d: d, k: 'pp', s: best.subject, e: best.id, m: m, why: best.title + ' ' + U.countdown(bestLeft) + ': paper + marking' });
-            cap -= m + S.breakLen;
+            cap -= m;
             lastPaper[best.id] = n;
             spent[best.subject] = (spent[best.subject] || 0) + m; spentAll += m;
           }
@@ -195,10 +192,14 @@
           st.n++; st.planned = n; st.last = n; st.conf = Math.min(3, st.conf + (st.conf === 0 ? 1 : 0.5));
           used[best.gid] = 1; daySubj.push(best.subject.id);
           spent[best.subject.id] = (spent[best.subject.id] || 0) + m; spentAll += m;
-          cap -= m + S.breakLen;
+          cap -= m;
         }
       }
-      return kept.concat(out).sort((a, b) => a.d.localeCompare(b.d));
+      const all = kept.concat(out).sort((a, b) => a.d.localeCompare(b.d));
+      const byDay = {};
+      all.forEach((x) => { if (x.d >= start) (byDay[x.d] = byDay[x.d] || []).push(x); });
+      Object.keys(byDay).forEach((d) => RH.routine.placeDay(state, d, byDay[d]));
+      return all;
     },
 
     // Plan summary: minutes per subject, and how many topics get at least one session before their first exam.

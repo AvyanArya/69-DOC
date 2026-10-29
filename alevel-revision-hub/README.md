@@ -1,48 +1,48 @@
 # A-Level Revision Hub
 
 A revision website for **Pearson Edexcel A-level Physics (9PH0), Mathematics (9MA0), Further
-Mathematics (9FM0) and Economics A (9EC0)**. It's organised subject → section → sub-topic, and every
-sub-topic has hand-picked videos, notes, practice questions, flashcards and a spec checklist. It also
-has an exam-aware planner built around the real Summer 2027 timetable, an **exam portal** that turns
-past-paper PDFs into timed exams, a **Leitner flashcard terminal** and **Pomodoro / exam timers**.
+Mathematics (9FM0) and Economics A (9EC0)**. It plans every revision session at a real time around
+your school day and activities, sets **weekly deliverables** you have to hand in, marks your exam
+answers with an **AI checker** (modelled on Medly), and tracks real focus time with an optional
+**webcam focus tracker**. Every sub-topic has videos, notes, questions, flashcards and a checklist.
 
 ## 👀 Just open `preview.html`
 
-**[`preview.html`](preview.html)** is one self-contained file. **Double-click it and it opens in your
-browser.** You don't need to install anything or run a server. Everything you do (ratings, notes,
-plan, flashcards, scores) is saved in that browser automatically.
+**[`preview.html`](preview.html)** is one self-contained file. Double-click it and it opens in your
+browser, with nothing to install. Everything you do is saved in that browser automatically.
 
-- Fonts load from Google Fonts when you're online. Offline, the page still works with system fonts.
-- The exam portal loads its PDF reader (pdf.js, from cdnjs) the first time you upload a paper, so
-  that part needs an internet connection.
-- To move your progress to another computer, use **Settings → Export backup**, then **Import
-  backup** on the other machine. Uploaded PDFs stay on the device you uploaded them on.
+- The AI checker needs Claude. On claude.ai it uses your own Claude account. In `preview.html`,
+  add an Anthropic API key in **Settings** (it stays in that browser only).
+- The webcam focus tracker works in `preview.html` (Chrome, Edge, Firefox, Safari). claude.ai blocks
+  cameras for pages, so it is switched off there.
+- The first PDF upload and the first tracker start need internet to load their libraries.
+- Move your progress between computers with **Settings → Export backup / Import backup**.
 
 ## How it's laid out
 
-The sidebar (bottom tab bar on phones) has five areas: **Today**, **Learn**, **Plan**, **Practise** and
-**Tools**. Every page uses the same tabs pattern, so you always know where things are.
+Five places, always in the left menu (bottom tab bar on phones):
 
-| Level | Tabs |
+| Area | Pages |
 |---|---|
-| **Subject** (e.g. Physics) | Sections · Past papers & resources · Whole-course / exam-technique videos · Flashcards |
-| **Section** (e.g. Topic 2: Mechanics, Pure Year 1, 3.4 Market Structures) | Sub-topics (rate each one red/amber/green) · Notes · Practice & papers · More |
-| **Sub-topic** (e.g. Motion, vectors & SUVAT) | **Videos** (opens first) · Notes · Practice · Flashcards · Checklist (with a 10-minute blurt test) · My notes (notes, mistakes log and your own links) |
+| **Home** | Today's timeline (school, activities, timed sessions, free time), what to do next, this week's deliverables, focus hours, flashcards due, exam countdown. |
+| **Study** | Subjects → sections → sub-topics (Videos · Notes · Practice · Flashcards · Checklist · My notes), Flashcards, Past papers, Resources, How to revise. |
+| **Plan** | This week (time grid), Deliverables, Routine, Exams, Strategy. |
+| **Check** | Check an answer, History. |
+| **Focus** | Pomodoro, countdown, exam timer and stopwatch, plus the focus tracker. |
 
-## What's inside
+## What's new in this version
 
-| Page | What it does |
+| Feature | What it does |
 |---|---|
-| **Today** | A 3-step setup checklist, today's sessions with direct links to videos/notes/questions, "worth revising next", flashcards due, countdown to every paper, confidence per subject, weekly hours and streak. |
-| **Planner** | *Calendar*: week view of sessions, export to `.ics` (Apple, Outlook) or `.csv` (Google Calendar). *Criteria*: six numbered panels covering strategy presets, when you can revise (weekly hours and holidays), session length, what matters most (weak topics, exam urgency, coverage, past-paper weeks), subject share of time, and rules (spaced repetition, mixing subjects, exam-eve review, skip untaught, next test only). *Exams & tests*: the official 2027 timetable with readiness per paper, plus your own mocks and class tests. |
-| **Exam portal** | Upload a question paper PDF (and optionally its mark scheme). It reads the paper code, subject, time allowed and total marks from the cover, then splits the paper into questions using Edexcel's "(Total for Question N = M marks)" lines. Sit the full paper or a single question: big countdown, pace guide ("3 min ahead"), time per question, flag and "done" markers, pause (or strict exam conditions), extra time (10/25/50%), full screen, and warnings at 30/10/5 minutes. Then mark it question by question with the mark scheme page alongside. Lost marks can go straight into that topic's mistakes log, and every result goes into *Results* with a trend per subject. Economics "answer one of Q7 or Q8" sections are detected so totals stay right. |
-| **Flashcard terminal** | Leitner system with 5 boxes (reviewed after 1, 2, 4, 8, 16 days; a miss goes back to box 1). Import from **Quizlet** (Export → copy text), **Gizmo**, **Anki** (plain-text export) or any CSV/TSV, with separator detection and a live preview, and keep a link back to the original set. Study modes: Leitner review, flip through, type the answer (typo-tolerant), multiple choice and a timed match game. Keyboard shortcuts, a Pomodoro button inside study sessions, and four starter decks (Physics definitions, Economics definitions, Maths and Further Maths results to know by heart). Decks can be linked to a subject or sub-topic and show up on those pages. |
-| **Timers** | Pomodoro (focus / short / long breaks, cycles, auto-start, sound), exam timer (pick any of your papers, extra time, 30/10/5-minute warnings), countdown and stopwatch with laps. The timer keeps running in the top bar while you use the rest of the site, and can be started from any session. |
-| **Resource library / How to revise / Settings** | Every site linked; a phase-by-phase plan for 2026–27, study techniques and subject strategies; your name, theme, Further Maths options and backups. |
+| **Routine** | For each day: school on/off and times, wake-up and bedtime, how many hours you want to revise and how many hours of free time to protect. Plus travel time, a break after school, getting-ready and wind-down time, earliest/latest revision, session length, breaks, longest stretch, regular commitments (sport, a job, clubs, meals) with days and times, one-off plans, and holidays with their own hours. It shows how your week splits (sleep, school, activities, revision, free time) and warns when your targets don't fit. |
+| **Timed plan** | Every session gets a start time inside your free windows. It never clashes with school, activities or meals, never goes over your daily target and never eats your protected free time. The week view is a calendar grid; on phones it's a day-by-day timeline. Exports to `.ics` / `.csv` with times. |
+| **Weekly deliverables** | Each week the planner sets 3–8 things to hand in by your deadline (default Sunday 20:00), taken from that week's plan: a timed paper or 20 marks of exam questions, one-page summaries, 3 answers marked in Check, a focus-hours target, flashcard reviews, a blurt test. Hand-ins need proof (a photo, your score, what you wrote) and can be checked by Claude, which sends weak work back. Automatic ones (focus, flashcards, Check) count themselves. You sign a weekly commitment; a copyable report can go to a parent or tutor. When the deadline passes you must close the week: missed work carries over, strict mode adds a catch-up task and keeps Home locked until you do. Your streak counts fully delivered weeks. |
+| **AI answer checker** | Type or photograph the question, mark scheme and your answer (or pick a question from an uploaded past paper, cropped for you). Claude marks it the Edexcel way — M/A/B marks for Maths, units/s.f./ecf for Physics, KAA and evaluation levels for Economics — mark by mark, quoting your own words. Then: how to get full marks (with example rewrites), what you did well, an exam tip, a hidden full-mark answer, and a follow-up chat. Improve and resubmit to see your mark go up, or get a similar practice question with a hidden mark scheme. Weak answers go into that topic's mistakes log. |
+| **Focus tracker** | Turn on your webcam on the Focus page. Face detection (MediaPipe, run on your device; nothing is recorded or uploaded) checks you're at your desk. Leave for 20 seconds (adjustable) and the timer pauses and stops counting; sit back down and it resumes. Looking sideways at a phone can count as not focused. Focused minutes feed your weekly focus deliverable. |
 
-Further Maths covers Core Pure 1 & 2 plus all eight options (FP1, FS1, FM1, D1, FP2, FS2, FM2, D2).
-Pick your two options once (FS1 + FM1 are suggested, matching Mr Gale's coverage) and the plan, exams
-and topic lists only use those.
+Earlier features are all still here: the past-paper exam portal (PDF split into questions, timed
+exam, marking against the mark scheme), the Leitner flashcard terminal with Quizlet/Gizmo/Anki
+import, the strategy presets, and the official Summer 2027 timetable.
 
 ### Videos and resources
 
@@ -90,8 +90,9 @@ alevel-revision-hub/
     ├── data/             # sites.js, physics.js, maths.js, further-maths.js, economics.js,
     │                     # exams.js (official 2027 timetable), guide.js,
     │                     # videos.js (direct videos + Mr Gale resources), decks.js (starter flashcards)
-    └── app/              # util.js, model.js, planner.js, store.js, ui.js (shared components),
-                          # views.js (core pages), timers.js, cards.js, portal.js, main.js (router)
+    └── app/              # util.js, model.js, routine.js (time slots), planner.js, store.js, ai.js (Claude),
+                          # ui.js, deliverables.js, views.js, home.js, study.js, plan.js, focus.js,
+                          # cards.js, portal.js, checker.js, settings.js, main.js (router)
 ```
 
 No framework and no build dependencies. To change content, edit the files in `src/data/`, then run:

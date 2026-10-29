@@ -11,15 +11,15 @@
 
   // ---------- Routing ----------
   // Some names are reserved by the claude.ai viewer, so they map to other pages.
-  const RESERVED = { settings: 'preferences', sidebar: 'today', customize: 'preferences', upgrade: 'today', downloads: 'preferences' };
+  const RESERVED = { settings: 'preferences', sidebar: 'home', customize: 'preferences', upgrade: 'home', downloads: 'preferences' };
   // Old links that are now tabs inside another page.
-  const ALIAS = { exams: ['planner', 'plan', 'exams'], papers: ['portal', 'portal', 'results'], results: ['portal', 'portal', 'results'] };
+  const ALIAS = { today: ['home'], planner: ['plan'], subjects: ['study'], portal: ['papers'], results: ['papers', 'portal', 'results'], timers: ['focus'], practise: ['papers'], more: ['home'] };
   function route() {
     let h = (location.hash || '').replace(/^#/, '');
-    h = RESERVED[h] || h || 'today';
+    h = RESERVED[h] || h || 'home';
     if (ALIAS[h]) {
       const a = ALIAS[h];
-      ui.tabs[a[1]] = a[2];
+      if (a[1]) ui.tabs[a[1]] = a[2];
       try { history.replaceState(null, '', '#' + a[0]); } catch (e) { /* file:// in some browsers */ }
       h = a[0];
     }
@@ -29,7 +29,7 @@
 
   function pageFor(r) {
     const pre = (p) => r.indexOf(p) === 0 ? r.slice(p.length) : null;
-    const simple = { today: V.today, planner: V.planner, subjects: V.subjects, portal: V.portal, exam: V.exam, mark: V.mark, cards: V.cards, study: V.study, timers: V.timers, practise: V.practise, library: V.library, guide: V.guide, preferences: V.prefs, more: V.more };
+    const simple = { home: V.home, study: V.study, plan: V.plan, deliverables: V.deliverables, routine: V.routine, exams: V.exams, strategy: V.strategy, check: V.check, checks: V.checks, focus: V.focus, cards: V.cards, review: V.review, papers: V.papers, exam: V.exam, mark: V.mark, library: V.library, guide: V.guide, preferences: V.prefs };
     if (simple[r]) return simple[r]();
     let x;
     if ((x = pre('s-')) !== null) return V.subject(x);
@@ -37,6 +37,7 @@
     if ((x = pre('t-')) !== null) return V.topic(x);
     if ((x = pre('paper-')) !== null) return V.paper(x);
     if ((x = pre('deck-')) !== null) return V.deck(x);
+    if ((x = pre('check-')) !== null) return V.checkOne(x);
     return V.notFound();
   }
 
@@ -44,7 +45,7 @@
     const t = r.indexOf('t-') === 0 && M.topic[r.slice(2)];
     const c = r.indexOf('c-') === 0 && M.comp[r.slice(2)];
     const s = r.indexOf('s-') === 0 && M.subject[r.slice(2)];
-    const names = { planner: 'Planner', portal: 'Exam portal', exam: 'Exam in progress', mark: 'Marking', cards: 'Flashcards', study: 'Studying', timers: 'Timers', practise: 'Practise', library: 'Resource library', guide: 'How to revise', preferences: 'Settings' };
+    const names = { study: 'Subjects', plan: 'This week', deliverables: 'Deliverables', routine: 'Routine', exams: 'Exams', strategy: 'Strategy', check: 'Check an answer', checks: 'Checked answers', focus: 'Focus', papers: 'Past papers', exam: 'Exam in progress', mark: 'Marking', cards: 'Flashcards', review: 'Reviewing cards', library: 'Resources', guide: 'How to revise', preferences: 'Settings' };
     const name = t ? t.name : c ? c.name : s ? s.name : names[r];
     return (name ? name + ' · ' : '') + 'A-Level Revision Hub';
   }
@@ -57,7 +58,7 @@
     try { html = pageFor(r); }
     catch (e) {
       console.error(e);
-      html = C.head('', 'Something went wrong', 'This page hit an error. Your saved data is safe.') + '<p class="mono small">' + esc(e && e.message) + '</p><a class="btn" href="#today">Go to Today</a>';
+      html = C.head('', 'Something went wrong', 'This page hit an error. Your saved data is safe.') + '<p class="num small">' + esc(e && e.message) + '</p><a class="btn" href="#home">Go home</a>';
     }
     const keepScroll = opts && opts.keepScroll && r === lastRoute;
     const y = window.scrollY;
@@ -65,7 +66,9 @@
     const focusId = active && active.id && view.contains(active) ? active.id : null;
     view.innerHTML = html;
     $('#nav').innerHTML = V.nav(r);
+    $('#railFoot').innerHTML = V.railFoot(r);
     $('#tabbar').innerHTML = V.tabbar(r);
+    document.body.classList.toggle('in-exam', r === 'exam' || r === 'review');
     document.title = titleFor(r);
     document.body.dataset.route = r.replace(/-.*/, '');
     if (keepScroll) {
@@ -78,6 +81,7 @@
     lastRoute = r;
     RH.afterRender.forEach((fn) => { try { fn(r); } catch (e) { console.error(e); } });
     if (RH.timer) RH.timer.paint();
+    if (RH.face) RH.face.paint();
   }
   RH.render = render;
 
@@ -108,22 +112,22 @@
     if (!x) return;
     const t = x.t && M.topic[x.t];
     const kind = RH.KIND[x.k];
-    let body = '<p class="modal-meta">' + C.stag(x.s) + '<span class="kind k-' + x.k + '">' + esc(kind.label) + '</span><span class="mono">' + esc(U.fmt(x.d)) + ' · ' + U.mins(x.m) + '</span></p>' +
+    let body = '<p class="meta-line">' + C.stag(x.s) + C.chip(esc(kind.label)) + '<span class="num muted">' + esc(U.fmt(x.d)) + ' · ' + V.when(x) + ' · ' + U.mins(x.m) + '</span></p>' +
       (t ? '<p class="muted small">' + esc(t.comp.name) + '</p>' : '') + (x.why ? '<p class="small">' + esc(x.why) + '</p>' : '') +
-      '<p class="sess-how">' + esc(kind.how) + '</p>';
+      '<p>' + esc(kind.how) + '</p>';
     if (t) {
       const vids = M.videos(t).slice(0, 4);
-      body += '<h3 class="label">Confidence</h3>' + C.ragFull(t.gid, M.conf(st(), t.gid)) +
-        (vids.length ? '<h3 class="label">Videos</h3>' + C.videoGrid(vids, t.subject.id) : '') +
-        '<div class="modal-res">' + C.resGroups(M.resources(t, st()).filter((r) => r.k !== 'other').slice(0, 8)) + '</div>';
+      body += '<p class="label">Confidence</p>' + C.ragFull(t.gid, M.conf(st(), t.gid)) +
+        (vids.length ? '<p class="label">Videos</p>' + C.videoGrid(vids, t.subject.id) : '') +
+        '<div class="res-cols">' + C.resGroups(M.resources(t, st()).filter((r) => r.k !== 'other').slice(0, 8)) + '</div>';
     } else if (x.e) {
-      body += '<p class="small">Sit it in the <a href="#portal">Exam portal</a> to time it question by question, or download a paper:</p><div class="modal-res">' + C.resGroups(M.subject[x.s].res.filter((r) => r.k === 'papers')) + '</div>';
+      body += '<p class="small">Sit it in <a href="#papers">Past papers</a> to time it question by question, or download a paper:</p><div class="res-cols">' + C.resGroups(M.subject[x.s].res.filter((r) => r.k === 'papers')) + '</div>';
     }
     body += '<div class="row-actions">' +
-      '<button type="button" class="btn" data-action="sess-done" data-id="' + x.id + '" data-close="1">' + C.icon('check') + (x.done ? 'Mark not done' : 'Mark done') + '</button>' +
-      (x.done ? '' : '<button type="button" class="btn-ghost" data-action="timer-open" data-id="' + x.id + '">' + C.icon('timer') + 'Start a timer</button><button type="button" class="btn-ghost" data-action="sess-later" data-id="' + x.id + '" data-close="1">' + C.icon('later') + 'Move to next day</button>') +
-      (t ? '<a class="btn-ghost" href="#t-' + t.gid + '">Open sub-topic</a>' : '') +
-      '<button type="button" class="btn-ghost danger" data-action="sess-del" data-id="' + x.id + '">' + C.icon('trash') + 'Delete</button></div>';
+      '<button type="button" class="btn" data-action="sess-done" data-id="' + x.id + '" data-close="1">' + C.icon('tick') + (x.done ? 'Mark not done' : 'Mark done') + '</button>' +
+      (x.done ? '' : '<button type="button" class="btn alt" data-action="timer-open" data-id="' + x.id + '">' + C.icon('timer') + 'Start a timer</button><button type="button" class="btn alt" data-action="sess-later" data-id="' + x.id + '" data-close="1">' + C.icon('later') + 'Move to next day</button>') +
+      (t ? '<a class="btn alt" href="#t-' + t.gid + '">Open sub-topic</a>' : '') +
+      '<button type="button" class="btn ghost danger-t" data-action="sess-del" data-id="' + x.id + '">' + C.icon('trash') + 'Delete</button></div>';
     C.openModal(esc(V.sessTitle(x)), body, { subj: x.s, wide: true });
   }
 
@@ -134,12 +138,10 @@
     M.upcomingExams(s).forEach(function (e) {
       items.push({ kind: 'exam', date: e.date, time: e.time || '09:00', mins: e.dur, title: (e.official ? e.code + ' ' : '') + e.full.replace(/^Paper/, e.title.split(' Paper')[0] + ' Paper'), desc: e.official ? 'Pearson Edexcel. Check your centre for the room.' : 'Mock / test' });
     });
-    const byDay = {};
-    s.plan.sessions.filter((x) => x.d >= today && !x.done).forEach((x) => { (byDay[x.d] = byDay[x.d] || []).push(x); });
-    Object.keys(byDay).sort().forEach(function (d) {
-      const list = byDay[d];
-      const total = list.reduce((a, x) => a + x.m, 0);
-      items.push({ kind: 'day', date: d, title: 'Revision: ' + U.mins(total), desc: list.map((x) => '• ' + M.subject[x.s].name + ': ' + V.sessTitle(x) + ' (' + RH.KIND[x.k].label + ', ' + U.mins(x.m) + ')').join('\n') });
+    s.plan.sessions.filter((x) => x.d >= today && !x.done).forEach(function (x) {
+      const desc = M.subject[x.s].name + ' · ' + RH.KIND[x.k].label + '. ' + RH.KIND[x.k].how;
+      if (x.t0 != null) items.push({ kind: 'exam', date: x.d, time: U.hm(x.t0), mins: x.m, title: C.TAG[x.s] + ': ' + V.sessTitle(x), desc: desc });
+      else items.push({ kind: 'day', date: x.d, title: C.TAG[x.s] + ': ' + V.sessTitle(x) + ' (' + U.mins(x.m) + ')', desc: desc });
     });
     return items;
   }
@@ -243,6 +245,7 @@
     store.update(function (s) {
       s.plan.sessions.push({ id: U.uid(), d: U.today(), k: M.conf(s, t.gid) >= 2 ? 'practice' : 'learn', s: t.subject.id, t: t.gid, m: S.sessionLen, why: 'Added by you' });
       s.plan.sessions.sort((a, b) => a.d.localeCompare(b.d));
+      RH.routine.placeDay(s, U.today(), s.plan.sessions.filter((q) => q.d === U.today()));
     }, { plan: true });
     C.toast('Added "' + t.name + '" to today');
   };
@@ -272,7 +275,7 @@
     return true;
   }
   A['topic-tab'] = (el) => linkToTab('topic', el);
-  A['planner-tab'] = (el) => linkToTab('plan', el);
+  A['check-topic'] = function (el) { const t = M.topic[el.dataset.id]; RH.ui.tabs['ck-src'] = 'type'; RH.checker.prefill({ subject: t.subject.id, topic: t.gid }); };
 
   // Sessions
   A['sess-open'] = (el) => sessionModal(el.dataset.id);
@@ -299,11 +302,14 @@
     store.update(function (s) {
       const y = s.plan.sessions.find((q) => q.id === id);
       const base = y.d < U.today() ? U.today() : y.d;
+      const from = y.d;
       y.d = U.addDays(base, 1);
       s.plan.sessions.sort((a, b) => a.d.localeCompare(b.d));
+      [from, y.d].forEach((d) => { if (d >= U.today()) RH.routine.placeDay(s, d, s.plan.sessions.filter((q) => q.d === d)); });
     }, { plan: true });
     if (el.dataset.close) C.closeModal();
-    C.toast('Moved to ' + U.fmt(findSession(id).d));
+    const moved = findSession(id);
+    C.toast('Moved to ' + U.fmt(moved.d) + (moved.t0 != null ? ' at ' + U.hm(moved.t0) : ', but it doesn’t fit that day’s free time'));
   };
   A['sess-del'] = function (el) {
     const id = el.dataset.id;
@@ -324,13 +330,13 @@
     buildPlan(true);
     C.toast(p.label + ' plan built');
   };
-  A['week-prev'] = () => { ui.week = U.addDays(ui.week || U.weekStart(U.today()), -7); render({ keepScroll: true }); };
-  A['week-next'] = () => { ui.week = U.addDays(ui.week || U.weekStart(U.today()), 7); render({ keepScroll: true }); };
-  A['week-today'] = () => { ui.week = null; render({ keepScroll: true }); };
+  A['week-prev'] = () => { ui.week = U.addDays(ui.week || U.weekStart(U.today()), -7); ui.day = null; render({ keepScroll: true }); };
+  A['week-next'] = () => { ui.week = U.addDays(ui.week || U.weekStart(U.today()), 7); ui.day = null; render({ keepScroll: true }); };
+  A['week-today'] = () => { ui.week = null; ui.day = null; render({ keepScroll: true }); };
   A['hol-add'] = function () {
     store.update(function (s) {
       const today = U.today();
-      s.plan.settings.holidays.push({ id: 'h' + U.uid(), name: 'Busy week', from: today, to: U.addDays(today, 6), mins: 0 });
+      s.plan.settings.holidays.push({ id: 'h' + U.uid(), name: 'Time off', from: today, to: U.addDays(today, 6), mins: 240 });
       s.plan.settingsAt = Date.now();
     });
   };
@@ -371,7 +377,7 @@
     importBackup(text);
   };
   A['reset-all'] = function () {
-    C.confirm('Reset everything?', 'This deletes all ratings, notes, tests, flashcards, paper scores and your plan on this device and in your account. Export a backup first if you might want it back.', 'Reset everything', function () {
+    C.confirm('Reset everything?', 'This deletes all ratings, notes, tests, flashcards, paper scores, checked answers, deliverables, your routine and your plan on this device and in your account. Export a backup first if you might want it back.', 'Reset everything', function () {
       store.reset(); applyTheme(); buildPlan(true); C.toast('Everything was reset');
     });
   };
@@ -560,7 +566,7 @@
   document.addEventListener('focusin', function (ev) { if (ev.target.id === 'q' && ev.target.value) searchPaint(); });
   $('#qres').addEventListener('click', function (ev) { if (ev.target.closest('.qr')) { $('#q').value = ''; searchClose(); } });
 
-  window.addEventListener('hashchange', function () { C.closeModal(); searchClose(); ui.justDone = null; render(); });
+  window.addEventListener('hashchange', function () { C.closeModal(); searchClose(); ui.justDone = null; if (!/^#plan$/.test(location.hash)) ui.day = null; render(); });
 
   store.on(function (why) {
     if (why === 'sync') { if (route() === 'preferences') render({ keepScroll: true }); return; }
@@ -571,6 +577,8 @@
   // ---------- Boot ----------
   store.load();
   applyTheme();
+  // Plans made before the routine existed have no start times yet.
+  if (st().plan.sessions.some((x) => x.d >= U.today() && !x.done && x.t0 === undefined)) RH.routine.placeAll(st());
   // A first visit opens with a starter plan, so Today shows real sessions straight away.
   if (!st().plan.builtAt) {
     st().plan.sessions = RH.planner.generate(st());
