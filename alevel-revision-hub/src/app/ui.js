@@ -88,8 +88,8 @@
 
   // ---------- Page furniture ----------
   C.page = function (o) {
-    return '<header class="page-head"><div class="ph-text">' + (o.eyebrow ? '<p class="eyebrow">' + o.eyebrow + '</p>' : '') +
-      '<h1>' + o.title + '</h1>' + (o.lede ? '<p class="lede">' + o.lede + '</p>' : '') + '</div>' + (o.actions ? '<div class="ph-actions">' + o.actions + '</div>' : '') + '</header>';
+    return '<header class="doc-head"><div>' + (o.eyebrow ? '<p class="kicker">' + o.eyebrow + '</p>' : '') +
+      '<h1>' + o.title + '</h1>' + (o.lede ? '<p class="meta">' + o.lede + '</p>' : '') + '</div>' + (o.actions ? '<div class="doc-acts">' + o.actions + '</div>' : '') + '</header>';
   };
   C.head = (eyebrow, title, lede, actions) => C.page({ eyebrow: eyebrow, title: title, lede: lede, actions: actions });
   C.crumbs = (items) => '<nav class="crumbs" aria-label="Breadcrumb">' + items.map((x, i) => (i ? '<span class="sep" aria-hidden="true">/</span>' : '') + (x[1] ? '<a href="#' + x[1] + '">' + esc(x[0]) + '</a>' : '<span aria-current="page">' + esc(x[0]) + '</span>')).join('') + '</nav>';
@@ -97,9 +97,9 @@
   // The five areas in the top menu, and the pages each one lists in the bar under it.
   RH.AREAS = {
     home: { label: 'Home', icon: 'home', href: 'home', pages: [] },
-    learn: { label: 'Learn', icon: 'study', href: 'study', pages: [['study', 'All subjects'], ['s-physics', 'Physics', 'physics'], ['s-maths', 'Maths', 'maths'], ['s-further', 'Further Maths', 'further'], ['s-economics', 'Economics', 'economics'], ['guide', 'How to revise'], ['library', 'Resources']] },
+    learn: { label: 'Subjects', icon: 'study', href: 'study', pages: [['study', 'All subjects'], ['s-physics', 'Physics', 'physics'], ['s-maths', 'Maths', 'maths'], ['s-further', 'Further Maths', 'further'], ['s-economics', 'Economics', 'economics'], ['guide', 'How to revise'], ['library', 'Resources']] },
     practise: { label: 'Practise', icon: 'qs', href: 'papers', pages: [['papers', 'Past papers'], ['check', 'Check an answer'], ['checks', 'Marked answers'], ['cards', 'Flashcards']] },
-    plan: { label: 'Plan', icon: 'plan', href: 'plan', pages: [['plan', 'This week'], ['deliverables', 'Deliverables'], ['routine', 'Routine'], ['exams', 'Exams'], ['strategy', 'Strategy']] },
+    plan: { label: 'Planner', icon: 'plan', href: 'plan', pages: [['plan', 'This week'], ['deliverables', 'Deliverables'], ['routine', 'Routine'], ['exams', 'Exams'], ['strategy', 'Strategy']] },
     focus: { label: 'Focus', icon: 'focus', href: 'focus', pages: [] }
   };
   // Area menus are drawn once by the page frame (see views.js), so pages no longer add their own.

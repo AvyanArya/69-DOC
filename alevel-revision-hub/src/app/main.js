@@ -66,9 +66,9 @@
     const focusId = active && active.id && view.contains(active) ? active.id : null;
     view.innerHTML = html;
     $('#nav').innerHTML = V.nav(r);
-    const sub = V.subbar(r);
-    $('#subbar').innerHTML = sub;
-    $('#subbar').hidden = !sub;
+    const side = V.side(r);
+    $('#side').innerHTML = side;
+    $('#page').classList.toggle('no-side', !side);
     $('#foot').innerHTML = V.foot();
     $('#tabbar').innerHTML = V.tabbar(r);
     document.body.classList.toggle('in-exam', r === 'exam' || r === 'review');

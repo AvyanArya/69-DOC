@@ -8,18 +8,16 @@
   RH.ACTIVITY_KINDS = { meal: 'Meal', sport: 'Sport', job: 'Work', club: 'Club or lesson', family: 'Family', other: 'Other' };
 
   RH.ROUTINE_DEFAULTS = function () {
-    const day = (school, wake, bed, study, free) => ({ school: school, start: '08:40', end: '15:30', wake: wake, bed: bed, study: study, free: free });
+    // Every time around the day is set per day. Blank ('') means none: no travel, no limit, and so on.
+    const day = (school, wake, bed, study, free) => ({ school: school, start: '08:40', end: '15:30', wake: wake, bed: bed, study: study, free: free,
+      travelTo: school ? 30 : '', travelBack: school ? 30 : '', afterSchool: school ? 30 : '', prep: school ? 45 : 30, windDown: 45, earliest: '', latest: '21:45' });
     return {
       days: [
         day(true, '07:00', '22:45', 150, 90), day(true, '07:00', '22:45', 150, 90), day(true, '07:00', '22:45', 150, 90),
         day(true, '07:00', '22:45', 150, 90), day(true, '07:00', '23:15', 90, 150),
-        day(false, '08:30', '23:30', 240, 240), day(false, '08:30', '22:45', 210, 180)
+        day(false, '08:30', '23:00', 210, 210), day(false, '08:30', '23:00', 210, 210)
       ],
-      travel: 30,        // minutes each way
-      prep: 45,          // from waking to being ready to work
-      windDown: 45,      // no revision this close to bed
-      afterSchool: 30,   // a break before revising on school days
-      earliest: '07:30', latest: '21:45',
+      split: { wk: false, we: false }, // set days in a group one by one
       stretch: 120,      // longest run of sessions before a long break
       longBreak: 20,
       prefer: 'early',   // fill free time from the start of the day ('early') or the end ('late')
@@ -39,12 +37,30 @@
       return d;
     }
     const r = Object.assign(d, raw);
-    r.days = (Array.isArray(raw.days) && raw.days.length === 7 ? raw.days : d.days).map((x, i) => Object.assign({}, RH.ROUTINE_DEFAULTS().days[i], x));
+    const had = Array.isArray(raw.days) && raw.days.length === 7;
+    r.days = (had ? raw.days : d.days).map(function (x, i) {
+      const out = Object.assign({}, RH.ROUTINE_DEFAULTS().days[i], x);
+      // Older routines kept these for the whole week: copy them onto each day.
+      if (had && x.travelTo === undefined && raw.travel !== undefined) { out.travelTo = out.school ? raw.travel : ''; out.travelBack = out.school ? raw.travel : ''; }
+      ['prep', 'windDown', 'earliest', 'latest'].forEach((k) => { if (had && x[k] === undefined && raw[k] !== undefined) out[k] = raw[k]; });
+      if (had && x.afterSchool === undefined && raw.afterSchool !== undefined) out.afterSchool = out.school ? raw.afterSchool : '';
+      return out;
+    });
+    if (!raw.split) {
+      const same = (ix) => ix.every((i) => R.FIELDS.every((k) => String(r.days[i][k]) === String(r.days[ix[0]][k])));
+      r.split = { wk: !same([0, 1, 2, 3]), we: !same([5, 6]) };
+    }
     r.activities = Array.isArray(raw.activities) ? raw.activities : d.activities;
     r.events = Array.isArray(raw.events) ? raw.events : [];
     r.holiday = Object.assign(RH.ROUTINE_DEFAULTS().holiday, raw.holiday || {});
     return r;
   };
+
+  // The day groups the routine page shows, in order, and the fields each day has.
+  R.GROUPS = [['wk', 'Monday to Thursday', [0, 1, 2, 3]], ['fri', 'Friday', [4]], ['we', 'Saturday and Sunday', [5, 6]]];
+  R.FIELDS = ['school', 'start', 'end', 'travelTo', 'travelBack', 'afterSchool', 'wake', 'prep', 'bed', 'windDown', 'earliest', 'latest', 'study', 'free'];
+  const mins = (v) => (v === '' || v == null ? 0 : Number(v) || 0);
+  R.mins = mins;
 
   const holidayOn = (S, d) => (S.holidays || []).find((h) => h.from && h.to && d >= h.from && d <= h.to) || null;
   R.holidayOn = holidayOn;
@@ -87,15 +103,16 @@
     if (bed <= wake) bed += 1440;
     const add = (kind, start, end, label, extra) => { if (end > start) blocks.push(Object.assign({ kind: kind, start: start, end: end, label: label }, extra || {})); };
 
-    add('morning', wake, wake + (Number(r.prep) || 0), 'Get ready');
+    const prep = mins(base.prep), wind = mins(base.windDown);
+    add('morning', wake, wake + prep, 'Get ready');
     let school = null;
     if (!hol && base.school && !exams.length) {
       school = { start: tm(base.start), end: tm(base.end) };
-      const tr = Number(r.travel) || 0;
-      add('travel', school.start - tr, school.start, 'Travel');
+      const to = mins(base.travelTo), back = mins(base.travelBack);
+      add('travel', school.start - to, school.start, 'Travel to school');
       add('school', school.start, school.end, 'School');
-      add('travel', school.end, school.end + tr, 'Travel');
-      add('rest', school.end + tr, school.end + tr + (Number(r.afterSchool) || 0), 'Break after school');
+      add('travel', school.end, school.end + back, 'Travel home');
+      add('rest', school.end + back, school.end + back + mins(base.afterSchool), 'Break after school');
     }
     exams.forEach(function (e) {
       const s = tm(e.time || '09:00');
@@ -114,16 +131,18 @@
       if (e <= s) e += 1440;
       add('event', s, e, ev.name || 'Busy', { id: ev.id });
     });
-    add('winddown', bed - (Number(r.windDown) || 0), bed, 'Wind down');
+    add('winddown', bed - wind, bed, 'Wind down');
     // Sessions already done today keep their slots.
     (opts && opts.keep || []).forEach((x) => { if (x.t0 != null) add('kept', x.t0, x.t0 + x.m, ''); });
 
-    const from = Math.max(wake + (Number(r.prep) || 0), tm(r.earliest));
-    const to = Math.min(bed - (Number(r.windDown) || 0), tm(r.latest) <= tm(r.earliest) ? tm(r.latest) + 1440 : tm(r.latest));
+    const from = Math.max(wake + prep, base.earliest ? tm(base.earliest) : 0);
+    let last = base.latest ? tm(base.latest) : bed;
+    if (last <= from - 240) last += 1440; // a latest finish after midnight
+    const to = Math.min(bed - wind, last);
     const windows = from < to ? gaps(from, to, blocks) : [];
     const freeTotal = windows.reduce((a, w) => a + w.end - w.start, 0);
-    const target = hol ? (Number(hol.mins) || 0) : (Number(base.study) || 0);
-    const freeWant = hol ? (hol.free != null ? Number(hol.free) : Number(r.holiday.free) || 0) : (Number(base.free) || 0);
+    const target = hol ? (Number(hol.mins) || 0) : mins(base.study);
+    const freeWant = hol ? (hol.free != null ? Number(hol.free) : Number(r.holiday.free) || 0) : mins(base.free);
     const fits = packable(windows, S.sessionLen, S.breakLen);
     const cap = Math.max(0, Math.min(target, freeTotal - freeWant, fits));
     return {

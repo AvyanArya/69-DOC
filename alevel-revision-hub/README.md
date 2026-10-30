@@ -21,15 +21,17 @@ browser, with nothing to install. Everything you do is saved in that browser aut
 
 ## How it's laid out
 
-Five places in the menu along the top (a tab bar at the bottom on phones). The bar under the menu lists
-the pages in that area.
+Laid out like Save My Exams. A navy bar across the top holds **Home, Physics, Maths, Further Maths,
+Economics, Practise, Planner, Focus** (a tab bar at the bottom on phones). A menu down the left shows where
+you are. On a lesson it's that subject's sections, with the current section's lessons ticked off as you go.
+Elsewhere it lists the pages in that area. Pages are plain white with headings, lists and thin rules.
 
 | Area | Pages |
 |---|---|
-| **Home** | Pick up the lesson you're on, today's timeline (school, activities, timed sessions, free time), what's next, this week's deliverables, your courses, flashcards due, exam countdown. |
-| **Learn** | Your courses: Physics, Maths, Further Maths, Economics. Each course is numbered sections of numbered lessons, plus How to revise and Resources. |
+| **Home** | The lesson to carry on with, today's timeline, what's due this week, exam countdown. |
+| **Physics / Maths / Further Maths / Economics** | Every section and lesson in order, then the exam papers, whole-course videos, flashcards and resources. How to revise and Resources are in the left menu. |
 | **Practise** | Past papers, Check an answer (AI marking), Marked answers, Flashcards. |
-| **Plan** | This week (time grid), Deliverables, Routine, Exams, Strategy. |
+| **Planner** | This week, Deliverables, Routine, Exams, Strategy. |
 | **Focus** | Pomodoro, countdown, exam timer and stopwatch, plus the focus tracker. |
 
 ### A lesson, step by step
@@ -50,8 +52,10 @@ specification numbers).
 
 | Feature | What it does |
 |---|---|
-| **Course layout** | A new interface, styled like a course site. Subjects are courses, sections are numbered, and each lesson is one ordered page (watch, learn, test yourself, exam questions, finish) instead of separate tabs. Home picks up the lesson you're on. |
-| **Routine** | For each day: school on/off and times, wake-up and bedtime, how many hours you want to revise and how many hours of free time to protect. Plus travel time, a break after school, getting-ready and wind-down time, earliest/latest revision, session length, breaks, longest stretch, regular commitments (sport, a job, clubs, meals) with days and times, one-off plans, and holidays with their own hours. It shows how your week splits (sleep, school, activities, revision, free time) and warns when your targets don't fit. |
+| **Save My Exams-style design** | Navy top bar with the subjects, a left-hand menu with the topic tree, plain white pages, one typeface (Inter), far fewer boxes. |
+| **Routine by day** | The routine is set in three columns: Monday–Thursday, Friday, then Saturday & Sunday, with a switch to set any of those days one at a time. Every day has its own school times, travel there and back, break after school, wake-up, getting ready, bedtime, wind-down, hours of revision, hours of free time, and earliest/latest revision. Travel and the other extras are optional: leave a box empty and the planner leaves that time out. |
+| **Course layout** | Subjects are lists of numbered lessons. Subjects are courses, sections are numbered, and each lesson is one ordered page (watch, learn, test yourself, exam questions, finish) instead of separate tabs. Home picks up the lesson you're on. |
+| **Routine** | Per day (see above), plus session length, breaks, longest stretch, regular commitments (sport, a job, clubs, meals) with days and times, one-off plans, and holidays with their own hours. It shows how your week splits (sleep, school, activities, revision, free time) and warns when your targets don't fit. |
 | **Timed plan** | Every session gets a start time inside your free windows. It never clashes with school, activities or meals, never goes over your daily target and never eats your protected free time. The week view is a calendar grid; on phones it's a day-by-day timeline. Exports to `.ics` / `.csv` with times. |
 | **Weekly deliverables** | Each week the planner sets 3–8 things to hand in by your deadline (default Sunday 20:00), taken from that week's plan: a timed paper or 20 marks of exam questions, one-page summaries, 3 answers marked in Check, a focus-hours target, flashcard reviews, a blurt test. Hand-ins need proof (a photo, your score, what you wrote) and can be checked by Claude, which sends weak work back. Automatic ones (focus, flashcards, Check) count themselves. You sign a weekly commitment; a copyable report can go to a parent or tutor. When the deadline passes you must close the week: missed work carries over, strict mode adds a catch-up task and keeps Home locked until you do. Your streak counts fully delivered weeks. |
 | **AI answer checker** | Type or photograph the question, mark scheme and your answer (or pick a question from an uploaded past paper, cropped for you). Claude marks it the Edexcel way — M/A/B marks for Maths, units/s.f./ecf for Physics, KAA and evaluation levels for Economics — mark by mark, quoting your own words. Then: how to get full marks (with example rewrites), what you did well, an exam tip, a hidden full-mark answer, and a follow-up chat. Improve and resubmit to see your mark go up, or get a similar practice question with a hidden mark scheme. Weak answers go into that topic's mistakes log. |

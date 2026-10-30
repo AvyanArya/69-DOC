@@ -85,30 +85,51 @@
       '<ul class="balance-key">' + parts.map((p) => '<li><i class="lgd kind-' + p[0] + '"></i><span>' + p[1] + '</span><b class="num">' + U.dur(p[2]) + '</b></li>').join('') + '</ul>' +
       (tot.short.length ? '<div class="note small"><b>Not everything fits.</b> ' + tot.short.map((x) => esc(DAYNAMES[U.dow(x.d)]) + ': ' + U.dur(x.cap) + ' of ' + U.dur(x.target) + (x.freeTotal - x.freeWant < x.target ? ' (only ' + U.dur(Math.max(0, x.freeTotal)) + ' free, and you want ' + U.dur(x.freeWant) + ' of it kept free)' : '')).join('; ') + '.</div>' : '') + '</section>';
 
-    // Days table
-    html += '<section class="card"><div class="card-head"><h2>Each day</h2><button type="button" class="btn ghost sm" data-action="r-copy">Copy Monday to Tuesday–Friday</button></div>' +
-      '<div class="table-wrap"><table class="tbl routine-tbl"><thead><tr><th>Day</th><th>School</th><th>Wake</th><th>Bed</th><th>Revise (h)</th><th>Free time (h)</th><th class="num">Fits</th></tr></thead><tbody>' +
-      r.days.map(function (d, i) {
-        const info = R.day(s, U.addDays(ws, i));
-        return '<tr><th scope="row">' + DAYNAMES[i] + '</th><td><div class="school-cell"><label class="mini-toggle"><input type="checkbox" data-rday="' + i + '" data-f="school"' + (d.school ? ' checked' : '') + ' aria-label="School on ' + DAYNAMES[i] + '"><span></span></label>' +
-          '<input type="time" data-rday="' + i + '" data-f="start" value="' + esc(d.start) + '" aria-label="School starts"' + (d.school ? '' : ' disabled') + '><span class="muted">–</span><input type="time" data-rday="' + i + '" data-f="end" value="' + esc(d.end) + '" aria-label="School ends"' + (d.school ? '' : ' disabled') + '></div></td>' +
-          '<td><input type="time" data-rday="' + i + '" data-f="wake" value="' + esc(d.wake) + '" aria-label="Wake up"></td><td><input type="time" data-rday="' + i + '" data-f="bed" value="' + esc(d.bed) + '" aria-label="Bedtime"></td>' +
-          '<td><input type="number" min="0" max="14" step="0.25" inputmode="decimal" data-rday="' + i + '" data-f="study" value="' + hrs(d.study) + '" aria-label="Hours of revision"></td>' +
-          '<td><input type="number" min="0" max="14" step="0.25" inputmode="decimal" data-rday="' + i + '" data-f="free" value="' + hrs(d.free) + '" aria-label="Hours of free time"></td>' +
-          '<td class="num ' + (info.short ? 'warn-t' : 'ok-t') + '">' + U.dur(info.cap) + '</td></tr>';
-      }).join('') + '</tbody></table></div><p class="help">“Free time” is time you want kept for yourself: friends, hobbies, games, rest. The planner never books revision into it. “Fits” is how much revision actually fits once everything else is in.</p></section>';
+    // The days, in three groups: Monday to Thursday, Friday, the weekend.
+    // One column per group (Monday to Thursday, Friday, the weekend), or per day when a group is split.
+    const cols = [];
+    R.GROUPS.forEach(function (g) {
+      const ix = g[2], split = ix.length > 1 && r.split && r.split[g[0]];
+      if (split) ix.forEach((i) => cols.push([String(i), DAYNAMES[i]]));
+      else cols.push([ix.join(','), ix.length === 1 ? DAYNAMES[ix[0]] : U.DAYS[ix[0]] + '–' + U.DAYS[ix[ix.length - 1]]]);
+    });
+    const val = (c, f) => r.days[Number(c[0].split(',')[0])][f];
+    const row = function (f, label, kind, opt) {
+      const needSchool = ['start', 'end', 'travelTo', 'travelBack', 'afterSchool'].indexOf(f) !== -1;
+      return '<tr><th scope="row">' + label + (opt ? ' <span class="opt-t">optional</span>' : '') + '</th>' + cols.map(function (c) {
+        if (needSchool && !val(c, 'school')) return '<td class="muted">—</td>';
+        const v = val(c, f);
+        const at = ' data-rday="' + c[0] + '" data-f="' + f + '" aria-label="' + esc(label + ', ' + c[1]) + '"';
+        let input;
+        if (kind === 'toggle') input = '<label class="mini-toggle"><input type="checkbox"' + at + (v ? ' checked' : '') + '><span></span></label>';
+        else if (kind === 'time') input = '<span class="t-cell"><input type="time"' + at + ' value="' + esc(v || '') + '">' + (opt && v ? '<button type="button" class="clear-x" data-action="r-clear" data-rday="' + c[0] + '" data-f="' + f + '" aria-label="Clear ' + esc(label + ', ' + c[1]) + '">' + C.icon('x') + '</button>' : '') + '</span>';
+        else if (kind === 'hours') input = '<span class="u-cell"><input type="number" min="0" max="16" step="0.25" inputmode="decimal" placeholder="0"' + at + ' value="' + (v === '' || v == null ? '' : hrs(v)) + '"><span class="unit">h</span></span>';
+        else input = '<span class="u-cell"><input type="number" min="0" max="300" step="5" inputmode="numeric" placeholder="none" data-kind="mins"' + at + ' value="' + (v === '' || v == null ? '' : esc(v)) + '"><span class="unit">min</span></span>';
+        return '<td>' + input + '</td>';
+      }).join('') + '</tr>';
+    };
+    const sub = (t) => '<tr class="rg-sub"><th colspan="' + (cols.length + 1) + '">' + t + '</th></tr>';
+    const fits = '<tr class="rg-fit"><th scope="row">Revision that fits</th>' + cols.map(function (c) {
+      const info = R.day(s, U.addDays(ws, Number(c[0].split(',')[0])));
+      return '<td class="' + (info.short ? 'warn-t' : 'ok-t') + '">' + U.dur(info.cap) + (info.short ? ' of ' + U.dur(info.target) : '') + '</td>';
+    }).join('') + '</tr>';
+    html += '<section class="card rg"><div class="card-head"><h2>Each day</h2><div class="rg-splits">' +
+      C.toggle('data-action="r-split" data-g="wk"', 'Set Monday–Thursday one day at a time', r.split && r.split.wk) + C.toggle('data-action="r-split" data-g="we"', 'Set Saturday and Sunday separately', r.split && r.split.we) + '</div></div>' +
+      '<p class="help">Leave a box empty if it doesn’t apply: no travel, no break, no limit. “Free time” is time kept for yourself; the planner never books revision into it.</p>' +
+      '<div class="table-wrap"><table class="tbl rg-tbl"><thead><tr><th></th>' + cols.map((c) => '<th scope="col">' + c[1] + '</th>').join('') + '</tr></thead><tbody>' +
+      sub('School') + row('school', 'School', 'toggle') + row('start', 'Starts', 'time') + row('end', 'Ends', 'time') +
+      row('travelTo', 'Travel there', 'mins', true) + row('travelBack', 'Travel home', 'mins', true) + row('afterSchool', 'Break after school', 'mins', true) +
+      sub('Sleep') + row('wake', 'Wake up', 'time') + row('prep', 'Getting ready', 'mins', true) + row('bed', 'Bedtime', 'time') + row('windDown', 'Wind down before bed', 'mins', true) +
+      sub('Revision') + row('study', 'Hours of revision', 'hours') + row('free', 'Hours of free time', 'hours', true) + row('earliest', 'Earliest start', 'time', true) + row('latest', 'Latest finish', 'time', true) +
+      fits + '</tbody></table></div></section>';
 
-    // Around school
+    // Sessions
     const num = (k, label, help, min, max, step) => '<label class="field"><span>' + label + '</span><input type="number" min="' + min + '" max="' + max + '" step="' + (step || 5) + '" data-rset="' + k + '" value="' + esc(r[k]) + '">' + (help ? '<span class="help">' + help + '</span>' : '') + '</label>';
-    html += '<div class="grid-2"><section class="card"><div class="card-head"><h2>Around school and sleep</h2></div><div class="form-grid">' +
-      num('travel', 'Travel each way (min)', '', 0, 120) + num('afterSchool', 'Break after school (min)', 'Before revision starts.', 0, 120) +
-      num('prep', 'Getting ready after waking (min)', '', 0, 120) + num('windDown', 'Wind down before bed (min)', 'No revision this close to sleep.', 0, 120) +
-      '<label class="field"><span>Earliest revision</span><input type="time" data-rset="earliest" value="' + esc(r.earliest) + '"></label><label class="field"><span>Latest finish</span><input type="time" data-rset="latest" value="' + esc(r.latest) + '"></label></div></section>';
     html += '<section class="card"><div class="card-head"><h2>Sessions</h2></div><div class="form-grid">' +
       '<label class="field"><span>Session length</span><select data-set="sessionLen" data-num="1">' + C.opts([[25, '25 min'], [30, '30 min'], [45, '45 min'], [60, '60 min'], [90, '90 min']], S.sessionLen) + '</select></label>' +
       '<label class="field"><span>Break between</span><select data-set="breakLen" data-num="1">' + C.opts([[5, '5 min'], [10, '10 min'], [15, '15 min']], S.breakLen) + '</select></label>' +
       num('stretch', 'Longest stretch (min)', 'Then a longer break.', 30, 300, 15) + num('longBreak', 'Longer break (min)', '', 10, 60) + '</div>' +
-      '<div class="field"><span>When to revise in your free time</span>' + C.seg([['early', 'As early as possible'], ['late', 'As late as possible']], r.prefer, 'data-action="r-prefer"') + '</div></section></div>';
+      '<div class="field"><span>When to revise in your free time</span>' + C.seg([['early', 'As early as possible'], ['late', 'As late as possible']], r.prefer, 'data-action="r-prefer"') + '</div></section>';
 
     // Activities
     html += '<section class="card"><div class="card-head"><h2>Regular commitments</h2><button type="button" class="btn alt sm" data-action="ract-add">' + C.icon('plus') + 'Add</button></div><p class="muted small">Clubs, sport, a job, lessons, family time, meals. The planner works around them.</p>' +
@@ -200,8 +221,10 @@
   RH.onChange.push(function (el) {
     const d = el.dataset;
     if (d.rday != null) {
-      const i = Number(d.rday), f = d.f;
-      store.update(function (s) { const day = s.routine.days[i]; day[f] = f === 'school' ? el.checked : (f === 'study' || f === 'free') ? toMins(el.value) : el.value; touch(s); });
+      const f = d.f, empty = el.value === '';
+      if (empty && (f === 'wake' || f === 'bed' || f === 'start' || f === 'end')) { RH.render({ keepScroll: true }); return true; }
+      const v = f === 'school' ? el.checked : empty ? '' : (f === 'study' || f === 'free') ? toMins(el.value) : d.kind === 'mins' ? U.clamp(Math.round(Number(el.value) || 0), 0, 600) : el.value;
+      store.update(function (s) { String(d.rday).split(',').forEach((i) => { s.routine.days[Number(i)][f] = v; }); touch(s); });
       return true;
     }
     if (d.rset) { store.update(function (s) { s.routine[d.rset] = el.type === 'time' ? el.value : U.clamp(Number(el.value) || 0, 0, 600); touch(s); }); return true; }
@@ -212,7 +235,18 @@
     return false;
   });
   const A = RH.actions;
-  A['r-copy'] = () => store.update(function (s) { const m = s.routine.days[0]; for (let i = 1; i < 5; i++) Object.assign(s.routine.days[i], { school: m.school, start: m.start, end: m.end, wake: m.wake, bed: m.bed, study: m.study, free: m.free }); touch(s); });
+  A['r-clear'] = (el) => store.update(function (s) { String(el.dataset.rday).split(',').forEach((i) => { s.routine.days[Number(i)][el.dataset.f] = ''; }); touch(s); });
+  // Set a group's days one by one, or make them all match the first day again.
+  A['r-split'] = function (el) {
+    const g = R.GROUPS.find((x) => x[0] === el.dataset.g), on = el.checked;
+    store.update(function (s) {
+      s.routine.split = s.routine.split || {};
+      s.routine.split[g[0]] = on;
+      if (!on) g[2].slice(1).forEach((i) => { R.FIELDS.forEach((k) => { s.routine.days[i][k] = s.routine.days[g[2][0]][k]; }); });
+      touch(s);
+    });
+    if (!on) C.toast('All of ' + g[1] + ' now match ' + DAYNAMES[g[2][0]]);
+  };
   A['r-prefer'] = (el) => store.update(function (s) { s.routine.prefer = el.dataset.v; touch(s); });
   A['r-day'] = (el) => { RH.ui.rday = Number(el.dataset.v); RH.render({ keepScroll: true }); };
   A['ract-add'] = () => store.update(function (s) { s.routine.activities.push({ id: 'a' + U.uid(), name: 'New activity', kind: 'club', days: [U.dow(U.today())], start: '17:00', end: '18:00', term: false }); touch(s); });
