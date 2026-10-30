@@ -361,7 +361,7 @@
 
   RH.views.papers = RH.views.portal = function () {
     const tab = C.tab('portal', 'papers');
-    let html = C.subnav('study', 'papers') + C.head('Study', 'Past papers', 'Upload a past paper PDF. It is split into questions, you sit it against the clock with a pace guide, then mark it against the mark scheme or have Claude mark each answer.');
+    let html = C.subnav('study', 'papers') + C.head('Practise', 'Past papers', 'Upload a past paper PDF. It is split into questions, you sit it against the clock with a pace guide, then mark it against the mark scheme or have Claude mark each answer.');
     html += C.tabs('portal', [['papers', 'My papers', 'paper', Object.keys(st().portal.papers).length], ['results', 'Results', 'list', st().portal.attempts.length + st().papers.length], ['find', 'Find papers', 'link']], tab);
     if (tab === 'results') return html + RH.views.results();
     if (tab === 'find') {

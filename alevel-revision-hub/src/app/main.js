@@ -45,7 +45,7 @@
     const t = r.indexOf('t-') === 0 && M.topic[r.slice(2)];
     const c = r.indexOf('c-') === 0 && M.comp[r.slice(2)];
     const s = r.indexOf('s-') === 0 && M.subject[r.slice(2)];
-    const names = { study: 'Subjects', plan: 'This week', deliverables: 'Deliverables', routine: 'Routine', exams: 'Exams', strategy: 'Strategy', check: 'Check an answer', checks: 'Checked answers', focus: 'Focus', papers: 'Past papers', exam: 'Exam in progress', mark: 'Marking', cards: 'Flashcards', review: 'Reviewing cards', library: 'Resources', guide: 'How to revise', preferences: 'Settings' };
+    const names = { study: 'Your courses', plan: 'This week', deliverables: 'Deliverables', routine: 'Routine', exams: 'Exams', strategy: 'Strategy', check: 'Check an answer', checks: 'Checked answers', focus: 'Focus', papers: 'Past papers', exam: 'Exam in progress', mark: 'Marking', cards: 'Flashcards', review: 'Reviewing cards', library: 'Resources', guide: 'How to revise', preferences: 'Settings' };
     const name = t ? t.name : c ? c.name : s ? s.name : names[r];
     return (name ? name + ' · ' : '') + 'A-Level Revision Hub';
   }
@@ -66,7 +66,10 @@
     const focusId = active && active.id && view.contains(active) ? active.id : null;
     view.innerHTML = html;
     $('#nav').innerHTML = V.nav(r);
-    $('#railFoot').innerHTML = V.railFoot(r);
+    const sub = V.subbar(r);
+    $('#subbar').innerHTML = sub;
+    $('#subbar').hidden = !sub;
+    $('#foot').innerHTML = V.foot();
     $('#tabbar').innerHTML = V.tabbar(r);
     document.body.classList.toggle('in-exam', r === 'exam' || r === 'review');
     document.title = titleFor(r);
@@ -223,8 +226,30 @@
     const n = topicState(st(), gid).p.length + '/' + M.topic[gid].pts.length;
     const head = el.closest('.sheet') && el.closest('.sheet').querySelector('.sec-head .mono');
     if (head) head.textContent = n;
-    const tabN = document.querySelector('.tab-b[data-v="checklist"] .tab-n');
-    if (tabN) tabN.textContent = n;
+    const kp = document.getElementById('kp-n');
+    if (kp) kp.textContent = n;
+  };
+  // Lessons: tick off a step and move on to the next one, or complete the lesson and open the next.
+  const scrollToStep = (k) => { const el = document.getElementById('step-' + k); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+  A['to-step'] = function (el) { scrollToStep(el.dataset.k); return false; };
+  A['lesson-step'] = function (el) {
+    const gid = el.dataset.id, k = el.dataset.k;
+    let on = false;
+    store.update(function (s) { const t = topicState(s, gid); t.sd = t.sd || {}; on = !t.sd[k]; if (on) t.sd[k] = U.today(); else delete t.sd[k]; }, { silent: true });
+    render({ keepScroll: true });
+    if (on) { const i = M.STEPS.findIndex((x) => x[0] === k); if (M.STEPS[i + 1]) scrollToStep(M.STEPS[i + 1][0]); }
+  };
+  A['lesson-done'] = function (el) {
+    const gid = el.dataset.id, t = M.topic[gid], today = U.today();
+    store.update(function (s) { const x = topicState(s, gid); x.done = today; x.n = (x.n || 0) + 1; x.last = today; x.nt = false; logActivity(s, today); });
+    const next = M.lessonAfter(st(), t, 1);
+    C.toast(next ? 'Lesson done. On to ' + M.lessonNum(st(), next) + '.' : 'Lesson done. That was the last one in ' + t.subject.name + '.');
+    location.hash = next ? '#t-' + next.gid : '#s-' + t.subject.id;
+  };
+  A['units-all'] = function () {
+    const all = document.querySelectorAll('.units details.unit');
+    const open = Array.prototype.some.call(all, (d) => !d.open);
+    all.forEach((d) => { d.open = open; });
   };
   A['mark-revised'] = function (el) {
     const today = U.today();

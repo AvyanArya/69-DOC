@@ -91,6 +91,44 @@
   M.comp = {};
   M.subjects.forEach((s) => s.comps.forEach((c) => { M.comp[c.gid] = c; }));
 
+  // ---------- Courses ----------
+  // Each subject is a course: numbered sections, each a run of numbered lessons, in specification order.
+  M.STEPS = [['watch', 'Watch'], ['learn', 'Learn the key points'], ['recall', 'Test yourself'], ['exam', 'Exam questions'], ['finish', 'Finish the lesson']];
+  // Names that carry their own number ("Topic 2: Mechanics", "1.2 How Markets Work", "3. Sequences") keep it as the label.
+  const OWN = /^(?:Topic\s+)?(\d+(?:\.\d+)*)[.:]?\s+/;
+  M.title = (name) => String(name).replace(OWN, '');
+  M.sectionNum = function (state, c) {
+    const m = OWN.exec(c.name);
+    return m ? m[1] : String(M.compsFor(state, c.subject, true).indexOf(c) + 1);
+  };
+  M.lessonNum = function (state, t) {
+    const m = OWN.exec(t.name);
+    return m && m[1].indexOf('.') !== -1 ? m[1] : M.sectionNum(state, t.comp) + '.' + (t.index + 1);
+  };
+  M.course = (state, s) => M.compsFor(state, s, true).map((c) => ({ c: c, n: M.sectionNum(state, c), lessons: c.topics.map((t) => ({ t: t, num: M.lessonNum(state, t) })) }));
+  // A lesson counts as done once it is completed, or revised in a planned session.
+  M.lessonDone = (state, gid) => { const x = state.topics[gid]; return !!(x && (x.done || x.n)); };
+  M.lessonSteps = function (state, gid) {
+    const x = state.topics[gid] || {}, sd = x.sd || {};
+    return M.STEPS.filter((st) => st[0] === 'finish' ? M.lessonDone(state, gid) : sd[st[0]]).length;
+  };
+  M.lessonStarted = (state, gid) => M.lessonSteps(state, gid) > 0 || ((state.topics[gid] || {}).p || []).length > 0;
+  M.courseProgress = function (state, topics) {
+    const done = topics.filter((t) => M.lessonDone(state, t.gid)).length;
+    return { done: done, total: topics.length, frac: topics.length ? done / topics.length : 0 };
+  };
+  // The lesson to carry on with: the first one not done, skipping ones marked as not taught yet when possible.
+  M.nextLesson = function (state, s, topics) {
+    const list = topics || M.subjectTopics(state, s);
+    const open = list.filter((t) => !M.lessonDone(state, t.gid));
+    return open.find((t) => !(state.topics[t.gid] || {}).nt) || open[0] || null;
+  };
+  M.lessonAfter = function (state, t, step) {
+    const flat = [];
+    M.course(state, t.subject).forEach((u) => u.lessons.forEach((l) => flat.push(l.t)));
+    return flat[flat.indexOf(t) + (step || 1)] || null;
+  };
+
   M.paperTopics = (state, s, paperId) => M.subjectTopics(state, s).filter((t) => t.comp.papers.indexOf(paperId) !== -1);
 
   // All exams and tests the student is sitting, soonest first.

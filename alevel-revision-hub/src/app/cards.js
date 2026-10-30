@@ -184,7 +184,7 @@
     const cards = all.reduce((a, d) => a + d.cards.length, 0);
     const due = K.totalDue();
     const mastered = all.reduce((a, d) => a + d.cards.filter((c) => c.box === 5).length, 0);
-    let html = C.subnav('study', 'cards') + C.head('Study', 'Flashcards', 'Leitner-system flashcards. Cards you know move up a box and come back less often; a miss sends a card back to box 1.',
+    let html = C.subnav('study', 'cards') + C.head('Practise', 'Flashcards', 'Leitner-system flashcards. Cards you know move up a box and come back less often; a miss sends a card back to box 1.',
       '<button type="button" class="btn" data-action="cards-import">' + C.icon('upload') + 'Import cards</button><button type="button" class="btn alt" data-action="deck-new">' + C.icon('plus') + 'New deck</button>');
     html += '<div class="stat-strip"><div class="stat-tile"><span class="stat-n num">' + due + '</span><span class="muted small">cards due today</span>' + (due ? '<button type="button" class="btn sm" data-action="study" data-mode="leitner" data-deck="all">Review all due</button>' : '') + '</div>' +
       '<div class="stat-tile"><span class="stat-n num">' + cards + '</span><span class="muted small">cards in ' + U.plural(all.length, 'deck') + '</span></div>' +

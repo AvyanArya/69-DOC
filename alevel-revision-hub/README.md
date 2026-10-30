@@ -4,7 +4,8 @@ A revision website for **Pearson Edexcel A-level Physics (9PH0), Mathematics (9M
 Mathematics (9FM0) and Economics A (9EC0)**. It plans every revision session at a real time around
 your school day and activities, sets **weekly deliverables** you have to hand in, marks your exam
 answers with an **AI checker** (modelled on Medly), and tracks real focus time with an optional
-**webcam focus tracker**. Every sub-topic has videos, notes, questions, flashcards and a checklist.
+**webcam focus tracker**. Each subject is laid out as a course of numbered lessons (in the style of
+Cognito and Save My Exams), and every lesson takes you through the same steps in order.
 
 ## 👀 Just open `preview.html`
 
@@ -20,20 +21,36 @@ browser, with nothing to install. Everything you do is saved in that browser aut
 
 ## How it's laid out
 
-Five places, always in the left menu (bottom tab bar on phones):
+Five places in the menu along the top (a tab bar at the bottom on phones). The bar under the menu lists
+the pages in that area.
 
 | Area | Pages |
 |---|---|
-| **Home** | Today's timeline (school, activities, timed sessions, free time), what to do next, this week's deliverables, focus hours, flashcards due, exam countdown. |
-| **Study** | Subjects → sections → sub-topics (Videos · Notes · Practice · Flashcards · Checklist · My notes), Flashcards, Past papers, Resources, How to revise. |
+| **Home** | Pick up the lesson you're on, today's timeline (school, activities, timed sessions, free time), what's next, this week's deliverables, your courses, flashcards due, exam countdown. |
+| **Learn** | Your courses: Physics, Maths, Further Maths, Economics. Each course is numbered sections of numbered lessons, plus How to revise and Resources. |
+| **Practise** | Past papers, Check an answer (AI marking), Marked answers, Flashcards. |
 | **Plan** | This week (time grid), Deliverables, Routine, Exams, Strategy. |
-| **Check** | Check an answer, History. |
 | **Focus** | Pomodoro, countdown, exam timer and stopwatch, plus the focus tracker. |
+
+### A lesson, step by step
+
+There are no tabs. Each lesson is one page you work down in order, with the course contents beside it:
+
+1. **Watch**: the best video for the topic up front, more below it.
+2. **Learn the key points**: the specification points to tick off, an exam tip, the notes to read, and your own notes.
+3. **Test yourself**: a 10-minute blurt test and flashcards.
+4. **Exam questions**: question packs with mark schemes, and Claude marking your answer.
+5. **Finish**: rate your confidence, then *Complete lesson* takes you straight to the next one.
+
+Ticks show which steps and lessons are done, and each course shows how far through you are.
+Lessons use each subject's own numbering (Physics topics, the Maths textbook chapters, the Economics
+specification numbers).
 
 ## What's new in this version
 
 | Feature | What it does |
 |---|---|
+| **Course layout** | A new interface, styled like a course site. Subjects are courses, sections are numbered, and each lesson is one ordered page (watch, learn, test yourself, exam questions, finish) instead of separate tabs. Home picks up the lesson you're on. |
 | **Routine** | For each day: school on/off and times, wake-up and bedtime, how many hours you want to revise and how many hours of free time to protect. Plus travel time, a break after school, getting-ready and wind-down time, earliest/latest revision, session length, breaks, longest stretch, regular commitments (sport, a job, clubs, meals) with days and times, one-off plans, and holidays with their own hours. It shows how your week splits (sleep, school, activities, revision, free time) and warns when your targets don't fit. |
 | **Timed plan** | Every session gets a start time inside your free windows. It never clashes with school, activities or meals, never goes over your daily target and never eats your protected free time. The week view is a calendar grid; on phones it's a day-by-day timeline. Exports to `.ics` / `.csv` with times. |
 | **Weekly deliverables** | Each week the planner sets 3–8 things to hand in by your deadline (default Sunday 20:00), taken from that week's plan: a timed paper or 20 marks of exam questions, one-page summaries, 3 answers marked in Check, a focus-hours target, flashcard reviews, a blurt test. Hand-ins need proof (a photo, your score, what you wrote) and can be checked by Claude, which sends weak work back. Automatic ones (focus, flashcards, Check) count themselves. You sign a weekly commitment; a copyable report can go to a parent or tutor. When the deadline passes you must close the week: missed work carries over, strict mode adds a catch-up task and keeps Home locked until you do. Your streak counts fully delivered weeks. |
@@ -91,7 +108,7 @@ alevel-revision-hub/
     │                     # exams.js (official 2027 timetable), guide.js,
     │                     # videos.js (direct videos + Mr Gale resources), decks.js (starter flashcards)
     └── app/              # util.js, model.js, routine.js (time slots), planner.js, store.js, ai.js (Claude),
-                          # ui.js, deliverables.js, views.js, home.js, study.js, plan.js, focus.js,
+                          # ui.js, deliverables.js, views.js, home.js, study.js (courses & lessons), plan.js, focus.js,
                           # cards.js, portal.js, checker.js, settings.js, main.js (router)
 ```
 

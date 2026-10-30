@@ -71,6 +71,11 @@
     swap: '<path d="M7 4L4 7l3 3M4 7h13M17 20l3-3-3-3M20 17H7"/>',
     expand: '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',
     copy: '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
+    book: '<path d="M5 4.5h10.5A3.5 3.5 0 0 1 19 8v11.5H8.5A3.5 3.5 0 0 1 5 16z"/><path d="M5 16a3.5 3.5 0 0 1 3.5-3.5H19"/>',
+    pcircle: '<circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l5.5-3.5z"/>',
+    brain: '<path d="M9 4.5a3 3 0 0 0-3 3 3 3 0 0 0-1.5 5.5A3 3 0 0 0 8 17.5a2.5 2.5 0 0 0 4 1.5V6a2.5 2.5 0 0 0-3-1.5zM15 4.5a3 3 0 0 1 3 3 3 3 0 0 1 1.5 5.5A3 3 0 0 1 16 17.5a2.5 2.5 0 0 1-4 1.5"/>',
+    trophy: '<path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H4.5a3 3 0 0 0 3.5 4M16 6h3.5a3 3 0 0 1-3.5 4M12 13v4M8.5 20h7M10 17h4v3h-4z"/>',
+    menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
     more: '<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>'
   };
   C.icon = (n, cls) => '<svg class="i' + (cls ? ' ' + cls : '') + '" viewBox="0 0 24 24" aria-hidden="true">' + (P[n] || '') + '</svg>';
@@ -89,19 +94,16 @@
   C.head = (eyebrow, title, lede, actions) => C.page({ eyebrow: eyebrow, title: title, lede: lede, actions: actions });
   C.crumbs = (items) => '<nav class="crumbs" aria-label="Breadcrumb">' + items.map((x, i) => (i ? '<span class="sep" aria-hidden="true">/</span>' : '') + (x[1] ? '<a href="#' + x[1] + '">' + esc(x[0]) + '</a>' : '<span aria-current="page">' + esc(x[0]) + '</span>')).join('') + '</nav>';
 
-  // The pages inside each area, shown as a menu at the top of the area.
+  // The five areas in the top menu, and the pages each one lists in the bar under it.
   RH.AREAS = {
-    home: { label: 'Home', icon: 'home', pages: [['home', 'Home']] },
-    study: { label: 'Study', icon: 'study', pages: [['study', 'Subjects'], ['cards', 'Flashcards'], ['papers', 'Past papers'], ['library', 'Resources'], ['guide', 'How to revise']] },
-    plan: { label: 'Plan', icon: 'plan', pages: [['plan', 'This week'], ['deliverables', 'Deliverables'], ['routine', 'Routine'], ['exams', 'Exams'], ['strategy', 'Strategy']] },
-    check: { label: 'Check', icon: 'check', pages: [['check', 'Check an answer'], ['checks', 'History']] },
-    focus: { label: 'Focus', icon: 'focus', pages: [['focus', 'Focus']] }
+    home: { label: 'Home', icon: 'home', href: 'home', pages: [] },
+    learn: { label: 'Learn', icon: 'study', href: 'study', pages: [['study', 'All subjects'], ['s-physics', 'Physics', 'physics'], ['s-maths', 'Maths', 'maths'], ['s-further', 'Further Maths', 'further'], ['s-economics', 'Economics', 'economics'], ['guide', 'How to revise'], ['library', 'Resources']] },
+    practise: { label: 'Practise', icon: 'qs', href: 'papers', pages: [['papers', 'Past papers'], ['check', 'Check an answer'], ['checks', 'Marked answers'], ['cards', 'Flashcards']] },
+    plan: { label: 'Plan', icon: 'plan', href: 'plan', pages: [['plan', 'This week'], ['deliverables', 'Deliverables'], ['routine', 'Routine'], ['exams', 'Exams'], ['strategy', 'Strategy']] },
+    focus: { label: 'Focus', icon: 'focus', href: 'focus', pages: [] }
   };
-  C.subnav = function (area, current) {
-    const a = RH.AREAS[area];
-    if (!a || a.pages.length < 2) return '';
-    return '<nav class="subnav" aria-label="' + a.label + '">' + a.pages.map((p) => '<a href="#' + p[0] + '"' + (p[0] === current ? ' class="on" aria-current="page"' : '') + '>' + p[1] + '</a>').join('') + '</nav>';
-  };
+  // Area menus are drawn once by the page frame (see views.js), so pages no longer add their own.
+  C.subnav = () => '';
 
   // Tabs inside one page; switching is the "tab" action and is remembered for the visit.
   C.tabs = function (group, items, active) {
@@ -157,6 +159,7 @@
   // Thumbnails load only where the page may fetch YouTube images (not inside claude.ai).
   C.canThumb = !(window.claude && typeof window.claude.use === 'function');
   const CH = { gale: 'Mr Gale', econdal: 'EconplusDal', bicen: 'Bicen Maths', phyo: 'Physics Online', gill: 'Mr Gill', fcm: '1st Class Maths', tlm: 'TLMaths', exs: 'ExamSolutions', cog: 'Cognito' };
+  C.channel = (ch) => CH[ch] || ch;
   C.videoCard = function (v, sid) {
     return '<a class="vcard" href="https://www.youtube.com/watch?v=' + v.id + '" target="_blank" rel="noopener" data-subj="' + (sid || '') + '">' +
       '<span class="vthumb">' + (C.canThumb ? '<img loading="lazy" alt="" src="https://i.ytimg.com/vi/' + v.id + '/mqdefault.jpg" onerror="this.remove()">' : '') + '<span class="vplay">' + C.icon('play') + '</span></span>' +

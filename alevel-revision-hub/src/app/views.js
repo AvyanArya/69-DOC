@@ -8,33 +8,49 @@
   // ---------- Areas and navigation ----------
   V.areaOf = function (r) {
     if (r === 'home') return 'home';
-    if (/^(study|s-|c-|t-|cards|deck-|review|papers|paper-|exam$|mark$|library|guide)/.test(r)) return 'study';
+    if (/^(study|s-|c-|t-|library|guide)/.test(r)) return 'learn';
+    if (/^(papers|paper-|exam$|mark$|check|checks|cards|deck-|review)/.test(r)) return 'practise';
     if (/^(plan|deliverables|routine|exams|strategy)$/.test(r)) return 'plan';
-    if (/^(check|checks|check-)/.test(r)) return 'check';
     if (r === 'focus') return 'focus';
     return 'settings';
   };
-  V.nav = function (r) {
-    const s = st(), area = V.areaOf(r);
-    const sum = RH.deliv.summary();
+  // Which entry in the bar under the menu is the current page.
+  function currentPage(r) {
+    const subj = (x) => (M.subject[x] ? x : M.comp[x] ? M.comp[x].subject.id : M.topic[x] ? M.topic[x].subject.id : '');
+    let m;
+    if ((m = /^[sct]-(.+)$/.exec(r))) return 's-' + subj(m[1]);
+    if (/^(paper-|exam$|mark$)/.test(r)) return 'papers';
+    if (/^check-/.test(r)) return 'checks';
+    if (/^(deck-|review)/.test(r)) return 'cards';
+    return r;
+  }
+  function badges() {
+    const s = st(), sum = RH.deliv.summary();
     const todayLeft = s.plan.sessions.filter((x) => x.d === U.today() && !x.done).length;
-    const badge = { home: todayLeft ? '<span class="count">' + todayLeft + '</span>' : '', plan: sum && sum.overdue ? '<span class="count bad">' + sum.overdue + '</span>' : '', focus: RH.face.on ? '<span class="live-dot" title="Tracker on"></span>' : '' };
+    return { home: todayLeft ? '<span class="count">' + todayLeft + '</span>' : '', plan: sum && sum.overdue ? '<span class="count bad">' + sum.overdue + '</span>' : '', focus: RH.face.on ? '<span class="live-dot" title="Tracker on"></span>' : '' };
+  }
+  V.nav = function (r) {
+    const area = V.areaOf(r), b = badges();
     return Object.keys(RH.AREAS).map(function (k) {
       const a = RH.AREAS[k], on = area === k;
-      return '<a href="#' + a.pages[0][0] + '" class="nav-item' + (on ? ' on' : '') + '"' + (on ? ' aria-current="page"' : '') + '>' + C.icon(a.icon) + '<span>' + a.label + '</span>' + (badge[k] || '') + '</a>';
+      return '<a href="#' + a.href + '" class="nav-item' + (on ? ' on' : '') + '"' + (on ? ' aria-current="page"' : '') + '>' + a.label + (b[k] || '') + '</a>';
     }).join('');
   };
-  V.railFoot = function (r) {
-    const on = V.areaOf(r) === 'settings';
+  V.subbar = function (r) {
+    const a = RH.AREAS[V.areaOf(r)];
+    if (!a || !a.pages.length) return '';
+    const cur = currentPage(r);
+    return '<div class="subbar-in">' + a.pages.map((p) => '<a href="#' + p[0] + '"' + (p[2] ? ' data-subj="' + p[2] + '"' : '') + (p[0] === cur ? ' class="on" aria-current="page"' : '') + '>' + (p[2] ? '<i class="sdot"></i>' : '') + p[1] + '</a>').join('') + '</div>';
+  };
+  V.foot = function () {
     const sync = RH.store.sync;
-    return '<a href="#preferences" class="nav-item' + (on ? ' on' : '') + '">' + C.icon('gear') + '<span>Settings</span></a>' +
-      '<p class="sync-line small muted">' + (sync === 'cloud' ? 'Synced to your account' : sync === 'cloud-error' ? 'Sync failed, saved here' : 'Saved on this device') + '</p>';
+    return '<span>' + (sync === 'cloud' ? 'Synced to your account' : sync === 'cloud-error' ? 'Sync failed, saved on this device' : 'Saved on this device') + '</span><span>Pearson Edexcel · Summer 2027</span><a href="#preferences">Settings &amp; backup</a>';
   };
   V.tabbar = function (r) {
     const area = V.areaOf(r);
     return Object.keys(RH.AREAS).map(function (k) {
       const a = RH.AREAS[k], on = area === k;
-      return '<a href="#' + a.pages[0][0] + '" class="tab-i' + (on ? ' on' : '') + '"' + (on ? ' aria-current="page"' : '') + '>' + C.icon(a.icon) + '<span>' + a.label + '</span></a>';
+      return '<a href="#' + a.href + '" class="tab-i' + (on ? ' on' : '') + '"' + (on ? ' aria-current="page"' : '') + '>' + C.icon(a.icon) + '<span>' + a.label + '</span></a>';
     }).join('');
   };
 
