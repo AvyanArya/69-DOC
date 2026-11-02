@@ -1,65 +1,17 @@
-/* The bookshelf: every section of every subject as a worn textbook standing spine-out on an endless shelf.
-   The active book turns in 3D to show its cover; opening it grows a sheet of paper out of the cover that becomes
-   the section's lesson list, with the cover bleeding in as ink. One requestAnimationFrame loop drives the shelf,
-   the Web Animations API drives the reveals. Book art is drawn here as SVG, so there are no image files. */
+/* My Subjects: a bookshelf with one book per subject. Click a book and it flies to the middle of the screen,
+   the cover swings open, a few pages flip, and the chapters (the subject's sections) appear on the right-hand page.
+   The covers are drawn here as SVG, so there are no image files. */
 (function (RH) {
   'use strict';
   const U = RH.util, M = RH.model, C = RH.c, esc = U.esc;
   const st = () => RH.store.state;
   const V = RH.views;
-
-  const COL = { physics: '#1F3FB0', maths: '#0E6B55', further: '#5B3AA8', economics: '#C8442A' };
-  const ABBR = { physics: 'PHY', maths: 'MATHS', further: 'F.MATHS', economics: 'ECON' };
-  const abbr = (sub) => ABBR[sub.id] || sub.tag || sub.name.slice(0, 4).toUpperCase();
-  const INK = '#141414', CREAM = '#F1E9D6', VERM = '#E0522B';
-  const SERIF = 'Newsreader, Georgia, serif', SANS = 'Inter, system-ui, sans-serif';
   const reduce = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const EASE = 'cubic-bezier(.2,.8,.2,1)', SHEET_EASE = 'cubic-bezier(.76,0,.18,1)';
-  const BLOBS = [[150, 330, 0], [340, 600, 120], [250, 120, 220], [90, 760, 300], [400, 250, 360], [260, 860, 420], [230, 470, 180]];
-
-  // ---------- The books ----------
-  function bookList(s) {
-    const out = [];
-    M.subjects.forEach(function (sub) {
-      M.compsFor(s, sub, true).forEach(function (c, j) {
-        out.push({ i: out.length, sub: sub, c: c, n: M.sectionNum(s, c), title: M.title(c.name), col: COL[sub.id] || sub.color || '#555', variant: (j + (sub.id === 'maths' ? 1 : sub.id === 'economics' ? 2 : 0)) % 3 });
-      });
-    });
-    return out;
-  }
-  // Three print variants keep the shelf from looking uniform: colour cloth, cream board, ink board.
-  function inks(b) {
-    if (b.variant === 1) return { bg: CREAM, fg: INK, acc: b.col, alt: VERM };
-    if (b.variant === 2) return { bg: INK, fg: CREAM, acc: b.col === '#1F3FB0' ? '#5E7DF0' : b.col, alt: VERM };
-    return { bg: b.col, fg: CREAM, acc: INK, alt: VERM };
-  }
   function rng(seed) { let x = (seed * 9301 + 49297) % 233280; return () => (x = (x * 9301 + 49297) % 233280) / 233280; }
-  function wrap(text, max) {
-    const lines = [];
-    let cur = '';
-    text.split(' ').forEach(function (w) { if (cur && (cur + ' ' + w).length > max) { lines.push(cur); cur = w; } else cur = cur ? cur + ' ' + w : w; });
-    if (cur) lines.push(cur);
-    return lines;
-  }
-
-  function spineSVG(b) {
-    const k = inks(b), len = b.title.length * 44 * 0.47;
-    const motif = {
-      physics: '<circle cx="71" cy="176" r="20" fill="none" stroke="' + k.fg + '" stroke-width="3"/><circle cx="71" cy="176" r="6" fill="' + k.alt + '"/>',
-      maths: '<path d="M47 196 Q71 140 95 196" fill="none" stroke="' + k.fg + '" stroke-width="3"/><circle cx="71" cy="168" r="5" fill="' + k.alt + '"/>',
-      further: '<path d="M71 176 m0 -4 a4 4 0 1 1 -4 4 a8 8 0 1 1 8 8 a12 12 0 1 1 -12 -12 a16 16 0 1 1 16 16" fill="none" stroke="' + k.fg + '" stroke-width="3"/>',
-      economics: '<path d="M50 156 L92 198 M50 198 L92 156" stroke="' + k.fg + '" stroke-width="3"/><circle cx="71" cy="177" r="5" fill="' + k.alt + '"/>'
-    }[b.sub.id] || '<circle cx="71" cy="176" r="18" fill="none" stroke="' + k.fg + '" stroke-width="3"/><circle cx="71" cy="176" r="6" fill="' + k.alt + '"/>';
-    return '<svg viewBox="0 0 142 840" aria-hidden="true"><rect width="142" height="840" fill="' + k.bg + '"/>' +
-      '<rect width="9" height="840" fill="#000" opacity=".13"/><rect x="133" width="9" height="840" fill="#000" opacity=".2"/>' +
-      '<rect y="30" width="142" height="3" fill="' + k.fg + '" opacity=".85"/><rect y="806" width="142" height="3" fill="' + k.fg + '" opacity=".85"/>' +
-      '<rect x="41" y="56" width="60" height="60" fill="none" stroke="' + k.fg + '" stroke-width="2"/><text x="71" y="98" text-anchor="middle" font-family="' + SERIF + '" font-size="32" fill="' + k.fg + '">' + esc(b.n) + '</text>' + motif +
-      '<text transform="translate(56 232) rotate(90)" font-family="' + SERIF + '" font-size="44" fill="' + k.fg + '"' + (len > 500 ? ' textLength="500" lengthAdjust="spacingAndGlyphs"' : '') + '>' + esc(b.title) + '</text>' +
-      '<text x="71" y="772" text-anchor="middle" font-family="' + SANS + '" font-weight="700" font-size="' + (abbr(b.sub).length > 5 ? 15 : 19) + '" letter-spacing="2" fill="' + k.fg + '">' + esc(abbr(b.sub)) + '</text></svg>';
-  }
+  const ART = { fg: 'rgba(255,255,255,0.92)', acc: 'rgba(255,255,255,0.55)', alt: '#FFE29A' };
 
   function illustration(b, k, w, h) {
-    const r = rng(b.i + 3), P = k.acc === INK ? CREAM : k.acc, A = k.alt, F = k.fg;
+    const r = rng(b.i + 3), P = k.acc, A = k.alt, F = k.fg;
     let g = '';
     if (b.sub.id === 'physics') {
       const cx = w * (0.3 + r() * 0.4), cy = h * 0.45, R = Math.min(w, h) * 0.18;
@@ -120,279 +72,97 @@
     return g;
   }
 
-  // The cover's contents in a 474 × 900 box: reused on the book and as the detail poster.
-  function coverInner(b) {
-    const k = inks(b);
-    let lines = wrap(b.title.toUpperCase(), 12), fs = 54, lh = 58;
-    if (lines.length > 3) { lines = wrap(b.title.toUpperCase(), 16); fs = 40; lh = 44; }
-    const ty = 186, iy = ty + lines.length * lh + 6, ih = 790 - iy;
-    const lessons = b.c.topics.length;
-    return '<rect width="474" height="900" fill="' + k.bg + '"/><rect width="12" height="900" fill="#000" opacity=".12"/>' +
-      '<text x="36" y="56" font-family="' + SANS + '" font-weight="600" font-size="13" letter-spacing="3" fill="' + k.fg + '">PREPPR · A LEVEL</text>' +
-      '<text x="440" y="56" text-anchor="end" font-family="' + SANS + '" font-weight="600" font-size="13" letter-spacing="2" fill="' + k.fg + '">' + esc(b.sub.spec) + '</text>' +
-      '<rect x="36" y="72" width="404" height="2" fill="' + k.fg + '"/>' +
-      '<text x="36" y="108" font-family="' + SANS + '" font-weight="700" font-size="15" letter-spacing="3" fill="' + (k.acc === INK ? CREAM : k.acc) + '">' + esc(b.sub.name.toUpperCase()) + '</text>' +
-      '<text x="440" y="108" text-anchor="end" font-family="' + SERIF + '" font-style="italic" font-size="18" fill="' + k.fg + '">Section ' + esc(b.n) + '</text>' +
-      lines.map((l, i) => '<text x="34" y="' + (ty + i * lh) + '" font-family="' + SERIF + '" font-size="' + fs + '" letter-spacing="-1" fill="' + k.fg + '"' + (l.length * fs * 0.64 > 404 ? ' textLength="404" lengthAdjust="spacingAndGlyphs"' : '') + '>' + esc(l) + '</text>').join('') +
-      '<svg x="36" y="' + iy + '" width="402" height="' + ih + '" viewBox="0 0 402 ' + ih + '">' + illustration(b, k, 402, ih) + '</svg>' +
-      '<rect x="36" y="808" width="404" height="2" fill="' + k.fg + '"/>' +
-      '<text x="36" y="852" font-family="' + SANS + '" font-weight="600" font-size="14" letter-spacing="2" fill="' + k.fg + '">' + lessons + ' LESSON' + (lessons === 1 ? '' : 'S') + '</text>' +
-      '<rect x="356" y="830" width="84" height="32" fill="none" stroke="' + k.fg + '" stroke-width="2"/><text x="398" y="852" text-anchor="middle" font-family="' + SANS + '" font-weight="700" font-size="14" letter-spacing="2" fill="' + k.fg + '">A LVL</text>';
+
+  function art(sub, i) { return '<svg class="bk-art" viewBox="0 0 252 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">' + illustration({ i: i, sub: sub }, ART, 252, 200) + '</svg>'; }
+  function cover(sub, i, s) {
+    const p = M.courseProgress(s, M.subjectTopics(s, sub));
+    return '<span class="bk-face" style="--c:' + C.scol(sub) + '"><span class="bk-top"><span class="bk-board">' + esc(sub.board) + ' · ' + esc(sub.spec.split(' ')[0]) + '</span><b class="bk-name">' + esc(sub.name) + '</b></span>' + art(sub, i) +
+      '<span class="bk-foot"><span class="bk-bar"><i style="width:' + Math.round(100 * p.frac) + '%"></i></span><span>' + p.done + ' of ' + p.total + ' lessons</span></span></span>';
   }
 
-  // ---------- Page ----------
-  let books = [], N = 0;
-  let s = null, T = null, active = -1;
-  function startIndex(s0) {
-    const today = U.today();
-    const sess = s0.plan.sessions.find((x) => x.d >= today && !x.done && x.t && M.topic[x.t]);
-    const comp = sess ? M.topic[sess.t].comp : null;
-    const i = comp ? books.findIndex((b) => b.c === comp) : -1;
-    return i < 0 ? 0 : i;
-  }
-  function done(b) { return M.courseProgress(st(), b.c.topics); }
-
+  // ---------- The shelf ----------
   V.study = function () {
-    const s0 = st();
-    books = bookList(s0); N = books.length;
-    if (T == null || T >= N * 4 || T <= -N * 4) { T = s = startIndex(s0); }
-    const all = M.activeTopics(s0), p = M.courseProgress(s0, all);
-    let html = '<div class="shelf-hero" id="shelf" tabindex="-1">';
-    html += '<div class="sh-top"><a class="sh-lbl sh-box" href="#subjects">List view</a><span class="sh-lbl">' + p.done + ' of ' + p.total + ' lessons done</span></div>';
-    html += '<nav class="sh-tabs" aria-label="Subjects"><span class="sh-ind" aria-hidden="true"></span>' +
-      [['all', 'All']].concat(M.subjects.map((x) => [x.id, x.name])).map((t) => '<button type="button" class="sh-lbl sh-tab" data-tab="' + t[0] + '">' + esc(t[1]) + '</button>').join('') + '</nav>';
-    html += '<section class="sh-shelf" aria-label="Textbook shelf"><div class="sh-stage">' + books.map((b) =>
-      '<div class="bk" data-v="' + b.i + '" role="button" tabindex="-1" aria-label="' + esc(b.sub.name + ', section ' + b.n + ': ' + b.title) + '"><div class="bk-f sp">' + spineSVG(b) + '</div><div class="bk-f cv">' + '<svg viewBox="0 0 474 900" aria-hidden="true">' + coverInner(b) + '</svg></div></div>').join('') + '</div></section>';
-    html += '<button type="button" class="sh-play" aria-label="Open this book"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.5 L10.5 6 L3 10.5Z"/></svg></button>';
-    html += '<div class="sh-cap" aria-live="polite"><div class="sh-m sh-mt"></div><div class="sh-m sh-ms"></div><div class="sh-m sh-mm"></div></div>';
-    html += '<button type="button" class="sh-arrow prev" aria-label="Previous book"><svg viewBox="0 0 18 10" aria-hidden="true"><path d="M5 1 L1 5 L5 9 M1 5 H17"/></svg></button><button type="button" class="sh-arrow next" aria-label="Next book"><svg viewBox="0 0 18 10" aria-hidden="true"><path d="M13 1 L17 5 L13 9 M17 5 H1"/></svg></button>';
-    html += '<div class="sh-foot"><span class="sh-lbl">Scroll, drag or use ← → to browse · Enter to open</span><span class="sh-lbl"><a href="#guide">How to revise</a> / <a href="#library">Resources</a></span></div>';
-    html += '<div class="sh-grain" aria-hidden="true"></div><span class="sh-probe" aria-hidden="true"></span>';
-    html += '<div class="sh-cur" aria-hidden="true"><span class="sh-ring"></span><span class="sh-dot"></span><span class="sh-open">Open</span></div>';
-    html += '<div class="sh-detail" role="dialog" aria-modal="true" aria-labelledby="shd-title"><button type="button" class="sh-lbl sh-box sh-close">Close</button><div class="shd-grid"><div class="shd-text"></div><div class="shd-poster"><svg viewBox="0 0 474 900" aria-hidden="true"><defs>' +
-      '<filter id="sh-inkf" x="-40%" y="-40%" width="180%" height="180%"><feTurbulence type="fractalNoise" baseFrequency=".011" numOctaves="3" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="120" xChannelSelector="R" yChannelSelector="G"/></filter>' +
-      '<mask id="sh-ink" maskUnits="userSpaceOnUse" x="-200" y="-200" width="874" height="1300"><g filter="url(#sh-inkf)">' + BLOBS.map((b) => '<circle cx="' + b[0] + '" cy="' + b[1] + '" r="0" fill="#fff"/>').join('') + '</g></mask></defs><g mask="url(#sh-ink)" class="shd-art"></g></svg></div></div></div>';
-    return html + '</div>';
+    const s = st(), list = M.subjects, rows = [];
+    for (let i = 0; i < list.length; i += 4) rows.push(list.slice(i, i + 4));
+    let html = '<header class="page-h"><div><h1>My Subjects</h1><p class="lede">Pick a book to open it.</p></div><a class="btn alt" href="#subjects">' + C.icon('plus') + 'Add or remove subjects</a></header>';
+    html += '<div class="shelf">' + rows.map((row, r) => '<div class="shelf-row"><div class="shelf-books">' + row.map(function (sub, j) {
+      const i = r * 4 + j;
+      return '<button type="button" class="bk" data-action="book-open" data-id="' + sub.id + '" data-i="' + i + '" aria-label="Open ' + esc(sub.name) + '" style="--c:' + C.scol(sub) + '"><span class="bk-spine"></span>' + cover(sub, i, s) + '</button>';
+    }).join('') + '</div><div class="plank"></div></div>').join('') + '</div>';
+    html += '<div class="book-stage" id="bookStage" hidden></div>';
+    return html;
   };
 
-  // ---------- Engine ----------
-  let root = null, stage = null, tapes = [], raf = 0, last = 0;
-  let H = 0, ws = 0, dd = 0, gap = 0, VW = 0;
-  let mx = -1e4, my = -1e4, cx = -1e4, cy = -1e4, tiltX = 0, tiltY = 0, onCover = false, isOpen = false;
-  let hover = -1, dragging = false, drag = null, suppress = false, wheelT = 0, curIn = false;
-  const lifts = [];
-  const sm = (x) => x * x * (3 - 2 * x);
-  const mod = (a, n) => ((a % n) + n) % n;
-  const Bf = (r) => Math.abs(r) < 1 ? (r + Math.sin(Math.PI * r) / Math.PI) / 2 : (r > 0 ? 0.5 : -0.5);
-  const Fx = (r) => r * (ws + gap) + (dd - ws + 1.6 * gap) * Bf(r);
-  const rel = (v) => mod(v - s + N / 2, N) - N / 2;
-
-  function measure() {
-    const probe = root.querySelector('.sh-probe');
-    H = probe.getBoundingClientRect().height;
-    ws = H * 142 / 840; dd = H * 474 / 900; gap = H * 0.03;
-    stage.style.setProperty('--ws', ws + 'px');
-    stage.style.setProperty('--d', dd + 'px');
-    stage.style.setProperty('--h', H + 'px');
-    VW = root.clientWidth;
+  // ---------- The open book ----------
+  function inside(sub, s) {
+    const topics = M.subjectTopics(s, sub), p = M.courseProgress(s, topics), nx = M.nextLesson(s, sub, topics);
+    const ex = M.upcomingExams(s).filter((e) => e.subject === sub.id)[0];
+    return '<div class="ob-in"><p class="label">' + esc(sub.board.replace('Pearson ', '')) + ' · ' + esc(sub.spec) + '</p><h2>' + esc(sub.name) + '</h2>' +
+      '<div class="ob-ring">' + C.ring(p.frac, '<b>' + Math.round(100 * p.frac) + '</b>%', 96) + '<span><b>' + p.done + ' of ' + p.total + '</b> lessons done' + (ex ? '<br><span class="muted">First paper ' + esc(U.fmt(ex.date)) + '</span>' : '') + '</span></div>' +
+      (nx ? '<a class="btn block" href="#t-' + nx.gid + '">' + (p.done ? 'Continue' : 'Start') + ': ' + esc(M.lessonNum(s, nx) + ' ' + M.title(nx.name)) + '</a>' : '<p class="ok-t"><b>Every lesson done.</b></p>') +
+      '<a class="btn alt block" href="#s-' + sub.id + '">See every lesson</a></div>';
   }
-  function centre() { const r = root.querySelector('.sh-shelf').getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; }
-
-  // Caption: each line slides through its mask.
-  function swap(mask, html, dir) {
-    const span = document.createElement('span');
-    span.innerHTML = html;
-    const old = Array.prototype.filter.call(mask.children, (x) => !x.dataset.leaving);
-    mask.appendChild(span);
-    if (reduce() || !old.length) { old.forEach((x) => x.remove()); return; }
-    span.animate([{ transform: 'translateY(' + dir * 105 + '%)' }, { transform: 'translateY(0)' }], { duration: 650, easing: EASE, fill: 'both' });
-    old.forEach(function (x) {
-      x.dataset.leaving = '1';
-      const cur = getComputedStyle(x).transform;
-      x.animate([{ transform: cur === 'none' ? 'translateY(0)' : cur }, { transform: 'translateY(' + (-dir * 105) + '%)' }], { duration: 650, easing: EASE, fill: 'both' }).onfinish = () => x.remove();
-    });
+  // On a phone only one page shows, so the right-hand page starts with the subject's name and the next lesson.
+  function mini(sub, s) {
+    const nx = M.nextLesson(s, sub), p = M.courseProgress(s, M.subjectTopics(s, sub));
+    return '<div class="ob-mini"><h2>' + esc(sub.name) + '</h2><p class="muted small">' + p.done + ' of ' + p.total + ' lessons done</p>' + (nx ? '<a class="btn sm" href="#t-' + nx.gid + '">' + (p.done ? 'Continue' : 'Start') + ': ' + esc(M.lessonNum(s, nx)) + '</a>' : '') + '</div>';
   }
-  function setActive(i, dir) {
-    active = i;
-    const b = books[i], p = done(b);
-    swap(root.querySelector('.sh-mt'), esc(b.title), dir);
-    swap(root.querySelector('.sh-ms'), '<span style="color:' + b.col + '">' + esc(b.sub.name) + ' / Section ' + esc(b.n) + '</span>', dir);
-    swap(root.querySelector('.sh-mm'), U.plural(b.c.topics.length, 'lesson') + ' · ' + p.done + ' done · ' + b.c.papers.map((x) => esc(b.sub.paper[x].code)).join(', '), dir);
-    const tab = root.querySelector('.sh-tab[data-tab="' + b.sub.id + '"]'), ind = root.querySelector('.sh-ind');
-    root.querySelectorAll('.sh-tab').forEach((t) => t.classList.toggle('on', t === tab));
-    ind.style.width = tab.offsetWidth + 'px';
-    ind.style.transform = 'translateX(' + tab.offsetLeft + 'px)';
-    ind.style.background = b.col;
+  function contents(sub, s) {
+    const course = M.course(s, sub);
+    return '<div class="ob-toc"><p class="label">Contents</p><ol class="toc">' + course.map(function (u) {
+      const up = M.courseProgress(s, u.c.topics);
+      return '<li><a href="#c-' + u.c.gid + '"><span class="toc-n num">' + esc(u.n) + '</span><span class="toc-t">' + esc(M.title(u.c.name)) + '</span><span class="toc-d num' + (up.done === up.total ? ' all' : '') + '">' + up.done + '/' + up.total + '</span></a></li>';
+    }).join('') + '</ol></div>';
   }
-
-  function frame(now) {
-    if (!root || !document.body.contains(root)) { unmount(); return; }
-    raf = requestAnimationFrame(frame);
-    const dt = Math.min(0.05, (now - (last || now)) / 1000);
-    last = now;
-    const rm = reduce();
-    const k = dragging ? 18 : 5.2;
-    s = rm ? T : s + (T - s) * (1 - Math.exp(-k * dt));
-    if (Math.abs(T - s) < 1e-4) s = T;
-    if (Math.abs(s) > N * 4) { const sh = Math.round(s / N) * N; s -= sh; T -= sh; }
-    const a = mod(Math.round(s), N);
-    if (a !== active) setActive(a, Math.sign(T - s) || 1);
-
-    const c = centre(), rr = root.getBoundingClientRect();
-    cx += (mx - cx) * (1 - Math.exp(-16 * dt)); cy += (my - cy) * (1 - Math.exp(-16 * dt));
-    onCover = !isOpen && Math.abs(mx - c.x) < 0.55 * dd && Math.abs(my - c.y) < 0.55 * H && Math.abs(T - s) < 0.3;
-    const tyT = onCover ? (mx - c.x) / (0.55 * dd) * 9 : (mx - c.x) / (VW || 1) * 5;
-    const txT = onCover ? -(my - c.y) / (H / 2) * 6 : 0;
-    tiltY += (Math.max(-12, Math.min(12, tyT)) - tiltY) * (1 - Math.exp(-7 * dt));
-    tiltX += (txT - tiltX) * (1 - Math.exp(-7 * dt));
-
-    const lim = VW / 2 + 1.5 * dd;
-    for (let j = 0; j < tapes.length; j++) {
-      const el = tapes[j], r = rel(j), x = Fx(r);
-      if (Math.abs(x) > lim) { if (el.style.visibility !== 'hidden') el.style.visibility = 'hidden'; continue; }
-      if (el.style.visibility) el.style.visibility = '';
-      const o = sm(Math.max(0, 1 - Math.abs(r)));
-      const want = hover === j && Math.abs(r) > 0.5 ? 1 : 0;
-      lifts[j] = rm ? want : (lifts[j] || 0) + (want - (lifts[j] || 0)) * (1 - Math.exp(-12 * dt));
-      const y = -o * 0.025 * H - lifts[j] * 0.045 * H;
-      el.style.transform = 'translate3d(' + x.toFixed(2) + 'px,' + y.toFixed(2) + 'px,' + (o * 0.2 * H).toFixed(2) + 'px) rotateZ(' + (-4.5 * o).toFixed(3) + 'deg) rotateX(' + (tiltX * o).toFixed(3) + 'deg) rotateY(' + (-90 * o + tiltY * o).toFixed(3) + 'deg)';
-      el.style.zIndex = Math.round(100 - Math.abs(r) * 4);
-      el.style.setProperty('--ss', (o * 0.55).toFixed(3));
-      el.style.setProperty('--cs', ((1 - o) * 0.5).toFixed(3));
+  let cur = null;
+  function open(sid, fromEl) {
+    const s = st(), sub = M.subject[sid], stage = document.getElementById('bookStage');
+    if (!sub || !stage) return;
+    const i = fromEl ? Number(fromEl.dataset.i) : M.subjects.indexOf(sub);
+    stage.innerHTML = '<div class="stage-bg" data-action="book-close"></div><div class="ob" style="--c:' + C.scol(sub) + '" data-subj="' + sub.id + '" role="dialog" aria-modal="true" aria-label="' + esc(sub.name) + '">' +
+      '<div class="ob-page ob-left"></div><div class="ob-page ob-right">' + mini(sub, s) + contents(sub, s) + '</div>' +
+      '<div class="ob-leaf"></div><div class="ob-leaf"></div><div class="ob-leaf"></div>' +
+      '<div class="ob-cover"><div class="ob-front">' + cover(sub, i, s) + '</div><div class="ob-back">' + inside(sub, s) + '</div></div></div>' +
+      '<button type="button" class="ob-x icon-btn" data-action="book-close" aria-label="Close the book">' + C.icon('x') + '</button>';
+    stage.hidden = false;
+    document.body.classList.add('book-open');
+    const ob = stage.querySelector('.ob'), cv = ob.querySelector('.ob-cover'), leaves = ob.querySelectorAll('.ob-leaf');
+    const narrow = window.innerWidth < 760;
+    ob.classList.toggle('one', narrow);
+    const P = ob.querySelector('.ob-right').getBoundingClientRect().width;
+    const box = ob.getBoundingClientRect(), cx = box.left + box.width / 2, cy = box.top + box.height / 2;
+    const rest = narrow ? 'translate(0px, 0px) scale(1)' : 'translate(' + (-P / 2) + 'px, 0px) scale(1)';
+    let from = rest;
+    if (fromEl) {
+      const b = fromEl.getBoundingClientRect(), sc = b.width / P;
+      const dx = b.left + b.width / 2 - cx - (narrow ? 0 : sc * P / 2), dy = b.top + b.height / 2 - cy;
+      from = 'translate(' + dx + 'px, ' + dy + 'px) scale(' + sc + ')';
+      fromEl.classList.add('lifted');
     }
-    const play = root.querySelector('.sh-play');
-    const ps = isOpen ? 0 : sm(Math.max(0, 1 - Math.abs(T - s) * 3));
-    play.style.transform = 'translate(' + (c.x - rr.left - 0.5 * dd - 6 - 21) + 'px,' + (c.y - rr.top + 0.36 * H - 21) + 'px) scale(' + ps.toFixed(3) + ')';
-
-    const cur = root.querySelector('.sh-cur');
-    cur.style.transform = 'translate3d(' + cx + 'px,' + cy + 'px,0)';
-    const overTape = !isOpen && hover >= 0 && Math.abs(rel(hover)) > 0.5;
-    cur.classList.toggle('open', onCover);
-    cur.classList.toggle('spine', !onCover && overTape);
-  }
-
-  function go(t) { T = t; }
-  function jumpTo(i) { const c = Math.round(T); go(c + mod(i - mod(c, N) + N / 2, N) - N / 2); }
-
-  // ---------- Opening a book ----------
-  function activeTape() { return tapes[mod(Math.round(T), N)]; }
-  function openDetail() {
-    if (isOpen) return;
-    T = Math.round(T);
-    const b = books[mod(T, N)], s0 = st(), p = done(b), nx = M.nextLesson(s0, b.sub, b.c.topics);
-    const det = root.querySelector('.sh-detail');
-    det.style.setProperty('--bk', b.col);
-    const lines = [
-      '<p class="sh-lbl" style="color:' + b.col + '">' + esc(b.sub.name) + ' / Section ' + esc(b.n) + '</p>',
-      '<h2 id="shd-title">' + esc(b.title) + '</h2>',
-      '<p class="sh-lbl shd-meta">' + U.plural(b.c.topics.length, 'lesson') + ' / ' + p.done + ' done / ' + b.c.papers.map((x) => esc(b.sub.paper[x].code)).join(', ') + '</p>'
-    ].concat(b.c.topics.map((t) => '<a class="shd-l" href="#t-' + t.gid + '">' + V.statusIcon(s0, t) + '<span class="num">' + M.lessonNum(s0, t) + '</span><span>' + esc(M.title(t.name)) + '</span></a>'))
-      .concat(['<p class="shd-credit">' + esc(b.sub.board) + ' ' + esc(b.sub.spec) + ' · work through it in order, one lesson at a time.</p>',
-        '<div class="shd-acts">' + (nx ? '<a class="sh-lbl sh-btn" href="#t-' + nx.gid + '">' + (p.done ? 'Continue' : 'Start') + ': lesson ' + M.lessonNum(s0, nx) + '</a>' : '') + '<a class="sh-lbl sh-box" href="#c-' + b.c.gid + '">Section page</a></div>']);
-    det.querySelector('.shd-text').innerHTML = lines.map((l) => '<div class="shd-m"><div class="shd-r">' + l + '</div></div>').join('');
-    det.querySelector('.shd-art').innerHTML = coverInner(b);
-    const circles = det.querySelectorAll('mask circle');
-    circles.forEach((c) => c.setAttribute('r', 0));
-    const rect = activeTape().querySelector('.cv').getBoundingClientRect();
-    isOpen = true;
-    det.style.visibility = 'visible';
-    det.style.transformOrigin = (rect.left + rect.width / 2) + 'px ' + (rect.top + rect.height / 2) + 'px';
-    const rm = reduce();
-    det.getAnimations().forEach((x) => x.cancel());
-    det.animate([{ clipPath: inset(rect) + ' round 3px)', transform: 'rotate(-4.5deg)' }, { clipPath: 'inset(0px 0px 0px 0px round 0px)', transform: 'rotate(0deg)' }], { duration: rm ? 1 : 1050, easing: SHEET_EASE, fill: 'both' });
-    det.querySelectorAll('.shd-r').forEach((x, i) => x.animate([{ transform: 'translateY(110%)' }, { transform: 'translateY(0)' }], { duration: rm ? 1 : 900, delay: rm ? 0 : 620 + i * 75, easing: EASE, fill: 'both' }));
-    const t0 = performance.now() + (rm ? -5000 : 520);
-    (function ink(now) {
-      const t = now - t0;
-      circles.forEach(function (c, i) { const q = Math.max(0, Math.min(1, (t - BLOBS[i][2]) / 1250)); c.setAttribute('r', (720 * (1 - Math.pow(1 - q, 3))).toFixed(1)); });
-      if (t < 2400 && isOpen) requestAnimationFrame(ink);
-    })(performance.now());
-    det.querySelector('.sh-close').focus({ preventScroll: true });
-  }
-  const inset = (r) => 'inset(' + Math.max(0, r.top) + 'px ' + Math.max(0, window.innerWidth - r.right) + 'px ' + Math.max(0, window.innerHeight - r.bottom) + 'px ' + Math.max(0, r.left) + 'px';
-  function closeDetail() {
-    if (!isOpen) return;
-    const det = root.querySelector('.sh-detail');
-    const rect = activeTape().querySelector('.cv').getBoundingClientRect();
-    isOpen = false;
-    det.getAnimations().forEach((x) => { if (x.effect && x.effect.target === det) x.cancel(); });
-    const an = det.animate([{ clipPath: 'inset(0px 0px 0px 0px round 0px)', transform: 'rotate(0deg)' }, { clipPath: inset(rect) + ' round 3px)', transform: 'rotate(-4.5deg)' }], { duration: reduce() ? 1 : 850, easing: SHEET_EASE, fill: 'both' });
-    an.onfinish = function () { det.style.visibility = 'hidden'; det.getAnimations({ subtree: true }).forEach((x) => x.cancel()); };
-    root.focus({ preventScroll: true });
-  }
-
-  // ---------- Mounting ----------
-  function onKey(e) {
-    if (!root || RH.c.modalOpen()) return;
-    if (e.key === 'Escape' && isOpen) { closeDetail(); return; }
-    if (isOpen || /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) return;
-    if (e.key === 'ArrowLeft') { go(Math.round(T) - 1); e.preventDefault(); }
-    else if (e.key === 'ArrowRight') { go(Math.round(T) + 1); e.preventDefault(); }
-    else if (e.key === 'Enter' && (document.activeElement === document.body || document.activeElement === root)) { openDetail(); e.preventDefault(); }
-  }
-  function onMove(e) {
-    mx = e.clientX; my = e.clientY;
-    if (drag && Math.abs(e.clientX - drag.x) > 5) dragging = true;
-    if (dragging) T = drag.T - (e.clientX - drag.x) / (ws + gap);
-  }
-  function onUp() { if (dragging) { suppress = true; setTimeout(() => { suppress = false; }, 0); T = Math.round(T); } drag = null; dragging = false; }
-  function onResize() { if (root) measure(); }
-
-  function mount() {
-    root = document.getElementById('shelf');
-    stage = root.querySelector('.sh-stage');
-    tapes = Array.prototype.slice.call(stage.querySelectorAll('.bk'));
-    measure();
-    active = -1; last = 0; isOpen = false;
-    if (curIn) root.classList.add('cur-in');
-    tapes.forEach(function (el, j) {
-      el.addEventListener('pointerenter', () => { hover = j; });
-      el.addEventListener('pointerleave', () => { if (hover === j) hover = -1; });
-      el.addEventListener('click', function () {
-        if (suppress) return;
-        const r = rel(j);
-        if (Math.abs(r) < 0.5) openDetail(); else go(Math.round(T + r));
-      });
+    cur = { el: fromEl, anims: [] };
+    if (reduce() || !ob.animate) { ob.classList.add('static'); return; }
+    const D = 1300, E = 'cubic-bezier(.65,0,.2,1)';
+    cur.anims.push(ob.animate([{ transform: from }, { transform: rest, offset: 0.34 }, { transform: rest, offset: 0.42 }, { transform: 'translate(0px, 0px) scale(1)' }], { duration: D, easing: E, fill: 'both' }));
+    cur.anims.push(cv.animate([{ transform: 'rotateY(0deg)' }, { transform: 'rotateY(0deg)', offset: 0.4 }, narrow ? { transform: 'rotateY(-180deg)', opacity: 0 } : { transform: 'rotateY(-180deg)' }], { duration: D, easing: E, fill: 'both' }));
+    leaves.forEach(function (lf, k) {
+      cur.anims.push(lf.animate([{ transform: 'rotateY(0deg)', opacity: 1 }, { transform: 'rotateY(0deg)', opacity: 1, offset: 0.45 + k * 0.08 }, { transform: 'rotateY(-175deg)', opacity: 0.9, offset: 0.92 }, { transform: 'rotateY(-180deg)', opacity: 0 }], { duration: D + 120, easing: E, fill: 'both' }));
     });
-    const shelf = root.querySelector('.sh-shelf');
-    shelf.addEventListener('pointerdown', (e) => { if (e.button === 0 && !isOpen) drag = { x: e.clientX, T: T }; });
-    shelf.addEventListener('wheel', function (e) {
-      if (isOpen) return;
-      e.preventDefault();
-      const dlt = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-      T += dlt / (ws + gap) * 0.5;
-      clearTimeout(wheelT);
-      wheelT = setTimeout(() => { T = Math.round(T); }, 160);
-    }, { passive: false });
-    root.addEventListener('pointerenter', () => { curIn = true; root.classList.add('cur-in'); });
-    root.addEventListener('pointerleave', () => { curIn = false; root.classList.remove('cur-in'); });
-    root.addEventListener('pointerover', (e) => { root.querySelector('.sh-cur').classList.toggle('btn', !!e.target.closest('button, a') && !e.target.closest('.bk')); });
-    root.querySelector('.sh-arrow.prev').addEventListener('click', () => go(Math.round(T) - 1));
-    root.querySelector('.sh-arrow.next').addEventListener('click', () => go(Math.round(T) + 1));
-    root.querySelector('.sh-play').addEventListener('click', openDetail);
-    root.querySelector('.sh-close').addEventListener('click', closeDetail);
-    root.querySelectorAll('.sh-tab').forEach((t) => t.addEventListener('click', function () {
-      const id = t.dataset.tab;
-      jumpTo(id === 'all' ? 0 : books.findIndex((b) => b.sub.id === id));
-    }));
-    root.querySelector('.sh-detail').addEventListener('click', function (e) {
-      const a = e.target.closest('a[href^="#t-"], a[href^="#c-"]');
-      if (a) { isOpen = false; }
-    });
-    if (!SH.wired) {
-      SH.wired = true;
-      window.addEventListener('keydown', onKey);
-      window.addEventListener('pointermove', onMove, { passive: true });
-      window.addEventListener('pointerup', onUp);
-      window.addEventListener('pointercancel', onUp);
-      window.addEventListener('resize', onResize);
-    }
-    cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(frame);
+    ob.querySelectorAll('.ob-toc, .ob-in').forEach((x) => cur.anims.push(x.animate([{ opacity: 0 }, { opacity: 0, offset: 0.6 }, { opacity: 1 }], { duration: D, fill: 'both' })));
+    const first = ob.querySelector('.toc a');
+    cur.anims[0].finished.then(() => { if (first) first.focus({ preventScroll: true }); }).catch(() => {});
   }
-  function unmount() { cancelAnimationFrame(raf); raf = 0; root = null; stage = null; tapes = []; hover = -1; isOpen = false; }
-  const SH = RH.shelf = { mount: mount, open: () => openDetail(), close: () => closeDetail(), state: () => ({ s: s, T: T, active: active, isOpen: isOpen, N: N }), go: (t) => go(t) };
-
-  // Preload nothing: the art is SVG. Mount whenever the shelf page is drawn.
-  RH.afterRender.push(function (r) { if (typeof r !== 'string') return; if (r === 'study' && document.getElementById('shelf')) mount(); else if (root) unmount(); });
+  function close() {
+    const stage = document.getElementById('bookStage');
+    if (!stage || stage.hidden) return;
+    const done = () => { stage.hidden = true; stage.innerHTML = ''; document.body.classList.remove('book-open'); if (cur && cur.el) { cur.el.classList.remove('lifted'); cur.el.focus({ preventScroll: true }); } cur = null; };
+    if (cur && cur.anims.length && !reduce()) {
+      cur.anims.forEach((a) => { a.playbackRate = 1.6; a.reverse(); });
+      cur.anims[0].finished.then(done).catch(done);
+    } else done();
+  }
+  RH.shelf = { open: open, close: close, isOpen: () => !!cur };
+  RH.actions['book-open'] = (el) => open(el.dataset.id, el);
+  RH.actions['book-close'] = () => close();
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && cur) close(); });
+  window.addEventListener('hashchange', function () { cur = null; document.body.classList.remove('book-open'); });
 })(window.RH = window.RH || {});

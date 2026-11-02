@@ -24,21 +24,29 @@ browser, with nothing to install. Everything you do is saved in that browser aut
 
 ## How it's laid out
 
-A white bar across the top holds **Home, Bookshelf, your subjects, Labs, Practise, Planner, Focus** (a tab
-bar at the bottom on phones). With more than four subjects they fold into one **Subjects** link. A menu down
-the left shows where you are. On a lesson it's that subject's sections, with the current section's lessons
-ticked off as you go. Elsewhere it lists the pages in that area.
+Calm, polished and a little playful: a soft colour wash behind every page, white cards with soft shadows, one
+pastel banner on Home, and the Onest typeface. Light and dark themes, and it works on phones.
 
-| Area | Pages |
+The first time you open it you get a **sign-in page**. On claude.ai it signs you in with your Claude account
+and saves your progress there, so it follows you between devices; anywhere else it saves in your browser. A
+three-step **setup** follows: choose your subjects, tell it about your week (school times, bedtime, how long
+to revise), then it builds your plan.
+
+A floating menu down the left (a tab bar at the bottom on phones) has six places. Each place shows its pages
+as tabs along the top.
+
+| Place | What's there |
 |---|---|
-| **Home** | The lesson to carry on with, today's timeline, what's due this week, exam countdown. |
-| **Bookshelf** | Every section of every subject as a textbook on an endless 3D shelf. The middle book turns to show its cover; click it (or press Enter) and a sheet of paper grows out of the cover into the section's lesson list. Scroll, drag, use the arrows or the subject tabs to browse. *List view* (`#subjects`) is the plain list. |
-| **Your subjects** | Pick your subjects from all 21. Only those appear in the menu, on Home, on the shelf and in the plan. |
-| **Each subject** | Every section and lesson in order, then the exam papers, whole-course videos, flashcards and resources. How to revise and Resources are in the left menu. |
-| **Labs** | 33 interactive labs and diagrams across seven subjects, your subjects first (see below). |
+| **Home** | A welcome banner with the lesson to carry on with, your streak, this week's tasks, days to your first exam, today's sessions and your subjects. |
+| **My Subjects** | A bookshelf with one book per subject. Click a book and it flies to the middle, the cover swings open, pages flip and the chapters appear. Also *Choose subjects* (all 21), *How to revise* and *Resources*. |
+| **The Labs** | 33 interactive labs and diagrams across seven subjects, your subjects first. |
+| **Planner** | *This week* (with an **Edit my schedule** button), *My schedule*, *Weekly tasks*, *Exams* and *Strategy*. |
 | **Practise** | Past papers, Check an answer (AI marking), Marked answers, Flashcards. |
-| **Planner** | This week, Deliverables, Routine, Exams, Strategy. |
 | **Focus** | Pomodoro, countdown, exam timer and stopwatch, plus the focus tracker. |
+
+**My schedule** is one page of numbered steps: your days (one card each for Monday–Thursday, Friday and the
+weekend, or day by day), clubs and other regular plans, one-off plans, holidays, how you like to revise, and a
+check of your week. Changes save as you type; *Save and rebuild my plan* applies them.
 
 ### A lesson, step by step
 
@@ -58,7 +66,10 @@ specification numbers).
 
 | Feature | What it does |
 |---|---|
-| **Bright and playful design** | A new look across the whole site: white pages, one bold colour per subject, chunky rounded cards and buttons that press down like keys, the Nunito typeface and Preppr violet (#7B61FF) for actions. Light and dark themes. |
+| **New design** | Rebuilt from scratch: a floating menu with six places, a soft colour wash background, white cards, a pastel banner on Home, and the Onest typeface. Much less text on every page. |
+| **Sign-in and setup** | A sign-in page (your Claude account on claude.ai, this browser elsewhere) and a three-step setup: subjects, your week, done. |
+| **Bookshelf by subject** | One book per subject. Clicking a book opens it with a page-turning animation onto its chapters. |
+| **Clearer planner** | *This week* has an Edit my schedule button, and *My schedule* is a page of numbered steps with a card per day instead of a big table. |
 | **21 subjects** | Every A-level Dubai College offers: Physics, Maths, Further Maths and Economics (Edexcel), plus Chemistry (AQA 7405), Biology (AQA 7402), Computer Science (OCR H446), Psychology (AQA 7182), Geography (AQA 7037), History (AQA 7042), English Literature (AQA 7712), Politics (Edexcel 9PL0), French (AQA 7652), Spanish (AQA 7692), Arabic (Edexcel 9AA0), Latin (OCR H443), Art and Design (AQA 7202), Design and Technology (AQA 7552), Drama and Theatre (AQA 7262), Music (Edexcel 9MU0) and PE (AQA 7582). Each is a course of lessons with key points, an exam tip, papers and resources, and 306 lessons have a direct video. **The exam boards are the most common choice for each subject; check them with your school**, and add your exam dates under Planner → Exams so the planner can schedule around them. |
 | **Labs for every science** | 11 new labs: **Titration and pH curves** (burette, indicators, strong and weak acids and alkalis, concordant titres), **Rates and collision theory** (particles, catalyst, Maxwell–Boltzmann), **Enzyme activity** (temperature, pH, substrate, competitive and non-competitive inhibitors), **Osmosis and water potential** (RP3, graph your own results), **Predators and prey** (Lotka–Volterra), **Sorting algorithms** (bubble, insertion, merge, quick), **Logic gates and adders** (click the switches, live truth table), **Binary, hex and two's complement**, **Serial position effect** (take a real free-recall test, or run a simulated class), **Storm hydrograph** (rainfall, soil, land use, urbanisation, basin shape) and **Spearman's rank** (drag the points). The physics labs were redrawn with skies, grass, wheeled trolleys, metal springs, analogue meters and glowing particles. |
 | **Preppr brand** | The logo as an inline SVG wordmark and a favicon. |
@@ -126,6 +137,7 @@ alevel-revision-hub/
     │                     # videos.js + more-videos.js (direct videos), decks.js (starter flashcards)
     └── app/              # util.js, model.js, routine.js (time slots), planner.js, store.js, ai.js (Claude),
                           # ui.js, deliverables.js, views.js, home.js, study.js (courses & lessons), shelf.js (bookshelf),
+                          # welcome.js (sign-in & setup),
                           # labs.js (frame) + labs-sims.js (physics), econ-labs.js (economics),
                           # labs-sci.js (chemistry, biology), labs-cs.js (CS, psychology, geography), plan.js, focus.js,
                           # cards.js, portal.js, checker.js, settings.js, main.js (router)

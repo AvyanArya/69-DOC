@@ -31,23 +31,9 @@
 
   // ---------- All subjects ----------
   V.subjectsList = function () {
-    const s = st();
-    let html = docHead('Learn', 'Your subjects', 'Each subject is a list of lessons. Open one and work down the page: watch, learn the key points, test yourself, then exam questions.');
-    html += '<ul class="subj-list">' + M.subjects.map(function (sub) {
-      const topics = M.subjectTopics(s, sub), p = M.courseProgress(s, topics), nx = M.nextLesson(s, sub, topics);
-      const ex = M.upcomingExams(s).filter((e) => e.subject === sub.id)[0];
-      return '<li data-subj="' + sub.id + '"><div class="sl-main"><a class="sl-name" href="#s-' + sub.id + '">' + esc(sub.name) + '</a><span class="muted small">' + esc(sub.board) + ' ' + esc(sub.spec) + ' · ' + U.plural(topics.length, 'lesson') + (ex ? ' · first paper ' + esc(U.fmt(ex.date)) : '') + '</span>' +
-        '<span class="sl-prog">' + progBar(p) + '<span class="small muted">' + p.done + ' of ' + p.total + ' done</span></span></div>' +
-        (nx ? '<a class="btn alt" href="#t-' + nx.gid + '">' + (p.done ? 'Continue' : 'Start') + ': ' + M.lessonNum(s, nx) + '</a>' : '<span class="muted small">All done</span>') + '</li>';
-    }).join('') + '</ul>';
-    html += '<p class="small muted">Your planner, Home, bookshelf and exams only include the subjects you take. Change them here at any time; your progress in a subject is kept if you remove it.</p>';
-    html += '<h2 class="h-rule">All subjects</h2><p class="muted">Every A-level Dubai College offers. Each uses the most common specification for that subject; check with your teacher which board your school sits.</p><div class="subj-pick">' + M.all.map(function (sub) {
-      const mine = M.isMine(sub), n = sub.comps.reduce((a, c) => a + c.topics.length, 0);
-      return '<div class="sp-card' + (mine ? ' on' : '') + '" data-subj="' + sub.id + '"><i>' + esc((sub.tag || C.TAG[sub.id] || sub.name.slice(0, 3)).slice(0, 3)) + '</i><span class="sp-t"><b>' + esc(sub.name) + '</b><span class="small muted">' + esc(sub.board) + ' ' + esc(sub.spec) + ' · ' + U.plural(n, 'lesson') + '</span></span>' +
-        '<button type="button" class="btn sm ' + (mine ? 'alt' : '') + '" data-action="subj-toggle" data-id="' + sub.id + '">' + (mine ? 'Remove' : C.icon('plus') + 'Add') + '</button></div>';
-    }).join('') + '</div>';
-    const recent = Object.keys(s.topics).filter((g) => M.topic[g] && s.topics[g].last && M.isMine(M.topic[g].subject)).sort((a, b) => s.topics[b].last.localeCompare(s.topics[a].last)).slice(0, 6);
-    if (recent.length) html += '<h2 class="h-rule">Recently studied</h2><ul class="lessons">' + recent.map((g) => lessonRow(s, M.topic[g], ' data-subj="' + M.topic[g].subject.id + '"')).join('') + '</ul>';
+    let html = docHead('', 'Choose subjects', 'Tap a subject to add it or take it off. Your planner, Home and bookshelf only include the subjects you pick, and your progress is kept if you take one off.');
+    html += '<p class="sp-count"><b>' + M.subjects.length + '</b> chosen: ' + M.subjects.map((x) => esc(x.name)).join(', ') + '</p>' + V.subjectPicker('subj-toggle');
+    html += '<p class="small muted">Each subject follows the most common exam board for it. Check with your teacher which board your school uses.</p>';
     return html;
   };
   RH.actions['subj-toggle'] = function (el) {
@@ -69,8 +55,8 @@
     const topics = M.subjectTopics(s, sub), p = M.courseProgress(s, topics), nx = M.nextLesson(s, sub, topics);
     const course = M.course(s, sub);
     let html = '<div data-subj="' + sid + '">';
-    html += docHead(esc(sub.board) + ' · ' + esc(sub.spec), esc(sub.name), U.plural(course.length, 'section') + ' · ' + U.plural(topics.length, 'lesson') + ' · <b>' + p.done + ' done</b> ' + progBar(p),
-      nx ? '<a class="btn" href="#t-' + nx.gid + '">' + (p.done ? 'Continue' : 'Start') + ': ' + M.lessonNum(s, nx) + ' ' + esc(M.title(nx.name)) + '</a>' : '');
+    html += C.crumbs([['My Subjects', 'study'], [sub.name]]) + '<header class="subj-h"><div class="subj-h-t"><p class="kicker">' + esc(sub.board) + ' · ' + esc(sub.spec) + '</p><h1>' + esc(sub.name) + '</h1><p class="meta">' + U.plural(course.length, 'chapter') + ' · ' + U.plural(topics.length, 'lesson') + ' · <b>' + p.done + ' done</b></p>' + progBar(p) + '</div>' +
+      (nx ? '<a class="btn lg" href="#t-' + nx.gid + '">' + (p.done ? 'Continue' : 'Start') + ': ' + M.lessonNum(s, nx) + C.icon('right') + '</a>' : '') + '</header>';
     if (sid === 'further' && !s.profile.fmOptions) html += V.fmOptionsCard();
     let group = '';
     course.forEach(function (u) {
@@ -109,16 +95,16 @@
     const p = M.courseProgress(s, c.topics), nx = M.nextLesson(s, sub, c.topics);
     const anyTaught = c.topics.some((t) => !(s.topics[t.gid] || {}).nt);
     const res = M.compResources(c);
-    let html = '<div data-subj="' + sub.id + '">' + C.crumbs([[sub.name, 's-' + sub.id], [n + ' ' + M.title(c.name)]]);
-    html += docHead('Section ' + n + ' · ' + c.papers.map((x) => esc(sub.paper[x].code)).join(', '), esc(M.title(c.name)), U.plural(c.topics.length, 'lesson') + ' · <b>' + p.done + ' done</b> ' + progBar(p),
+    let html = '<div data-subj="' + sub.id + '">' + C.crumbs([['My Subjects', 'study'], [sub.name, 's-' + sub.id], [n + ' ' + M.title(c.name)]]);
+    html += docHead('Chapter ' + n + ' · ' + c.papers.map((x) => esc(sub.paper[x].code)).join(', '), esc(M.title(c.name)), U.plural(c.topics.length, 'lesson') + ' · <b>' + p.done + ' done</b> ' + progBar(p),
       nx ? '<a class="btn" href="#t-' + nx.gid + '">' + (p.done ? 'Continue' : 'Start') + ': ' + M.lessonNum(s, nx) + '</a>' : '');
     html += '<ol class="lessons">' + c.topics.map((t) => lessonRow(s, t)).join('') + '</ol>';
-    html += '<p class="small"><button type="button" class="btn link" data-action="comp-nt" data-comp="' + c.gid + '" data-v="' + (anyTaught ? 1 : 0) + '">' + (anyTaught ? 'Mark this section as not taught yet' : 'Mark this section as taught') + '</button> <span class="muted">The planner leaves untaught lessons until later.</span></p>';
-    [[['notes'], 'Notes for the whole section'], [['qs', 'papers'], 'Questions and papers'], [['cards', 'other'], 'More']].forEach(function (g) {
+    html += '<p class="small"><button type="button" class="btn link" data-action="comp-nt" data-comp="' + c.gid + '" data-v="' + (anyTaught ? 1 : 0) + '">' + (anyTaught ? 'Mark this chapter as not taught yet' : 'Mark this chapter as taught') + '</button> <span class="muted">The planner leaves untaught lessons until later.</span></p>';
+    [[['notes'], 'Notes for the whole chapter'], [['qs', 'papers'], 'Questions and papers'], [['cards', 'other'], 'More']].forEach(function (g) {
       const list = res.filter((r) => g[0].indexOf(r.k) !== -1);
       if (list.length) html += '<h2 class="h-rule">' + g[1] + '</h2>' + C.resList(list);
     });
-    html += pager(comps[idx - 1] && ['c-' + comps[idx - 1].gid, 'Previous section', M.sectionNum(s, comps[idx - 1]) + ' ' + M.title(comps[idx - 1].name)], comps[idx + 1] && ['c-' + comps[idx + 1].gid, 'Next section', M.sectionNum(s, comps[idx + 1]) + ' ' + M.title(comps[idx + 1].name)]);
+    html += pager(comps[idx - 1] && ['c-' + comps[idx - 1].gid, 'Previous chapter', M.sectionNum(s, comps[idx - 1]) + ' ' + M.title(comps[idx - 1].name)], comps[idx + 1] && ['c-' + comps[idx + 1].gid, 'Next chapter', M.sectionNum(s, comps[idx + 1]) + ' ' + M.title(comps[idx + 1].name)]);
     return html + '</div>';
   };
 
@@ -156,7 +142,7 @@
     const checks = s.checks.filter((x) => x.topic === gid);
     const done = M.lessonDone(s, gid), steps = M.lessonSteps(s, gid);
 
-    let html = '<div class="lesson" data-subj="' + sub.id + '">' + C.crumbs([[sub.name, 's-' + sub.id], [M.sectionNum(s, c) + ' ' + M.title(c.name), 'c-' + c.gid]]);
+    let html = '<div class="lesson" data-subj="' + sub.id + '">' + C.crumbs([['My Subjects', 'study'], [sub.name, 's-' + sub.id], [M.sectionNum(s, c) + ' ' + M.title(c.name), 'c-' + c.gid]]);
     html += docHead('Lesson ' + M.lessonNum(s, t) + ' · ' + c.papers.map((x) => esc(sub.paper[x].code)).join(', '), esc(M.title(t.name)),
       (done ? '<b class="ok-t">Done</b>' : steps ? steps + ' of 5 steps done' : 'Not started') + (ts.nt ? ' · not taught yet' : ''),
       '<button type="button" class="btn alt sm" data-action="add-today" data-id="' + gid + '">' + C.icon('plus') + 'Add to today</button>');

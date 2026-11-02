@@ -11,7 +11,12 @@
       : sync === 'cloud-full' ? 'Saved in this browser. Some data is too big to sync, so export a backup regularly.'
       : sync === 'cloud-error' ? 'Saved in this browser. Syncing failed this time and will retry on your next change.'
       : 'Saved in this browser on this device. Export a backup to move it to another device.';
-    let html = C.page({ eyebrow: 'Settings', title: 'Settings' });
+    let html = C.page({ title: 'Settings', lede: 'Your account, Claude, Further Maths options and backups.' });
+    const AC = RH.account || {}, me = AC.me;
+    const pic = me && me.avatarUrl && me.name ? '<img src="' + esc(me.avatarUrl) + '" alt="">' : esc((s.profile.name || '?').charAt(0).toUpperCase());
+    html += '<section class="card acct-card"><div class="acct-row"><span class="av lg">' + pic + '</span><span class="acct-t"><b>' + esc(s.profile.name || (me && me.name) || 'Your account') + '</b><span>' +
+      (AC.inClaude ? (me && me.name ? 'Signed in to Claude as ' + esc(me.name) : 'Signed in with your Claude account') + (sync === 'cloud' ? ' · progress synced' : '') : 'Saved on this device only') + '</span></span>' +
+      '<div class="row-actions"><a class="btn alt sm" href="#subjects">Choose subjects</a><a class="btn alt sm" href="#setup">Run setup again</a><a class="btn ghost sm" href="#welcome">Sign-in page</a></div></div></section>';
     html += '<div class="grid-2"><section class="card"><div class="card-head"><h2>You</h2></div><div class="form-grid">' +
       '<label class="field"><span>First name</span><input id="pref-name" data-pref="name" value="' + esc(s.profile.name) + '" autocomplete="given-name"></label>' +
       '<label class="field"><span>Most flashcards per review</span><input id="pref-cards" type="number" min="5" max="500" data-prefnum="cardsDaily" value="' + (s.prefs.cardsDaily || 50) + '"></label></div>' +

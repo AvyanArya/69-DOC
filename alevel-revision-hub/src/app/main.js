@@ -29,7 +29,7 @@
 
   function pageFor(r) {
     const pre = (p) => r.indexOf(p) === 0 ? r.slice(p.length) : null;
-    const simple = { home: V.home, study: V.study, plan: V.plan, deliverables: V.deliverables, routine: V.routine, exams: V.exams, strategy: V.strategy, check: V.check, checks: V.checks, focus: V.focus, cards: V.cards, review: V.review, papers: V.papers, exam: V.exam, mark: V.mark, library: V.library, guide: V.guide, preferences: V.prefs, labs: V.labs, subjects: V.subjectsList };
+    const simple = { home: V.home, study: V.study, plan: V.plan, deliverables: V.deliverables, routine: V.routine, exams: V.exams, strategy: V.strategy, check: V.check, checks: V.checks, focus: V.focus, cards: V.cards, review: V.review, papers: V.papers, exam: V.exam, mark: V.mark, library: V.library, guide: V.guide, preferences: V.prefs, labs: V.labs, subjects: V.subjectsList, welcome: V.welcome, setup: V.setup };
     if (simple[r]) return simple[r]();
     let x;
     if ((x = pre('s-')) !== null) return V.subject(x);
@@ -46,7 +46,7 @@
     const t = r.indexOf('t-') === 0 && M.topic[r.slice(2)];
     const c = r.indexOf('c-') === 0 && M.comp[r.slice(2)];
     const s = r.indexOf('s-') === 0 && M.subject[r.slice(2)];
-    const names = { study: 'Bookshelf', subjects: 'Your subjects', plan: 'This week', deliverables: 'Deliverables', routine: 'Routine', exams: 'Exams', strategy: 'Strategy', check: 'Check an answer', checks: 'Checked answers', focus: 'Focus', papers: 'Past papers', exam: 'Exam in progress', mark: 'Marking', cards: 'Flashcards', review: 'Reviewing cards', library: 'Resources', guide: 'How to revise', preferences: 'Settings', labs: 'Labs' };
+    const names = { study: 'My Subjects', subjects: 'Choose subjects', plan: 'This week', deliverables: 'Weekly tasks', routine: 'My schedule', exams: 'Exams', strategy: 'Strategy', check: 'Check an answer', checks: 'Checked answers', focus: 'Focus', papers: 'Past papers', exam: 'Exam in progress', mark: 'Marking', cards: 'Flashcards', review: 'Reviewing cards', library: 'Resources', guide: 'How to revise', preferences: 'Settings', labs: 'The Labs', welcome: 'Sign in', setup: 'Set up' };
     const lab = r.indexOf('lab-') === 0 && RH.labs.byId[r.slice(4)];
     const name = t ? t.name : c ? c.name : s ? s.name : lab ? lab.name : names[r];
     return (name ? name + ' · ' : '') + 'Preppr';
@@ -55,7 +55,9 @@
   let lastRoute = null;
   function render(opts) {
     M.setMine(st().profile.subjects);
-    const r = route();
+    let r = route();
+    // A first visit to Home starts at the sign-in page. Links straight to a page still open that page.
+    if (r === 'home' && !st().profile.started) r = 'welcome';
     const view = $('#view');
     let html;
     try { html = pageFor(r); }
@@ -67,12 +69,11 @@
     const y = window.scrollY;
     const active = document.activeElement;
     const focusId = active && active.id && view.contains(active) ? active.id : null;
-    view.innerHTML = html;
+    const bare = r === 'welcome' || r === 'setup';
+    view.innerHTML = (bare ? '' : V.subnav(r)) + html;
+    document.body.classList.toggle('bare', bare);
     $('#nav').innerHTML = V.nav(r);
-    const side = V.side(r);
-    $('#side').innerHTML = side;
-    $('#page').classList.toggle('no-side', !side);
-    $('#foot').innerHTML = V.foot();
+    $('#acct').innerHTML = V.acct();
     $('#tabbar').innerHTML = V.tabbar(r);
     document.body.classList.toggle('in-exam', r === 'exam' || r === 'review');
     document.title = titleFor(r);
@@ -602,7 +603,7 @@
   window.addEventListener('hashchange', function () { C.closeModal(); searchClose(); ui.justDone = null; if (!/^#plan$/.test(location.hash)) ui.day = null; render(); });
 
   store.on(function (why) {
-    if (why === 'sync') { if (route() === 'preferences') render({ keepScroll: true }); return; }
+    if (why === 'sync') { $('#acct').innerHTML = V.acct(); if (route() === 'preferences') render({ keepScroll: true }); return; }
     if (why === 'remote') applyTheme();
     render({ keepScroll: true });
   });

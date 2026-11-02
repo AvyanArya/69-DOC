@@ -85,6 +85,9 @@
   const TAG = { physics: 'PHY', maths: 'MAT', further: 'FM', economics: 'ECO' };
   C.TAG = TAG;
   C.stag = (sid, long) => sid ? '<span class="tag" data-subj="' + sid + '">' + (long ? esc(M.subject[sid].name) : TAG[sid] || (M.subject[sid] && M.subject[sid].tag) || '') + '</span>' : '';
+  // Each subject's own colour.
+  const SCOL = { physics: '#3B82F6', maths: '#14B8A6', further: '#A855F7', economics: '#F97316' };
+  C.scol = (sub) => SCOL[sub.id] || sub.color || '#7B61FF';
   C.chip = (text, tone, icon) => '<span class="chip' + (tone ? ' ' + tone : '') + '">' + (icon ? C.icon(icon) : '') + text + '</span>';
 
   // ---------- Page furniture ----------
@@ -95,17 +98,15 @@
   C.head = (eyebrow, title, lede, actions) => C.page({ eyebrow: eyebrow, title: title, lede: lede, actions: actions });
   C.crumbs = (items) => '<nav class="crumbs" aria-label="Breadcrumb">' + items.map((x, i) => (i ? '<span class="sep" aria-hidden="true">/</span>' : '') + (x[1] ? '<a href="#' + x[1] + '">' + esc(x[0]) + '</a>' : '<span aria-current="page">' + esc(x[0]) + '</span>')).join('') + '</nav>';
 
-  // The five areas in the top menu, and the pages each one lists in the bar under it.
+  // The six places in the menu, and the pages each one shows as tabs at the top.
   RH.AREAS = {
     home: { label: 'Home', icon: 'home', href: 'home', pages: [] },
-    learn: { label: 'Subjects', icon: 'study', href: 'study', pages: [] },
-    practise: { label: 'Practise', icon: 'qs', href: 'papers', pages: [['papers', 'Past papers'], ['check', 'Check an answer'], ['checks', 'Marked answers'], ['cards', 'Flashcards']] },
-    labs: { label: 'Labs', icon: 'flask', href: 'labs', pages: [] },
-    plan: { label: 'Planner', icon: 'plan', href: 'plan', pages: [['plan', 'This week'], ['deliverables', 'Deliverables'], ['routine', 'Routine'], ['exams', 'Exams'], ['strategy', 'Strategy']] },
-    focus: { label: 'Focus', icon: 'focus', href: 'focus', pages: [] }
+    learn: { label: 'My Subjects', short: 'Subjects', icon: 'book', href: 'study', pages: [['study', 'Bookshelf'], ['subjects', 'Choose subjects'], ['guide', 'How to revise'], ['library', 'Resources']] },
+    labs: { label: 'The Labs', short: 'Labs', icon: 'flask', href: 'labs', pages: [] },
+    plan: { label: 'Planner', icon: 'plan', href: 'plan', pages: [['plan', 'This week'], ['routine', 'My schedule'], ['deliverables', 'Weekly tasks'], ['exams', 'Exams'], ['strategy', 'Strategy']] },
+    practise: { label: 'Practise', icon: 'pen', href: 'papers', pages: [['papers', 'Past papers'], ['check', 'Check an answer'], ['checks', 'Marked answers'], ['cards', 'Flashcards']] },
+    focus: { label: 'Focus', icon: 'clock', href: 'focus', pages: [] }
   };
-  // The Learn menu lists your subjects, so it is worked out each time.
-  Object.defineProperty(RH.AREAS.learn, 'pages', { get: () => [['study', 'Bookshelf'], ['subjects', 'Your subjects']].concat(M.subjects.map((s) => ['s-' + s.id, s.name, s.id])).concat([['guide', 'How to revise'], ['library', 'Resources']]) });
   // Area menus are drawn once by the page frame (see views.js), so pages no longer add their own.
   C.subnav = () => '';
 

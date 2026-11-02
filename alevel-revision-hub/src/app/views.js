@@ -15,87 +15,50 @@
     if (r === 'labs' || r.indexOf('lab-') === 0) return 'labs';
     return 'settings';
   };
-  // Which entry in the bar under the menu is the current page.
+  // The page inside an area that the current route belongs to.
   function currentPage(r) {
-    const subj = (x) => (M.subject[x] ? x : M.comp[x] ? M.comp[x].subject.id : M.topic[x] ? M.topic[x].subject.id : '');
-    let m;
-    if ((m = /^[sct]-(.+)$/.exec(r))) return 's-' + subj(m[1]);
+    if (/^[sct]-/.test(r)) return 'study';
     if (/^(paper-|exam$|mark$)/.test(r)) return 'papers';
     if (/^check-/.test(r)) return 'checks';
     if (/^(deck-|review)/.test(r)) return 'cards';
     return r;
   }
+  V.currentPage = currentPage;
   function badges() {
     const s = st(), sum = RH.deliv.summary();
     const todayLeft = s.plan.sessions.filter((x) => x.d === U.today() && !x.done).length;
     return { home: todayLeft ? '<span class="count">' + todayLeft + '</span>' : '', plan: sum && sum.overdue ? '<span class="count bad">' + sum.overdue + '</span>' : '', focus: RH.face.on ? '<span class="live-dot" title="Tracker on"></span>' : '' };
   }
-  // The top menu: home, the four subjects, then the tools.
-  // Your subjects get their own menu items when there are four or fewer; otherwise one Subjects item.
-  const NAV = () => [['home', 'Home'], ['study', 'Bookshelf']].concat(M.subjects.length <= 4 ? M.subjects.map((s) => ['s-' + s.id, s.name]) : [['subjects', 'Subjects']]).concat([['labs', 'Labs'], ['papers', 'Practise'], ['plan', 'Planner'], ['focus', 'Focus']]);
-  function navKey(r) {
-    const area = V.areaOf(r), cur = currentPage(r);
-    if (area === 'learn') return cur === 'study' ? cur : M.subjects.length > 4 ? (cur === 'study' ? cur : 'subjects') : /^s-/.test(cur) ? cur : '';
-    return area === 'practise' ? 'papers' : area === 'plan' ? 'plan' : area === 'labs' ? 'labs' : area;
-  }
+  // The six places in the menu. Every page belongs to one of them.
   V.nav = function (r) {
-    const key = navKey(r), b = badges();
-    const badgeFor = { home: b.home, plan: b.plan, focus: b.focus };
-    return NAV().map(function (n) {
-      const on = key === n[0];
-      return '<a href="#' + n[0] + '" class="nav-item' + (on ? ' on' : '') + '"' + (on ? ' aria-current="page"' : '') + '>' + n[1] + (badgeFor[n[0]] || '') + '</a>';
+    const area = V.areaOf(r), b = badges();
+    return Object.keys(RH.AREAS).map(function (k) {
+      const a = RH.AREAS[k], on = area === k;
+      return '<a href="#' + a.href + '" class="nav-item' + (on ? ' on' : '') + '"' + (on ? ' aria-current="page"' : '') + '>' + C.icon(a.icon) + '<span>' + a.label + '</span>' + (b[k] || '') + '</a>';
     }).join('');
   };
-
-  // The menu down the left: a subject's lessons on lesson and section pages, otherwise the pages in this area.
-  function sideLinks(title, pages, cur) {
-    return { title: title, cur: (pages.find((p) => p[0] === cur) || [0, ''])[1], body: '<nav class="side-nav">' + pages.map((p) => '<a href="#' + p[0] + '"' + (p[2] ? ' data-subj="' + p[2] + '"' : '') + (p[0] === cur ? ' class="on" aria-current="page"' : '') + '>' + p[1] + '</a>').join('') + '</nav>' };
-  }
-  function sideTree(r) {
-    const s = st(), x = r.slice(2);
-    const t = r.indexOf('t-') === 0 ? M.topic[x] : null, c = t ? t.comp : M.comp[x];
-    if (!c) return null;
-    const sub = c.subject, p = M.courseProgress(s, M.subjectTopics(s, sub));
-    let body = '<nav class="side-nav tree" data-subj="' + sub.id + '"><a class="tree-top" href="#s-' + sub.id + '">All ' + esc(sub.name) + ' lessons <span class="muted">' + p.done + '/' + p.total + '</span></a>';
-    M.course(s, sub).forEach(function (u) {
-      const here = u.c === c;
-      body += '<a class="tree-sec' + (here && !t ? ' on' : '') + '" href="#c-' + u.c.gid + '"' + (here && !t ? ' aria-current="page"' : '') + '><span class="num">' + u.n + '</span><span>' + esc(M.title(u.c.name)) + '</span></a>';
-      if (here) body += '<ol class="tree-ls">' + u.lessons.map((l) => '<li><a href="#t-' + l.t.gid + '"' + (l.t === t ? ' class="on" aria-current="page"' : '') + '>' + V.statusIcon(s, l.t) + '<span class="num">' + l.num + '</span><span>' + esc(M.title(l.t.name)) + '</span></a></li>').join('') + '</ol>';
-    });
-    return { title: sub.name, cur: t ? 'Lesson ' + M.lessonNum(s, t) : M.sectionNum(s, c) + ' ' + M.title(c.name), body: body + '</nav>' };
-  }
-  V.side = function (r) {
-    const area = V.areaOf(r), cur = currentPage(r);
-    let x = null;
-    if (r === 'study') return '';
-    if (area === 'learn') x = /^[ct]-/.test(r) ? sideTree(r) : sideLinks('Learn', RH.AREAS.learn.pages, cur);
-    else if (area === 'practise') x = sideLinks('Practise', RH.AREAS.practise.pages, cur);
-    else if (area === 'plan') x = sideLinks('Planner', RH.AREAS.plan.pages, cur);
-    else if (area === 'labs') {
-      const L = RH.labs, pages = [['labs', 'All labs']];
-      x = sideLinks('Labs', pages, cur);
-      const gs = L.groups(), side = gs.mine.length ? gs.mine.slice() : gs.all;
-      const open = L.byId[cur.replace(/^lab-/, '')];
-      if (open && side.every((g) => g[0] !== L.subjectOf(open))) side.push(gs.all.find((g) => g[0] === L.subjectOf(open)));
-      side.forEach(function (g) {
-        const list = L.defs.filter((d) => L.subjectOf(d) === g[0]);
-        if (list.length) x.body += '<p class="label side-group">' + g[1] + '</p><nav class="side-nav" data-subj="' + g[0] + '">' + list.map((d) => '<a href="#lab-' + d.id + '"' + (cur === 'lab-' + d.id ? ' class="on" aria-current="page"' : '') + '>' + esc(d.name) + '</a>').join('') + '</nav>';
-      });
-      const on = L.byId[cur.replace(/^lab-/, '')];
-      if (on) x.cur = on.name;
-    }
-    if (!x) return '';
-    return '<details class="side-box"' + (window.innerWidth > 860 ? ' open' : '') + '><summary><span class="side-t">' + esc(x.title) + '</span><span class="side-cur">' + esc(x.cur) + '</span></summary>' + x.body + '</details>';
+  // The pages inside an area, as a row of tabs at the top of the page.
+  V.subnav = function (r) {
+    const area = RH.AREAS[V.areaOf(r)], cur = currentPage(r);
+    if (!area || !area.pages || area.pages.length < 2) return '';
+    if (/^[ct]-/.test(r)) return '';
+    return '<nav class="subnav" aria-label="' + esc(area.label) + '">' + area.pages.map((p) => '<a href="#' + p[0] + '"' + (p[0] === cur ? ' class="on" aria-current="page"' : '') + '>' + p[1] + '</a>').join('') + '</nav>';
   };
-  V.foot = function () {
-    const sync = RH.store.sync;
-    return '<span>' + (sync === 'cloud' ? 'Synced to your account' : sync === 'cloud-error' ? 'Sync failed, saved on this device' : 'Saved on this device') + '</span><span>Pearson Edexcel · Summer 2027</span><a href="#preferences">Settings &amp; backup</a>';
+  V.side = () => '';
+  V.foot = () => '';
+  // Who is signed in, at the bottom of the menu.
+  V.acct = function () {
+    const s = st(), me = RH.account && RH.account.me, sync = RH.store.sync;
+    const name = s.profile.name || (me && me.name) || 'Your account';
+    const sub = sync === 'cloud' ? 'Synced to Claude' : sync === 'cloud-error' ? 'Sync paused' : 'On this device';
+    const pic = me && me.avatarUrl && me.name ? '<img src="' + esc(me.avatarUrl) + '" alt="">' : esc((s.profile.name || (me && me.name) || '?').trim().charAt(0).toUpperCase() || '?');
+    return '<span class="av">' + pic + '</span><span class="acct-t"><b>' + esc(name) + '</b><span>' + sub + '</span></span>' + C.icon('gear', 'acct-g');
   };
   V.tabbar = function (r) {
     const area = V.areaOf(r);
     return Object.keys(RH.AREAS).map(function (k) {
       const a = RH.AREAS[k], on = area === k;
-      return '<a href="#' + a.href + '" class="tab-i' + (on ? ' on' : '') + '"' + (on ? ' aria-current="page"' : '') + '>' + C.icon(a.icon) + '<span>' + a.label + '</span></a>';
+      return '<a href="#' + a.href + '" class="tab-i' + (on ? ' on' : '') + '"' + (on ? ' aria-current="page"' : '') + '>' + C.icon(a.icon) + '<span>' + (a.short || a.label) + '</span></a>';
     }).join('');
   };
 

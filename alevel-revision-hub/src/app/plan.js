@@ -23,12 +23,13 @@
     const exams = M.exams(s);
     const sum = RH.planner.summary(s);
     let html = C.subnav('plan', 'plan');
-    html += C.page({ eyebrow: 'Plan', title: esc(U.fmtShort(ws)) + ' – ' + esc(U.fmtShort(days[6])), lede: U.dur(planned) + ' of revision planned (' + U.dur(doneM) + ' done) · ' + U.dur(free) + ' free time kept · ' + U.plural(sum.sessions, 'session') + ' left until your exams',
-      actions: '<button type="button" class="icon-btn" data-action="week-prev" aria-label="Previous week">' + C.icon('left') + '</button><button type="button" class="btn alt sm" data-action="week-today">This week</button><button type="button" class="icon-btn" data-action="week-next" aria-label="Next week">' + C.icon('right') + '</button><button type="button" class="btn sm" data-action="plan-build">' + C.icon('rebuild') + 'Rebuild plan</button>' });
+    html += C.page({ title: (ws === U.weekStart(today) ? 'This week' : 'Week of ' + esc(U.fmtShort(ws))), lede: U.dur(planned) + ' of revision planned, ' + U.dur(doneM) + ' done · ' + U.dur(free) + ' of free time kept',
+      actions: '<a class="btn" href="#routine">' + C.icon('pen') + 'Edit my schedule</a><button type="button" class="btn alt" data-action="plan-build">' + C.icon('rebuild') + 'Rebuild plan</button>' });
+    html += '<div class="wk-nav"><button type="button" class="icon-btn" data-action="week-prev" aria-label="Previous week">' + C.icon('left') + '</button><b>' + esc(U.fmtShort(ws)) + ' – ' + esc(U.fmtShort(days[6])) + '</b><button type="button" class="icon-btn" data-action="week-next" aria-label="Next week">' + C.icon('right') + '</button>' + (ws === U.weekStart(today) ? '' : '<button type="button" class="btn ghost sm" data-action="week-today">Back to this week</button>') + '<span class="muted small">' + U.plural(sum.sessions, 'session') + ' left until your exams</span></div>';
     html += V.staleBanner();
-    if (!s.routine.setupAt) html += '<div class="note row-note"><p><b>This plan uses a sample routine.</b> Put in your school times, activities and how much you want to revise so the times fit your real week.</p><a class="btn sm" href="#routine">Set my routine</a></div>';
+    if (!s.routine.setupAt) html += '<div class="note row-note"><p><b>This plan uses a sample week.</b> Put in your school times, clubs and how much you want to revise so the times fit your real week.</p><a class="btn sm" href="#routine">Edit my schedule</a></div>';
     if (!s.profile.fmOptions) html += '<div class="note row-note"><p><b>Further Maths options aren’t in the plan yet.</b></p><a class="btn alt sm" href="#preferences">Choose options</a></div>';
-    if (target > planned + 60) html += '<p class="muted small">Your targets add up to ' + U.dur(target) + ' this week; ' + U.dur(planned) + ' fits around school, activities and the free time you asked for. <a href="#routine">Adjust your routine</a></p>';
+    if (target > planned + 60) html += '<p class="muted small">Your targets add up to ' + U.dur(target) + ' this week; ' + U.dur(planned) + ' fits around school, activities and the free time you asked for. <a href="#routine">Edit my schedule</a></p>';
 
     // Desktop grid
     const hgt = (h1 - h0) * 60 * PPM;
@@ -73,66 +74,42 @@
     const ws = U.weekStart(U.today());
     const tot = R.weekTotals(s, ws);
     const pd = RH.ui.rday != null ? RH.ui.rday : U.dow(U.today());
-    let html = C.subnav('plan', 'routine');
-    html += C.page({ eyebrow: 'Plan', title: 'Your routine', lede: 'Tell the planner when you’re at school, asleep and busy, how much you want to revise and how much free time to protect. Every session then gets a real time slot.',
-      actions: '<button type="button" class="btn" data-action="routine-save">' + C.icon('rebuild') + 'Save and rebuild plan</button>' });
+    let html = C.page({ title: 'My schedule', lede: 'Tell Preppr when you’re at school, asleep or busy. Every revision session is then booked into the time that’s left. Changes save as you go.',
+      actions: '<button type="button" class="btn" data-action="routine-save">' + C.icon('rebuild') + 'Save and rebuild my plan</button>' });
+    const stepH = (n, t, sub, right) => '<div class="step-h"><span class="step-n">' + n + '</span><div><h2>' + t + '</h2>' + (sub ? '<p class="muted small">' + sub + '</p>' : '') + '</div>' + (right || '') + '</div>';
 
-    // Weekly balance
-    const parts = [['sleep', 'Sleep', tot.sleep], ['school', 'School & travel', tot.school], ['activity', 'Activities & meals', tot.activity], ['study', 'Revision', tot.study], ['free', 'Free time', tot.free]];
-    const all = 7 * 1440;
-    html += '<section class="card"><div class="card-head"><h2>Your week at a glance</h2><span class="muted small">Revision target ' + U.dur(tot.target) + ', ' + U.dur(tot.study) + ' fits</span></div>' +
-      '<div class="balance" role="img" aria-label="How your week is split">' + parts.map((p) => '<span class="kind-' + p[0] + '" style="flex-grow:' + Math.max(1, p[2]) + '" title="' + p[1] + ' ' + U.dur(p[2]) + '"></span>').join('') + '<span class="kind-other" style="flex-grow:' + Math.max(0, all - parts.reduce((a, p) => a + p[2], 0)) + '"></span></div>' +
-      '<ul class="balance-key">' + parts.map((p) => '<li><i class="lgd kind-' + p[0] + '"></i><span>' + p[1] + '</span><b class="num">' + U.dur(p[2]) + '</b></li>').join('') + '</ul>' +
-      (tot.short.length ? '<div class="note small"><b>Not everything fits.</b> ' + tot.short.map((x) => esc(DAYNAMES[U.dow(x.d)]) + ': ' + U.dur(x.cap) + ' of ' + U.dur(x.target) + (x.freeTotal - x.freeWant < x.target ? ' (only ' + U.dur(Math.max(0, x.freeTotal)) + ' free, and you want ' + U.dur(x.freeWant) + ' of it kept free)' : '')).join('; ') + '.</div>' : '') + '</section>';
-
-    // The days, in three groups: Monday to Thursday, Friday, the weekend.
-    // One column per group (Monday to Thursday, Friday, the weekend), or per day when a group is split.
+    // 1. The days: one card for Monday to Thursday, Friday, and the weekend (or one per day when split).
     const cols = [];
     R.GROUPS.forEach(function (g) {
       const ix = g[2], split = ix.length > 1 && r.split && r.split[g[0]];
       if (split) ix.forEach((i) => cols.push([String(i), DAYNAMES[i]]));
-      else cols.push([ix.join(','), ix.length === 1 ? DAYNAMES[ix[0]] : U.DAYS[ix[0]] + '–' + U.DAYS[ix[ix.length - 1]]]);
+      else cols.push([ix.join(','), ix.length === 1 ? DAYNAMES[ix[0]] : DAYNAMES[ix[0]] + ' to ' + DAYNAMES[ix[ix.length - 1]]]);
     });
-    const val = (c, f) => r.days[Number(c[0].split(',')[0])][f];
-    const row = function (f, label, kind, opt) {
-      const needSchool = ['start', 'end', 'travelTo', 'travelBack', 'afterSchool'].indexOf(f) !== -1;
-      return '<tr><th scope="row">' + label + (opt ? ' <span class="opt-t">optional</span>' : '') + '</th>' + cols.map(function (c) {
-        if (needSchool && !val(c, 'school')) return '<td class="muted">—</td>';
-        const v = val(c, f);
-        const at = ' data-rday="' + c[0] + '" data-f="' + f + '" aria-label="' + esc(label + ', ' + c[1]) + '"';
-        let input;
-        if (kind === 'toggle') input = '<label class="mini-toggle"><input type="checkbox"' + at + (v ? ' checked' : '') + '><span></span></label>';
-        else if (kind === 'time') input = '<span class="t-cell"><input type="time"' + at + ' value="' + esc(v || '') + '">' + (opt && v ? '<button type="button" class="clear-x" data-action="r-clear" data-rday="' + c[0] + '" data-f="' + f + '" aria-label="Clear ' + esc(label + ', ' + c[1]) + '">' + C.icon('x') + '</button>' : '') + '</span>';
-        else if (kind === 'hours') input = '<span class="u-cell"><input type="number" min="0" max="16" step="0.25" inputmode="decimal" placeholder="0"' + at + ' value="' + (v === '' || v == null ? '' : hrs(v)) + '"><span class="unit">h</span></span>';
-        else input = '<span class="u-cell"><input type="number" min="0" max="300" step="5" inputmode="numeric" placeholder="none" data-kind="mins"' + at + ' value="' + (v === '' || v == null ? '' : esc(v)) + '"><span class="unit">min</span></span>';
-        return '<td>' + input + '</td>';
-      }).join('') + '</tr>';
+    const field = function (c, f, label, kind, opt) {
+      const v = r.days[Number(c[0].split(',')[0])][f];
+      const at = ' data-rday="' + c[0] + '" data-f="' + f + '" aria-label="' + esc(label + ', ' + c[1]) + '"';
+      let input;
+      if (kind === 'time') input = '<span class="t-cell"><input type="time"' + at + ' value="' + esc(v || '') + '">' + (opt && v ? '<button type="button" class="clear-x" data-action="r-clear" data-rday="' + c[0] + '" data-f="' + f + '" aria-label="Clear ' + esc(label + ', ' + c[1]) + '">' + C.icon('x') + '</button>' : '') + '</span>';
+      else if (kind === 'hours') input = '<span class="u-cell"><input type="number" min="0" max="16" step="0.25" inputmode="decimal" placeholder="0"' + at + ' value="' + (v === '' || v == null ? '' : hrs(v)) + '"><span class="unit">hours</span></span>';
+      else input = '<span class="u-cell"><input type="number" min="0" max="300" step="5" inputmode="numeric" placeholder="none" data-kind="mins"' + at + ' value="' + (v === '' || v == null ? '' : esc(v)) + '"><span class="unit">min</span></span>';
+      return '<label class="dfield"><span>' + label + (opt ? ' <i>optional</i>' : '') + '</span>' + input + '</label>';
     };
-    const sub = (t) => '<tr class="rg-sub"><th colspan="' + (cols.length + 1) + '">' + t + '</th></tr>';
-    const fits = '<tr class="rg-fit"><th scope="row">Revision that fits</th>' + cols.map(function (c) {
-      const info = R.day(s, U.addDays(ws, Number(c[0].split(',')[0])));
-      return '<td class="' + (info.short ? 'warn-t' : 'ok-t') + '">' + U.dur(info.cap) + (info.short ? ' of ' + U.dur(info.target) : '') + '</td>';
-    }).join('') + '</tr>';
-    html += '<section class="card rg"><div class="card-head"><h2>Each day</h2><div class="rg-splits">' +
-      C.toggle('data-action="r-split" data-g="wk"', 'Set Monday–Thursday one day at a time', r.split && r.split.wk) + C.toggle('data-action="r-split" data-g="we"', 'Set Saturday and Sunday separately', r.split && r.split.we) + '</div></div>' +
-      '<p class="help">Leave a box empty if it doesn’t apply: no travel, no break, no limit. “Free time” is time kept for yourself; the planner never books revision into it.</p>' +
-      '<div class="table-wrap"><table class="tbl rg-tbl"><thead><tr><th></th>' + cols.map((c) => '<th scope="col">' + c[1] + '</th>').join('') + '</tr></thead><tbody>' +
-      sub('School') + row('school', 'School', 'toggle') + row('start', 'Starts', 'time') + row('end', 'Ends', 'time') +
-      row('travelTo', 'Travel there', 'mins', true) + row('travelBack', 'Travel home', 'mins', true) + row('afterSchool', 'Break after school', 'mins', true) +
-      sub('Sleep') + row('wake', 'Wake up', 'time') + row('prep', 'Getting ready', 'mins', true) + row('bed', 'Bedtime', 'time') + row('windDown', 'Wind down before bed', 'mins', true) +
-      sub('Revision') + row('study', 'Hours of revision', 'hours') + row('free', 'Hours of free time', 'hours', true) + row('earliest', 'Earliest start', 'time', true) + row('latest', 'Latest finish', 'time', true) +
-      fits + '</tbody></table></div></section>';
+    html += '<section class="sched-step">' + stepH(1, 'Your days', 'Leave a box empty if it doesn’t apply.', '<div class="rg-splits">' + C.toggle('data-action="r-split" data-g="wk"', 'Set Monday–Thursday day by day', r.split && r.split.wk) + C.toggle('data-action="r-split" data-g="we"', 'Set Saturday and Sunday separately', r.split && r.split.we) + '</div>') + '<div class="day-cards">' + cols.map(function (c) {
+      const d0 = Number(c[0].split(',')[0]), day = r.days[d0], info = R.day(s, U.addDays(ws, d0));
+      const school = !!day.school;
+      return '<article class="dcard"><header><h3>' + esc(c[1]) + '</h3><span class="fits ' + (info.short ? 'warn' : 'ok') + '">' + U.dur(info.cap) + (info.short ? ' of ' + U.dur(info.target) : '') + ' revision fits</span></header>' +
+        '<div class="dgroup"><label class="mini-toggle-l"><label class="mini-toggle"><input type="checkbox" data-rday="' + c[0] + '" data-f="school"' + (school ? ' checked' : '') + ' aria-label="School, ' + esc(c[1]) + '"><span></span></label><b>School</b></label>' +
+        (school ? '<div class="dgrid">' + field(c, 'start', 'Starts', 'time') + field(c, 'end', 'Ends', 'time') + '</div>' : '') + '</div>' +
+        '<div class="dgroup"><b class="dg-t">Sleep</b><div class="dgrid">' + field(c, 'wake', 'Wake up', 'time') + field(c, 'bed', 'Bedtime', 'time') + '</div></div>' +
+        '<div class="dgroup"><b class="dg-t">Revision</b><div class="dgrid">' + field(c, 'study', 'Hours of revision', 'hours') + field(c, 'free', 'Free time to keep', 'hours', true) + '</div></div>' +
+        '<details class="dmore"><summary>More: travel, breaks and limits</summary><div class="dgrid">' +
+        (school ? field(c, 'travelTo', 'Travel there', 'mins', true) + field(c, 'travelBack', 'Travel home', 'mins', true) + field(c, 'afterSchool', 'Break after school', 'mins', true) : '') +
+        field(c, 'prep', 'Getting ready', 'mins', true) + field(c, 'windDown', 'Wind down before bed', 'mins', true) + field(c, 'earliest', 'Earliest revision', 'time', true) + field(c, 'latest', 'Latest revision', 'time', true) + '</div></details></article>';
+    }).join('') + '</div>' +
+      (tot.short.length ? '<div class="note small"><b>Not everything fits.</b> ' + tot.short.map((x) => esc(DAYNAMES[U.dow(x.d)]) + ': ' + U.dur(x.cap) + ' of ' + U.dur(x.target) + (x.freeTotal - x.freeWant < x.target ? ' (only ' + U.dur(Math.max(0, x.freeTotal)) + ' free, and you want ' + U.dur(x.freeWant) + ' of it kept free)' : '')).join('; ') + '.</div>' : '') + '</section>';
 
-    // Sessions
-    const num = (k, label, help, min, max, step) => '<label class="field"><span>' + label + '</span><input type="number" min="' + min + '" max="' + max + '" step="' + (step || 5) + '" data-rset="' + k + '" value="' + esc(r[k]) + '">' + (help ? '<span class="help">' + help + '</span>' : '') + '</label>';
-    html += '<section class="card"><div class="card-head"><h2>Sessions</h2></div><div class="form-grid">' +
-      '<label class="field"><span>Session length</span><select data-set="sessionLen" data-num="1">' + C.opts([[25, '25 min'], [30, '30 min'], [45, '45 min'], [60, '60 min'], [90, '90 min']], S.sessionLen) + '</select></label>' +
-      '<label class="field"><span>Break between</span><select data-set="breakLen" data-num="1">' + C.opts([[5, '5 min'], [10, '10 min'], [15, '15 min']], S.breakLen) + '</select></label>' +
-      num('stretch', 'Longest stretch (min)', 'Then a longer break.', 30, 300, 15) + num('longBreak', 'Longer break (min)', '', 10, 60) + '</div>' +
-      '<div class="field"><span>When to revise in your free time</span>' + C.seg([['early', 'As early as possible'], ['late', 'As late as possible']], r.prefer, 'data-action="r-prefer"') + '</div></section>';
-
-    // Activities
-    html += '<section class="card"><div class="card-head"><h2>Regular commitments</h2><button type="button" class="btn alt sm" data-action="ract-add">' + C.icon('plus') + 'Add</button></div><p class="muted small">Clubs, sport, a job, lessons, family time, meals. The planner works around them.</p>' +
+    // 2. Regular commitments
+    html += '<section class="sched-step">' + stepH(2, 'Clubs, sport and other regular plans', 'A job, lessons, family time, meals. The planner works around them.', '<button type="button" class="btn alt sm" data-action="ract-add">' + C.icon('plus') + 'Add</button>') +
       (r.activities.length ? '<div class="act-list">' + r.activities.map((a) => '<div class="act">' +
         '<input class="act-name" data-ract="' + a.id + '" data-f="name" value="' + esc(a.name) + '" aria-label="Name">' +
         '<select data-ract="' + a.id + '" data-f="kind" aria-label="Kind">' + C.opts(Object.keys(RH.ACTIVITY_KINDS).map((k) => [k, RH.ACTIVITY_KINDS[k]]), a.kind) + '</select>' +
@@ -141,15 +118,15 @@
         '<label class="mini-check"><input type="checkbox" data-ract="' + a.id + '" data-f="term"' + (a.term ? ' checked' : '') + '>Term time only</label>' +
         '<button type="button" class="icon-btn" data-action="ract-del" data-id="' + a.id + '" aria-label="Remove ' + esc(a.name) + '">' + C.icon('trash') + '</button></div>').join('') + '</div>' : '<p class="muted">Nothing yet.</p>') + '</section>';
 
-    // One-off events
-    html += '<section class="card"><div class="card-head"><h2>One-off plans</h2><button type="button" class="btn alt sm" data-action="rev-add">' + C.icon('plus') + 'Add</button></div><p class="muted small">A party, an appointment, a trip. Busy for the time you set.</p>' +
+    // 3. One-off plans
+    html += '<section class="sched-step">' + stepH(3, 'One-off plans', 'A party, an appointment, a trip. You’re busy for the time you set.', '<button type="button" class="btn alt sm" data-action="rev-add">' + C.icon('plus') + 'Add</button>') +
       (r.events.length ? '<div class="act-list">' + r.events.slice().sort((a, b) => a.date.localeCompare(b.date)).map((e) => '<div class="act">' +
         '<input class="act-name" data-rev="' + e.id + '" data-f="name" value="' + esc(e.name) + '" aria-label="Name"><input type="date" data-rev="' + e.id + '" data-f="date" value="' + esc(e.date) + '" aria-label="Date">' +
         '<span class="act-time"><input type="time" data-rev="' + e.id + '" data-f="start" value="' + esc(e.start) + '" aria-label="Starts"><span class="muted">–</span><input type="time" data-rev="' + e.id + '" data-f="end" value="' + esc(e.end) + '" aria-label="Ends"></span>' +
         '<button type="button" class="icon-btn" data-action="rev-del" data-id="' + e.id + '" aria-label="Remove ' + esc(e.name) + '">' + C.icon('trash') + '</button></div>').join('') + '</div>' : '<p class="muted">Nothing planned.</p>') + '</section>';
 
-    // Holidays
-    html += '<section class="card"><div class="card-head"><h2>Holidays and study leave</h2><button type="button" class="btn alt sm" data-action="hol-add">' + C.icon('plus') + 'Add</button></div><p class="muted small">No school on these days. These are typical dates; edit them to match your school.</p>' +
+    // 4. Holidays
+    html += '<section class="sched-step">' + stepH(4, 'Holidays and study leave', 'No school on these days. These are typical dates; change them to match your school.', '<button type="button" class="btn alt sm" data-action="hol-add">' + C.icon('plus') + 'Add</button>') +
       '<div class="form-grid narrow"><label class="field"><span>Holiday wake-up</span><input type="time" data-rhol="wake" value="' + esc(r.holiday.wake) + '"></label><label class="field"><span>Holiday bedtime</span><input type="time" data-rhol="bed" value="' + esc(r.holiday.bed) + '"></label></div>' +
       '<div class="act-list">' + (S.holidays || []).map((h) => '<div class="act">' +
         '<input class="act-name" data-hol="' + h.id + '" data-f="name" value="' + esc(h.name) + '" aria-label="Name">' +
@@ -158,9 +135,22 @@
         '<label class="mini-field">Free <input type="number" min="0" max="14" step="0.5" data-hol="' + h.id + '" data-f="free" value="' + hrs(h.free != null ? h.free : r.holiday.free) + '" aria-label="Hours of free time a day">h</label>' +
         '<button type="button" class="icon-btn" data-action="hol-del" data-id="' + h.id + '" aria-label="Remove ' + esc(h.name) + '">' + C.icon('trash') + '</button></div>').join('') + '</div></section>';
 
-    // Preview a day
-    html += '<section class="card"><div class="card-head"><h2>Preview a day</h2></div>' + C.seg(U.DAYS.map((d, i) => [i, d]), pd, 'data-action="r-day"') + V.timeline(U.addDays(ws, pd)) + '</section>';
-    html += '<div class="row-actions"><button type="button" class="btn lg" data-action="routine-save">' + C.icon('rebuild') + 'Save and rebuild plan</button></div>';
+    // 5. Sessions
+    const num = (k, label, help, min, max, step) => '<label class="field"><span>' + label + '</span><input type="number" min="' + min + '" max="' + max + '" step="' + (step || 5) + '" data-rset="' + k + '" value="' + esc(r[k]) + '">' + (help ? '<span class="help">' + help + '</span>' : '') + '</label>';
+    html += '<section class="sched-step">' + stepH(5, 'How you like to revise', 'Session length, breaks, and whether to start early or late.') + '<div class="form-grid">' +
+      '<label class="field"><span>Session length</span><select data-set="sessionLen" data-num="1">' + C.opts([[25, '25 min'], [30, '30 min'], [45, '45 min'], [60, '60 min'], [90, '90 min']], S.sessionLen) + '</select></label>' +
+      '<label class="field"><span>Break between</span><select data-set="breakLen" data-num="1">' + C.opts([[5, '5 min'], [10, '10 min'], [15, '15 min']], S.breakLen) + '</select></label>' +
+      num('stretch', 'Longest stretch (min)', 'Then a longer break.', 30, 300, 15) + num('longBreak', 'Longer break (min)', '', 10, 60) + '</div>' +
+      '<div class="field"><span>When to revise in your free time</span>' + C.seg([['early', 'As early as possible'], ['late', 'As late as possible']], r.prefer, 'data-action="r-prefer"') + '</div></section>';
+
+    // Check it: the week's balance and one day.
+    const parts = [['sleep', 'Sleep', tot.sleep], ['school', 'School and travel', tot.school], ['activity', 'Activities and meals', tot.activity], ['study', 'Revision', tot.study], ['free', 'Free time', tot.free]];
+    const all = 7 * 1440;
+    html += '<section class="sched-step">' + stepH(6, 'Check your week', 'Revision target ' + U.dur(tot.target) + '; ' + U.dur(tot.study) + ' of it fits.') +
+      '<div class="balance" role="img" aria-label="How your week is split">' + parts.map((p) => '<span class="kind-' + p[0] + '" style="flex-grow:' + Math.max(1, p[2]) + '" title="' + p[1] + ' ' + U.dur(p[2]) + '"></span>').join('') + '<span class="kind-other" style="flex-grow:' + Math.max(0, all - parts.reduce((a, p) => a + p[2], 0)) + '"></span></div>' +
+      '<ul class="balance-key">' + parts.map((p) => '<li><i class="lgd kind-' + p[0] + '"></i><span>' + p[1] + '</span><b class="num">' + U.dur(p[2]) + '</b></li>').join('') + '</ul>' +
+      '<div class="preview-day"><p class="label">Preview a day</p>' + C.seg(U.DAYS.map((d, i) => [i, d]), pd, 'data-action="r-day"') + V.timeline(U.addDays(ws, pd)) + '</div></section>';
+    html += '<div class="save-bar"><span class="muted small">Your changes are saved. Rebuild the plan to use them.</span><button type="button" class="btn lg" data-action="routine-save">' + C.icon('rebuild') + 'Save and rebuild my plan</button></div>';
     return html;
   };
 
@@ -203,7 +193,7 @@
     const range = (key, label, help, min, max, step) => '<div class="field"><label for="f-' + key + '" class="range-l"><span>' + label + '</span><output class="num" id="o-' + key + '">' + S[key] + '</output></label>' +
       '<input type="range" id="f-' + key + '" min="' + min + '" max="' + max + '" step="' + step + '" value="' + S[key] + '" data-set="' + key + '" data-num="1">' + (help ? '<p class="help">' + help + '</p>' : '') + '</div>';
     const tg = (key, label, help) => C.toggle('id="f-' + key + '" data-set="' + key + '"', label, S[key], help);
-    let html = C.subnav('plan', 'strategy') + C.page({ eyebrow: 'Plan', title: 'Strategy', lede: 'How the planner chooses what to revise. Your hours and free time are set in <a href="#routine">Routine</a>.', actions: '<button type="button" class="btn" data-action="plan-build">' + C.icon('rebuild') + 'Rebuild plan</button>' });
+    let html = C.subnav('plan', 'strategy') + C.page({ eyebrow: 'Plan', title: 'Strategy', lede: 'How the planner chooses what to revise. Your hours and free time are set in <a href="#routine">My schedule</a>.', actions: '<button type="button" class="btn" data-action="plan-build">' + C.icon('rebuild') + 'Rebuild plan</button>' });
     html += V.staleBanner();
     html += '<section class="card"><div class="card-head"><h2>Pick a strategy</h2></div><div class="presets">' + Object.keys(RH.PRESETS).map((k) => { const p = RH.PRESETS[k]; return '<button type="button" class="preset' + (S.preset === k ? ' on' : '') + '" data-action="preset" data-v="' + k + '" aria-pressed="' + (S.preset === k) + '"><b>' + p.label + '</b><span>' + p.note + '</span></button>'; }).join('') + '</div></section>';
     html += '<div class="grid-2"><section class="card"><div class="card-head"><h2>What matters most</h2></div>' + range('wWeak', 'Weak topics', 'Red and not-started topics first.', 0, 3, 0.25) + range('wUrg', 'Exam urgency', 'Topics in sooner papers first.', 0, 3, 0.25) + range('wCov', 'Cover untouched topics', 'Reach every topic at least once.', 0, 3, 0.25) + range('ppWeeks', 'Past papers: weeks before each exam', 'Timed papers start this many weeks out. 0 turns them off.', 0, 12, 1) + '</section>' +
