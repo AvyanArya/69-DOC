@@ -4,12 +4,22 @@
   const U = RH.util, L = RH.link;
 
   const M = RH.model = {};
-  M.subjects = RH.SUBJECT_LIST;
+  // Every subject the hub knows, and the ones this student takes (M.subjects is filled in place by M.setMine).
+  M.all = RH.SUBJECT_LIST.slice();
+  M.subjects = M.all.slice();
+  M.DEFAULT_MINE = ['physics', 'maths', 'further', 'economics'];
+  M.setMine = function (ids) {
+    const want = Array.isArray(ids) && ids.length ? ids : M.DEFAULT_MINE;
+    const keep = M.all.filter((s) => want.indexOf(s.id) !== -1);
+    M.subjects.length = 0;
+    (keep.length ? keep : M.all.slice(0, 4)).forEach((s) => M.subjects.push(s));
+  };
+  M.isMine = (sub) => M.subjects.indexOf(sub) !== -1;
   M.subject = {};
   M.topic = {};
   M.topics = [];
 
-  M.subjects.forEach(function (s) {
+  M.all.forEach(function (s) {
     M.subject[s.id] = s;
     s.paper = {};
     s.papers.forEach((p) => { s.paper[p.id] = p; });
@@ -28,7 +38,7 @@
   const optionChosen = (state, c) => !c.option || (state.profile.fmOptions || []).indexOf(c.option) !== -1;
   // Option modules show on the Further Maths page until options are picked, but only chosen ones count anywhere else.
   M.compsFor = (state, s, forDisplay) => s.comps.filter((c) => !c.option || (forDisplay && !state.profile.fmOptions) || optionChosen(state, c));
-  M.activeTopics = (state) => M.topics.filter((t) => optionChosen(state, t.comp));
+  M.activeTopics = (state) => M.topics.filter((t) => optionChosen(state, t.comp) && M.subjects.indexOf(t.subject) !== -1);
   M.subjectTopics = (state, s) => M.activeTopics(state).filter((t) => t.subject === s);
 
   M.ts = (state, gid) => state.topics[gid] || { c: 0, p: [], notes: '', last: null, n: 0 };
@@ -65,7 +75,8 @@
     return out;
   };
   // Channel searches for more videos on the topic.
-  M.videoSearches = (t) => (t.subject.video || []).map((site) => L.r(site, 'video', RH.SITES[site].name, L.ytSearch(site, t.q)));
+  M.videoSearches = (t) => (t.subject.video || []).map((site) => L.r(site, 'video', RH.SITES[site].name, L.ytSearch(site, t.q)))
+    .concat([L.r('yt', 'video', 'YouTube', 'https://www.youtube.com/results?search_query=' + encodeURIComponent('A level ' + t.subject.name + ' ' + t.q))]);
 
   // Every non-video resource for a topic, grouped by kind: the topic's own, Mr Gale's, then the section's.
   M.resources = function (t, state) {
@@ -89,7 +100,7 @@
   };
   M.compVideos = (c) => c.topics.reduce((a, t) => a + M.videos(t).length, 0);
   M.comp = {};
-  M.subjects.forEach((s) => s.comps.forEach((c) => { M.comp[c.gid] = c; }));
+  M.all.forEach((s) => s.comps.forEach((c) => { M.comp[c.gid] = c; }));
 
   // ---------- Courses ----------
   // Each subject is a course: numbered sections, each a run of numbered lessons, in specification order.
@@ -136,6 +147,7 @@
     const out = [];
     RH.OFFICIAL_EXAMS.forEach(function (e) {
       const s = M.subject[e.subject], p = s.paper[e.paper];
+      if (!M.isMine(s)) return;
       if (p.option) {
         const opt = RH.FM_OPTIONS.find((o) => o.paper === e.paper);
         if (!state.profile.fmOptions || state.profile.fmOptions.indexOf(opt.id) === -1) return;

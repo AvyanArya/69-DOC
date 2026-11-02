@@ -24,6 +24,7 @@
 
   function setupCard(s) {
     const steps = [
+      [!!(s.profile.subjects && s.profile.subjects.length), 'Choose your subjects', 'Pick the A-levels you take from all 20 Dubai College subjects.', '#subjects', 'Choose'],
       [!!s.routine.setupAt, 'Set your routine', 'School times, sleep, activities and how many hours you want to revise.', '#routine', 'Set routine'],
       [!!s.profile.fmOptions, 'Pick your Further Maths options', s.profile.fmOptions ? 'Saved' : 'So your exams and topics match your papers.', '#preferences', 'Choose'],
       [M.activeTopics(s).filter((t) => (s.topics[t.gid] || {}).c).length >= 20, 'Rate 20 topics', 'Red, amber or green, so the plan knows your weak spots.', '#study', 'Open subjects'],

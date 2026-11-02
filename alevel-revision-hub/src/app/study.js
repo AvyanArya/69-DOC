@@ -40,9 +40,26 @@
         '<span class="sl-prog">' + progBar(p) + '<span class="small muted">' + p.done + ' of ' + p.total + ' done</span></span></div>' +
         (nx ? '<a class="btn alt" href="#t-' + nx.gid + '">' + (p.done ? 'Continue' : 'Start') + ': ' + M.lessonNum(s, nx) + '</a>' : '<span class="muted small">All done</span>') + '</li>';
     }).join('') + '</ul>';
-    const recent = Object.keys(s.topics).filter((g) => M.topic[g] && s.topics[g].last).sort((a, b) => s.topics[b].last.localeCompare(s.topics[a].last)).slice(0, 6);
+    html += '<p class="small muted">Your planner, Home, bookshelf and exams only include the subjects you take. Change them here at any time; your progress in a subject is kept if you remove it.</p>';
+    html += '<h2 class="h-rule">All subjects</h2><p class="muted">Every A-level Dubai College offers. Each uses the most common specification for that subject; check with your teacher which board your school sits.</p><div class="subj-pick">' + M.all.map(function (sub) {
+      const mine = M.isMine(sub), n = sub.comps.reduce((a, c) => a + c.topics.length, 0);
+      return '<div class="sp-card' + (mine ? ' on' : '') + '" data-subj="' + sub.id + '"><i>' + esc((sub.tag || C.TAG[sub.id] || sub.name.slice(0, 3)).slice(0, 3)) + '</i><span class="sp-t"><b>' + esc(sub.name) + '</b><span class="small muted">' + esc(sub.board) + ' ' + esc(sub.spec) + ' · ' + U.plural(n, 'lesson') + '</span></span>' +
+        '<button type="button" class="btn sm ' + (mine ? 'alt' : '') + '" data-action="subj-toggle" data-id="' + sub.id + '">' + (mine ? 'Remove' : C.icon('plus') + 'Add') + '</button></div>';
+    }).join('') + '</div>';
+    const recent = Object.keys(s.topics).filter((g) => M.topic[g] && s.topics[g].last && M.isMine(M.topic[g].subject)).sort((a, b) => s.topics[b].last.localeCompare(s.topics[a].last)).slice(0, 6);
     if (recent.length) html += '<h2 class="h-rule">Recently studied</h2><ul class="lessons">' + recent.map((g) => lessonRow(s, M.topic[g], ' data-subj="' + M.topic[g].subject.id + '"')).join('') + '</ul>';
     return html;
+  };
+  RH.actions['subj-toggle'] = function (el) {
+    const id = el.dataset.id;
+    let added = false;
+    RH.store.update(function (s) {
+      const cur = (s.profile.subjects && s.profile.subjects.length ? s.profile.subjects : M.DEFAULT_MINE).slice();
+      const i = cur.indexOf(id);
+      if (i === -1) { cur.push(id); added = true; } else if (cur.length > 1) cur.splice(i, 1);
+      s.profile.subjects = cur; s.plan.settingsAt = Date.now();
+    });
+    RH.toast(added ? M.subject[id].name + ' added. Rebuild your plan to include it.' : M.subject[id].name + ' removed from your subjects.');
   };
 
   // ---------- One subject: its lessons ----------
@@ -212,7 +229,7 @@
       return '<li class="phase' + (now ? ' now' : '') + (done ? ' done' : '') + '"><span class="small muted">' + esc(U.fmtShort(p.from)) + ' – ' + esc(U.fmtShort(p.to)) + '</span><b>' + esc(p.title) + (now ? ' ' + C.chip('You are here', 'info') : '') + '</b><p>' + esc(p.body) + '</p></li>';
     }).join('') + '</ol>';
     html += '<h2 class="h-rule">Study skills that work</h2>' + RH.GUIDE.techniques.map((x) => '<h3>' + esc(x.title) + '</h3><p class="muted">' + esc(x.body) + '</p><ul class="bullets">' + x.how.map((h) => '<li>' + esc(h) + '</li>').join('') + '</ul>').join('');
-    html += '<h2 class="h-rule">Subject by subject</h2>' + M.subjects.map((sub) => '<h3>' + esc(sub.name) + '</h3><ul class="bullets">' + RH.GUIDE.subjects[sub.id].map((h) => '<li>' + esc(h) + '</li>').join('') + '</ul>').join('');
+    html += '<h2 class="h-rule">Subject by subject</h2>' + M.subjects.filter((sub) => RH.GUIDE.subjects[sub.id]).map((sub) => '<h3>' + esc(sub.name) + '</h3><ul class="bullets">' + RH.GUIDE.subjects[sub.id].map((h) => '<li>' + esc(h) + '</li>').join('') + '</ul>').join('');
     return html;
   };
 })(window.RH = window.RH || {});

@@ -84,7 +84,7 @@
   // ---------- Subject tags ----------
   const TAG = { physics: 'PHY', maths: 'MAT', further: 'FM', economics: 'ECO' };
   C.TAG = TAG;
-  C.stag = (sid, long) => sid ? '<span class="tag" data-subj="' + sid + '">' + (long ? esc(M.subject[sid].name) : TAG[sid] || '') + '</span>' : '';
+  C.stag = (sid, long) => sid ? '<span class="tag" data-subj="' + sid + '">' + (long ? esc(M.subject[sid].name) : TAG[sid] || (M.subject[sid] && M.subject[sid].tag) || '') + '</span>' : '';
   C.chip = (text, tone, icon) => '<span class="chip' + (tone ? ' ' + tone : '') + '">' + (icon ? C.icon(icon) : '') + text + '</span>';
 
   // ---------- Page furniture ----------
@@ -98,12 +98,14 @@
   // The five areas in the top menu, and the pages each one lists in the bar under it.
   RH.AREAS = {
     home: { label: 'Home', icon: 'home', href: 'home', pages: [] },
-    learn: { label: 'Subjects', icon: 'study', href: 'study', pages: [['study', 'Bookshelf'], ['subjects', 'All subjects'], ['s-physics', 'Physics', 'physics'], ['s-maths', 'Maths', 'maths'], ['s-further', 'Further Maths', 'further'], ['s-economics', 'Economics', 'economics'], ['guide', 'How to revise'], ['library', 'Resources']] },
+    learn: { label: 'Subjects', icon: 'study', href: 'study', pages: [] },
     practise: { label: 'Practise', icon: 'qs', href: 'papers', pages: [['papers', 'Past papers'], ['check', 'Check an answer'], ['checks', 'Marked answers'], ['cards', 'Flashcards']] },
     labs: { label: 'Labs', icon: 'flask', href: 'labs', pages: [] },
     plan: { label: 'Planner', icon: 'plan', href: 'plan', pages: [['plan', 'This week'], ['deliverables', 'Deliverables'], ['routine', 'Routine'], ['exams', 'Exams'], ['strategy', 'Strategy']] },
     focus: { label: 'Focus', icon: 'focus', href: 'focus', pages: [] }
   };
+  // The Learn menu lists your subjects, so it is worked out each time.
+  Object.defineProperty(RH.AREAS.learn, 'pages', { get: () => [['study', 'Bookshelf'], ['subjects', 'Your subjects']].concat(M.subjects.map((s) => ['s-' + s.id, s.name, s.id])).concat([['guide', 'How to revise'], ['library', 'Resources']]) });
   // Area menus are drawn once by the page frame (see views.js), so pages no longer add their own.
   C.subnav = () => '';
 
@@ -161,7 +163,7 @@
   // Thumbnails load only where the page may fetch YouTube images (not inside claude.ai).
   C.canThumb = !(window.claude && typeof window.claude.use === 'function');
   const CH = { gale: 'Mr Gale', econdal: 'EconplusDal', bicen: 'Bicen Maths', phyo: 'Physics Online', gill: 'Mr Gill', fcm: '1st Class Maths', tlm: 'TLMaths', exs: 'ExamSolutions', cog: 'Cognito' };
-  C.channel = (ch) => CH[ch] || ch;
+  C.channel = (ch) => CH[ch] || (ch !== 'yt' && RH.SITES[ch] && RH.SITES[ch].name) || (ch === 'yt' ? 'YouTube' : ch);
   C.videoCard = function (v, sid) {
     return '<a class="vcard" href="https://www.youtube.com/watch?v=' + v.id + '" target="_blank" rel="noopener" data-subj="' + (sid || '') + '">' +
       '<span class="vthumb">' + (C.canThumb ? '<img loading="lazy" alt="" src="https://i.ytimg.com/vi/' + v.id + '/mqdefault.jpg" onerror="this.remove()">' : '') + '<span class="vplay">' + C.icon('play') + '</span></span>' +

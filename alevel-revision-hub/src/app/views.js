@@ -31,16 +31,17 @@
     return { home: todayLeft ? '<span class="count">' + todayLeft + '</span>' : '', plan: sum && sum.overdue ? '<span class="count bad">' + sum.overdue + '</span>' : '', focus: RH.face.on ? '<span class="live-dot" title="Tracker on"></span>' : '' };
   }
   // The top menu: home, the four subjects, then the tools.
-  const NAV = [['home', 'Home'], ['study', 'Bookshelf'], ['s-physics', 'Physics'], ['s-maths', 'Maths'], ['s-further', 'Further Maths'], ['s-economics', 'Economics'], ['labs', 'Labs'], ['papers', 'Practise'], ['plan', 'Planner'], ['focus', 'Focus']];
+  // Your subjects get their own menu items when there are four or fewer; otherwise one Subjects item.
+  const NAV = () => [['home', 'Home'], ['study', 'Bookshelf']].concat(M.subjects.length <= 4 ? M.subjects.map((s) => ['s-' + s.id, s.name]) : [['subjects', 'Subjects']]).concat([['labs', 'Labs'], ['papers', 'Practise'], ['plan', 'Planner'], ['focus', 'Focus']]);
   function navKey(r) {
     const area = V.areaOf(r), cur = currentPage(r);
-    if (area === 'learn') return /^s-/.test(cur) || cur === 'study' ? cur : '';
+    if (area === 'learn') return cur === 'study' ? cur : M.subjects.length > 4 ? (cur === 'study' ? cur : 'subjects') : /^s-/.test(cur) ? cur : '';
     return area === 'practise' ? 'papers' : area === 'plan' ? 'plan' : area === 'labs' ? 'labs' : area;
   }
   V.nav = function (r) {
     const key = navKey(r), b = badges();
     const badgeFor = { home: b.home, plan: b.plan, focus: b.focus };
-    return NAV.map(function (n) {
+    return NAV().map(function (n) {
       const on = key === n[0];
       return '<a href="#' + n[0] + '" class="nav-item' + (on ? ' on' : '') + '"' + (on ? ' aria-current="page"' : '') + '>' + n[1] + (badgeFor[n[0]] || '') + '</a>';
     }).join('');

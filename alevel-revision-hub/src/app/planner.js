@@ -73,7 +73,9 @@
       const topicExams = {};
       ex.forEach((e) => e.topicIds.forEach((id) => { (topicExams[id] = topicExams[id] || []).push(e); }));
       let pool = M.activeTopics(state).filter((t) => weightOf(t.subject.id) > 0 && !(S.skipUntaught && state.topics[t.gid] && state.topics[t.gid].nt));
-      if (ex.length) pool = pool.filter((t) => topicExams[t.gid]);
+      // Subjects with no exam dates on the timetable are still revised, up to the last known exam.
+      const hasExams = {}; ex.forEach((e) => { hasExams[e.subject] = 1; });
+      if (ex.length) pool = pool.filter((t) => topicExams[t.gid] || !hasExams[t.subject.id]);
 
       const sim = {};
       pool.forEach(function (t) {
@@ -155,7 +157,7 @@
             let next = null;
             const list = topicExams[t.gid];
             if (list) for (let j = 0; j < list.length; j++) { if (list[j].n > n) { next = list[j]; break; } }
-            if (ex.length && !next) continue;
+            if (ex.length && !next && hasExams[t.subject.id]) continue;
             const days = next ? next.n - n : 60;
             const weak = weakness(st.conf);
             const urg = 1 / (1 + days / 21);

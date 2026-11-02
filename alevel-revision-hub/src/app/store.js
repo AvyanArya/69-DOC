@@ -11,7 +11,7 @@
   function defaults() {
     return {
       v: 2, updatedAt: 0,
-      profile: { name: '', fmOptions: null, theme: 'system', welcomed: false },
+      profile: { name: '', fmOptions: null, theme: 'system', welcomed: false, subjects: null },
       topics: {},
       exams: { off: {}, custom: [] },
       plan: { settings: RH.PLAN_DEFAULTS(), sessions: [], builtAt: 0, settingsAt: 0 },

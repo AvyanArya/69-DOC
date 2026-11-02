@@ -54,6 +54,7 @@
 
   let lastRoute = null;
   function render(opts) {
+    M.setMine(st().profile.subjects);
     const r = route();
     const view = $('#view');
     let html;
@@ -89,6 +90,11 @@
     if (RH.face) RH.face.paint();
   }
   RH.render = render;
+  // Each subject's colour, for the subjects that bring their own.
+  (function () {
+    const css = M.all.filter((x) => x.color).map((x) => '[data-subj="' + x.id + '"] { --subj: ' + x.color + '; }').join('\n');
+    const el = document.createElement('style'); el.textContent = css; document.head.appendChild(el);
+  })();
 
   // ---------- State helpers ----------
   function topicState(s, gid) {

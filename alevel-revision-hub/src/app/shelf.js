@@ -10,6 +10,7 @@
 
   const COL = { physics: '#1F3FB0', maths: '#0E6B55', further: '#5B3AA8', economics: '#C8442A' };
   const ABBR = { physics: 'PHY', maths: 'MATHS', further: 'F.MATHS', economics: 'ECON' };
+  const abbr = (sub) => ABBR[sub.id] || sub.tag || sub.name.slice(0, 4).toUpperCase();
   const INK = '#141414', CREAM = '#F1E9D6', VERM = '#E0522B';
   const SERIF = 'Newsreader, Georgia, serif', SANS = 'Inter, system-ui, sans-serif';
   const reduce = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -21,7 +22,7 @@
     const out = [];
     M.subjects.forEach(function (sub) {
       M.compsFor(s, sub, true).forEach(function (c, j) {
-        out.push({ i: out.length, sub: sub, c: c, n: M.sectionNum(s, c), title: M.title(c.name), col: COL[sub.id], variant: (j + (sub.id === 'maths' ? 1 : sub.id === 'economics' ? 2 : 0)) % 3 });
+        out.push({ i: out.length, sub: sub, c: c, n: M.sectionNum(s, c), title: M.title(c.name), col: COL[sub.id] || sub.color || '#555', variant: (j + (sub.id === 'maths' ? 1 : sub.id === 'economics' ? 2 : 0)) % 3 });
       });
     });
     return out;
@@ -48,13 +49,13 @@
       maths: '<path d="M47 196 Q71 140 95 196" fill="none" stroke="' + k.fg + '" stroke-width="3"/><circle cx="71" cy="168" r="5" fill="' + k.alt + '"/>',
       further: '<path d="M71 176 m0 -4 a4 4 0 1 1 -4 4 a8 8 0 1 1 8 8 a12 12 0 1 1 -12 -12 a16 16 0 1 1 16 16" fill="none" stroke="' + k.fg + '" stroke-width="3"/>',
       economics: '<path d="M50 156 L92 198 M50 198 L92 156" stroke="' + k.fg + '" stroke-width="3"/><circle cx="71" cy="177" r="5" fill="' + k.alt + '"/>'
-    }[b.sub.id];
+    }[b.sub.id] || '<circle cx="71" cy="176" r="18" fill="none" stroke="' + k.fg + '" stroke-width="3"/><circle cx="71" cy="176" r="6" fill="' + k.alt + '"/>';
     return '<svg viewBox="0 0 142 840" aria-hidden="true"><rect width="142" height="840" fill="' + k.bg + '"/>' +
       '<rect width="9" height="840" fill="#000" opacity=".13"/><rect x="133" width="9" height="840" fill="#000" opacity=".2"/>' +
       '<rect y="30" width="142" height="3" fill="' + k.fg + '" opacity=".85"/><rect y="806" width="142" height="3" fill="' + k.fg + '" opacity=".85"/>' +
       '<rect x="41" y="56" width="60" height="60" fill="none" stroke="' + k.fg + '" stroke-width="2"/><text x="71" y="98" text-anchor="middle" font-family="' + SERIF + '" font-size="32" fill="' + k.fg + '">' + esc(b.n) + '</text>' + motif +
       '<text transform="translate(56 232) rotate(90)" font-family="' + SERIF + '" font-size="44" fill="' + k.fg + '"' + (len > 500 ? ' textLength="500" lengthAdjust="spacingAndGlyphs"' : '') + '>' + esc(b.title) + '</text>' +
-      '<text x="71" y="772" text-anchor="middle" font-family="' + SANS + '" font-weight="700" font-size="' + (ABBR[b.sub.id].length > 5 ? 15 : 19) + '" letter-spacing="2" fill="' + k.fg + '">' + ABBR[b.sub.id] + '</text></svg>';
+      '<text x="71" y="772" text-anchor="middle" font-family="' + SANS + '" font-weight="700" font-size="' + (abbr(b.sub).length > 5 ? 15 : 19) + '" letter-spacing="2" fill="' + k.fg + '">' + esc(abbr(b.sub)) + '</text></svg>';
   }
 
   function illustration(b, k, w, h) {
@@ -88,6 +89,25 @@
       for (let i = 0; i < n; i++) { const x = cx + Math.cos(i * 2 * Math.PI / n - Math.PI / 2) * R, y = cy + Math.sin(i * 2 * Math.PI / n - Math.PI / 2) * R; poly += x.toFixed(1) + ',' + y.toFixed(1) + ' '; g += '<circle cx="' + x + '" cy="' + y + '" r="9" fill="' + A + '"/>'; }
       g = '<polygon points="' + poly + '" fill="none" stroke="' + F + '" stroke-width="2"/>' + g;
       g += '<line x1="0" y1="' + cy + '" x2="' + w + '" y2="' + cy + '" stroke="' + F + '" stroke-width="1.5" opacity=".5"/><line x1="' + cx + '" y1="0" x2="' + cx + '" y2="' + h + '" stroke="' + F + '" stroke-width="1.5" opacity=".5"/>';
+    } else if (b.sub.id === 'chemistry') {
+      for (let i = 0; i < 5; i++) {
+        const cx = w * (0.18 + 0.16 * i + (i % 2 ? 0 : 0.02)), cy = h * (i % 2 ? 0.62 : 0.38), R = Math.min(w, h) * (0.1 + r() * 0.05); let d = '';
+        for (let j = 0; j <= 6; j++) { const a = Math.PI / 3 * j + Math.PI / 6; d += (j ? ' L' : 'M') + (cx + Math.cos(a) * R).toFixed(1) + ' ' + (cy + Math.sin(a) * R).toFixed(1); }
+        g += '<path d="' + d + '" fill="none" stroke="' + (i % 2 ? A : F) + '" stroke-width="4"/><circle cx="' + cx + '" cy="' + cy + '" r="' + (R * 0.5) + '" fill="none" stroke="' + P + '" stroke-width="3"/>';
+      }
+    } else if (b.sub.id === 'biology') {
+      let d1 = '', d2 = '';
+      for (let y = 0; y <= h; y += 6) { const x = w / 2 + Math.sin(y / h * Math.PI * 4) * w * 0.28, x2 = w / 2 - Math.sin(y / h * Math.PI * 4) * w * 0.28; d1 += (y ? ' L' : 'M') + x.toFixed(1) + ' ' + y; d2 += (y ? ' L' : 'M') + x2.toFixed(1) + ' ' + y; }
+      for (let y = 10; y < h; y += 22) { const x = w / 2 + Math.sin(y / h * Math.PI * 4) * w * 0.28, x2 = w / 2 - Math.sin(y / h * Math.PI * 4) * w * 0.28; g += '<line x1="' + x + '" y1="' + y + '" x2="' + x2 + '" y2="' + y + '" stroke="' + (y % 44 < 22 ? A : P) + '" stroke-width="4"/>'; }
+      g += '<path d="' + d1 + '" fill="none" stroke="' + F + '" stroke-width="5"/><path d="' + d2 + '" fill="none" stroke="' + F + '" stroke-width="5"/>';
+    } else if (b.sub.id === 'compsci') {
+      for (let i = 0; i < 7; i++) { const y = h * (0.1 + i * 0.13); g += '<path d="M0 ' + y + ' H' + (w * (0.3 + r() * 0.4)) + ' V' + (y + 20) + ' H' + w + '" fill="none" stroke="' + (i % 3 ? F : A) + '" stroke-width="3"/>'; g += '<circle cx="' + (w * (0.3 + r() * 0.4)) + '" cy="' + y + '" r="6" fill="' + P + '"/>'; }
+      g += '<rect x="' + (w * 0.35) + '" y="' + (h * 0.35) + '" width="' + (w * 0.3) + '" height="' + (h * 0.3) + '" fill="' + A + '"/>';
+    } else if (b.sub.id === 'geography') {
+      const cx = w * (0.4 + r() * 0.2), cy = h * 0.5;
+      for (let i = 7; i >= 1; i--) { let d = ''; for (let a = 0; a <= 6.3; a += 0.2) { const rr = i * Math.min(w, h) * 0.065 * (1 + 0.18 * Math.sin(a * 3 + i)); d += (a ? ' L' : 'M') + (cx + Math.cos(a) * rr * 1.3).toFixed(1) + ' ' + (cy + Math.sin(a) * rr).toFixed(1); } g += '<path d="' + d + 'Z" fill="' + (i === 1 ? A : 'none') + '" stroke="' + (i % 2 ? F : P) + '" stroke-width="3"/>'; }
+    } else if (b.sub.id !== 'economics') {
+      for (let i = 0; i < 6; i++) { const cx = w * (0.2 + r() * 0.6), cy = h * (0.2 + r() * 0.6), R = Math.min(w, h) * (0.1 + r() * 0.18); g += '<circle cx="' + cx + '" cy="' + cy + '" r="' + R + '" fill="' + (i % 3 === 0 ? A : 'none') + '" stroke="' + (i % 2 ? F : P) + '" stroke-width="4" opacity="' + (i % 3 === 0 ? 0.85 : 1) + '"/>'; }
     } else {
       const ox = 30, oy = h - 26, ex = w * (0.42 + r() * 0.16), ey = h * (0.38 + r() * 0.16);
       g += '<polygon points="' + ox + ',' + (h * 0.12) + ' ' + ex + ',' + ey + ' ' + ox + ',' + ey + '" fill="' + P + '" opacity=".85"/>';
