@@ -248,13 +248,37 @@
       (d.actions || []).map((a) => '<button type="button" class="btn ' + (a.primary ? '' : 'alt ') + 'sm" data-lab-act="' + a.id + '">' + esc(a.label) + '</button>').join('') +
       (d.still ? '' : '<span class="lab-speed"><span class="small muted">Speed</span>' + C.seg([[0.25, '¼×'], [0.5, '½×'], [1, '1×'], [2, '2×']].concat(d.fast ? [[d.fast, d.fast + '×']] : []), cur ? cur.speed : 1, 'data-lab-speed="1"') + '</span>') + '</div>' +
       (d.graph ? '<div class="lab-graph"><canvas class="lab-gc" aria-label="Graph"></canvas></div>' : '') + '</div>' +
-      '<aside class="lab-panel"><h2>Variables</h2><div class="lab-ctrls">' + d.controls.map((c) => control(c, p)).join('') + '</div><h2>Readings</h2>' + (d.help != null ? (d.help ? '<p class="help">' + d.help + '</p>' : '') : d.subject === 'economics' ? '' : '<p class="help">Green values are predicted by the equations; the others are measured in the simulation.</p>') + '<dl class="lab-read"></dl><div class="lab-extra"></div></aside></div>';
+      '<aside class="lab-panel"><h2>Variables</h2><div class="lab-ctrls">' + d.controls.map((c) => control(c, p)).join('') + '</div>' + (LB.subjectOf(d) === 'economics' ? axesPanel(d) : '') + '<h2>Readings</h2>' + (d.help != null ? (d.help ? '<p class="help">' + d.help + '</p>' : '') : d.subject === 'economics' ? '' : '<p class="help">Green values are predicted by the equations; the others are measured in the simulation.</p>') + '<dl class="lab-read"></dl><div class="lab-extra"></div></aside></div>';
     const heads = LB.HEADS[LB.subjectOf(d)] || LB.HEADS.physics;
     html += '<div class="lab-notes"><section><h2 class="h-rule">' + heads[0] + '</h2><ol class="lab-tasks">' + d.tasks.map((x) => '<li>' + x + '</li>').join('') + '</ol></section>' +
       '<section><h2 class="h-rule">' + heads[1] + '</h2><div class="lab-theory">' + d.theory + '</div></section></div>';
     if (d.exam) html += '<section class="lab-exam" data-subj="' + LB.subjectOf(d) + '"><h2 class="h-rule">In the exam</h2><div class="lab-exam-cols">' + d.exam.map((x) => '<div><p class="label">' + esc(x[0]) + '</p>' + (x[2] === 'ol' ? '<ol>' : '<ul>') + x[1].map((i) => '<li>' + i + '</li>').join('') + (x[2] === 'ol' ? '</ol>' : '</ul>') + '</div>').join('') + '</div></section>';
     return html;
   };
+  // Economics: put the diagram in your own context.
+  const AXP = [['', 'Pick a context…'], ['coffee', 'A coffee shop: £ per cup, cups a week', { yl: 'Price (£ per cup)', xl: 'Cups sold per week', cur: '£', ymax: 5, xmax: 2000 }], ['housing', 'Housing: £ thousands, homes', { yl: 'Price (£000s per home)', xl: 'Homes sold per year', cur: '£', ymax: 500, xmax: 10000 }], ['labour', 'Labour: £ an hour, workers', { yl: 'Wage (£ an hour)', xl: 'Number of workers', cur: '£', ymax: 30, xmax: 500 }], ['oil', 'Oil: $ per barrel, million barrels a day', { yl: 'Price ($ per barrel)', xl: 'Million barrels a day', cur: '$', ymax: 120, xmax: 100 }], ['dubai', 'Dubai taxi rides: AED per ride', { yl: 'Fare (AED per ride)', xl: 'Rides per day (thousands)', cur: 'AED ', ymax: 60, xmax: 400 }]];
+  function axesPanel(d) {
+    const a = (RH.store.state.prefs.econAxes || {})[d.id] || {};
+    const fld = (k, label, ph, type) => '<label class="lc"><span class="lc-h"><span>' + label + '</span></span><input ' + (type === 'num' ? 'type="number" min="0" step="any"' : 'type="text" maxlength="48"') + ' data-eax="' + k + '" data-lab="' + d.id + '" value="' + esc(a[k] == null ? '' : a[k]) + '" placeholder="' + esc(ph) + '"></label>';
+    return '<details class="fold-lite econ-axes"' + (Object.keys(a).length ? ' open' : '') + '><summary>Customise the axes</summary><label class="lc"><span class="lc-h"><span>Context</span></span><select data-eaxp="' + d.id + '">' + AXP.map((x) => '<option value="' + x[0] + '">' + esc(x[1]) + '</option>').join('') + '</select></label>' +
+      fld('yl', 'Vertical axis', 'e.g. Price of coffee (£ per cup)') + fld('xl', 'Horizontal axis', 'e.g. Cups sold per week') +
+      '<div class="ax-row">' + fld('ymax', 'Top of the vertical axis', 'e.g. 5', 'num') + fld('xmax', 'End of the horizontal axis', 'e.g. 2000', 'num') + '</div>' +
+      '<label class="lc"><span class="lc-h"><span>Currency</span></span><select data-eax="cur" data-lab="' + d.id + '">' + [['£', '£ pound'], ['$', '$ dollar'], ['€', '€ euro'], ['AED ', 'AED dirham'], ['¥', '¥ yen'], ['₹', '₹ rupee']].map((c) => '<option value="' + c[0] + '"' + ((a.cur || '£') === c[0] ? ' selected' : '') + '>' + c[1] + '</option>').join('') + '</select></label>' +
+      '<button type="button" class="btn ghost sm" data-action="eax-reset" data-lab="' + d.id + '">Back to the textbook axes</button></details>';
+  }
+  const setAx = (id, fn) => RH.store.update(function (s) { s.prefs.econAxes = s.prefs.econAxes || {}; const a = s.prefs.econAxes[id] = s.prefs.econAxes[id] || {}; fn(a); Object.keys(a).forEach((k) => { if (a[k] === '' || a[k] == null) delete a[k]; }); }, { silent: true });
+  RH.onInput.push(function (el) {
+    if (!el.dataset.eax || el.tagName === 'SELECT') return false;
+    const k = el.dataset.eax, v = el.value.trim();
+    setAx(el.dataset.lab, (a) => { a[k] = el.type === 'number' ? (v === '' ? '' : Math.max(0, Number(v))) : v; });
+    return true;
+  });
+  RH.onChange.push(function (el) {
+    if (el.dataset.eax && el.tagName === 'SELECT') { setAx(el.dataset.lab, (a) => { a.cur = el.value; }); return true; }
+    if (el.dataset.eaxp) { const p = AXP.find((x) => x[0] === el.value); if (p && p[2]) { setAx(el.dataset.eaxp, (a) => Object.assign(a, p[2])); RH.render({ keepScroll: true }); } return true; }
+    return false;
+  });
+  RH.actions['eax-reset'] = (el) => { RH.store.update(function (s) { if (s.prefs.econAxes) delete s.prefs.econAxes[el.dataset.lab]; }); };
   function defaults(d) { const p = {}; d.controls.forEach((c) => { p[c.k] = c.v; }); return p; }
 
   // ---------- Running a lab ----------

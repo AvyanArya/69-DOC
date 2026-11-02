@@ -37,6 +37,7 @@
     if ((x = pre('t-')) !== null) return V.topic(x);
     if ((x = pre('paper-')) !== null) return V.paper(x);
     if ((x = pre('sit-')) !== null) return V.sit(x);
+    if ((x = pre('prep-')) !== null) return V.prep(x);
     if ((x = pre('deck-')) !== null) return V.deck(x);
     if ((x = pre('check-')) !== null) return V.checkOne(x);
     if ((x = pre('lab-')) !== null) return V.lab(x);
@@ -546,11 +547,13 @@
       const d = new FormData(f);
       const name = String(d.get('name') || '').trim(), date = String(d.get('date') || '');
       if (!name || !date) { C.toast('Give the test a name and a date.'); return; }
+      const newId = 'c' + U.uid();
       store.update(function (s) {
-        s.exams.custom.push({ id: 'c' + U.uid(), name: name, subject: String(d.get('subject')), date: date, time: String(d.get('time') || ''), dur: Number(d.get('dur')) || 60, comps: d.getAll('comps').map(String) });
+        s.exams.custom.push({ id: newId, name: name, subject: String(d.get('subject')), date: date, time: String(d.get('time') || ''), dur: Number(d.get('dur')) || 60, comps: d.getAll('comps').map(String) });
         s.plan.settingsAt = Date.now();
       });
-      C.toast('Test added. Rebuild the plan to revise for it.');
+      C.toast('Test added. Here’s how to revise for it.');
+      location.hash = 'prep-' + newId;
       return;
     }
     if (f.id === 'paperForm') {

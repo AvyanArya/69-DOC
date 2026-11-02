@@ -1548,6 +1548,96 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
   .mark-cols { grid-template-columns: minmax(0, 1fr); }
   .ms-pane { position: static; }
 }
+
+/* ---------- Flashcards ---------- */
+.h-sec { font-size: 1.1rem; }
+.fc-hero { position: relative; overflow: hidden; display: flex; align-items: center; gap: 26px; flex-wrap: wrap; padding: 28px 32px; border-radius: var(--r-lg); background: var(--card); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border: 1px solid var(--card-line); box-shadow: var(--shadow-sm); }
+.fc-hero > div { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 4px; }
+.fc-n { font-size: 1.15rem; color: var(--ink-2); }
+.fc-n b { font-size: 2.4rem; font-weight: 700; letter-spacing: -0.04em; color: var(--ink); margin-right: 4px; }
+.fc-pile { position: relative; width: 110px; height: 78px; flex: none; }
+.fc-pile i { position: absolute; inset: 0; border-radius: 14px; background: #fff; box-shadow: 0 6px 16px rgba(80, 60, 160, 0.14), 0 0 0 1px var(--line); }
+.fc-pile i:nth-child(1) { transform: rotate(-9deg) translate(-6px, 4px); background: #F6B9A0; }
+.fc-pile i:nth-child(2) { transform: rotate(5deg) translate(6px, 2px); background: #B8A3F5; }
+.fc-pile i:nth-child(3) { background: linear-gradient(135deg, #fff, #F1EDFF); }
+.dk-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 22px 18px; }
+.dk { font: inherit; display: flex; flex-direction: column; gap: 12px; color: var(--ink); text-decoration: none !important; border: 0; background: none; padding: 0; text-align: left; cursor: pointer; }
+.dk-stack { position: relative; display: block; height: 130px; margin: 8px 8px 0 0; }
+.dk-stack > span { position: absolute; inset: 0; border-radius: 16px; background: var(--surface); box-shadow: 0 0 0 1px var(--line); }
+.dk-stack > span:nth-child(1) { transform: translate(8px, -8px); background: color-mix(in srgb, var(--subj) 25%, var(--surface)); }
+.dk-stack > span:nth-child(2) { transform: translate(4px, -4px); background: color-mix(in srgb, var(--subj) 12%, var(--surface)); }
+.dk-top { display: flex; flex-direction: column; justify-content: space-between; padding: 16px; border-top: 4px solid var(--subj); box-shadow: var(--shadow-sm), 0 0 0 1px var(--line) !important; transition: transform 0.2s var(--ease); }
+.dk:hover .dk-top { transform: translateY(-4px); }
+.dk-top b { font-weight: 650; font-size: 1.02rem; line-height: 1.3; overflow-wrap: anywhere; }
+.dk-top > span { font-size: 0.84rem; color: var(--ink-3); }
+.dk-foot { display: flex; flex-direction: column; gap: 8px; padding-right: 8px; }
+.dk-due { align-self: flex-start; font-size: 0.8rem; font-weight: 650; padding: 2px 10px; border-radius: 999px; background: var(--primary); color: #fff; }
+.dk-add { display: inline-flex; align-items: center; gap: 6px; color: var(--accent); font-weight: 600; font-size: 0.9rem; }
+.starter-dk .dk-stack { height: 110px; }
+.boxes-bar { display: flex; gap: 4px; height: 40px; }
+.bb { display: grid; place-items: center; border-radius: 10px; color: #fff; font-size: 0.85rem; min-width: 36px; }
+.bb.b1 { background: #F59E86; } .bb.b2 { background: #F2A7C3; } .bb.b3 { background: #B8A3F5; } .bb.b4 { background: #8C76FF; } .bb.b5 { background: #22C55E; }
+
+/* ---------- Focus ---------- */
+.fx-room { position: relative; display: flex; flex-direction: column; align-items: center; gap: 18px; padding: clamp(26px, 4vw, 44px) 20px; border-radius: 32px; background: radial-gradient(70% 90% at 50% 0%, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.45)), var(--hero); box-shadow: var(--shadow); border: 1px solid var(--card-line); }
+:root[data-theme="dark"] .fx-room { background: radial-gradient(70% 90% at 50% 0%, rgba(30, 26, 54, 0.92), rgba(30, 26, 54, 0.7)), var(--hero); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .fx-room { background: radial-gradient(70% 90% at 50% 0%, rgba(30, 26, 54, 0.92), rgba(30, 26, 54, 0.7)), var(--hero); } }
+.fx-room .seg { align-self: center; background: var(--glass); }
+.fx-for { display: flex; flex-direction: column; align-items: center; font-weight: 650; text-align: center; }
+.fx-for span { font-weight: 400; font-size: 0.88rem; color: var(--ink-3); }
+.fx-phase { color: var(--ink-3); font-weight: 500; letter-spacing: 0.02em; min-height: 1.4em; }
+.fx-dial { position: relative; width: min(320px, 74vw); aspect-ratio: 1; display: grid; place-items: center; }
+.fx-dial svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+.fx-track { fill: rgba(255, 255, 255, 0.6); stroke: color-mix(in srgb, var(--primary) 14%, transparent); stroke-width: 3; }
+.fx-arc { fill: none; stroke: var(--primary); stroke-width: 3.4; stroke-linecap: round; transition: stroke-dasharray 0.5s linear; }
+.fx-clock { position: relative; font-size: clamp(3rem, 2rem + 4vw, 4.6rem); font-weight: 600; letter-spacing: -0.05em; color: var(--ink); }
+.fx-ctrl { display: flex; align-items: center; gap: 22px; }
+.fx-side { width: 48px; height: 48px; border-radius: 50%; background: var(--glass); }
+.fx-play { width: 78px; height: 78px; border-radius: 50%; border: 0; display: grid; place-items: center; background: var(--primary); color: #fff; cursor: pointer; box-shadow: 0 14px 34px rgba(123, 97, 255, 0.4); transition: transform 0.15s var(--ease); }
+.fx-play:hover { transform: scale(1.05); }
+.fx-play .i { width: 30px; height: 30px; fill: currentColor; stroke: none; }
+.fx-play.on .i { fill: none; stroke: currentColor; stroke-width: 3; }
+.fx-exam { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.fx-exam input { width: 90px; }
+.laps { list-style: none; margin: 0; padding: 0; width: min(280px, 100%); display: flex; flex-direction: column; gap: 4px; }
+.laps li { display: flex; justify-content: space-between; }
+.fx-under { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 18px; }
+.fx-stats { flex-direction: row; justify-content: space-around; align-items: center; }
+.fxs { display: flex; flex-direction: column; align-items: center; }
+.fxs b { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.03em; }
+.fxs span { font-size: 0.82rem; color: var(--ink-3); }
+.fx-cam-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.fx-cam-row > .i { color: var(--primary); width: 22px; height: 22px; }
+.fx-cam-row > span:nth-child(2) { flex: 1; min-width: 180px; display: flex; flex-direction: column; }
+@media (max-width: 900px) { .fx-under { grid-template-columns: minmax(0, 1fr); } }
+.econ-axes { padding-top: 6px; border-top: 1px solid var(--line); }
+.econ-axes .lc { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+.econ-axes input, .econ-axes select { width: 100%; }
+.ax-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+/* ---------- Revising for a test ---------- */
+.prep-hero { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; padding: clamp(22px, 3vw, 32px); border-radius: var(--r-lg); background: linear-gradient(120deg, color-mix(in srgb, var(--subj) 17%, var(--surface)), color-mix(in srgb, var(--subj) 5%, var(--surface))); border: 1px solid color-mix(in srgb, var(--subj) 18%, transparent); box-shadow: var(--shadow-sm); }
+.prep-hero > div:first-child { display: flex; flex-direction: column; gap: 6px; }
+.prep-days { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; align-items: start; }
+.prep-day { display: flex; flex-direction: column; gap: 10px; padding: 20px; border-radius: var(--r); background: var(--card); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border: 1px solid var(--card-line); box-shadow: var(--shadow-sm); }
+.prep-day > header { display: flex; align-items: center; gap: 12px; }
+.prep-day h2 { font-size: 1.1rem; }
+.pd-n { width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; background: var(--subj); color: #fff; font-weight: 700; flex: none; }
+.pd-n .i { width: 16px; height: 16px; }
+.on-day .pd-n { background: var(--ink); }
+.plist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.pi { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); }
+.pi-ic { width: 32px; height: 32px; flex: none; border-radius: 10px; display: grid; place-items: center; background: color-mix(in srgb, var(--subj) 12%, var(--surface)); color: var(--subj); }
+.pi-ic .i { width: 16px; height: 16px; }
+.pi-main { flex: 1; min-width: 0; display: flex; flex-direction: column; color: var(--ink); text-decoration: none !important; line-height: 1.3; }
+.pi-main b { font-weight: 600; overflow-wrap: anywhere; }
+.pi-main span { font-size: 0.8rem; color: var(--ink-3); }
+.pi.done .pi-main b { text-decoration: line-through; color: var(--ink-3); }
+.tips { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; color: var(--ink-2); }
+.tests-card .row .btn { flex: none; }
+.ob .ls-ic { background: #FFFCF4; border-color: #D8CFBA; }
+:root[data-theme="dark"] .fx-track { fill: rgba(255, 255, 255, 0.05); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .fx-track { fill: rgba(255, 255, 255, 0.05); } }
 </style>
 <!-- head:end -->
 </head>
@@ -5405,7 +5495,7 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
     if (r === 'home') return 'home';
     if (/^(study|subjects|s-|c-|t-|library|guide)/.test(r)) return 'learn';
     if (/^(papers|paper-|sit-|exam$|mark$|handin$|check|checks|cards|deck-|review)/.test(r)) return 'practise';
-    if (/^(plan|deliverables|routine|exams|strategy)$/.test(r)) return 'plan';
+    if (/^(plan|deliverables|routine|exams|strategy)$/.test(r) || /^prep-/.test(r)) return 'plan';
     if (r === 'focus') return 'focus';
     if (r === 'labs' || r.indexOf('lab-') === 0) return 'labs';
     return 'settings';
@@ -5415,6 +5505,7 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
     if (/^[sct]-/.test(r)) return 'study';
     if (/^(paper-|sit-|exam$|mark$|handin$)/.test(r)) return 'papers';
     if (/^check-/.test(r)) return 'checks';
+    if (/^prep-/.test(r)) return 'exams';
     if (/^(deck-|review)/.test(r)) return 'cards';
     return r;
   }
@@ -5459,6 +5550,7 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
 
   // ---------- Sessions ----------
   V.sessTitle = function (s) {
+    if (s.label) return s.label;
     const t = s.t && M.topic[s.t];
     if (t) return t.name;
     const e = s.e && M.examById(st(), s.e);
@@ -6296,7 +6388,7 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
     const sum = RH.planner.summary(s);
     let html = C.subnav('plan', 'plan');
     html += C.page({ title: (ws === U.weekStart(today) ? 'This week' : 'Week of ' + esc(U.fmtShort(ws))), lede: U.dur(planned) + ' of revision planned, ' + U.dur(doneM) + ' done · ' + U.dur(free) + ' of free time kept',
-      actions: '<a class="btn" href="#routine">' + C.icon('pen') + 'Edit my schedule</a><button type="button" class="btn alt" data-action="plan-build">' + C.icon('rebuild') + 'Rebuild plan</button>' });
+      actions: '<a class="btn" href="#routine">' + C.icon('pen') + 'Edit my schedule</a><a class="btn alt" href="#exams">' + C.icon('flag') + 'Revise for a test</a><button type="button" class="btn alt" data-action="plan-build">' + C.icon('rebuild') + 'Rebuild</button>' });
     html += '<div class="wk-nav"><button type="button" class="icon-btn" data-action="week-prev" aria-label="Previous week">' + C.icon('left') + '</button><b>' + esc(U.fmtShort(ws)) + ' – ' + esc(U.fmtShort(days[6])) + '</b><button type="button" class="icon-btn" data-action="week-next" aria-label="Next week">' + C.icon('right') + '</button>' + (ws === U.weekStart(today) ? '' : '<button type="button" class="btn ghost sm" data-action="week-today">Back to this week</button>') + '<span class="muted small">' + U.plural(sum.sessions, 'session') + ' left until your exams</span></div>';
     html += V.staleBanner();
     if (!s.routine.setupAt) html += '<div class="note row-note"><p><b>This plan uses a sample week.</b> Put in your school times, clubs and how much you want to revise so the times fit your real week.</p><a class="btn sm" href="#routine">Edit my schedule</a></div>';
@@ -6431,6 +6523,20 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
     const s = st(), today = U.today();
     let html = C.subnav('plan', 'exams') + C.page({ title: 'Exams and tests', lede: 'Official <a href="' + RH.EXAM_SOURCE.url + '" target="_blank" rel="noopener">Edexcel Summer 2027</a> dates. Add your school tests below.' });
     if (!s.profile.fmOptions) html += V.fmOptionsCard();
+    const tests = '<section class="card tests-card"><div class="card-head"><h2>School tests and mocks</h2></div>' +
+      (s.exams.custom.length ? '<ul class="list">' + s.exams.custom.slice().sort((a, b) => a.date.localeCompare(b.date)).map(function (c) {
+        const sub = M.subject[c.subject];
+        const comps = c.comps && c.comps.length ? c.comps.map((id) => (sub.comps.find((x) => x.id === id) || {}).name).filter(Boolean).join(', ') : 'Whole subject';
+        return '<li class="row" data-subj="' + c.subject + '">' + C.stag(c.subject) + '<span class="row-main"><b>' + esc(c.name) + '</b><span class="muted small">' + esc(U.fmt(c.date)) + (c.time ? ' · ' + esc(c.time) : '') + ' · ' + U.mins(c.dur || 60) + ' · ' + esc(comps) + '</span></span>' + (c.date >= today ? C.countdownChip(c.date) : '<span class="muted small">Done</span>') +
+          (c.date >= today ? '<a class="btn sm" href="#prep-' + c.id + '">' + C.icon('list') + 'Revision plan</a>' : '') + '<button type="button" class="icon-btn" data-action="test-del" data-id="' + c.id + '" aria-label="Delete ' + esc(c.name) + '">' + C.icon('trash') + '</button></li>';
+      }).join('') + '</ul>' : '<p class="muted">Got a test coming up? Add it with its topics and you’ll get a day-by-day plan for it.</p>') +
+      '<form id="testForm" class="stack-form"><div class="form-grid"><label class="field"><span>Name</span><input id="t-name" name="name" required placeholder="e.g. Physics mock, Paper 1"></label>' +
+      '<label class="field"><span>Subject</span><select id="t-subj" name="subject">' + M.subjects.map((x) => '<option value="' + x.id + '"' + (RH.ui.testSubj === x.id ? ' selected' : '') + '>' + esc(x.name) + '</option>').join('') + '</select></label>' +
+      '<label class="field"><span>Date</span><input id="t-date" name="date" type="date" required min="' + today + '"></label><label class="field"><span>Start time</span><input id="t-time" name="time" type="time" value="09:00"></label>' +
+      '<label class="field"><span>Minutes</span><input id="t-dur" name="dur" type="number" min="10" max="300" step="5" value="60"></label></div>' +
+      '<fieldset class="field"><legend>Topics it covers <span class="muted small">(none ticked = the whole subject)</span></legend><div class="picks" id="t-comps">' + V.compPicks(RH.ui.testSubj || 'physics') + '</div></fieldset>' +
+      '<div class="row-actions"><button type="submit" class="btn">' + C.icon('plus') + 'Add test and plan it</button></div></form></section>';
+    html += tests + '<h2 class="h-sec">Official exams</h2>';
     let month = '';
     html += '<div class="exam-list">';
     M.officialFor(s).forEach(function (o) {
@@ -6443,19 +6549,7 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
         '<div class="exam-ready"><span class="small muted">Readiness ' + U.pct(M.readiness(s, topics)) + ' · ' + U.plural(topics.length, 'sub-topic') + '</span>' + C.stack(M.ragCounts(s, topics), p.code) + '</div></div>' +
         '<div class="exam-side">' + (past ? '<span class="muted small">Sat</span>' : C.countdownChip(o.date)) + C.toggle('data-action="exam-toggle" data-id="' + o.id + '"', 'Sitting', on) + '</div></article>';
     });
-    html += '</div><section class="card"><div class="card-head"><h2>Mocks and class tests</h2></div>' +
-      (s.exams.custom.length ? '<ul class="list">' + s.exams.custom.slice().sort((a, b) => a.date.localeCompare(b.date)).map(function (c) {
-        const sub = M.subject[c.subject];
-        const comps = c.comps && c.comps.length ? c.comps.map((id) => (sub.comps.find((x) => x.id === id) || {}).name).filter(Boolean).join(', ') : 'Whole subject';
-        return '<li class="row" data-subj="' + c.subject + '">' + C.stag(c.subject) + '<span class="row-main"><b>' + esc(c.name) + '</b><span class="muted small">' + esc(U.fmt(c.date)) + (c.time ? ' · ' + esc(c.time) : '') + ' · ' + U.mins(c.dur || 60) + ' · ' + esc(comps) + '</span></span>' + (c.date >= today ? C.countdownChip(c.date) : '<span class="muted small">Done</span>') +
-          '<button type="button" class="icon-btn" data-action="test-del" data-id="' + c.id + '" aria-label="Delete ' + esc(c.name) + '">' + C.icon('trash') + '</button></li>';
-      }).join('') + '</ul>' : '<p class="muted">No mocks or tests yet. Add them so the plan revises the right sections before each one.</p>') +
-      '<form id="testForm" class="stack-form"><div class="form-grid"><label class="field"><span>Name</span><input id="t-name" name="name" required placeholder="e.g. Physics mock, Paper 1"></label>' +
-      '<label class="field"><span>Subject</span><select id="t-subj" name="subject">' + M.subjects.map((x) => '<option value="' + x.id + '"' + (RH.ui.testSubj === x.id ? ' selected' : '') + '>' + esc(x.name) + '</option>').join('') + '</select></label>' +
-      '<label class="field"><span>Date</span><input id="t-date" name="date" type="date" required min="' + today + '"></label><label class="field"><span>Start time</span><input id="t-time" name="time" type="time" value="09:00"></label>' +
-      '<label class="field"><span>Minutes</span><input id="t-dur" name="dur" type="number" min="10" max="300" step="5" value="60"></label></div>' +
-      '<fieldset class="field"><legend>Sections it covers <span class="muted small">(none ticked = whole subject)</span></legend><div class="picks" id="t-comps">' + V.compPicks(RH.ui.testSubj || 'physics') + '</div></fieldset>' +
-      '<div class="row-actions"><button type="submit" class="btn">' + C.icon('plus') + 'Add test</button></div></form></section>';
+    html += '</div>';
     return html;
   };
 
@@ -6518,6 +6612,117 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
   A['rev-del'] = (el) => store.update(function (s) { s.routine.events = s.routine.events.filter((x) => x.id !== el.dataset.id); touch(s); });
   A['routine-save'] = () => { store.update(function (s) { touch(s); }, { silent: true }); A['plan-build'](); location.hash = 'plan'; };
   A['plan-day'] = (el) => { RH.ui.day = el.dataset.v; RH.render({ keepScroll: true }); };
+})(window.RH = window.RH || {});
+</script>
+<script>
+/* Revising for a test: add a school test with its topics and get a day-by-day plan from today until the test.
+   Weakest topics are learned first, everything is then practised with exam questions, and the last day is a
+   timed mixed set and a review of every mark lost. The amount of work fits the revision time in your schedule. */
+(function (RH) {
+  'use strict';
+  const U = RH.util, M = RH.model, C = RH.c, esc = U.esc, R = RH.routine;
+  const st = () => RH.store.state;
+  const store = RH.store;
+  const V = RH.views, A = RH.actions;
+  const TP = RH.testPrep = {};
+
+  TP.topics = function (s, test) {
+    const sub = M.subject[test.subject];
+    if (!sub) return [];
+    const comps = test.comps && test.comps.length ? sub.comps.filter((c) => test.comps.indexOf(c.id) !== -1) : M.compsFor(s, sub, true);
+    let list = [];
+    comps.forEach((c) => { list = list.concat(c.topics); });
+    // A whole subject is too much for a few days: keep the weakest 24.
+    if (list.length > 24) list = list.slice().sort((a, b) => M.conf(s, a.gid) - M.conf(s, b.gid)).slice(0, 24);
+    return list;
+  };
+
+  TP.build = function (s, test) {
+    const today = U.today(), topics = TP.topics(s, test);
+    const days = [];
+    for (let d = today; d < test.date; d = U.addDays(d, 1)) days.push(d);
+    if (!days.length) days.push(today);
+    const cap = days.map((d) => { const info = R.day(s, d); return Math.max(45, info.target || info.cap || 90); });
+    const byConf = topics.slice().sort((a, b) => M.conf(s, a.gid) - M.conf(s, b.gid));
+    const learn = byConf.map(function (t) {
+      const c = M.conf(s, t.gid);
+      return c <= 1 ? { k: 'learn', t: t, m: 35, why: c ? 'Red: relearn it' : 'Not started yet' } : { k: 'recall', t: t, m: c === 2 ? 25 : 15, why: c === 2 ? 'Amber: firm it up' : 'Green: quick check' };
+    });
+    const practice = byConf.map((t) => ({ k: 'practice', t: t, m: 20, why: 'Exam questions, timed' }));
+    const finish = [{ k: 'mixed', m: 40, title: 'Timed mixed questions on every topic', why: 'Like the real test' }, { k: 'mistakes', m: 20, title: 'Go back over every mark you lost', why: 'Fix the gaps' }];
+    const need = learn.concat(practice).concat(finish).reduce((a, x) => a + x.m, 0), have = cap.reduce((a, x) => a + x, 0);
+    const k = need > have ? have / need : 1;
+    const scale = (x) => Object.assign({}, x, { m: Math.max(10, Math.round(x.m * k / 5) * 5) });
+    const queue = learn.concat(practice).map(scale), last = finish.map(scale);
+    const plan = days.map((d, i) => ({ d: d, cap: cap[i], items: [], used: 0 }));
+    // The last day keeps room for the mixed set and the review; everything else fills days in order.
+    const lastDay = plan[plan.length - 1];
+    lastDay.reserve = last.reduce((a, x) => a + x.m, 0);
+    let di = 0;
+    queue.forEach(function (x) {
+      while (di < plan.length - 1 && plan[di].used + x.m > plan[di].cap) di++;
+      plan[di].items.push(x); plan[di].used += x.m;
+    });
+    last.forEach((x) => { lastDay.items.push(x); lastDay.used += x.m; });
+    plan.forEach((p) => p.items.forEach((x, j) => { x.key = p.d + ':' + j + ':' + x.k + ':' + (x.t ? x.t.gid : ''); }));
+    return { days: plan, topics: topics, need: need, have: have, tight: need > have * 1.05 };
+  };
+
+  const KLABEL = { learn: 'Learn and condense', recall: 'Active recall', practice: 'Exam questions', mixed: 'Mixed practice', mistakes: 'Review' };
+  const KICON = { learn: 'book', recall: 'pen', practice: 'timer', mixed: 'paper', mistakes: 'flag' };
+  function itemRow(test, x) {
+    const done = test.prep && test.prep[x.key];
+    const t = x.t, title = t ? M.title(t.name) : x.title;
+    const go = t ? (x.k === 'practice' ? '#t-' + t.gid + '?' : '#t-' + t.gid) : '#papers';
+    return '<li class="pi' + (done ? ' done' : '') + '"><button type="button" class="check-b' + (done ? ' on' : '') + '" data-action="prep-tick" data-id="' + test.id + '" data-k="' + esc(x.key) + '" aria-pressed="' + !!done + '" aria-label="Done">' + C.icon('tick') + '</button>' +
+      '<span class="pi-ic">' + C.icon(KICON[x.k]) + '</span><a class="pi-main" href="' + go.replace('?', '') + '"><b>' + esc(title) + '</b><span>' + KLABEL[x.k] + ' · ' + U.mins(x.m) + ' · ' + esc(x.why) + '</span></a></li>';
+  }
+
+  V.prep = function (id) {
+    const s = st(), test = s.exams.custom.find((c) => c.id === id);
+    if (!test) return C.empty('Test not found.', '', '<a class="btn" href="#exams">Exams and tests</a>');
+    const sub = M.subject[test.subject], pl = TP.build(s, test), today = U.today();
+    const n = C.daysTo(test.date);
+    const all = pl.days.reduce((a, d) => a + d.items.length, 0), ticked = Object.keys(test.prep || {}).length;
+    let html = C.crumbs([['Exams and tests', 'exams'], [test.name]]);
+    html += '<section class="prep-hero" data-subj="' + test.subject + '"><div><p class="kicker">' + esc(sub ? sub.name : '') + ' · ' + esc(U.fmt(test.date, { weekday: 'long', day: 'numeric', month: 'long' })) + '</p><h1>' + esc(test.name) + '</h1>' +
+      '<p class="meta">' + (n <= 0 ? 'Today' : n === 1 ? 'Tomorrow' : 'In ' + n + ' days') + ' · ' + U.plural(pl.topics.length, 'topic') + ' · ' + U.dur(pl.need) + ' of revision</p></div>' +
+      '<div class="prep-ring">' + C.ring(all ? ticked / all : 0, '<b>' + ticked + '</b>/' + all, 92) + '</div></section>';
+    if (pl.tight) html += '<p class="note row-note"><span><b>It’s tight.</b> This needs ' + U.dur(pl.need) + ' but your schedule has ' + U.dur(pl.have) + ' before the test, so each step is shorter. Free up time in <a href="#routine">My schedule</a> if you can.</span></p>';
+    if (!pl.topics.length) html += C.empty('No topics picked.', 'Delete this test and add it again with the chapters it covers.');
+    html += '<div class="prep-days">' + pl.days.map(function (d, i) {
+      const lab = d.d === today ? 'Today' : d.d === U.addDays(today, 1) ? 'Tomorrow' : U.fmt(d.d, { weekday: 'long', day: 'numeric', month: 'short' });
+      return '<section class="prep-day"><header><span class="pd-n">' + (i + 1) + '</span><div><h2>' + esc(lab) + '</h2><span class="muted small">' + U.dur(d.items.reduce((a, x) => a + x.m, 0)) + '</span></div></header><ul class="plist">' + d.items.map((x) => itemRow(test, x)).join('') + '</ul></section>';
+    }).join('') +
+      '<section class="prep-day on-day"><header><span class="pd-n">' + C.icon('flag') + '</span><div><h2>On the day</h2><span class="muted small">15 minutes before</span></div></header><ul class="tips"><li>Read your key points and formulae once. No new topics.</li><li>Look at your list of lost marks from the review.</li><li>Sleep well the night before; it helps more than late cramming.</li></ul></section></div>';
+    html += '<div class="save-bar"><span class="muted small">' + (test.inPlan ? 'In your weekly plan.' : 'Add the steps to your weekly plan to get them at real times.') + '</span><button type="button" class="btn lg" data-action="prep-add" data-id="' + test.id + '">' + C.icon('plan') + (test.inPlan ? 'Update my plan' : 'Put it in my plan') + '</button></div>';
+    return html;
+  };
+
+  A['prep-tick'] = function (el) {
+    store.update(function (s) {
+      const t = s.exams.custom.find((c) => c.id === el.dataset.id);
+      t.prep = t.prep || {};
+      if (t.prep[el.dataset.k]) delete t.prep[el.dataset.k]; else t.prep[el.dataset.k] = 1;
+    });
+  };
+  A['prep-add'] = function (el) {
+    const id = el.dataset.id;
+    store.update(function (s) {
+      const test = s.exams.custom.find((c) => c.id === id), pl = TP.build(s, test);
+      const KIND = { learn: 'learn', recall: 'recall', practice: 'practice', mixed: 'practice', mistakes: 'recall' };
+      s.plan.sessions = s.plan.sessions.filter((x) => x.prep !== id);
+      const touched = {};
+      pl.days.forEach((d) => d.items.forEach(function (x) {
+        s.plan.sessions.push({ id: U.uid(), d: d.d, k: KIND[x.k], s: test.subject, t: x.t ? x.t.gid : null, m: x.m, why: 'For ' + test.name, prep: id, label: x.t ? null : x.title });
+        touched[d.d] = 1;
+      }));
+      s.plan.sessions.sort((a, b) => a.d.localeCompare(b.d));
+      Object.keys(touched).forEach((d) => R.placeDay(s, d, s.plan.sessions.filter((q) => q.d === d)));
+      test.inPlan = true;
+    }, { plan: true });
+    C.toast('Added to your plan');
+  };
 })(window.RH = window.RH || {});
 </script>
 <script>
@@ -6664,7 +6869,7 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
       ring.setAttribute('stroke-dasharray', (c * f).toFixed(1) + ' ' + c.toFixed(1));
     }
     const play = $('#fx-play');
-    if (play) play.innerHTML = T.running ? C.icon('pause') + 'Pause' : C.icon('play') + ((T.mode === 'stopwatch' ? T.elapsed : T.total - T.left) > 0.5 ? 'Resume' : 'Start');
+    if (play) { const lab = T.running ? 'Pause' : (T.mode === 'stopwatch' ? T.elapsed : T.total - T.left) > 0.5 ? 'Resume' : 'Start'; play.innerHTML = C.icon(T.running ? 'pause' : 'play') + '<span class="sr">' + lab + '</span>'; play.setAttribute('aria-label', lab); play.classList.toggle('on', T.running); }
     const ph = $('#fx-phase');
     if (ph) ph.textContent = T.mode === 'pomo' ? PHASE[T.phase] + ' · block ' + (T.cycle % pomo().cycles + (T.phase === 'focus' ? 1 : 0)) + ' of ' + pomo().cycles : T.mode === 'exam' ? (!T.running && T.left === T.total ? 'Ready when you are' : !T.running ? 'Paused' : T.left < 300 ? 'Final minutes' : 'Exam in progress') : T.mode === 'countdown' ? (T.running ? 'Counting down' : 'Countdown') : 'Stopwatch';
     const acc = $('#fx-acc');
@@ -6807,44 +7012,30 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
     const w = RH.deliv.week();
     const fItem = w && w.items.find((it) => it.kind === 'focus');
     const wk = weekFocus();
-    let html = C.page({ eyebrow: 'Focus', title: 'Focus', lede: 'Time a session, and turn on the focus tracker so only time at your desk counts.' });
-    html += '<div class="fx">';
-    // Timer
-    html += '<section class="card fx-timer">' + C.seg([['pomo', 'Pomodoro'], ['countdown', 'Countdown'], ['exam', 'Exam timer'], ['stopwatch', 'Stopwatch']], mode, 'data-action="fx-mode"') +
-      (x ? '<p class="fx-for">' + C.stag(x.s) + '<b>' + esc(RH.views.sessTitle(x)) + '</b><span class="muted">' + esc(RH.KIND[x.k].label) + ' · ' + U.mins(x.m) + '</span></p>' : '') +
+    let html = '<section class="fx-room">' + C.seg([['pomo', 'Pomodoro'], ['countdown', 'Countdown'], ['exam', 'Exam timer'], ['stopwatch', 'Stopwatch']], mode, 'data-action="fx-mode"') +
+      (x ? '<p class="fx-for">' + esc(RH.views.sessTitle(x)) + '<span>' + esc(M.subject[x.s] ? M.subject[x.s].name : '') + ' · ' + U.mins(x.m) + '</span></p>' : '') +
       '<p class="fx-phase" id="fx-phase"></p>' +
       '<div class="fx-dial"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="fx-track" cx="50" cy="50" r="46"/><circle class="fx-arc" id="fx-ring" cx="50" cy="50" r="46" stroke-dasharray="0 289"/></svg><span class="fx-clock num" id="fx-clock">' + fmt(current()) + '</span></div>';
     if (mode === 'countdown') html += C.seg([10, 15, 20, 25, 30, 45, 60, 90].map((m) => [m, m + 'm']), T.total / 60, 'data-action="fx-len"');
-    if (mode === 'exam') html += '<div class="form-grid fx-exam"><label class="field"><span>Paper</span><select data-timer="paper"><option value="">Custom length</option>' + C.opts(examPapers().map((q) => [q.id, q.name + ' (' + U.mins(q.dur) + ')']), T.examPaper) + '</select></label>' +
-      '<label class="field"><span>Extra time</span><select data-timer="extra">' + C.opts([[0, 'None'], [10, '10%'], [25, '25%'], [50, '50%']], T.extra) + '</select></label>' +
-      (T.examPaper ? '' : '<label class="field"><span>Minutes</span><input type="number" min="5" max="300" step="5" data-timer="custom" value="' + (T.examCustom || 120) + '"></label>') + '</div>';
-    html += '<div class="row-actions center"><button type="button" class="btn lg" id="fx-play" data-action="timer-play"></button>' +
-      (mode === 'stopwatch' ? '<button type="button" class="btn alt" data-action="timer-lap">' + C.icon('flag') + 'Lap</button>' : '') +
-      (mode === 'pomo' ? '<button type="button" class="btn alt" data-action="timer-skip">' + C.icon('later') + 'Skip to ' + (T.phase === 'focus' ? 'break' : 'focus') + '</button>' : '') +
-      '<button type="button" class="btn ghost" data-action="timer-reset">Reset</button>' +
-      (x && !x.done ? '<button type="button" class="btn ghost" data-action="sess-done" data-id="' + x.id + '">' + C.icon('tick') + 'Mark session done</button>' : '') + '</div>' +
-      '<p class="muted small center">Focused time this run: <b class="num" id="fx-acc">' + U.dur(T.acc / 60) + '</b></p>' +
+    if (mode === 'exam') html += '<div class="fx-exam"><select data-timer="paper" aria-label="Paper"><option value="">Custom length</option>' + C.opts(examPapers().map((q) => [q.id, q.name + ' (' + U.mins(q.dur) + ')']), T.examPaper) + '</select>' +
+      '<select data-timer="extra" aria-label="Extra time">' + C.opts([[0, 'No extra time'], [10, '+10%'], [25, '+25%'], [50, '+50%']], T.extra) + '</select>' +
+      (T.examPaper ? '' : '<input type="number" min="5" max="300" step="5" data-timer="custom" value="' + (T.examCustom || 120) + '" aria-label="Minutes">') + '</div>';
+    html += '<div class="fx-ctrl">' + '<button type="button" class="icon-btn fx-side" data-action="timer-reset" aria-label="Reset">' + C.icon('rebuild') + '</button>' +
+      '<button type="button" class="fx-play" id="fx-play" data-action="timer-play"></button>' +
+      (mode === 'stopwatch' ? '<button type="button" class="icon-btn fx-side" data-action="timer-lap" aria-label="Lap">' + C.icon('flag') + '</button>' : mode === 'pomo' ? '<button type="button" class="icon-btn fx-side" data-action="timer-skip" aria-label="Skip to ' + (T.phase === 'focus' ? 'break' : 'focus') + '">' + C.icon('later') + '</button>' : '<span class="fx-side"></span>') + '</div>' +
+      (x && !x.done ? '<button type="button" class="btn ghost sm" data-action="sess-done" data-id="' + x.id + '">' + C.icon('tick') + 'Mark the session done</button>' : '') +
       (mode === 'stopwatch' ? '<ol class="laps" id="fx-laps"></ol>' : '') + '</section>';
 
-    // Tracker + stats
-    html += '<div class="fx-side"><section class="card fx-cam"><div class="card-head"><h2>' + C.icon('camera') + 'Focus tracker</h2><span id="fx-cam-status" class="chip ' + STATUS[F.status][1] + '">' + STATUS[F.status][0] + '</span></div>' +
-      '<p class="muted small">Uses your webcam to check you are at your desk. If you walk away for ' + (fp.awaySecs || 20) + ' seconds the timer pauses and the time stops counting. Video is analysed on this device and never saved or sent anywhere.</p>' +
-      (F.status === 'error' && F.msg ? '<p class="note bad-n">' + esc(F.msg) + '</p>' : '') +
-      (RH.ai.inClaude ? '<p class="note">The camera is blocked inside claude.ai. Download or open <b>preview.html</b> in your browser to use the tracker.</p>' : '') +
-      '<div class="row-actions">' + (F.on ? '<button type="button" class="btn alt" data-action="cam-stop">' + C.icon('stop') + 'Turn off</button>' : '<button type="button" class="btn" data-action="cam-start"' + (RH.ai.inClaude ? ' disabled' : '') + '>' + C.icon('camera') + 'Turn on the tracker</button>') + (F.engine && F.on ? '<span class="muted small">' + esc(F.engine) + '</span>' : '') + '</div>' +
-      '<div class="form-grid">' + '<label class="field"><span>Away after</span><select data-fpref="awaySecs">' + C.opts([[10, '10 seconds'], [20, '20 seconds'], [45, '45 seconds'], [90, '90 seconds']], fp.awaySecs) + '</select></label></div>' +
-      C.toggle('data-fpref="pauseAway"', 'Pause the timer when I leave', fp.pauseAway, 'Exam timers keep running, like a real exam.') +
-      C.toggle('data-fpref="sideways"', 'Don’t count time looking sideways', fp.sideways, 'For example at your phone. Looking down at paper is fine.') +
-      C.toggle('data-fpref="chime"', 'Sound when I leave', fp.chime) + '</section>';
-
-    html += '<section class="card"><div class="card-head"><h2>Your focus</h2></div><div class="stats"><div class="stat"><span class="stat-n num">' + U.dur(todayFocus()) + '</span><span class="stat-l">today</span></div><div class="stat"><span class="stat-n num">' + U.dur(wk) + '</span><span class="stat-l">this week' + (fItem ? ' of ' + U.dur(fItem.target) : '') + '</span></div><div class="stat"><span class="stat-n num">' + F.today.away + '</span><span class="stat-l">times away today</span></div></div>' +
-      (fItem ? C.bar(wk / fItem.target, wk >= fItem.target ? 'ok' : '', 'Weekly focus target') + '<p class="muted small">Weekly deliverable: ' + esc(fItem.title) + '</p>' : '') +
-      '<ul class="list compact">' + s.focus.log.slice(-6).reverse().map((e) => '<li class="row"><span class="row-main"><b class="num">' + U.dur(e.focused) + '</b><span class="muted small">' + esc(U.fmtShort(e.date)) + ' · ' + esc({ pomo: 'Pomodoro', countdown: 'Countdown', exam: 'Exam timer', stopwatch: 'Stopwatch' }[e.mode] || e.mode) + (e.tracked ? ' · tracked' + (e.away ? ', away ' + e.away + '×' : '') : '') + '</span></span></li>').join('') + '</ul>' +
-      (s.focus.log.length ? '' : '<p class="muted small">Sessions you time appear here.</p>') + '</section>';
-    if (mode === 'pomo') html += '<details class="card fold"><summary><h2>Pomodoro settings</h2></summary><div class="fold-body"><div class="form-grid">' +
-      [['focus', 'Focus (min)', 5, 120], ['short', 'Short break', 1, 30], ['long', 'Long break', 5, 60], ['cycles', 'Blocks before a long break', 2, 8]].map((f) => '<label class="field"><span>' + f[1] + '</span><input type="number" min="' + f[2] + '" max="' + f[3] + '" data-pomo="' + f[0] + '" value="' + p[f[0]] + '"></label>').join('') + '</div>' +
+    html += '<div class="fx-under"><section class="card fx-stats"><div class="fxs"><b class="num">' + U.dur(todayFocus()) + '</b><span>today</span></div><div class="fxs"><b class="num">' + U.dur(wk) + '</b><span>this week' + (fItem ? ' of ' + U.dur(fItem.target) : '') + '</span></div><div class="fxs"><b class="num" id="fx-acc">' + U.dur(T.acc / 60) + '</b><span>this run</span></div></section>' +
+      '<section class="card fx-cam"><div class="fx-cam-row">' + C.icon('camera') + '<span><b>Focus tracker</b><span class="muted small">Pauses the timer if you leave your desk. Video stays on this device.</span></span><span id="fx-cam-status" class="chip ' + STATUS[F.status][1] + '">' + STATUS[F.status][0] + '</span>' +
+      (F.on ? '<button type="button" class="btn alt sm" data-action="cam-stop">Turn off</button>' : '<button type="button" class="btn sm" data-action="cam-start"' + (RH.ai.inClaude ? ' disabled' : '') + '>Turn on</button>') + '</div>' +
+      (F.status === 'error' && F.msg ? '<p class="note bad-n">' + esc(F.msg) + '</p>' : '') + (RH.ai.inClaude ? '<p class="help">The camera is blocked inside claude.ai. Open preview.html in your browser to use it.</p>' : '') +
+      '<details class="fold-lite"><summary>Tracker settings</summary><label class="field"><span>Away after</span><select data-fpref="awaySecs">' + C.opts([[10, '10 seconds'], [20, '20 seconds'], [45, '45 seconds'], [90, '90 seconds']], fp.awaySecs) + '</select></label>' +
+      C.toggle('data-fpref="pauseAway"', 'Pause the timer when I leave', fp.pauseAway) + C.toggle('data-fpref="sideways"', 'Don’t count looking at my phone', fp.sideways) + C.toggle('data-fpref="chime"', 'Sound when I leave', fp.chime) + '</details></section></div>';
+    if (mode === 'pomo') html += '<details class="fold"><summary>Pomodoro settings</summary><div class="fold-body"><div class="form-grid">' +
+      [['focus', 'Focus (min)', 5, 120], ['short', 'Short break', 1, 30], ['long', 'Long break', 5, 60], ['cycles', 'Blocks before a long break', 2, 8]].map((q) => '<label class="field"><span>' + q[1] + '</span><input type="number" min="' + q[2] + '" max="' + q[3] + '" data-pomo="' + q[0] + '" value="' + p[q[0]] + '"></label>').join('') + '</div>' +
       C.toggle('data-pomo="auto"', 'Start the next block automatically', p.auto) + C.toggle('data-pomo="sound"', 'Sound at the end', p.sound) + '</div></details>';
-    html += '</div></div>';
+    if (s.focus.log.length) html += '<details class="fold"><summary>Recent sessions</summary><div class="fold-body"><ul class="list compact">' + s.focus.log.slice(-8).reverse().map((e) => '<li class="row"><span class="row-main"><b class="num">' + U.dur(e.focused) + '</b><span class="muted small">' + esc(U.fmtShort(e.date)) + ' · ' + esc({ pomo: 'Pomodoro', countdown: 'Countdown', exam: 'Exam timer', stopwatch: 'Stopwatch' }[e.mode] || e.mode) + (e.tracked ? ' · tracked' : '') + '</span></span></li>').join('') + '</ul></div></details>';
     setTimeout(paint, 0);
     return html;
   };
@@ -7065,31 +7256,22 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
   }
   K.deckRow = deckRow;
 
+  // A deck drawn as a little stack of cards.
+  function deckTile(d) {
+    const due = K.dueCount(d), mast = d.cards.filter((c) => c.box === 5).length;
+    return '<a class="dk" href="#deck-' + d.id + '"' + (d.subject ? ' data-subj="' + d.subject + '"' : '') + '><span class="dk-stack"><span></span><span></span><span class="dk-top"><b>' + esc(d.name) + '</b><span>' + U.plural(d.cards.length, 'card') + '</span></span></span>' +
+      '<span class="dk-foot">' + (due ? '<span class="dk-due">' + due + ' due</span>' : '<span class="muted small">Nothing due</span>') + '<span class="sbar"><i style="width:' + (d.cards.length ? Math.round(100 * mast / d.cards.length) : 0) + '%"></i></span></span></a>';
+  }
   RH.views.cards = function () {
-    const s = st();
-    const all = decks();
-    const cards = all.reduce((a, d) => a + d.cards.length, 0);
-    const due = K.totalDue();
-    const mastered = all.reduce((a, d) => a + d.cards.filter((c) => c.box === 5).length, 0);
-    let html = C.subnav('study', 'cards') + C.head('Practise', 'Flashcards', 'Leitner-system flashcards. Cards you know move up a box and come back less often; a miss sends a card back to box 1.',
-      '<button type="button" class="btn" data-action="cards-import">' + C.icon('upload') + 'Import cards</button><button type="button" class="btn alt" data-action="deck-new">' + C.icon('plus') + 'New deck</button>');
-    html += '<div class="stat-strip"><div class="stat-tile"><span class="stat-n num">' + due + '</span><span class="muted small">cards due today</span>' + (due ? '<button type="button" class="btn sm" data-action="study" data-mode="leitner" data-deck="all">Review all due</button>' : '') + '</div>' +
-      '<div class="stat-tile"><span class="stat-n num">' + cards + '</span><span class="muted small">cards in ' + U.plural(all.length, 'deck') + '</span></div>' +
-      '<div class="stat-tile"><span class="stat-n num">' + mastered + '</span><span class="muted small">in box 5 (mastered)</span></div>' +
-      '<div class="stat-tile"><span class="stat-n num">' + (s.prefs.cardsDaily || 50) + '</span><span class="muted small">max cards per review</span></div></div>';
-    if (all.length) {
-      html += '<section class="card"><div class="card-head"><h2>Your decks</h2></div><ul class="deck-list">' + all.map(deckRow).join('') + '</ul></section>';
-    } else {
-      html += C.empty('No decks yet.', 'Import a Quizlet or Gizmo set, add a starter deck below, or create a deck from any topic page.', '<button type="button" class="btn" data-action="cards-import">' + C.icon('upload') + 'Import cards</button>');
-    }
-    html += '<section class="card"><div class="card-head"><h2>Starter decks</h2><span class="muted small">Copy one into your decks, then edit it however you like</span></div><div class="starter-grid">' +
-      RH.STARTER_DECKS.map(function (d) {
-        const have = all.some((x) => x.starter === d.id);
-        return '<div class="starter" data-subj="' + d.subject + '">' + C.stag(d.subject) + '<b>' + esc(d.name) + '</b><span class="muted small">' + d.cards.length + ' cards. ' + esc(d.note) + '</span>' +
-          (have ? '<span class="small muted">Added</span>' : '<button type="button" class="btn alt sm" data-action="starter-add" data-id="' + d.id + '">' + C.icon('plus') + 'Add deck</button>') + '</div>';
-      }).join('') + '</div></section>';
-    html += '<section class="card"><h2>How the Leitner system works</h2><ol class="leitner-explain">' + [1, 2, 3, 4, 5].map((b) => '<li><span class="bx b' + b + '"></span><b>Box ' + b + '</b> <span class="muted">reviewed every ' + U.plural(BOX_DAYS[b], 'day') + '</span></li>').join('') + '</ol>' +
-      '<p class="help">Get a card right and it moves up one box. Get it wrong and it goes back to box 1. Review the cards that are due every day, a little at a time, and use a Pomodoro block for longer sessions.</p></section>';
+    const all = decks(), due = K.totalDue();
+    let html = '<header class="page-h"><div><h1>Flashcards</h1></div><div class="doc-acts"><button type="button" class="btn alt" data-action="cards-import">' + C.icon('upload') + 'Import</button><button type="button" class="btn alt" data-action="deck-new">' + C.icon('plus') + 'New deck</button></div></header>';
+    html += '<section class="fc-hero"><span class="fc-pile" aria-hidden="true"><i></i><i></i><i></i></span><div><p class="fc-n"><b class="num">' + due + '</b> ' + (due === 1 ? 'card' : 'cards') + ' to review today</p><p class="muted">' + (due ? 'A few minutes now keeps them in your memory.' : all.length ? 'All caught up. Come back tomorrow.' : 'Make a deck or import one to get started.') + '</p></div>' +
+      (due ? '<button type="button" class="btn lg" data-action="study" data-mode="leitner" data-deck="all">' + C.icon('play') + 'Start</button>' : '') + '</section>';
+    html += all.length ? '<h2 class="h-sec">Your decks</h2><div class="dk-grid">' + all.map(deckTile).join('') + '</div>'
+      : '<div class="empty big-empty">' + C.icon('cards') + '<p class="empty-t">No decks yet</p><p class="muted">Import a Quizlet set, add a starter deck below, or make one from any lesson.</p><button type="button" class="btn" data-action="cards-import">' + C.icon('upload') + 'Import cards</button></div>';
+    const starters = RH.STARTER_DECKS.filter((d) => !all.some((x) => x.starter === d.id));
+    if (starters.length) html += '<details class="fold"' + (all.length ? '' : ' open') + '><summary>Starter decks</summary><div class="fold-body"><div class="dk-grid">' + starters.map((d) => '<button type="button" class="dk starter-dk" data-subj="' + d.subject + '" data-action="starter-add" data-id="' + d.id + '"><span class="dk-stack"><span></span><span></span><span class="dk-top"><b>' + esc(d.name) + '</b><span>' + d.cards.length + ' cards</span></span></span><span class="dk-foot"><span class="dk-add">' + C.icon('plus') + 'Add deck</span></span></button>').join('') + '</div></div></details>';
+    html += '<details class="fold-lite"><summary>How reviewing works</summary><p class="help">Know a card and it moves up a box and comes back later (' + [1, 2, 3, 4, 5].map((b) => U.plural(BOX_DAYS[b], 'day')).join(', ') + '). Miss it and it goes back to box 1.</p></details>';
     return html;
   };
 
@@ -7101,24 +7283,24 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
     d.cards.forEach((c) => { n[c.box || 1]++; });
     const t = d.topic && M.topic[d.topic];
     let html = C.subnav('study', 'cards') + C.crumbs([['Flashcards', 'cards'], [d.name]]);
-    html += C.head(d.subject ? C.stag(d.subject) + ' ' + esc(M.subject[d.subject].name) : 'Deck', esc(d.name), U.plural(d.cards.length, 'card') + ' · ' + due + ' due today' + (t ? ' · <a href="#t-' + t.gid + '">' + esc(t.name) + '</a>' : ''),
+    html += C.head(d.subject && M.subject[d.subject] ? esc(M.subject[d.subject].name) : '', esc(d.name), U.plural(d.cards.length, 'card') + ' · ' + due + ' due today' + (t ? ' · <a href="#t-' + t.gid + '">' + esc(t.name) + '</a>' : ''),
       d.source ? '<a class="btn alt" href="' + esc(d.source.url) + '" target="_blank" rel="noopener">' + C.icon('ext') + 'Open in ' + esc(d.source.kind) + '</a>' : '');
     const modes = [['leitner', 'Review due cards', 'Leitner: flip, then say if you knew it', 'cards', due], ['all', 'Flip through all', 'Browse every card, no box changes', 'swap', d.cards.length], ['type', 'Type the answer', 'Recall it exactly; it is checked for you', 'pen', null], ['mcq', 'Multiple choice', 'Pick the right answer from four', 'list', null], ['match', 'Match game', 'Pair terms with definitions against the clock', 'grid', null]];
     html += '<div class="mode-grid">' + modes.map((m) => {
       const off = !d.cards.length || (m[0] === 'leitner' && !due) || (m[0] === 'mcq' && d.cards.length < 4) || (m[0] === 'match' && d.cards.length < 3);
       return '<button type="button" class="mode" data-action="study" data-deck="' + d.id + '" data-mode="' + m[0] + '"' + (off ? ' disabled' : '') + '>' + C.icon(m[3]) + '<b>' + m[1] + (m[4] != null ? ' <span class="num muted">' + m[4] + '</span>' : '') + '</b><span class="muted small">' + m[2] + '</span></button>';
     }).join('') + '</div>';
+    html += '<div class="boxes-bar">' + [1, 2, 3, 4, 5].map((b) => '<span class="bb b' + b + '" style="flex-grow:' + Math.max(0.4, n[b]) + '" title="Box ' + b + ': ' + n[b] + '"><b class="num">' + n[b] + '</b></span>').join('') + '</div><p class="help">Boxes 1 to 5: new cards start on the left and move right as you learn them.</p>';
     html += '<label class="toggle"><input type="checkbox" data-action="deck-reverse" data-id="' + d.id + '"' + (d.reverse ? ' checked' : '') + '><span class="tg" aria-hidden="true"></span><span class="tg-t"><b>Show the definition first</b><span class="help">Answer with the term instead.</span></span></label>';
-    html += '<section class="card"><h2>Leitner boxes</h2><div class="boxes">' + [1, 2, 3, 4, 5].map((b) => '<div class="box-col"><span class="bx b' + b + '"></span><b class="num">' + n[b] + '</b><span class="muted small">Box ' + b + ' · ' + BOX_DAYS[b] + 'd</span></div>').join('') + '</div></section>';
 
-    html += '<section class="card"><div class="card-head"><h2>Cards</h2><div class="row-actions"><button type="button" class="btn alt sm" data-action="cards-import" data-deck="' + d.id + '">' + C.icon('upload') + 'Import more</button><button type="button" class="btn alt sm" data-action="deck-export" data-id="' + d.id + '">' + C.icon('download') + 'Export CSV</button></div></div>' +
+    html += '<details class="fold"><summary>Cards (' + d.cards.length + ')</summary><div class="fold-body"><div class="row-actions"><button type="button" class="btn alt sm" data-action="cards-import" data-deck="' + d.id + '">' + C.icon('upload') + 'Import more</button><button type="button" class="btn alt sm" data-action="deck-export" data-id="' + d.id + '">' + C.icon('download') + 'Export CSV</button></div></div>' +
       '<form id="cardForm" class="card-add" data-deck="' + d.id + '"><input name="f" required placeholder="Front (term or question)" aria-label="Front"><input name="b" required placeholder="Back (definition or answer)" aria-label="Back"><button type="submit" class="btn">' + C.icon('plus') + 'Add</button></form>' +
       (d.cards.length ? '<div class="table-wrap"><table class="tbl cards-tbl"><thead><tr><th>Front</th><th>Back</th><th class="num">Box</th><th class="num">Due</th><th></th></tr></thead><tbody>' + d.cards.map((c) =>
         '<tr><td><textarea class="cell" rows="1" data-card="' + c.id + '" data-deck="' + d.id + '" data-side="f" aria-label="Front">' + esc(c.f) + '</textarea></td><td><textarea class="cell" rows="1" data-card="' + c.id + '" data-deck="' + d.id + '" data-side="b" aria-label="Back">' + esc(c.b) + '</textarea></td>' +
         '<td class="num num">' + (c.box || 1) + '</td><td class="num num small">' + (isDue(c, U.today()) ? 'now' : esc(U.fmtShort(c.due))) + '</td>' +
-        '<td><button type="button" class="icon-btn" data-action="card-del" data-deck="' + d.id + '" data-id="' + c.id + '" aria-label="Delete card">' + C.icon('trash') + '</button></td></tr>').join('') + '</tbody></table></div>' : '<p class="muted">No cards yet. Add one above or import a set.</p>') + '</section>';
+        '<td><button type="button" class="icon-btn" data-action="card-del" data-deck="' + d.id + '" data-id="' + c.id + '" aria-label="Delete card">' + C.icon('trash') + '</button></td></tr>').join('') + '</tbody></table></div>' : '<p class="muted">No cards yet. Add one above or import a set.</p>') + '</div></details>';
 
-    html += '<section class="card"><h2>Deck settings</h2><div class="form-grid">' +
+    html += '<details class="fold"><summary>Deck settings</summary><div class="fold-body"><div class="form-grid">' +
       '<div class="field"><label for="dk-name">Name</label><input id="dk-name" data-deck-field="name" data-deck="' + d.id + '" value="' + esc(d.name) + '"></div>' +
       '<div class="field"><label for="dk-subj">Subject</label><select id="dk-subj" data-deck-field="subject" data-deck="' + d.id + '">' + subjectOptions(d.subject) + '</select></div>' +
       '<div class="field"><label for="dk-topic">Topic</label><select id="dk-topic" data-deck-field="topic" data-deck="' + d.id + '">' + topicOptions(d.subject, d.topic) + '</select></div></div>' +
@@ -9019,13 +9201,37 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
       (d.actions || []).map((a) => '<button type="button" class="btn ' + (a.primary ? '' : 'alt ') + 'sm" data-lab-act="' + a.id + '">' + esc(a.label) + '</button>').join('') +
       (d.still ? '' : '<span class="lab-speed"><span class="small muted">Speed</span>' + C.seg([[0.25, '¼×'], [0.5, '½×'], [1, '1×'], [2, '2×']].concat(d.fast ? [[d.fast, d.fast + '×']] : []), cur ? cur.speed : 1, 'data-lab-speed="1"') + '</span>') + '</div>' +
       (d.graph ? '<div class="lab-graph"><canvas class="lab-gc" aria-label="Graph"></canvas></div>' : '') + '</div>' +
-      '<aside class="lab-panel"><h2>Variables</h2><div class="lab-ctrls">' + d.controls.map((c) => control(c, p)).join('') + '</div><h2>Readings</h2>' + (d.help != null ? (d.help ? '<p class="help">' + d.help + '</p>' : '') : d.subject === 'economics' ? '' : '<p class="help">Green values are predicted by the equations; the others are measured in the simulation.</p>') + '<dl class="lab-read"></dl><div class="lab-extra"></div></aside></div>';
+      '<aside class="lab-panel"><h2>Variables</h2><div class="lab-ctrls">' + d.controls.map((c) => control(c, p)).join('') + '</div>' + (LB.subjectOf(d) === 'economics' ? axesPanel(d) : '') + '<h2>Readings</h2>' + (d.help != null ? (d.help ? '<p class="help">' + d.help + '</p>' : '') : d.subject === 'economics' ? '' : '<p class="help">Green values are predicted by the equations; the others are measured in the simulation.</p>') + '<dl class="lab-read"></dl><div class="lab-extra"></div></aside></div>';
     const heads = LB.HEADS[LB.subjectOf(d)] || LB.HEADS.physics;
     html += '<div class="lab-notes"><section><h2 class="h-rule">' + heads[0] + '</h2><ol class="lab-tasks">' + d.tasks.map((x) => '<li>' + x + '</li>').join('') + '</ol></section>' +
       '<section><h2 class="h-rule">' + heads[1] + '</h2><div class="lab-theory">' + d.theory + '</div></section></div>';
     if (d.exam) html += '<section class="lab-exam" data-subj="' + LB.subjectOf(d) + '"><h2 class="h-rule">In the exam</h2><div class="lab-exam-cols">' + d.exam.map((x) => '<div><p class="label">' + esc(x[0]) + '</p>' + (x[2] === 'ol' ? '<ol>' : '<ul>') + x[1].map((i) => '<li>' + i + '</li>').join('') + (x[2] === 'ol' ? '</ol>' : '</ul>') + '</div>').join('') + '</div></section>';
     return html;
   };
+  // Economics: put the diagram in your own context.
+  const AXP = [['', 'Pick a context…'], ['coffee', 'A coffee shop: £ per cup, cups a week', { yl: 'Price (£ per cup)', xl: 'Cups sold per week', cur: '£', ymax: 5, xmax: 2000 }], ['housing', 'Housing: £ thousands, homes', { yl: 'Price (£000s per home)', xl: 'Homes sold per year', cur: '£', ymax: 500, xmax: 10000 }], ['labour', 'Labour: £ an hour, workers', { yl: 'Wage (£ an hour)', xl: 'Number of workers', cur: '£', ymax: 30, xmax: 500 }], ['oil', 'Oil: $ per barrel, million barrels a day', { yl: 'Price ($ per barrel)', xl: 'Million barrels a day', cur: '$', ymax: 120, xmax: 100 }], ['dubai', 'Dubai taxi rides: AED per ride', { yl: 'Fare (AED per ride)', xl: 'Rides per day (thousands)', cur: 'AED ', ymax: 60, xmax: 400 }]];
+  function axesPanel(d) {
+    const a = (RH.store.state.prefs.econAxes || {})[d.id] || {};
+    const fld = (k, label, ph, type) => '<label class="lc"><span class="lc-h"><span>' + label + '</span></span><input ' + (type === 'num' ? 'type="number" min="0" step="any"' : 'type="text" maxlength="48"') + ' data-eax="' + k + '" data-lab="' + d.id + '" value="' + esc(a[k] == null ? '' : a[k]) + '" placeholder="' + esc(ph) + '"></label>';
+    return '<details class="fold-lite econ-axes"' + (Object.keys(a).length ? ' open' : '') + '><summary>Customise the axes</summary><label class="lc"><span class="lc-h"><span>Context</span></span><select data-eaxp="' + d.id + '">' + AXP.map((x) => '<option value="' + x[0] + '">' + esc(x[1]) + '</option>').join('') + '</select></label>' +
+      fld('yl', 'Vertical axis', 'e.g. Price of coffee (£ per cup)') + fld('xl', 'Horizontal axis', 'e.g. Cups sold per week') +
+      '<div class="ax-row">' + fld('ymax', 'Top of the vertical axis', 'e.g. 5', 'num') + fld('xmax', 'End of the horizontal axis', 'e.g. 2000', 'num') + '</div>' +
+      '<label class="lc"><span class="lc-h"><span>Currency</span></span><select data-eax="cur" data-lab="' + d.id + '">' + [['£', '£ pound'], ['$', '$ dollar'], ['€', '€ euro'], ['AED ', 'AED dirham'], ['¥', '¥ yen'], ['₹', '₹ rupee']].map((c) => '<option value="' + c[0] + '"' + ((a.cur || '£') === c[0] ? ' selected' : '') + '>' + c[1] + '</option>').join('') + '</select></label>' +
+      '<button type="button" class="btn ghost sm" data-action="eax-reset" data-lab="' + d.id + '">Back to the textbook axes</button></details>';
+  }
+  const setAx = (id, fn) => RH.store.update(function (s) { s.prefs.econAxes = s.prefs.econAxes || {}; const a = s.prefs.econAxes[id] = s.prefs.econAxes[id] || {}; fn(a); Object.keys(a).forEach((k) => { if (a[k] === '' || a[k] == null) delete a[k]; }); }, { silent: true });
+  RH.onInput.push(function (el) {
+    if (!el.dataset.eax || el.tagName === 'SELECT') return false;
+    const k = el.dataset.eax, v = el.value.trim();
+    setAx(el.dataset.lab, (a) => { a[k] = el.type === 'number' ? (v === '' ? '' : Math.max(0, Number(v))) : v; });
+    return true;
+  });
+  RH.onChange.push(function (el) {
+    if (el.dataset.eax && el.tagName === 'SELECT') { setAx(el.dataset.lab, (a) => { a.cur = el.value; }); return true; }
+    if (el.dataset.eaxp) { const p = AXP.find((x) => x[0] === el.value); if (p && p[2]) { setAx(el.dataset.eaxp, (a) => Object.assign(a, p[2])); RH.render({ keepScroll: true }); } return true; }
+    return false;
+  });
+  RH.actions['eax-reset'] = (el) => { RH.store.update(function (s) { if (s.prefs.econAxes) delete s.prefs.econAxes[el.dataset.lab]; }); };
   function defaults(d) { const p = {}; d.controls.forEach((c) => { p[c.k] = c.v; }); return p; }
 
   // ---------- Running a lab ----------
@@ -10023,8 +10229,17 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
 
   // ---------- Drawing kit ----------
   const ED = {};
+  // Your own axes: labels, currency and what the end of each axis is worth (Settings are per diagram).
+  ED.ax = () => ((RH.store.state.prefs.econAxes || {})[LB.cur && LB.cur.id] || {});
+  ED.ky = () => { const a = ED.ax(); return a.ymax ? a.ymax / (ED.lastY || 100) : 1; };
+  ED.kx = () => { const a = ED.ax(); return a.xmax ? a.xmax / (ED.lastX || 100) : 1; };
+  ED.cur = () => ED.ax().cur || '£';
+  const nice = (v) => Math.abs(v) >= 100 ? f(v, 0) : Math.abs(v) >= 10 ? f(v, 1).replace(/\.0$/, '') : f(v, 2).replace(/\.?0+$/, '');
   ED.frame = function (g, W, H, th, o) {
+    const ax = ED.ax();
     const X0 = W < 500 ? 46 : 62, X1 = W - 36, Y0 = H - (W < 500 ? 84 : 72), Y1 = 30, xmax = o.xmax || 100, ymax = o.ymax || 100;
+    ED.lastX = xmax; ED.lastY = ymax;
+    o = Object.assign({}, o, { yl: ax.yl || (o.yl && ax.cur ? o.yl.replace(/£/g, ax.cur) : o.yl), xl: ax.xl || o.xl });
     const F = { g: g, th: th, X0: X0, X1: X1, Y0: Y0, Y1: Y1, xmax: xmax, ymax: ymax,
       sx: (q) => X0 + q / xmax * (X1 - X0), sy: (p) => Y0 - p / ymax * (Y0 - Y1) };
     g.strokeStyle = th.ink; g.fillStyle = th.ink; g.lineWidth = 1.6;
@@ -10034,6 +10249,9 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
     T(g, o.yl || 'Price (P)', X0 + 10, Y1 - 12, { col: th.ink, size: 12, weight: 600 });
     T(g, o.xl || 'Quantity (Q)', X1 + 14, Y0 + 34, { col: th.ink, size: 12, weight: 600, align: 'right' });
     T(g, '0', X0 - 8, Y0 + 16, { col: th.ink3, size: 11, align: 'right' });
+    // Scale marks when you have given the axes real values.
+    if (ax.ymax) for (let i = 1; i <= 4; i++) { const y = Y0 - i / 4 * (Y0 - Y1); g.strokeStyle = th.ink3; g.lineWidth = 1; g.beginPath(); g.moveTo(X0 - 4, y); g.lineTo(X0, y); g.stroke(); T(g, (/£|\$|€|¥|₹|AED/.test(o.yl || '') || !o.yl ? ED.cur() : '') + nice(ax.ymax * i / 4), X0 - 7, y + 4, { col: th.ink3, size: 10, align: 'right' }); }
+    if (ax.xmax) for (let i = 1; i <= 4; i++) { const x = X0 + i / 4 * (X1 - X0); g.strokeStyle = th.ink3; g.lineWidth = 1; g.beginPath(); g.moveTo(x, Y0); g.lineTo(x, Y0 + 4); g.stroke(); T(g, nice(ax.xmax * i / 4), x, Y0 + 16, { col: th.ink3, size: 10, align: 'center' }); }
     return F;
   };
   ED.clip = function (F, fn) { const g = F.g; g.save(); g.beginPath(); g.rect(F.X0, F.Y1 - 8, F.X1 - F.X0 + 8, F.Y0 - F.Y1 + 8); g.clip(); fn(); g.restore(); };
@@ -10089,8 +10307,9 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
   // Area of a polygon (shoelace), used for surplus areas that are not simple triangles.
   ED.polyArea = (pts) => Math.abs(pts.reduce((a, p, i) => { const q = pts[(i + 1) % pts.length]; return a + p[0] * q[1] - q[0] * p[1]; }, 0)) / 2;
   const sub = (s) => s.replace(/1/g, '₁').replace(/2/g, '₂').replace(/3/g, '₃');
-  const money = (x) => '£' + f(x, 2);
-  const area$ = (x) => '£' + f(x, 0);
+  const money = (x) => ED.cur() + f(x * ED.ky(), 2);
+  const area$ = (x) => ED.cur() + f(x * ED.ky() * ED.kx(), 0);
+  const qf = (x) => f(x * ED.kx(), 1);
   const slope = (k, label) => ({ k: k, label: label, min: 0.3, max: 2, step: 0.05, v: 0.7, dp: 2, show: (v) => Number(v) >= 1.2 ? 'steep (inelastic)' : Number(v) <= 0.5 ? 'flat (elastic)' : 'medium' });
   function syncUI(p) {
     document.querySelectorAll('.lab-ctrls input[type="range"][data-lk]').forEach(function (el) {
@@ -10151,8 +10370,8 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
         },
         readouts: function () {
           const e0 = m0(), e1 = m();
-          return [['Original price P₁', money(e0.P)], ['Original quantity Q₁', f(e0.Q, 1)], ['New price P₂', money(e1.P)], ['New quantity Q₂', f(e1.Q, 1)],
-            ['Change in price', (e1.P >= e0.P ? '+' : '') + f(e1.P - e0.P, 2)], ['Change in quantity', (e1.Q >= e0.Q ? '+' : '') + f(e1.Q - e0.Q, 1)],
+          return [['Original price P₁', money(e0.P)], ['Original quantity Q₁', qf(e0.Q)], ['New price P₂', money(e1.P)], ['New quantity Q₂', qf(e1.Q)],
+            ['Change in price', (e1.P >= e0.P ? '+' : '') + f(e1.P - e0.P, 2)], ['Change in quantity', (e1.Q >= e0.Q ? '+' : '') + qf(e1.Q - e0.Q)],
             ['Consumer surplus', area$(0.5 * e1.Q * (e1.a - e1.P)), 'th'], ['Producer surplus', area$(ps(e1)), 'th']];
         }
       };
@@ -10166,8 +10385,8 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
     icon: icon(AX + '<path d="M10 8l32 30"/><rect x="8" y="22" width="16" height="18" fill="currentColor" opacity=".25" stroke="none"/>'),
     graph: true, graphH: 200,
     controls: [
-      { k: 'P', label: 'Starting price P₁', min: 5, max: 95, step: 1, v: 70, unit: '', dp: 0, show: (v) => '£' + v },
-      { k: 'dP', label: 'Price change', min: -30, max: 30, step: 1, v: -10, dp: 0, show: (v) => (v > 0 ? '+£' : v < 0 ? '−£' : '£') + Math.abs(v) }
+      { k: 'P', label: 'Starting price P₁', min: 5, max: 95, step: 1, v: 70, unit: '', dp: 0, show: (v) => ED.cur() + nice(v * ED.ky()) },
+      { k: 'dP', label: 'Price change', min: -30, max: 30, step: 1, v: -10, dp: 0, show: (v) => (v > 0 ? '+' : v < 0 ? '−' : '') + ED.cur() + nice(Math.abs(v) * ED.ky()) }
     ],
     tasks: [
       'Start at £70 and cut the price by £10. Revenue rises: demand is price elastic at the top of the curve.',
@@ -10220,7 +10439,7 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
     icon: icon(AX + '<path d="M12 36L40 12M12 26L36 6M10 10l30 28"/>'),
     controls: [
       { k: 'mode', type: 'seg', label: 'Policy', options: [['specific', 'Specific tax'], ['adval', 'Ad valorem tax'], ['subsidy', 'Subsidy']], v: 'specific' },
-      { k: 't', label: 'Size', min: 0, max: 30, step: 1, v: 15, dp: 0, show: (v, p) => p.mode === 'adval' ? (2 * v) + '% of the price' : '£' + v + ' per unit' },
+      { k: 't', label: 'Size', min: 0, max: 30, step: 1, v: 15, dp: 0, show: (v, p) => p.mode === 'adval' ? (2 * v) + '% of the price' : ED.cur() + nice(v * ED.ky()) + ' per unit' },
       slope('b', 'Demand curve'), slope('d', 'Supply curve')
     ],
     tasks: [
@@ -10272,7 +10491,7 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
         },
         readouts: function () {
           const e = solve(), sub = p.mode === 'subsidy', gap = Math.abs(e.Pc - e.Pp);
-          const out = [['Price before', money(e.P1)], ['Price consumers pay', money(e.Pc)], ['Price producers receive', money(e.Pp)], ['Quantity before → after', f(e.Q1, 1) + ' → ' + f(e.Q2, 1)]];
+          const out = [['Price before', money(e.P1)], ['Price consumers pay', money(e.Pc)], ['Price producers receive', money(e.Pp)], ['Quantity before → after', qf(e.Q1) + ' → ' + qf(e.Q2)]];
           if (sub) out.push(['Cost to government', area$(gap * e.Q2), 'th'], ['Consumers’ share of subsidy', f(100 * (e.P1 - e.Pc) / gap, 0) + '%', 'th'], ['Welfare loss', area$(0.5 * gap * Math.abs(e.Q2 - e.Q1)), 'th']);
           else if (gap > 0.001) out.push(['Tax revenue', area$(gap * e.Q2), 'th'], ['Paid by consumers', f(100 * (e.Pc - e.P1) / gap, 0) + '%', 'th'], ['Paid by producers', f(100 * (e.P1 - e.Pp) / gap, 0) + '%', 'th'], ['Welfare loss', area$(0.5 * gap * (e.Q1 - e.Q2)), 'th']);
           return out;
@@ -10288,7 +10507,7 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
     icon: icon(AX + '<path d="M12 10l28 26M12 36l28-26"/><path d="M8 30h36" stroke-dasharray="4 3"/>'),
     controls: [
       { k: 'mode', type: 'seg', label: 'Control', options: [['max', 'Maximum price'], ['min', 'Minimum price']], v: 'max' },
-      { k: 'pc', label: 'Price set by government', min: 5, max: 85, step: 1, v: 35, dp: 0, show: (v) => '£' + v },
+      { k: 'pc', label: 'Price set by government', min: 5, max: 85, step: 1, v: 35, dp: 0, show: (v) => ED.cur() + nice(v * ED.ky()) },
       { k: 'buy', type: 'toggle', label: 'Government buys the surplus', v: false, when: (p) => p.mode === 'min' },
       slope('b', 'Demand curve'), slope('d', 'Supply curve')
     ],
@@ -10335,9 +10554,9 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
         },
         readouts: function () {
           const e = solve(), max = p.mode === 'max';
-          const out = [['Market price P*', money(e.P)], ['Market quantity Q*', f(e.Q, 1)], ['Controlled price', money(e.pc)]];
+          const out = [['Market price P*', money(e.P)], ['Market quantity Q*', qf(e.Q)], ['Controlled price', money(e.pc)]];
           if (!e.binding) return out.concat([['Effect', max ? 'none: set above the market price' : 'none: set below the market price']]);
-          out.push(['Quantity demanded', f(e.Qd, 1)], ['Quantity supplied', f(e.Qs, 1)], [max ? 'Shortage' : 'Surplus', f(Math.abs(e.Qd - e.Qs), 1), 'th'], ['Quantity traded', f(e.traded, 1)], ['Welfare loss', area$(0.5 * (e.Q - e.traded) * ((A - p.b * e.traded) - (Cs + p.d * e.traded))), 'th']);
+          out.push(['Quantity demanded', f(e.Qd, 1)], ['Quantity supplied', qf(e.Qs)], [max ? 'Shortage' : 'Surplus', f(Math.abs(e.Qd - e.Qs), 1), 'th'], ['Quantity traded', f(e.traded, 1)], ['Welfare loss', area$(0.5 * (e.Q - e.traded) * ((A - p.b * e.traded) - (Cs + p.d * e.traded))), 'th']);
           if (!max && p.buy) out.push(['Cost of buying the surplus', area$(e.pc * (e.Qs - e.Qd)), 'th']);
           return out;
         }
@@ -10352,7 +10571,7 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
     icon: icon(AX + '<path d="M10 38L38 10M10 28L30 6M10 10l30 28"/>'),
     controls: [
       { k: 'mode', type: 'seg', label: 'Externality', options: [['neg', 'Negative production'], ['pos', 'Positive consumption']], v: 'neg' },
-      { k: 'ext', label: 'Size of the external cost or benefit', min: 0, max: 40, step: 1, v: 20, dp: 0, show: (v) => '£' + v + ' per unit' },
+      { k: 'ext', label: 'Size of the external cost or benefit', min: 0, max: 40, step: 1, v: 20, dp: 0, show: (v) => ED.cur() + nice(v * ED.ky()) + ' per unit' },
       { k: 'fix', type: 'toggle', label: 'Government corrects it', v: false, help: 'A tax (or subsidy) equal to the external cost (or benefit).' }
     ],
     tasks: [
@@ -10393,8 +10612,8 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
         },
         readouts: function () {
           const e = solve(), neg = p.mode === 'neg';
-          return [['Market output Qm', f(e.Qm, 1)], ['Socially optimal output Q*', f(e.Qs, 1), 'th'], [neg ? 'Overproduction' : 'Underconsumption', f(Math.abs(e.Qm - e.Qs), 1)], ['Welfare loss', area$(e.loss), 'th'],
-            [neg ? 'Total external cost at Qm' : 'Total external benefit at Qm', area$(p.ext * e.Qm)], ['After correction, output', p.fix ? f(e.Qs, 1) + ' (optimal)' : 'not corrected']];
+          return [['Market output Qm', qf(e.Qm)], ['Socially optimal output Q*', qf(e.Qs), 'th'], [neg ? 'Overproduction' : 'Underconsumption', qf(Math.abs(e.Qm - e.Qs))], ['Welfare loss', area$(e.loss), 'th'],
+            [neg ? 'Total external cost at Qm' : 'Total external benefit at Qm', area$(p.ext * e.Qm)], ['After correction, output', p.fix ? qf(e.Qs) + ' (optimal)' : 'not corrected']];
         }
       };
     }
@@ -10539,9 +10758,9 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
     icon: icon(AX + '<path d="M10 18 Q20 40 30 30 T42 8"/><path d="M8 24 Q24 40 42 22" stroke-dasharray="3 3"/>'),
     controls: [
       { k: 'mode', type: 'seg', label: 'Market', options: [['pc', 'Perfect competition'], ['mono', 'Monopoly']], v: 'pc' },
-      { k: 'P', label: 'Market price (P = AR = MR)', min: 15, max: 80, step: 1, v: 48, dp: 0, show: (v) => '£' + v, when: (p) => p.mode === 'pc' },
+      { k: 'P', label: 'Market price (P = AR = MR)', min: 15, max: 80, step: 1, v: 48, dp: 0, show: (v) => ED.cur() + nice(v * ED.ky()), when: (p) => p.mode === 'pc' },
       { k: 'A', label: 'Demand for the monopolist', min: 50, max: 110, step: 1, v: 88, dp: 0, show: (v) => v + ' (higher = more demand)', when: (p) => p.mode === 'mono' },
-      { k: 'FC', label: 'Fixed costs', min: 200, max: 1600, step: 50, v: 800, dp: 0, show: (v) => '£' + v },
+      { k: 'FC', label: 'Fixed costs', min: 200, max: 1600, step: 50, v: 800, dp: 0, show: (v) => ED.cur() + nice(v * ED.ky()) },
       { k: 'eff', type: 'toggle', label: 'Show efficiency', v: true }
     ],
     tasks: [
@@ -10660,7 +10879,7 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
         },
         readouts: function () {
           const e = solve();
-          return [['Wage', money(e.W) + ' an hour'], ['Employment', f(e.L, 1)], ['Unemployment (excess supply)', f(e.U, 1), 'th'], ['Competitive wage', money(e.Wc), 'th'], ['Change in employment vs no minimum wage', (e.L >= e.base ? '+' : '') + f(e.L - e.base, 1), 'th']];
+          return [['Wage', money(e.W) + ' an hour'], ['Employment', qf(e.L)], ['Unemployment (excess supply)', qf(e.U), 'th'], ['Competitive wage', money(e.Wc), 'th'], ['Change in employment vs no minimum wage', (e.L >= e.base ? '+' : '') + qf(e.L - e.base), 'th']];
         }
       };
     }
@@ -10723,8 +10942,8 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
     blurb: 'Open a market to world trade, then put a tariff on imports. See imports, tariff revenue and the welfare losses.',
     icon: icon(AX + '<path d="M12 10l28 26M12 36l28-26M8 32h36M8 24h36" />'),
     controls: [
-      { k: 'pw', label: 'World price', min: 10, max: 50, step: 1, v: 24, dp: 0, show: (v) => '£' + v },
-      { k: 'tar', label: 'Tariff per unit', min: 0, max: 25, step: 1, v: 10, dp: 0, show: (v) => '£' + v }
+      { k: 'pw', label: 'World price', min: 10, max: 50, step: 1, v: 24, dp: 0, show: (v) => ED.cur() + nice(v * ED.ky()) },
+      { k: 'tar', label: 'Tariff per unit', min: 0, max: 25, step: 1, v: 10, dp: 0, show: (v) => ED.cur() + nice(v * ED.ky()) }
     ],
     tasks: [
       'With no tariff, the domestic price falls to the world price. Consumers gain, domestic producers lose market share, and the gap is filled by imports.',
@@ -10765,7 +10984,7 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
         readouts: function () {
           const P2 = pt(), s1 = Qs(p.pw), d1 = Qd(p.pw), s2 = Qs(P2), d2 = Qd(P2), t = P2 - p.pw;
           const dCS = -((d1 + d2) / 2) * t, dPS = ((s1 + s2) / 2) * t, rev = t * (d2 - s2), dwl = 0.5 * t * (s2 - s1) + 0.5 * t * (d1 - d2);
-          return [['Domestic price', money(P2)], ['Imports before → after', f(d1 - s1, 1) + ' → ' + f(Math.max(0, d2 - s2), 1)], ['Domestic production', f(s1, 1) + ' → ' + f(s2, 1)], ['Tariff revenue', area$(rev), 'th'], ['Change in consumer surplus', '−' + area$(-dCS), 'th'], ['Change in producer surplus', '+' + area$(dPS), 'th'], ['Deadweight loss', area$(dwl), 'th']];
+          return [['Domestic price', money(P2)], ['Imports before → after', qf(d1 - s1) + ' → ' + qf(Math.max(0, d2 - s2))], ['Domestic production', qf(s1) + ' → ' + qf(s2)], ['Tariff revenue', area$(rev), 'th'], ['Change in consumer surplus', '−' + area$(-dCS), 'th'], ['Change in producer surplus', '+' + area$(dPS), 'th'], ['Deadweight loss', area$(dwl), 'th']];
         }
       };
     }
@@ -10778,7 +10997,7 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
     icon: icon('<path d="M6 40h36"/><rect x="8" y="10" width="6" height="30"/><rect x="17" y="22" width="6" height="18"/><rect x="26" y="30" width="6" height="10"/><rect x="35" y="35" width="6" height="5"/>'),
     graph: true, graphH: 200,
     controls: [
-      { k: 'inj', label: 'Injection (for example, government spending)', min: 1, max: 50, step: 1, v: 10, dp: 0, show: (v) => '£' + v + 'bn' },
+      { k: 'inj', label: 'Injection (for example, government spending)', min: 1, max: 50, step: 1, v: 10, dp: 0, show: (v) => ED.cur() + nice(v * ED.ky()) + 'bn' },
       { k: 'mpw', label: 'Marginal propensity to withdraw (MPS + MPT + MPM)', min: 0.1, max: 0.8, step: 0.01, v: 0.4, dp: 2 }
     ],
     tasks: [
@@ -12591,6 +12810,7 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
     if ((x = pre('t-')) !== null) return V.topic(x);
     if ((x = pre('paper-')) !== null) return V.paper(x);
     if ((x = pre('sit-')) !== null) return V.sit(x);
+    if ((x = pre('prep-')) !== null) return V.prep(x);
     if ((x = pre('deck-')) !== null) return V.deck(x);
     if ((x = pre('check-')) !== null) return V.checkOne(x);
     if ((x = pre('lab-')) !== null) return V.lab(x);
@@ -13100,11 +13320,13 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
       const d = new FormData(f);
       const name = String(d.get('name') || '').trim(), date = String(d.get('date') || '');
       if (!name || !date) { C.toast('Give the test a name and a date.'); return; }
+      const newId = 'c' + U.uid();
       store.update(function (s) {
-        s.exams.custom.push({ id: 'c' + U.uid(), name: name, subject: String(d.get('subject')), date: date, time: String(d.get('time') || ''), dur: Number(d.get('dur')) || 60, comps: d.getAll('comps').map(String) });
+        s.exams.custom.push({ id: newId, name: name, subject: String(d.get('subject')), date: date, time: String(d.get('time') || ''), dur: Number(d.get('dur')) || 60, comps: d.getAll('comps').map(String) });
         s.plan.settingsAt = Date.now();
       });
-      C.toast('Test added. Rebuild the plan to revise for it.');
+      C.toast('Test added. Here’s how to revise for it.');
+      location.hash = 'prep-' + newId;
       return;
     }
     if (f.id === 'paperForm') {

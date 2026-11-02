@@ -9,8 +9,17 @@
 
   // ---------- Drawing kit ----------
   const ED = {};
+  // Your own axes: labels, currency and what the end of each axis is worth (Settings are per diagram).
+  ED.ax = () => ((RH.store.state.prefs.econAxes || {})[LB.cur && LB.cur.id] || {});
+  ED.ky = () => { const a = ED.ax(); return a.ymax ? a.ymax / (ED.lastY || 100) : 1; };
+  ED.kx = () => { const a = ED.ax(); return a.xmax ? a.xmax / (ED.lastX || 100) : 1; };
+  ED.cur = () => ED.ax().cur || '£';
+  const nice = (v) => Math.abs(v) >= 100 ? f(v, 0) : Math.abs(v) >= 10 ? f(v, 1).replace(/\.0$/, '') : f(v, 2).replace(/\.?0+$/, '');
   ED.frame = function (g, W, H, th, o) {
+    const ax = ED.ax();
     const X0 = W < 500 ? 46 : 62, X1 = W - 36, Y0 = H - (W < 500 ? 84 : 72), Y1 = 30, xmax = o.xmax || 100, ymax = o.ymax || 100;
+    ED.lastX = xmax; ED.lastY = ymax;
+    o = Object.assign({}, o, { yl: ax.yl || (o.yl && ax.cur ? o.yl.replace(/£/g, ax.cur) : o.yl), xl: ax.xl || o.xl });
     const F = { g: g, th: th, X0: X0, X1: X1, Y0: Y0, Y1: Y1, xmax: xmax, ymax: ymax,
       sx: (q) => X0 + q / xmax * (X1 - X0), sy: (p) => Y0 - p / ymax * (Y0 - Y1) };
     g.strokeStyle = th.ink; g.fillStyle = th.ink; g.lineWidth = 1.6;
@@ -20,6 +29,9 @@
     T(g, o.yl || 'Price (P)', X0 + 10, Y1 - 12, { col: th.ink, size: 12, weight: 600 });
     T(g, o.xl || 'Quantity (Q)', X1 + 14, Y0 + 34, { col: th.ink, size: 12, weight: 600, align: 'right' });
     T(g, '0', X0 - 8, Y0 + 16, { col: th.ink3, size: 11, align: 'right' });
+    // Scale marks when you have given the axes real values.
+    if (ax.ymax) for (let i = 1; i <= 4; i++) { const y = Y0 - i / 4 * (Y0 - Y1); g.strokeStyle = th.ink3; g.lineWidth = 1; g.beginPath(); g.moveTo(X0 - 4, y); g.lineTo(X0, y); g.stroke(); T(g, (/£|\$|€|¥|₹|AED/.test(o.yl || '') || !o.yl ? ED.cur() : '') + nice(ax.ymax * i / 4), X0 - 7, y + 4, { col: th.ink3, size: 10, align: 'right' }); }
+    if (ax.xmax) for (let i = 1; i <= 4; i++) { const x = X0 + i / 4 * (X1 - X0); g.strokeStyle = th.ink3; g.lineWidth = 1; g.beginPath(); g.moveTo(x, Y0); g.lineTo(x, Y0 + 4); g.stroke(); T(g, nice(ax.xmax * i / 4), x, Y0 + 16, { col: th.ink3, size: 10, align: 'center' }); }
     return F;
   };
   ED.clip = function (F, fn) { const g = F.g; g.save(); g.beginPath(); g.rect(F.X0, F.Y1 - 8, F.X1 - F.X0 + 8, F.Y0 - F.Y1 + 8); g.clip(); fn(); g.restore(); };
@@ -75,8 +87,9 @@
   // Area of a polygon (shoelace), used for surplus areas that are not simple triangles.
   ED.polyArea = (pts) => Math.abs(pts.reduce((a, p, i) => { const q = pts[(i + 1) % pts.length]; return a + p[0] * q[1] - q[0] * p[1]; }, 0)) / 2;
   const sub = (s) => s.replace(/1/g, '₁').replace(/2/g, '₂').replace(/3/g, '₃');
-  const money = (x) => '£' + f(x, 2);
-  const area$ = (x) => '£' + f(x, 0);
+  const money = (x) => ED.cur() + f(x * ED.ky(), 2);
+  const area$ = (x) => ED.cur() + f(x * ED.ky() * ED.kx(), 0);
+  const qf = (x) => f(x * ED.kx(), 1);
   const slope = (k, label) => ({ k: k, label: label, min: 0.3, max: 2, step: 0.05, v: 0.7, dp: 2, show: (v) => Number(v) >= 1.2 ? 'steep (inelastic)' : Number(v) <= 0.5 ? 'flat (elastic)' : 'medium' });
   function syncUI(p) {
     document.querySelectorAll('.lab-ctrls input[type="range"][data-lk]').forEach(function (el) {
@@ -137,8 +150,8 @@
         },
         readouts: function () {
           const e0 = m0(), e1 = m();
-          return [['Original price P₁', money(e0.P)], ['Original quantity Q₁', f(e0.Q, 1)], ['New price P₂', money(e1.P)], ['New quantity Q₂', f(e1.Q, 1)],
-            ['Change in price', (e1.P >= e0.P ? '+' : '') + f(e1.P - e0.P, 2)], ['Change in quantity', (e1.Q >= e0.Q ? '+' : '') + f(e1.Q - e0.Q, 1)],
+          return [['Original price P₁', money(e0.P)], ['Original quantity Q₁', qf(e0.Q)], ['New price P₂', money(e1.P)], ['New quantity Q₂', qf(e1.Q)],
+            ['Change in price', (e1.P >= e0.P ? '+' : '') + f(e1.P - e0.P, 2)], ['Change in quantity', (e1.Q >= e0.Q ? '+' : '') + qf(e1.Q - e0.Q)],
             ['Consumer surplus', area$(0.5 * e1.Q * (e1.a - e1.P)), 'th'], ['Producer surplus', area$(ps(e1)), 'th']];
         }
       };
@@ -152,8 +165,8 @@
     icon: icon(AX + '<path d="M10 8l32 30"/><rect x="8" y="22" width="16" height="18" fill="currentColor" opacity=".25" stroke="none"/>'),
     graph: true, graphH: 200,
     controls: [
-      { k: 'P', label: 'Starting price P₁', min: 5, max: 95, step: 1, v: 70, unit: '', dp: 0, show: (v) => '£' + v },
-      { k: 'dP', label: 'Price change', min: -30, max: 30, step: 1, v: -10, dp: 0, show: (v) => (v > 0 ? '+£' : v < 0 ? '−£' : '£') + Math.abs(v) }
+      { k: 'P', label: 'Starting price P₁', min: 5, max: 95, step: 1, v: 70, unit: '', dp: 0, show: (v) => ED.cur() + nice(v * ED.ky()) },
+      { k: 'dP', label: 'Price change', min: -30, max: 30, step: 1, v: -10, dp: 0, show: (v) => (v > 0 ? '+' : v < 0 ? '−' : '') + ED.cur() + nice(Math.abs(v) * ED.ky()) }
     ],
     tasks: [
       'Start at £70 and cut the price by £10. Revenue rises: demand is price elastic at the top of the curve.',
@@ -206,7 +219,7 @@
     icon: icon(AX + '<path d="M12 36L40 12M12 26L36 6M10 10l30 28"/>'),
     controls: [
       { k: 'mode', type: 'seg', label: 'Policy', options: [['specific', 'Specific tax'], ['adval', 'Ad valorem tax'], ['subsidy', 'Subsidy']], v: 'specific' },
-      { k: 't', label: 'Size', min: 0, max: 30, step: 1, v: 15, dp: 0, show: (v, p) => p.mode === 'adval' ? (2 * v) + '% of the price' : '£' + v + ' per unit' },
+      { k: 't', label: 'Size', min: 0, max: 30, step: 1, v: 15, dp: 0, show: (v, p) => p.mode === 'adval' ? (2 * v) + '% of the price' : ED.cur() + nice(v * ED.ky()) + ' per unit' },
       slope('b', 'Demand curve'), slope('d', 'Supply curve')
     ],
     tasks: [
@@ -258,7 +271,7 @@
         },
         readouts: function () {
           const e = solve(), sub = p.mode === 'subsidy', gap = Math.abs(e.Pc - e.Pp);
-          const out = [['Price before', money(e.P1)], ['Price consumers pay', money(e.Pc)], ['Price producers receive', money(e.Pp)], ['Quantity before → after', f(e.Q1, 1) + ' → ' + f(e.Q2, 1)]];
+          const out = [['Price before', money(e.P1)], ['Price consumers pay', money(e.Pc)], ['Price producers receive', money(e.Pp)], ['Quantity before → after', qf(e.Q1) + ' → ' + qf(e.Q2)]];
           if (sub) out.push(['Cost to government', area$(gap * e.Q2), 'th'], ['Consumers’ share of subsidy', f(100 * (e.P1 - e.Pc) / gap, 0) + '%', 'th'], ['Welfare loss', area$(0.5 * gap * Math.abs(e.Q2 - e.Q1)), 'th']);
           else if (gap > 0.001) out.push(['Tax revenue', area$(gap * e.Q2), 'th'], ['Paid by consumers', f(100 * (e.Pc - e.P1) / gap, 0) + '%', 'th'], ['Paid by producers', f(100 * (e.P1 - e.Pp) / gap, 0) + '%', 'th'], ['Welfare loss', area$(0.5 * gap * (e.Q1 - e.Q2)), 'th']);
           return out;
@@ -274,7 +287,7 @@
     icon: icon(AX + '<path d="M12 10l28 26M12 36l28-26"/><path d="M8 30h36" stroke-dasharray="4 3"/>'),
     controls: [
       { k: 'mode', type: 'seg', label: 'Control', options: [['max', 'Maximum price'], ['min', 'Minimum price']], v: 'max' },
-      { k: 'pc', label: 'Price set by government', min: 5, max: 85, step: 1, v: 35, dp: 0, show: (v) => '£' + v },
+      { k: 'pc', label: 'Price set by government', min: 5, max: 85, step: 1, v: 35, dp: 0, show: (v) => ED.cur() + nice(v * ED.ky()) },
       { k: 'buy', type: 'toggle', label: 'Government buys the surplus', v: false, when: (p) => p.mode === 'min' },
       slope('b', 'Demand curve'), slope('d', 'Supply curve')
     ],
@@ -321,9 +334,9 @@
         },
         readouts: function () {
           const e = solve(), max = p.mode === 'max';
-          const out = [['Market price P*', money(e.P)], ['Market quantity Q*', f(e.Q, 1)], ['Controlled price', money(e.pc)]];
+          const out = [['Market price P*', money(e.P)], ['Market quantity Q*', qf(e.Q)], ['Controlled price', money(e.pc)]];
           if (!e.binding) return out.concat([['Effect', max ? 'none: set above the market price' : 'none: set below the market price']]);
-          out.push(['Quantity demanded', f(e.Qd, 1)], ['Quantity supplied', f(e.Qs, 1)], [max ? 'Shortage' : 'Surplus', f(Math.abs(e.Qd - e.Qs), 1), 'th'], ['Quantity traded', f(e.traded, 1)], ['Welfare loss', area$(0.5 * (e.Q - e.traded) * ((A - p.b * e.traded) - (Cs + p.d * e.traded))), 'th']);
+          out.push(['Quantity demanded', f(e.Qd, 1)], ['Quantity supplied', qf(e.Qs)], [max ? 'Shortage' : 'Surplus', f(Math.abs(e.Qd - e.Qs), 1), 'th'], ['Quantity traded', f(e.traded, 1)], ['Welfare loss', area$(0.5 * (e.Q - e.traded) * ((A - p.b * e.traded) - (Cs + p.d * e.traded))), 'th']);
           if (!max && p.buy) out.push(['Cost of buying the surplus', area$(e.pc * (e.Qs - e.Qd)), 'th']);
           return out;
         }
@@ -338,7 +351,7 @@
     icon: icon(AX + '<path d="M10 38L38 10M10 28L30 6M10 10l30 28"/>'),
     controls: [
       { k: 'mode', type: 'seg', label: 'Externality', options: [['neg', 'Negative production'], ['pos', 'Positive consumption']], v: 'neg' },
-      { k: 'ext', label: 'Size of the external cost or benefit', min: 0, max: 40, step: 1, v: 20, dp: 0, show: (v) => '£' + v + ' per unit' },
+      { k: 'ext', label: 'Size of the external cost or benefit', min: 0, max: 40, step: 1, v: 20, dp: 0, show: (v) => ED.cur() + nice(v * ED.ky()) + ' per unit' },
       { k: 'fix', type: 'toggle', label: 'Government corrects it', v: false, help: 'A tax (or subsidy) equal to the external cost (or benefit).' }
     ],
     tasks: [
@@ -379,8 +392,8 @@
         },
         readouts: function () {
           const e = solve(), neg = p.mode === 'neg';
-          return [['Market output Qm', f(e.Qm, 1)], ['Socially optimal output Q*', f(e.Qs, 1), 'th'], [neg ? 'Overproduction' : 'Underconsumption', f(Math.abs(e.Qm - e.Qs), 1)], ['Welfare loss', area$(e.loss), 'th'],
-            [neg ? 'Total external cost at Qm' : 'Total external benefit at Qm', area$(p.ext * e.Qm)], ['After correction, output', p.fix ? f(e.Qs, 1) + ' (optimal)' : 'not corrected']];
+          return [['Market output Qm', qf(e.Qm)], ['Socially optimal output Q*', qf(e.Qs), 'th'], [neg ? 'Overproduction' : 'Underconsumption', qf(Math.abs(e.Qm - e.Qs))], ['Welfare loss', area$(e.loss), 'th'],
+            [neg ? 'Total external cost at Qm' : 'Total external benefit at Qm', area$(p.ext * e.Qm)], ['After correction, output', p.fix ? qf(e.Qs) + ' (optimal)' : 'not corrected']];
         }
       };
     }
@@ -525,9 +538,9 @@
     icon: icon(AX + '<path d="M10 18 Q20 40 30 30 T42 8"/><path d="M8 24 Q24 40 42 22" stroke-dasharray="3 3"/>'),
     controls: [
       { k: 'mode', type: 'seg', label: 'Market', options: [['pc', 'Perfect competition'], ['mono', 'Monopoly']], v: 'pc' },
-      { k: 'P', label: 'Market price (P = AR = MR)', min: 15, max: 80, step: 1, v: 48, dp: 0, show: (v) => '£' + v, when: (p) => p.mode === 'pc' },
+      { k: 'P', label: 'Market price (P = AR = MR)', min: 15, max: 80, step: 1, v: 48, dp: 0, show: (v) => ED.cur() + nice(v * ED.ky()), when: (p) => p.mode === 'pc' },
       { k: 'A', label: 'Demand for the monopolist', min: 50, max: 110, step: 1, v: 88, dp: 0, show: (v) => v + ' (higher = more demand)', when: (p) => p.mode === 'mono' },
-      { k: 'FC', label: 'Fixed costs', min: 200, max: 1600, step: 50, v: 800, dp: 0, show: (v) => '£' + v },
+      { k: 'FC', label: 'Fixed costs', min: 200, max: 1600, step: 50, v: 800, dp: 0, show: (v) => ED.cur() + nice(v * ED.ky()) },
       { k: 'eff', type: 'toggle', label: 'Show efficiency', v: true }
     ],
     tasks: [
@@ -646,7 +659,7 @@
         },
         readouts: function () {
           const e = solve();
-          return [['Wage', money(e.W) + ' an hour'], ['Employment', f(e.L, 1)], ['Unemployment (excess supply)', f(e.U, 1), 'th'], ['Competitive wage', money(e.Wc), 'th'], ['Change in employment vs no minimum wage', (e.L >= e.base ? '+' : '') + f(e.L - e.base, 1), 'th']];
+          return [['Wage', money(e.W) + ' an hour'], ['Employment', qf(e.L)], ['Unemployment (excess supply)', qf(e.U), 'th'], ['Competitive wage', money(e.Wc), 'th'], ['Change in employment vs no minimum wage', (e.L >= e.base ? '+' : '') + qf(e.L - e.base), 'th']];
         }
       };
     }
@@ -709,8 +722,8 @@
     blurb: 'Open a market to world trade, then put a tariff on imports. See imports, tariff revenue and the welfare losses.',
     icon: icon(AX + '<path d="M12 10l28 26M12 36l28-26M8 32h36M8 24h36" />'),
     controls: [
-      { k: 'pw', label: 'World price', min: 10, max: 50, step: 1, v: 24, dp: 0, show: (v) => '£' + v },
-      { k: 'tar', label: 'Tariff per unit', min: 0, max: 25, step: 1, v: 10, dp: 0, show: (v) => '£' + v }
+      { k: 'pw', label: 'World price', min: 10, max: 50, step: 1, v: 24, dp: 0, show: (v) => ED.cur() + nice(v * ED.ky()) },
+      { k: 'tar', label: 'Tariff per unit', min: 0, max: 25, step: 1, v: 10, dp: 0, show: (v) => ED.cur() + nice(v * ED.ky()) }
     ],
     tasks: [
       'With no tariff, the domestic price falls to the world price. Consumers gain, domestic producers lose market share, and the gap is filled by imports.',
@@ -751,7 +764,7 @@
         readouts: function () {
           const P2 = pt(), s1 = Qs(p.pw), d1 = Qd(p.pw), s2 = Qs(P2), d2 = Qd(P2), t = P2 - p.pw;
           const dCS = -((d1 + d2) / 2) * t, dPS = ((s1 + s2) / 2) * t, rev = t * (d2 - s2), dwl = 0.5 * t * (s2 - s1) + 0.5 * t * (d1 - d2);
-          return [['Domestic price', money(P2)], ['Imports before → after', f(d1 - s1, 1) + ' → ' + f(Math.max(0, d2 - s2), 1)], ['Domestic production', f(s1, 1) + ' → ' + f(s2, 1)], ['Tariff revenue', area$(rev), 'th'], ['Change in consumer surplus', '−' + area$(-dCS), 'th'], ['Change in producer surplus', '+' + area$(dPS), 'th'], ['Deadweight loss', area$(dwl), 'th']];
+          return [['Domestic price', money(P2)], ['Imports before → after', qf(d1 - s1) + ' → ' + qf(Math.max(0, d2 - s2))], ['Domestic production', qf(s1) + ' → ' + qf(s2)], ['Tariff revenue', area$(rev), 'th'], ['Change in consumer surplus', '−' + area$(-dCS), 'th'], ['Change in producer surplus', '+' + area$(dPS), 'th'], ['Deadweight loss', area$(dwl), 'th']];
         }
       };
     }
@@ -764,7 +777,7 @@
     icon: icon('<path d="M6 40h36"/><rect x="8" y="10" width="6" height="30"/><rect x="17" y="22" width="6" height="18"/><rect x="26" y="30" width="6" height="10"/><rect x="35" y="35" width="6" height="5"/>'),
     graph: true, graphH: 200,
     controls: [
-      { k: 'inj', label: 'Injection (for example, government spending)', min: 1, max: 50, step: 1, v: 10, dp: 0, show: (v) => '£' + v + 'bn' },
+      { k: 'inj', label: 'Injection (for example, government spending)', min: 1, max: 50, step: 1, v: 10, dp: 0, show: (v) => ED.cur() + nice(v * ED.ky()) + 'bn' },
       { k: 'mpw', label: 'Marginal propensity to withdraw (MPS + MPT + MPM)', min: 0.1, max: 0.8, step: 0.01, v: 0.4, dp: 2 }
     ],
     tasks: [

@@ -10,7 +10,7 @@
     if (r === 'home') return 'home';
     if (/^(study|subjects|s-|c-|t-|library|guide)/.test(r)) return 'learn';
     if (/^(papers|paper-|sit-|exam$|mark$|handin$|check|checks|cards|deck-|review)/.test(r)) return 'practise';
-    if (/^(plan|deliverables|routine|exams|strategy)$/.test(r)) return 'plan';
+    if (/^(plan|deliverables|routine|exams|strategy)$/.test(r) || /^prep-/.test(r)) return 'plan';
     if (r === 'focus') return 'focus';
     if (r === 'labs' || r.indexOf('lab-') === 0) return 'labs';
     return 'settings';
@@ -20,6 +20,7 @@
     if (/^[sct]-/.test(r)) return 'study';
     if (/^(paper-|sit-|exam$|mark$|handin$)/.test(r)) return 'papers';
     if (/^check-/.test(r)) return 'checks';
+    if (/^prep-/.test(r)) return 'exams';
     if (/^(deck-|review)/.test(r)) return 'cards';
     return r;
   }
@@ -64,6 +65,7 @@
 
   // ---------- Sessions ----------
   V.sessTitle = function (s) {
+    if (s.label) return s.label;
     const t = s.t && M.topic[s.t];
     if (t) return t.name;
     const e = s.e && M.examById(st(), s.e);

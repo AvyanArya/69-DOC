@@ -24,7 +24,7 @@
     const sum = RH.planner.summary(s);
     let html = C.subnav('plan', 'plan');
     html += C.page({ title: (ws === U.weekStart(today) ? 'This week' : 'Week of ' + esc(U.fmtShort(ws))), lede: U.dur(planned) + ' of revision planned, ' + U.dur(doneM) + ' done · ' + U.dur(free) + ' of free time kept',
-      actions: '<a class="btn" href="#routine">' + C.icon('pen') + 'Edit my schedule</a><button type="button" class="btn alt" data-action="plan-build">' + C.icon('rebuild') + 'Rebuild plan</button>' });
+      actions: '<a class="btn" href="#routine">' + C.icon('pen') + 'Edit my schedule</a><a class="btn alt" href="#exams">' + C.icon('flag') + 'Revise for a test</a><button type="button" class="btn alt" data-action="plan-build">' + C.icon('rebuild') + 'Rebuild</button>' });
     html += '<div class="wk-nav"><button type="button" class="icon-btn" data-action="week-prev" aria-label="Previous week">' + C.icon('left') + '</button><b>' + esc(U.fmtShort(ws)) + ' – ' + esc(U.fmtShort(days[6])) + '</b><button type="button" class="icon-btn" data-action="week-next" aria-label="Next week">' + C.icon('right') + '</button>' + (ws === U.weekStart(today) ? '' : '<button type="button" class="btn ghost sm" data-action="week-today">Back to this week</button>') + '<span class="muted small">' + U.plural(sum.sessions, 'session') + ' left until your exams</span></div>';
     html += V.staleBanner();
     if (!s.routine.setupAt) html += '<div class="note row-note"><p><b>This plan uses a sample week.</b> Put in your school times, clubs and how much you want to revise so the times fit your real week.</p><a class="btn sm" href="#routine">Edit my schedule</a></div>';
@@ -159,6 +159,20 @@
     const s = st(), today = U.today();
     let html = C.subnav('plan', 'exams') + C.page({ title: 'Exams and tests', lede: 'Official <a href="' + RH.EXAM_SOURCE.url + '" target="_blank" rel="noopener">Edexcel Summer 2027</a> dates. Add your school tests below.' });
     if (!s.profile.fmOptions) html += V.fmOptionsCard();
+    const tests = '<section class="card tests-card"><div class="card-head"><h2>School tests and mocks</h2></div>' +
+      (s.exams.custom.length ? '<ul class="list">' + s.exams.custom.slice().sort((a, b) => a.date.localeCompare(b.date)).map(function (c) {
+        const sub = M.subject[c.subject];
+        const comps = c.comps && c.comps.length ? c.comps.map((id) => (sub.comps.find((x) => x.id === id) || {}).name).filter(Boolean).join(', ') : 'Whole subject';
+        return '<li class="row" data-subj="' + c.subject + '">' + C.stag(c.subject) + '<span class="row-main"><b>' + esc(c.name) + '</b><span class="muted small">' + esc(U.fmt(c.date)) + (c.time ? ' · ' + esc(c.time) : '') + ' · ' + U.mins(c.dur || 60) + ' · ' + esc(comps) + '</span></span>' + (c.date >= today ? C.countdownChip(c.date) : '<span class="muted small">Done</span>') +
+          (c.date >= today ? '<a class="btn sm" href="#prep-' + c.id + '">' + C.icon('list') + 'Revision plan</a>' : '') + '<button type="button" class="icon-btn" data-action="test-del" data-id="' + c.id + '" aria-label="Delete ' + esc(c.name) + '">' + C.icon('trash') + '</button></li>';
+      }).join('') + '</ul>' : '<p class="muted">Got a test coming up? Add it with its topics and you’ll get a day-by-day plan for it.</p>') +
+      '<form id="testForm" class="stack-form"><div class="form-grid"><label class="field"><span>Name</span><input id="t-name" name="name" required placeholder="e.g. Physics mock, Paper 1"></label>' +
+      '<label class="field"><span>Subject</span><select id="t-subj" name="subject">' + M.subjects.map((x) => '<option value="' + x.id + '"' + (RH.ui.testSubj === x.id ? ' selected' : '') + '>' + esc(x.name) + '</option>').join('') + '</select></label>' +
+      '<label class="field"><span>Date</span><input id="t-date" name="date" type="date" required min="' + today + '"></label><label class="field"><span>Start time</span><input id="t-time" name="time" type="time" value="09:00"></label>' +
+      '<label class="field"><span>Minutes</span><input id="t-dur" name="dur" type="number" min="10" max="300" step="5" value="60"></label></div>' +
+      '<fieldset class="field"><legend>Topics it covers <span class="muted small">(none ticked = the whole subject)</span></legend><div class="picks" id="t-comps">' + V.compPicks(RH.ui.testSubj || 'physics') + '</div></fieldset>' +
+      '<div class="row-actions"><button type="submit" class="btn">' + C.icon('plus') + 'Add test and plan it</button></div></form></section>';
+    html += tests + '<h2 class="h-sec">Official exams</h2>';
     let month = '';
     html += '<div class="exam-list">';
     M.officialFor(s).forEach(function (o) {
@@ -171,19 +185,7 @@
         '<div class="exam-ready"><span class="small muted">Readiness ' + U.pct(M.readiness(s, topics)) + ' · ' + U.plural(topics.length, 'sub-topic') + '</span>' + C.stack(M.ragCounts(s, topics), p.code) + '</div></div>' +
         '<div class="exam-side">' + (past ? '<span class="muted small">Sat</span>' : C.countdownChip(o.date)) + C.toggle('data-action="exam-toggle" data-id="' + o.id + '"', 'Sitting', on) + '</div></article>';
     });
-    html += '</div><section class="card"><div class="card-head"><h2>Mocks and class tests</h2></div>' +
-      (s.exams.custom.length ? '<ul class="list">' + s.exams.custom.slice().sort((a, b) => a.date.localeCompare(b.date)).map(function (c) {
-        const sub = M.subject[c.subject];
-        const comps = c.comps && c.comps.length ? c.comps.map((id) => (sub.comps.find((x) => x.id === id) || {}).name).filter(Boolean).join(', ') : 'Whole subject';
-        return '<li class="row" data-subj="' + c.subject + '">' + C.stag(c.subject) + '<span class="row-main"><b>' + esc(c.name) + '</b><span class="muted small">' + esc(U.fmt(c.date)) + (c.time ? ' · ' + esc(c.time) : '') + ' · ' + U.mins(c.dur || 60) + ' · ' + esc(comps) + '</span></span>' + (c.date >= today ? C.countdownChip(c.date) : '<span class="muted small">Done</span>') +
-          '<button type="button" class="icon-btn" data-action="test-del" data-id="' + c.id + '" aria-label="Delete ' + esc(c.name) + '">' + C.icon('trash') + '</button></li>';
-      }).join('') + '</ul>' : '<p class="muted">No mocks or tests yet. Add them so the plan revises the right sections before each one.</p>') +
-      '<form id="testForm" class="stack-form"><div class="form-grid"><label class="field"><span>Name</span><input id="t-name" name="name" required placeholder="e.g. Physics mock, Paper 1"></label>' +
-      '<label class="field"><span>Subject</span><select id="t-subj" name="subject">' + M.subjects.map((x) => '<option value="' + x.id + '"' + (RH.ui.testSubj === x.id ? ' selected' : '') + '>' + esc(x.name) + '</option>').join('') + '</select></label>' +
-      '<label class="field"><span>Date</span><input id="t-date" name="date" type="date" required min="' + today + '"></label><label class="field"><span>Start time</span><input id="t-time" name="time" type="time" value="09:00"></label>' +
-      '<label class="field"><span>Minutes</span><input id="t-dur" name="dur" type="number" min="10" max="300" step="5" value="60"></label></div>' +
-      '<fieldset class="field"><legend>Sections it covers <span class="muted small">(none ticked = whole subject)</span></legend><div class="picks" id="t-comps">' + V.compPicks(RH.ui.testSubj || 'physics') + '</div></fieldset>' +
-      '<div class="row-actions"><button type="submit" class="btn">' + C.icon('plus') + 'Add test</button></div></form></section>';
+    html += '</div>';
     return html;
   };
 

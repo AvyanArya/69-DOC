@@ -38,10 +38,10 @@ as tabs along the top.
 | Place | What's there |
 |---|---|
 | **Home** | A welcome banner with the lesson to carry on with, your streak, this week's tasks, days to your first exam, today's sessions and your subjects. |
-| **My Subjects** | A bookshelf with one book per subject. Click a book and it flies to the middle, the cover swings open, pages flip and the chapters appear. Also *Choose subjects* (all 21), *How to revise* and *Resources*. |
-| **The Labs** | 33 interactive labs and diagrams across seven subjects, your subjects first. |
-| **Planner** | *This week* (with an **Edit my schedule** button), *My schedule*, *Weekly tasks*, *Exams* and *Strategy*. |
-| **Practise** | Past papers, Check an answer (AI marking), Marked answers, Flashcards. |
+| **My Subjects** | A 3D shelf of textbooks, one subject at a time (tabs along the top). Each chapter is a book standing spine-out; the middle one turns to show its cover. Drag, scroll or use the arrows. Click the cover and the book comes off the shelf and opens: the cover swings over, three pages turn and settle, and the chapter's lessons are on the right-hand page. Also *Choose subjects* (all 21), *How to revise* and *Resources*. |
+| **The Labs** | 33 interactive labs and diagrams, one shelf per subject, each shown as a cover drawn from the lab itself. Every economics diagram has *Customise the axes*: your own labels, currency and scale, or a context preset (a coffee shop, housing, labour, oil, Dubai taxis). |
+| **Planner** | *This week* (with **Edit my schedule** and **Revise for a test**), *My schedule*, *Weekly tasks*, *Exams* and *Strategy*. Add a school test with its topics and you get a day-by-day revision plan for it: weakest topics learned first, exam questions on everything, then a timed mixed set and a review of lost marks, sized to the time in your schedule. One button puts it in your weekly plan. |
+| **Practise** | The **exam centre**, flashcards, Check an answer and Marked answers. In the exam centre you sit a whole paper or a timed set of questions, in practice or exam conditions, on your own or with AI help (a Claude chat in the corner that gives hints). The timer and question list sit on the side. At the end you photograph your handwritten answers, then mark them against the mark scheme or with Claude. A lesson's question packs open straight into it: PMT packs are downloaded and split into questions and their mark scheme automatically (outside claude.ai); other packs open for you to download and drop in. |
 | **Focus** | Pomodoro, countdown, exam timer and stopwatch, plus the focus tracker. |
 
 **My schedule** is one page of numbered steps: your days (one card each for Monday–Thursday, Friday and the
@@ -66,6 +66,7 @@ specification numbers).
 
 | Feature | What it does |
 |---|---|
+| **This round** | The original 3D shelf is back, one subject at a time, with a new book-opening animation. Lessons, subject pages, flashcards and focus are much simpler. The Labs has illustrated covers. New: the exam centre (lesson PDFs, conditions, side timer, photo hand-in, AI chat), customisable economics axes, and revision plans for school tests. |
 | **New design** | Rebuilt from scratch: a floating menu with six places, a soft colour wash background, white cards, a pastel banner on Home, and the Onest typeface. Much less text on every page. |
 | **Sign-in and setup** | A sign-in page (your Claude account on claude.ai, this browser elsewhere) and a three-step setup: subjects, your week, done. |
 | **Bookshelf by subject** | One book per subject. Clicking a book opens it with a page-turning animation onto its chapters. |
@@ -137,7 +138,7 @@ alevel-revision-hub/
     │                     # videos.js + more-videos.js (direct videos), decks.js (starter flashcards)
     └── app/              # util.js, model.js, routine.js (time slots), planner.js, store.js, ai.js (Claude),
                           # ui.js, deliverables.js, views.js, home.js, study.js (courses & lessons), shelf.js (bookshelf),
-                          # welcome.js (sign-in & setup),
+                          # welcome.js (sign-in & setup), testprep.js (revising for a test),
                           # labs.js (frame) + labs-sims.js (physics), econ-labs.js (economics),
                           # labs-sci.js (chemistry, biology), labs-cs.js (CS, psychology, geography), plan.js, focus.js,
                           # cards.js, portal.js, checker.js, settings.js, main.js (router)

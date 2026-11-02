@@ -141,7 +141,7 @@
       ring.setAttribute('stroke-dasharray', (c * f).toFixed(1) + ' ' + c.toFixed(1));
     }
     const play = $('#fx-play');
-    if (play) play.innerHTML = T.running ? C.icon('pause') + 'Pause' : C.icon('play') + ((T.mode === 'stopwatch' ? T.elapsed : T.total - T.left) > 0.5 ? 'Resume' : 'Start');
+    if (play) { const lab = T.running ? 'Pause' : (T.mode === 'stopwatch' ? T.elapsed : T.total - T.left) > 0.5 ? 'Resume' : 'Start'; play.innerHTML = C.icon(T.running ? 'pause' : 'play') + '<span class="sr">' + lab + '</span>'; play.setAttribute('aria-label', lab); play.classList.toggle('on', T.running); }
     const ph = $('#fx-phase');
     if (ph) ph.textContent = T.mode === 'pomo' ? PHASE[T.phase] + ' · block ' + (T.cycle % pomo().cycles + (T.phase === 'focus' ? 1 : 0)) + ' of ' + pomo().cycles : T.mode === 'exam' ? (!T.running && T.left === T.total ? 'Ready when you are' : !T.running ? 'Paused' : T.left < 300 ? 'Final minutes' : 'Exam in progress') : T.mode === 'countdown' ? (T.running ? 'Counting down' : 'Countdown') : 'Stopwatch';
     const acc = $('#fx-acc');
@@ -284,44 +284,30 @@
     const w = RH.deliv.week();
     const fItem = w && w.items.find((it) => it.kind === 'focus');
     const wk = weekFocus();
-    let html = C.page({ eyebrow: 'Focus', title: 'Focus', lede: 'Time a session, and turn on the focus tracker so only time at your desk counts.' });
-    html += '<div class="fx">';
-    // Timer
-    html += '<section class="card fx-timer">' + C.seg([['pomo', 'Pomodoro'], ['countdown', 'Countdown'], ['exam', 'Exam timer'], ['stopwatch', 'Stopwatch']], mode, 'data-action="fx-mode"') +
-      (x ? '<p class="fx-for">' + C.stag(x.s) + '<b>' + esc(RH.views.sessTitle(x)) + '</b><span class="muted">' + esc(RH.KIND[x.k].label) + ' · ' + U.mins(x.m) + '</span></p>' : '') +
+    let html = '<section class="fx-room">' + C.seg([['pomo', 'Pomodoro'], ['countdown', 'Countdown'], ['exam', 'Exam timer'], ['stopwatch', 'Stopwatch']], mode, 'data-action="fx-mode"') +
+      (x ? '<p class="fx-for">' + esc(RH.views.sessTitle(x)) + '<span>' + esc(M.subject[x.s] ? M.subject[x.s].name : '') + ' · ' + U.mins(x.m) + '</span></p>' : '') +
       '<p class="fx-phase" id="fx-phase"></p>' +
       '<div class="fx-dial"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="fx-track" cx="50" cy="50" r="46"/><circle class="fx-arc" id="fx-ring" cx="50" cy="50" r="46" stroke-dasharray="0 289"/></svg><span class="fx-clock num" id="fx-clock">' + fmt(current()) + '</span></div>';
     if (mode === 'countdown') html += C.seg([10, 15, 20, 25, 30, 45, 60, 90].map((m) => [m, m + 'm']), T.total / 60, 'data-action="fx-len"');
-    if (mode === 'exam') html += '<div class="form-grid fx-exam"><label class="field"><span>Paper</span><select data-timer="paper"><option value="">Custom length</option>' + C.opts(examPapers().map((q) => [q.id, q.name + ' (' + U.mins(q.dur) + ')']), T.examPaper) + '</select></label>' +
-      '<label class="field"><span>Extra time</span><select data-timer="extra">' + C.opts([[0, 'None'], [10, '10%'], [25, '25%'], [50, '50%']], T.extra) + '</select></label>' +
-      (T.examPaper ? '' : '<label class="field"><span>Minutes</span><input type="number" min="5" max="300" step="5" data-timer="custom" value="' + (T.examCustom || 120) + '"></label>') + '</div>';
-    html += '<div class="row-actions center"><button type="button" class="btn lg" id="fx-play" data-action="timer-play"></button>' +
-      (mode === 'stopwatch' ? '<button type="button" class="btn alt" data-action="timer-lap">' + C.icon('flag') + 'Lap</button>' : '') +
-      (mode === 'pomo' ? '<button type="button" class="btn alt" data-action="timer-skip">' + C.icon('later') + 'Skip to ' + (T.phase === 'focus' ? 'break' : 'focus') + '</button>' : '') +
-      '<button type="button" class="btn ghost" data-action="timer-reset">Reset</button>' +
-      (x && !x.done ? '<button type="button" class="btn ghost" data-action="sess-done" data-id="' + x.id + '">' + C.icon('tick') + 'Mark session done</button>' : '') + '</div>' +
-      '<p class="muted small center">Focused time this run: <b class="num" id="fx-acc">' + U.dur(T.acc / 60) + '</b></p>' +
+    if (mode === 'exam') html += '<div class="fx-exam"><select data-timer="paper" aria-label="Paper"><option value="">Custom length</option>' + C.opts(examPapers().map((q) => [q.id, q.name + ' (' + U.mins(q.dur) + ')']), T.examPaper) + '</select>' +
+      '<select data-timer="extra" aria-label="Extra time">' + C.opts([[0, 'No extra time'], [10, '+10%'], [25, '+25%'], [50, '+50%']], T.extra) + '</select>' +
+      (T.examPaper ? '' : '<input type="number" min="5" max="300" step="5" data-timer="custom" value="' + (T.examCustom || 120) + '" aria-label="Minutes">') + '</div>';
+    html += '<div class="fx-ctrl">' + '<button type="button" class="icon-btn fx-side" data-action="timer-reset" aria-label="Reset">' + C.icon('rebuild') + '</button>' +
+      '<button type="button" class="fx-play" id="fx-play" data-action="timer-play"></button>' +
+      (mode === 'stopwatch' ? '<button type="button" class="icon-btn fx-side" data-action="timer-lap" aria-label="Lap">' + C.icon('flag') + '</button>' : mode === 'pomo' ? '<button type="button" class="icon-btn fx-side" data-action="timer-skip" aria-label="Skip to ' + (T.phase === 'focus' ? 'break' : 'focus') + '">' + C.icon('later') + '</button>' : '<span class="fx-side"></span>') + '</div>' +
+      (x && !x.done ? '<button type="button" class="btn ghost sm" data-action="sess-done" data-id="' + x.id + '">' + C.icon('tick') + 'Mark the session done</button>' : '') +
       (mode === 'stopwatch' ? '<ol class="laps" id="fx-laps"></ol>' : '') + '</section>';
 
-    // Tracker + stats
-    html += '<div class="fx-side"><section class="card fx-cam"><div class="card-head"><h2>' + C.icon('camera') + 'Focus tracker</h2><span id="fx-cam-status" class="chip ' + STATUS[F.status][1] + '">' + STATUS[F.status][0] + '</span></div>' +
-      '<p class="muted small">Uses your webcam to check you are at your desk. If you walk away for ' + (fp.awaySecs || 20) + ' seconds the timer pauses and the time stops counting. Video is analysed on this device and never saved or sent anywhere.</p>' +
-      (F.status === 'error' && F.msg ? '<p class="note bad-n">' + esc(F.msg) + '</p>' : '') +
-      (RH.ai.inClaude ? '<p class="note">The camera is blocked inside claude.ai. Download or open <b>preview.html</b> in your browser to use the tracker.</p>' : '') +
-      '<div class="row-actions">' + (F.on ? '<button type="button" class="btn alt" data-action="cam-stop">' + C.icon('stop') + 'Turn off</button>' : '<button type="button" class="btn" data-action="cam-start"' + (RH.ai.inClaude ? ' disabled' : '') + '>' + C.icon('camera') + 'Turn on the tracker</button>') + (F.engine && F.on ? '<span class="muted small">' + esc(F.engine) + '</span>' : '') + '</div>' +
-      '<div class="form-grid">' + '<label class="field"><span>Away after</span><select data-fpref="awaySecs">' + C.opts([[10, '10 seconds'], [20, '20 seconds'], [45, '45 seconds'], [90, '90 seconds']], fp.awaySecs) + '</select></label></div>' +
-      C.toggle('data-fpref="pauseAway"', 'Pause the timer when I leave', fp.pauseAway, 'Exam timers keep running, like a real exam.') +
-      C.toggle('data-fpref="sideways"', 'Don’t count time looking sideways', fp.sideways, 'For example at your phone. Looking down at paper is fine.') +
-      C.toggle('data-fpref="chime"', 'Sound when I leave', fp.chime) + '</section>';
-
-    html += '<section class="card"><div class="card-head"><h2>Your focus</h2></div><div class="stats"><div class="stat"><span class="stat-n num">' + U.dur(todayFocus()) + '</span><span class="stat-l">today</span></div><div class="stat"><span class="stat-n num">' + U.dur(wk) + '</span><span class="stat-l">this week' + (fItem ? ' of ' + U.dur(fItem.target) : '') + '</span></div><div class="stat"><span class="stat-n num">' + F.today.away + '</span><span class="stat-l">times away today</span></div></div>' +
-      (fItem ? C.bar(wk / fItem.target, wk >= fItem.target ? 'ok' : '', 'Weekly focus target') + '<p class="muted small">Weekly deliverable: ' + esc(fItem.title) + '</p>' : '') +
-      '<ul class="list compact">' + s.focus.log.slice(-6).reverse().map((e) => '<li class="row"><span class="row-main"><b class="num">' + U.dur(e.focused) + '</b><span class="muted small">' + esc(U.fmtShort(e.date)) + ' · ' + esc({ pomo: 'Pomodoro', countdown: 'Countdown', exam: 'Exam timer', stopwatch: 'Stopwatch' }[e.mode] || e.mode) + (e.tracked ? ' · tracked' + (e.away ? ', away ' + e.away + '×' : '') : '') + '</span></span></li>').join('') + '</ul>' +
-      (s.focus.log.length ? '' : '<p class="muted small">Sessions you time appear here.</p>') + '</section>';
-    if (mode === 'pomo') html += '<details class="card fold"><summary><h2>Pomodoro settings</h2></summary><div class="fold-body"><div class="form-grid">' +
-      [['focus', 'Focus (min)', 5, 120], ['short', 'Short break', 1, 30], ['long', 'Long break', 5, 60], ['cycles', 'Blocks before a long break', 2, 8]].map((f) => '<label class="field"><span>' + f[1] + '</span><input type="number" min="' + f[2] + '" max="' + f[3] + '" data-pomo="' + f[0] + '" value="' + p[f[0]] + '"></label>').join('') + '</div>' +
+    html += '<div class="fx-under"><section class="card fx-stats"><div class="fxs"><b class="num">' + U.dur(todayFocus()) + '</b><span>today</span></div><div class="fxs"><b class="num">' + U.dur(wk) + '</b><span>this week' + (fItem ? ' of ' + U.dur(fItem.target) : '') + '</span></div><div class="fxs"><b class="num" id="fx-acc">' + U.dur(T.acc / 60) + '</b><span>this run</span></div></section>' +
+      '<section class="card fx-cam"><div class="fx-cam-row">' + C.icon('camera') + '<span><b>Focus tracker</b><span class="muted small">Pauses the timer if you leave your desk. Video stays on this device.</span></span><span id="fx-cam-status" class="chip ' + STATUS[F.status][1] + '">' + STATUS[F.status][0] + '</span>' +
+      (F.on ? '<button type="button" class="btn alt sm" data-action="cam-stop">Turn off</button>' : '<button type="button" class="btn sm" data-action="cam-start"' + (RH.ai.inClaude ? ' disabled' : '') + '>Turn on</button>') + '</div>' +
+      (F.status === 'error' && F.msg ? '<p class="note bad-n">' + esc(F.msg) + '</p>' : '') + (RH.ai.inClaude ? '<p class="help">The camera is blocked inside claude.ai. Open preview.html in your browser to use it.</p>' : '') +
+      '<details class="fold-lite"><summary>Tracker settings</summary><label class="field"><span>Away after</span><select data-fpref="awaySecs">' + C.opts([[10, '10 seconds'], [20, '20 seconds'], [45, '45 seconds'], [90, '90 seconds']], fp.awaySecs) + '</select></label>' +
+      C.toggle('data-fpref="pauseAway"', 'Pause the timer when I leave', fp.pauseAway) + C.toggle('data-fpref="sideways"', 'Don’t count looking at my phone', fp.sideways) + C.toggle('data-fpref="chime"', 'Sound when I leave', fp.chime) + '</details></section></div>';
+    if (mode === 'pomo') html += '<details class="fold"><summary>Pomodoro settings</summary><div class="fold-body"><div class="form-grid">' +
+      [['focus', 'Focus (min)', 5, 120], ['short', 'Short break', 1, 30], ['long', 'Long break', 5, 60], ['cycles', 'Blocks before a long break', 2, 8]].map((q) => '<label class="field"><span>' + q[1] + '</span><input type="number" min="' + q[2] + '" max="' + q[3] + '" data-pomo="' + q[0] + '" value="' + p[q[0]] + '"></label>').join('') + '</div>' +
       C.toggle('data-pomo="auto"', 'Start the next block automatically', p.auto) + C.toggle('data-pomo="sound"', 'Sound at the end', p.sound) + '</div></details>';
-    html += '</div></div>';
+    if (s.focus.log.length) html += '<details class="fold"><summary>Recent sessions</summary><div class="fold-body"><ul class="list compact">' + s.focus.log.slice(-8).reverse().map((e) => '<li class="row"><span class="row-main"><b class="num">' + U.dur(e.focused) + '</b><span class="muted small">' + esc(U.fmtShort(e.date)) + ' · ' + esc({ pomo: 'Pomodoro', countdown: 'Countdown', exam: 'Exam timer', stopwatch: 'Stopwatch' }[e.mode] || e.mode) + (e.tracked ? ' · tracked' : '') + '</span></span></li>').join('') + '</ul></div></details>';
     setTimeout(paint, 0);
     return html;
   };

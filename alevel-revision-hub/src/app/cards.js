@@ -178,31 +178,22 @@
   }
   K.deckRow = deckRow;
 
+  // A deck drawn as a little stack of cards.
+  function deckTile(d) {
+    const due = K.dueCount(d), mast = d.cards.filter((c) => c.box === 5).length;
+    return '<a class="dk" href="#deck-' + d.id + '"' + (d.subject ? ' data-subj="' + d.subject + '"' : '') + '><span class="dk-stack"><span></span><span></span><span class="dk-top"><b>' + esc(d.name) + '</b><span>' + U.plural(d.cards.length, 'card') + '</span></span></span>' +
+      '<span class="dk-foot">' + (due ? '<span class="dk-due">' + due + ' due</span>' : '<span class="muted small">Nothing due</span>') + '<span class="sbar"><i style="width:' + (d.cards.length ? Math.round(100 * mast / d.cards.length) : 0) + '%"></i></span></span></a>';
+  }
   RH.views.cards = function () {
-    const s = st();
-    const all = decks();
-    const cards = all.reduce((a, d) => a + d.cards.length, 0);
-    const due = K.totalDue();
-    const mastered = all.reduce((a, d) => a + d.cards.filter((c) => c.box === 5).length, 0);
-    let html = C.subnav('study', 'cards') + C.head('Practise', 'Flashcards', 'Leitner-system flashcards. Cards you know move up a box and come back less often; a miss sends a card back to box 1.',
-      '<button type="button" class="btn" data-action="cards-import">' + C.icon('upload') + 'Import cards</button><button type="button" class="btn alt" data-action="deck-new">' + C.icon('plus') + 'New deck</button>');
-    html += '<div class="stat-strip"><div class="stat-tile"><span class="stat-n num">' + due + '</span><span class="muted small">cards due today</span>' + (due ? '<button type="button" class="btn sm" data-action="study" data-mode="leitner" data-deck="all">Review all due</button>' : '') + '</div>' +
-      '<div class="stat-tile"><span class="stat-n num">' + cards + '</span><span class="muted small">cards in ' + U.plural(all.length, 'deck') + '</span></div>' +
-      '<div class="stat-tile"><span class="stat-n num">' + mastered + '</span><span class="muted small">in box 5 (mastered)</span></div>' +
-      '<div class="stat-tile"><span class="stat-n num">' + (s.prefs.cardsDaily || 50) + '</span><span class="muted small">max cards per review</span></div></div>';
-    if (all.length) {
-      html += '<section class="card"><div class="card-head"><h2>Your decks</h2></div><ul class="deck-list">' + all.map(deckRow).join('') + '</ul></section>';
-    } else {
-      html += C.empty('No decks yet.', 'Import a Quizlet or Gizmo set, add a starter deck below, or create a deck from any topic page.', '<button type="button" class="btn" data-action="cards-import">' + C.icon('upload') + 'Import cards</button>');
-    }
-    html += '<section class="card"><div class="card-head"><h2>Starter decks</h2><span class="muted small">Copy one into your decks, then edit it however you like</span></div><div class="starter-grid">' +
-      RH.STARTER_DECKS.map(function (d) {
-        const have = all.some((x) => x.starter === d.id);
-        return '<div class="starter" data-subj="' + d.subject + '">' + C.stag(d.subject) + '<b>' + esc(d.name) + '</b><span class="muted small">' + d.cards.length + ' cards. ' + esc(d.note) + '</span>' +
-          (have ? '<span class="small muted">Added</span>' : '<button type="button" class="btn alt sm" data-action="starter-add" data-id="' + d.id + '">' + C.icon('plus') + 'Add deck</button>') + '</div>';
-      }).join('') + '</div></section>';
-    html += '<section class="card"><h2>How the Leitner system works</h2><ol class="leitner-explain">' + [1, 2, 3, 4, 5].map((b) => '<li><span class="bx b' + b + '"></span><b>Box ' + b + '</b> <span class="muted">reviewed every ' + U.plural(BOX_DAYS[b], 'day') + '</span></li>').join('') + '</ol>' +
-      '<p class="help">Get a card right and it moves up one box. Get it wrong and it goes back to box 1. Review the cards that are due every day, a little at a time, and use a Pomodoro block for longer sessions.</p></section>';
+    const all = decks(), due = K.totalDue();
+    let html = '<header class="page-h"><div><h1>Flashcards</h1></div><div class="doc-acts"><button type="button" class="btn alt" data-action="cards-import">' + C.icon('upload') + 'Import</button><button type="button" class="btn alt" data-action="deck-new">' + C.icon('plus') + 'New deck</button></div></header>';
+    html += '<section class="fc-hero"><span class="fc-pile" aria-hidden="true"><i></i><i></i><i></i></span><div><p class="fc-n"><b class="num">' + due + '</b> ' + (due === 1 ? 'card' : 'cards') + ' to review today</p><p class="muted">' + (due ? 'A few minutes now keeps them in your memory.' : all.length ? 'All caught up. Come back tomorrow.' : 'Make a deck or import one to get started.') + '</p></div>' +
+      (due ? '<button type="button" class="btn lg" data-action="study" data-mode="leitner" data-deck="all">' + C.icon('play') + 'Start</button>' : '') + '</section>';
+    html += all.length ? '<h2 class="h-sec">Your decks</h2><div class="dk-grid">' + all.map(deckTile).join('') + '</div>'
+      : '<div class="empty big-empty">' + C.icon('cards') + '<p class="empty-t">No decks yet</p><p class="muted">Import a Quizlet set, add a starter deck below, or make one from any lesson.</p><button type="button" class="btn" data-action="cards-import">' + C.icon('upload') + 'Import cards</button></div>';
+    const starters = RH.STARTER_DECKS.filter((d) => !all.some((x) => x.starter === d.id));
+    if (starters.length) html += '<details class="fold"' + (all.length ? '' : ' open') + '><summary>Starter decks</summary><div class="fold-body"><div class="dk-grid">' + starters.map((d) => '<button type="button" class="dk starter-dk" data-subj="' + d.subject + '" data-action="starter-add" data-id="' + d.id + '"><span class="dk-stack"><span></span><span></span><span class="dk-top"><b>' + esc(d.name) + '</b><span>' + d.cards.length + ' cards</span></span></span><span class="dk-foot"><span class="dk-add">' + C.icon('plus') + 'Add deck</span></span></button>').join('') + '</div></div></details>';
+    html += '<details class="fold-lite"><summary>How reviewing works</summary><p class="help">Know a card and it moves up a box and comes back later (' + [1, 2, 3, 4, 5].map((b) => U.plural(BOX_DAYS[b], 'day')).join(', ') + '). Miss it and it goes back to box 1.</p></details>';
     return html;
   };
 
@@ -214,24 +205,24 @@
     d.cards.forEach((c) => { n[c.box || 1]++; });
     const t = d.topic && M.topic[d.topic];
     let html = C.subnav('study', 'cards') + C.crumbs([['Flashcards', 'cards'], [d.name]]);
-    html += C.head(d.subject ? C.stag(d.subject) + ' ' + esc(M.subject[d.subject].name) : 'Deck', esc(d.name), U.plural(d.cards.length, 'card') + ' · ' + due + ' due today' + (t ? ' · <a href="#t-' + t.gid + '">' + esc(t.name) + '</a>' : ''),
+    html += C.head(d.subject && M.subject[d.subject] ? esc(M.subject[d.subject].name) : '', esc(d.name), U.plural(d.cards.length, 'card') + ' · ' + due + ' due today' + (t ? ' · <a href="#t-' + t.gid + '">' + esc(t.name) + '</a>' : ''),
       d.source ? '<a class="btn alt" href="' + esc(d.source.url) + '" target="_blank" rel="noopener">' + C.icon('ext') + 'Open in ' + esc(d.source.kind) + '</a>' : '');
     const modes = [['leitner', 'Review due cards', 'Leitner: flip, then say if you knew it', 'cards', due], ['all', 'Flip through all', 'Browse every card, no box changes', 'swap', d.cards.length], ['type', 'Type the answer', 'Recall it exactly; it is checked for you', 'pen', null], ['mcq', 'Multiple choice', 'Pick the right answer from four', 'list', null], ['match', 'Match game', 'Pair terms with definitions against the clock', 'grid', null]];
     html += '<div class="mode-grid">' + modes.map((m) => {
       const off = !d.cards.length || (m[0] === 'leitner' && !due) || (m[0] === 'mcq' && d.cards.length < 4) || (m[0] === 'match' && d.cards.length < 3);
       return '<button type="button" class="mode" data-action="study" data-deck="' + d.id + '" data-mode="' + m[0] + '"' + (off ? ' disabled' : '') + '>' + C.icon(m[3]) + '<b>' + m[1] + (m[4] != null ? ' <span class="num muted">' + m[4] + '</span>' : '') + '</b><span class="muted small">' + m[2] + '</span></button>';
     }).join('') + '</div>';
+    html += '<div class="boxes-bar">' + [1, 2, 3, 4, 5].map((b) => '<span class="bb b' + b + '" style="flex-grow:' + Math.max(0.4, n[b]) + '" title="Box ' + b + ': ' + n[b] + '"><b class="num">' + n[b] + '</b></span>').join('') + '</div><p class="help">Boxes 1 to 5: new cards start on the left and move right as you learn them.</p>';
     html += '<label class="toggle"><input type="checkbox" data-action="deck-reverse" data-id="' + d.id + '"' + (d.reverse ? ' checked' : '') + '><span class="tg" aria-hidden="true"></span><span class="tg-t"><b>Show the definition first</b><span class="help">Answer with the term instead.</span></span></label>';
-    html += '<section class="card"><h2>Leitner boxes</h2><div class="boxes">' + [1, 2, 3, 4, 5].map((b) => '<div class="box-col"><span class="bx b' + b + '"></span><b class="num">' + n[b] + '</b><span class="muted small">Box ' + b + ' · ' + BOX_DAYS[b] + 'd</span></div>').join('') + '</div></section>';
 
-    html += '<section class="card"><div class="card-head"><h2>Cards</h2><div class="row-actions"><button type="button" class="btn alt sm" data-action="cards-import" data-deck="' + d.id + '">' + C.icon('upload') + 'Import more</button><button type="button" class="btn alt sm" data-action="deck-export" data-id="' + d.id + '">' + C.icon('download') + 'Export CSV</button></div></div>' +
+    html += '<details class="fold"><summary>Cards (' + d.cards.length + ')</summary><div class="fold-body"><div class="row-actions"><button type="button" class="btn alt sm" data-action="cards-import" data-deck="' + d.id + '">' + C.icon('upload') + 'Import more</button><button type="button" class="btn alt sm" data-action="deck-export" data-id="' + d.id + '">' + C.icon('download') + 'Export CSV</button></div></div>' +
       '<form id="cardForm" class="card-add" data-deck="' + d.id + '"><input name="f" required placeholder="Front (term or question)" aria-label="Front"><input name="b" required placeholder="Back (definition or answer)" aria-label="Back"><button type="submit" class="btn">' + C.icon('plus') + 'Add</button></form>' +
       (d.cards.length ? '<div class="table-wrap"><table class="tbl cards-tbl"><thead><tr><th>Front</th><th>Back</th><th class="num">Box</th><th class="num">Due</th><th></th></tr></thead><tbody>' + d.cards.map((c) =>
         '<tr><td><textarea class="cell" rows="1" data-card="' + c.id + '" data-deck="' + d.id + '" data-side="f" aria-label="Front">' + esc(c.f) + '</textarea></td><td><textarea class="cell" rows="1" data-card="' + c.id + '" data-deck="' + d.id + '" data-side="b" aria-label="Back">' + esc(c.b) + '</textarea></td>' +
         '<td class="num num">' + (c.box || 1) + '</td><td class="num num small">' + (isDue(c, U.today()) ? 'now' : esc(U.fmtShort(c.due))) + '</td>' +
-        '<td><button type="button" class="icon-btn" data-action="card-del" data-deck="' + d.id + '" data-id="' + c.id + '" aria-label="Delete card">' + C.icon('trash') + '</button></td></tr>').join('') + '</tbody></table></div>' : '<p class="muted">No cards yet. Add one above or import a set.</p>') + '</section>';
+        '<td><button type="button" class="icon-btn" data-action="card-del" data-deck="' + d.id + '" data-id="' + c.id + '" aria-label="Delete card">' + C.icon('trash') + '</button></td></tr>').join('') + '</tbody></table></div>' : '<p class="muted">No cards yet. Add one above or import a set.</p>') + '</div></details>';
 
-    html += '<section class="card"><h2>Deck settings</h2><div class="form-grid">' +
+    html += '<details class="fold"><summary>Deck settings</summary><div class="fold-body"><div class="form-grid">' +
       '<div class="field"><label for="dk-name">Name</label><input id="dk-name" data-deck-field="name" data-deck="' + d.id + '" value="' + esc(d.name) + '"></div>' +
       '<div class="field"><label for="dk-subj">Subject</label><select id="dk-subj" data-deck-field="subject" data-deck="' + d.id + '">' + subjectOptions(d.subject) + '</select></div>' +
       '<div class="field"><label for="dk-topic">Topic</label><select id="dk-topic" data-deck-field="topic" data-deck="' + d.id + '">' + topicOptions(d.subject, d.topic) + '</select></div></div>' +
