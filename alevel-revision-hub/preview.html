@@ -197,6 +197,7 @@ body.in-exam .page { grid-template-columns: minmax(0, 1fr); }
 .kicker, .eyebrow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12px; font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase; color: var(--subj); }
 .meta, .lede { color: var(--ink-2); font-size: 1.03rem; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; max-width: 70ch; }
 .doc-acts, .ph-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.doc-acts .btn { white-space: normal; max-width: 100%; text-align: left; height: auto; min-height: 36px; }
 .crumbs { display: flex; gap: 8px; flex-wrap: wrap; font-size: 0.86rem; font-weight: 700; color: var(--ink-3); margin-bottom: -10px; }
 .crumbs a { color: var(--ink-2); }
 .crumbs .sep { color: var(--line-2); }
@@ -1049,6 +1050,8 @@ body[data-route="study"] .foot { display: none; }
 
 /* ---------- Labs ---------- */
 .lab-group { display: flex; flex-direction: column; gap: 12px; }
+.lab-more-h { font-size: 1.05rem; font-weight: 900; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; padding-top: 14px; border-top: 2px dashed var(--line-2); }
+.lab-tbl tr.hl td { background: color-mix(in srgb, var(--subj) 18%, var(--surface)); font-weight: 900; }
 .lab-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 16px; }
 .lab-card { display: flex; gap: 14px; align-items: flex-start; padding: 18px; border: 2px solid var(--line); border-radius: 22px; box-shadow: 0 4px 0 var(--line); text-decoration: none !important; color: var(--ink); background: var(--surface); transition: transform 0.12s var(--ease), border-color 0.12s; }
 .lab-card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--subj) 50%, transparent); box-shadow: 0 4px 0 color-mix(in srgb, var(--subj) 40%, transparent); }
@@ -5128,7 +5131,10 @@ body[data-route="study"] .foot { display: none; }
     else if (area === 'labs') {
       const L = RH.labs, pages = [['labs', 'All labs']];
       x = sideLinks('Labs', pages, cur);
-      L.GROUPS.forEach(function (g) {
+      const gs = L.groups(), side = gs.mine.length ? gs.mine.slice() : gs.all;
+      const open = L.byId[cur.replace(/^lab-/, '')];
+      if (open && side.every((g) => g[0] !== L.subjectOf(open))) side.push(gs.all.find((g) => g[0] === L.subjectOf(open)));
+      side.forEach(function (g) {
         const list = L.defs.filter((d) => L.subjectOf(d) === g[0]);
         if (list.length) x.body += '<p class="label side-group">' + g[1] + '</p><nav class="side-nav" data-subj="' + g[0] + '">' + list.map((d) => '<a href="#lab-' + d.id + '"' + (cur === 'lab-' + d.id ? ' class="on" aria-current="page"' : '') + '>' + esc(d.name) + '</a>').join('') + '</nav>';
       });
@@ -5498,7 +5504,7 @@ body[data-route="study"] .foot { display: none; }
     // 3. Test yourself
     const labs = RH.labs ? RH.labs.defs.filter((d) => d.topics.indexOf(gid) !== -1) : [];
     const econLab = sub.id === 'economics';
-    let recall = labs.length ? '<p class="lab-try"><b>' + (econLab ? 'Diagram.' : 'Experiment.') + '</b> ' + (econLab ? 'Practise it in the ' : 'Try it in the ') + labs.map((d) => '<a href="#lab-' + d.id + '">' + esc(d.name) + (econLab ? ' diagram' : ' lab') + '</a>').join(' or the ') + (econLab ? ': shift the curves, watch the shaded areas change, then learn how to draw and evaluate it.' : ': change the variables and check the equations for yourself.') + '</p>' : '';
+    let recall = labs.length ? '<p class="lab-try"><b>' + (econLab ? 'Diagram.' : 'Experiment.') + '</b> ' + (econLab ? 'Practise it in the ' : 'Try it in the ') + labs.map((d) => '<a href="#lab-' + d.id + '">' + esc(d.name) + (econLab ? ' diagram' : ' lab') + '</a>').join(' or the ') + (econLab ? ': shift the curves, watch the shaded areas change, then learn how to draw and evaluate it.' : sub.id === 'physics' ? ': change the variables and check the equations for yourself.' : ': change the variables, take readings and see the ideas in action.') + '</p>' : '';
     recall += '<p><b>Blurt test.</b> Close your notes, write down everything you remember in 10 minutes, then compare it with the key points. <button type="button" class="btn alt sm" data-action="blurt" data-id="' + gid + '">Start</button></p>';
     recall += '<p><b>Flashcards.</b> ' + (decks.length ? 'Your decks for this lesson:' : 'Make cards for the things you keep forgetting.') + ' <button type="button" class="btn link" data-action="deck-new" data-topic="' + gid + '">New deck</button> · <button type="button" class="btn link" data-action="cards-import" data-topic="' + gid + '">Import from Quizlet</button></p>';
     if (decks.length) recall += '<ul class="deck-list">' + decks.map(RH.cards.deckRow).join('') + '</ul>';
@@ -8327,6 +8333,66 @@ body[data-route="study"] .foot { display: none; }
     return 'rgba(' + c(r) + ',' + c(g) + ',' + c(b) + ',' + (alpha == null ? 1 : alpha) + ')';
   };
 
+  // ---------- Scene helpers: friendly, PhET-style objects ----------
+  LB.shade = function (hex, amt) {
+    const m = /^#?([0-9a-f]{6})$/i.exec(String(hex).trim());
+    if (!m) return hex;
+    const n = parseInt(m[1], 16), f = (c) => Math.max(0, Math.min(255, Math.round(c + (amt > 0 ? (255 - c) * amt : c * amt))));
+    return '#' + [f(n >> 16), f((n >> 8) & 255), f(n & 255)].map((x) => x.toString(16).padStart(2, '0')).join('');
+  };
+  LB.rr = function (g, x, y, w, h, r) { g.beginPath(); if (g.roundRect) g.roundRect(x, y, w, h, r); else g.rect(x, y, w, h); };
+  LB.sky = function (g, W, H, th, top, bottom) {
+    const gr = g.createLinearGradient(0, 0, 0, H);
+    gr.addColorStop(0, th.dark ? '#1C2547' : (top || '#BEE3FF')); gr.addColorStop(1, th.dark ? '#2B355E' : (bottom || '#F3FAFF'));
+    g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  };
+  LB.cloud = function (g, x, y, s, th) {
+    g.fillStyle = th.dark ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.9)';
+    [[0, 0, 1], [0.9, -0.3, 0.8], [1.7, 0, 0.9], [0.8, 0.25, 0.9]].forEach((c) => { g.beginPath(); g.arc(x + c[0] * 22 * s, y + c[1] * 22 * s, c[2] * 20 * s, 0, 7); g.fill(); });
+  };
+  LB.grass = function (g, y, W, H, th) {
+    const gr = g.createLinearGradient(0, y, 0, H);
+    gr.addColorStop(0, th.dark ? '#2F6B3A' : '#7DD87F'); gr.addColorStop(1, th.dark ? '#1E4426' : '#4DB052');
+    g.fillStyle = gr; g.fillRect(0, y, W, H - y);
+    g.fillStyle = th.dark ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.18)';
+    for (let x = 0; x < W; x += 36) g.fillRect(x, y, 18, H - y);
+  };
+  LB.ball = function (g, x, y, r, col) {
+    const gr = g.createRadialGradient(x - r * 0.35, y - r * 0.35, r * 0.1, x, y, r);
+    gr.addColorStop(0, LB.shade(col, 0.55)); gr.addColorStop(0.55, col); gr.addColorStop(1, LB.shade(col, -0.35));
+    g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill();
+  };
+  LB.shadow = function (g, x, y, rx, alpha) { g.fillStyle = 'rgba(0,0,0,' + (alpha == null ? 0.18 : alpha) + ')'; g.beginPath(); g.ellipse(x, y, rx, rx * 0.28, 0, 0, 7); g.fill(); };
+  LB.box = function (g, x, y, w, h, col, r) {
+    const gr = g.createLinearGradient(0, y, 0, y + h);
+    gr.addColorStop(0, LB.shade(col, 0.25)); gr.addColorStop(1, LB.shade(col, -0.15));
+    LB.rr(g, x, y, w, h, r == null ? 8 : r); g.fillStyle = gr; g.fill();
+    g.strokeStyle = LB.shade(col, -0.35); g.lineWidth = 2; g.stroke();
+  };
+  LB.wheel = function (g, x, y, r, ang) {
+    g.fillStyle = '#2B2F3A'; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill();
+    g.fillStyle = '#9AA3B5'; g.beginPath(); g.arc(x, y, r * 0.55, 0, 7); g.fill();
+    g.strokeStyle = '#2B2F3A'; g.lineWidth = 2;
+    for (let i = 0; i < 4; i++) { const a = (ang || 0) + i * Math.PI / 2; g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(a) * r * 0.55, y + Math.sin(a) * r * 0.55); g.stroke(); }
+  };
+  // An analogue meter with a needle, for ammeters and voltmeters.
+  LB.dial = function (g, x, y, r, frac, label, value, col, th) {
+    g.fillStyle = th.dark ? '#232636' : '#FFFFFF'; g.strokeStyle = th.dark ? '#5C6380' : '#2B2F3A'; g.lineWidth = 3;
+    g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); g.stroke();
+    g.strokeStyle = th.ink3; g.lineWidth = 1.5;
+    for (let i = 0; i <= 10; i++) { const a = Math.PI * (1.15 + 0.7 * i / 10); g.beginPath(); g.moveTo(x + Math.cos(a) * r * 0.78, y + Math.sin(a) * r * 0.78); g.lineTo(x + Math.cos(a) * r * (i % 5 ? 0.68 : 0.62), y + Math.sin(a) * r * (i % 5 ? 0.68 : 0.62)); g.stroke(); }
+    const a = Math.PI * (1.15 + 0.7 * Math.max(0, Math.min(1, frac)));
+    g.strokeStyle = col; g.lineWidth = 3; g.lineCap = 'round'; g.beginPath(); g.moveTo(x, y + r * 0.1); g.lineTo(x + Math.cos(a) * r * 0.8, y + Math.sin(a) * r * 0.8); g.stroke(); g.lineCap = 'butt';
+    g.fillStyle = col; g.beginPath(); g.arc(x, y + r * 0.1, 4, 0, 7); g.fill();
+    LB.text(g, label, x, y + r * 0.45, { col: th.ink, size: 13, weight: 900, align: 'center' });
+    if (value) LB.text(g, value, x, y + r + 18, { col: col, size: 14, weight: 900, align: 'center' });
+  };
+  LB.glow = function (g, x, y, r, col, a) {
+    const gr = g.createRadialGradient(x, y, 0, x, y, r);
+    gr.addColorStop(0, col); gr.addColorStop(1, 'rgba(255,255,255,0)');
+    g.globalAlpha = a == null ? 1 : a; g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); g.globalAlpha = 1;
+  };
+
   // ---------- Drawing helpers ----------
   LB.arrow = function (g, x1, y1, x2, y2, col, w) {
     const a = Math.atan2(y2 - y1, x2 - x1), L = Math.hypot(x2 - x1, y2 - y1), hd = Math.min(10, L * 0.4);
@@ -8337,7 +8403,7 @@ body[data-route="study"] .foot { display: none; }
   };
   LB.text = function (g, s, x, y, o) {
     o = o || {};
-    g.font = (o.weight || 500) + ' ' + (o.size || 12) + 'px "Inter Tight", Inter, system-ui, sans-serif';
+    g.font = (o.weight || 700) + ' ' + (o.size || 12) + 'px Nunito, system-ui, sans-serif';
     g.fillStyle = o.col; g.textAlign = o.align || 'left'; g.textBaseline = o.base || 'alphabetic';
     g.fillText(s, x, y);
   };
@@ -8384,24 +8450,40 @@ body[data-route="study"] .foot { display: none; }
     items.forEach(function (it) {
       g.fillStyle = it[1]; g.fillRect(cx, y - 8, 14, 3);
       LB.text(g, it[0], cx + 19, y - 3, { col: th.ink2, size: 11, weight: 600 });
-      g.font = '600 11px "Inter Tight", Inter, system-ui, sans-serif';
+      g.font = '800 11px Nunito, system-ui, sans-serif';
       cx += 34 + g.measureText(it[0]).width;
     });
   };
 
   // ---------- Pages ----------
   const subjOf = (gid) => M.topic[gid];
-  LB.GROUPS = [['physics', 'Physics labs', 'Experiments built on the real equations. Change the variables, take readings and plot graphs, like the practicals in Paper 3.'], ['economics', 'Economics diagrams', 'Every diagram Edexcel expects you to draw, live. Shift the curves and watch prices, quantities and the shaded areas change, then read how to draw and evaluate it in the exam.']];
+  LB.GROUPS = [
+    ['physics', 'Physics labs', 'Experiments built on the real equations. Change the variables, take readings and plot graphs, like the practicals in Paper 3.'],
+    ['economics', 'Economics diagrams', 'Every diagram Edexcel expects you to draw, live. Shift the curves and watch prices, quantities and the shaded areas change, then read how to draw and evaluate it in the exam.'],
+    ['chemistry', 'Chemistry labs', 'Titrate an acid and draw its pH curve, or heat up a reaction and watch the collisions. Built around the AQA required practicals.'],
+    ['biology', 'Biology labs', 'Denature enzymes, soak potato in sucrose and watch predators chase prey. Record results and read values off your own graphs.'],
+    ['compsci', 'Computer Science labs', 'Step through sorting algorithms, flip switches through logic gates and build numbers bit by bit.'],
+    ['psychology', 'Psychology labs', 'Be the participant: take a real memory experiment, then run it on a simulated class.'],
+    ['geography', 'Geography labs', 'Send a storm over a drainage basin, and test your fieldwork data with Spearman’s rank.']
+  ];
   LB.subjectOf = (d) => d.subject || 'physics';
+  LB.HEADS = { physics: ['Experiments to try', 'The physics'], economics: ['Things to try', 'The economics'], chemistry: ['Experiments to try', 'The chemistry'], biology: ['Experiments to try', 'The biology'], compsci: ['Things to try', 'How it works'], psychology: ['Things to try', 'The psychology'], geography: ['Things to try', 'The geography'] };
+  // The user's own subjects first, then the rest.
+  LB.groups = function () {
+    const mine = LB.GROUPS.filter((g) => M.isMine(M.subject[g[0]] || { id: g[0] })), rest = LB.GROUPS.filter((g) => mine.indexOf(g) < 0);
+    return { mine: mine, rest: rest, all: mine.concat(rest) };
+  };
   const card = function (d) {
     const t = subjOf(d.topics[0]);
     return '<a class="lab-card" href="#lab-' + d.id + '" data-subj="' + LB.subjectOf(d) + '"><span class="lab-ic" aria-hidden="true">' + (d.icon || '') + '</span><span class="lab-ct"><b>' + esc(d.name) + '</b><span class="muted small">' + esc(d.blurb) + '</span>' + (t ? '<span class="small lab-topic">' + esc(M.lessonNum(RH.store.state, t) + ' ' + M.title(t.name)) + '</span>' : '') + '</span></a>';
   };
   V.labs = function () {
-    let html = V.docHead('Labs', 'Labs', 'Interactive physics experiments and economics diagrams. Move a slider and see the result straight away.');
-    LB.GROUPS.forEach(function (g) {
+    const gs = LB.groups();
+    let html = V.docHead('Labs', 'Labs', LB.defs.length + ' interactive experiments, simulations and diagrams. Move a slider and see the result straight away. Your subjects come first.');
+    gs.all.forEach(function (g, i) {
       const list = LB.defs.filter((d) => LB.subjectOf(d) === g[0]);
       if (!list.length) return;
+      if (i === gs.mine.length && gs.mine.length && gs.rest.length) html += '<h2 class="lab-more-h">Labs for other subjects</h2>';
       html += '<section class="lab-group" data-subj="' + g[0] + '" id="labs-' + g[0] + '"><div class="sec-head"><h2>' + g[1] + '</h2><span class="label">' + list.length + ' ' + (g[0] === 'economics' ? 'diagrams' : 'labs') + '</span></div><p class="muted">' + g[2] + '</p><div class="lab-cards">' + list.map(card).join('') + '</div></section>';
     });
     return html;
@@ -8430,9 +8512,10 @@ body[data-route="study"] .foot { display: none; }
       (d.actions || []).map((a) => '<button type="button" class="btn ' + (a.primary ? '' : 'alt ') + 'sm" data-lab-act="' + a.id + '">' + esc(a.label) + '</button>').join('') +
       (d.still ? '' : '<span class="lab-speed"><span class="small muted">Speed</span>' + C.seg([[0.25, '¼×'], [0.5, '½×'], [1, '1×'], [2, '2×']].concat(d.fast ? [[d.fast, d.fast + '×']] : []), cur ? cur.speed : 1, 'data-lab-speed="1"') + '</span>') + '</div>' +
       (d.graph ? '<div class="lab-graph"><canvas class="lab-gc" aria-label="Graph"></canvas></div>' : '') + '</div>' +
-      '<aside class="lab-panel"><h2>Variables</h2><div class="lab-ctrls">' + d.controls.map((c) => control(c, p)).join('') + '</div><h2>Readings</h2>' + (d.subject === 'economics' ? '' : '<p class="help">Green values are predicted by the equations; the others are measured in the simulation.</p>') + '<dl class="lab-read"></dl><div class="lab-extra"></div></aside></div>';
-    html += '<div class="lab-notes"><section><h2 class="h-rule">' + (econ ? 'Things to try' : 'Experiments to try') + '</h2><ol class="lab-tasks">' + d.tasks.map((x) => '<li>' + x + '</li>').join('') + '</ol></section>' +
-      '<section><h2 class="h-rule">' + (econ ? 'The economics' : 'The physics') + '</h2><div class="lab-theory">' + d.theory + '</div></section></div>';
+      '<aside class="lab-panel"><h2>Variables</h2><div class="lab-ctrls">' + d.controls.map((c) => control(c, p)).join('') + '</div><h2>Readings</h2>' + (d.help != null ? (d.help ? '<p class="help">' + d.help + '</p>' : '') : d.subject === 'economics' ? '' : '<p class="help">Green values are predicted by the equations; the others are measured in the simulation.</p>') + '<dl class="lab-read"></dl><div class="lab-extra"></div></aside></div>';
+    const heads = LB.HEADS[LB.subjectOf(d)] || LB.HEADS.physics;
+    html += '<div class="lab-notes"><section><h2 class="h-rule">' + heads[0] + '</h2><ol class="lab-tasks">' + d.tasks.map((x) => '<li>' + x + '</li>').join('') + '</ol></section>' +
+      '<section><h2 class="h-rule">' + heads[1] + '</h2><div class="lab-theory">' + d.theory + '</div></section></div>';
     if (d.exam) html += '<section class="lab-exam" data-subj="' + LB.subjectOf(d) + '"><h2 class="h-rule">In the exam</h2><div class="lab-exam-cols">' + d.exam.map((x) => '<div><p class="label">' + esc(x[0]) + '</p>' + (x[2] === 'ol' ? '<ol>' : '<ul>') + x[1].map((i) => '<li>' + i + '</li>').join('') + (x[2] === 'ol' ? '</ol>' : '</ul>') + '</div>').join('') + '</div></section>';
     return html;
   };
@@ -8496,6 +8579,7 @@ body[data-route="study"] .foot { display: none; }
       else if (b.dataset.labAct && inst.action) { inst.action(b.dataset.labAct, p); if (!cur.playing) { cur.playing = true; paintPlay(); } }
     });
     if (d.onCanvas) {
+      cv.style.cursor = 'pointer';
       const toWorld = (e) => { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
       cv.addEventListener('pointerdown', (e) => { const q = toWorld(e); if (inst.pointer && inst.pointer('down', q[0], q[1], p)) { cv.setPointerCapture(e.pointerId); e.preventDefault(); } });
       cv.addEventListener('pointermove', (e) => { const q = toWorld(e); if (inst.pointer) inst.pointer('move', q[0], q[1], p); });
@@ -8568,7 +8652,7 @@ body[data-route="study"] .foot { display: none; }
     theory: '<p>With no air resistance the horizontal velocity is constant and the vertical acceleration is −g:</p><p class="eq">x = u cos θ · t &nbsp;&nbsp; y = h + u sin θ · t − ½ g t²</p><p class="eq">R = u² sin 2θ / g &nbsp;&nbsp; H = u² sin² θ / 2g &nbsp;&nbsp; T = 2u sin θ / g</p><p>(The range and flight-time formulas are for launch and landing at the same height.) With air resistance the drag force F = ½ ρ C<sub>d</sub> A v² acts against the velocity, so the ball loses horizontal speed and lands shorter and steeper. The simulation steps these equations 500 times a second.</p>',
     create: function (p) {
       const S = { shots: [], sc: 0 };
-      const cols = (th) => [th.primary, th.accent, th.green, th.purple, th.warn];
+      const cols = () => ['#F97316', '#8B5CF6', '#EC4899', '#0EA5E9', '#EAB308'];
       function fire() {
         const a = p.angle * Math.PI / 180;
         S.shots.push({ x: 0, y: p.h0, vx: p.v * Math.cos(a), vy: p.v * Math.sin(a), t: 0, maxY: p.h0, pts: [[0, p.h0, p.v * Math.sin(a), 0]], done: false, rec: 0, v0: p.v, ang: p.angle, drag: p.drag, ball: p.ball, g: p.g, h0: p.h0 });
@@ -8606,59 +8690,74 @@ body[data-route="study"] .foot { display: none; }
           const tr = theory();
           let X = Math.max(tr.R, p.target + 4, 10), Y = Math.max(tr.H, p.h0, 4);
           S.shots.forEach((s) => { X = Math.max(X, s.x); Y = Math.max(Y, s.maxY); });
-          const want = Math.min((W - 80) / (X * 1.06), (H - 60) / (Y * 1.15));
+          const want = Math.min((W - 80) / (X * 1.06), (H - 70) / (Y * 1.2));
           S.sc = S.sc ? S.sc + (want - S.sc) * 0.1 : want;
-          const sc = S.sc, ox = 52, oy = H - 34, sx = (x) => ox + x * sc, sy = (y) => oy - y * sc;
-          g.fillStyle = th.bg2; g.fillRect(0, oy, W, H - oy);
-          const step = LB.nice(Math.max((W - ox) / sc, (oy) / sc), 8);
-          g.strokeStyle = th.line; g.lineWidth = 1; g.beginPath();
+          const sc = S.sc, ox = 56, oy = H - 40, sx = (x) => ox + x * sc, sy = (y) => oy - y * sc;
+          // Scene: sky, clouds drifting, grass.
+          LB.sky(g, W, oy, th);
+          S.cl = (S.cl || 0) + 0.15;
+          [[0.15, 0.18, 1], [0.55, 0.1, 0.8], [0.82, 0.25, 1.1]].forEach((c) => LB.cloud(g, ((c[0] * W + S.cl * c[2]) % (W + 120)) - 60, c[1] * H, c[2], th));
+          LB.grass(g, oy, W, H, th);
+          const step = LB.nice(Math.max((W - ox) / sc, oy / sc), 8);
+          g.strokeStyle = th.dark ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.75)'; g.lineWidth = 1; g.beginPath();
           for (let x = 0; sx(x) < W; x += step) { g.moveTo(sx(x), oy); g.lineTo(sx(x), 0); }
           for (let y = step; sy(y) > 0; y += step) { g.moveTo(ox, sy(y)); g.lineTo(W, sy(y)); }
           g.stroke();
-          for (let x = 0; sx(x) < W - 10; x += step) T(g, x + ' m', sx(x), oy + 18, { col: th.ink3, size: 11, align: 'center' });
-          for (let y = step; sy(y) > 12; y += step) T(g, y + ' m', ox - 6, sy(y) + 4, { col: th.ink3, size: 11, align: 'right' });
-          g.strokeStyle = th.ink2; g.lineWidth = 2; g.beginPath(); g.moveTo(0, oy); g.lineTo(W, oy); g.stroke();
-          // Target
-          const tx = sx(p.target);
-          g.strokeStyle = th.ink; g.lineWidth = 2; g.beginPath(); g.moveTo(tx, oy); g.lineTo(tx, oy - 34); g.stroke();
-          g.fillStyle = th.bad; g.beginPath(); g.moveTo(tx, oy - 34); g.lineTo(tx + 20, oy - 28); g.lineTo(tx, oy - 22); g.fill();
-          g.fillStyle = th.bad; g.globalAlpha = 0.25; g.fillRect(sx(p.target - 1), oy - 3, 2 * sc, 6); g.globalAlpha = 1;
-          // Tower and launcher
-          if (p.h0 > 0) { g.fillStyle = th.bg3; g.fillRect(ox - 9, sy(p.h0), 18, oy - sy(p.h0)); g.strokeStyle = th.ink3; g.lineWidth = 1; g.strokeRect(ox - 9, sy(p.h0), 18, oy - sy(p.h0)); }
-          const a = p.angle * Math.PI / 180;
-          g.strokeStyle = th.ink; g.lineWidth = 8; g.lineCap = 'round'; g.beginPath(); g.moveTo(ox, sy(p.h0)); g.lineTo(ox + Math.cos(a) * 30, sy(p.h0) - Math.sin(a) * 30); g.stroke(); g.lineCap = 'butt';
-          g.fillStyle = th.ink2; g.beginPath(); g.arc(ox, sy(p.h0), 9, 0, 7); g.fill();
-          // Prediction without air resistance
-          g.setLineDash([5, 6]); g.strokeStyle = th.ink3; g.lineWidth = 1.2; g.beginPath();
+          for (let x = 0; sx(x) < W - 10; x += step) T(g, x + ' m', sx(x), oy + 22, { col: th.dark ? '#d8f5d9' : '#1d5b22', size: 11, align: 'center', weight: 800 });
+          for (let y = step; sy(y) > 12; y += step) T(g, y + ' m', ox - 8, sy(y) + 4, { col: th.ink2, size: 11, align: 'right', weight: 800 });
+          // Target: an archery boss on a stand.
+          const tx = sx(p.target), tyy = oy - 30;
+          g.strokeStyle = '#8B5A2B'; g.lineWidth = 4; g.beginPath(); g.moveTo(tx - 10, oy); g.lineTo(tx, tyy); g.lineTo(tx + 10, oy); g.stroke();
+          ['#FFFFFF', '#1F2330', '#3B82F6', '#EF4444', '#FACC15'].forEach((c, i) => { g.fillStyle = c; g.beginPath(); g.ellipse(tx, tyy, 9 - i * 1.6, 20 - i * 3.6, 0, 0, 7); g.fill(); });
+          LB.shadow(g, tx, oy + 2, 16);
+          // Launch tower and cannon.
+          if (p.h0 > 0) { LB.box(g, ox - 14, sy(p.h0), 28, oy - sy(p.h0), '#C08552', 4); g.strokeStyle = 'rgba(0,0,0,0.12)'; for (let yy = sy(p.h0) + 10; yy < oy; yy += 12) { g.beginPath(); g.moveTo(ox - 14, yy); g.lineTo(ox + 14, yy); g.stroke(); } }
+          const a = p.angle * Math.PI / 180, by = sy(p.h0);
+          g.save(); g.translate(ox, by - 10); g.rotate(-a);
+          const bg = g.createLinearGradient(0, -9, 0, 9); bg.addColorStop(0, '#6B7280'); bg.addColorStop(0.5, '#D1D5DB'); bg.addColorStop(1, '#374151');
+          LB.rr(g, -6, -9, 46, 18, 7); g.fillStyle = bg; g.fill();
+          g.fillStyle = '#1F2937'; g.fillRect(38, -10, 6, 20);
+          g.restore();
+          LB.wheel(g, ox, by - 6, 11, (S.cl || 0) * 0.02);
+          // Prediction without air resistance.
+          g.setLineDash([2, 7]); g.lineCap = 'round'; g.strokeStyle = th.dark ? 'rgba(255,255,255,0.5)' : 'rgba(31,35,48,0.35)'; g.lineWidth = 3; g.beginPath();
           for (let i = 0; i <= 60; i++) { const t = tr.T * i / 60, x = tr.vx * t, y = p.h0 + tr.vy * t - 0.5 * p.g * t * t; if (i) g.lineTo(sx(x), sy(y)); else g.moveTo(sx(x), sy(y)); }
-          g.stroke(); g.setLineDash([]);
-          // Shots
+          g.stroke(); g.setLineDash([]); g.lineCap = 'butt';
+          // Shots.
           const C = cols(th);
           S.shots.forEach(function (s, i) {
             const latest = i === S.shots.length - 1, col = C[i % C.length];
-            g.globalAlpha = latest ? 1 : 0.45; g.strokeStyle = col; g.lineWidth = latest ? 3 : 2;
-            g.beginPath(); s.pts.forEach((q, j) => { if (j) g.lineTo(sx(q[0]), sy(q[1])); else g.moveTo(sx(q[0]), sy(q[1])); }); g.lineTo(sx(s.x), sy(s.y)); g.stroke();
-            if (s.done) { g.fillStyle = col; g.fillRect(sx(s.x) - 1, oy - 8, 2, 8); }
+            g.globalAlpha = latest ? 1 : 0.5; g.fillStyle = col;
+            s.pts.forEach((q, j) => { if (j % 3 === 0) { g.beginPath(); g.arc(sx(q[0]), sy(q[1]), latest ? 3 : 2.2, 0, 7); g.fill(); } });
             g.globalAlpha = 1;
+            if (s.done) { g.fillStyle = col; g.beginPath(); g.arc(sx(s.x), oy, 4, 0, 7); g.fill(); }
             if (!s.done || latest) {
-              g.fillStyle = col; g.beginPath(); g.arc(sx(s.x), sy(s.y), 7, 0, 7); g.fill();
+              LB.shadow(g, sx(s.x), oy + 2, 10, 0.22 * Math.max(0.2, 1 - s.y / (Y * 1.2)));
+              LB.ball(g, sx(s.x), sy(s.y) - (s.done ? 8 : 0), 8, col);
               if (p.vec && !s.done) {
-                const k = 2.6;
-                LB.arrow(g, sx(s.x), sy(s.y), sx(s.x) + s.vx * k, sy(s.y), th.primary, 2);
-                LB.arrow(g, sx(s.x), sy(s.y), sx(s.x), sy(s.y) - s.vy * k, th.bad, 2);
-                LB.arrow(g, sx(s.x), sy(s.y), sx(s.x) + s.vx * k, sy(s.y) - s.vy * k, th.ink, 1.5);
+                const k = 2.6, x0 = sx(s.x), y0 = sy(s.y);
+                LB.arrow(g, x0, y0, x0 + s.vx * k, y0, '#2563EB', 3);
+                LB.arrow(g, x0, y0, x0, y0 - s.vy * k, '#DC2626', 3);
+                LB.arrow(g, x0, y0, x0 + s.vx * k, y0 - s.vy * k, th.ink, 2);
               }
             }
             if (latest && s.done) {
               const top = s.pts.reduce((m, q) => q[1] > m[1] ? q : m, s.pts[0]);
-              g.setLineDash([3, 4]); g.strokeStyle = th.ink3; g.lineWidth = 1; g.beginPath(); g.moveTo(sx(top[0]), sy(top[1])); g.lineTo(sx(top[0]), oy); g.stroke(); g.setLineDash([]);
-              T(g, 'max ' + f(s.maxY) + ' m', sx(top[0]) + 6, sy(top[1]) - 8, { col: th.ink2, size: 12, weight: 600 });
-              T(g, f(s.x) + ' m', sx(s.x), oy - 12, { col: col, size: 12, weight: 700, align: 'center' });
+              g.setLineDash([4, 5]); g.strokeStyle = th.ink3; g.lineWidth = 1.5; g.beginPath(); g.moveTo(sx(top[0]), sy(top[1])); g.lineTo(sx(top[0]), oy); g.stroke(); g.setLineDash([]);
+              const lab = 'max ' + f(s.maxY) + ' m'; g.font = '900 12px Nunito, system-ui'; const wl = g.measureText(lab).width + 16;
+              LB.rr(g, sx(top[0]) + 8, sy(top[1]) - 26, wl, 22, 11); g.fillStyle = th.bg; g.fill();
+              T(g, lab, sx(top[0]) + 16, sy(top[1]) - 11, { col: th.ink, size: 12, weight: 900 });
+              const lr = f(s.x) + ' m'; const wr = g.measureText(lr).width + 16;
+              LB.rr(g, sx(s.x) - wr / 2, oy - 46, wr, 22, 11); g.fillStyle = col; g.fill();
+              T(g, lr, sx(s.x), oy - 31, { col: '#fff', size: 12, weight: 900, align: 'center' });
             }
           });
-          if (p.vec) LB.legend(g, th, W - 240, 20, [['vₓ', th.primary], ['v_y', th.bad], ['v', th.ink]]);
+          if (p.vec) LB.legend(g, th, W - 230, 22, [['vₓ', '#2563EB'], ['v_y', '#DC2626'], ['v', th.ink]]);
           const last = S.shots[S.shots.length - 1];
-          if (last && last.done && Math.abs(last.x - p.target) <= 1) T(g, 'Hit the target!', tx, oy - 44, { col: th.ok, size: 14, weight: 700, align: 'center' });
+          if (last && last.done && Math.abs(last.x - p.target) <= 1) {
+            LB.rr(g, W / 2 - 80, 14, 160, 34, 17); g.fillStyle = '#22C55E'; g.fill();
+            T(g, '🎯 Bullseye!', W / 2, 37, { col: '#fff', size: 16, weight: 900, align: 'center' });
+          }
         },
         graph: function (g, W, H, p, th) {
           const s = S.shots[S.shots.length - 1], w = W / 2;
@@ -8748,27 +8847,27 @@ body[data-route="study"] .foot { display: none; }
         },
         draw: function (g, W, H, p, th) {
           const e = energy(), cx = W * 0.32;
-          g.fillStyle = th.bg2; g.fillRect(cx - 120, 0, 240, 14);
-          g.strokeStyle = th.ink3; g.lineWidth = 1; g.beginPath();
-          for (let x = cx - 116; x < cx + 120; x += 10) { g.moveTo(x, 14); g.lineTo(x + 8, 4); }
-          g.stroke();
+          LB.sky(g, W, H, th, '#F3EEFF', '#FFFFFF');
+          LB.box(g, cx - 130, -6, 260, 22, '#B7794A', 6);
           if (isP()) {
             const sc = (H - 70) / 2.55, px = cx + Math.sin(S.x) * p.L * sc, py = 14 + Math.cos(S.x) * p.L * sc;
             g.setLineDash([4, 5]); g.strokeStyle = th.ink3; g.beginPath(); g.moveTo(cx, 14); g.lineTo(cx, 14 + p.L * sc + 20); g.stroke(); g.setLineDash([]);
             g.strokeStyle = th.ink3; g.lineWidth = 1; g.beginPath(); g.arc(cx, 14, Math.min(60, p.L * sc * 0.4), Math.PI / 2, Math.PI / 2 - S.x, S.x > 0); g.stroke();
-            g.strokeStyle = th.ink; g.lineWidth = 2; g.beginPath(); g.moveTo(cx, 14); g.lineTo(px, py); g.stroke();
-            g.fillStyle = th.primary; g.beginPath(); g.arc(px, py, 9 + 9 * Math.cbrt(p.m), 0, 7); g.fill();
+            g.strokeStyle = th.dark ? '#CBD5E1' : '#475569'; g.lineWidth = 2.5; g.beginPath(); g.moveTo(cx, 14); g.lineTo(px, py); g.stroke();
+            g.fillStyle = '#334155'; g.beginPath(); g.arc(cx, 14, 5, 0, 7); g.fill();
+            LB.shadow(g, px, H - 18, 14 + 8 * Math.cbrt(p.m), 0.12);
+            LB.ball(g, px, py, 10 + 10 * Math.cbrt(p.m), '#8B5CF6');
             T(g, 'θ = ' + f(S.x * 180 / Math.PI, 1) + '°', cx + 10, 40 + Math.min(60, p.L * sc * 0.4), { col: th.ink2, size: 12, weight: 600 });
           } else {
             const sc = (H * 0.32) / 0.3, eq = H * 0.52;
             let topY = 14;
             if (p.drive) { const wy = 26, ang = 2 * Math.PI * p.fd * S.t; g.strokeStyle = th.ink3; g.beginPath(); g.arc(cx + 70, wy, 10, 0, 7); g.stroke(); g.fillStyle = th.accent; g.beginPath(); g.arc(cx + 70 + Math.cos(ang) * 10, wy + Math.sin(ang) * 10, 3, 0, 7); g.fill(); T(g, 'driver ' + f(p.fd) + ' Hz', cx + 86, wy + 4, { col: th.ink3, size: 11 }); }
             const my = eq + S.x * sc, bh = 22 + 16 * Math.cbrt(p.m), coils = 14;
-            g.strokeStyle = th.ink; g.lineWidth = 1.6; g.beginPath(); g.moveTo(cx, topY);
+            g.strokeStyle = th.dark ? '#CBD5E1' : '#64748B'; g.lineWidth = 3.2; g.lineJoin = 'round'; g.beginPath(); g.moveTo(cx, topY);
             const len = my - topY - 10;
             for (let i = 0; i <= coils * 2; i++) g.lineTo(cx + (i === 0 || i === coils * 2 ? 0 : (i % 2 ? 14 : -14)), topY + 10 + len * i / (coils * 2));
             g.lineTo(cx, my); g.stroke();
-            g.fillStyle = th.primary; g.fillRect(cx - 28, my, 56, bh);
+            LB.box(g, cx - 30, my, 60, bh, '#8B5CF6', 10);
             T(g, f(p.m) + ' kg', cx, my + bh / 2 + 4, { col: '#fff', size: 12, weight: 700, align: 'center' });
             g.setLineDash([4, 5]); g.strokeStyle = th.ink3; g.beginPath(); g.moveTo(cx - 70, eq); g.lineTo(cx + 70, eq); g.stroke(); g.setLineDash([]);
             T(g, 'equilibrium', cx - 74, eq - 5, { col: th.ink3, size: 11, align: 'right' });
@@ -8782,10 +8881,10 @@ body[data-route="study"] .foot { display: none; }
           const E = e.ke + e.pe, bx = W * 0.68, bw = 44, top = 40, base = H - 40;
           if (S.E0 == null || S.t < 0.02) S.E0 = Math.max(E, 1e-9);
           const scale = (base - top) / Math.max(S.E0 * 1.1, E * 1.1, 1e-9);
-          [['KE', e.ke, th.accent], ['PE', e.pe, th.primary], ['Total', E, th.ink2]].forEach(function (q, i) {
+          [['KE', e.ke, '#F97316'], ['PE', e.pe, '#8B5CF6'], ['Total', E, '#22C55E']].forEach(function (q, i) {
             const x = bx + i * (bw + 18), hgt = q[1] * scale;
-            g.fillStyle = th.bg2; g.fillRect(x, top, bw, base - top);
-            g.fillStyle = q[2]; g.fillRect(x, base - hgt, bw, hgt);
+            LB.rr(g, x, top, bw, base - top, 12); g.fillStyle = th.dark ? 'rgba(255,255,255,0.06)' : 'rgba(31,35,48,0.06)'; g.fill();
+            if (hgt > 1) { LB.rr(g, x, base - hgt, bw, hgt, Math.min(12, hgt / 2)); g.fillStyle = q[2]; g.fill(); }
             T(g, q[0], x + bw / 2, base + 16, { col: th.ink2, size: 12, weight: 600, align: 'center' });
             T(g, f(q[1] * 1000, 1) + ' mJ', x + bw / 2, top - 8, { col: th.ink3, size: 11, align: 'center' });
           });
@@ -8855,8 +8954,9 @@ body[data-route="study"] .foot { display: none; }
         action: function (id) { if (id === 'clear') S.pts = []; if (id === 'rec') { const I = cur(); S.pts.push([meter(I), meter(I * p.R)]); } },
         step: function (dt) { S.phase += dt * cur() * 40; },
         draw: function (g, W, H, p, th) {
-          const I = cur(), V = I * p.R, x0 = W * 0.2, x1 = W * 0.8, y0 = 60, y1 = H - 46, ym = (y0 + y1) / 2;
-          g.strokeStyle = th.ink; g.lineWidth = 2;
+          const I = cur(), V = I * p.R, x0 = W * 0.24, x1 = W * 0.8, y0 = 70, y1 = H - 46, ym = (y0 + y1) / 2;
+          LB.sky(g, W, H, th, '#FFF7ED', '#FFFFFF');
+          g.strokeStyle = th.dark ? '#94A3B8' : '#334155'; g.lineWidth = 4; g.lineJoin = 'round'; g.lineCap = 'round';
           // Wires
           g.beginPath(); g.moveTo(x0, ym - 30); g.lineTo(x0, y0); g.lineTo(x1, y0); g.lineTo(x1, ym - 28); g.moveTo(x1, ym + 28); g.lineTo(x1, y1); g.lineTo(x0, y1); g.lineTo(x0, ym + 46); g.stroke();
           // Cell with internal resistance in a dashed box
@@ -8867,30 +8967,26 @@ body[data-route="study"] .foot { display: none; }
           T(g, 'ε' + (p.hide ? '' : ' = ' + f(p.emf, 1) + ' V'), x0 - 48, ym - 22, { col: th.ink2, size: 12, align: 'right', weight: 600 });
           T(g, 'r' + (p.hide ? '' : ' = ' + f(p.r, 1) + ' Ω'), x0 - 48, ym + 22, { col: th.ink2, size: 12, align: 'right', weight: 600 });
           // Load resistor (variable)
-          g.fillStyle = th.bg; g.fillRect(x1 - 12, ym - 28, 24, 56); g.strokeRect(x1 - 12, ym - 28, 24, 56);
+          LB.box(g, x1 - 13, ym - 30, 26, 60, '#F59E0B', 6);
           LB.arrow(g, x1 - 26, ym + 24, x1 + 24, ym - 24, th.ink, 1.5);
           T(g, 'R = ' + f(p.R, 1) + ' Ω', x1 + 30, ym + 4, { col: th.ink, size: 13, weight: 700 });
           // Ammeter
           const ax = (x0 + x1) / 2;
-          g.fillStyle = th.bg; g.beginPath(); g.arc(ax, y0, 17, 0, 7); g.fill(); g.strokeStyle = th.ink; g.stroke();
-          T(g, 'A', ax, y0 + 5, { col: th.ink, size: 14, weight: 700, align: 'center' });
-          T(g, f(I, 2) + ' A', ax, y0 - 26, { col: th.primary, size: 15, weight: 700, align: 'center' });
+          LB.dial(g, ax, y0, 30, I / (p.emf / Math.max(0.2 + p.r, 0.2)), 'A', f(I, 2) + ' A', '#EF4444', th);
           // Voltmeter across the terminals
           const vx = x0 - 110;
           g.strokeStyle = th.ink3; g.lineWidth = 1.5; g.beginPath(); g.moveTo(x0, y0 + 0.01); g.lineTo(vx, y0); g.lineTo(vx, ym - 17); g.moveTo(vx, ym + 17); g.lineTo(vx, y1); g.lineTo(x0, y1); g.stroke();
-          g.fillStyle = th.bg; g.beginPath(); g.arc(vx, ym, 17, 0, 7); g.fill(); g.strokeStyle = th.ink; g.lineWidth = 2; g.stroke();
-          T(g, 'V', vx, ym + 5, { col: th.ink, size: 14, weight: 700, align: 'center' });
-          T(g, f(V, 2) + ' V', vx - 24, ym + 5, { col: th.bad, size: 15, weight: 700, align: 'right' });
+          LB.dial(g, vx, ym, 30, V / p.emf, 'V', f(V, 2) + ' V', '#2563EB', th);
           // Moving charge (conventional current, clockwise from +)
           const path = [[x0, ym - 30], [x0, y0], [x1, y0], [x1, y1], [x0, y1], [x0, ym + 46]];
           const segs = [], total = path.slice(1).reduce((a, q, i) => { const L = Math.hypot(q[0] - path[i][0], q[1] - path[i][1]); segs.push(L); return a + L; }, 0);
-          g.fillStyle = th.accent;
+          g.fillStyle = '#FACC15';
           for (let dpos = S.phase % 26; dpos < total; dpos += 26) {
             let d = dpos, i = 0;
             while (i < segs.length && d > segs[i]) { d -= segs[i]; i++; }
             if (i >= segs.length) break;
             const a = path[i], b = path[i + 1], t = d / segs[i];
-            g.beginPath(); g.arc(a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, 3, 0, 7); g.fill();
+            const cxp = a[0] + (b[0] - a[0]) * t, cyp = a[1] + (b[1] - a[1]) * t; LB.glow(g, cxp, cyp, 9, 'rgba(250,204,21,0.8)', 0.7); g.fillStyle = '#F59E0B'; g.beginPath(); g.arc(cxp, cyp, 3.5, 0, 7); g.fill();
           }
         },
         graph: function (g, W, H, p, th) {
@@ -9148,14 +9244,19 @@ body[data-route="study"] .foot { display: none; }
           if (S.hist.length > 900) S.hist.shift();
         },
         draw: function (g, W, H, p, th) {
-          const sc = (W - 40) / 10, ox = 20, ty = H * 0.62, sx = (x) => ox + x * sc;
-          g.fillStyle = th.bg2; g.fillRect(0, ty, W, 10); g.strokeStyle = th.ink3; g.lineWidth = 1; g.beginPath(); g.moveTo(0, ty); g.lineTo(W, ty); g.stroke();
+          const sc = (W - 40) / 10, ox = 20, ty = H * 0.66, sx = (x) => ox + x * sc;
+          LB.sky(g, W, ty, th, '#E0F2FE', '#F8FAFC');
+          const tg = g.createLinearGradient(0, ty, 0, ty + 14); tg.addColorStop(0, '#94A3B8'); tg.addColorStop(1, '#475569');
+          g.fillStyle = tg; g.fillRect(0, ty, W, 14); g.fillStyle = th.dark ? '#1B1D29' : '#F1F5F9'; g.fillRect(0, ty + 14, W, H - ty - 14);
+          g.strokeStyle = th.ink3; g.lineWidth = 1; g.beginPath();
           for (let x = 0; x <= 10; x++) { T(g, x + ' m', sx(x), ty + 26, { col: th.ink3, size: 10, align: 'center' }); g.beginPath(); g.moveTo(sx(x), ty); g.lineTo(sx(x), ty + 6); g.stroke(); }
-          [[S.x1, p.m1, S.v1, th.primary, 'A'], [S.x2, p.m2, S.v2, th.accent, 'B']].forEach(function (c) {
-            const w = wid(c[1]) * sc, hgt = 26 + 14 * Math.cbrt(c[1]), x = sx(c[0]);
-            g.fillStyle = c[3]; g.fillRect(x - w / 2, ty - hgt - 8, w, hgt);
-            g.fillStyle = th.ink; [x - w / 3, x + w / 3].forEach((wx) => { g.beginPath(); g.arc(wx, ty - 5, 5, 0, 7); g.fill(); });
-            T(g, c[4] + ' · ' + f(c[1], 1) + ' kg', x, ty - hgt / 2 - 4, { col: '#fff', size: 12, weight: 700, align: 'center' });
+          [[S.x1, p.m1, S.v1, '#8B5CF6', 'A'], [S.x2, p.m2, S.v2, '#F97316', 'B']].forEach(function (c) {
+            const w = wid(c[1]) * sc, hgt = 30 + 16 * Math.cbrt(c[1]), x = sx(c[0]);
+            LB.shadow(g, x, ty + 2, w * 0.55, 0.15);
+            LB.box(g, x - w / 2, ty - hgt - 10, w, hgt, c[3], 10);
+            [x - w / 3, x + w / 3].forEach((wx) => LB.wheel(g, wx, ty - 7, 8, c[0] * 3));
+            if (Math.abs(c[2]) > 0.5) { g.strokeStyle = LB.shade(c[3], 0.4); g.lineWidth = 3; for (let k = 0; k < 3; k++) { const yy = ty - hgt + k * 10, xs = x - Math.sign(c[2]) * (w / 2 + 6 + k * 4); g.beginPath(); g.moveTo(xs, yy); g.lineTo(xs - Math.sign(c[2]) * 16, yy); g.stroke(); } }
+            T(g, c[4] + ' · ' + f(c[1], 1) + ' kg', x, ty - hgt / 2 - 6, { col: '#fff', size: 13, weight: 900, align: 'center' });
             if (Math.abs(c[2]) > 0.01) LB.arrow(g, x, ty - hgt - 22, x + c[2] * 18, ty - hgt - 22, c[3], 3);
             T(g, f(c[2], 2) + ' m/s', x, ty - hgt - 32, { col: th.ink, size: 12, weight: 600, align: 'center' });
           });
@@ -9238,7 +9339,7 @@ body[data-route="study"] .foot { display: none; }
           T(g, 'metal', G.px - 1, G.bot + 16, { col: th.ink2, size: 11, align: 'center', weight: 600 });
           T(g, 'collector', G.cx + 3, G.bot + 16, { col: th.ink2, size: 11, align: 'center', weight: 600 });
           // Lamp
-          g.fillStyle = col; g.beginPath(); g.arc(34, 30, 14, 0, 7); g.fill(); g.strokeStyle = th.ink3; g.stroke();
+          LB.glow(g, 34, 30, 46, LB.waveColour(p.lam, 0.7), 0.4 + 0.6 * p.int / 100); g.fillStyle = col; g.beginPath(); g.arc(34, 30, 14, 0, 7); g.fill(); g.strokeStyle = th.ink3; g.stroke();
           T(g, p.lam < 380 ? 'ultraviolet' : p.lam > 750 ? 'infrared' : 'visible', 54, 34, { col: th.ink2, size: 11, weight: 600 });
           S.ph.forEach(function (q) {
             const x = 40 + (G.px - 46) * q.t, y = 30 + (q.y - 30) * q.t, ang = Math.atan2(q.y - 30, G.px - 46);
@@ -9246,8 +9347,7 @@ body[data-route="study"] .foot { display: none; }
             for (let i = -10; i <= 10; i += 2) { const px = x + Math.cos(ang) * i - Math.sin(ang) * Math.sin(i * 0.8) * 3, py = y + Math.sin(ang) * i + Math.cos(ang) * Math.sin(i * 0.8) * 3; if (i === -10) g.moveTo(px, py); else g.lineTo(px, py); }
             g.stroke();
           });
-          g.fillStyle = th.primary;
-          S.el.forEach((e) => { g.beginPath(); g.arc(e.x, e.y, 3.5, 0, 7); g.fill(); });
+          S.el.forEach((e) => LB.ball(g, e.x, e.y, 4.5, '#3B82F6'));
           // Circuit with battery and ammeter
           const by = H - 18;
           g.strokeStyle = th.ink; g.lineWidth = 1.5; g.beginPath(); g.moveTo(G.px - 1, G.bot); g.lineTo(G.px - 1, by); g.lineTo(G.cx + 3, by); g.lineTo(G.cx + 3, G.bot); g.stroke();
@@ -9308,8 +9408,9 @@ body[data-route="study"] .foot { display: none; }
           const cols = Math.ceil(Math.sqrt(S.n * W / H)), rows = Math.ceil(S.n / cols), cw = (W - 20) / cols, ch = (H - 20) / rows, r = Math.max(1.5, Math.min(cw, ch) * 0.36);
           for (let i = 0; i < S.n; i++) {
             const x = 10 + (i % cols + 0.5) * cw, y = 10 + (Math.floor(i / cols) + 0.5) * ch, d = S.dead[i];
-            if (!d) g.fillStyle = th.purple; else if (S.t - d < 0.35) g.fillStyle = th.warn; else g.fillStyle = th.bg3;
-            g.beginPath(); g.arc(x, y, d && S.t - d < 0.35 ? r * 1.4 : r, 0, 7); g.fill();
+            if (!d) { if (r > 3) LB.ball(g, x, y, r, '#8B5CF6'); else { g.fillStyle = '#8B5CF6'; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); } }
+            else if (S.t - d < 0.35) { LB.glow(g, x, y, r * 3, 'rgba(250,204,21,0.9)'); g.fillStyle = '#F59E0B'; g.beginPath(); g.arc(x, y, r * 1.2, 0, 7); g.fill(); }
+            else { g.fillStyle = th.dark ? '#3A3F55' : '#D9DCE6'; g.beginPath(); g.arc(x, y, r * 0.7, 0, 7); g.fill(); }
           }
         },
         graph: function (g, W, H, p, th) {
@@ -9468,7 +9569,7 @@ body[data-route="study"] .foot { display: none; }
   // The colour key sits in a row under the x-axis, clear of the curves.
   ED.key = function (F, items) {
     const g = F.g; let y = F.Y0 + 46, x = F.X0;
-    g.font = '600 11.5px "Inter Tight", Inter, system-ui, sans-serif';
+    g.font = '800 11.5px Nunito, system-ui, sans-serif';
     items.forEach(function (it) {
       const w = 34 + g.measureText(it[0]).width;
       if (x > F.X0 && x + w - 14 > F.X1 + 20) { x = F.X0; y += 17; }
@@ -10269,6 +10370,1430 @@ body[data-route="study"] .foot { display: none; }
             ['The pound has', Math.abs(ch) < 0.05 ? 'not changed' : ch > 0 ? 'appreciated' : 'depreciated'], ['UK exports become', Math.abs(ch) < 0.05 ? '–' : ch > 0 ? 'dearer abroad' : 'cheaper abroad'], ['UK imports become', Math.abs(ch) < 0.05 ? '–' : ch > 0 ? 'cheaper' : 'dearer']];
         }
       };
+      return inst;
+    }
+  });
+})(window.RH = window.RH || {});
+</script>
+<script>
+/* Chemistry and biology labs. Same frame as the physics labs (labs.js): each create(p) returns
+   { reset, step(dt, p), draw(g, W, H, p, th), graph(g, W, H, p, th), readouts(p), change, action, extra }. */
+(function (RH) {
+  'use strict';
+  const LB = RH.labs, f = LB.fmt, T = LB.text, esc = RH.util.esc;
+  const icon = (d) => '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>';
+  const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  const gauss = () => { let u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
+  // Mix two colours given as [r,g,b,a].
+  const mix = (a, b, t) => 'rgba(' + [0, 1, 2].map((i) => Math.round(a[i] + (b[i] - a[i]) * t)).join(',') + ',' + (a[3] + (b[3] - a[3]) * t).toFixed(3) + ')';
+  // A lab bench: soft wall and a wooden worktop from y down.
+  function bench(g, W, H, y, th) {
+    const wall = g.createLinearGradient(0, 0, 0, y);
+    wall.addColorStop(0, th.dark ? '#22263A' : '#F4F1FF'); wall.addColorStop(1, th.dark ? '#2A2F48' : '#E9F2FF');
+    g.fillStyle = wall; g.fillRect(0, 0, W, y);
+    const top = g.createLinearGradient(0, y, 0, H);
+    top.addColorStop(0, th.dark ? '#5A4636' : '#E2B884'); top.addColorStop(1, th.dark ? '#3E3026' : '#C9965E');
+    g.fillStyle = top; g.fillRect(0, y, W, H - y);
+    g.fillStyle = th.dark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.35)'; g.fillRect(0, y, W, 4);
+  }
+  function pill(g, s, x, y, col, th, align) {
+    g.font = '800 12px Nunito, system-ui, sans-serif';
+    const w = g.measureText(s).width + 16, x0 = align === 'center' ? x - w / 2 : align === 'right' ? x - w : x;
+    LB.rr(g, x0, y - 13, w, 22, 11); g.fillStyle = th.dark ? 'rgba(20,22,34,0.85)' : 'rgba(255,255,255,0.92)'; g.fill();
+    g.strokeStyle = col; g.lineWidth = 2; g.stroke();
+    T(g, s, x0 + 8, y + 3, { col: col, size: 12, weight: 800 });
+  }
+
+  // =====================================================================
+  // CHEMISTRY 1. Titration and pH curves
+  // =====================================================================
+  const ACIDS = { hcl: ['Hydrochloric acid (strong)', 1e7, 'HCl'], eth: ['Ethanoic acid (weak, pKa 4.76)', 1.74e-5, 'CH₃COOH'] };
+  const BASES = { naoh: ['Sodium hydroxide (strong)', 1e7, 'NaOH'], nh3: ['Ammonia (weak, pKb 4.75)', 1.78e-5, 'NH₃'] };
+  const IND = {
+    pp: { n: 'Phenolphthalein (8.2–10.0)', lo: 8.2, hi: 10, a: [255, 255, 255, 0], b: [224, 33, 138, 0.85], ca: 'colourless', cb: 'pink' },
+    mo: { n: 'Methyl orange (3.1–4.4)', lo: 3.1, hi: 4.4, a: [232, 65, 44, 0.85], b: [245, 197, 24, 0.85], ca: 'red', cb: 'yellow' },
+    bb: { n: 'Bromothymol blue (6.0–7.6)', lo: 6, hi: 7.6, a: [229, 211, 56, 0.85], b: [47, 111, 214, 0.85], ca: 'yellow', cb: 'blue' },
+    none: { n: 'No indicator (pH meter only)', lo: 0, hi: 14, a: [255, 255, 255, 0], b: [255, 255, 255, 0], ca: 'colourless', cb: 'colourless' }
+  };
+  // pH from the charge balance [H+] + [BH+] = [OH-] + [A-], solved by bisection. Volumes in cm³.
+  function pHof(Ca, Va, Ka, Cb, Vb, Kb) {
+    const Vt = Va + Vb, na = Ca * Va / Vt, nb = Cb * Vb / Vt, Kw = 1e-14, KaB = Kw / Kb;
+    let lo = -1, hi = 15;
+    for (let i = 0; i < 60; i++) {
+      const mid = (lo + hi) / 2, h = Math.pow(10, -mid);
+      const fx = h + nb * h / (h + KaB) - Kw / h - na * Ka / (Ka + h);
+      if (fx > 0) lo = mid; else hi = mid;
+    }
+    return (lo + hi) / 2;
+  }
+  LB.add({
+    id: 'titration', subject: 'chemistry', name: 'Titration and pH curves', topics: ['chm-u6-t1', 'chm-u6-t9', 'chm-u2-t5'],
+    blurb: 'Run a burette into an acid, watch the indicator change and draw the pH curve for strong and weak acids and bases.',
+    icon: icon('<path d="M22 4h4v22l-2 4-2-4z"/><path d="M18 30h12l6 14H12z"/><path d="M15 38h18"/>'),
+    aspect: 0.6, maxH: 470, graph: true, graphH: 230, still: true,
+    help: 'Green values are calculated from the equilibrium equations; the others are what you would read on the meter.',
+    controls: [
+      { k: 'acid', type: 'select', label: 'Acid in the flask (25.0 cm³)', options: Object.keys(ACIDS).map((k) => [k, ACIDS[k][0]]), v: 'hcl' },
+      { k: 'Ca', label: 'Acid concentration', min: 0.05, max: 0.2, step: 0.01, v: 0.1, unit: 'mol dm⁻³', dp: 2 },
+      { k: 'base', type: 'select', label: 'Alkali in the burette', options: Object.keys(BASES).map((k) => [k, BASES[k][0]]), v: 'naoh' },
+      { k: 'Cb', label: 'Alkali concentration', min: 0.05, max: 0.2, step: 0.01, v: 0.1, unit: 'mol dm⁻³', dp: 2 },
+      { k: 'ind', type: 'select', label: 'Indicator', options: Object.keys(IND).map((k) => [k, IND[k].n]), v: 'pp' },
+      { k: 'rate', type: 'seg', label: 'Tap', options: [[1.2, 'Fast'], [0.3, 'Slow'], [0.06, 'Dropwise']], v: 0.3 }
+    ],
+    actions: [{ id: 'tap', label: 'Open / close tap', primary: true }, { id: 'drop', label: 'Add one drop' }, { id: 'rec', label: 'Record titre' }, { id: 'reset', label: 'Refill' }],
+    tasks: [
+      'Titrate 0.10 mol dm⁻³ HCl with 0.10 mol dm⁻³ NaOH using phenolphthalein. Open the tap on fast for a rough titre, then refill and go dropwise near the end point.',
+      'Record three titres. Results within <b>0.10 cm³</b> of each other are concordant; average only those.',
+      'Switch the acid to ethanoic acid. Read the pH at half the equivalence volume: it equals the pKa (4.76).',
+      'Try a weak acid with a weak alkali. Why is there no sharp vertical section, and why does no indicator work?',
+      'Strong acid with weak alkali (ammonia): which indicator changes on the vertical section, methyl orange or phenolphthalein?',
+      'Double the acid concentration. What happens to the equivalence volume, and to the start pH?'
+    ],
+    theory: '<p>At the <b>equivalence point</b> the moles of alkali added equal the moles of acid: n = c × V, so V<sub>eq</sub> = c<sub>acid</sub> × 25.0 / c<sub>alkali</sub>.</p><p class="eq">strong acid: pH = −log[H⁺] &nbsp;&nbsp; weak acid: K<sub>a</sub> = [H⁺][A⁻] / [HA]</p><p>For a weak acid before equivalence the flask is a <b>buffer</b> of HA and A⁻. At half-neutralisation [HA] = [A⁻], so <b>pH = pK<sub>a</sub></b>. An indicator is suitable when its colour-change range lies entirely on the steep vertical part of the curve.</p><p>The simulation solves the full charge balance [H⁺] + [BH⁺] = [OH⁻] + [A⁻] with K<sub>w</sub> = 1.00 × 10⁻¹⁴ at 25 °C.</p>',
+    exam: [['Method (RP1)', ['Rinse the burette with the alkali and the pipette with the acid.', 'Pipette 25.0 cm³ of acid into a conical flask on a white tile; add 2–3 drops of indicator.', 'Do a rough titration, then add dropwise near the end point, swirling.', 'Read the burette at eye level from the bottom of the meniscus to ±0.05 cm³.', 'Repeat until you have concordant titres (within 0.10 cm³).'], 'ol'], ['Calculations', ['n = c × V (V in dm³: divide cm³ by 1000).', 'Use the mole ratio from the balanced equation.', 'pH of strong base: [H⁺] = K<sub>w</sub> / [OH⁻].', 'Weak acid: [H⁺] = √(K<sub>a</sub> × [HA]).']], ['Common mistakes', ['Reading the top of the meniscus.', 'Averaging a rough titre with accurate ones.', 'Choosing phenolphthalein for a weak base, or methyl orange for a weak acid.', 'Forgetting the total volume changes when you mix.']]],
+    create: function (p) {
+      const S = { V: 0, open: false, drops: [], pts: [], titres: [], swirl: 0 };
+      const Ka = () => ACIDS[p.acid][1], Kb = () => BASES[p.base][1];
+      const pH = (V) => pHof(p.Ca, 25, Ka(), p.Cb, V, Kb());
+      const Veq = () => p.Ca * 25 / p.Cb;
+      function addVol(dv) {
+        const before = S.V;
+        S.V = Math.min(50, S.V + dv);
+        if (S.V >= 50) S.open = false;
+        const step = 0.05;
+        for (let v = Math.ceil(before / step) * step; v <= S.V + 1e-9; v += step) S.pts.push([v, pH(v)]);
+        if (!S.pts.length || S.pts[S.pts.length - 1][0] < S.V) S.pts.push([S.V, pH(S.V)]);
+      }
+      const inst = {
+        reset: function () { S.V = 0; S.open = false; S.drops = []; S.pts = [[0, pH(0)]]; },
+        change: function (k) { if (k !== 'rate' && k !== 'ind') inst.reset(); },
+        action: function (id) {
+          if (id === 'tap') S.open = !S.open;
+          if (id === 'drop') { S.drops.push({ y: 0, v: 0.05 }); }
+          if (id === 'rec' && S.V > 0) { S.titres.push(S.V); if (S.titres.length > 6) S.titres.shift(); }
+          if (id === 'reset') inst.reset();
+        },
+        step: function (dt) {
+          S.swirl += dt;
+          if (S.open) {
+            S.acc = (S.acc || 0) + dt * p.rate;
+            while (S.acc >= 0.05) { S.acc -= 0.05; S.drops.push({ y: 0, v: 0.05 }); }
+          }
+          S.drops.forEach((d) => { d.y += dt * 260; });
+          while (S.drops.length && S.drops[0].y > 1) { addVol(S.drops[0].v); S.drops.shift(); }
+        },
+        draw: function (g, W, H, p, th) {
+          const by = H * 0.86;
+          bench(g, W, H, by, th);
+          const ph = pH(S.V), ind = IND[p.ind];
+          // Stand
+          const sx = W * 0.27;
+          g.fillStyle = th.dark ? '#555C70' : '#7B8194'; LB.rr(g, sx - 50, by - 10, 120, 12, 4); g.fill();
+          g.fillStyle = th.dark ? '#7C8398' : '#A3A9B8'; g.fillRect(sx - 4, 14, 8, by - 24);
+          // Burette
+          const bx = W * 0.42, top = 18, bot = H * 0.56, bw = 18;
+          g.fillStyle = th.dark ? '#7C8398' : '#A3A9B8'; g.fillRect(sx, H * 0.28 - 4, bx - sx - bw / 2, 8);
+          LB.box(g, bx - bw / 2 - 6, H * 0.28 - 9, bw + 12, 18, '#8B93A7', 4);
+          const lvl = top + 12 + (bot - top - 20) * (S.V / 50);
+          g.fillStyle = 'rgba(160,200,255,0.55)'; g.fillRect(bx - bw / 2 + 3, lvl, bw - 6, bot - lvl);
+          g.strokeStyle = th.dark ? 'rgba(220,230,255,0.7)' : 'rgba(80,100,140,0.6)'; g.lineWidth = 2.5;
+          LB.rr(g, bx - bw / 2, top, bw, bot - top, 6); g.stroke();
+          g.fillStyle = 'rgba(255,255,255,0.35)'; g.fillRect(bx - bw / 2 + 3, top + 4, 3, bot - top - 8);
+          for (let i = 0; i <= 50; i += 5) {
+            const y = top + 12 + (bot - top - 20) * i / 50;
+            g.strokeStyle = th.ink3; g.lineWidth = 1; g.beginPath(); g.moveTo(bx + bw / 2 - (i % 10 ? 4 : 8), y); g.lineTo(bx + bw / 2, y); g.stroke();
+            if (i % 10 === 0) T(g, String(i), bx + bw / 2 + 4, y + 4, { col: th.ink3, size: 10, weight: 700 });
+          }
+          // Tap and jet
+          g.fillStyle = th.dark ? '#AAB2C8' : '#3D4456'; g.fillRect(bx - 3, bot, 6, 22);
+          g.save(); g.translate(bx, bot + 9); g.rotate(S.open ? Math.PI / 2 : 0);
+          LB.rr(g, -16, -4, 32, 8, 4); g.fillStyle = S.open ? '#22C55E' : '#EF4444'; g.fill(); g.restore();
+          const tipY = bot + 24;
+          // Flask
+          const fx = bx, fy = by - 4, fwBase = Math.min(150, W * 0.2), fh = Math.min(140, H * 0.3), neck = 22;
+          const flask = () => { g.beginPath(); g.moveTo(fx - neck / 2, fy - fh); g.lineTo(fx - neck / 2, fy - fh * 0.62); g.lineTo(fx - fwBase / 2, fy - 8); g.quadraticCurveTo(fx - fwBase / 2, fy, fx - fwBase / 2 + 10, fy); g.lineTo(fx + fwBase / 2 - 10, fy); g.quadraticCurveTo(fx + fwBase / 2, fy, fx + fwBase / 2, fy - 8); g.lineTo(fx + neck / 2, fy - fh * 0.62); g.lineTo(fx + neck / 2, fy - fh); };
+          // White tile
+          g.fillStyle = '#FFFFFF'; LB.rr(g, fx - fwBase / 2 - 20, by - 6, fwBase + 40, 10, 3); g.fill(); g.strokeStyle = 'rgba(0,0,0,0.08)'; g.stroke();
+          // Liquid
+          const vol = 25 + S.V, lh = fh * 0.3 + fh * 0.22 * (vol - 25) / 50, wob = Math.sin(S.swirl * 3) * 2;
+          g.save(); flask(); g.closePath(); g.clip();
+          const tcol = ind.hi > ind.lo ? clamp((ph - ind.lo) / (ind.hi - ind.lo), 0, 1) : 0;
+          g.fillStyle = 'rgba(190,220,255,0.45)'; g.fillRect(fx - fwBase, fy - lh, fwBase * 2, lh + 2);
+          g.fillStyle = mix(ind.a, ind.b, tcol); g.fillRect(fx - fwBase, fy - lh, fwBase * 2, lh + 2);
+          g.fillStyle = 'rgba(255,255,255,0.35)'; g.beginPath(); g.ellipse(fx, fy - lh, fwBase * 0.4, 3 + Math.abs(wob), 0, 0, 7); g.fill();
+          g.restore();
+          flask(); g.strokeStyle = th.dark ? 'rgba(220,230,255,0.75)' : 'rgba(70,90,130,0.7)'; g.lineWidth = 3; g.stroke();
+          g.strokeStyle = 'rgba(255,255,255,0.5)'; g.lineWidth = 3; g.beginPath(); g.moveTo(fx - fwBase / 2 + 14, fy - 14); g.lineTo(fx - neck / 2 - 4, fy - fh * 0.56); g.stroke();
+          // Drops
+          S.drops.forEach((d) => { const y = tipY + d.y * (fy - lh - tipY); LB.ball(g, bx, y, 4, '#7FB3FF'); });
+          if (S.open) { g.strokeStyle = 'rgba(127,179,255,0.5)'; g.lineWidth = 2; g.setLineDash([3, 6]); g.beginPath(); g.moveTo(bx, tipY); g.lineTo(bx, fy - lh); g.stroke(); g.setLineDash([]); }
+          // pH meter
+          const mx = Math.min(W - 120, fx + fwBase / 2 + 60), my = by - 150;
+          g.strokeStyle = th.dark ? '#9AA3B5' : '#3D4456'; g.lineWidth = 3; g.beginPath(); g.moveTo(mx + 20, my + 92); g.bezierCurveTo(mx, by - 20, fx + 30, fy - fh - 40, fx + 6, fy - fh + 10); g.lineTo(fx + 6, fy - lh * 0.4); g.stroke();
+          LB.box(g, mx - 20, my, 140, 92, th.dark ? '#3A4058' : '#E9ECF5', 14);
+          LB.rr(g, mx - 8, my + 12, 116, 44, 8); g.fillStyle = '#C9F2D0'; g.fill(); g.strokeStyle = '#8CC79A'; g.lineWidth = 2; g.stroke();
+          T(g, ph.toFixed(2), mx + 50, my + 45, { col: '#1E4D2B', size: 26, weight: 900, align: 'center' });
+          T(g, 'pH', mx + 98, my + 26, { col: '#1E4D2B', size: 11, weight: 900, align: 'right' });
+          T(g, 'pH METER', mx + 50, my + 78, { col: th.ink2, size: 11, weight: 900, align: 'center' });
+          pill(g, f(S.V, 2) + ' cm³ added', bx + 30, top + 26, '#3B82F6', th);
+          pill(g, ACIDS[p.acid][2] + ' + ' + BASES[p.base][2], 14, by + 28 > H - 6 ? H - 10 : by + 28, '#EF4444', th);
+        },
+        graph: function (g, W, H, p, th) {
+          const ind = IND[p.ind], pl = LB.plot(g, th, { x: 0, y: 0, w: W, h: H, x0: 0, x1: 50, y0: 0, y1: 14, xl: 'Volume of alkali added / cm³', yl: 'pH', series: [{ pts: S.pts, col: '#EF4444', width: 3 }], vlines: [{ x: Veq(), col: th.ok, label: 'Equivalence ' + f(Veq(), 2) + ' cm³' }] });
+          if (p.ind !== 'none') { g.fillStyle = mix(ind.a, ind.b, 0.5).replace(/,[\d.]+\)$/, ',0.16)'); g.fillRect(pl.sx(0), pl.sy(ind.hi), pl.sx(50) - pl.sx(0), pl.sy(ind.lo) - pl.sy(ind.hi)); T(g, 'indicator range', pl.sx(50) - 6, pl.sy(ind.hi) - 4, { col: th.ink3, size: 10, align: 'right', weight: 700 }); }
+          if (S.pts.length) { const q = S.pts[S.pts.length - 1]; LB.ball(g, pl.sx(q[0]), pl.sy(q[1]), 5, '#EF4444'); }
+        },
+        readouts: function () {
+          const ph = pH(S.V), ind = IND[p.ind], t = ind.hi > ind.lo ? (ph - ind.lo) / (ind.hi - ind.lo) : 0;
+          const r = [['Volume added', f(S.V, 2) + ' cm³'], ['pH', ph.toFixed(2)], ['Indicator colour', p.ind === 'none' ? '–' : t <= 0 ? ind.ca : t >= 1 ? ind.cb : 'changing'], ['Tap', S.open ? 'open' : 'closed'],
+            ['Moles of acid', LB.sci(p.Ca * 0.025, 3) + ' mol', 'th'], ['Equivalence volume', f(Veq(), 2) + ' cm³', 'th'], ['pH at equivalence', pH(Veq()).toFixed(2), 'th']];
+          if (p.acid === 'eth') r.push(['pH at half-equivalence (= pKa)', pH(Veq() / 2).toFixed(2), 'th']);
+          return r;
+        },
+        extra: function () {
+          if (!S.titres.length) return '<p class="help">Press <b>Record titre</b> when the indicator changes colour, then <b>Refill</b> and repeat.</p>';
+          const t = S.titres, conc = [];
+          for (let i = 0; i < t.length; i++) for (let j = i + 1; j < t.length; j++) if (Math.abs(t[i] - t[j]) <= 0.1 + 1e-9) { if (conc.indexOf(i) < 0) conc.push(i); if (conc.indexOf(j) < 0) conc.push(j); }
+          const mean = conc.length ? conc.reduce((s, i) => s + t[i], 0) / conc.length : null;
+          return '<table class="tbl lab-tbl"><thead><tr><th>Run</th><th>Titre / cm³</th><th></th></tr></thead><tbody>' + t.map((v, i) => '<tr><td>' + (i + 1) + '</td><td class="num">' + v.toFixed(2) + '</td><td>' + (conc.indexOf(i) >= 0 ? '✓ concordant' : '') + '</td></tr>').join('') + '</tbody></table>' + (mean != null ? '<p class="small"><b>Mean titre ' + mean.toFixed(2) + ' cm³</b> → c(alkali) = ' + (p.Ca * 25 / mean).toFixed(3) + ' mol dm⁻³</p>' : '');
+        }
+      };
+      inst.reset();
+      return inst;
+    }
+  });
+
+  // =====================================================================
+  // CHEMISTRY 2. Rates and collision theory
+  // =====================================================================
+  // Fraction of particles with energy ≥ E in a Maxwell–Boltzmann energy distribution (3D): Q(3/2, E/kT).
+  function fracAbove(E, kT) {
+    const x = E / kT;
+    return 2 * Math.sqrt(x / Math.PI) * Math.exp(-x) + (1 - erf(Math.sqrt(x)));
+  }
+  function erf(x) { const t = 1 / (1 + 0.3275911 * x), y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x); return y; }
+  const mbDensity = (E, kT) => 2000 * Math.sqrt(E / Math.PI) * Math.pow(1 / kT, 1.5) * Math.exp(-E / kT);
+  LB.add({
+    id: 'rates', subject: 'chemistry', name: 'Rates and collision theory', topics: ['chm-u1-t5', 'chm-u6-t3', 'chm-u2-t2'],
+    blurb: 'Heat particles up, crowd them together or add a catalyst. Watch successful collisions and the Maxwell–Boltzmann curve.',
+    icon: icon('<circle cx="16" cy="18" r="6"/><circle cx="32" cy="30" r="6"/><path d="M22 22l4 4"/><path d="M8 40c8-14 14-4 20-12s10-14 14-14"/>'),
+    aspect: 0.56, maxH: 440, graph: true, graphH: 220,
+    help: 'Green values use the Arrhenius equation with real energies; the particle box uses scaled energies so you can see collisions succeed.',
+    controls: [
+      { k: 'T', label: 'Temperature', min: 250, max: 450, step: 5, v: 300, unit: 'K', show: (v) => v + ' K (' + (v - 273) + ' °C)' },
+      { k: 'n', label: 'Concentration (particles of each reactant)', min: 6, max: 50, step: 1, v: 24, dp: 0 },
+      { k: 'Ea', label: 'Activation energy, Eₐ', min: 20, max: 100, step: 1, v: 55, unit: 'kJ mol⁻¹', dp: 0 },
+      { k: 'cat', type: 'toggle', label: 'Add a catalyst', v: false, help: 'Provides an alternative route with a lower activation energy (here 40% lower).' }
+    ],
+    actions: [{ id: 'refill', label: 'Fresh reactants' }],
+    tasks: [
+      'Count the products formed in 20 seconds at 300 K. Raise the temperature to 340 K and repeat. Why does the rate rise so much more than the collision rate?',
+      'Look at the graph: raising T flattens the curve and moves the peak right, but the area under it stays the same. Only the shaded tail above Eₐ grows.',
+      'Turn on the catalyst. The curve does not change; the Eₐ line moves left, so more of the area is shaded.',
+      'Double the concentration. Collisions per second roughly double, so the rate doubles: rate ∝ [A][B] for this reaction.',
+      'Find the temperature rise that doubles the Arrhenius rate when Eₐ = 50 kJ mol⁻¹. (It is about 10 K near room temperature.)'
+    ],
+    theory: '<p>Particles react only when they <b>collide</b> with energy at least equal to the <b>activation energy</b> E<sub>a</sub> and the right orientation.</p><p>The <b>Maxwell–Boltzmann distribution</b> shows how many particles have each energy. It starts at the origin, has no maximum energy and the area under it equals the number of particles. At a higher temperature the peak is lower and further right, and many more particles are above E<sub>a</sub>.</p><p class="eq">k = A e<sup>−Eₐ / RT</sup> &nbsp;&nbsp; ln k = ln A − Eₐ / RT</p><p>A catalyst gives an alternative route with a lower E<sub>a</sub>; it is not used up. Higher concentration means more collisions per second, not more energetic ones.</p>',
+    exam: [['Describe the curve', ['Starts at the origin: no particles have zero energy.', 'Never touches the energy axis: no maximum energy.', 'Area under the curve = total number of particles.', 'Higher T: peak lower and to the right, same area.'], 'ul'], ['Explain a rate change', ['Name the factor and what it does to collisions.', 'Say whether more particles have E ≥ Eₐ (temperature, catalyst) or there are just more collisions (concentration, pressure, surface area).', 'Finish with "more successful collisions per second".'], 'ul'], ['Arrhenius (A2)', ['Plot ln k against 1/T: gradient = −Eₐ / R.', 'Use R = 8.31 J K⁻¹ mol⁻¹ and convert Eₐ to J.', 'Rate = k[A]ᵐ[B]ⁿ: orders come from experiment.']]],
+    create: function (p) {
+      const S = { parts: [], made: 0, hits: 0, coll: 0, flashes: [], t: 0, hist: [] };
+      const kTvis = () => 11 * p.T / 300;
+      const EaEff = () => p.Ea * (p.cat ? 0.6 : 1);
+      function fill() {
+        S.parts = []; S.made = 0; S.hits = 0; S.coll = 0; S.t = 0; S.hist = [[0, 0]];
+        for (let i = 0; i < p.n * 2; i++) S.parts.push({ x: Math.random(), y: Math.random(), a: Math.random() * 7, k: i % 2 ? 'B' : 'A', sp: 0.7 + Math.random() * 0.6 });
+      }
+      const inst = {
+        reset: fill,
+        change: function (k) { if (k === 'n') fill(); },
+        action: function (id) { if (id === 'refill') fill(); },
+        step: function (dt) {
+          S.t += dt;
+          const v = 0.22 * Math.sqrt(p.T / 300);
+          const ps = S.parts, R = 0.022;
+          ps.forEach((q) => {
+            const s = v * q.sp * (q.k === 'P' ? 0.7 : 1);
+            q.x += Math.cos(q.a) * s * dt; q.y += Math.sin(q.a) * s * dt * 1.6;
+            if (q.x < 0.02) { q.x = 0.02; q.a = Math.PI - q.a; } if (q.x > 0.98) { q.x = 0.98; q.a = Math.PI - q.a; }
+            if (q.y < 0.03) { q.y = 0.03; q.a = -q.a; } if (q.y > 0.97) { q.y = 0.97; q.a = -q.a; }
+          });
+          const pFrac = fracAbove(EaEff(), kTvis()) * 6;
+          for (let i = 0; i < ps.length; i++) for (let j = i + 1; j < ps.length; j++) {
+            const a = ps[i], b = ps[j];
+            if (a.dead || b.dead) continue;
+            const dx = a.x - b.x, dy = (a.y - b.y) / 1.6;
+            if (dx * dx + dy * dy < R * R * 4 && !(a.cool > 0) && !(b.cool > 0)) {
+              S.coll++;
+              if (a.k !== b.k && a.k !== 'P' && b.k !== 'P') {
+                S.hits++;
+                if (Math.random() < pFrac) {
+                  a.k = 'P'; b.dead = true; S.made++; a.cool = 0.4;
+                  S.flashes.push({ x: a.x, y: a.y, t: 0.5 });
+                  continue;
+                }
+              }
+              const t = a.a; a.a = b.a; b.a = t; a.cool = b.cool = 0.15;
+            }
+          }
+          ps.forEach((q) => { if (q.cool > 0) q.cool -= dt; });
+          S.parts = ps.filter((q) => !q.dead);
+          S.flashes.forEach((fl) => { fl.t -= dt; }); S.flashes = S.flashes.filter((fl) => fl.t > 0);
+          if (!S.hist.length || S.t - S.hist[S.hist.length - 1][0] > 0.25) S.hist.push([S.t, S.made]);
+        },
+        draw: function (g, W, H, p, th) {
+          const bg = g.createLinearGradient(0, 0, 0, H);
+          bg.addColorStop(0, th.dark ? '#1E2236' : '#FFF4F2'); bg.addColorStop(1, th.dark ? '#262B44' : '#FFE9E5');
+          g.fillStyle = bg; g.fillRect(0, 0, W, H);
+          const heat = (p.T - 250) / 200;
+          // Hot plate glow
+          LB.glow(g, W / 2, H + 10, W * 0.5, 'rgba(255,' + Math.round(140 - heat * 90) + ',60,' + (0.15 + heat * 0.5) + ')');
+          const bx = 14, by = 14, bw = W - 28, bh = H - 42;
+          LB.rr(g, bx, by, bw, bh, 20); g.fillStyle = th.dark ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.7)'; g.fill(); g.strokeStyle = th.dark ? '#5C6380' : '#F3B6AC'; g.lineWidth = 3; g.stroke();
+          const X = (x) => bx + 10 + x * (bw - 20), Y = (y) => by + 10 + y * (bh - 20), r = Math.max(6, Math.min(11, W / 70));
+          S.flashes.forEach((fl) => LB.glow(g, X(fl.x), Y(fl.y), 40 * (1.2 - fl.t), 'rgba(255,214,0,0.9)', fl.t * 2));
+          S.parts.forEach((q) => {
+            if (q.k === 'P') { LB.ball(g, X(q.x) - r * 0.45, Y(q.y), r * 0.9, '#8B5CF6'); LB.ball(g, X(q.x) + r * 0.45, Y(q.y), r * 0.9, '#A855F7'); }
+            else LB.ball(g, X(q.x), Y(q.y), r, q.k === 'A' ? '#EF4444' : '#3B82F6');
+          });
+          if (p.cat) { for (let i = 0; i < 5; i++) { const x = bx + 30 + i * (bw - 60) / 4; LB.box(g, x - 16, by + bh - 22, 32, 14, '#9CA3AF', 4); } }
+          const lx = 22, ly = H - 12;
+          LB.ball(g, lx + 6, ly - 4, 6, '#EF4444'); T(g, 'A', lx + 16, ly, { col: th.ink2, size: 12, weight: 800 });
+          LB.ball(g, lx + 42, ly - 4, 6, '#3B82F6'); T(g, 'B', lx + 52, ly, { col: th.ink2, size: 12, weight: 800 });
+          LB.ball(g, lx + 78, ly - 4, 6, '#8B5CF6'); T(g, 'Product AB', lx + 88, ly, { col: th.ink2, size: 12, weight: 800 });
+          if (p.cat) T(g, 'grey blocks: catalyst surface', lx + 180, ly, { col: th.ink3, size: 12, weight: 700 });
+          pill(g, S.made + ' products', W - 24, 38, '#8B5CF6', th, 'right');
+        },
+        graph: function (g, W, H, p, th) {
+          const kT = kTvis(), Emax = 110, pts = [], pts300 = [];
+          let ymax = 0;
+          for (let E = 0; E <= Emax; E += 0.5) { const y = mbDensity(E, kT); pts.push([E, y]); pts300.push([E, mbDensity(E, 11 * 250 / 300)]); ymax = Math.max(ymax, y, mbDensity(E, 11 * 250 / 300)); }
+          const pl = LB.plot(g, th, { x: 0, y: 0, w: W, h: H, x0: 0, x1: Emax, y0: 0, y1: ymax * 1.1, xl: 'Energy (scaled)', yl: 'Number of particles', series: [] });
+          const shade = (Ea, col) => { g.fillStyle = col; g.beginPath(); g.moveTo(pl.sx(Ea), pl.sy(0)); pts.filter((q) => q[0] >= Ea).forEach((q) => g.lineTo(pl.sx(q[0]), pl.sy(q[1]))); g.lineTo(pl.sx(Emax), pl.sy(0)); g.closePath(); g.fill(); };
+          if (p.cat) shade(EaEff(), 'rgba(34,197,94,0.25)');
+          shade(p.Ea, 'rgba(239,68,68,0.3)');
+          g.save(); g.setLineDash([5, 5]); g.strokeStyle = th.ink3; g.lineWidth = 1.5; g.beginPath(); pts300.forEach((q, i) => { const x = pl.sx(q[0]), y = pl.sy(q[1]); if (i) g.lineTo(x, y); else g.moveTo(x, y); }); g.stroke(); g.restore();
+          g.strokeStyle = '#EF4444'; g.lineWidth = 3; g.beginPath(); pts.forEach((q, i) => { const x = pl.sx(q[0]), y = pl.sy(q[1]); if (i) g.lineTo(x, y); else g.moveTo(x, y); }); g.stroke();
+          [[p.Ea, 'Eₐ', '#EF4444']].concat(p.cat ? [[EaEff(), 'Eₐ (catalyst)', '#16A34A']] : []).forEach((e) => { g.strokeStyle = e[2]; g.setLineDash([4, 4]); g.lineWidth = 2; g.beginPath(); g.moveTo(pl.sx(e[0]), pl.sy(0)); g.lineTo(pl.sx(e[0]), pl.sy(ymax * 1.05)); g.stroke(); g.setLineDash([]); T(g, e[1], pl.sx(e[0]) + 4, pl.sy(ymax * 0.95) + (e[2] === '#16A34A' ? 16 : 0), { col: e[2], size: 12, weight: 900 }); });
+          LB.legend(g, th, W - 230, 22, [[p.T + ' K', '#EF4444'], ['250 K', th.ink3]]);
+        },
+        readouts: function () {
+          const R = 8.314, k = (T) => Math.exp(-EaEff() * 1000 / (R * T)), base = Math.exp(-p.Ea * 1000 / (R * 298));
+          return [['Time', f(S.t, 1) + ' s'], ['Collisions', String(S.coll)], ['A–B collisions', String(S.hits)], ['Products formed', String(S.made)],
+            ['Particles with E ≥ Eₐ (scaled)', (fracAbove(EaEff(), kTvis()) * 100).toFixed(1) + ' %', 'th'],
+            ['Rate constant vs 298 K, no catalyst', (k(p.T) / base < 1e4 ? f(k(p.T) / base, 2) : LB.sci(k(p.T) / base, 3)) + ' ×', 'th'],
+            ['Rate change for +10 K', f(Math.exp(EaEff() * 1000 / R * (1 / p.T - 1 / (p.T + 10))), 2) + ' ×', 'th']];
+        }
+      };
+      fill();
+      return inst;
+    }
+  });
+
+  // =====================================================================
+  // BIOLOGY 1. Enzyme activity
+  // =====================================================================
+  const ENZ = {
+    amylase: { n: 'Amylase (optimum pH 7, 37 °C)', pH: 7, T: 37, col: '#22C55E', sub: 'starch' },
+    pepsin: { n: 'Pepsin (optimum pH 2, 37 °C)', pH: 2, T: 37, col: '#0EA5E9', sub: 'protein' },
+    trypsin: { n: 'Trypsin (optimum pH 8, 37 °C)', pH: 8, T: 37, col: '#8B5CF6', sub: 'protein' },
+    taq: { n: 'Taq polymerase (thermophile, 72 °C)', pH: 8.5, T: 72, col: '#F97316', sub: 'nucleotides' }
+  };
+  function enzRate(p, o) {
+    o = Object.assign({}, p, o || {});
+    const e = ENZ[o.enz], Tm = e.T + 9;
+    const act = (T) => Math.pow(2, (T - e.T) / 10) / (1 + Math.exp((T - Tm) / 2.6));
+    let peak = 0; for (let T = 0; T <= 100; T += 0.5) peak = Math.max(peak, act(T));
+    const tf = act(o.T) / peak, pf = Math.exp(-Math.pow((o.pH - e.pH) / 1.7, 2));
+    const Km = 2 * (o.inh === 'comp' ? 3 : 1), Vmax = 100 * (o.inh === 'non' ? 0.4 : 1);
+    return { rate: Vmax * tf * pf * o.S / (Km + o.S), tf: tf, pf: pf, den: clamp(1 / (1 + Math.exp(-(o.T - Tm) / 2.6)) + (1 - pf) * 0.8, 0, 1), Km: Km, Vmax: Vmax * tf * pf };
+  }
+  LB.add({
+    id: 'enzymes', subject: 'biology', name: 'Enzyme activity', topics: ['bio-u1-t4', 'bio-u9-t1'],
+    blurb: 'Change temperature, pH and substrate concentration. Watch substrates fit the active site, and enzymes denature.',
+    icon: icon('<path d="M24 8a16 16 0 1 0 14 8l-14 8z"/><path d="M36 10l6-2-2 6z"/>'),
+    aspect: 0.52, maxH: 420, graph: true, graphH: 220,
+    help: 'Green values come from the model behind the graph: Michaelis–Menten kinetics with a temperature and pH factor.',
+    controls: [
+      { k: 'enz', type: 'select', label: 'Enzyme', options: Object.keys(ENZ).map((k) => [k, ENZ[k].n]), v: 'amylase' },
+      { k: 'T', label: 'Temperature', min: 0, max: 90, step: 1, v: 37, unit: '°C', dp: 0 },
+      { k: 'pH', label: 'pH', min: 1, max: 13, step: 0.5, v: 7, dp: 1 },
+      { k: 'S', label: 'Substrate concentration', min: 0.5, max: 20, step: 0.5, v: 6, unit: 'mmol dm⁻³', dp: 1 },
+      { k: 'inh', type: 'seg', label: 'Inhibitor', options: [['none', 'None'], ['comp', 'Competitive'], ['non', 'Non-competitive']], v: 'none' },
+      { k: 'gx', type: 'seg', label: 'Graph against', options: [['T', 'Temperature'], ['pH', 'pH'], ['S', 'Substrate']], v: 'T' }
+    ],
+    tasks: [
+      'Plot the temperature curve: raise the temperature from 10 °C in steps and watch the dot. Rate roughly doubles every 10 °C, then falls steeply above the optimum.',
+      'Heat amylase to 60 °C, then cool it back to 37 °C. In real life denaturation is permanent; here the slider shows each temperature fresh, like a new test tube each time.',
+      'Switch to pepsin, which works in the stomach. Find its optimum pH. Why would amylase stop working there?',
+      'Graph against substrate. At high concentration the curve levels off: every active site is busy, so enzyme concentration is now the limiting factor.',
+      'Add a competitive inhibitor and graph against substrate. Adding lots more substrate gets you back to nearly the same maximum rate. Try a non-competitive inhibitor: it does not.',
+      'Try Taq polymerase from hot-spring bacteria. Why is it used in PCR?'
+    ],
+    theory: '<p>An enzyme’s <b>active site</b> has a shape complementary to its substrate. When they collide with enough energy they form an <b>enzyme–substrate complex</b>; the induced fit lowers the activation energy.</p><p><b>Temperature:</b> more kinetic energy means more successful collisions, until bonds holding the tertiary structure (hydrogen and ionic bonds) break. The active site changes shape and the enzyme is <b>denatured</b>.</p><p><b>pH:</b> H⁺ and OH⁻ ions disrupt the ionic and hydrogen bonds, changing the active site.</p><p><b>Substrate concentration:</b> rate rises until all active sites are occupied (V<sub>max</sub>).</p><p><b>Competitive</b> inhibitors fit the active site and compete with the substrate; <b>non-competitive</b> inhibitors bind elsewhere (an allosteric site) and change the active site’s shape.</p>',
+    exam: [['Describe a graph', ['Quote figures: "rate rises from 12 to 40 units between 20 and 40 °C".', 'Name the optimum and the point where rate falls to zero.', 'Do not say the enzyme is "killed": enzymes are not alive.'], 'ul'], ['Explain', ['Link to kinetic energy and enzyme–substrate complexes formed per second.', 'Above the optimum: bonds in the tertiary structure break, the active site changes shape, substrate no longer complementary.', 'Inhibitors: state where they bind and whether more substrate overcomes them.'], 'ul'], ['RP1 method', ['Use a water bath and thermometer; equilibrate both solutions first.', 'Keep enzyme and substrate concentration, volume and pH (buffer) constant.', 'Measure initial rate: tangent at t = 0 on a product–time graph.'], 'ol']],
+    create: function (p) {
+      const S = { enz: [], subs: [], prods: [], t: 0, made: 0 };
+      function setup() {
+        S.enz = []; S.subs = []; S.prods = []; S.made = 0;
+        for (let i = 0; i < 7; i++) S.enz.push({ x: 0.12 + (i % 4) * 0.25 + (i > 3 ? 0.12 : 0), y: i > 3 ? 0.68 : 0.3, a: Math.random() * 7, w: rnd(-0.6, 0.6), busy: 0, wob: Math.random() * 7 });
+      }
+      function nSubs() { return Math.round(4 + p.S * 2.2); }
+      const inst = {
+        reset: setup,
+        step: function (dt) {
+          S.t += dt;
+          const r = enzRate(p), den = r.den;
+          while (S.subs.length < nSubs()) S.subs.push({ x: Math.random(), y: Math.random(), a: Math.random() * 7, inh: false });
+          if (S.subs.length > nSubs()) S.subs.length = nSubs();
+          const nInh = p.inh === 'none' ? 0 : 5;
+          let have = S.subs.filter((s) => s.inh).length;
+          S.subs.forEach((s) => { if (have < nInh && !s.inh) { s.inh = true; have++; } if (!nInh) s.inh = false; });
+          const sp = 0.08 + 0.12 * Math.min(1, p.T / 40);
+          S.subs.forEach((s) => {
+            s.a += rnd(-2, 2) * dt;
+            s.x += Math.cos(s.a) * sp * dt; s.y += Math.sin(s.a) * sp * dt * 1.8;
+            if (s.x < 0.03 || s.x > 0.97) { s.a = Math.PI - s.a; s.x = clamp(s.x, 0.03, 0.97); }
+            if (s.y < 0.05 || s.y > 0.95) { s.a = -s.a; s.y = clamp(s.y, 0.05, 0.95); }
+          });
+          S.enz.forEach((e, i) => {
+            e.a += e.w * dt * 0.6; e.wob += dt * (1 + p.T / 30);
+            e.dead = i < Math.round(den * S.enz.length);
+            if (e.busy > 0) {
+              e.busy -= dt;
+              if (e.busy <= 0) {
+                if (e.with === 'sub') { S.made++; for (let k = 0; k < 2; k++) S.prods.push({ x: e.x, y: e.y, a: e.a + (k ? 0.6 : -0.6), life: 3 }); }
+                e.with = null;
+              }
+              return;
+            }
+            if (e.dead) return;
+            // catch a nearby substrate; the chance reflects the model rate per active enzyme
+            for (let j = 0; j < S.subs.length; j++) {
+              const s = S.subs[j], dx = s.x - e.x, dy = (s.y - e.y) / 1.8;
+              if (dx * dx + dy * dy < 0.012) {
+                if (s.inh && p.inh === 'comp') { e.busy = 1.6; e.with = 'inh'; S.subs.splice(j, 1); break; }
+                if (s.inh || e.allo) continue;
+                if (Math.random() < 8 * r.tf * r.pf * dt) { e.busy = 0.9; e.with = 'sub'; S.subs.splice(j, 1); break; }
+              }
+            }
+            if (p.inh === 'non' && !e.allo) e.allo = Math.random() < 0.6;
+            if (p.inh !== 'non') e.allo = false;
+          });
+          S.prods.forEach((q) => { q.x += Math.cos(q.a) * 0.15 * dt; q.y += Math.sin(q.a) * 0.25 * dt; q.life -= dt; });
+          S.prods = S.prods.filter((q) => q.life > 0);
+        },
+        draw: function (g, W, H, p, th) {
+          const e = ENZ[p.enz];
+          const bg = g.createLinearGradient(0, 0, 0, H);
+          const warm = clamp(p.T / 90, 0, 1);
+          bg.addColorStop(0, th.dark ? '#1C2A2A' : mix([230, 250, 240, 1], [255, 236, 226, 1], warm)); bg.addColorStop(1, th.dark ? '#22303A' : mix([214, 242, 228, 1], [255, 220, 205, 1], warm));
+          g.fillStyle = bg; g.fillRect(0, 0, W, H);
+          const X = (x) => 16 + x * (W - 32), Y = (y) => 16 + y * (H - 54), R = Math.max(18, Math.min(30, W / 26));
+          S.prods.forEach((q) => { g.globalAlpha = clamp(q.life, 0, 1); LB.box(g, X(q.x) - 6, Y(q.y) - 6, 12, 12, '#F59E0B', 3); g.globalAlpha = 1; });
+          S.subs.forEach((s) => {
+            if (s.inh) { g.fillStyle = '#6B7280'; g.beginPath(); const x = X(s.x), y = Y(s.y); g.moveTo(x - 8, y + 7); g.lineTo(x + 8, y + 7); g.lineTo(x, y - 8); g.closePath(); g.fill(); return; }
+            LB.box(g, X(s.x) - 8, Y(s.y) - 8, 16, 16, '#3B82F6', 4);
+          });
+          S.enz.forEach((en) => {
+            const x = X(en.x), y = Y(en.y);
+            LB.shadow(g, x, y + R + 4, R * 0.8, 0.12);
+            g.save(); g.translate(x, y); g.rotate(en.a);
+            if (en.dead) {
+              g.fillStyle = '#9CA3AF'; g.beginPath();
+              for (let k = 0; k <= 20; k++) { const a = k / 20 * Math.PI * 2, rr = R * (0.85 + 0.18 * Math.sin(a * 5 + en.wob)); if (k) g.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); else g.moveTo(Math.cos(a) * rr, Math.sin(a) * rr); }
+              g.closePath(); g.fill();
+            } else {
+              const gr = g.createRadialGradient(-R * 0.3, -R * 0.3, R * 0.1, 0, 0, R);
+              gr.addColorStop(0, LB.shade(e.col, 0.5)); gr.addColorStop(1, LB.shade(e.col, -0.2));
+              g.fillStyle = gr; g.beginPath();
+              const notch = en.allo ? 0.12 : 0.32;
+              g.moveTo(0, 0); g.arc(0, 0, R, notch, Math.PI * 2 - notch); g.closePath(); g.fill();
+              g.fillStyle = gr; g.beginPath(); g.arc(-R * 0.15, 0, R * 0.55, 0, 7); g.fill();
+              if (en.with === 'sub') LB.box(g, R * 0.25, -8, 16, 16, '#3B82F6', 4);
+              if (en.with === 'inh') { g.fillStyle = '#6B7280'; g.beginPath(); g.moveTo(R * 0.25, 7); g.lineTo(R * 0.25 + 16, 7); g.lineTo(R * 0.25 + 8, -8); g.closePath(); g.fill(); }
+              if (en.allo) { g.fillStyle = '#6B7280'; g.beginPath(); g.arc(-R * 0.95, 0, 6, 0, 7); g.fill(); }
+              g.fillStyle = 'rgba(255,255,255,0.8)'; g.beginPath(); g.arc(-R * 0.35, -R * 0.4, R * 0.12, 0, 7); g.fill();
+            }
+            g.restore();
+          });
+          // Thermometer and pH strip
+          const tx = W - 34, ty = 20, thh = H - 80;
+          LB.rr(g, tx - 7, ty, 14, thh, 7); g.fillStyle = th.dark ? '#2E3346' : '#FFFFFF'; g.fill(); g.strokeStyle = th.ink3; g.lineWidth = 2; g.stroke();
+          const lvl = ty + thh - 6 - (thh - 12) * p.T / 90;
+          g.fillStyle = '#EF4444'; LB.rr(g, tx - 3, lvl, 6, ty + thh - lvl, 3); g.fill(); LB.ball(g, tx, ty + thh + 6, 10, '#EF4444');
+          T(g, p.T + ' °C', tx - 14, lvl + 4, { col: th.ink, size: 12, weight: 900, align: 'right' });
+          const ph = p.pH, hue = clamp((ph - 1) / 12, 0, 1) * 270;
+          LB.rr(g, 16, H - 32, 120, 20, 10); g.fillStyle = 'hsl(' + (hue < 120 ? hue * 0.5 : hue) + ',75%,55%)'; g.fill();
+          T(g, 'pH ' + ph, 76, H - 18, { col: '#fff', size: 12, weight: 900, align: 'center' });
+          const r = enzRate(p);
+          pill(g, S.made + ' products · rate ' + f(r.rate, 1), W - 60, H - 20, ENZ[p.enz].col, th, 'right');
+        },
+        graph: function (g, W, H, p, th) {
+          const e = ENZ[p.enz];
+          const ax = p.gx, rng = ax === 'T' ? [0, 90, 'Temperature / °C'] : ax === 'pH' ? [1, 13, 'pH'] : [0, 20, 'Substrate concentration / mmol dm⁻³'];
+          const series = [], mk = (o, col, dash) => { const pts = []; for (let v = rng[0]; v <= rng[1] + 1e-9; v += (rng[1] - rng[0]) / 160) { const q = {}; q[ax] = v; pts.push([v, enzRate(p, Object.assign(q, o)).rate]); } series.push({ pts: pts, col: col, width: 3, dash: dash }); };
+          if (p.inh !== 'none') mk({ inh: 'none' }, th.ink3, [5, 5]);
+          mk({}, e.col);
+          const pl = LB.plot(g, th, { x: 0, y: 0, w: W, h: H, x0: rng[0], x1: rng[1], y0: 0, y1: 110, xl: rng[2], yl: 'Rate of reaction (relative)', series: series });
+          const cur = enzRate(p);
+          LB.ball(g, pl.sx(p[ax]), pl.sy(cur.rate), 7, e.col);
+          if (p.inh !== 'none') LB.legend(g, th, W - 260, 22, [['with inhibitor', e.col], ['no inhibitor', th.ink3]]);
+        },
+        readouts: function () {
+          const r = enzRate(p);
+          return [['Products made', String(S.made)], ['Rate (relative)', f(r.rate, 1), 'th'], ['Temperature factor', f(r.tf, 2), 'th'], ['pH factor', f(r.pf, 2), 'th'], ['Enzymes denatured', Math.round(r.den * 100) + ' %', 'th'], ['Km', f(r.Km, 1) + ' mmol dm⁻³', 'th'], ['Vmax here', f(r.Vmax, 1), 'th']];
+        }
+      };
+      setup();
+      return inst;
+    }
+  });
+
+  // =====================================================================
+  // BIOLOGY 2. Osmosis and water potential (RP3)
+  // =====================================================================
+  const TISSUE = { potato: ['Potato', -0.85], sweet: ['Sweet potato', -1.25], carrot: ['Carrot', -0.65], mystery: ['Mystery tissue', null] };
+  LB.add({
+    id: 'osmosis', subject: 'biology', name: 'Osmosis and water potential', topics: ['bio-u9-t3', 'bio-u2-t4', 'bio-u3-t4'],
+    blurb: 'Soak plant tissue in sucrose solutions, record the change in mass and find the water potential of the cells.',
+    icon: icon('<path d="M14 6h20v6l-4 6v20a6 6 0 0 1-12 0V18l-4-6z"/><rect x="20" y="24" width="8" height="12" rx="2"/>'),
+    aspect: 0.52, maxH: 420, graph: true, graphH: 220, still: true,
+    help: 'Green values are calculated: Ψ of a sucrose solution ≈ −2.48 × concentration (MPa) at 25 °C.',
+    controls: [
+      { k: 'tis', type: 'select', label: 'Tissue', options: Object.keys(TISSUE).map((k) => [k, TISSUE[k][0]]), v: 'potato' },
+      { k: 'c', label: 'Sucrose concentration', min: 0, max: 1, step: 0.05, v: 0.2, unit: 'mol dm⁻³', dp: 2 }
+    ],
+    actions: [{ id: 'go', label: 'Soak for 30 minutes', primary: true }, { id: 'rec', label: 'Record result' }, { id: 'clear', label: 'Clear results' }],
+    tasks: [
+      'Soak potato in 0.0, 0.2, 0.4, 0.6, 0.8 and 1.0 mol dm⁻³ sucrose, recording each result. Where does the best-fit line cross zero?',
+      'At that concentration there is no net movement of water: the solution and the cells have the same water potential.',
+      'Read Ψ of the tissue off the graph and compare it with the green value.',
+      'Try the mystery tissue. Use at least 6 concentrations and repeats to get a reliable answer.',
+      'Why do we record <b>percentage</b> change in mass rather than change in mass?'
+    ],
+    theory: '<p><b>Water potential</b> (Ψ, in kPa or MPa) is the tendency of water to move out of a solution. Pure water has Ψ = 0; adding solute makes Ψ <b>more negative</b>.</p><p><b>Osmosis</b> is the net movement of water across a partially permeable membrane from a higher (less negative) to a lower (more negative) water potential.</p><p>If the solution has a higher Ψ than the cells, water moves <b>in</b>: the tissue gains mass and becomes turgid. If lower, water moves <b>out</b>: the tissue loses mass and the cells may <b>plasmolyse</b>. Where the line crosses 0% change, Ψ<sub>cells</sub> = Ψ<sub>solution</sub>.</p>',
+    exam: [['Method (RP3)', ['Cut equal cylinders with a cork borer; blot dry and weigh.', 'Make a serial dilution of 1.0 mol dm⁻³ sucrose.', 'Soak for the same time at the same temperature.', 'Blot and reweigh; calculate % change in mass.', 'Plot % change against concentration; read the x-intercept.'], 'ol'], ['Explain a result', ['Use "water potential", never "water concentration".', 'Say which side has the higher Ψ and which way water moves by osmosis.', 'Link to turgid or plasmolysed cells.'], 'ul'], ['Evaluation', ['Blotting inconsistently changes mass.', 'Use repeats and calculate a mean.', 'Use percentage change because starting masses differ.']]],
+    create: function (p) {
+      const S = { t: 0, m0: 2.5, results: [], running: false, mystery: rnd(-1.35, -0.55) };
+      const psiT = () => TISSUE[p.tis][1] == null ? S.mystery : TISSUE[p.tis][1];
+      const psiS = (c) => -2.48 * c;
+      const finalPct = (c) => { const d = psiS(c) - psiT(); return d > 0 ? 18 * Math.tanh(d / 0.9) : 28 * Math.tanh(d / 1.1); };
+      const pctAt = () => finalPct(p.c) * (1 - Math.exp(-S.t / 9));
+      const inst = {
+        reset: function () { S.t = 0; S.running = false; },
+        change: function (k) { if (k === 'tis' && p.tis === 'mystery') S.mystery = rnd(-1.35, -0.55); if (k === 'tis') S.results = []; inst.reset(); },
+        action: function (id) {
+          if (id === 'go') { S.t = 0; S.running = true; }
+          if (id === 'rec' && S.t > 0) S.results.push([p.c, pctAt() + gauss() * 0.9]);
+          if (id === 'clear') S.results = [];
+        },
+        step: function (dt) { if (S.running) { S.t = Math.min(30, S.t + dt * 6); if (S.t >= 30) S.running = false; } },
+        draw: function (g, W, H, p, th) {
+          bench(g, W, H, H * 0.82, th);
+          const pct = pctAt(), scale = 1 + pct / 100;
+          // Boiling tube
+          const tx = W * 0.22, top = 24, bot = H * 0.8, tw = Math.min(90, W * 0.13);
+          const sol = 'rgba(' + Math.round(170 + 60 * p.c) + ',' + Math.round(210 - 20 * p.c) + ',255,' + (0.35 + 0.35 * p.c) + ')';
+          g.fillStyle = sol; LB.rr(g, tx - tw / 2 + 3, top + 40, tw - 6, bot - top - 43, [0, 0, tw / 2, tw / 2]); g.fill();
+          g.strokeStyle = th.dark ? 'rgba(220,230,255,0.7)' : 'rgba(70,90,130,0.6)'; g.lineWidth = 3; LB.rr(g, tx - tw / 2, top, tw, bot - top, [4, 4, tw / 2, tw / 2]); g.stroke();
+          // Potato cylinder
+          const cw = tw * 0.32 * Math.sqrt(scale), ch = (bot - top) * 0.45 * scale, cy = bot - 18 - ch;
+          LB.box(g, tx - cw / 2, cy, cw, ch, pct < -8 ? '#D6C27A' : '#F5DB8B', 6);
+          T(g, p.c.toFixed(2) + ' M', tx, top - 6, { col: th.ink, size: 13, weight: 900, align: 'center' });
+          // Clock
+          const cx = W * 0.22 + tw + 50, cyc = 70, cr = 34;
+          LB.dial(g, cx, cyc, cr, S.t / 30, 'min', Math.round(S.t) + ' / 30 min', '#22C55E', th);
+          // Zoom bubble: one cell
+          const zx = W * 0.66, zy = H * 0.42, zr = Math.min(W * 0.2, H * 0.36);
+          g.save(); g.beginPath(); g.arc(zx, zy, zr, 0, 7); g.clip();
+          g.fillStyle = sol; g.fillRect(zx - zr, zy - zr, zr * 2, zr * 2);
+          const wall = zr * 0.72, shrink = clamp(-pct / 28, 0, 1), swell = clamp(pct / 18, 0, 1);
+          g.fillStyle = th.dark ? '#3F6B3A' : '#B7E4A8'; LB.rr(g, zx - wall, zy - wall * 0.8, wall * 2, wall * 1.6, 18); g.fill();
+          g.strokeStyle = '#3F8F3A'; g.lineWidth = 6; g.stroke();
+          const mem = wall * (0.94 - 0.35 * shrink + 0.04 * swell);
+          LB.rr(g, zx - mem, zy - mem * 0.78, mem * 2, mem * 1.56, 16); g.fillStyle = th.dark ? '#4E8A46' : '#8FD27E'; g.fill(); g.strokeStyle = '#2E7D32'; g.lineWidth = 2; g.stroke();
+          LB.rr(g, zx - mem * 0.6, zy - mem * 0.45, mem * 1.2, mem * 0.9, 14); g.fillStyle = 'rgba(160,210,255,0.8)'; g.fill();
+          T(g, 'vacuole', zx, zy + 4, { col: '#1E3A5F', size: 11, weight: 800, align: 'center' });
+          // water molecules moving
+          const dir = Math.sign(psiS(p.c) - psiT()), live = S.running ? 1 : 0.3;
+          for (let i = 0; i < 10; i++) {
+            const a = i / 10 * Math.PI * 2, ph = ((performance.now() / 1400) + i * 0.13) % 1;
+            const r0 = dir > 0 ? wall * 1.25 - ph * wall * 0.5 : wall * 0.8 + ph * wall * 0.5;
+            g.globalAlpha = live * (dir === 0 ? 0.2 : 0.9);
+            LB.ball(g, zx + Math.cos(a) * r0, zy + Math.sin(a) * r0 * 0.8, 4, '#38BDF8');
+          }
+          g.globalAlpha = 1; g.restore();
+          g.strokeStyle = th.ink2; g.lineWidth = 3; g.beginPath(); g.arc(zx, zy, zr, 0, 7); g.stroke();
+          const msg = dir > 0 ? 'Water moves IN: Ψ solution > Ψ cells' : dir < 0 ? 'Water moves OUT: Ψ solution < Ψ cells' : 'No net movement';
+          pill(g, msg, zx, zy + zr + 22 > H - 8 ? H - 14 : zy + zr + 22, dir > 0 ? '#0EA5E9' : '#F97316', th, 'center');
+          pill(g, 'Mass ' + (S.m0 * scale).toFixed(2) + ' g (' + (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%)', tx - tw / 2, H - 14, '#22C55E', th);
+        },
+        graph: function (g, W, H, p, th) {
+          const pts = S.results, n = pts.length;
+          let fit = null;
+          if (n >= 2) { const mx = pts.reduce((s, q) => s + q[0], 0) / n, my = pts.reduce((s, q) => s + q[1], 0) / n; let sxy = 0, sxx = 0; pts.forEach((q) => { sxy += (q[0] - mx) * (q[1] - my); sxx += (q[0] - mx) * (q[0] - mx); }); if (sxx > 0) { const m = sxy / sxx; fit = { m: m, c: my - m * mx }; } }
+          const series = [{ pts: pts, col: '#22C55E', dots: true, r: 5 }];
+          if (fit) series.unshift({ pts: [[0, fit.c], [1, fit.m + fit.c]], col: th.ink3, dash: [6, 4], width: 2 });
+          const vl = fit && fit.m < 0 ? [{ x: -fit.c / fit.m, col: '#0EA5E9', label: 'no change at ' + (-fit.c / fit.m).toFixed(2) + ' M' }] : [];
+          LB.plot(g, th, { x: 0, y: 0, w: W, h: H, x0: 0, x1: 1, y0: -30, y1: 20, xl: 'Sucrose concentration / mol dm⁻³', yl: '% change in mass', series: series, vlines: vl });
+          if (!n) T(g, 'Soak, then press Record result to plot points', W / 2, H / 2 - 20, { col: th.ink3, size: 13, weight: 800, align: 'center' });
+          S.fit = fit;
+        },
+        readouts: function () {
+          const fit = S.fit, x0 = fit && fit.m < 0 ? -fit.c / fit.m : null;
+          const r = [['Time soaked', Math.round(S.t) + ' min'], ['Change in mass', (pctAt() >= 0 ? '+' : '') + pctAt().toFixed(1) + ' %'], ['Results recorded', String(S.results.length)], ['Ψ of solution', psiS(p.c).toFixed(2) + ' MPa', 'th']];
+          if (x0 != null) r.push(['Ψ of tissue from your graph', (-2.48 * x0).toFixed(2) + ' MPa']);
+          if (p.tis !== 'mystery') r.push(['Ψ of tissue (true)', psiT().toFixed(2) + ' MPa', 'th']);
+          return r;
+        },
+        extra: function () {
+          if (!S.results.length) return '';
+          return '<table class="tbl lab-tbl"><thead><tr><th>Sucrose / M</th><th>Ψ / MPa</th><th>% change</th></tr></thead><tbody>' + S.results.map((q) => '<tr><td class="num">' + q[0].toFixed(2) + '</td><td class="num">' + psiS(q[0]).toFixed(2) + '</td><td class="num">' + (q[1] >= 0 ? '+' : '') + q[1].toFixed(1) + '</td></tr>').join('') + '</tbody></table>';
+        }
+      };
+      return inst;
+    }
+  });
+
+  // =====================================================================
+  // BIOLOGY 3. Predators and prey
+  // =====================================================================
+  LB.add({
+    id: 'predator', subject: 'biology', name: 'Predators and prey', topics: ['bio-u7-t4', 'bio-u5-t3'],
+    blurb: 'Foxes eat rabbits. Change birth, hunting and death rates and watch the two populations rise and fall in cycles.',
+    icon: icon('<path d="M4 34c6-10 10-10 14 0s8 10 14 0 10-10 12-4"/><path d="M4 24c6 10 10 10 14 0s8-10 14 0 10 8 12 4"/>'),
+    aspect: 0.5, maxH: 400, graph: true, graphH: 220, fast: 4,
+    help: 'Green values are the equilibrium populations from the Lotka–Volterra equations.',
+    controls: [
+      { k: 'a', label: 'Rabbit birth rate', min: 0.2, max: 1.5, step: 0.05, v: 0.8, unit: 'per year', dp: 2 },
+      { k: 'b', label: 'Hunting success', min: 0.005, max: 0.04, step: 0.001, v: 0.02, dp: 3 },
+      { k: 'e', label: 'Fox efficiency (rabbits → foxes)', min: 0.1, max: 0.5, step: 0.01, v: 0.25, dp: 2 },
+      { k: 'm', label: 'Fox death rate', min: 0.1, max: 1, step: 0.05, v: 0.4, unit: 'per year', dp: 2 },
+      { k: 'K', type: 'toggle', label: 'Limited food for rabbits (carrying capacity 250)', v: true },
+      { k: 'view', type: 'seg', label: 'Graph', options: [['time', 'Over time'], ['phase', 'Rabbits vs foxes']], v: 'time' }
+    ],
+    actions: [{ id: 'disease', label: 'Disease hits rabbits' }, { id: 'cull', label: 'Cull foxes' }],
+    tasks: [
+      'Watch one full cycle. The fox peak comes <b>after</b> the rabbit peak. Explain why.',
+      'Turn off the carrying capacity. The cycles keep going forever; with it on they settle towards the equilibrium.',
+      'Increase hunting success. Does the average number of foxes go up or down?',
+      'Press <b>Cull foxes</b>. What happens to the rabbits next, and then to the foxes?',
+      'Switch to the phase graph: each cycle is a loop around the equilibrium point.'
+    ],
+    theory: '<p>The <b>Lotka–Volterra</b> model:</p><p class="eq">dR/dt = aR(1 − R/K) − bRF &nbsp;&nbsp; dF/dt = e·bRF − mF</p><p>More prey means more food, so predators increase; more predators eat more prey, so prey fall; then predators starve and fall, and prey recover. The predator peak lags behind the prey peak.</p><p>Real populations are also limited by other <b>biotic</b> factors (disease, competition) and <b>abiotic</b> ones (temperature, space), so cycles are rarely this regular. The classic data are the Hudson’s Bay Company records of snowshoe hares and lynx.</p>',
+    exam: [['Describe the graph', ['Both populations fluctuate in cycles.', 'Prey peak first; predator peak follows after a lag.', 'Predator numbers are lower than prey numbers.'], 'ul'], ['Explain', ['Prey increase → more food for predators → more predators survive and reproduce.', 'More predators → more prey eaten → prey fall.', 'Less food → predators die or reproduce less → predators fall → prey recover.'], 'ol'], ['Watch out', ['Other factors also limit populations: disease, weather, competition.', 'Correlation in field data does not prove causation.']]],
+    create: function (p) {
+      const S = { R: 60, F: 10, t: 0, hist: [], animals: [] };
+      for (let i = 0; i < 90; i++) S.animals.push({ x: Math.random(), y: Math.random(), dx: rnd(-1, 1), dy: rnd(-1, 1), ph: Math.random() * 7 });
+      const inst = {
+        reset: function () { S.R = 60; S.F = 10; S.t = 0; S.hist = [[0, 60, 10]]; },
+        action: function (id) { if (id === 'disease') S.R *= 0.4; if (id === 'cull') S.F *= 0.4; },
+        step: function (dt) {
+          const n = Math.max(1, Math.ceil(dt / 0.01)), h = dt / n;
+          for (let i = 0; i < n; i++) {
+            const K = p.K ? 250 : Infinity, dR = p.a * S.R * (1 - S.R / K) - p.b * S.R * S.F, dF = p.e * p.b * S.R * S.F - p.m * S.F;
+            S.R = Math.max(0.01, S.R + dR * h); S.F = Math.max(0.01, S.F + dF * h); S.t += h;
+          }
+          if (S.t - (S.hist.length ? S.hist[S.hist.length - 1][0] : -1) > 0.1) S.hist.push([S.t, S.R, S.F]);
+          if (S.hist.length > 1200) S.hist.shift();
+          S.animals.forEach((q) => { q.ph += dt * 6; q.x += q.dx * dt * 0.05; q.y += q.dy * dt * 0.05; if (q.x < 0.02 || q.x > 0.98) q.dx *= -1; if (q.y < 0.05 || q.y > 0.95) q.dy *= -1; if (Math.random() < dt * 0.3) { q.dx = rnd(-1, 1); q.dy = rnd(-1, 1); } });
+        },
+        draw: function (g, W, H, p, th) {
+          LB.sky(g, W, H * 0.3, th);
+          LB.grass(g, H * 0.26, W, H, th);
+          const now = performance.now() / 1000;
+          LB.cloud(g, (now * 12) % (W + 120) - 60, 26, 0.7, th);
+          // bushes
+          for (let i = 0; i < 6; i++) { const x = (i + 0.5) * W / 6, y = H * 0.27; LB.ball(g, x, y, 16, th.dark ? '#2E6B37' : '#43A047'); LB.ball(g, x + 14, y + 2, 12, th.dark ? '#2E6B37' : '#4CAF50'); }
+          const nR = Math.min(70, Math.round(S.R / 4)), nF = Math.min(20, Math.round(S.F / 2));
+          const Y = (y) => H * 0.33 + y * (H * 0.6), X = (x) => 12 + x * (W - 24);
+          for (let i = 0; i < nR; i++) {
+            const q = S.animals[i], x = X(q.x), y = Y(q.y) + Math.abs(Math.sin(q.ph)) * -4;
+            LB.shadow(g, x, Y(q.y) + 8, 8, 0.15);
+            g.fillStyle = th.dark ? '#D9D2C5' : '#F2EEE6'; g.beginPath(); g.ellipse(x, y, 9, 7, 0, 0, 7); g.fill();
+            g.beginPath(); g.arc(x + (q.dx > 0 ? 7 : -7), y - 4, 5, 0, 7); g.fill();
+            g.beginPath(); g.ellipse(x + (q.dx > 0 ? 7 : -7), y - 13, 1.8, 6, q.dx > 0 ? 0.2 : -0.2, 0, 7); g.fill();
+            g.fillStyle = '#F9A8D4'; g.beginPath(); g.arc(x + (q.dx > 0 ? 11 : -11), y - 4, 1.5, 0, 7); g.fill();
+            g.fillStyle = '#FFFFFF'; g.beginPath(); g.arc(x + (q.dx > 0 ? -9 : 9), y - 2, 3, 0, 7); g.fill();
+          }
+          for (let i = 0; i < nF; i++) {
+            const q = S.animals[70 + i], x = X(q.x), y = Y(q.y), s = q.dx > 0 ? 1 : -1;
+            LB.shadow(g, x, y + 12, 14, 0.18);
+            g.fillStyle = '#EA7A2A'; g.beginPath(); g.ellipse(x, y, 15, 8, 0, 0, 7); g.fill();
+            g.beginPath(); g.ellipse(x - s * 18, y - 2, 10, 4, s * -0.4, 0, 7); g.fill();
+            g.fillStyle = '#FFFFFF'; g.beginPath(); g.arc(x - s * 26, y - 5, 3, 0, 7); g.fill();
+            g.fillStyle = '#EA7A2A'; g.beginPath(); g.arc(x + s * 14, y - 6, 7, 0, 7); g.fill();
+            g.beginPath(); g.moveTo(x + s * 10, y - 10); g.lineTo(x + s * 12, y - 20); g.lineTo(x + s * 16, y - 11); g.fill();
+            g.beginPath(); g.moveTo(x + s * 15, y - 10); g.lineTo(x + s * 19, y - 19); g.lineTo(x + s * 20, y - 9); g.fill();
+            g.fillStyle = '#1F2330'; g.beginPath(); g.arc(x + s * 21, y - 5, 2, 0, 7); g.fill();
+            g.fillStyle = '#3B2A20'; g.fillRect(x - 9, y + 5, 3, 7); g.fillRect(x + 7, y + 5, 3, 7);
+          }
+          pill(g, Math.round(S.R) + ' rabbits', 16, 24, '#64748B', th);
+          pill(g, Math.round(S.F) + ' foxes', 16, 52, '#EA7A2A', th);
+          pill(g, 'Year ' + S.t.toFixed(1), W - 16, 24, '#22C55E', th, 'right');
+        },
+        graph: function (g, W, H, p, th) {
+          const hs = S.hist;
+          if (p.view === 'phase') {
+            const xm = Math.max(100, ...hs.map((q) => q[1])) * 1.1, ym = Math.max(30, ...hs.map((q) => q[2])) * 1.1;
+            const eq = inst.eq();
+            const pl = LB.plot(g, th, { x: 0, y: 0, w: W, h: H, x0: 0, x1: xm, y0: 0, y1: ym, xl: 'Rabbits', yl: 'Foxes', series: [{ pts: hs.map((q) => [q[1], q[2]]), col: '#22C55E', width: 2.5 }] });
+            if (eq) LB.ball(g, pl.sx(eq[0]), pl.sy(eq[1]), 5, th.ink3);
+            if (hs.length) LB.ball(g, pl.sx(S.R), pl.sy(S.F), 6, '#22C55E');
+            return;
+          }
+          const t1 = Math.max(30, S.t), t0 = t1 - 30, ym = Math.max(100, ...hs.map((q) => q[1])) * 1.1;
+          LB.plot(g, th, { x: 0, y: 0, w: W, h: H, x0: t0, x1: t1, y0: 0, y1: ym, xl: 'Time / years', yl: 'Population', series: [{ pts: hs.filter((q) => q[0] >= t0).map((q) => [q[0], q[1]]), col: '#64748B', width: 3 }, { pts: hs.filter((q) => q[0] >= t0).map((q) => [q[0], q[2]]), col: '#EA7A2A', width: 3 }] });
+          LB.legend(g, th, W - 190, 22, [['Rabbits', '#64748B'], ['Foxes', '#EA7A2A']]);
+        },
+        eq: function () { const Rs = p.m / (p.e * p.b), K = p.K ? 250 : Infinity; if (Rs >= K) return null; return [Rs, p.a / p.b * (1 - Rs / K)]; },
+        readouts: function () {
+          const eq = inst.eq();
+          return [['Year', S.t.toFixed(1)], ['Rabbits', String(Math.round(S.R))], ['Foxes', String(Math.round(S.F))], ['Rabbits per fox', f(S.R / S.F, 1)], ['Equilibrium rabbits', eq ? f(eq[0], 0) : 'foxes die out', 'th'], ['Equilibrium foxes', eq ? f(eq[1], 0) : '0', 'th']];
+        }
+      };
+      inst.reset();
+      return inst;
+    }
+  });
+})(window.RH = window.RH || {});
+</script>
+<script>
+/* Computer science, psychology and geography labs, on the same frame as the physics labs (labs.js). */
+(function (RH) {
+  'use strict';
+  const LB = RH.labs, f = LB.fmt, T = LB.text, esc = RH.util.esc;
+  const icon = (d) => '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>';
+  const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; };
+  function pill(g, s, x, y, col, th, align) {
+    g.font = '800 12px Nunito, system-ui, sans-serif';
+    const w = g.measureText(s).width + 16, x0 = align === 'center' ? x - w / 2 : align === 'right' ? x - w : x;
+    LB.rr(g, x0, y - 13, w, 22, 11); g.fillStyle = th.dark ? 'rgba(20,22,34,0.85)' : 'rgba(255,255,255,0.92)'; g.fill();
+    g.strokeStyle = col; g.lineWidth = 2; g.stroke();
+    T(g, s, x0 + 8, y + 3, { col: col, size: 12, weight: 800 });
+  }
+  function panelBg(g, W, H, th, a, b) {
+    const gr = g.createLinearGradient(0, 0, 0, H);
+    gr.addColorStop(0, th.dark ? '#1B2133' : a); gr.addColorStop(1, th.dark ? '#222A40' : b);
+    g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  }
+  const syncToggle = (k, v) => { const el = document.querySelector('input[data-lk="' + k + '"]'); if (el) el.checked = v; };
+
+  // =====================================================================
+  // COMPUTER SCIENCE 1. Sorting algorithms
+  // =====================================================================
+  const ALGS = { bubble: 'Bubble sort', insertion: 'Insertion sort', merge: 'Merge sort', quick: 'Quick sort' };
+  function sortOps(alg, arr) {
+    const a = arr.slice(), o = [];
+    const cmp = (i, j) => { o.push(['c', i, j]); return a[i] > a[j]; };
+    const swap = (i, j) => { if (i === j) return; o.push(['s', i, j]); const t = a[i]; a[i] = a[j]; a[j] = t; };
+    const set = (i, v) => { o.push(['w', i, v]); a[i] = v; };
+    const done = (i) => o.push(['d', i]);
+    const n = a.length;
+    if (alg === 'bubble') {
+      for (let m = n; m > 1; m--) {
+        let sw = false;
+        for (let i = 0; i < m - 1; i++) if (cmp(i, i + 1)) { swap(i, i + 1); sw = true; }
+        done(m - 1);
+        if (!sw) break;
+      }
+    } else if (alg === 'insertion') {
+      for (let i = 1; i < n; i++) { let j = i; while (j > 0 && cmp(j - 1, j)) { swap(j - 1, j); j--; } }
+    } else if (alg === 'merge') {
+      const ms = (lo, hi) => {
+        if (hi <= lo) return;
+        const mid = (lo + hi) >> 1; ms(lo, mid); ms(mid + 1, hi);
+        const L = a.slice(lo, mid + 1), R = a.slice(mid + 1, hi + 1);
+        let i = 0, j = 0, k = lo;
+        while (i < L.length && j < R.length) { o.push(['c', lo + i, mid + 1 + j]); if (L[i] <= R[j]) set(k++, L[i++]); else set(k++, R[j++]); }
+        while (i < L.length) set(k++, L[i++]);
+        while (j < R.length) set(k++, R[j++]);
+      };
+      ms(0, n - 1);
+    } else {
+      const qs = (lo, hi) => {
+        if (lo > hi) return;
+        if (lo === hi) { done(lo); return; }
+        let i = lo;
+        o.push(['p', hi]);
+        for (let j = lo; j < hi; j++) if (!cmp(j, hi)) { swap(i, j); i++; }
+        swap(i, hi); done(i);
+        qs(lo, i - 1); qs(i + 1, hi);
+      };
+      qs(0, n - 1);
+    }
+    for (let i = 0; i < n; i++) done(i);
+    return o;
+  }
+  LB.add({
+    id: 'sorting', subject: 'compsci', name: 'Sorting algorithms', topics: ['cs-u8-t4', 'cs-u8-t1'],
+    blurb: 'Watch bubble, insertion, merge and quick sort step by step, and count the comparisons each one needs.',
+    icon: icon('<path d="M8 40V28M16 40V20M24 40V32M32 40V12M40 40V24"/>'),
+    aspect: 0.48, maxH: 400, graph: true, graphH: 190, still: true,
+    help: 'Green values are the textbook formulas for this n; the others are counted as the algorithm runs.',
+    controls: [
+      { k: 'alg', type: 'select', label: 'Algorithm', options: Object.keys(ALGS).map((k) => [k, ALGS[k]]), v: 'bubble' },
+      { k: 'n', label: 'Number of items, n', min: 6, max: 60, step: 1, v: 20, dp: 0 },
+      { k: 'order', type: 'seg', label: 'Starting order', options: [['random', 'Random'], ['nearly', 'Nearly sorted'], ['reversed', 'Reversed']], v: 'random' },
+      { k: 'speed', label: 'Steps per second', min: 1, max: 120, step: 1, v: 12, dp: 0 }
+    ],
+    actions: [{ id: 'run', label: 'Play / pause', primary: true }, { id: 'one', label: 'One step' }, { id: 'shuffle', label: 'New data' }],
+    tasks: [
+      'Run bubble sort on 20 random items. After the first pass, the largest item is in place. Count the passes.',
+      'Give bubble sort a <b>nearly sorted</b> list. It stops early because a pass has no swaps: best case O(n).',
+      'Compare all four on the same data using the bar chart. Which needs the fewest comparisons?',
+      'Set n = 60 and run insertion sort on a reversed list: the worst case, n(n − 1)/2 comparisons.',
+      'Quick sort on a reversed list chooses the worst pivot each time. Why does its comparison count jump?',
+      'Merge sort uses about n log₂ n comparisons whatever the order. What is the cost? (Look at the extra memory it needs.)'
+    ],
+    theory: '<p><b>Bubble sort</b> compares adjacent pairs and swaps them if out of order; each pass bubbles the largest item to the end. O(n²), best case O(n) with an early stop.</p><p><b>Insertion sort</b> takes each item and slides it left into the sorted part. O(n²), but fast on nearly sorted data.</p><p><b>Merge sort</b> splits the list in half recursively, then merges sorted halves. O(n log n) always, but needs O(n) extra memory.</p><p><b>Quick sort</b> picks a pivot (here the last item), partitions smaller items to its left and larger to its right, then sorts each side. O(n log n) on average, O(n²) in the worst case.</p>',
+    exam: [['Trace tables', ['Write out the list after every pass (bubble) or every insertion.', 'For merge sort, show the splits then each merge.', 'For quick sort, mark the pivot and the two partitions.'], 'ul'], ['Big O to learn', ['Bubble and insertion: O(n²) time, O(1) space.', 'Merge: O(n log n) time, O(n) space.', 'Quick: O(n log n) average, O(n²) worst; O(log n) space.'], 'ul'], ['Compare', ['For tiny or nearly sorted data, insertion sort is often fastest.', 'Merge sort is stable and predictable.', 'Quick sort is usually fastest in practice.']]],
+    create: function (p) {
+      const S = { base: [], a: [], ops: [], k: 0, acc: 0, run: true, sorted: {}, hl: null, cmp: 0, sw: 0, counts: {} };
+      function data() {
+        const n = p.n, a = [];
+        for (let i = 0; i < n; i++) a.push(Math.round(5 + (95 * (i + 1)) / n));
+        if (p.order === 'random') shuffle(a);
+        else if (p.order === 'reversed') a.reverse();
+        else for (let i = 0; i < Math.max(1, n / 10); i++) { const x = Math.floor(Math.random() * (n - 1)); const t = a[x]; a[x] = a[x + 1]; a[x + 1] = t; }
+        S.base = a;
+        S.counts = {}; Object.keys(ALGS).forEach((k) => { S.counts[k] = sortOps(k, a).filter((q) => q[0] === 'c').length; });
+      }
+      function restart() { S.a = S.base.slice(); S.ops = sortOps(p.alg, S.base); S.k = 0; S.acc = 0; S.sorted = {}; S.hl = null; S.cmp = 0; S.sw = 0; S.run = true; }
+      function apply() {
+        const q = S.ops[S.k++];
+        if (!q) return;
+        S.hl = q;
+        if (q[0] === 'c') S.cmp++;
+        if (q[0] === 's') { const t = S.a[q[1]]; S.a[q[1]] = S.a[q[2]]; S.a[q[2]] = t; S.sw++; }
+        if (q[0] === 'w') { S.a[q[1]] = q[2]; S.sw++; }
+        if (q[0] === 'd') S.sorted[q[1]] = true;
+      }
+      const inst = {
+        reset: restart,
+        change: function (k) { if (k === 'n' || k === 'order') data(); if (k !== 'speed') restart(); },
+        action: function (id) { if (id === 'run') S.run = !S.run; if (id === 'one') { S.run = false; apply(); } if (id === 'shuffle') { data(); restart(); } },
+        step: function (dt) {
+          if (!S.run) return;
+          S.acc += dt * p.speed;
+          while (S.acc >= 1 && S.k < S.ops.length) { S.acc -= 1; apply(); while (S.k < S.ops.length && S.ops[S.k][0] === 'd') apply(); }
+          if (S.k >= S.ops.length) S.hl = null;
+        },
+        draw: function (g, W, H, p, th) {
+          panelBg(g, W, H, th, '#EFF8FF', '#E0F2FE');
+          const n = S.a.length, pad = 18, bw = (W - pad * 2) / n, base = H - 30, top = 30;
+          const hlc = S.hl && (S.hl[0] === 'c' || S.hl[0] === 'p') ? [S.hl[1], S.hl[2]] : [], hls = S.hl && (S.hl[0] === 's' || S.hl[0] === 'w') ? [S.hl[1], S.hl[2]] : [];
+          for (let i = 0; i < n; i++) {
+            const h = (base - top) * S.a[i] / 100, x = pad + i * bw + bw * 0.12, w = bw * 0.76;
+            let col = '#0EA5E9';
+            if (S.sorted[i]) col = '#22C55E';
+            if (hlc.indexOf(i) >= 0) col = '#FACC15';
+            if (hls.indexOf(i) >= 0 && S.hl[0] === 's') col = '#EC4899';
+            if (S.hl && S.hl[0] === 'w' && S.hl[1] === i) col = '#8B5CF6';
+            LB.box(g, x, base - h, w, h, col, Math.min(8, w / 3));
+            if (n <= 24) T(g, String(S.a[i]), x + w / 2, base + 16, { col: th.ink3, size: 11, weight: 800, align: 'center' });
+          }
+          if (S.hl && S.hl[0] === 'c') { const i = S.hl[1], j = S.hl[2], x1 = pad + (i + 0.5) * bw, x2 = pad + (j + 0.5) * bw; g.strokeStyle = '#CA8A04'; g.lineWidth = 2; g.beginPath(); g.moveTo(x1, top - 6); g.quadraticCurveTo((x1 + x2) / 2, top - 22, x2, top - 6); g.stroke(); }
+          const done = S.k >= S.ops.length;
+          pill(g, ALGS[p.alg] + (done ? ' · sorted ✓' : S.run ? ' · running' : ' · paused'), pad, 22, done ? '#22C55E' : '#0EA5E9', th);
+          pill(g, S.cmp + ' comparisons · ' + S.sw + (p.alg === 'merge' ? ' writes' : ' swaps'), W - pad, 22, '#64748B', th, 'right');
+        },
+        graph: function (g, W, H, p, th) {
+          const ks = Object.keys(ALGS), mx = Math.max(...ks.map((k) => S.counts[k]), p.n * (p.n - 1) / 2) * 1.08, L = Math.min(150, W * 0.3), rowH = (H - 40) / ks.length;
+          T(g, 'Comparisons needed to sort this exact list', 8, 16, { col: th.ink2, size: 12, weight: 800 });
+          ks.forEach((k, i) => {
+            const y = 28 + i * rowH, w = (W - L - 70) * S.counts[k] / mx, on = k === p.alg;
+            T(g, ALGS[k], L - 8, y + rowH / 2 + 4, { col: on ? th.ink : th.ink3, size: 12, weight: on ? 900 : 700, align: 'right' });
+            LB.box(g, L, y + 4, Math.max(4, w), rowH - 10, on ? '#0EA5E9' : (th.dark ? '#4B5567' : '#CBD5E1'), 6);
+            T(g, String(S.counts[k]), L + Math.max(4, w) + 8, y + rowH / 2 + 4, { col: th.ink2, size: 12, weight: 900 });
+          });
+          const nn = p.n * (p.n - 1) / 2, x = L + (W - L - 70) * nn / mx;
+          g.strokeStyle = '#EF4444'; g.setLineDash([4, 4]); g.beginPath(); g.moveTo(x, 24); g.lineTo(x, H - 8); g.stroke(); g.setLineDash([]);
+          T(g, 'n(n−1)/2', x - 4, H - 2, { col: '#EF4444', size: 11, weight: 800, align: 'right' });
+        },
+        readouts: function () {
+          const n = p.n;
+          return [['Step', S.k + ' / ' + S.ops.length], ['Comparisons', String(S.cmp)], [p.alg === 'merge' ? 'Writes' : 'Swaps', String(S.sw)], ['n(n−1)/2', String(n * (n - 1) / 2), 'th'], ['n log₂ n', f(n * Math.log2(n), 0), 'th'], ['Time complexity', p.alg === 'merge' ? 'O(n log n)' : p.alg === 'quick' ? 'O(n log n) avg, O(n²) worst' : 'O(n²), best O(n)', 'th']];
+        }
+      };
+      data(); restart();
+      return inst;
+    }
+  });
+
+  // =====================================================================
+  // COMPUTER SCIENCE 2. Logic gates
+  // =====================================================================
+  const FN = { AND: (a) => a[0] & a[1], OR: (a) => a[0] | a[1], NOT: (a) => 1 - a[0], NAND: (a) => 1 - (a[0] & a[1]), NOR: (a) => 1 - (a[0] | a[1]), XOR: (a) => a[0] ^ a[1] };
+  const CIRC = {
+    AND: { n: 'AND gate', in: ['A', 'B'], g: [['g', 'AND', ['A', 'B'], 0.5, 0.5]], out: [['Q', 'g']], ex: 'Q = A ∧ B' },
+    OR: { n: 'OR gate', in: ['A', 'B'], g: [['g', 'OR', ['A', 'B'], 0.5, 0.5]], out: [['Q', 'g']], ex: 'Q = A ∨ B' },
+    NOT: { n: 'NOT gate', in: ['A'], g: [['g', 'NOT', ['A'], 0.5, 0.5]], out: [['Q', 'g']], ex: 'Q = ¬A' },
+    NAND: { n: 'NAND gate', in: ['A', 'B'], g: [['g', 'NAND', ['A', 'B'], 0.5, 0.5]], out: [['Q', 'g']], ex: 'Q = ¬(A ∧ B)' },
+    NOR: { n: 'NOR gate', in: ['A', 'B'], g: [['g', 'NOR', ['A', 'B'], 0.5, 0.5]], out: [['Q', 'g']], ex: 'Q = ¬(A ∨ B)' },
+    XOR: { n: 'XOR gate', in: ['A', 'B'], g: [['g', 'XOR', ['A', 'B'], 0.5, 0.5]], out: [['Q', 'g']], ex: 'Q = A ⊻ B' },
+    expr: { n: '(A AND B) OR NOT C', in: ['A', 'B', 'C'], g: [['g1', 'AND', ['A', 'B'], 0.42, 0.3], ['g2', 'NOT', ['C'], 0.42, 0.74], ['g3', 'OR', ['g1', 'g2'], 0.72, 0.5]], out: [['Q', 'g3']], ex: 'Q = (A ∧ B) ∨ ¬C' },
+    half: { n: 'Half adder', in: ['A', 'B'], g: [['g1', 'XOR', ['A', 'B'], 0.55, 0.3], ['g2', 'AND', ['A', 'B'], 0.55, 0.72]], out: [['Sum', 'g1'], ['Carry', 'g2']], ex: 'Sum = A ⊻ B, Carry = A ∧ B' },
+    full: { n: 'Full adder', in: ['A', 'B', 'C'], g: [['g1', 'XOR', ['A', 'B'], 0.32, 0.26], ['g2', 'XOR', ['g1', 'C'], 0.62, 0.32], ['g3', 'AND', ['A', 'B'], 0.42, 0.62], ['g4', 'AND', ['g1', 'C'], 0.62, 0.84], ['g5', 'OR', ['g4', 'g3'], 0.82, 0.72]], out: [['Sum', 'g2'], ['Carry out', 'g5']], ex: 'Sum = A ⊻ B ⊻ Cin, Cout = (A ∧ B) ∨ (Cin ∧ (A ⊻ B))' }
+  };
+  function gatePath(g, type, x, y, w, h) {
+    const body = /^N/.test(type) && type !== 'NOT' ? w - 10 : w;
+    g.beginPath();
+    if (type === 'AND' || type === 'NAND') { g.moveTo(x, y); g.lineTo(x + body - h / 2, y); g.arc(x + body - h / 2, y + h / 2, h / 2, -Math.PI / 2, Math.PI / 2); g.lineTo(x, y + h); g.closePath(); }
+    else if (type === 'OR' || type === 'NOR' || type === 'XOR') { g.moveTo(x, y); g.quadraticCurveTo(x + body * 0.65, y, x + body, y + h / 2); g.quadraticCurveTo(x + body * 0.65, y + h, x, y + h); g.quadraticCurveTo(x + body * 0.28, y + h / 2, x, y); g.closePath(); }
+    else { g.moveTo(x, y); g.lineTo(x + w - 12, y + h / 2); g.lineTo(x, y + h); g.closePath(); }
+    return body;
+  }
+  LB.add({
+    id: 'logic', subject: 'compsci', name: 'Logic gates and adders', topics: ['cs-u4-t3', 'cs-u1-t1'],
+    blurb: 'Flip the switches and watch signals light up through AND, OR, NOT, XOR, a half adder and a full adder.',
+    icon: icon('<path d="M10 12h12a12 12 0 0 1 0 24H10z"/><path d="M4 18h6M4 30h6M34 24h10"/>'),
+    aspect: 0.55, maxH: 420, onCanvas: true, still: true,
+    help: 'Click the switches on the left of the circuit, or use the toggles here. The truth table highlights the current row.',
+    controls: [
+      { k: 'c', type: 'select', label: 'Circuit', options: Object.keys(CIRC).map((k) => [k, CIRC[k].n]), v: 'AND' },
+      { k: 'A', type: 'toggle', label: 'Input A', v: true },
+      { k: 'B', type: 'toggle', label: 'Input B', v: false, when: (p) => CIRC[p.c].in.indexOf('B') >= 0 },
+      { k: 'C', type: 'toggle', label: 'Input C (carry in for the full adder)', v: false, when: (p) => CIRC[p.c].in.indexOf('C') >= 0 }
+    ],
+    tasks: [
+      'Work through every row of the AND truth table by flipping the switches. When is the output 1?',
+      'Compare NAND with AND. Every row is inverted. NAND on its own can build every other gate.',
+      'Choose the half adder and add 1 + 1. The Sum is 0 and the Carry is 1: binary 10 = 2.',
+      'Use the full adder to work out 1 + 1 + 1. Why do we need a carry in to add numbers wider than one bit?',
+      'For (A AND B) OR NOT C, find all the inputs that make Q = 0. Write the expression in Boolean algebra and simplify it if you can.'
+    ],
+    theory: '<p>A <b>logic gate</b> takes one or more binary inputs and gives one output. A <b>truth table</b> lists the output for every combination of inputs: 2ⁿ rows for n inputs.</p><p class="eq">AND: A ∧ B &nbsp; OR: A ∨ B &nbsp; NOT: ¬A &nbsp; XOR: A ⊻ B</p><p>A <b>half adder</b> adds two bits: Sum = A ⊻ B and Carry = A ∧ B. A <b>full adder</b> also adds a carry in, so full adders can be chained to add whole binary numbers. A <b>D-type flip-flop</b> (also in OCR 1.4.3) stores one bit, changing only on the rising edge of the clock.</p>',
+    exam: [['Draw it', ['Use the standard ANSI symbols: D-shape AND, curved OR, triangle and bubble NOT.', 'A bubble on the output means NOT.', 'Label every input and output.'], 'ul'], ['Boolean algebra', ['De Morgan: ¬(A ∧ B) = ¬A ∨ ¬B; ¬(A ∨ B) = ¬A ∧ ¬B.', 'Distribution, association, commutation, double negation.', 'Karnaugh maps: group 1s in powers of 2, wrapping round the edges.'], 'ul'], ['Truth tables', ['Count up in binary down the input columns so you never miss a row.', 'Add a column for each intermediate gate.']]],
+    create: function (p) {
+      const S = { sw: [], pulse: 0 };
+      const inv = () => CIRC[p.c].in;
+      function evalc() {
+        const c = CIRC[p.c], v = {};
+        c.in.forEach((k) => { v[k] = p[k] ? 1 : 0; });
+        c.g.forEach((q) => { v[q[0]] = FN[q[1]](q[2].map((s) => v[s])); });
+        return v;
+      }
+      const inst = {
+        reset: function () {},
+        step: function (dt) { S.pulse += dt; },
+        pointer: function (kind, x, y) {
+          if (kind !== 'down') return false;
+          const hit = S.sw.find((s) => x >= s.x - 6 && x <= s.x + s.w + 6 && y >= s.y - 8 && y <= s.y + s.h + 8);
+          if (!hit) return false;
+          p[hit.k] = !p[hit.k]; syncToggle(hit.k, p[hit.k]);
+          return true;
+        },
+        draw: function (g, W, H, p, th) {
+          panelBg(g, W, H, th, '#F2F7FF', '#E6F0FF');
+          // breadboard dots
+          g.fillStyle = th.dark ? 'rgba(255,255,255,0.05)' : 'rgba(14,165,233,0.12)';
+          for (let x = 12; x < W; x += 24) for (let y = 12; y < H; y += 24) { g.beginPath(); g.arc(x, y, 1.6, 0, 7); g.fill(); }
+          const c = CIRC[p.c], v = evalc(), gw = clamp(W * 0.1, 54, 84), gh = gw * 0.72;
+          const on = '#F59E0B', off = th.dark ? '#5B6277' : '#94A3B8';
+          const pos = {}, ins = c.in;
+          S.sw = [];
+          ins.forEach((k, i) => { const y = H * (ins.length === 1 ? 0.5 : c.g.length > 2 ? [0.22, 0.42, 0.78][i] : (i + 1) / (ins.length + 1)); pos[k] = [W * 0.04 + 70, y]; });
+          c.g.forEach((q) => { const x = W * q[3] - gw / 2, y = H * q[4] - gh / 2; pos[q[0]] = [x + gw, y + gh / 2, x, y]; });
+          const wire = (from, x2, y2, idx) => {
+            const a = pos[from], val = v[from], xm = x2 - 16 - idx * 10;
+            g.strokeStyle = val ? on : off; g.lineWidth = val ? 5 : 3.5; g.lineJoin = 'round';
+            if (val) { g.shadowColor = 'rgba(245,158,11,0.6)'; g.shadowBlur = 10; }
+            g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(xm, a[1]); g.lineTo(xm, y2); g.lineTo(x2, y2); g.stroke();
+            g.shadowBlur = 0;
+            if (val) { const L = Math.abs(xm - a[0]) + Math.abs(y2 - a[1]) + Math.abs(x2 - xm), t = (S.pulse * 120) % 30; for (let s = t; s < L; s += 30) { let px, py; if (s < Math.abs(xm - a[0])) { px = a[0] + Math.sign(xm - a[0]) * s; py = a[1]; } else if (s < Math.abs(xm - a[0]) + Math.abs(y2 - a[1])) { px = xm; py = a[1] + Math.sign(y2 - a[1]) * (s - Math.abs(xm - a[0])); } else { px = xm + (s - Math.abs(xm - a[0]) - Math.abs(y2 - a[1])); py = y2; } g.fillStyle = '#FFF7D6'; g.beginPath(); g.arc(px, py, 2.2, 0, 7); g.fill(); } }
+          };
+          c.g.forEach((q) => { const x = pos[q[0]][2], y = pos[q[0]][3]; q[2].forEach((s, i) => wire(s, x + (q[1] === 'NOT' ? 0 : gw * 0.1), y + gh * (q[2].length === 1 ? 0.5 : (i + 1) / 3), i)); });
+          const outs = c.out.map((o, i) => { const y = c.out.length === 1 ? pos[o[1]][1] : H * (i ? 0.72 : 0.32); return [o, W - 70, c.out.length === 1 ? y : (p.c === 'full' ? pos[o[1]][1] : y)]; });
+          outs.forEach((o) => wire(o[0][1], o[1] - 18, o[2], 0));
+          // fan-out junction dots
+          const uses = {}; c.g.forEach((q) => q[2].forEach((s) => { uses[s] = (uses[s] || 0) + 1; })); c.out.forEach((o) => { uses[o[1]] = (uses[o[1]] || 0) + 1; });
+          Object.keys(uses).forEach((k) => { if (uses[k] > 1) { g.fillStyle = v[k] ? on : off; g.beginPath(); g.arc(pos[k][0] + 2, pos[k][1], 5, 0, 7); g.fill(); } });
+          // gates
+          c.g.forEach((q) => {
+            const x = pos[q[0]][2], y = pos[q[0]][3], val = v[q[0]];
+            g.shadowColor = 'rgba(0,0,0,0.15)'; g.shadowBlur = 8; g.shadowOffsetY = 3;
+            const body = gatePath(g, q[1], x, y, gw, gh);
+            const gr = g.createLinearGradient(0, y, 0, y + gh); gr.addColorStop(0, th.dark ? '#2E3A55' : '#FFFFFF'); gr.addColorStop(1, th.dark ? '#25304A' : '#E0F2FE');
+            g.fillStyle = gr; g.fill(); g.shadowBlur = 0; g.shadowOffsetY = 0;
+            g.strokeStyle = '#0EA5E9'; g.lineWidth = 3; g.stroke();
+            if (q[1] === 'XOR') { g.beginPath(); g.moveTo(x - 9, y); g.quadraticCurveTo(x + gw * 0.28 - 9, y + gh / 2, x - 9, y + gh); g.stroke(); }
+            if (/^N/.test(q[1])) { const bx = q[1] === 'NOT' ? x + gw - 6 : x + body + 5; g.beginPath(); g.arc(bx, y + gh / 2, 5.5, 0, 7); g.fillStyle = th.dark ? '#2E3A55' : '#FFFFFF'; g.fill(); g.stroke(); }
+            T(g, q[1], x + gw * (q[1] === 'NOT' ? 0.3 : 0.42), y + gh / 2 + 4, { col: th.ink, size: 11, weight: 900, align: 'center' });
+          });
+          // switches
+          ins.forEach((k) => {
+            const x = pos[k][0] - 62, y = pos[k][1] - 13, val = p[k];
+            S.sw.push({ k: k, x: x, y: y, w: 48, h: 26 });
+            LB.rr(g, x, y, 48, 26, 13); g.fillStyle = val ? '#22C55E' : (th.dark ? '#3A4058' : '#CBD5E1'); g.fill();
+            LB.ball(g, val ? x + 35 : x + 13, y + 13, 10, '#FFFFFF');
+            T(g, k === 'C' && p.c === 'full' ? 'Cin' : k, x - 8, y + 18, { col: th.ink, size: 15, weight: 900, align: 'right' });
+            T(g, val ? '1' : '0', x + 24, y + 42, { col: val ? '#16A34A' : th.ink3, size: 12, weight: 900, align: 'center' });
+            g.strokeStyle = val ? on : off; g.lineWidth = val ? 5 : 3.5; g.beginPath(); g.moveTo(x + 48, y + 13); g.lineTo(pos[k][0], pos[k][1]); g.stroke();
+          });
+          // lamps
+          outs.forEach((o) => {
+            const val = v[o[0][1]], x = o[1], y = o[2];
+            if (val) LB.glow(g, x, y, 46, 'rgba(250,204,21,0.9)');
+            LB.ball(g, x, y, 17, val ? '#FACC15' : (th.dark ? '#4B5567' : '#E2E8F0'));
+            g.strokeStyle = th.dark ? '#8B93A7' : '#64748B'; g.lineWidth = 2; g.beginPath(); g.arc(x, y, 17, 0, 7); g.stroke();
+            T(g, o[0][0] + ' = ' + val, x, y + 36, { col: th.ink, size: 13, weight: 900, align: 'center' });
+          });
+          pill(g, c.ex, 14, H - 16, '#0EA5E9', th);
+        },
+        readouts: function () {
+          const c = CIRC[p.c], v = evalc();
+          const r = c.in.map((k) => ['Input ' + (k === 'C' && p.c === 'full' ? 'Cin' : k), String(v[k])]).concat(c.out.map((o) => [o[0], String(v[o[1]]), 'th']));
+          if (p.c === 'half' || p.c === 'full') { const sum = c.in.reduce((s, k) => s + v[k], 0); r.push(['In denary', c.in.map((k) => v[k]).join(' + ') + ' = ' + sum + ' = ' + sum.toString(2) + '₂', 'th']); }
+          return r;
+        },
+        extra: function () {
+          const c = CIRC[p.c], n = c.in.length, cur = c.in.map((k) => p[k] ? 1 : 0).join('');
+          let rows = '';
+          for (let i = 0; i < 1 << n; i++) {
+            const bits = i.toString(2).padStart(n, '0'), v = {};
+            c.in.forEach((k, j) => { v[k] = Number(bits[j]); });
+            c.g.forEach((q) => { v[q[0]] = FN[q[1]](q[2].map((s) => v[s])); });
+            rows += '<tr' + (bits === cur ? ' class="hl"' : '') + '>' + c.in.map((k) => '<td class="num">' + v[k] + '</td>').join('') + c.out.map((o) => '<td class="num"><b>' + v[o[1]] + '</b></td>').join('') + '</tr>';
+          }
+          return '<p class="label">Truth table</p><table class="tbl lab-tbl"><thead><tr>' + c.in.map((k) => '<th>' + (k === 'C' && p.c === 'full' ? 'Cin' : k) + '</th>').join('') + c.out.map((o) => '<th>' + esc(o[0]) + '</th>').join('') + '</tr></thead><tbody>' + rows + '</tbody></table>';
+        }
+      };
+      return inst;
+    }
+  });
+
+  // =====================================================================
+  // COMPUTER SCIENCE 3. Binary and hex
+  // =====================================================================
+  LB.add({
+    id: 'binary', subject: 'compsci', name: 'Binary, hex and two’s complement', topics: ['cs-u4-t1'],
+    blurb: 'Click the bits to build a number. See it in denary and hex, as two’s complement or sign and magnitude, and try shifts.',
+    icon: icon('<rect x="4" y="14" width="10" height="20" rx="3"/><rect x="19" y="14" width="10" height="20" rx="3"/><rect x="34" y="14" width="10" height="20" rx="3"/><path d="M9 20v8M24 20v8"/><circle cx="39" cy="24" r="3"/>'),
+    aspect: 0.42, maxH: 340, onCanvas: true, still: true,
+    help: 'Click a bit to flip it. In challenge mode, make the target number.',
+    controls: [
+      { k: 'mode', type: 'seg', label: 'Read the 8 bits as', options: [['u', 'Unsigned'], ['tc', 'Two’s complement'], ['sm', 'Sign and magnitude']], v: 'u' },
+      { k: 'ch', type: 'toggle', label: 'Challenge mode', v: false, help: 'Make the target number shown on the board.' }
+    ],
+    actions: [{ id: 'inc', label: '+1' }, { id: 'shl', label: 'Shift left' }, { id: 'shr', label: 'Shift right' }, { id: 'not', label: 'Invert (NOT)' }, { id: 'neg', label: 'Negate' }, { id: 'clr', label: 'Clear' }, { id: 'tgt', label: 'New target' }],
+    tasks: [
+      'Make 73 in unsigned binary. Which place values did you use?',
+      'Press <b>Shift left</b> on 00010110. The number doubles. What happens if the leftmost 1 falls off?',
+      'Switch to two’s complement and make −1. Why is it 11111111?',
+      'Make 5, then press <b>Negate</b> (invert and add 1). Check you get −5.',
+      'Unsigned 255 + 1 overflows to 0. Two’s complement 127 + 1 overflows to −128. Try both with the +1 button.',
+      'Turn on challenge mode and get five targets in a row without using the denary readout.'
+    ],
+    theory: '<p>Each bit has a place value: 128, 64, 32, 16, 8, 4, 2, 1. An 8-bit unsigned integer holds 0 to 255.</p><p><b>Two’s complement</b> makes the most significant bit worth −128, so 8 bits hold −128 to 127. To negate: invert every bit and add 1.</p><p><b>Sign and magnitude</b> uses the first bit as the sign (1 = negative) and the other 7 as the size, so it has two zeros.</p><p><b>Hexadecimal</b> groups bits in nibbles of 4: each hex digit 0–F is one nibble. A <b>logical shift left</b> multiplies by 2; shift right divides by 2 (losing the remainder).</p>',
+    exam: [['Conversions', ['Write the place values above the bits every time.', 'Binary → hex: split into nibbles from the right.', 'Negative two’s complement → denary: −128 + the rest.'], 'ul'], ['Arithmetic', ['Binary addition: 1 + 1 = 0 carry 1; 1 + 1 + 1 = 1 carry 1.', 'Subtraction: add the two’s complement of the number.', 'Overflow: the result needs more bits than are available.'], 'ul'], ['Also in OCR 1.4.1', ['Floating point: mantissa and exponent, normalisation.', 'Masks with AND, OR and XOR.', 'Character sets: ASCII and Unicode.']]],
+    create: function (p) {
+      const S = { b: [0, 1, 0, 0, 1, 0, 0, 1], flash: [0, 0, 0, 0, 0, 0, 0, 0], msg: '', msgT: 0, target: 0, streak: 0, tiles: [] };
+      const uval = () => S.b.reduce((s, x) => s * 2 + x, 0);
+      const val = () => { const u = uval(); if (p.mode === 'tc') return u >= 128 ? u - 256 : u; if (p.mode === 'sm') return (S.b[0] ? -1 : 1) * (u & 127); return u; };
+      const setU = (u) => { const nb = []; for (let i = 7; i >= 0; i--) nb.push((u >> i) & 1); nb.forEach((x, i) => { if (x !== S.b[i]) S.flash[i] = 1; }); S.b = nb; };
+      const say = (m) => { S.msg = m; S.msgT = 2.5; };
+      function newTarget() { const lo = p.mode === 'u' ? 0 : p.mode === 'tc' ? -128 : -127, hi = p.mode === 'u' ? 255 : 127; S.target = Math.round(rnd(lo, hi)); }
+      newTarget();
+      const inst = {
+        reset: function () {},
+        change: function (k) { if (k === 'mode' || k === 'ch') newTarget(); },
+        action: function (id) {
+          const u = uval();
+          if (id === 'inc') { const r = u + 1; if (p.mode === 'u' && r > 255) say('Overflow! 255 + 1 needs 9 bits'); if (p.mode === 'tc' && u === 127) say('Overflow! 127 + 1 wraps to −128'); setU(r & 255); }
+          if (id === 'shl') { if (S.b[0]) say('A 1 fell off the left: overflow'); setU((u << 1) & 255); }
+          if (id === 'shr') { if (S.b[7]) say('A 1 fell off the right: the remainder is lost'); setU(u >> 1); }
+          if (id === 'not') setU(~u & 255);
+          if (id === 'neg') { if (p.mode === 'sm') setU(u ^ 128); else setU((~u + 1) & 255); }
+          if (id === 'clr') setU(0);
+          if (id === 'tgt') newTarget();
+        },
+        pointer: function (kind, x, y) {
+          if (kind !== 'down') return false;
+          const i = S.tiles.findIndex((t) => x >= t[0] && x <= t[0] + t[2] && y >= t[1] && y <= t[1] + t[3]);
+          if (i < 0) return false;
+          S.b[i] = 1 - S.b[i]; S.flash[i] = 1;
+          return true;
+        },
+        step: function (dt) {
+          S.flash = S.flash.map((x) => Math.max(0, x - dt * 3));
+          if (S.msgT > 0) S.msgT -= dt;
+          if (p.ch && val() === S.target && !S.hit) { S.hit = true; S.streak++; say('✓ Got it! ' + S.target + ' = ' + S.b.join('')); setTimeout(() => { newTarget(); S.hit = false; }, 1200); }
+        },
+        draw: function (g, W, H, p, th) {
+          panelBg(g, W, H, th, '#F0F9FF', '#E0F2FE');
+          const gap = 8, nib = 18, tw = Math.min(78, (W - 40 - gap * 7 - nib) / 8), th2 = tw * 1.15, x0 = (W - (tw * 8 + gap * 7 + nib)) / 2, y0 = H * 0.26;
+          const pv = p.mode === 'tc' ? ['−128', '64', '32', '16', '8', '4', '2', '1'] : p.mode === 'sm' ? ['sign', '64', '32', '16', '8', '4', '2', '1'] : ['128', '64', '32', '16', '8', '4', '2', '1'];
+          S.tiles = [];
+          for (let i = 0; i < 8; i++) {
+            const x = x0 + i * (tw + gap) + (i >= 4 ? nib : 0), y = y0, on = S.b[i], fl = S.flash[i];
+            S.tiles.push([x, y, tw, th2]);
+            T(g, pv[i], x + tw / 2, y - 10, { col: i === 0 && p.mode !== 'u' ? '#EC4899' : th.ink2, size: 13, weight: 900, align: 'center' });
+            if (on) LB.glow(g, x + tw / 2, y + th2 / 2, tw * 0.9, 'rgba(250,204,21,0.55)');
+            g.save(); g.translate(x + tw / 2, y + th2 / 2); g.scale(1 + fl * 0.08, 1 + fl * 0.08);
+            LB.box(g, -tw / 2, -th2 / 2, tw, th2, on ? '#FACC15' : (th.dark ? '#3A4058' : '#E2E8F0'), 14);
+            T(g, String(on), 0, tw * 0.2, { col: on ? '#713F12' : th.ink3, size: Math.round(tw * 0.55), weight: 900, align: 'center' });
+            g.restore();
+          }
+          const hex = uval().toString(16).toUpperCase().padStart(2, '0');
+          T(g, 'hex', x0 + tw * 2 + gap * 1.5, y0 + th2 + 24, { col: th.ink3, size: 11, weight: 800, align: 'center' });
+          T(g, hex[0], x0 + tw * 2 + gap * 1.5, y0 + th2 + 48, { col: '#0EA5E9', size: 24, weight: 900, align: 'center' });
+          T(g, hex[1], x0 + tw * 6 + gap * 5.5 + nib, y0 + th2 + 48, { col: '#0EA5E9', size: 24, weight: 900, align: 'center' });
+          const parts = []; S.b.forEach((x, i) => { if (x) parts.push(i === 0 && p.mode === 'tc' ? '(−128)' : i === 0 && p.mode === 'sm' ? '' : pv[i]); });
+          const sum = (p.mode === 'sm' && S.b[0] ? '−(' : '') + (parts.filter(Boolean).join(' + ') || '0') + (p.mode === 'sm' && S.b[0] ? ')' : '') + ' = ' + val();
+          T(g, sum, W / 2, Math.min(H - 14, y0 + th2 + 84), { col: th.ink, size: 16, weight: 900, align: 'center' });
+          if (p.ch) pill(g, 'Target: ' + S.target + '   ·   streak ' + S.streak, W / 2, 26, '#EC4899', th, 'center');
+          else pill(g, 'Denary ' + val() + '  ·  hex ' + hex + '  ·  ' + S.b.slice(0, 4).join('') + ' ' + S.b.slice(4).join(''), W / 2, 26, '#0EA5E9', th, 'center');
+          if (S.msgT > 0) { g.globalAlpha = clamp(S.msgT, 0, 1); pill(g, S.msg, W / 2, y0 - 34 < 46 ? 52 : y0 - 34, S.msg[0] === '✓' ? '#22C55E' : '#EF4444', th, 'center'); g.globalAlpha = 1; }
+        },
+        readouts: function () {
+          const u = uval();
+          return [['Binary', S.b.slice(0, 4).join('') + ' ' + S.b.slice(4).join('')], ['Unsigned', String(u)], ['Two’s complement', String(u >= 128 ? u - 256 : u)], ['Sign and magnitude', (S.b[0] && (u & 127) ? '−' : S.b[0] ? '−' : '') + (u & 127)], ['Hexadecimal', u.toString(16).toUpperCase().padStart(2, '0')], ['Range of this format', p.mode === 'u' ? '0 to 255' : p.mode === 'tc' ? '−128 to 127' : '−127 to 127', 'th']];
+        }
+      };
+      return inst;
+    }
+  });
+
+  // =====================================================================
+  // PSYCHOLOGY. Serial position effect (memory)
+  // =====================================================================
+  const WORDS = ['apple', 'river', 'candle', 'tiger', 'window', 'garden', 'pencil', 'rocket', 'button', 'castle', 'ladder', 'mirror', 'violin', 'jacket', 'wallet', 'carpet', 'helmet', 'kettle', 'lemon', 'magnet', 'needle', 'orange', 'parrot', 'pillow', 'rabbit', 'saddle', 'teapot', 'tunnel', 'wagon', 'zebra', 'anchor', 'basket', 'cactus', 'dragon', 'engine', 'feather', 'glove', 'hammer', 'island', 'jungle', 'kitten', 'lantern', 'meadow', 'napkin', 'oyster', 'pebble', 'quilt', 'statue', 'trumpet', 'umbrella', 'velvet', 'whistle', 'yacht', 'bridge', 'cotton', 'forest', 'harbour', 'marble', 'puzzle', 'silver'];
+  function spModel(pos, N, rate, delay) {
+    const prim = 0.42 * Math.exp(-(pos - 1) / 1.7) * (0.55 + 0.3 * rate);
+    const rec = 0.55 * Math.exp(-(N - pos) / 1.3) * (delay === 0 ? 1 : delay === 10 ? 0.45 : 0.06);
+    return clamp(0.18 + 0.03 * rate + prim + rec - 0.004 * N, 0.03, 0.97);
+  }
+  LB.add({
+    id: 'serialpos', subject: 'psychology', name: 'Serial position effect', topics: ['psy-u2-t1', 'psy-u7-t3', 'psy-u7-t1'],
+    blurb: 'Take a free-recall memory test yourself, or run a simulated class, and see primacy and recency appear.',
+    icon: icon('<path d="M6 36c4-24 8-24 12-8s8 10 12 8 6-26 12-30"/><path d="M6 42h36"/>'),
+    aspect: 0.5, maxH: 420, graph: true, graphH: 210, onCanvas: true, still: true,
+    help: 'Green values come from the model of a typical class (after Murdock 1962 and Glanzer and Cunitz 1966).',
+    controls: [
+      { k: 'N', label: 'Words in the list', min: 10, max: 20, step: 1, v: 15, dp: 0 },
+      { k: 'rate', label: 'Seconds per word', min: 0.5, max: 3, step: 0.5, v: 1.5, unit: 's', dp: 1 },
+      { k: 'delay', type: 'seg', label: 'Before recall', options: [[0, 'Recall at once'], [10, '10 s delay'], [30, '30 s counting task']], v: 0 }
+    ],
+    actions: [{ id: 'start', label: 'Start the test', primary: true }, { id: 'done', label: 'Finish recall' }, { id: 'class', label: 'Run a class of 30' }, { id: 'clear', label: 'Clear results' }],
+    tasks: [
+      'Take the test with immediate recall three times. Are you better at the first and last few words than the middle?',
+      'Run a class of 30 with immediate recall: a U-shaped curve. The first words (<b>primacy</b>) were rehearsed into long-term memory; the last (<b>recency</b>) are still in short-term memory.',
+      'Now run the class with a 30-second counting task. Which effect disappears, and why? (Glanzer and Cunitz, 1966.)',
+      'Slow the presentation to 3 seconds per word. Which part of the curve goes up? More time means more rehearsal.',
+      'What is the independent variable and the dependent variable in this experiment? Is it repeated measures or independent groups?'
+    ],
+    theory: '<p>In <b>free recall</b>, people remember the words at the start and end of a list better than those in the middle: the <b>serial position curve</b>.</p><p>The <b>primacy effect</b> happens because early words are rehearsed more and transferred to <b>long-term memory</b>. The <b>recency effect</b> happens because the last few words are still in <b>short-term memory</b> (capacity about 7 ± 2, duration about 18–30 seconds without rehearsal).</p><p>This supports the <b>multi-store model</b> (Atkinson and Shiffrin, 1968): an interference task wipes out recency but leaves primacy, so STM and LTM are separate stores.</p>',
+    exam: [['Evaluate the multi-store model', ['Supported by the serial position effect and by HM and KF case studies.', 'But KF had impaired STM for verbal items only: STM is not one store (the working memory model).', 'Rehearsal is not the only route into LTM (flashbulb memories).'], 'ul'], ['Research methods', ['IV: serial position (or delay); DV: % of words recalled.', 'Control: same word length and frequency, same presentation rate.', 'Lab experiment: high control but low mundane realism.'], 'ul'], ['Data handling', ['Draw a line graph: position on the x-axis, % recalled on the y-axis.', 'Describe the trend using figures from the graph.', 'Calculate mean and range for each position.']]],
+    create: function (p) {
+      const S = { phase: 'idle', t: 0, list: [], grid: [], sel: {}, cells: [], you: [], cls: null, last: null, count: 0 };
+      function start() {
+        S.list = shuffle(WORDS.slice()).slice(0, p.N);
+        const extra = shuffle(WORDS.filter((w) => S.list.indexOf(w) < 0)).slice(0, p.N);
+        S.grid = shuffle(S.list.concat(extra)); S.sel = {}; S.phase = 'show'; S.t = 0; S.count = 400 + Math.floor(Math.random() * 500);
+      }
+      function finish() {
+        if (S.phase !== 'recall') return;
+        const row = S.list.map((w) => S.sel[w] ? 1 : 0), fa = S.grid.filter((w) => S.sel[w] && S.list.indexOf(w) < 0).length;
+        S.you.push(row); S.last = { got: row.reduce((a, b) => a + b, 0), fa: fa }; S.phase = 'score';
+      }
+      const inst = {
+        reset: function () {},
+        change: function (k) { if (k === 'N') { S.you = []; S.cls = null; S.phase = 'idle'; } },
+        action: function (id) {
+          if (id === 'start') start();
+          if (id === 'done') finish();
+          if (id === 'class') { const res = []; for (let i = 1; i <= p.N; i++) { const pr = spModel(i, p.N, p.rate, p.delay); let c = 0; for (let k = 0; k < 30; k++) if (Math.random() < pr) c++; res.push(c / 30 * 100); } S.cls = { pts: res, delay: p.delay, rate: p.rate }; }
+          if (id === 'clear') { S.you = []; S.cls = null; S.last = null; }
+        },
+        pointer: function (kind, x, y) {
+          if (kind !== 'down' || S.phase !== 'recall') return false;
+          const c = S.cells.find((q) => x >= q[1] && x <= q[1] + q[3] && y >= q[2] && y <= q[2] + q[4]);
+          if (!c) return false;
+          S.sel[c[0]] = !S.sel[c[0]];
+          return true;
+        },
+        step: function (dt) {
+          if (S.phase === 'show') { S.t += dt; if (S.t >= p.N * p.rate) { S.phase = p.delay ? 'delay' : 'recall'; S.t = 0; } }
+          else if (S.phase === 'delay') { S.t += dt; if (S.t >= p.delay) { S.phase = 'recall'; S.t = 0; } }
+        },
+        draw: function (g, W, H, p, th) {
+          panelBg(g, W, H, th, '#FFF1F7', '#FCE7F3');
+          const pink = '#EC4899';
+          S.cells = [];
+          if (S.phase === 'idle') {
+            T(g, 'Free recall test', W / 2, H * 0.36, { col: th.ink, size: 26, weight: 900, align: 'center' });
+            T(g, p.N + ' words, one every ' + p.rate + ' s. Then pick out the ones you saw.', W / 2, H * 0.36 + 32, { col: th.ink2, size: 14, weight: 700, align: 'center' });
+            T(g, 'Press “Start the test” when you are ready.', W / 2, H * 0.36 + 56, { col: th.ink3, size: 13, weight: 700, align: 'center' });
+          } else if (S.phase === 'show') {
+            const i = Math.floor(S.t / p.rate), ft = (S.t % p.rate) / p.rate;
+            g.globalAlpha = clamp(Math.min(ft * 6, (1 - ft) * 6), 0, 1);
+            LB.box(g, W / 2 - 150, H / 2 - 50, 300, 100, th.dark ? '#3A2440' : '#FFFFFF', 24);
+            T(g, S.list[i] || '', W / 2, H / 2 + 12, { col: th.ink, size: 36, weight: 900, align: 'center' });
+            g.globalAlpha = 1;
+            T(g, 'Word ' + (i + 1) + ' of ' + p.N, W / 2, H / 2 + 80, { col: th.ink3, size: 13, weight: 800, align: 'center' });
+          } else if (S.phase === 'delay') {
+            const left = Math.ceil(p.delay - S.t);
+            if (p.delay >= 30) {
+              T(g, 'Count backwards in threes, out loud, from', W / 2, H * 0.38, { col: th.ink2, size: 15, weight: 800, align: 'center' });
+              T(g, String(S.count), W / 2, H * 0.38 + 50, { col: pink, size: 44, weight: 900, align: 'center' });
+            } else T(g, 'Wait…', W / 2, H * 0.45, { col: th.ink2, size: 26, weight: 900, align: 'center' });
+            LB.dial(g, W / 2, H * 0.78, 30, S.t / p.delay, 's', left + ' s left', pink, th);
+          } else {
+            const cols = W > 640 ? 6 : 4, rows = Math.ceil(S.grid.length / cols), cw = (W - 40) / cols, ch = Math.min(40, (H - 60) / rows);
+            T(g, S.phase === 'recall' ? 'Click every word you saw, then press “Finish recall”.' : 'Green: you got it. Red: you picked a word that was not on the list. Grey: missed.', W / 2, 24, { col: th.ink2, size: 13, weight: 800, align: 'center' });
+            S.grid.forEach((w, i) => {
+              const x = 20 + (i % cols) * cw + 4, y = 40 + Math.floor(i / cols) * ch, sel = S.sel[w], was = S.list.indexOf(w) >= 0;
+              S.cells.push([w, x, y, cw - 8, ch - 6]);
+              let col = th.dark ? '#3A3048' : '#FFFFFF', tc = th.ink;
+              if (S.phase === 'recall' && sel) { col = pink; tc = '#FFFFFF'; }
+              if (S.phase === 'score') { if (sel && was) { col = '#22C55E'; tc = '#FFFFFF'; } else if (sel) { col = '#EF4444'; tc = '#FFFFFF'; } else if (was) { col = th.dark ? '#4B5567' : '#CBD5E1'; } }
+              LB.box(g, x, y, cw - 8, ch - 6, col, 12);
+              T(g, w, x + (cw - 8) / 2, y + (ch - 6) / 2 + 5, { col: tc, size: 13, weight: 800, align: 'center' });
+            });
+            if (S.phase === 'score' && S.last) pill(g, 'You recalled ' + S.last.got + ' of ' + p.N + (S.last.fa ? ', ' + S.last.fa + ' false alarm' + (S.last.fa > 1 ? 's' : '') : ''), W / 2, H - 14, '#22C55E', th, 'center');
+          }
+        },
+        graph: function (g, W, H, p, th) {
+          const series = [], N = p.N;
+          const model = []; for (let i = 1; i <= N; i++) model.push([i, spModel(i, N, p.rate, p.delay) * 100]);
+          series.push({ pts: model, col: th.ink3, dash: [5, 5], width: 2 });
+          if (S.cls) { const pts = S.cls.pts.map((v, i) => [i + 1, v]); series.push({ pts: pts, col: '#8B5CF6', width: 3 }); series.push({ pts: pts, col: '#8B5CF6', dots: true, r: 4 }); }
+          if (S.you.length) { const pts = []; for (let i = 0; i < N; i++) pts.push([i + 1, S.you.reduce((s, r) => s + (r[i] || 0), 0) / S.you.length * 100]); series.push({ pts: pts, col: '#EC4899', width: 3 }); series.push({ pts: pts, col: '#EC4899', dots: true, r: 5 }); }
+          LB.plot(g, th, { x: 0, y: 0, w: W, h: H, x0: 1, x1: N, y0: 0, y1: 100, xl: 'Serial position', yl: '% recalled', series: series });
+          LB.legend(g, th, W - 330, 22, [['Expected', th.ink3]].concat(S.cls ? [['Class of 30', '#8B5CF6']] : []).concat(S.you.length ? [['You (' + S.you.length + ' trial' + (S.you.length > 1 ? 's' : '') + ')', '#EC4899']] : []));
+        },
+        readouts: function () {
+          const N = p.N, avg = (a, b) => { let s = 0; for (let i = a; i <= b; i++) s += spModel(i, N, p.rate, p.delay); return Math.round(s / (b - a + 1) * 100) + ' %'; };
+          const r = [['Stage', { idle: 'ready', show: 'learning', delay: 'delay', recall: 'recall', score: 'scored' }[S.phase]], ['Your trials', String(S.you.length)]];
+          if (S.last) r.push(['Last score', S.last.got + ' / ' + N]);
+          r.push(['Expected: first 3 words', avg(1, 3), 'th'], ['Expected: middle', avg(4, N - 3), 'th'], ['Expected: last 3 words', avg(N - 2, N), 'th']);
+          return r;
+        }
+      };
+      return inst;
+    }
+  });
+
+  // =====================================================================
+  // GEOGRAPHY 1. Storm hydrograph
+  // =====================================================================
+  function hydro(p) {
+    const dt = 0.25, N = 48 / dt, start = 2, A = 60;
+    const base = { dry: 0.15, normal: 0.3, wet: 0.6 }[p.soil], land = { forest: 0.55, grass: 1, arable: 1.2 }[p.land], u = p.urban / 100;
+    const c = clamp(base * land * (1 - u) + 0.9 * u, 0.05, 0.95);
+    let lag = (p.shape === 'circ' ? 6.5 : 11) + (p.land === 'forest' ? 3 : p.land === 'arable' ? -1 : 0);
+    lag *= (1 - 0.55 * u) * (p.soil === 'wet' ? 0.85 : 1);
+    const k = 3.5, theta = lag / (k - 1);
+    const kern = []; let ks = 0;
+    for (let i = 0; i < N; i++) { const t = (i + 0.5) * dt, v = Math.pow(t, k - 1) * Math.exp(-t / theta); kern.push(v); ks += v; }
+    const slow = []; let ss = 0; const th2 = 26 / 2.5;
+    for (let i = 0; i < N; i++) { const t = (i + 0.5) * dt, v = Math.pow(t, 2.5) * Math.exp(-t / th2); slow.push(v); ss += v; }
+    const rain = [], Q = [];
+    for (let i = 0; i < N; i++) { const t = i * dt; rain.push(t >= start && t < start + p.dur ? p.rain / p.dur : 0); Q.push(4); }
+    for (let i = 0; i < N; i++) {
+      if (!rain[i]) continue;
+      const vol = rain[i] * dt * A * 1000;
+      for (let j = i; j < N; j++) { Q[j] += vol * c * kern[j - i] / ks / (dt * 3600); Q[j] += vol * (1 - c) * 0.35 * slow[j - i] / ss / (dt * 3600); }
+    }
+    let pk = 0, pi = 0; Q.forEach((q, i) => { if (q > pk) { pk = q; pi = i; } });
+    return { dt: dt, N: N, rain: rain, Q: Q, peak: pk, tPeak: pi * dt, tRain: start + p.dur / 2, c: c, lag: pi * dt - (start + p.dur / 2) };
+  }
+  LB.add({
+    id: 'hydrograph', subject: 'geography', name: 'Storm hydrograph', topics: ['geo-u1-t2', 'geo-u6-t2'],
+    blurb: 'Send a storm over a drainage basin. Change the rainfall, soil, land use, urbanisation and basin shape and watch the river respond.',
+    icon: icon('<path d="M6 40h36"/><path d="M8 38c6-2 8-20 14-22s10 16 20 20"/><path d="M12 6v8M18 4v8M24 6v8"/>'),
+    aspect: 0.5, maxH: 420, graph: true, graphH: 230, fast: 4,
+    help: 'Green values are read from the modelled hydrograph for a 60 km² basin with a bankfull discharge of 40 m³/s.',
+    controls: [
+      { k: 'rain', label: 'Total rainfall', min: 5, max: 90, step: 1, v: 35, unit: 'mm', dp: 0 },
+      { k: 'dur', label: 'Storm length', min: 1, max: 12, step: 0.5, v: 4, unit: 'hours', dp: 1 },
+      { k: 'soil', type: 'seg', label: 'Antecedent soil moisture', options: [['dry', 'Dry'], ['normal', 'Normal'], ['wet', 'Saturated']], v: 'normal' },
+      { k: 'land', type: 'seg', label: 'Land use', options: [['forest', 'Forest'], ['grass', 'Grassland'], ['arable', 'Ploughed fields']], v: 'grass' },
+      { k: 'urban', label: 'Urbanised area', min: 0, max: 90, step: 5, v: 10, unit: '%', dp: 0 },
+      { k: 'shape', type: 'seg', label: 'Basin shape', options: [['circ', 'Circular'], ['long', 'Elongated']], v: 'circ' }
+    ],
+    actions: [{ id: 'ghost', label: 'Keep this curve to compare' }],
+    tasks: [
+      'Run the storm with the default basin. Find the <b>lag time</b>: from peak rainfall to peak discharge.',
+      'Press <b>Keep this curve</b>, then set urbanisation to 70%. The new hydrograph is “flashy”: shorter lag, higher peak, steeper rising limb.',
+      'Make the soil saturated (after a wet week). Why does the same storm now cause a flood?',
+      'Compare forest with ploughed fields. Explain the difference using interception and infiltration.',
+      'An elongated basin has a lower, later peak than a circular one of the same area. Why?'
+    ],
+    theory: '<p>A <b>storm hydrograph</b> shows river discharge (m³/s) over time after a storm, with rainfall as bars. Key parts: <b>rising limb</b>, <b>peak discharge</b>, <b>lag time</b> (peak rainfall to peak discharge), <b>falling limb</b> and <b>baseflow</b>.</p><p>Water reaching the river quickly by <b>surface runoff</b> (overland flow) gives a flashy hydrograph. Water that <b>infiltrates</b> and moves by throughflow and groundwater flow arrives later and more slowly.</p><p>Flashy: urban surfaces, saturated or frozen soil, steep slopes, circular basins, intense rain, little vegetation. Subdued: forest (interception), permeable rock, dry soil, elongated basins.</p>',
+    exam: [['Describe a hydrograph', ['Quote peak discharge and its time, with units.', 'Calculate lag time from peak rainfall, not from the start of the rain.', 'Compare the gradient of the rising limbs.'], 'ul'], ['Explain urban floods', ['Impermeable surfaces: little infiltration, more overland flow.', 'Drains and gutters carry water to the river quickly.', 'Result: shorter lag time and higher peak.'], 'ul'], ['Case study links', ['Use a named UK flood (for example Cumbria 2015 or Boscastle 2004).', 'Link physical and human causes.', 'Evaluate hard and soft management.']]],
+    create: function (p) {
+      const S = { t: 0, h: hydro(p), ghost: null, drops: [] };
+      for (let i = 0; i < 80; i++) S.drops.push({ x: Math.random(), y: Math.random(), s: rnd(0.8, 1.2) });
+      const qAt = (t) => { const i = clamp(Math.floor(t / S.h.dt), 0, S.h.N - 1); return S.h.Q[i]; };
+      const inst = {
+        reset: function () { S.t = 0; },
+        change: function () { S.h = hydro(p); },
+        action: function (id) { if (id === 'ghost') S.ghost = S.h.Q.slice(); },
+        step: function (dt) { S.t = Math.min(48, S.t + dt * 2.5); S.drops.forEach((d) => { d.y += dt * 1.6 * d.s; if (d.y > 1) { d.y = 0; d.x = Math.random(); } }); },
+        draw: function (g, W, H, p, th) {
+          const raining = S.t >= 2 && S.t < 2 + p.dur, inten = p.rain / p.dur;
+          LB.sky(g, W, H, th, raining ? '#9FB3C8' : '#BEE3FF', raining ? '#DCE6F0' : '#F3FAFF');
+          // hills (cross-section)
+          const gy = H * 0.55, rx = W / 2, rw = Math.min(160, W * 0.22);
+          const soil = { dry: '#C9A27A', normal: '#9C7552', wet: '#5E4632' }[p.soil];
+          g.fillStyle = th.dark ? LB.shade(soil, -0.3) : soil;
+          g.beginPath(); g.moveTo(0, gy - 70); g.quadraticCurveTo(W * 0.25, gy - 40, rx - rw / 2, gy + 30); g.lineTo(rx + rw / 2, gy + 30); g.quadraticCurveTo(W * 0.75, gy - 40, W, gy - 70); g.lineTo(W, H); g.lineTo(0, H); g.closePath(); g.fill();
+          g.fillStyle = p.land === 'arable' ? '#C8A86A' : (th.dark ? '#2F6B3A' : '#6CC870');
+          g.beginPath(); g.moveTo(0, gy - 70); g.quadraticCurveTo(W * 0.25, gy - 40, rx - rw / 2, gy + 30); g.lineTo(rx - rw / 2, gy + 38); g.quadraticCurveTo(W * 0.25, gy - 30, 0, gy - 60); g.closePath(); g.fill();
+          g.beginPath(); g.moveTo(W, gy - 70); g.quadraticCurveTo(W * 0.75, gy - 40, rx + rw / 2, gy + 30); g.lineTo(rx + rw / 2, gy + 38); g.quadraticCurveTo(W * 0.75, gy - 30, W, gy - 60); g.closePath(); g.fill();
+          const qb = (a, b, c, t) => (1 - t) * (1 - t) * a + 2 * (1 - t) * t * b + t * t * c;
+          const hillY = (x) => { const L = x < rx, P = L ? [0, W * 0.25, rx - rw / 2] : [W, W * 0.75, rx + rw / 2]; let lo = 0, hi = 1; for (let i = 0; i < 24; i++) { const m = (lo + hi) / 2, xm = qb(P[0], P[1], P[2], m); if (L ? xm < x : xm > x) lo = m; else hi = m; } return qb(gy - 70, gy - 40, gy + 30, lo); };
+          // rock layers
+          g.strokeStyle = 'rgba(0,0,0,0.12)'; g.lineWidth = 2; for (let i = 1; i < 4; i++) { g.beginPath(); g.moveTo(0, gy - 20 + i * 40); g.lineTo(W, gy - 10 + i * 40); g.stroke(); }
+          // river channel
+          const q = qAt(S.t), fill = clamp(q / 40, 0.05, 1.25), cy = gy + 30, depth = 46;
+          g.fillStyle = th.dark ? '#3B3127' : '#7A5A3F'; g.beginPath(); g.moveTo(rx - rw / 2, cy); g.quadraticCurveTo(rx, cy + depth * 2, rx + rw / 2, cy); g.fill();
+          const wl = cy + depth - depth * Math.min(1, fill);
+          g.save(); g.beginPath(); g.moveTo(rx - rw / 2 - (fill > 1 ? 60 : 0), cy); g.quadraticCurveTo(rx, cy + depth * 2, rx + rw / 2 + (fill > 1 ? 60 : 0), cy); g.lineTo(rx + rw, cy - 40); g.lineTo(rx - rw, cy - 40); g.closePath(); g.clip();
+          const wg = g.createLinearGradient(0, wl, 0, cy + depth); wg.addColorStop(0, '#60A5FA'); wg.addColorStop(1, '#1D4ED8');
+          g.fillStyle = wg; g.fillRect(rx - rw * 1.2, fill > 1 ? cy - 8 * (fill - 1) * 6 : wl, rw * 2.4, depth * 2 + 60); g.restore();
+          if (fill > 1) pill(g, 'FLOOD: river over its banks', rx, cy - 54, '#EF4444', th, 'center');
+          // trees, crops, houses
+          const nT = p.land === 'forest' ? 14 : p.land === 'grass' ? 4 : 0, nB = Math.round(p.urban / 8);
+          for (let i = 0; i < nT; i++) { const m = Math.ceil(nT / 2), span = W / 2 - rw / 2 - 40, x = i % 2 ? W - 16 - (i >> 1) * span / m : 16 + (i >> 1) * span / m; const y = hillY(x); g.fillStyle = '#6B4423'; g.fillRect(x - 2, y - 14, 4, 14); LB.ball(g, x, y - 20, 11, th.dark ? '#2E7D32' : '#2E9E44'); }
+          if (p.land === 'arable') { g.strokeStyle = '#9A7B45'; g.lineWidth = 2; for (let x = 8; x < W; x += 14) { if (Math.abs(x - rx) < rw / 2 + 10) continue; const y = hillY(x); g.beginPath(); g.moveTo(x, y + 4); g.lineTo(x + 6, y + 4); g.stroke(); } }
+          for (let i = 0; i < nB; i++) { const left = i % 2 === 0, k = i >> 1, x = left ? rx - rw / 2 - 30 - k * 34 : rx + rw / 2 + 10 + k * 34; if (x < 0 || x > W - 24) continue; const y = hillY(x + 12); LB.box(g, x, y - 26, 24, 26, ['#F87171', '#FBBF24', '#60A5FA', '#A78BFA'][i % 4], 3); g.fillStyle = '#475569'; g.beginPath(); g.moveTo(x - 3, y - 26); g.lineTo(x + 12, y - 38); g.lineTo(x + 27, y - 26); g.fill(); g.fillStyle = '#E0F2FE'; g.fillRect(x + 7, y - 18, 8, 8); }
+          if (p.urban > 0) { g.strokeStyle = '#4B5563'; g.lineWidth = 4; g.beginPath(); const x0 = Math.max(0, rx - rw / 2 - 30 - (nB >> 1) * 34); g.moveTo(x0, hillY(x0) + 2); for (let x = x0; x < rx - rw / 2; x += 8) g.lineTo(x, hillY(x) + 2); g.stroke(); }
+          // clouds and rain
+          const cl = raining ? 1 : S.t < 2 ? 0.5 : 0.25;
+          for (let i = 0; i < 4; i++) { const cx = W * (0.1 + i * 0.24), cy = 30 + (i % 2) * 10; g.fillStyle = raining ? (th.dark ? '#4B5567' : '#7C8BA1') : (th.dark ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.9)'); g.globalAlpha = raining ? 1 : cl + 0.3; [[0, 0, 1], [0.9, -0.3, 0.8], [1.7, 0, 0.9], [0.8, 0.25, 0.9]].forEach((c) => { g.beginPath(); g.arc(cx + c[0] * 24, cy + c[1] * 24, c[2] * 22, 0, 7); g.fill(); }); g.globalAlpha = 1; }
+          if (raining) { g.strokeStyle = 'rgba(37,99,235,0.6)'; g.lineWidth = 1.5; const n = Math.round(clamp(inten * 6, 10, 80)); for (let i = 0; i < n; i++) { const d = S.drops[i], x = d.x * W, y = 50 + d.y * (H * 0.45); g.beginPath(); g.moveTo(x, y); g.lineTo(x - 2, y + 9); g.stroke(); } }
+          // flow arrows
+          if (S.t > 2 && S.t < 2 + p.dur + 6) {
+            const c = S.h.c, a = clamp((2 + p.dur + 6 - S.t) / 6, 0, 1);
+            g.globalAlpha = a;
+            [0.15, 0.3, 0.7, 0.85].forEach((fx) => { const x = W * fx, dir = fx < 0.5 ? 1 : -1, y = hillY(x); if (c > 0.25) LB.arrow(g, x, y - 6, x + dir * (18 + 30 * c), hillY(x + dir * (18 + 30 * c)) - 6, '#2563EB', 3); LB.arrow(g, x, y + 10, x, y + 10 + 30 * (1 - c), '#0EA5E9', 2.5); });
+            g.globalAlpha = 1;
+          }
+          pill(g, 'Hour ' + S.t.toFixed(1), 14, 22, '#64748B', th);
+          pill(g, 'Discharge ' + f(q, 1) + ' m³/s', W - 14, 22, '#2563EB', th, 'right');
+          T(g, '→ overland flow   ↓ infiltration', 14, H - 10, { col: th.dark ? '#E2E8F0' : '#FFFFFF', size: 12, weight: 800 });
+        },
+        graph: function (g, W, H, p, th) {
+          const h = S.h, ymax = Math.max(50, h.peak * 1.15, S.ghost ? Math.max(...S.ghost) * 1.15 : 0) * 1.35;
+          const pts = [], full = []; h.Q.forEach((q, i) => { const t = i * h.dt; full.push([t, q]); if (t <= S.t) pts.push([t, q]); });
+          const series = [{ pts: full, col: th.ink3, dash: [3, 5], width: 1.5 }, { pts: pts, col: '#2563EB', width: 3 }];
+          if (S.ghost) series.unshift({ pts: S.ghost.map((q, i) => [i * h.dt, q]), col: '#F97316', width: 2, dash: [8, 4] });
+          const pl = LB.plot(g, th, { x: 0, y: 0, w: W, h: H, x0: 0, x1: 48, y0: 0, y1: ymax, xl: 'Time / hours', yl: 'Discharge / m³ s⁻¹', series: series, hlines: [{ y: 40, col: '#EF4444', label: 'bankfull' }], vlines: [{ x: S.t, col: '#64748B' }] });
+          // rainfall bars hang from the top
+          const top = pl.sy(ymax), rmax = Math.max(20, p.rain / p.dur), bh = (pl.sy(0) - top) * 0.32;
+          g.fillStyle = 'rgba(14,165,233,0.75)';
+          for (let t = 0; t < 48; t += 1) { let r = 0; for (let k = 0; k < 4; k++) r += h.rain[Math.min(h.N - 1, t * 4 + k)] / 4; if (!r) continue; const x = pl.sx(t), w = pl.sx(t + 1) - x - 2, hh = bh * r / rmax; LB.rr(g, x + 1, top, w, hh, 3); g.fill(); }
+          T(g, 'Rainfall ' + f(p.rain / p.dur, 1) + ' mm/h', pl.sx(2 + p.dur) + 6, top + 12, { col: '#0EA5E9', size: 11, weight: 800 });
+          const xr = pl.sx(h.tRain), xp = pl.sx(h.tPeak), yl = pl.sy(h.peak) - 14;
+          if (S.t >= h.tPeak) { g.strokeStyle = '#22C55E'; g.lineWidth = 2; g.beginPath(); g.moveTo(xr, yl); g.lineTo(xp, yl); g.stroke(); T(g, 'lag ' + f(h.lag, 1) + ' h', (xr + xp) / 2, yl - 6, { col: '#16A34A', size: 12, weight: 900, align: 'center' }); }
+          if (S.ghost) LB.legend(g, th, W - 230, H - 40, [['This storm', '#2563EB'], ['Kept curve', '#F97316']]);
+        },
+        readouts: function () {
+          const h = S.h;
+          return [['Time', S.t.toFixed(1) + ' h'], ['Discharge now', f(qAt(S.t), 1) + ' m³/s'], ['Rainfall intensity', f(p.rain / p.dur, 1) + ' mm/h'], ['Runoff coefficient', Math.round(h.c * 100) + ' %', 'th'], ['Peak discharge', f(h.peak, 1) + ' m³/s', 'th'], ['Peak rainfall at', f(h.tRain, 1) + ' h', 'th'], ['Lag time', f(h.lag, 1) + ' h', 'th'], ['Flood risk', h.peak > 40 ? 'over bankfull' : h.peak > 32 ? 'close to bankfull' : 'low', 'th']];
+        }
+      };
+      return inst;
+    }
+  });
+
+  // =====================================================================
+  // GEOGRAPHY 2. Spearman's rank correlation
+  // =====================================================================
+  const CRIT = { 0.05: { 5: 1, 6: 0.886, 7: 0.786, 8: 0.738, 9: 0.7, 10: 0.648, 11: 0.618, 12: 0.587, 13: 0.56, 14: 0.538, 15: 0.521, 16: 0.503, 17: 0.485, 18: 0.472, 19: 0.46, 20: 0.447 }, 0.01: { 6: 1, 7: 0.929, 8: 0.881, 9: 0.833, 10: 0.794, 11: 0.755, 12: 0.727, 13: 0.703, 14: 0.679, 15: 0.654, 16: 0.635, 17: 0.615, 18: 0.6, 19: 0.584, 20: 0.57 } };
+  const DATA = {
+    river: { n: 'River: distance downstream vs channel width', xl: 'Distance downstream / km', yl: 'Channel width / m', x: [0.5, 1.2, 2, 3.1, 4, 5.5, 6.2, 7.8, 9, 10.5], y: [1.1, 1.4, 1.3, 2.0, 2.4, 2.2, 3.1, 3.0, 3.8, 4.2], r: [0, 12, 0, 5] },
+    cbd: { n: 'City: distance from the CBD vs land value', xl: 'Distance from CBD / km', yl: 'Land value / £ per m²', x: [0.2, 0.5, 0.9, 1.4, 2, 2.6, 3.3, 4, 5, 6], y: [3200, 2900, 2500, 2600, 1900, 1500, 1600, 1100, 900, 700], r: [0, 7, 0, 3600] },
+    psy: { n: 'Psychology: hours revised vs test score', xl: 'Hours of revision', yl: 'Test score / %', x: [2, 5, 1, 8, 4, 6, 3, 9, 7, 10], y: [45, 60, 52, 72, 48, 66, 58, 70, 75, 80], r: [0, 12, 30, 100] },
+    beach: { n: 'Coast: distance along beach vs pebble size', xl: 'Distance along beach / m', yl: 'Mean pebble size / mm', x: [0, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550], y: [62, 55, 58, 47, 44, 49, 38, 35, 37, 30, 26, 28], r: [0, 600, 0, 80] }
+  };
+  function ranks(v) {
+    const idx = v.map((x, i) => [x, i]).sort((a, b) => b[0] - a[0]), r = new Array(v.length);
+    for (let i = 0; i < idx.length;) { let j = i; while (j + 1 < idx.length && idx[j + 1][0] === idx[i][0]) j++; const avg = (i + j) / 2 + 1; for (let k = i; k <= j; k++) r[idx[k][1]] = avg; i = j + 1; }
+    return r;
+  }
+  LB.add({
+    id: 'spearman', subject: 'geography', name: 'Spearman’s rank correlation', topics: ['geo-u7-t1', 'geo-u7-t2', 'psy-u7-t4'],
+    blurb: 'Drag the points on a scatter graph and watch rs, the ranks and the significance test update. For fieldwork and the NEA.',
+    icon: icon('<path d="M6 42V6M6 42h36"/><circle cx="14" cy="34" r="2.5" fill="currentColor"/><circle cx="22" cy="26" r="2.5" fill="currentColor"/><circle cx="30" cy="22" r="2.5" fill="currentColor"/><circle cx="38" cy="12" r="2.5" fill="currentColor"/>'),
+    aspect: 0.56, maxH: 440, onCanvas: true, still: true,
+    help: 'Drag any point. Critical values are two-tailed (Zar’s table); if your hypothesis predicts a direction, use a one-tailed table.',
+    controls: [
+      { k: 'ds', type: 'select', label: 'Data set', options: Object.keys(DATA).map((k) => [k, DATA[k].n]), v: 'river' },
+      { k: 'sig', type: 'seg', label: 'Significance level', options: [[0.05, '0.05 (95%)'], [0.01, '0.01 (99%)']], v: 0.05 },
+      { k: 'fit', type: 'toggle', label: 'Show line of best fit', v: true }
+    ],
+    actions: [{ id: 'add', label: 'Add a point' }, { id: 'rm', label: 'Remove a point' }, { id: 'rand', label: 'Random data' }, { id: 'reset', label: 'Original data' }],
+    tasks: [
+      'With the river data, work out rs by hand from the rank table, then check it against the readout.',
+      'Drag one point far from the trend. How much does rs change? Spearman’s uses ranks, so it is less affected by extreme values than Pearson’s.',
+      'Remove points until n = 6. The same rs is now less likely to be significant: the critical value rises.',
+      'Make two points tie on x. How are tied ranks shared?',
+      'Try the CBD data: a strong <b>negative</b> correlation. Is it significant at 0.01?',
+      'Remember: a significant correlation does not prove one variable causes the other.'
+    ],
+    theory: '<p><b>Spearman’s rank correlation coefficient</b> measures how strongly two variables are related, using ranks rather than raw values.</p><p class="eq">r<sub>s</sub> = 1 − 6Σd² / (n³ − n)</p><p>Rank each variable separately (highest = 1, tied values share the mean of their ranks), find the difference d for each pair, square it and sum. r<sub>s</sub> runs from −1 (perfect negative) to +1 (perfect positive).</p><p>To test significance, compare |r<sub>s</sub>| with the <b>critical value</b> for your n and significance level. If it is equal or greater, reject the null hypothesis of no correlation.</p>',
+    exam: [['Step by step', ['State the null hypothesis: there is no correlation between X and Y.', 'Rank both variables; share ranks for ties.', 'Calculate d, d² and Σd²; substitute into the formula.', 'Compare with the critical value; accept or reject the null hypothesis.'], 'ol'], ['Limitations', ['Needs at least 10 pairs to be reliable.', 'Only detects monotonic relationships.', 'Correlation is not causation: look for other factors.'], 'ul'], ['In psychology', ['Spearman’s is used for ordinal data in a correlational study.', 'Choose it when the data are not normally distributed.', 'Report the calculated value, critical value, n and p.']]],
+    create: function (p) {
+      const S = { pts: [], drag: -1, box: null };
+      function load() { const d = DATA[p.ds]; S.pts = d.x.map((x, i) => [x, d.y[i]]); }
+      function stats() {
+        const n = S.pts.length, rx = ranks(S.pts.map((q) => q[0])), ry = ranks(S.pts.map((q) => q[1]));
+        let sd = 0; const rows = S.pts.map((q, i) => { const d = rx[i] - ry[i]; sd += d * d; return [q[0], rx[i], q[1], ry[i], d, d * d]; });
+        const rs = 1 - 6 * sd / (n * n * n - n), cv = (CRIT[p.sig] || {})[Math.min(20, n)];
+        return { n: n, rows: rows, sd: sd, rs: rs, cv: cv };
+      }
+      const inst = {
+        reset: load,
+        change: function (k) { if (k === 'ds') load(); },
+        action: function (id) {
+          const r = DATA[p.ds].r;
+          if (id === 'add' && S.pts.length < 20) S.pts.push([+rnd(r[0], r[1]).toPrecision(3), +rnd(r[2], r[3]).toPrecision(3)]);
+          if (id === 'rm' && S.pts.length > 5) S.pts.pop();
+          if (id === 'rand') { S.pts = []; for (let i = 0; i < 10; i++) S.pts.push([+rnd(r[0], r[1]).toPrecision(3), +rnd(r[2], r[3]).toPrecision(3)]); }
+          if (id === 'reset') load();
+        },
+        pointer: function (kind, x, y) {
+          const b = S.box; if (!b) return false;
+          const r = DATA[p.ds].r;
+          if (kind === 'down') { let best = -1, bd = 22 * 22; S.pts.forEach((q, i) => { const dx = b.sx(q[0]) - x, dy = b.sy(q[1]) - y, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = i; } }); S.drag = best; return best >= 0; }
+          if (kind === 'move' && S.drag >= 0) { const X = r[0] + (x - b.X0) / (b.X1 - b.X0) * (r[1] - r[0]), Y = r[2] + (b.Y0 - y) / (b.Y0 - b.Y1) * (r[3] - r[2]); S.pts[S.drag] = [+clamp(X, r[0], r[1]).toPrecision(3), +clamp(Y, r[2], r[3]).toPrecision(3)]; }
+          if (kind === 'up') S.drag = -1;
+          return true;
+        },
+        step: function () {},
+        draw: function (g, W, H, p, th) {
+          panelBg(g, W, H, th, '#F7FEE7', '#ECFCCB');
+          const d = DATA[p.ds], r = d.r;
+          LB.rr(g, 10, 10, W - 20, H - 20, 18); g.fillStyle = th.dark ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.8)'; g.fill();
+          const pl = LB.plot(g, th, { x: 14, y: 30, w: W - 28, h: H - 44, x0: r[0], x1: r[1], y0: r[2], y1: r[3], xl: d.xl, yl: d.yl, series: [] });
+          S.box = { sx: pl.sx, sy: pl.sy, X0: pl.sx(r[0]), X1: pl.sx(r[1]), Y0: pl.sy(r[2]), Y1: pl.sy(r[3]) };
+          if (p.fit && S.pts.length > 1) {
+            const n = S.pts.length, mx = S.pts.reduce((s, q) => s + q[0], 0) / n, my = S.pts.reduce((s, q) => s + q[1], 0) / n;
+            let sxy = 0, sxx = 0; S.pts.forEach((q) => { sxy += (q[0] - mx) * (q[1] - my); sxx += (q[0] - mx) * (q[0] - mx); });
+            if (sxx) { const m = sxy / sxx, c = my - m * mx; g.save(); g.beginPath(); g.rect(S.box.X0, S.box.Y1, S.box.X1 - S.box.X0, S.box.Y0 - S.box.Y1); g.clip(); g.strokeStyle = 'rgba(132,204,22,0.8)'; g.lineWidth = 3; g.setLineDash([8, 5]); g.beginPath(); g.moveTo(pl.sx(r[0]), pl.sy(m * r[0] + c)); g.lineTo(pl.sx(r[1]), pl.sy(m * r[1] + c)); g.stroke(); g.restore(); }
+          }
+          S.pts.forEach((q, i) => { LB.shadow(g, pl.sx(q[0]), pl.sy(q[1]) + 9, 8, 0.12); LB.ball(g, pl.sx(q[0]), pl.sy(q[1]), i === S.drag ? 11 : 8, i === S.drag ? '#F97316' : '#65A30D'); });
+          const st = stats(), sig = st.cv != null && Math.abs(st.rs) >= st.cv;
+          pill(g, 'rs = ' + st.rs.toFixed(3) + (st.cv != null ? (sig ? '  ·  significant' : '  ·  not significant') : ''), W - 24, 30, sig ? '#16A34A' : '#64748B', th, 'right');
+        },
+        readouts: function () {
+          const st = stats(), sig = st.cv != null && Math.abs(st.rs) >= st.cv;
+          const str = Math.abs(st.rs) >= 0.8 ? 'strong' : Math.abs(st.rs) >= 0.5 ? 'moderate' : Math.abs(st.rs) >= 0.2 ? 'weak' : 'no clear';
+          return [['n (pairs)', String(st.n)], ['Σd²', f(st.sd, 1)], ['rs', st.rs.toFixed(3), 'th'], ['Strength', str + (Math.abs(st.rs) >= 0.2 ? (st.rs > 0 ? ' positive' : ' negative') : ''), 'th'], ['Critical value (' + p.sig + ', two-tailed)', st.cv != null ? st.cv.toFixed(3) : 'n too small', 'th'], ['Conclusion', st.cv == null ? 'add more data' : sig ? 'reject the null hypothesis' : 'accept the null hypothesis', 'th']];
+        },
+        extra: function () {
+          const st = stats(), fx = (v) => Math.abs(v) >= 100 ? v.toFixed(0) : +v.toPrecision(3);
+          return '<p class="label">Rank table</p><table class="tbl lab-tbl"><thead><tr><th>X</th><th>Rank</th><th>Y</th><th>Rank</th><th>d</th><th>d²</th></tr></thead><tbody>' + st.rows.map((r) => '<tr><td class="num">' + fx(r[0]) + '</td><td class="num">' + r[1] + '</td><td class="num">' + fx(r[2]) + '</td><td class="num">' + r[3] + '</td><td class="num">' + r[4] + '</td><td class="num">' + r[5] + '</td></tr>').join('') + '</tbody></table>';
+        }
+      };
+      load();
       return inst;
     }
   });

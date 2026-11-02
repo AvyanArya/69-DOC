@@ -62,7 +62,7 @@
   // The colour key sits in a row under the x-axis, clear of the curves.
   ED.key = function (F, items) {
     const g = F.g; let y = F.Y0 + 46, x = F.X0;
-    g.font = '600 11.5px "Inter Tight", Inter, system-ui, sans-serif';
+    g.font = '800 11.5px Nunito, system-ui, sans-serif';
     items.forEach(function (it) {
       const w = 34 + g.measureText(it[0]).width;
       if (x > F.X0 && x + w - 14 > F.X1 + 20) { x = F.X0; y += 17; }

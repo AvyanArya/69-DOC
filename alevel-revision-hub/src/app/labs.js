@@ -43,6 +43,66 @@
     return 'rgba(' + c(r) + ',' + c(g) + ',' + c(b) + ',' + (alpha == null ? 1 : alpha) + ')';
   };
 
+  // ---------- Scene helpers: friendly, PhET-style objects ----------
+  LB.shade = function (hex, amt) {
+    const m = /^#?([0-9a-f]{6})$/i.exec(String(hex).trim());
+    if (!m) return hex;
+    const n = parseInt(m[1], 16), f = (c) => Math.max(0, Math.min(255, Math.round(c + (amt > 0 ? (255 - c) * amt : c * amt))));
+    return '#' + [f(n >> 16), f((n >> 8) & 255), f(n & 255)].map((x) => x.toString(16).padStart(2, '0')).join('');
+  };
+  LB.rr = function (g, x, y, w, h, r) { g.beginPath(); if (g.roundRect) g.roundRect(x, y, w, h, r); else g.rect(x, y, w, h); };
+  LB.sky = function (g, W, H, th, top, bottom) {
+    const gr = g.createLinearGradient(0, 0, 0, H);
+    gr.addColorStop(0, th.dark ? '#1C2547' : (top || '#BEE3FF')); gr.addColorStop(1, th.dark ? '#2B355E' : (bottom || '#F3FAFF'));
+    g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  };
+  LB.cloud = function (g, x, y, s, th) {
+    g.fillStyle = th.dark ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.9)';
+    [[0, 0, 1], [0.9, -0.3, 0.8], [1.7, 0, 0.9], [0.8, 0.25, 0.9]].forEach((c) => { g.beginPath(); g.arc(x + c[0] * 22 * s, y + c[1] * 22 * s, c[2] * 20 * s, 0, 7); g.fill(); });
+  };
+  LB.grass = function (g, y, W, H, th) {
+    const gr = g.createLinearGradient(0, y, 0, H);
+    gr.addColorStop(0, th.dark ? '#2F6B3A' : '#7DD87F'); gr.addColorStop(1, th.dark ? '#1E4426' : '#4DB052');
+    g.fillStyle = gr; g.fillRect(0, y, W, H - y);
+    g.fillStyle = th.dark ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.18)';
+    for (let x = 0; x < W; x += 36) g.fillRect(x, y, 18, H - y);
+  };
+  LB.ball = function (g, x, y, r, col) {
+    const gr = g.createRadialGradient(x - r * 0.35, y - r * 0.35, r * 0.1, x, y, r);
+    gr.addColorStop(0, LB.shade(col, 0.55)); gr.addColorStop(0.55, col); gr.addColorStop(1, LB.shade(col, -0.35));
+    g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill();
+  };
+  LB.shadow = function (g, x, y, rx, alpha) { g.fillStyle = 'rgba(0,0,0,' + (alpha == null ? 0.18 : alpha) + ')'; g.beginPath(); g.ellipse(x, y, rx, rx * 0.28, 0, 0, 7); g.fill(); };
+  LB.box = function (g, x, y, w, h, col, r) {
+    const gr = g.createLinearGradient(0, y, 0, y + h);
+    gr.addColorStop(0, LB.shade(col, 0.25)); gr.addColorStop(1, LB.shade(col, -0.15));
+    LB.rr(g, x, y, w, h, r == null ? 8 : r); g.fillStyle = gr; g.fill();
+    g.strokeStyle = LB.shade(col, -0.35); g.lineWidth = 2; g.stroke();
+  };
+  LB.wheel = function (g, x, y, r, ang) {
+    g.fillStyle = '#2B2F3A'; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill();
+    g.fillStyle = '#9AA3B5'; g.beginPath(); g.arc(x, y, r * 0.55, 0, 7); g.fill();
+    g.strokeStyle = '#2B2F3A'; g.lineWidth = 2;
+    for (let i = 0; i < 4; i++) { const a = (ang || 0) + i * Math.PI / 2; g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(a) * r * 0.55, y + Math.sin(a) * r * 0.55); g.stroke(); }
+  };
+  // An analogue meter with a needle, for ammeters and voltmeters.
+  LB.dial = function (g, x, y, r, frac, label, value, col, th) {
+    g.fillStyle = th.dark ? '#232636' : '#FFFFFF'; g.strokeStyle = th.dark ? '#5C6380' : '#2B2F3A'; g.lineWidth = 3;
+    g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); g.stroke();
+    g.strokeStyle = th.ink3; g.lineWidth = 1.5;
+    for (let i = 0; i <= 10; i++) { const a = Math.PI * (1.15 + 0.7 * i / 10); g.beginPath(); g.moveTo(x + Math.cos(a) * r * 0.78, y + Math.sin(a) * r * 0.78); g.lineTo(x + Math.cos(a) * r * (i % 5 ? 0.68 : 0.62), y + Math.sin(a) * r * (i % 5 ? 0.68 : 0.62)); g.stroke(); }
+    const a = Math.PI * (1.15 + 0.7 * Math.max(0, Math.min(1, frac)));
+    g.strokeStyle = col; g.lineWidth = 3; g.lineCap = 'round'; g.beginPath(); g.moveTo(x, y + r * 0.1); g.lineTo(x + Math.cos(a) * r * 0.8, y + Math.sin(a) * r * 0.8); g.stroke(); g.lineCap = 'butt';
+    g.fillStyle = col; g.beginPath(); g.arc(x, y + r * 0.1, 4, 0, 7); g.fill();
+    LB.text(g, label, x, y + r * 0.45, { col: th.ink, size: 13, weight: 900, align: 'center' });
+    if (value) LB.text(g, value, x, y + r + 18, { col: col, size: 14, weight: 900, align: 'center' });
+  };
+  LB.glow = function (g, x, y, r, col, a) {
+    const gr = g.createRadialGradient(x, y, 0, x, y, r);
+    gr.addColorStop(0, col); gr.addColorStop(1, 'rgba(255,255,255,0)');
+    g.globalAlpha = a == null ? 1 : a; g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); g.globalAlpha = 1;
+  };
+
   // ---------- Drawing helpers ----------
   LB.arrow = function (g, x1, y1, x2, y2, col, w) {
     const a = Math.atan2(y2 - y1, x2 - x1), L = Math.hypot(x2 - x1, y2 - y1), hd = Math.min(10, L * 0.4);
@@ -53,7 +113,7 @@
   };
   LB.text = function (g, s, x, y, o) {
     o = o || {};
-    g.font = (o.weight || 500) + ' ' + (o.size || 12) + 'px "Inter Tight", Inter, system-ui, sans-serif';
+    g.font = (o.weight || 700) + ' ' + (o.size || 12) + 'px Nunito, system-ui, sans-serif';
     g.fillStyle = o.col; g.textAlign = o.align || 'left'; g.textBaseline = o.base || 'alphabetic';
     g.fillText(s, x, y);
   };
@@ -100,24 +160,40 @@
     items.forEach(function (it) {
       g.fillStyle = it[1]; g.fillRect(cx, y - 8, 14, 3);
       LB.text(g, it[0], cx + 19, y - 3, { col: th.ink2, size: 11, weight: 600 });
-      g.font = '600 11px "Inter Tight", Inter, system-ui, sans-serif';
+      g.font = '800 11px Nunito, system-ui, sans-serif';
       cx += 34 + g.measureText(it[0]).width;
     });
   };
 
   // ---------- Pages ----------
   const subjOf = (gid) => M.topic[gid];
-  LB.GROUPS = [['physics', 'Physics labs', 'Experiments built on the real equations. Change the variables, take readings and plot graphs, like the practicals in Paper 3.'], ['economics', 'Economics diagrams', 'Every diagram Edexcel expects you to draw, live. Shift the curves and watch prices, quantities and the shaded areas change, then read how to draw and evaluate it in the exam.']];
+  LB.GROUPS = [
+    ['physics', 'Physics labs', 'Experiments built on the real equations. Change the variables, take readings and plot graphs, like the practicals in Paper 3.'],
+    ['economics', 'Economics diagrams', 'Every diagram Edexcel expects you to draw, live. Shift the curves and watch prices, quantities and the shaded areas change, then read how to draw and evaluate it in the exam.'],
+    ['chemistry', 'Chemistry labs', 'Titrate an acid and draw its pH curve, or heat up a reaction and watch the collisions. Built around the AQA required practicals.'],
+    ['biology', 'Biology labs', 'Denature enzymes, soak potato in sucrose and watch predators chase prey. Record results and read values off your own graphs.'],
+    ['compsci', 'Computer Science labs', 'Step through sorting algorithms, flip switches through logic gates and build numbers bit by bit.'],
+    ['psychology', 'Psychology labs', 'Be the participant: take a real memory experiment, then run it on a simulated class.'],
+    ['geography', 'Geography labs', 'Send a storm over a drainage basin, and test your fieldwork data with Spearman’s rank.']
+  ];
   LB.subjectOf = (d) => d.subject || 'physics';
+  LB.HEADS = { physics: ['Experiments to try', 'The physics'], economics: ['Things to try', 'The economics'], chemistry: ['Experiments to try', 'The chemistry'], biology: ['Experiments to try', 'The biology'], compsci: ['Things to try', 'How it works'], psychology: ['Things to try', 'The psychology'], geography: ['Things to try', 'The geography'] };
+  // The user's own subjects first, then the rest.
+  LB.groups = function () {
+    const mine = LB.GROUPS.filter((g) => M.isMine(M.subject[g[0]] || { id: g[0] })), rest = LB.GROUPS.filter((g) => mine.indexOf(g) < 0);
+    return { mine: mine, rest: rest, all: mine.concat(rest) };
+  };
   const card = function (d) {
     const t = subjOf(d.topics[0]);
     return '<a class="lab-card" href="#lab-' + d.id + '" data-subj="' + LB.subjectOf(d) + '"><span class="lab-ic" aria-hidden="true">' + (d.icon || '') + '</span><span class="lab-ct"><b>' + esc(d.name) + '</b><span class="muted small">' + esc(d.blurb) + '</span>' + (t ? '<span class="small lab-topic">' + esc(M.lessonNum(RH.store.state, t) + ' ' + M.title(t.name)) + '</span>' : '') + '</span></a>';
   };
   V.labs = function () {
-    let html = V.docHead('Labs', 'Labs', 'Interactive physics experiments and economics diagrams. Move a slider and see the result straight away.');
-    LB.GROUPS.forEach(function (g) {
+    const gs = LB.groups();
+    let html = V.docHead('Labs', 'Labs', LB.defs.length + ' interactive experiments, simulations and diagrams. Move a slider and see the result straight away. Your subjects come first.');
+    gs.all.forEach(function (g, i) {
       const list = LB.defs.filter((d) => LB.subjectOf(d) === g[0]);
       if (!list.length) return;
+      if (i === gs.mine.length && gs.mine.length && gs.rest.length) html += '<h2 class="lab-more-h">Labs for other subjects</h2>';
       html += '<section class="lab-group" data-subj="' + g[0] + '" id="labs-' + g[0] + '"><div class="sec-head"><h2>' + g[1] + '</h2><span class="label">' + list.length + ' ' + (g[0] === 'economics' ? 'diagrams' : 'labs') + '</span></div><p class="muted">' + g[2] + '</p><div class="lab-cards">' + list.map(card).join('') + '</div></section>';
     });
     return html;
@@ -146,9 +222,10 @@
       (d.actions || []).map((a) => '<button type="button" class="btn ' + (a.primary ? '' : 'alt ') + 'sm" data-lab-act="' + a.id + '">' + esc(a.label) + '</button>').join('') +
       (d.still ? '' : '<span class="lab-speed"><span class="small muted">Speed</span>' + C.seg([[0.25, '¼×'], [0.5, '½×'], [1, '1×'], [2, '2×']].concat(d.fast ? [[d.fast, d.fast + '×']] : []), cur ? cur.speed : 1, 'data-lab-speed="1"') + '</span>') + '</div>' +
       (d.graph ? '<div class="lab-graph"><canvas class="lab-gc" aria-label="Graph"></canvas></div>' : '') + '</div>' +
-      '<aside class="lab-panel"><h2>Variables</h2><div class="lab-ctrls">' + d.controls.map((c) => control(c, p)).join('') + '</div><h2>Readings</h2>' + (d.subject === 'economics' ? '' : '<p class="help">Green values are predicted by the equations; the others are measured in the simulation.</p>') + '<dl class="lab-read"></dl><div class="lab-extra"></div></aside></div>';
-    html += '<div class="lab-notes"><section><h2 class="h-rule">' + (econ ? 'Things to try' : 'Experiments to try') + '</h2><ol class="lab-tasks">' + d.tasks.map((x) => '<li>' + x + '</li>').join('') + '</ol></section>' +
-      '<section><h2 class="h-rule">' + (econ ? 'The economics' : 'The physics') + '</h2><div class="lab-theory">' + d.theory + '</div></section></div>';
+      '<aside class="lab-panel"><h2>Variables</h2><div class="lab-ctrls">' + d.controls.map((c) => control(c, p)).join('') + '</div><h2>Readings</h2>' + (d.help != null ? (d.help ? '<p class="help">' + d.help + '</p>' : '') : d.subject === 'economics' ? '' : '<p class="help">Green values are predicted by the equations; the others are measured in the simulation.</p>') + '<dl class="lab-read"></dl><div class="lab-extra"></div></aside></div>';
+    const heads = LB.HEADS[LB.subjectOf(d)] || LB.HEADS.physics;
+    html += '<div class="lab-notes"><section><h2 class="h-rule">' + heads[0] + '</h2><ol class="lab-tasks">' + d.tasks.map((x) => '<li>' + x + '</li>').join('') + '</ol></section>' +
+      '<section><h2 class="h-rule">' + heads[1] + '</h2><div class="lab-theory">' + d.theory + '</div></section></div>';
     if (d.exam) html += '<section class="lab-exam" data-subj="' + LB.subjectOf(d) + '"><h2 class="h-rule">In the exam</h2><div class="lab-exam-cols">' + d.exam.map((x) => '<div><p class="label">' + esc(x[0]) + '</p>' + (x[2] === 'ol' ? '<ol>' : '<ul>') + x[1].map((i) => '<li>' + i + '</li>').join('') + (x[2] === 'ol' ? '</ol>' : '</ul>') + '</div>').join('') + '</div></section>';
     return html;
   };
@@ -212,6 +289,7 @@
       else if (b.dataset.labAct && inst.action) { inst.action(b.dataset.labAct, p); if (!cur.playing) { cur.playing = true; paintPlay(); } }
     });
     if (d.onCanvas) {
+      cv.style.cursor = 'pointer';
       const toWorld = (e) => { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
       cv.addEventListener('pointerdown', (e) => { const q = toWorld(e); if (inst.pointer && inst.pointer('down', q[0], q[1], p)) { cv.setPointerCapture(e.pointerId); e.preventDefault(); } });
       cv.addEventListener('pointermove', (e) => { const q = toWorld(e); if (inst.pointer) inst.pointer('move', q[0], q[1], p); });

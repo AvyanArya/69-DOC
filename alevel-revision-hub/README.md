@@ -2,8 +2,9 @@
 
 *preppr.* — A-level revision for Edexcel.
 
-A revision website for **Pearson Edexcel A-level Physics (9PH0), Mathematics (9MA0), Further
-Mathematics (9FM0) and Economics A (9EC0)**. It plans every revision session at a real time around
+A revision website for A-levels. It started with **Pearson Edexcel Physics (9PH0), Mathematics (9MA0),
+Further Mathematics (9FM0) and Economics A (9EC0)** and now covers every A-level Dubai College offers:
+21 subjects, chosen on the **Your subjects** page. It plans every revision session at a real time around
 your school day and activities, sets **weekly deliverables** you have to hand in, marks your exam
 answers with an **AI checker** (modelled on Medly), and tracks real focus time with an optional
 **webcam focus tracker**. Each subject is laid out as a course of numbered lessons (in the style of
@@ -23,17 +24,18 @@ browser, with nothing to install. Everything you do is saved in that browser aut
 
 ## How it's laid out
 
-Laid out like Save My Exams. A navy bar across the top holds **Home, Physics, Maths, Further Maths,
-Economics, Practise, Planner, Focus** (a tab bar at the bottom on phones). A menu down the left shows where
-you are. On a lesson it's that subject's sections, with the current section's lessons ticked off as you go.
-Elsewhere it lists the pages in that area. Pages are plain white with headings, lists and thin rules.
+A white bar across the top holds **Home, Bookshelf, your subjects, Labs, Practise, Planner, Focus** (a tab
+bar at the bottom on phones). With more than four subjects they fold into one **Subjects** link. A menu down
+the left shows where you are. On a lesson it's that subject's sections, with the current section's lessons
+ticked off as you go. Elsewhere it lists the pages in that area.
 
 | Area | Pages |
 |---|---|
 | **Home** | The lesson to carry on with, today's timeline, what's due this week, exam countdown. |
 | **Bookshelf** | Every section of every subject as a textbook on an endless 3D shelf. The middle book turns to show its cover; click it (or press Enter) and a sheet of paper grows out of the cover into the section's lesson list. Scroll, drag, use the arrows or the subject tabs to browse. *List view* (`#subjects`) is the plain list. |
-| **Physics / Maths / Further Maths / Economics** | Every section and lesson in order, then the exam papers, whole-course videos, flashcards and resources. How to revise and Resources are in the left menu. |
-| **Labs** | Nine PhET-style physics experiments (see below). |
+| **Your subjects** | Pick your subjects from all 21. Only those appear in the menu, on Home, on the shelf and in the plan. |
+| **Each subject** | Every section and lesson in order, then the exam papers, whole-course videos, flashcards and resources. How to revise and Resources are in the left menu. |
+| **Labs** | 33 interactive labs and diagrams across seven subjects, your subjects first (see below). |
 | **Practise** | Past papers, Check an answer (AI marking), Marked answers, Flashcards. |
 | **Planner** | This week, Deliverables, Routine, Exams, Strategy. |
 | **Focus** | Pomodoro, countdown, exam timer and stopwatch, plus the focus tracker. |
@@ -56,7 +58,10 @@ specification numbers).
 
 | Feature | What it does |
 |---|---|
-| **Preppr brand and print design** | The site is now Preppr, with the logo redrawn as an inline SVG wordmark (and a favicon) in the logo's cream, ink and violet. One design language everywhere, taken from the bookshelf: warm paper with a fine grain, ink rules, an editorial serif (Newsreader) for headings, small uppercase labels in ruled boxes (Inter Tight), square corners and no shadows. Each subject keeps one printing ink to mark it. Light and dark themes. |
+| **Bright and playful design** | A new look across the whole site: white pages, one bold colour per subject, chunky rounded cards and buttons that press down like keys, the Nunito typeface and Preppr violet (#7B61FF) for actions. Light and dark themes. |
+| **21 subjects** | Every A-level Dubai College offers: Physics, Maths, Further Maths and Economics (Edexcel), plus Chemistry (AQA 7405), Biology (AQA 7402), Computer Science (OCR H446), Psychology (AQA 7182), Geography (AQA 7037), History (AQA 7042), English Literature (AQA 7712), Politics (Edexcel 9PL0), French (AQA 7652), Spanish (AQA 7692), Arabic (Edexcel 9AA0), Latin (OCR H443), Art and Design (AQA 7202), Design and Technology (AQA 7552), Drama and Theatre (AQA 7262), Music (Edexcel 9MU0) and PE (AQA 7582). Each is a course of lessons with key points, an exam tip, papers and resources, and 306 lessons have a direct video. **The exam boards are the most common choice for each subject; check them with your school**, and add your exam dates under Planner → Exams so the planner can schedule around them. |
+| **Labs for every science** | 11 new labs: **Titration and pH curves** (burette, indicators, strong and weak acids and alkalis, concordant titres), **Rates and collision theory** (particles, catalyst, Maxwell–Boltzmann), **Enzyme activity** (temperature, pH, substrate, competitive and non-competitive inhibitors), **Osmosis and water potential** (RP3, graph your own results), **Predators and prey** (Lotka–Volterra), **Sorting algorithms** (bubble, insertion, merge, quick), **Logic gates and adders** (click the switches, live truth table), **Binary, hex and two's complement**, **Serial position effect** (take a real free-recall test, or run a simulated class), **Storm hydrograph** (rainfall, soil, land use, urbanisation, basin shape) and **Spearman's rank** (drag the points). The physics labs were redrawn with skies, grass, wheeled trolleys, metal springs, analogue meters and glowing particles. |
+| **Preppr brand** | The logo as an inline SVG wordmark and a favicon. |
 | **Economics diagrams** | Thirteen interactive Edexcel diagrams in Labs: supply and demand, PED and revenue, indirect taxes and subsidies (specific, ad valorem, incidence), maximum and minimum prices, externalities, the PPF, AD/AS (classical and Keynesian, with 2008 and 2022 shock presets), costs and revenue under perfect competition and monopoly, the labour market and minimum wage (including monopsony), the Lorenz curve and Gini, tariffs, the multiplier and exchange rates. Each shades the right areas (surplus, tax revenue, welfare loss), gives the numbers, and has things to try, the theory and an **In the exam** section: how to draw it, evaluation points and real-world examples. Economics lessons link to their diagram. |
 | **Physics labs** | Interactive simulations built on the real equations, in the style of PhET. Each has sliders for its variables, play/pause/slow-motion, live readings (green = predicted by the equations, black = measured), graphs, experiments to try and the theory. **Projectile motion** (angle, speed, height, gravity, air resistance, a target), **Pendulum and spring** (exact pendulum equation, damping, driven oscillations and a resonance curve for CP16), **EMF and internal resistance** (record readings, best-fit line gives r and ε, CP3), **Capacitor charge and discharge** (time constant, ln V plot, CP11), **Young's slits and gratings** (full intensity pattern, fringe spacing, grating orders, CP8), **Momentum and collisions** (elasticity, momentum and KE before and after), **Photoelectric effect** (photons, work functions, stopping potential, KE against f), **Radioactive decay** (random decay of up to 2,500 nuclei, half-life from the curve) and **Orbits** (circular speed, ellipses, escape velocity). Each physics lesson links to its lab. |
 | **Bookshelf** | The subjects as a shelf of textbooks you browse in 3D (see the table above). The covers and spines are drawn in code, one design per subject. |
@@ -117,11 +122,12 @@ alevel-revision-hub/
 └── src/
     ├── styles.css
     ├── data/             # sites.js, physics.js, maths.js, further-maths.js, economics.js,
-    │                     # exams.js (official 2027 timetable), guide.js,
-    │                     # videos.js (direct videos + Mr Gale resources), decks.js (starter flashcards)
+    │                     # more-subjects.js (the other 17 subjects), exams.js (official 2027 timetable), guide.js,
+    │                     # videos.js + more-videos.js (direct videos), decks.js (starter flashcards)
     └── app/              # util.js, model.js, routine.js (time slots), planner.js, store.js, ai.js (Claude),
                           # ui.js, deliverables.js, views.js, home.js, study.js (courses & lessons), shelf.js (bookshelf),
-                          # labs.js + labs-sims.js (physics labs), plan.js, focus.js,
+                          # labs.js (frame) + labs-sims.js (physics), econ-labs.js (economics),
+                          # labs-sci.js (chemistry, biology), labs-cs.js (CS, psychology, geography), plan.js, focus.js,
                           # cards.js, portal.js, checker.js, settings.js, main.js (router)
 ```
 

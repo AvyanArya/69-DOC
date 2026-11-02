@@ -74,7 +74,10 @@
     else if (area === 'labs') {
       const L = RH.labs, pages = [['labs', 'All labs']];
       x = sideLinks('Labs', pages, cur);
-      L.GROUPS.forEach(function (g) {
+      const gs = L.groups(), side = gs.mine.length ? gs.mine.slice() : gs.all;
+      const open = L.byId[cur.replace(/^lab-/, '')];
+      if (open && side.every((g) => g[0] !== L.subjectOf(open))) side.push(gs.all.find((g) => g[0] === L.subjectOf(open)));
+      side.forEach(function (g) {
         const list = L.defs.filter((d) => L.subjectOf(d) === g[0]);
         if (list.length) x.body += '<p class="label side-group">' + g[1] + '</p><nav class="side-nav" data-subj="' + g[0] + '">' + list.map((d) => '<a href="#lab-' + d.id + '"' + (cur === 'lab-' + d.id ? ' class="on" aria-current="page"' : '') + '>' + esc(d.name) + '</a>').join('') + '</nav>';
       });

@@ -40,7 +40,7 @@
     theory: '<p>With no air resistance the horizontal velocity is constant and the vertical acceleration is −g:</p><p class="eq">x = u cos θ · t &nbsp;&nbsp; y = h + u sin θ · t − ½ g t²</p><p class="eq">R = u² sin 2θ / g &nbsp;&nbsp; H = u² sin² θ / 2g &nbsp;&nbsp; T = 2u sin θ / g</p><p>(The range and flight-time formulas are for launch and landing at the same height.) With air resistance the drag force F = ½ ρ C<sub>d</sub> A v² acts against the velocity, so the ball loses horizontal speed and lands shorter and steeper. The simulation steps these equations 500 times a second.</p>',
     create: function (p) {
       const S = { shots: [], sc: 0 };
-      const cols = (th) => [th.primary, th.accent, th.green, th.purple, th.warn];
+      const cols = () => ['#F97316', '#8B5CF6', '#EC4899', '#0EA5E9', '#EAB308'];
       function fire() {
         const a = p.angle * Math.PI / 180;
         S.shots.push({ x: 0, y: p.h0, vx: p.v * Math.cos(a), vy: p.v * Math.sin(a), t: 0, maxY: p.h0, pts: [[0, p.h0, p.v * Math.sin(a), 0]], done: false, rec: 0, v0: p.v, ang: p.angle, drag: p.drag, ball: p.ball, g: p.g, h0: p.h0 });
@@ -78,59 +78,74 @@
           const tr = theory();
           let X = Math.max(tr.R, p.target + 4, 10), Y = Math.max(tr.H, p.h0, 4);
           S.shots.forEach((s) => { X = Math.max(X, s.x); Y = Math.max(Y, s.maxY); });
-          const want = Math.min((W - 80) / (X * 1.06), (H - 60) / (Y * 1.15));
+          const want = Math.min((W - 80) / (X * 1.06), (H - 70) / (Y * 1.2));
           S.sc = S.sc ? S.sc + (want - S.sc) * 0.1 : want;
-          const sc = S.sc, ox = 52, oy = H - 34, sx = (x) => ox + x * sc, sy = (y) => oy - y * sc;
-          g.fillStyle = th.bg2; g.fillRect(0, oy, W, H - oy);
-          const step = LB.nice(Math.max((W - ox) / sc, (oy) / sc), 8);
-          g.strokeStyle = th.line; g.lineWidth = 1; g.beginPath();
+          const sc = S.sc, ox = 56, oy = H - 40, sx = (x) => ox + x * sc, sy = (y) => oy - y * sc;
+          // Scene: sky, clouds drifting, grass.
+          LB.sky(g, W, oy, th);
+          S.cl = (S.cl || 0) + 0.15;
+          [[0.15, 0.18, 1], [0.55, 0.1, 0.8], [0.82, 0.25, 1.1]].forEach((c) => LB.cloud(g, ((c[0] * W + S.cl * c[2]) % (W + 120)) - 60, c[1] * H, c[2], th));
+          LB.grass(g, oy, W, H, th);
+          const step = LB.nice(Math.max((W - ox) / sc, oy / sc), 8);
+          g.strokeStyle = th.dark ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.75)'; g.lineWidth = 1; g.beginPath();
           for (let x = 0; sx(x) < W; x += step) { g.moveTo(sx(x), oy); g.lineTo(sx(x), 0); }
           for (let y = step; sy(y) > 0; y += step) { g.moveTo(ox, sy(y)); g.lineTo(W, sy(y)); }
           g.stroke();
-          for (let x = 0; sx(x) < W - 10; x += step) T(g, x + ' m', sx(x), oy + 18, { col: th.ink3, size: 11, align: 'center' });
-          for (let y = step; sy(y) > 12; y += step) T(g, y + ' m', ox - 6, sy(y) + 4, { col: th.ink3, size: 11, align: 'right' });
-          g.strokeStyle = th.ink2; g.lineWidth = 2; g.beginPath(); g.moveTo(0, oy); g.lineTo(W, oy); g.stroke();
-          // Target
-          const tx = sx(p.target);
-          g.strokeStyle = th.ink; g.lineWidth = 2; g.beginPath(); g.moveTo(tx, oy); g.lineTo(tx, oy - 34); g.stroke();
-          g.fillStyle = th.bad; g.beginPath(); g.moveTo(tx, oy - 34); g.lineTo(tx + 20, oy - 28); g.lineTo(tx, oy - 22); g.fill();
-          g.fillStyle = th.bad; g.globalAlpha = 0.25; g.fillRect(sx(p.target - 1), oy - 3, 2 * sc, 6); g.globalAlpha = 1;
-          // Tower and launcher
-          if (p.h0 > 0) { g.fillStyle = th.bg3; g.fillRect(ox - 9, sy(p.h0), 18, oy - sy(p.h0)); g.strokeStyle = th.ink3; g.lineWidth = 1; g.strokeRect(ox - 9, sy(p.h0), 18, oy - sy(p.h0)); }
-          const a = p.angle * Math.PI / 180;
-          g.strokeStyle = th.ink; g.lineWidth = 8; g.lineCap = 'round'; g.beginPath(); g.moveTo(ox, sy(p.h0)); g.lineTo(ox + Math.cos(a) * 30, sy(p.h0) - Math.sin(a) * 30); g.stroke(); g.lineCap = 'butt';
-          g.fillStyle = th.ink2; g.beginPath(); g.arc(ox, sy(p.h0), 9, 0, 7); g.fill();
-          // Prediction without air resistance
-          g.setLineDash([5, 6]); g.strokeStyle = th.ink3; g.lineWidth = 1.2; g.beginPath();
+          for (let x = 0; sx(x) < W - 10; x += step) T(g, x + ' m', sx(x), oy + 22, { col: th.dark ? '#d8f5d9' : '#1d5b22', size: 11, align: 'center', weight: 800 });
+          for (let y = step; sy(y) > 12; y += step) T(g, y + ' m', ox - 8, sy(y) + 4, { col: th.ink2, size: 11, align: 'right', weight: 800 });
+          // Target: an archery boss on a stand.
+          const tx = sx(p.target), tyy = oy - 30;
+          g.strokeStyle = '#8B5A2B'; g.lineWidth = 4; g.beginPath(); g.moveTo(tx - 10, oy); g.lineTo(tx, tyy); g.lineTo(tx + 10, oy); g.stroke();
+          ['#FFFFFF', '#1F2330', '#3B82F6', '#EF4444', '#FACC15'].forEach((c, i) => { g.fillStyle = c; g.beginPath(); g.ellipse(tx, tyy, 9 - i * 1.6, 20 - i * 3.6, 0, 0, 7); g.fill(); });
+          LB.shadow(g, tx, oy + 2, 16);
+          // Launch tower and cannon.
+          if (p.h0 > 0) { LB.box(g, ox - 14, sy(p.h0), 28, oy - sy(p.h0), '#C08552', 4); g.strokeStyle = 'rgba(0,0,0,0.12)'; for (let yy = sy(p.h0) + 10; yy < oy; yy += 12) { g.beginPath(); g.moveTo(ox - 14, yy); g.lineTo(ox + 14, yy); g.stroke(); } }
+          const a = p.angle * Math.PI / 180, by = sy(p.h0);
+          g.save(); g.translate(ox, by - 10); g.rotate(-a);
+          const bg = g.createLinearGradient(0, -9, 0, 9); bg.addColorStop(0, '#6B7280'); bg.addColorStop(0.5, '#D1D5DB'); bg.addColorStop(1, '#374151');
+          LB.rr(g, -6, -9, 46, 18, 7); g.fillStyle = bg; g.fill();
+          g.fillStyle = '#1F2937'; g.fillRect(38, -10, 6, 20);
+          g.restore();
+          LB.wheel(g, ox, by - 6, 11, (S.cl || 0) * 0.02);
+          // Prediction without air resistance.
+          g.setLineDash([2, 7]); g.lineCap = 'round'; g.strokeStyle = th.dark ? 'rgba(255,255,255,0.5)' : 'rgba(31,35,48,0.35)'; g.lineWidth = 3; g.beginPath();
           for (let i = 0; i <= 60; i++) { const t = tr.T * i / 60, x = tr.vx * t, y = p.h0 + tr.vy * t - 0.5 * p.g * t * t; if (i) g.lineTo(sx(x), sy(y)); else g.moveTo(sx(x), sy(y)); }
-          g.stroke(); g.setLineDash([]);
-          // Shots
+          g.stroke(); g.setLineDash([]); g.lineCap = 'butt';
+          // Shots.
           const C = cols(th);
           S.shots.forEach(function (s, i) {
             const latest = i === S.shots.length - 1, col = C[i % C.length];
-            g.globalAlpha = latest ? 1 : 0.45; g.strokeStyle = col; g.lineWidth = latest ? 3 : 2;
-            g.beginPath(); s.pts.forEach((q, j) => { if (j) g.lineTo(sx(q[0]), sy(q[1])); else g.moveTo(sx(q[0]), sy(q[1])); }); g.lineTo(sx(s.x), sy(s.y)); g.stroke();
-            if (s.done) { g.fillStyle = col; g.fillRect(sx(s.x) - 1, oy - 8, 2, 8); }
+            g.globalAlpha = latest ? 1 : 0.5; g.fillStyle = col;
+            s.pts.forEach((q, j) => { if (j % 3 === 0) { g.beginPath(); g.arc(sx(q[0]), sy(q[1]), latest ? 3 : 2.2, 0, 7); g.fill(); } });
             g.globalAlpha = 1;
+            if (s.done) { g.fillStyle = col; g.beginPath(); g.arc(sx(s.x), oy, 4, 0, 7); g.fill(); }
             if (!s.done || latest) {
-              g.fillStyle = col; g.beginPath(); g.arc(sx(s.x), sy(s.y), 7, 0, 7); g.fill();
+              LB.shadow(g, sx(s.x), oy + 2, 10, 0.22 * Math.max(0.2, 1 - s.y / (Y * 1.2)));
+              LB.ball(g, sx(s.x), sy(s.y) - (s.done ? 8 : 0), 8, col);
               if (p.vec && !s.done) {
-                const k = 2.6;
-                LB.arrow(g, sx(s.x), sy(s.y), sx(s.x) + s.vx * k, sy(s.y), th.primary, 2);
-                LB.arrow(g, sx(s.x), sy(s.y), sx(s.x), sy(s.y) - s.vy * k, th.bad, 2);
-                LB.arrow(g, sx(s.x), sy(s.y), sx(s.x) + s.vx * k, sy(s.y) - s.vy * k, th.ink, 1.5);
+                const k = 2.6, x0 = sx(s.x), y0 = sy(s.y);
+                LB.arrow(g, x0, y0, x0 + s.vx * k, y0, '#2563EB', 3);
+                LB.arrow(g, x0, y0, x0, y0 - s.vy * k, '#DC2626', 3);
+                LB.arrow(g, x0, y0, x0 + s.vx * k, y0 - s.vy * k, th.ink, 2);
               }
             }
             if (latest && s.done) {
               const top = s.pts.reduce((m, q) => q[1] > m[1] ? q : m, s.pts[0]);
-              g.setLineDash([3, 4]); g.strokeStyle = th.ink3; g.lineWidth = 1; g.beginPath(); g.moveTo(sx(top[0]), sy(top[1])); g.lineTo(sx(top[0]), oy); g.stroke(); g.setLineDash([]);
-              T(g, 'max ' + f(s.maxY) + ' m', sx(top[0]) + 6, sy(top[1]) - 8, { col: th.ink2, size: 12, weight: 600 });
-              T(g, f(s.x) + ' m', sx(s.x), oy - 12, { col: col, size: 12, weight: 700, align: 'center' });
+              g.setLineDash([4, 5]); g.strokeStyle = th.ink3; g.lineWidth = 1.5; g.beginPath(); g.moveTo(sx(top[0]), sy(top[1])); g.lineTo(sx(top[0]), oy); g.stroke(); g.setLineDash([]);
+              const lab = 'max ' + f(s.maxY) + ' m'; g.font = '900 12px Nunito, system-ui'; const wl = g.measureText(lab).width + 16;
+              LB.rr(g, sx(top[0]) + 8, sy(top[1]) - 26, wl, 22, 11); g.fillStyle = th.bg; g.fill();
+              T(g, lab, sx(top[0]) + 16, sy(top[1]) - 11, { col: th.ink, size: 12, weight: 900 });
+              const lr = f(s.x) + ' m'; const wr = g.measureText(lr).width + 16;
+              LB.rr(g, sx(s.x) - wr / 2, oy - 46, wr, 22, 11); g.fillStyle = col; g.fill();
+              T(g, lr, sx(s.x), oy - 31, { col: '#fff', size: 12, weight: 900, align: 'center' });
             }
           });
-          if (p.vec) LB.legend(g, th, W - 240, 20, [['vₓ', th.primary], ['v_y', th.bad], ['v', th.ink]]);
+          if (p.vec) LB.legend(g, th, W - 230, 22, [['vₓ', '#2563EB'], ['v_y', '#DC2626'], ['v', th.ink]]);
           const last = S.shots[S.shots.length - 1];
-          if (last && last.done && Math.abs(last.x - p.target) <= 1) T(g, 'Hit the target!', tx, oy - 44, { col: th.ok, size: 14, weight: 700, align: 'center' });
+          if (last && last.done && Math.abs(last.x - p.target) <= 1) {
+            LB.rr(g, W / 2 - 80, 14, 160, 34, 17); g.fillStyle = '#22C55E'; g.fill();
+            T(g, '🎯 Bullseye!', W / 2, 37, { col: '#fff', size: 16, weight: 900, align: 'center' });
+          }
         },
         graph: function (g, W, H, p, th) {
           const s = S.shots[S.shots.length - 1], w = W / 2;
@@ -220,27 +235,27 @@
         },
         draw: function (g, W, H, p, th) {
           const e = energy(), cx = W * 0.32;
-          g.fillStyle = th.bg2; g.fillRect(cx - 120, 0, 240, 14);
-          g.strokeStyle = th.ink3; g.lineWidth = 1; g.beginPath();
-          for (let x = cx - 116; x < cx + 120; x += 10) { g.moveTo(x, 14); g.lineTo(x + 8, 4); }
-          g.stroke();
+          LB.sky(g, W, H, th, '#F3EEFF', '#FFFFFF');
+          LB.box(g, cx - 130, -6, 260, 22, '#B7794A', 6);
           if (isP()) {
             const sc = (H - 70) / 2.55, px = cx + Math.sin(S.x) * p.L * sc, py = 14 + Math.cos(S.x) * p.L * sc;
             g.setLineDash([4, 5]); g.strokeStyle = th.ink3; g.beginPath(); g.moveTo(cx, 14); g.lineTo(cx, 14 + p.L * sc + 20); g.stroke(); g.setLineDash([]);
             g.strokeStyle = th.ink3; g.lineWidth = 1; g.beginPath(); g.arc(cx, 14, Math.min(60, p.L * sc * 0.4), Math.PI / 2, Math.PI / 2 - S.x, S.x > 0); g.stroke();
-            g.strokeStyle = th.ink; g.lineWidth = 2; g.beginPath(); g.moveTo(cx, 14); g.lineTo(px, py); g.stroke();
-            g.fillStyle = th.primary; g.beginPath(); g.arc(px, py, 9 + 9 * Math.cbrt(p.m), 0, 7); g.fill();
+            g.strokeStyle = th.dark ? '#CBD5E1' : '#475569'; g.lineWidth = 2.5; g.beginPath(); g.moveTo(cx, 14); g.lineTo(px, py); g.stroke();
+            g.fillStyle = '#334155'; g.beginPath(); g.arc(cx, 14, 5, 0, 7); g.fill();
+            LB.shadow(g, px, H - 18, 14 + 8 * Math.cbrt(p.m), 0.12);
+            LB.ball(g, px, py, 10 + 10 * Math.cbrt(p.m), '#8B5CF6');
             T(g, 'θ = ' + f(S.x * 180 / Math.PI, 1) + '°', cx + 10, 40 + Math.min(60, p.L * sc * 0.4), { col: th.ink2, size: 12, weight: 600 });
           } else {
             const sc = (H * 0.32) / 0.3, eq = H * 0.52;
             let topY = 14;
             if (p.drive) { const wy = 26, ang = 2 * Math.PI * p.fd * S.t; g.strokeStyle = th.ink3; g.beginPath(); g.arc(cx + 70, wy, 10, 0, 7); g.stroke(); g.fillStyle = th.accent; g.beginPath(); g.arc(cx + 70 + Math.cos(ang) * 10, wy + Math.sin(ang) * 10, 3, 0, 7); g.fill(); T(g, 'driver ' + f(p.fd) + ' Hz', cx + 86, wy + 4, { col: th.ink3, size: 11 }); }
             const my = eq + S.x * sc, bh = 22 + 16 * Math.cbrt(p.m), coils = 14;
-            g.strokeStyle = th.ink; g.lineWidth = 1.6; g.beginPath(); g.moveTo(cx, topY);
+            g.strokeStyle = th.dark ? '#CBD5E1' : '#64748B'; g.lineWidth = 3.2; g.lineJoin = 'round'; g.beginPath(); g.moveTo(cx, topY);
             const len = my - topY - 10;
             for (let i = 0; i <= coils * 2; i++) g.lineTo(cx + (i === 0 || i === coils * 2 ? 0 : (i % 2 ? 14 : -14)), topY + 10 + len * i / (coils * 2));
             g.lineTo(cx, my); g.stroke();
-            g.fillStyle = th.primary; g.fillRect(cx - 28, my, 56, bh);
+            LB.box(g, cx - 30, my, 60, bh, '#8B5CF6', 10);
             T(g, f(p.m) + ' kg', cx, my + bh / 2 + 4, { col: '#fff', size: 12, weight: 700, align: 'center' });
             g.setLineDash([4, 5]); g.strokeStyle = th.ink3; g.beginPath(); g.moveTo(cx - 70, eq); g.lineTo(cx + 70, eq); g.stroke(); g.setLineDash([]);
             T(g, 'equilibrium', cx - 74, eq - 5, { col: th.ink3, size: 11, align: 'right' });
@@ -254,10 +269,10 @@
           const E = e.ke + e.pe, bx = W * 0.68, bw = 44, top = 40, base = H - 40;
           if (S.E0 == null || S.t < 0.02) S.E0 = Math.max(E, 1e-9);
           const scale = (base - top) / Math.max(S.E0 * 1.1, E * 1.1, 1e-9);
-          [['KE', e.ke, th.accent], ['PE', e.pe, th.primary], ['Total', E, th.ink2]].forEach(function (q, i) {
+          [['KE', e.ke, '#F97316'], ['PE', e.pe, '#8B5CF6'], ['Total', E, '#22C55E']].forEach(function (q, i) {
             const x = bx + i * (bw + 18), hgt = q[1] * scale;
-            g.fillStyle = th.bg2; g.fillRect(x, top, bw, base - top);
-            g.fillStyle = q[2]; g.fillRect(x, base - hgt, bw, hgt);
+            LB.rr(g, x, top, bw, base - top, 12); g.fillStyle = th.dark ? 'rgba(255,255,255,0.06)' : 'rgba(31,35,48,0.06)'; g.fill();
+            if (hgt > 1) { LB.rr(g, x, base - hgt, bw, hgt, Math.min(12, hgt / 2)); g.fillStyle = q[2]; g.fill(); }
             T(g, q[0], x + bw / 2, base + 16, { col: th.ink2, size: 12, weight: 600, align: 'center' });
             T(g, f(q[1] * 1000, 1) + ' mJ', x + bw / 2, top - 8, { col: th.ink3, size: 11, align: 'center' });
           });
@@ -327,8 +342,9 @@
         action: function (id) { if (id === 'clear') S.pts = []; if (id === 'rec') { const I = cur(); S.pts.push([meter(I), meter(I * p.R)]); } },
         step: function (dt) { S.phase += dt * cur() * 40; },
         draw: function (g, W, H, p, th) {
-          const I = cur(), V = I * p.R, x0 = W * 0.2, x1 = W * 0.8, y0 = 60, y1 = H - 46, ym = (y0 + y1) / 2;
-          g.strokeStyle = th.ink; g.lineWidth = 2;
+          const I = cur(), V = I * p.R, x0 = W * 0.24, x1 = W * 0.8, y0 = 70, y1 = H - 46, ym = (y0 + y1) / 2;
+          LB.sky(g, W, H, th, '#FFF7ED', '#FFFFFF');
+          g.strokeStyle = th.dark ? '#94A3B8' : '#334155'; g.lineWidth = 4; g.lineJoin = 'round'; g.lineCap = 'round';
           // Wires
           g.beginPath(); g.moveTo(x0, ym - 30); g.lineTo(x0, y0); g.lineTo(x1, y0); g.lineTo(x1, ym - 28); g.moveTo(x1, ym + 28); g.lineTo(x1, y1); g.lineTo(x0, y1); g.lineTo(x0, ym + 46); g.stroke();
           // Cell with internal resistance in a dashed box
@@ -339,30 +355,26 @@
           T(g, 'ε' + (p.hide ? '' : ' = ' + f(p.emf, 1) + ' V'), x0 - 48, ym - 22, { col: th.ink2, size: 12, align: 'right', weight: 600 });
           T(g, 'r' + (p.hide ? '' : ' = ' + f(p.r, 1) + ' Ω'), x0 - 48, ym + 22, { col: th.ink2, size: 12, align: 'right', weight: 600 });
           // Load resistor (variable)
-          g.fillStyle = th.bg; g.fillRect(x1 - 12, ym - 28, 24, 56); g.strokeRect(x1 - 12, ym - 28, 24, 56);
+          LB.box(g, x1 - 13, ym - 30, 26, 60, '#F59E0B', 6);
           LB.arrow(g, x1 - 26, ym + 24, x1 + 24, ym - 24, th.ink, 1.5);
           T(g, 'R = ' + f(p.R, 1) + ' Ω', x1 + 30, ym + 4, { col: th.ink, size: 13, weight: 700 });
           // Ammeter
           const ax = (x0 + x1) / 2;
-          g.fillStyle = th.bg; g.beginPath(); g.arc(ax, y0, 17, 0, 7); g.fill(); g.strokeStyle = th.ink; g.stroke();
-          T(g, 'A', ax, y0 + 5, { col: th.ink, size: 14, weight: 700, align: 'center' });
-          T(g, f(I, 2) + ' A', ax, y0 - 26, { col: th.primary, size: 15, weight: 700, align: 'center' });
+          LB.dial(g, ax, y0, 30, I / (p.emf / Math.max(0.2 + p.r, 0.2)), 'A', f(I, 2) + ' A', '#EF4444', th);
           // Voltmeter across the terminals
           const vx = x0 - 110;
           g.strokeStyle = th.ink3; g.lineWidth = 1.5; g.beginPath(); g.moveTo(x0, y0 + 0.01); g.lineTo(vx, y0); g.lineTo(vx, ym - 17); g.moveTo(vx, ym + 17); g.lineTo(vx, y1); g.lineTo(x0, y1); g.stroke();
-          g.fillStyle = th.bg; g.beginPath(); g.arc(vx, ym, 17, 0, 7); g.fill(); g.strokeStyle = th.ink; g.lineWidth = 2; g.stroke();
-          T(g, 'V', vx, ym + 5, { col: th.ink, size: 14, weight: 700, align: 'center' });
-          T(g, f(V, 2) + ' V', vx - 24, ym + 5, { col: th.bad, size: 15, weight: 700, align: 'right' });
+          LB.dial(g, vx, ym, 30, V / p.emf, 'V', f(V, 2) + ' V', '#2563EB', th);
           // Moving charge (conventional current, clockwise from +)
           const path = [[x0, ym - 30], [x0, y0], [x1, y0], [x1, y1], [x0, y1], [x0, ym + 46]];
           const segs = [], total = path.slice(1).reduce((a, q, i) => { const L = Math.hypot(q[0] - path[i][0], q[1] - path[i][1]); segs.push(L); return a + L; }, 0);
-          g.fillStyle = th.accent;
+          g.fillStyle = '#FACC15';
           for (let dpos = S.phase % 26; dpos < total; dpos += 26) {
             let d = dpos, i = 0;
             while (i < segs.length && d > segs[i]) { d -= segs[i]; i++; }
             if (i >= segs.length) break;
             const a = path[i], b = path[i + 1], t = d / segs[i];
-            g.beginPath(); g.arc(a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, 3, 0, 7); g.fill();
+            const cxp = a[0] + (b[0] - a[0]) * t, cyp = a[1] + (b[1] - a[1]) * t; LB.glow(g, cxp, cyp, 9, 'rgba(250,204,21,0.8)', 0.7); g.fillStyle = '#F59E0B'; g.beginPath(); g.arc(cxp, cyp, 3.5, 0, 7); g.fill();
           }
         },
         graph: function (g, W, H, p, th) {
@@ -620,14 +632,19 @@
           if (S.hist.length > 900) S.hist.shift();
         },
         draw: function (g, W, H, p, th) {
-          const sc = (W - 40) / 10, ox = 20, ty = H * 0.62, sx = (x) => ox + x * sc;
-          g.fillStyle = th.bg2; g.fillRect(0, ty, W, 10); g.strokeStyle = th.ink3; g.lineWidth = 1; g.beginPath(); g.moveTo(0, ty); g.lineTo(W, ty); g.stroke();
+          const sc = (W - 40) / 10, ox = 20, ty = H * 0.66, sx = (x) => ox + x * sc;
+          LB.sky(g, W, ty, th, '#E0F2FE', '#F8FAFC');
+          const tg = g.createLinearGradient(0, ty, 0, ty + 14); tg.addColorStop(0, '#94A3B8'); tg.addColorStop(1, '#475569');
+          g.fillStyle = tg; g.fillRect(0, ty, W, 14); g.fillStyle = th.dark ? '#1B1D29' : '#F1F5F9'; g.fillRect(0, ty + 14, W, H - ty - 14);
+          g.strokeStyle = th.ink3; g.lineWidth = 1; g.beginPath();
           for (let x = 0; x <= 10; x++) { T(g, x + ' m', sx(x), ty + 26, { col: th.ink3, size: 10, align: 'center' }); g.beginPath(); g.moveTo(sx(x), ty); g.lineTo(sx(x), ty + 6); g.stroke(); }
-          [[S.x1, p.m1, S.v1, th.primary, 'A'], [S.x2, p.m2, S.v2, th.accent, 'B']].forEach(function (c) {
-            const w = wid(c[1]) * sc, hgt = 26 + 14 * Math.cbrt(c[1]), x = sx(c[0]);
-            g.fillStyle = c[3]; g.fillRect(x - w / 2, ty - hgt - 8, w, hgt);
-            g.fillStyle = th.ink; [x - w / 3, x + w / 3].forEach((wx) => { g.beginPath(); g.arc(wx, ty - 5, 5, 0, 7); g.fill(); });
-            T(g, c[4] + ' · ' + f(c[1], 1) + ' kg', x, ty - hgt / 2 - 4, { col: '#fff', size: 12, weight: 700, align: 'center' });
+          [[S.x1, p.m1, S.v1, '#8B5CF6', 'A'], [S.x2, p.m2, S.v2, '#F97316', 'B']].forEach(function (c) {
+            const w = wid(c[1]) * sc, hgt = 30 + 16 * Math.cbrt(c[1]), x = sx(c[0]);
+            LB.shadow(g, x, ty + 2, w * 0.55, 0.15);
+            LB.box(g, x - w / 2, ty - hgt - 10, w, hgt, c[3], 10);
+            [x - w / 3, x + w / 3].forEach((wx) => LB.wheel(g, wx, ty - 7, 8, c[0] * 3));
+            if (Math.abs(c[2]) > 0.5) { g.strokeStyle = LB.shade(c[3], 0.4); g.lineWidth = 3; for (let k = 0; k < 3; k++) { const yy = ty - hgt + k * 10, xs = x - Math.sign(c[2]) * (w / 2 + 6 + k * 4); g.beginPath(); g.moveTo(xs, yy); g.lineTo(xs - Math.sign(c[2]) * 16, yy); g.stroke(); } }
+            T(g, c[4] + ' · ' + f(c[1], 1) + ' kg', x, ty - hgt / 2 - 6, { col: '#fff', size: 13, weight: 900, align: 'center' });
             if (Math.abs(c[2]) > 0.01) LB.arrow(g, x, ty - hgt - 22, x + c[2] * 18, ty - hgt - 22, c[3], 3);
             T(g, f(c[2], 2) + ' m/s', x, ty - hgt - 32, { col: th.ink, size: 12, weight: 600, align: 'center' });
           });
@@ -710,7 +727,7 @@
           T(g, 'metal', G.px - 1, G.bot + 16, { col: th.ink2, size: 11, align: 'center', weight: 600 });
           T(g, 'collector', G.cx + 3, G.bot + 16, { col: th.ink2, size: 11, align: 'center', weight: 600 });
           // Lamp
-          g.fillStyle = col; g.beginPath(); g.arc(34, 30, 14, 0, 7); g.fill(); g.strokeStyle = th.ink3; g.stroke();
+          LB.glow(g, 34, 30, 46, LB.waveColour(p.lam, 0.7), 0.4 + 0.6 * p.int / 100); g.fillStyle = col; g.beginPath(); g.arc(34, 30, 14, 0, 7); g.fill(); g.strokeStyle = th.ink3; g.stroke();
           T(g, p.lam < 380 ? 'ultraviolet' : p.lam > 750 ? 'infrared' : 'visible', 54, 34, { col: th.ink2, size: 11, weight: 600 });
           S.ph.forEach(function (q) {
             const x = 40 + (G.px - 46) * q.t, y = 30 + (q.y - 30) * q.t, ang = Math.atan2(q.y - 30, G.px - 46);
@@ -718,8 +735,7 @@
             for (let i = -10; i <= 10; i += 2) { const px = x + Math.cos(ang) * i - Math.sin(ang) * Math.sin(i * 0.8) * 3, py = y + Math.sin(ang) * i + Math.cos(ang) * Math.sin(i * 0.8) * 3; if (i === -10) g.moveTo(px, py); else g.lineTo(px, py); }
             g.stroke();
           });
-          g.fillStyle = th.primary;
-          S.el.forEach((e) => { g.beginPath(); g.arc(e.x, e.y, 3.5, 0, 7); g.fill(); });
+          S.el.forEach((e) => LB.ball(g, e.x, e.y, 4.5, '#3B82F6'));
           // Circuit with battery and ammeter
           const by = H - 18;
           g.strokeStyle = th.ink; g.lineWidth = 1.5; g.beginPath(); g.moveTo(G.px - 1, G.bot); g.lineTo(G.px - 1, by); g.lineTo(G.cx + 3, by); g.lineTo(G.cx + 3, G.bot); g.stroke();
@@ -780,8 +796,9 @@
           const cols = Math.ceil(Math.sqrt(S.n * W / H)), rows = Math.ceil(S.n / cols), cw = (W - 20) / cols, ch = (H - 20) / rows, r = Math.max(1.5, Math.min(cw, ch) * 0.36);
           for (let i = 0; i < S.n; i++) {
             const x = 10 + (i % cols + 0.5) * cw, y = 10 + (Math.floor(i / cols) + 0.5) * ch, d = S.dead[i];
-            if (!d) g.fillStyle = th.purple; else if (S.t - d < 0.35) g.fillStyle = th.warn; else g.fillStyle = th.bg3;
-            g.beginPath(); g.arc(x, y, d && S.t - d < 0.35 ? r * 1.4 : r, 0, 7); g.fill();
+            if (!d) { if (r > 3) LB.ball(g, x, y, r, '#8B5CF6'); else { g.fillStyle = '#8B5CF6'; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); } }
+            else if (S.t - d < 0.35) { LB.glow(g, x, y, r * 3, 'rgba(250,204,21,0.9)'); g.fillStyle = '#F59E0B'; g.beginPath(); g.arc(x, y, r * 1.2, 0, 7); g.fill(); }
+            else { g.fillStyle = th.dark ? '#3A3F55' : '#D9DCE6'; g.beginPath(); g.arc(x, y, r * 0.7, 0, 7); g.fill(); }
           }
         },
         graph: function (g, W, H, p, th) {
