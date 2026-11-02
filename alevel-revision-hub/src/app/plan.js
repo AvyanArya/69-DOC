@@ -74,7 +74,7 @@
     const ws = U.weekStart(U.today());
     const tot = R.weekTotals(s, ws);
     const pd = RH.ui.rday != null ? RH.ui.rday : U.dow(U.today());
-    let html = C.page({ title: 'My schedule', lede: 'Tell Preppr when you’re at school, asleep or busy. Every revision session is then booked into the time that’s left. Changes save as you go.',
+    let html = C.page({ title: 'My schedule', lede: 'When you’re busy, so revision fits around it.',
       actions: '<button type="button" class="btn" data-action="routine-save">' + C.icon('rebuild') + 'Save and rebuild my plan</button>' });
     const stepH = (n, t, sub, right) => '<div class="step-h"><span class="step-n">' + n + '</span><div><h2>' + t + '</h2>' + (sub ? '<p class="muted small">' + sub + '</p>' : '') + '</div>' + (right || '') + '</div>';
 
@@ -157,7 +157,7 @@
   // ---------- Exams ----------
   V.exams = function () {
     const s = st(), today = U.today();
-    let html = C.subnav('plan', 'exams') + C.page({ eyebrow: 'Plan', title: 'Exams and tests', lede: 'Official dates from the <a href="' + RH.EXAM_SOURCE.url + '" target="_blank" rel="noopener">Pearson Edexcel Summer 2027 final timetable</a>. Morning papers start at 9:00, afternoon papers at 1:30pm. Check with your exams officer.' });
+    let html = C.subnav('plan', 'exams') + C.page({ title: 'Exams and tests', lede: 'Official <a href="' + RH.EXAM_SOURCE.url + '" target="_blank" rel="noopener">Edexcel Summer 2027</a> dates. Add your school tests below.' });
     if (!s.profile.fmOptions) html += V.fmOptionsCard();
     let month = '';
     html += '<div class="exam-list">';
@@ -193,7 +193,7 @@
     const range = (key, label, help, min, max, step) => '<div class="field"><label for="f-' + key + '" class="range-l"><span>' + label + '</span><output class="num" id="o-' + key + '">' + S[key] + '</output></label>' +
       '<input type="range" id="f-' + key + '" min="' + min + '" max="' + max + '" step="' + step + '" value="' + S[key] + '" data-set="' + key + '" data-num="1">' + (help ? '<p class="help">' + help + '</p>' : '') + '</div>';
     const tg = (key, label, help) => C.toggle('id="f-' + key + '" data-set="' + key + '"', label, S[key], help);
-    let html = C.subnav('plan', 'strategy') + C.page({ eyebrow: 'Plan', title: 'Strategy', lede: 'How the planner chooses what to revise. Your hours and free time are set in <a href="#routine">My schedule</a>.', actions: '<button type="button" class="btn" data-action="plan-build">' + C.icon('rebuild') + 'Rebuild plan</button>' });
+    let html = C.subnav('plan', 'strategy') + C.page({ title: 'Strategy', lede: 'How the planner picks what to revise.', actions: '<button type="button" class="btn" data-action="plan-build">' + C.icon('rebuild') + 'Rebuild plan</button>' });
     html += V.staleBanner();
     html += '<section class="card"><div class="card-head"><h2>Pick a strategy</h2></div><div class="presets">' + Object.keys(RH.PRESETS).map((k) => { const p = RH.PRESETS[k]; return '<button type="button" class="preset' + (S.preset === k ? ' on' : '') + '" data-action="preset" data-v="' + k + '" aria-pressed="' + (S.preset === k) + '"><b>' + p.label + '</b><span>' + p.note + '</span></button>'; }).join('') + '</div></section>';
     html += '<div class="grid-2"><section class="card"><div class="card-head"><h2>What matters most</h2></div>' + range('wWeak', 'Weak topics', 'Red and not-started topics first.', 0, 3, 0.25) + range('wUrg', 'Exam urgency', 'Topics in sooner papers first.', 0, 3, 0.25) + range('wCov', 'Cover untouched topics', 'Reach every topic at least once.', 0, 3, 0.25) + range('ppWeeks', 'Past papers: weeks before each exam', 'Timed papers start this many weeks out. 0 turns them off.', 0, 12, 1) + '</section>' +

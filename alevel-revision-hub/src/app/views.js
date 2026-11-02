@@ -9,7 +9,7 @@
   V.areaOf = function (r) {
     if (r === 'home') return 'home';
     if (/^(study|subjects|s-|c-|t-|library|guide)/.test(r)) return 'learn';
-    if (/^(papers|paper-|exam$|mark$|check|checks|cards|deck-|review)/.test(r)) return 'practise';
+    if (/^(papers|paper-|sit-|exam$|mark$|handin$|check|checks|cards|deck-|review)/.test(r)) return 'practise';
     if (/^(plan|deliverables|routine|exams|strategy)$/.test(r)) return 'plan';
     if (r === 'focus') return 'focus';
     if (r === 'labs' || r.indexOf('lab-') === 0) return 'labs';
@@ -18,7 +18,7 @@
   // The page inside an area that the current route belongs to.
   function currentPage(r) {
     if (/^[sct]-/.test(r)) return 'study';
-    if (/^(paper-|exam$|mark$)/.test(r)) return 'papers';
+    if (/^(paper-|sit-|exam$|mark$|handin$)/.test(r)) return 'papers';
     if (/^check-/.test(r)) return 'checks';
     if (/^(deck-|review)/.test(r)) return 'cards';
     return r;

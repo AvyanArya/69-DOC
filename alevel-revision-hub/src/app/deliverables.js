@@ -176,7 +176,7 @@
     const set = s.deliv.settings;
     const review = D.needsReview();
     let html = C.subnav('plan', 'deliverables');
-    html += C.page({ eyebrow: 'Week of ' + esc(U.fmtShort(ws)), title: 'Weekly tasks', lede: 'Hand these in by <b>' + esc(U.fmt(dl.date, { weekday: 'long' })) + ' ' + esc(dl.time) + '</b>. Each one needs proof, or is measured for you.',
+    html += C.page({ eyebrow: 'Week of ' + esc(U.fmtShort(ws)), title: 'Weekly tasks', lede: 'Hand these in by <b>' + esc(U.fmt(dl.date, { weekday: 'long' })) + ' ' + esc(dl.time) + '</b>.',
       actions: '<button type="button" class="icon-btn" data-action="dv-week" data-v="-7" aria-label="Previous week">' + C.icon('left') + '</button><button type="button" class="icon-btn" data-action="dv-week" data-v="7" aria-label="Next week"' + (ws >= cur ? ' disabled' : '') + '>' + C.icon('right') + '</button>' });
 
     if (review && ws === cur) html += reviewPanel(review);

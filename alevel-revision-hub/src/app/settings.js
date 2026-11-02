@@ -11,7 +11,7 @@
       : sync === 'cloud-full' ? 'Saved in this browser. Some data is too big to sync, so export a backup regularly.'
       : sync === 'cloud-error' ? 'Saved in this browser. Syncing failed this time and will retry on your next change.'
       : 'Saved in this browser on this device. Export a backup to move it to another device.';
-    let html = C.page({ title: 'Settings', lede: 'Your account, Claude, Further Maths options and backups.' });
+    let html = C.page({ title: 'Settings' });
     const AC = RH.account || {}, me = AC.me;
     const pic = me && me.avatarUrl && me.name ? '<img src="' + esc(me.avatarUrl) + '" alt="">' : esc((s.profile.name || '?').charAt(0).toUpperCase());
     html += '<section class="card acct-card"><div class="acct-row"><span class="av lg">' + pic + '</span><span class="acct-t"><b>' + esc(s.profile.name || (me && me.name) || 'Your account') + '</b><span>' +

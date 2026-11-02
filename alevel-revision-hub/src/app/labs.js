@@ -183,21 +183,47 @@
     const mine = LB.GROUPS.filter((g) => M.isMine(M.subject[g[0]] || { id: g[0] })), rest = LB.GROUPS.filter((g) => mine.indexOf(g) < 0);
     return { mine: mine, rest: rest, all: mine.concat(rest) };
   };
-  const card = function (d) {
-    const t = subjOf(d.topics[0]);
-    return '<a class="lab-card" href="#lab-' + d.id + '" data-subj="' + LB.subjectOf(d) + '"><span class="lab-ic" aria-hidden="true">' + (d.icon || '') + '</span><span class="lab-ct"><b>' + esc(d.name) + '</b><span class="muted small">' + esc(d.blurb) + '</span>' + (t ? '<span class="small lab-topic">' + esc(M.lessonNum(RH.store.state, t) + ' ' + M.title(t.name)) + '</span>' : '') + '</span></a>';
-  };
+  // The Labs page: one shelf per subject, each lab a cover showing a snapshot of the lab itself.
+  const card = (d) => '<a class="lab-cover" href="#lab-' + d.id + '" data-subj="' + LB.subjectOf(d) + '"><span class="lc-art"><canvas data-labthumb="' + d.id + '" aria-hidden="true"></canvas></span><b>' + esc(d.name) + '</b></a>';
   V.labs = function () {
     const gs = LB.groups();
-    let html = V.docHead('Labs', 'Labs', LB.defs.length + ' interactive experiments, simulations and diagrams. Move a slider and see the result straight away. Your subjects come first.');
+    let html = '<header class="page-h"><div><h1>The Labs</h1><p class="lede">Pick a lab and move the sliders.</p></div></header>';
     gs.all.forEach(function (g, i) {
       const list = LB.defs.filter((d) => LB.subjectOf(d) === g[0]);
       if (!list.length) return;
-      if (i === gs.mine.length && gs.mine.length && gs.rest.length) html += '<h2 class="lab-more-h">Labs for other subjects</h2>';
-      html += '<section class="lab-group" data-subj="' + g[0] + '" id="labs-' + g[0] + '"><div class="sec-head"><h2>' + g[1] + '</h2><span class="label">' + list.length + ' ' + (g[0] === 'economics' ? 'diagrams' : 'labs') + '</span></div><p class="muted">' + g[2] + '</p><div class="lab-cards">' + list.map(card).join('') + '</div></section>';
+      if (i === gs.mine.length && gs.mine.length && gs.rest.length) html += '<h2 class="lab-more-h">Other subjects</h2>';
+      html += '<section class="lab-shelf" data-subj="' + g[0] + '" id="labs-' + g[0] + '"><h2>' + g[1] + '</h2><div class="lab-row">' + list.map(card).join('') + '</div><div class="lab-plank" aria-hidden="true"></div></section>';
     });
     return html;
   };
+  // Draw each cover by running the lab for a moment off-screen.
+  const thumbs = {};
+  function thumb(id) {
+    if (thumbs[id]) return thumbs[id];
+    const d = LB.byId[id], W = 360, H = 270, c = document.createElement('canvas');
+    c.width = W * 2; c.height = H * 2;
+    const g = c.getContext('2d'); g.setTransform(2, 0, 0, 2, 0, 0);
+    try {
+      const p = defaults(d), inst = d.create(p);
+      if (inst.reset) inst.reset(p);
+      (d.actions || []).filter((a) => a.primary).slice(0, 1).forEach((a) => { if (inst.action) inst.action(a.id, p); });
+      for (let i = 0; i < 90; i++) inst.step(0.02, p);
+      inst.draw(g, W, H, p, LB.theme());
+    } catch (e) { g.fillStyle = '#ddd'; g.fillRect(0, 0, W, H); }
+    return (thumbs[id] = c.toDataURL('image/png'));
+  }
+  RH.afterRender.push(function (r) {
+    if (r !== 'labs') return;
+    const list = Array.prototype.slice.call(document.querySelectorAll('canvas[data-labthumb]'));
+    let i = 0;
+    (function next() {
+      const el = list[i++];
+      if (!el || !document.body.contains(el)) return;
+      const img = new Image(); img.alt = ''; img.src = thumb(el.dataset.labthumb);
+      el.replaceWith(img);
+      setTimeout(next, 0);
+    })();
+  });
   function control(c, p) {
     const hid = c.when && !c.when(p) ? ' hidden' : '';
     if (c.type === 'toggle') return '<div class="lc lc-t" data-lc="' + c.k + '"' + hid + '>' + C.toggle('data-lk="' + c.k + '"', c.label, p[c.k], c.help) + '</div>';

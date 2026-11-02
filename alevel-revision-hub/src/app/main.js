@@ -29,13 +29,14 @@
 
   function pageFor(r) {
     const pre = (p) => r.indexOf(p) === 0 ? r.slice(p.length) : null;
-    const simple = { home: V.home, study: V.study, plan: V.plan, deliverables: V.deliverables, routine: V.routine, exams: V.exams, strategy: V.strategy, check: V.check, checks: V.checks, focus: V.focus, cards: V.cards, review: V.review, papers: V.papers, exam: V.exam, mark: V.mark, library: V.library, guide: V.guide, preferences: V.prefs, labs: V.labs, subjects: V.subjectsList, welcome: V.welcome, setup: V.setup };
+    const simple = { home: V.home, study: V.study, plan: V.plan, deliverables: V.deliverables, routine: V.routine, exams: V.exams, strategy: V.strategy, check: V.check, checks: V.checks, focus: V.focus, cards: V.cards, review: V.review, papers: V.papers, exam: V.exam, mark: V.mark, library: V.library, guide: V.guide, preferences: V.prefs, labs: V.labs, handin: V.handin, subjects: V.subjectsList, welcome: V.welcome, setup: V.setup };
     if (simple[r]) return simple[r]();
     let x;
     if ((x = pre('s-')) !== null) return V.subject(x);
     if ((x = pre('c-')) !== null) return V.section(x);
     if ((x = pre('t-')) !== null) return V.topic(x);
     if ((x = pre('paper-')) !== null) return V.paper(x);
+    if ((x = pre('sit-')) !== null) return V.sit(x);
     if ((x = pre('deck-')) !== null) return V.deck(x);
     if ((x = pre('check-')) !== null) return V.checkOne(x);
     if ((x = pre('lab-')) !== null) return V.lab(x);
@@ -46,7 +47,7 @@
     const t = r.indexOf('t-') === 0 && M.topic[r.slice(2)];
     const c = r.indexOf('c-') === 0 && M.comp[r.slice(2)];
     const s = r.indexOf('s-') === 0 && M.subject[r.slice(2)];
-    const names = { study: 'My Subjects', subjects: 'Choose subjects', plan: 'This week', deliverables: 'Weekly tasks', routine: 'My schedule', exams: 'Exams', strategy: 'Strategy', check: 'Check an answer', checks: 'Checked answers', focus: 'Focus', papers: 'Past papers', exam: 'Exam in progress', mark: 'Marking', cards: 'Flashcards', review: 'Reviewing cards', library: 'Resources', guide: 'How to revise', preferences: 'Settings', labs: 'The Labs', welcome: 'Sign in', setup: 'Set up' };
+    const names = { study: 'My Subjects', subjects: 'Choose subjects', plan: 'This week', deliverables: 'Weekly tasks', routine: 'My schedule', exams: 'Exams', strategy: 'Strategy', check: 'Check an answer', checks: 'Checked answers', focus: 'Focus', papers: 'Exam centre', exam: 'Exam in progress', mark: 'Marking', handin: 'Hand in', cards: 'Flashcards', review: 'Reviewing cards', library: 'Resources', guide: 'How to revise', preferences: 'Settings', labs: 'The Labs', welcome: 'Sign in', setup: 'Set up' };
     const lab = r.indexOf('lab-') === 0 && RH.labs.byId[r.slice(4)];
     const name = t ? t.name : c ? c.name : s ? s.name : lab ? lab.name : names[r];
     return (name ? name + ' · ' : '') + 'Preppr';
@@ -70,7 +71,7 @@
     const active = document.activeElement;
     const focusId = active && active.id && view.contains(active) ? active.id : null;
     const bare = r === 'welcome' || r === 'setup';
-    view.innerHTML = (bare ? '' : V.subnav(r)) + html;
+    view.innerHTML = (bare || r === 'exam' || r === 'review' ? '' : V.subnav(r)) + html;
     document.body.classList.toggle('bare', bare);
     $('#nav').innerHTML = V.nav(r);
     $('#acct').innerHTML = V.acct();

@@ -59,30 +59,30 @@
       (nx ? '<a class="btn lg" href="#t-' + nx.gid + '">' + (p.done ? 'Continue' : 'Start') + ': ' + M.lessonNum(s, nx) + C.icon('right') + '</a>' : '') + '</header>';
     if (sid === 'further' && !s.profile.fmOptions) html += V.fmOptionsCard();
     let group = '';
+    html += '<div class="ch-grid">';
     course.forEach(function (u) {
       const c = u.c, up = M.courseProgress(s, c.topics);
       if (c.group && c.group !== group) { html += '<p class="grp">' + esc(c.group) + '</p>'; group = c.group; }
       const chosen = !c.option || (s.profile.fmOptions || []).indexOf(c.option) !== -1;
-      html += '<section class="sec"><h2 class="sec-h"><span class="sec-n num">' + u.n + '</span><a href="#c-' + c.gid + '">' + esc(M.title(c.name)) + '</a>' + (c.option && !chosen ? '<span class="muted small">option</span>' : '') + '<span class="sec-c small muted">' + up.done + '/' + up.total + '</span></h2>' +
-        '<ol class="lessons">' + c.topics.map((t) => lessonRow(s, t)).join('') + '</ol></section>';
+      html += '<a class="ch-card' + (up.done === up.total ? ' all' : '') + (chosen ? '' : ' opt') + '" href="#c-' + c.gid + '"><span class="ch-n num">' + u.n + '</span><span class="ch-t"><b>' + esc(M.title(c.name)) + '</b><span>' + up.done + ' of ' + U.plural(up.total, 'lesson') + (c.option && !chosen ? ' · option' : '') + '</span></span><span class="sbar"><i style="width:' + Math.round(100 * up.frac) + '%"></i></span></a>';
     });
+    html += '</div>';
 
-    // Papers and whole-course extras.
+    // Papers and whole-subject extras, folded away.
     const exams = M.upcomingExams(s).filter((e) => e.subject === sid);
     const papers = sub.papers.filter((x) => !x.option || (s.profile.fmOptions && RH.FM_OPTIONS.some((o) => o.paper === x.id && s.profile.fmOptions.indexOf(o.id) !== -1)));
-    html += '<h2 class="h-rule">Exam papers</h2><div class="table-wrap"><table class="tbl"><thead><tr><th>Paper</th><th>Name</th><th>Date</th><th>Length</th></tr></thead><tbody>' + papers.map(function (x) {
-      const e = exams.find((y) => y.code === x.code);
-      return '<tr><td class="num">' + esc(x.code) + '</td><td>' + esc(x.name.replace(/^Paper \w+: /, '')) + '</td><td>' + (e ? esc(U.fmt(e.date)) + ' <span class="muted small">(' + U.countdown(C.daysTo(e.date)) + ')</span>' : '<span class="muted">Not on your timetable</span>') + '</td><td>' + U.mins(x.dur) + '</td></tr>';
-    }).join('') + '</tbody></table></div>';
     const extra = RH.SUBJECT_VIDEOS[sid] || [];
     const decks = Object.keys(s.decks).map((k) => s.decks[k]).filter((d) => d.subject === sid);
-    html += '<h2 class="h-rule">More for the whole subject</h2>';
-    if (extra.length) html += '<details class="fold"><summary>' + (sid === 'economics' ? 'Exam technique videos' : 'Whole-course videos') + ' <span class="muted small">' + extra.length + '</span></summary><div class="fold-body">' + C.videoGrid(extra.map((v) => ({ ch: v[0], id: v[1], title: v[2] })), sid) + '</div></details>';
-    html += '<details class="fold"><summary>Flashcard decks <span class="muted small">' + decks.length + '</span></summary><div class="fold-body">' +
-      (decks.length ? '<ul class="deck-list">' + decks.map(RH.cards.deckRow).join('') + '</ul>' : '<p class="muted small">No ' + esc(sub.name) + ' decks yet.</p>') +
-      '<div class="row-actions"><button type="button" class="btn alt sm" data-action="cards-import">' + C.icon('upload') + 'Import from Quizlet or Gizmo</button>' +
+    html += '<details class="fold"><summary>Exam papers</summary><div class="fold-body"><ul class="plain-rows">' + papers.map(function (x) {
+      const e = exams.find((y) => y.code === x.code);
+      return '<li><b>' + esc(x.name.replace(/^Paper \w+: /, '')) + '</b><span class="muted small">' + esc(x.code) + ' · ' + U.mins(x.dur) + (e ? ' · ' + esc(U.fmt(e.date)) : '') + '</span></li>';
+    }).join('') + '</ul></div></details>';
+    if (extra.length) html += '<details class="fold"><summary>' + (sid === 'economics' ? 'Exam technique videos' : 'Whole-course videos') + '</summary><div class="fold-body">' + C.videoGrid(extra.map((v) => ({ ch: v[0], id: v[1], title: v[2] })), sid) + '</div></details>';
+    html += '<details class="fold"><summary>Flashcard decks</summary><div class="fold-body">' +
+      (decks.length ? '<ul class="deck-list">' + decks.map(RH.cards.deckRow).join('') + '</ul>' : '') +
+      '<div class="row-actions"><button type="button" class="btn alt sm" data-action="cards-import">' + C.icon('upload') + 'Import from Quizlet</button>' +
       RH.STARTER_DECKS.filter((d) => d.subject === sid && !decks.some((x) => x.starter === d.id)).map((d) => '<button type="button" class="btn alt sm" data-action="starter-add" data-id="' + d.id + '">' + C.icon('plus') + esc(d.name) + '</button>').join('') + '</div></div></details>';
-    html += '<details class="fold"><summary>Past papers and resources <span class="muted small">' + sub.res.length + '</span></summary><div class="fold-body res-cols">' + C.resGroups(sub.res) + '</div></details>';
+    html += '<details class="fold"><summary>Past papers and resources</summary><div class="fold-body res-cols">' + C.resGroups(sub.res) + '</div></details>';
     return html + '</div>';
   };
 
@@ -99,11 +99,8 @@
     html += docHead('Chapter ' + n + ' · ' + c.papers.map((x) => esc(sub.paper[x].code)).join(', '), esc(M.title(c.name)), U.plural(c.topics.length, 'lesson') + ' · <b>' + p.done + ' done</b> ' + progBar(p),
       nx ? '<a class="btn" href="#t-' + nx.gid + '">' + (p.done ? 'Continue' : 'Start') + ': ' + M.lessonNum(s, nx) + '</a>' : '');
     html += '<ol class="lessons">' + c.topics.map((t) => lessonRow(s, t)).join('') + '</ol>';
-    html += '<p class="small"><button type="button" class="btn link" data-action="comp-nt" data-comp="' + c.gid + '" data-v="' + (anyTaught ? 1 : 0) + '">' + (anyTaught ? 'Mark this chapter as not taught yet' : 'Mark this chapter as taught') + '</button> <span class="muted">The planner leaves untaught lessons until later.</span></p>';
-    [[['notes'], 'Notes for the whole chapter'], [['qs', 'papers'], 'Questions and papers'], [['cards', 'other'], 'More']].forEach(function (g) {
-      const list = res.filter((r) => g[0].indexOf(r.k) !== -1);
-      if (list.length) html += '<h2 class="h-rule">' + g[1] + '</h2>' + C.resList(list);
-    });
+    if (res.length) html += '<details class="fold"><summary>Notes and questions for the whole chapter</summary><div class="fold-body">' + C.resList(res) + '</div></details>';
+    html += '<p class="small"><button type="button" class="btn link" data-action="comp-nt" data-comp="' + c.gid + '" data-v="' + (anyTaught ? 1 : 0) + '">' + (anyTaught ? 'Not taught this chapter yet?' : 'Mark this chapter as taught') + '</button></p>';
     html += pager(comps[idx - 1] && ['c-' + comps[idx - 1].gid, 'Previous chapter', M.sectionNum(s, comps[idx - 1]) + ' ' + M.title(comps[idx - 1].name)], comps[idx + 1] && ['c-' + comps[idx + 1].gid, 'Next chapter', M.sectionNum(s, comps[idx + 1]) + ' ' + M.title(comps[idx + 1].name)]);
     return html + '</div>';
   };
@@ -130,6 +127,7 @@
     return C.resList(head) + (rest.length ? '<details class="fold-lite"><summary>' + U.plural(rest.length, 'more link') + '</summary>' + C.resList(rest) + '</details>' : '');
   }
 
+  const tile = (attrs, ic, title, sub) => '<' + (/href=/.test(attrs) ? 'a' : 'button type="button"') + ' class="do-tile" ' + attrs + '><span class="dt-ic">' + C.icon(ic) + '</span><span class="dt-t"><b>' + title + '</b>' + (sub ? '<span>' + sub + '</span>' : '') + '</span>' + C.icon('right', 'dt-go') + '</' + (/href=/.test(attrs) ? 'a' : 'button') + '>';
   V.topic = function (gid) {
     const s = st(), t = M.topic[gid];
     if (!t) return V.notFound();
@@ -137,48 +135,49 @@
     const prev = M.lessonAfter(s, t, -1), next = M.lessonAfter(s, t, 1);
     const ticks = ts.p || [], pts = t.pts || [];
     const res = M.resources(t, s);
-    const notes = res.filter((r) => r.k === 'notes' || r.k === 'mine'), practice = res.filter((r) => r.k === 'qs' || r.k === 'papers'), cardRes = res.filter((r) => r.k === 'cards'), other = res.filter((r) => r.k === 'other');
+    const notes = res.filter((r) => r.k === 'notes' || r.k === 'mine' || r.k === 'other'), practice = res.filter((r) => r.k === 'qs' || r.k === 'papers'), cardRes = res.filter((r) => r.k === 'cards');
     const decks = RH.cards.forTopic(gid);
-    const checks = s.checks.filter((x) => x.topic === gid);
-    const done = M.lessonDone(s, gid), steps = M.lessonSteps(s, gid);
+    const done = M.lessonDone(s, gid);
+    const NAMES = ['Watch', 'Key points', 'Test yourself', 'Exam questions', 'Finish'];
 
     let html = '<div class="lesson" data-subj="' + sub.id + '">' + C.crumbs([['My Subjects', 'study'], [sub.name, 's-' + sub.id], [M.sectionNum(s, c) + ' ' + M.title(c.name), 'c-' + c.gid]]);
-    html += docHead('Lesson ' + M.lessonNum(s, t) + ' · ' + c.papers.map((x) => esc(sub.paper[x].code)).join(', '), esc(M.title(t.name)),
-      (done ? '<b class="ok-t">Done</b>' : steps ? steps + ' of 5 steps done' : 'Not started') + (ts.nt ? ' · not taught yet' : ''),
-      '<button type="button" class="btn alt sm" data-action="add-today" data-id="' + gid + '">' + C.icon('plus') + 'Add to today</button>');
-    html += '<nav class="jump" aria-label="On this page"><span class="muted">On this page:</span>' + M.STEPS.map((x, i) => '<a href="#step-' + x[0] + '" data-action="to-step" data-k="' + x[0] + '"' + ((x[0] === 'finish' ? done : sd[x[0]]) ? ' class="on"' : '') + '>' + (i + 1) + '. ' + ['Watch', 'Key points', 'Test yourself', 'Exam questions', 'Finish'][i] + '</a>').join('') + '</nav>';
+    html += '<header class="lesson-h"><p class="kicker">Lesson ' + M.lessonNum(s, t) + (ts.nt ? ' · not taught yet' : '') + '</p><h1>' + esc(M.title(t.name)) + '</h1>' +
+      '<nav class="steps-bar" aria-label="Steps">' + M.STEPS.map((x, i) => '<a href="#step-' + x[0] + '" data-action="to-step" data-k="' + x[0] + '" class="' + ((x[0] === 'finish' ? done : sd[x[0]]) ? 'on' : '') + '"><i>' + ((x[0] === 'finish' ? done : sd[x[0]]) ? C.icon('tick') : i + 1) + '</i><span>' + NAMES[i] + '</span></a>').join('') + '</nav></header>';
 
     // 1. Watch
-    html += block('watch', 1, 'Watch', videoBlock(t), sd.watch, gid);
+    const vids = M.videos(t);
+    let watch = vids.length ? '<a class="vmain" href="https://www.youtube.com/watch?v=' + vids[0].id + '" target="_blank" rel="noopener"><span class="vthumb">' + (C.canThumb ? '<img loading="lazy" alt="" src="https://i.ytimg.com/vi/' + vids[0].id + '/mqdefault.jpg" onerror="this.remove()">' : '') + '<span class="vplay">' + C.icon('play') + '</span></span><span class="vm-t"><b>' + esc(vids[0].title) + '</b><span class="muted small">' + esc(C.channel(vids[0].ch)) + '</span></span></a>'
+      : '<p class="muted">No video picked yet. ' + searchLinks(t) + '</p>';
+    if (vids.length > 1) watch += '<details class="fold-lite"><summary>' + U.plural(vids.length - 1, 'more video') + '</summary><ul class="links">' + vids.slice(1).map((x) => '<li><a href="https://www.youtube.com/watch?v=' + x.id + '" target="_blank" rel="noopener">' + esc(x.title) + '</a> <span class="muted small">' + esc(C.channel(x.ch)) + '</span></li>').join('') + '</ul></details>';
+    html += block('watch', 1, 'Watch', watch, sd.watch, gid);
+
     // 2. Key points
-    let learn = '';
-    if (pts.length) learn += '<p class="sub-l">What you need to know <span class="muted num" id="kp-n">' + ticks.length + '/' + pts.length + '</span></p><ul class="checklist">' +
-      pts.map((x, i) => '<li><label><input type="checkbox" data-action="pt-toggle" data-id="' + gid + '" data-i="' + i + '"' + (ticks.indexOf(i) !== -1 ? ' checked' : '') + '><span>' + esc(x) + '</span></label></li>').join('') + '</ul><p class="help">Tick a point once you could explain it without your notes.</p>';
+    let learn = pts.length ? '<ul class="checklist">' + pts.map((x, i) => '<li><label><input type="checkbox" data-action="pt-toggle" data-id="' + gid + '" data-i="' + i + '"' + (ticks.indexOf(i) !== -1 ? ' checked' : '') + '><span>' + esc(x) + '</span></label></li>').join('') + '</ul><p class="help"><span class="num" id="kp-n">' + ticks.length + '/' + pts.length + '</span> ticked. Tick a point when you could explain it without notes.</p>' : '';
     if (t.tip) learn += '<p class="tip-line"><b>Exam tip:</b> ' + esc(t.tip) + '</p>';
-    if (notes.length) learn += '<p class="sub-l">Notes to read</p>' + resRows(notes, 4);
-    learn += '<details class="fold-lite"' + (ts.notes ? ' open' : '') + '><summary>Your own notes</summary><textarea id="notes-' + gid + '" class="notes" data-notes="' + gid + '" rows="5" placeholder="Key formulae, things you keep getting wrong, questions for your teacher…" aria-label="Your notes">' + esc(ts.notes || '') + '</textarea><span class="muted small" id="notes-saved">Saves as you type</span>' + myLinks(gid) + '</details>';
+    if (notes.length) learn += '<details class="fold-lite"><summary>Notes to read (' + notes.length + ')</summary>' + C.resList(notes) + '</details>';
+    learn += '<details class="fold-lite"' + (ts.notes ? ' open' : '') + '><summary>My notes</summary><textarea id="notes-' + gid + '" class="notes" data-notes="' + gid + '" rows="5" placeholder="Formulae, things you keep getting wrong, questions for your teacher" aria-label="Your notes">' + esc(ts.notes || '') + '</textarea><span class="muted small" id="notes-saved">Saves as you type</span>' + myLinks(gid) + '</details>';
     html += block('learn', 2, 'Key points', learn, sd.learn, gid);
+
     // 3. Test yourself
     const labs = RH.labs ? RH.labs.defs.filter((d) => d.topics.indexOf(gid) !== -1) : [];
-    const econLab = sub.id === 'economics';
-    let recall = labs.length ? '<p class="lab-try"><b>' + (econLab ? 'Diagram.' : 'Experiment.') + '</b> ' + (econLab ? 'Practise it in the ' : 'Try it in the ') + labs.map((d) => '<a href="#lab-' + d.id + '">' + esc(d.name) + (econLab ? ' diagram' : ' lab') + '</a>').join(' or the ') + (econLab ? ': shift the curves, watch the shaded areas change, then learn how to draw and evaluate it.' : sub.id === 'physics' ? ': change the variables and check the equations for yourself.' : ': change the variables, take readings and see the ideas in action.') + '</p>' : '';
-    recall += '<p><b>Blurt test.</b> Close your notes, write down everything you remember in 10 minutes, then compare it with the key points. <button type="button" class="btn alt sm" data-action="blurt" data-id="' + gid + '">Start</button></p>';
-    recall += '<p><b>Flashcards.</b> ' + (decks.length ? 'Your decks for this lesson:' : 'Make cards for the things you keep forgetting.') + ' <button type="button" class="btn link" data-action="deck-new" data-topic="' + gid + '">New deck</button> · <button type="button" class="btn link" data-action="cards-import" data-topic="' + gid + '">Import from Quizlet</button></p>';
-    if (decks.length) recall += '<ul class="deck-list">' + decks.map(RH.cards.deckRow).join('') + '</ul>';
-    if (cardRes.length) recall += C.resList(cardRes);
+    let recall = '<div class="do-tiles">' + tile('data-action="blurt" data-id="' + gid + '"', 'pen', 'Blurt test', '10 minutes from memory') +
+      (decks.length ? tile('href="#deck-' + decks[0].id + '"', 'cards', 'Flashcards', U.plural(decks.reduce((a, d) => a + d.cards.length, 0), 'card')) : tile('data-action="deck-new" data-topic="' + gid + '"', 'cards', 'Make flashcards', 'Or import from Quizlet')) +
+      labs.map((d) => tile('href="#lab-' + d.id + '"', 'flask', d.name, 'Interactive lab')).join('') + '</div>';
+    if (cardRes.length) recall += '<details class="fold-lite"><summary>Ready-made flashcards (' + cardRes.length + ')</summary>' + C.resList(cardRes) + '</details>';
     html += block('recall', 3, 'Test yourself', recall, sd.recall, gid);
-    // 4. Exam questions
-    let exam = practice.length ? resRows(practice, 4) : '<p class="muted">No question pack for this lesson. Use a past paper from the subject page.</p>';
-    exam += '<p><b>Get an answer marked.</b> Type or photograph a question and your answer, and Claude marks it like an Edexcel examiner. <button type="button" class="btn alt sm" data-action="check-topic" data-id="' + gid + '">' + C.icon('check') + 'Check an answer</button></p>';
-    if (checks.length) exam += '<ul class="links">' + checks.slice(0, 5).map((x) => '<li><a href="#check-' + x.id + '">' + esc((x.question || 'Question from a photo').slice(0, 80)) + '</a> <span class="num small">' + x.result.score + '/' + x.result.max + '</span> <span class="muted small">' + esc(U.fmtShort(x.date)) + '</span></li>').join('') + '</ul>';
+
+    // 4. Exam questions: each pack opens in the practice centre to sit against the clock.
+    let exam = practice.length ? '<div class="do-tiles">' + practice.slice(0, 4).map((r) => tile('data-action="pack-practise" data-u="' + esc(r.u) + '" data-t="' + esc(r.t) + '" data-topic="' + gid + '"', 'timer', esc(r.t.replace(/^PMT /, '')), 'Timed practice · ' + esc((RH.SITES[r.s] || {}).short || r.s))).join('') + '</div>' : '<p class="muted">No question pack for this lesson. Try a past paper from the subject page.</p>';
+    if (practice.length > 4) exam += '<details class="fold-lite"><summary>' + U.plural(practice.length - 4, 'more pack') + '</summary>' + C.resList(practice.slice(4)) + '</details>';
     html += block('exam', 4, 'Exam questions', exam, sd.exam, gid);
+
     // 5. Finish
-    let fin = '<p class="sub-l">How confident are you now?</p>' + C.ragFull(gid, ts.c || 0) + C.toggle('data-action="toggle-nt" data-id="' + gid + '"', 'Not taught yet', ts.nt, 'The planner leaves it until later.');
-    if (other.length) fin += '<details class="fold-lite"><summary>Other links</summary>' + C.resList(other) + '</details>';
-    fin += done ? '<p class="ok-t"><b>' + C.icon('tick', 'i-sm') + ' Lesson done.</b> <span class="muted">' + (ts.last ? 'Last revised ' + esc(U.fmtShort(ts.last)) : '') + '</span></p>' + (next ? '<p><a class="btn" href="#t-' + next.gid + '">Next lesson: ' + M.lessonNum(s, next) + ' ' + esc(M.title(next.name)) + '</a></p>' : '')
-      : '<p><button type="button" class="btn" data-action="lesson-done" data-id="' + gid + '">' + C.icon('tick') + 'Complete lesson' + (next ? ' and go to ' + M.lessonNum(s, next) : '') + '</button></p>';
+    let fin = '<p class="sub-l">How confident are you now?</p>' + C.ragFull(gid, ts.c || 0);
+    fin += done ? '<p class="ok-t"><b>' + C.icon('tick', 'i-sm') + ' Lesson done.</b></p>' + (next ? '<p><a class="btn" href="#t-' + next.gid + '">Next: ' + M.lessonNum(s, next) + ' ' + esc(M.title(next.name)) + C.icon('right') + '</a></p>' : '')
+      : '<p><button type="button" class="btn lg" data-action="lesson-done" data-id="' + gid + '">' + C.icon('tick') + 'Complete lesson</button></p>';
+    fin += '<details class="fold-lite"><summary>More</summary>' + C.toggle('data-action="toggle-nt" data-id="' + gid + '"', 'Not taught yet', ts.nt, 'The planner leaves it until later.') + '<p><button type="button" class="btn link" data-action="add-today" data-id="' + gid + '">Add this lesson to today’s plan</button></p></details>';
     html += block('finish', 5, 'Finish', fin, done, gid);
-    html += pager(prev && ['t-' + prev.gid, 'Previous lesson', M.lessonNum(s, prev) + ' ' + M.title(prev.name)], next && ['t-' + next.gid, 'Next lesson', M.lessonNum(s, next) + ' ' + M.title(next.name)]);
+    html += pager(prev && ['t-' + prev.gid, 'Previous', M.lessonNum(s, prev) + ' ' + M.title(prev.name)], next && ['t-' + next.gid, 'Next', M.lessonNum(s, next) + ' ' + M.title(next.name)]);
     return html + '</div>';
   };
   function myLinks(gid) {

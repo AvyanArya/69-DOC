@@ -1117,72 +1117,115 @@ body.in-exam .tabbar { display: none !important; }
 .check-b:hover { border-color: var(--ok); color: var(--ok); }
 .check-b.on { background: var(--ok); border-color: var(--ok); color: #fff; }
 
-/* ---------- My Subjects: the bookshelf ---------- */
-.shelf { display: flex; flex-direction: column; gap: 46px; padding: 18px 0 10px; }
-.shelf-books { display: flex; gap: clamp(18px, 3.2vw, 44px); align-items: flex-end; padding: 0 clamp(12px, 3vw, 40px); }
-.plank { height: 18px; margin: -4px 0 0; border-radius: 10px; background: linear-gradient(180deg, var(--plank-a), var(--plank-b)); box-shadow: 0 16px 30px rgba(80, 60, 160, 0.12), inset 0 -3px 0 rgba(123, 97, 255, 0.1); position: relative; z-index: 0; }
-.bk { position: relative; width: 172px; height: 240px; flex: none; border: 0; padding: 0; background: none; cursor: pointer; perspective: 900px; z-index: 1; transition: opacity 0.2s; }
-.bk-spine { position: absolute; right: -6px; top: 5px; bottom: 5px; width: 12px; border-radius: 0 5px 5px 0; background: repeating-linear-gradient(90deg, #FFFFFF 0 2px, #E4DEF6 2px 3px); box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.08); }
-.bk-face { position: absolute; inset: 0; overflow: hidden; border-radius: 6px 16px 16px 6px; background: linear-gradient(155deg, color-mix(in srgb, var(--c) 70%, #fff) 0%, var(--c) 52%, color-mix(in srgb, var(--c) 78%, #000) 100%); color: #fff; display: flex; flex-direction: column; justify-content: space-between; padding: 16px 14px 13px 22px; text-align: left; box-shadow: 0 20px 30px -14px color-mix(in srgb, var(--c) 70%, transparent), 0 4px 10px rgba(0, 0, 0, 0.08); transform-origin: left center; transition: transform 0.35s var(--ease), box-shadow 0.35s; }
-.bk-face::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 12px; background: linear-gradient(90deg, rgba(0, 0, 0, 0.22), rgba(255, 255, 255, 0.18) 60%, rgba(0, 0, 0, 0.06)); z-index: 2; }
-.bk:hover .bk-face, .bk:focus-visible .bk-face { transform: rotateY(-16deg) translateY(-8px); box-shadow: 18px 28px 30px -14px color-mix(in srgb, var(--c) 70%, transparent); }
-.bk:focus-visible { outline: none; }
-.bk:focus-visible .bk-face { outline: 3px solid var(--primary); outline-offset: 3px; }
-.bk.lifted { opacity: 0; }
-.bk-top { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 4px; }
-.bk-board { font-size: 10px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; opacity: 0.85; }
-.bk-name { font-size: 19px; font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; text-shadow: 0 1px 8px rgba(0, 0, 0, 0.12); }
-.bk-art { position: absolute; left: 0; right: 0; top: 34%; width: 100%; height: 44%; opacity: 0.85; }
-.bk-foot { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 6px; font-size: 11px; font-weight: 600; opacity: 0.95; }
-.bk-bar { display: block; height: 5px; border-radius: 9px; background: rgba(255, 255, 255, 0.3); overflow: hidden; }
-.bk-bar i { display: block; height: 100%; background: #fff; border-radius: 9px; }
+/* ---------- My Subjects: the textbook shelf ---------- */
+body[data-route="study"] .view { max-width: none; padding: 20px 24px 20px; gap: 14px; }
+.shelf-hero { --H: min(46vh, 26vw); position: relative; height: calc(100vh - 104px); min-height: 540px; overflow: hidden; border-radius: 30px; background: var(--glass); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); border: 1px solid var(--card-line); box-shadow: var(--shadow); color: var(--ink); user-select: none; -webkit-user-select: none; outline: none; }
+.sh-tabs { position: absolute; left: 50%; transform: translateX(-50%); top: 26px; display: flex; gap: 4px; padding: 5px; max-width: calc(100% - 32px); overflow-x: auto; scrollbar-width: none; border-radius: 16px; background: var(--surface); box-shadow: var(--shadow-sm); border: 1px solid var(--line); z-index: 5; }
+.sh-tabs::-webkit-scrollbar { display: none; }
+.sh-tab { flex: none; height: 34px; padding: 0 15px; border: 0; border-radius: 12px; background: none; color: var(--ink-2); font: inherit; font-size: 14px; font-weight: 500; white-space: nowrap; cursor: pointer; transition: background 0.3s, color 0.3s; }
+.sh-tab:hover { color: var(--ink); background: var(--surface-2); }
+.sh-tab.on { background: var(--subj); color: #fff; font-weight: 600; box-shadow: 0 6px 16px color-mix(in srgb, var(--subj) 35%, transparent); }
+.sh-sum { position: absolute; left: 0; right: 0; top: 82px; text-align: center; color: var(--ink-3); font-size: 0.9rem; z-index: 5; }
+.sh-sum b { color: var(--ink-2); font-weight: 600; }
+.sh-shelf { position: absolute; left: 0; right: 0; top: calc(50% - var(--H) / 2 - 30px); height: calc(var(--H) + 60px); perspective: 2200px; perspective-origin: 50% 50%; touch-action: pan-y; }
+.sh-stage { position: absolute; left: 50%; top: 50%; width: 0; height: 0; transform-style: preserve-3d; }
+.sh-plank { position: absolute; left: 3%; right: 3%; top: calc(50% + var(--H) / 2 - 2px); height: 16px; border-radius: 10px; background: linear-gradient(180deg, var(--plank-a), var(--plank-b)); box-shadow: 0 18px 34px rgba(80, 60, 160, 0.14), inset 0 -3px 0 rgba(123, 97, 255, 0.1); }
+.bk { position: absolute; left: 0; top: 0; width: 0; height: 0; transform-style: preserve-3d; will-change: transform; cursor: pointer; }
+.bk.lifted { visibility: hidden !important; }
+.bk-f { position: absolute; height: var(--h); top: calc(var(--h) / -2); backface-visibility: hidden; -webkit-backface-visibility: hidden; overflow: hidden; }
+.bk-f svg { display: block; width: 100%; height: 100%; }
+.bk-f::after { content: ""; position: absolute; inset: 0; background: #000; pointer-events: none; }
+.spn { width: var(--ws); left: calc(var(--ws) / -2); transform: translateZ(calc(var(--d) / 2)); border-radius: 3px; }
+.spn::after { opacity: var(--ss, 0); }
+.cv { width: var(--d); left: calc(var(--d) / -2); transform: rotateY(90deg) translateZ(calc(var(--ws) / 2)); border-radius: 3px 10px 10px 3px; box-shadow: 0 30px 60px -26px rgba(34, 27, 69, 0.55); }
+.cv::after { opacity: var(--cs, 0.5); }
+.sh-play { position: absolute; left: 0; top: 0; width: 44px; height: 44px; border-radius: 50%; border: 0; color: #fff; background: var(--primary); box-shadow: 0 8px 20px rgba(123, 97, 255, 0.35); display: grid; place-items: center; cursor: pointer; z-index: 6; padding: 0; transform: scale(0); }
+.sh-play svg { width: 12px; height: 12px; margin-left: 2px; fill: currentColor; }
+.sh-cap { position: absolute; left: 0; right: 0; top: calc(50% + var(--H) / 2 + 40px); display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; z-index: 5; }
+.sh-m { position: relative; overflow: hidden; width: min(92%, 720px); text-align: center; }
+.sh-m > span { display: block; }
+.sh-m > span:not(:first-child) { position: absolute; left: 0; right: 0; top: 0; }
+.sh-mt { font-weight: 700; font-size: clamp(22px, 2.2vw, 30px); line-height: 1.15; letter-spacing: -0.03em; }
+.sh-ms { font-weight: 650; font-size: 12px; line-height: 1.2; letter-spacing: 0.1em; text-transform: uppercase; }
+.sh-mm { font-size: 14px; color: var(--ink-3); }
+.sh-arrow { position: absolute; top: 50%; margin-top: -24px; width: 48px; height: 48px; display: grid; place-items: center; border-radius: 50%; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-sm); color: var(--ink-2); cursor: pointer; z-index: 6; }
+.sh-arrow:hover { color: var(--primary); }
+.sh-arrow.prev { left: 22px; } .sh-arrow.next { right: 22px; }
+.sh-probe { position: absolute; left: -10px; top: 0; width: 1px; height: var(--H); visibility: hidden; }
+.sh-cur { position: fixed; left: 0; top: 0; width: 58px; height: 58px; margin: -29px 0 0 -29px; z-index: 100; pointer-events: none; display: none; }
+.sh-ring { position: absolute; inset: 0; border: 1.5px solid var(--ink-2); border-radius: 50%; transition: transform 0.5s var(--ease), background-color 0.4s var(--ease), border-color 0.4s var(--ease); }
+.sh-dot { position: absolute; left: 26px; top: 26px; width: 6px; height: 6px; border-radius: 50%; background: var(--ink); transition: transform 0.4s var(--ease); }
+.sh-open { position: absolute; inset: 0; display: grid; place-items: center; color: #fff; font-weight: 650; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; transform: scale(0); transition: transform 0.45s var(--ease); }
+.sh-cur.spine .sh-ring { transform: scale(0.72); }
+.sh-cur.btn .sh-ring { transform: scale(0.55); }
+.sh-cur.btn .sh-dot { transform: scale(0); }
+.sh-cur.open .sh-ring { transform: scale(1.7); background: var(--primary); border-color: var(--primary); }
+.sh-cur.open .sh-dot { transform: scale(0); }
+.sh-cur.open .sh-open { transform: scale(1); }
+@media (pointer: fine) {
+  .shelf-hero.cur-in .sh-cur { display: block; }
+  .shelf-hero.cur-in, .shelf-hero.cur-in * { cursor: none !important; }
+}
 
 /* The open book */
-.book-stage { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; padding: 16px; }
-.stage-bg { position: absolute; inset: 0; background: rgba(34, 27, 69, 0.34); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); animation: fade 0.35s ease both; }
+.book-stage { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; padding: 16px; cursor: auto; }
+.book-stage * { cursor: auto; }
+.book-stage a, .book-stage button { cursor: pointer; }
+.stage-bg { position: absolute; inset: 0; background: rgba(34, 27, 69, 0.42); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); animation: fade 0.45s ease both; }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
-.ob { --P: min(420px, 44vw); --H: min(580px, calc(100vh - 80px)); position: relative; width: calc(var(--P) * 2); height: var(--H); perspective: 2400px; transform-style: preserve-3d; }
-.ob-page { position: absolute; top: 0; bottom: 0; width: var(--P); background: var(--paper-c); color: var(--ink); }
-.ob-left { left: 0; border-radius: 18px 4px 4px 18px; box-shadow: inset -22px 0 30px -22px rgba(0, 0, 0, 0.2), 0 30px 70px rgba(30, 20, 80, 0.3); }
-.ob-right { right: 0; border-radius: 4px 18px 18px 4px; box-shadow: inset 22px 0 30px -22px rgba(0, 0, 0, 0.16), 0 30px 70px rgba(30, 20, 80, 0.3); overflow-y: auto; padding: 34px 30px 26px; }
-.ob-cover { position: absolute; top: 0; bottom: 0; right: 0; width: var(--P); transform-origin: left center; transform-style: preserve-3d; z-index: 3; }
-.ob-front, .ob-back { position: absolute; inset: 0; -webkit-backface-visibility: hidden; backface-visibility: hidden; overflow: hidden; }
-.ob-front { border-radius: 4px 18px 18px 4px; }
-.ob-front .bk-face { border-radius: 4px 18px 18px 4px; padding: 32px 30px 26px 40px; box-shadow: none; }
-.ob-front .bk-face::before { width: 20px; }
-.ob-front .bk-board { font-size: 12px; }
-.ob-front .bk-name { font-size: clamp(26px, 3vw, 36px); }
-.ob-front .bk-foot { font-size: 13px; }
-.ob-back { transform: rotateY(180deg); background: var(--paper-c); border-radius: 18px 4px 4px 18px; padding: 34px 30px 26px; box-shadow: inset -22px 0 30px -22px rgba(0, 0, 0, 0.2); overflow-y: auto; }
-.ob-leaf { position: absolute; top: 6px; bottom: 6px; right: 2px; width: calc(var(--P) - 8px); transform-origin: left center; background: linear-gradient(90deg, #E9E4F6, #FFFDF8 35%); border-radius: 2px 14px 14px 2px; z-index: 2; pointer-events: none; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08); }
-.ob.static .ob-leaf { display: none; }
-.ob.static .ob-cover { transform: rotateY(-180deg); }
-.ob.static.one .ob-cover { display: none; }
+.ob { --P: min(440px, 43vw); --H: min(600px, calc(100vh - 90px)); position: relative; width: calc(var(--P) * 2); height: var(--H); perspective: 2600px; transform-style: preserve-3d; color: #2A2418; }
+.ob-shadow { position: absolute; left: 3%; right: 3%; bottom: -34px; height: 46px; border-radius: 50%; background: radial-gradient(ellipse at center, rgba(20, 10, 60, 0.5), transparent 70%); filter: blur(8px); }
+.ob-edge { position: absolute; right: -7px; top: 7px; bottom: 7px; width: 8px; border-radius: 0 5px 5px 0; background: repeating-linear-gradient(90deg, #FFFDF6 0 1px, #DDD4BF 1px 2px); }
+.ob-page { position: absolute; top: 0; bottom: 0; width: var(--P); background: #FFFCF4; }
+.ob-left { left: 0; border-radius: 16px 3px 3px 16px; background: linear-gradient(90deg, #F3EDDF, #FFFCF4 14%, #FFFCF4 86%, #E8E0CE); }
+.ob-right { right: 0; border-radius: 3px 16px 16px 3px; background: linear-gradient(90deg, #E4DBC7, #FFFCF4 9%, #FFFCF4); padding: 40px 34px 30px; overflow: hidden; display: flex; flex-direction: column; }
+.ob-cover { position: absolute; top: -7px; bottom: -7px; right: -7px; width: calc(var(--P) + 7px); transform-origin: left center; transform-style: preserve-3d; transform: translateZ(6px); }
+.ob-leaf { position: absolute; top: 3px; bottom: 3px; right: 1px; width: calc(var(--P) - 4px); transform-origin: left center; transform-style: preserve-3d; }
+.ob-leaf.l0 { transform: translateZ(4.5px); } .ob-leaf.l1 { transform: translateZ(3px); } .ob-leaf.l2 { transform: translateZ(1.5px); }
+.cf, .lf { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; overflow: hidden; }
+.cf.f { border-radius: 3px 12px 12px 3px; background: var(--cb); box-shadow: inset 6px 0 10px -4px rgba(0, 0, 0, 0.25); }
+.cf.f svg { display: block; width: 100%; height: 100%; }
+.cf.b { transform: rotateY(180deg); border-radius: 12px 3px 3px 12px; background: radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.2) 1.3px, transparent 1.6px) 0 0 / 16px 16px, var(--c); }
+.shade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.12)); opacity: 0; pointer-events: none; }
+.lf { background: #FFFCF4; }
+.lf.f { border-radius: 2px 12px 12px 2px; background: linear-gradient(90deg, #EAE2D0, #FFFCF4 10%); }
+.lf.b { transform: rotateY(180deg); border-radius: 12px 2px 2px 12px; background: linear-gradient(270deg, #EAE2D0, #FFFCF4 10%); padding: 40px 34px 30px; }
+.ob.static .ob-cover { transform: rotateY(-180deg) translateZ(-0.5px); }
+.ob.static .ob-leaf.l0 { transform: rotateY(-180deg) translateZ(-1.5px); } .ob.static .ob-leaf.l1 { transform: rotateY(-180deg) translateZ(-3px); } .ob.static .ob-leaf.l2 { transform: rotateY(-180deg) translateZ(-4.5px); }
+.ob-k { font-size: 11.5px; font-weight: 650; letter-spacing: 0.1em; text-transform: uppercase; color: var(--c); }
 .ob-in { display: flex; flex-direction: column; gap: 16px; height: 100%; }
-.ob-in h2 { font-size: clamp(1.6rem, 1.2rem + 1.2vw, 2.2rem); letter-spacing: -0.03em; }
-.ob-in .label { color: var(--c); }
-.ob-ring { display: flex; align-items: center; gap: 16px; color: var(--ink-2); }
+.ob-in h2 { color: #2A2418; font-size: clamp(1.6rem, 1.1rem + 1.4vw, 2.3rem); letter-spacing: -0.035em; line-height: 1.08; }
+.ob-ring { display: flex; align-items: center; gap: 14px; color: #6B6150; }
 .ob-ring .ring { --subj: var(--c); }
-.ob-in .btn:first-of-type { margin-top: auto; }
-.ob-in .btn:not(.alt) { background: var(--c); box-shadow: 0 8px 20px color-mix(in srgb, var(--c) 35%, transparent); }
-.ob-toc { display: flex; flex-direction: column; gap: 10px; }
-.ob-toc .label { color: var(--c); }
-.toc { list-style: none; margin: 0; padding: 0; }
-.toc a { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; gap: 10px; align-items: baseline; padding: 11px 8px; border-bottom: 1px dashed var(--line-2); color: var(--ink); text-decoration: none !important; border-radius: 10px; font-weight: 500; }
+.ob-ring .ring-bg { stroke: #EDE6D6; }
+.ob-acts { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
+.ob-acts .btn:not(.alt) { background: var(--c); box-shadow: 0 8px 20px color-mix(in srgb, var(--c) 35%, transparent); }
+.ob-acts .btn.alt { background: transparent; color: #2A2418; border-color: #DDD4BF; box-shadow: none; }
+.ob-toc { display: flex; flex-direction: column; gap: 12px; min-height: 0; flex: 1; }
+.toc { list-style: none; margin: 0; padding: 0 4px 0 0; overflow-y: auto; min-height: 0; }
+.toc a { display: grid; grid-template-columns: 22px 46px minmax(0, 1fr); gap: 8px; align-items: center; padding: 12px 6px; border-bottom: 1px dashed #DDD4BF; color: #2A2418; text-decoration: none !important; border-radius: 8px; font-weight: 500; }
+.toc a:focus-visible { outline: none; }
 .toc a:hover, .toc a:focus-visible { background: color-mix(in srgb, var(--c) 9%, transparent); }
-.toc-n { color: var(--c); font-weight: 700; font-size: 0.9rem; }
+.toc .ls-ic { width: 18px; height: 18px; border-width: 2px; }
+.toc-n { color: var(--c); font-weight: 650; font-size: 0.88rem; }
 .toc-t { overflow-wrap: anywhere; }
-.toc-d { font-size: 0.82rem; color: var(--ink-3); }
-.toc-d.all { color: var(--ok); font-weight: 600; }
 .ob-mini { display: none; }
-.ob-x { position: fixed; top: max(18px, env(safe-area-inset-top, 0px)); right: max(18px, env(safe-area-inset-right, 0px)); z-index: 72; width: 44px; height: 44px; border-radius: 50%; background: var(--surface); box-shadow: var(--shadow); animation: fade 0.3s ease both; }
+.ob-x { position: fixed; top: max(18px, env(safe-area-inset-top, 0px)); right: max(18px, env(safe-area-inset-right, 0px)); z-index: 72; width: 46px; height: 46px; border-radius: 50%; background: var(--surface); box-shadow: var(--shadow); animation: fade 0.4s ease both; }
 .ob.one { --P: min(92vw, 440px); width: var(--P); }
-.ob.one .ob-left, .ob.one .ob-back { display: none; }
-.ob.one .ob-right { left: 0; right: auto; border-radius: 18px; }
-.ob.one .ob-cover { left: 0; right: auto; }
-.ob.one .ob-mini { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; padding-bottom: 16px; margin-bottom: 8px; border-bottom: 1px solid var(--line); }
-.ob.one .ob-mini .btn { background: var(--c); margin-top: 6px; }
-
+.ob.one .ob-left { display: none; }
+.ob.one .ob-right { left: 0; right: auto; border-radius: 16px; }
+.ob.one .ob-cover { right: auto; left: -4px; }
+.ob.one .ob-mini { display: block; padding-bottom: 14px; margin-bottom: 12px; border-bottom: 1px solid #E6DDC9; }
+.ob.one .ob-mini .ob-in { height: auto; gap: 10px; }
+.ob.one .ob-mini .ob-ring, .ob.one .ob-mini .btn.alt { display: none; }
+.ob.one .ob-mini h2 { font-size: 1.5rem; }
+@media (max-width: 900px) {
+  body[data-route="study"] .view { padding: 12px 12px calc(96px + env(safe-area-inset-bottom, 0px)); }
+  .shelf-hero { --H: min(56vw, 40vh); height: calc(100vh - 190px); min-height: 480px; border-radius: 24px; }
+  .sh-tabs { top: 16px; }
+  .sh-sum { top: 68px; }
+  .sh-arrow { top: auto; bottom: 22px; margin: 0; width: 42px; height: 42px; }
+}
 /* ---------- A subject, a chapter, a lesson ---------- */
 .subj-h { display: flex; gap: 20px; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; padding: clamp(22px, 3vw, 32px); border-radius: var(--r-lg); background: linear-gradient(120deg, color-mix(in srgb, var(--subj) 17%, var(--surface)), color-mix(in srgb, var(--subj) 5%, var(--surface))); border: 1px solid color-mix(in srgb, var(--subj) 18%, transparent); box-shadow: var(--shadow-sm); }
 .subj-h-t { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
@@ -1337,6 +1380,173 @@ div[data-subj] > ol.lessons { background: var(--card); -webkit-backdrop-filter: 
   .setup-dots li { width: 14px; }
   .setup-dots li.on { width: 28px; }
   .setup-top .btn { padding: 0 8px; }
+}
+
+/* ---------- The Labs: covers on shelves ---------- */
+.lab-shelf { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.lab-shelf h2 { font-size: 1.1rem; display: flex; align-items: center; gap: 10px; }
+.lab-shelf h2::before { content: ""; width: 10px; height: 10px; border-radius: 4px; background: var(--subj); }
+.lab-row { display: flex; gap: 18px; overflow-x: auto; padding: 8px 4px 16px; scroll-snap-type: x proximity; scrollbar-width: thin; }
+.lab-cover { flex: none; width: 230px; display: flex; flex-direction: column; gap: 10px; color: var(--ink); text-decoration: none !important; scroll-snap-align: start; }
+.lc-art { position: relative; display: block; aspect-ratio: 4 / 3; border-radius: 18px; overflow: hidden; background: var(--surface); box-shadow: var(--shadow-sm), 0 0 0 1px var(--line); transition: transform 0.25s var(--ease), box-shadow 0.25s; }
+.lc-art::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 4px; background: var(--subj); z-index: 1; }
+.lc-art img, .lc-art canvas { display: block; width: 100%; height: 100%; object-fit: cover; }
+.lab-cover:hover .lc-art { transform: translateY(-5px) rotate(-0.6deg); box-shadow: var(--shadow), 0 0 0 1px color-mix(in srgb, var(--subj) 40%, transparent); }
+.lab-cover b { font-weight: 600; font-size: 0.98rem; line-height: 1.3; padding: 0 4px; }
+.lab-plank { height: 12px; margin-top: -12px; border-radius: 8px; background: linear-gradient(180deg, var(--plank-a), var(--plank-b)); box-shadow: 0 12px 24px rgba(80, 60, 160, 0.1); }
+.lab-more-h { font-size: 0.9rem; font-weight: 650; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.08em; padding-top: 10px; }
+@media (max-width: 640px) { .lab-cover { width: 190px; } }
+
+/* ---------- Lessons and chapters, simplified ---------- */
+.lesson { max-width: 820px; }
+.lesson-h { display: flex; flex-direction: column; gap: 8px; }
+.steps-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.steps-bar a { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; border-radius: 999px; background: var(--card); border: 1px solid var(--card-line); box-shadow: var(--shadow-sm); color: var(--ink-2); font-size: 0.88rem; font-weight: 500; text-decoration: none !important; }
+.steps-bar i { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: 0.78rem; font-weight: 650; background: color-mix(in srgb, var(--subj) 14%, var(--surface)); color: var(--subj); }
+.steps-bar i .i { width: 13px; height: 13px; stroke-width: 2.6; }
+.steps-bar a.on i { background: var(--ok); color: #fff; }
+.steps-bar a:hover { color: var(--ink); }
+.lsec { padding: 24px 26px; border: 1px solid var(--card-line); border-radius: var(--r); background: var(--card); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); box-shadow: var(--shadow-sm); }
+.lsec-h h2 { font-size: 1.25rem; font-weight: 650; }
+.sn { width: 34px; height: 34px; border-radius: 11px; font-size: 0.95rem; font-weight: 650; box-shadow: none; }
+.do-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+.do-tile { font: inherit; display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 16px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); text-align: left; cursor: pointer; text-decoration: none !important; transition: transform 0.15s var(--ease), box-shadow 0.15s, border-color 0.15s; min-width: 0; }
+.do-tile:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); border-color: color-mix(in srgb, var(--subj) 40%, var(--line)); }
+.dt-ic { width: 40px; height: 40px; flex: none; border-radius: 12px; display: grid; place-items: center; background: color-mix(in srgb, var(--subj) 13%, var(--surface)); color: var(--subj); }
+.dt-t { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.3; }
+.dt-t b { font-weight: 600; overflow-wrap: anywhere; }
+.dt-t span { font-size: 0.82rem; color: var(--ink-3); }
+.dt-go { color: var(--ink-3); width: 16px; height: 16px; }
+.ch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+.ch-grid .grp { grid-column: 1 / -1; margin-top: 6px; }
+.ch-card { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 6px 14px; align-items: center; padding: 18px; border-radius: 20px; background: var(--card); border: 1px solid var(--card-line); box-shadow: var(--shadow-sm); color: var(--ink); text-decoration: none !important; transition: transform 0.15s var(--ease), box-shadow 0.15s; }
+.ch-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.ch-card.opt { opacity: 0.6; }
+.ch-n { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: color-mix(in srgb, var(--subj) 14%, var(--surface)); color: var(--subj); font-weight: 700; }
+.ch-card.all .ch-n { background: var(--ok); color: #fff; }
+.ch-t { display: flex; flex-direction: column; min-width: 0; line-height: 1.3; }
+.ch-t b { font-weight: 600; overflow-wrap: anywhere; }
+.ch-t span { font-size: 0.82rem; color: var(--ink-3); }
+.ch-card .sbar { grid-column: 1 / -1; margin-top: 6px; }
+.plain-rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.plain-rows li { display: flex; flex-direction: column; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.plain-rows li:last-child { border-bottom: 0; }
+
+/* ---------- Exam centre ---------- */
+.pgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+.pcard { display: flex; flex-direction: column; gap: 14px; padding: 18px 18px 16px; border-radius: 20px; background: var(--card); border: 1px solid var(--card-line); box-shadow: var(--shadow-sm); position: relative; overflow: hidden; }
+.pcard::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--subj); }
+.pcard .btn { align-self: flex-start; }
+.pc-main { display: flex; flex-direction: column; gap: 4px; color: var(--ink); text-decoration: none !important; }
+.pc-kind { font-size: 11.5px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: var(--subj); }
+.pc-main b { font-size: 1.05rem; font-weight: 650; line-height: 1.3; }
+.pc-meta { font-size: 0.86rem; color: var(--ink-3); }
+.resume-strip { display: flex; align-items: center; gap: 14px; padding: 14px 16px 14px 20px; border-radius: 18px; background: var(--hero); color: #fff; text-decoration: none !important; box-shadow: 0 12px 30px rgba(123, 97, 255, 0.18); }
+.resume-strip > span:nth-child(2) { flex: 1; display: flex; flex-direction: column; }
+.resume-strip b { font-weight: 650; }
+.big-empty { align-items: center; text-align: center; padding: 48px 24px; }
+.big-empty > .i { width: 40px; height: 40px; color: var(--primary); }
+.qgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.qitem { display: flex; align-items: center; gap: 4px; padding: 4px 4px 4px 0; border-radius: 14px; background: var(--surface-2); }
+.qi-main { font: inherit; flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; padding: 8px 12px; border: 0; background: none; color: var(--ink); cursor: pointer; text-align: left; }
+.qi-main span { font-size: 0.78rem; color: var(--ink-3); }
+.drop { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 22px; border: 1.5px dashed var(--line-2); border-radius: 18px; background: var(--surface-2); cursor: pointer; text-align: center; position: relative; }
+.drop input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.drop:hover { border-color: var(--primary); background: var(--accent-soft); }
+.drop > .i { width: 26px; height: 26px; color: var(--primary); }
+.upload-form { display: flex; flex-direction: column; gap: 12px; }
+.pack-steps { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 18px; }
+.pack-steps li { display: flex; flex-direction: column; gap: 10px; }
+.pack-steps .btn { align-self: flex-start; }
+
+/* Before you start */
+.sit { max-width: 760px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; padding: clamp(22px, 3vw, 36px); border-radius: 28px; background: var(--card); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); border: 1px solid var(--card-line); box-shadow: var(--shadow); }
+.sit header { display: flex; flex-direction: column; gap: 6px; }
+.sit h1 { font-size: clamp(1.6rem, 1.2rem + 1.3vw, 2.2rem); }
+.sit-row { display: flex; flex-direction: column; gap: 10px; }
+.choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+.choice { font: inherit; display: flex; flex-direction: column; gap: 2px; padding: 14px 16px; border-radius: 16px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); text-align: left; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; }
+.choice b { font-weight: 600; }
+.choice span { font-size: 0.84rem; color: var(--ink-3); }
+.choice:hover { border-color: color-mix(in srgb, var(--primary) 40%, var(--line)); }
+.choice.on { border-color: var(--primary); background: var(--accent-soft); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 15%, transparent); }
+.seg-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.sit-go { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 16px 16px 16px 20px; border-radius: 20px; background: var(--surface-2); }
+.sit-go > div { display: flex; flex-direction: column; }
+.sit-go b { font-size: 1.1rem; font-weight: 650; }
+
+/* The exam: question in the middle, everything else on the side */
+body.in-exam .view { max-width: 1280px; padding-top: 24px; }
+.exam-mode { display: grid; grid-template-columns: minmax(0, 1fr) 290px; gap: 22px; align-items: start; }
+.ex-main { min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+.ex-q-head { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+.ex-q-head h1 { font-size: 1.6rem; }
+.paper-sheet { background: #fff; border-radius: 16px; padding: 14px; box-shadow: var(--shadow-sm), 0 0 0 1px var(--line); min-height: 160px; }
+.paper-sheet .qslice { display: block; margin: 0 auto; }
+.ex-main .q-actions { display: flex; justify-content: space-between; gap: 10px; }
+.ex-side { position: sticky; top: 24px; display: flex; flex-direction: column; gap: 14px; padding: 20px; border-radius: 24px; background: var(--card); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); border: 1px solid var(--card-line); box-shadow: var(--shadow); max-height: calc(100vh - 48px); overflow-y: auto; }
+.ex-title { font-size: 0.86rem; color: var(--ink-3); font-weight: 500; }
+.ex-clock { display: flex; flex-direction: column; gap: 2px; }
+.ex-clock .num { font-size: 2.6rem; font-weight: 700; letter-spacing: -0.04em; line-height: 1; }
+.ex-clock .num.low { color: var(--bad); }
+.exam-meter { height: 6px; border-radius: 9px; background: var(--surface-3); overflow: hidden; }
+.exam-meter span { display: block; height: 100%; background: var(--primary); border-radius: 9px; }
+.ex-side .qnav { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; position: static; max-height: none; }
+.qchip { font: inherit; height: 38px; border-radius: 11px; border: 1px solid var(--line); background: var(--surface); color: var(--ink-2); font-weight: 600; font-size: 0.88rem; cursor: pointer; position: relative; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 0 8px; }
+.qchip.seen { background: var(--surface-2); }
+.qchip.done { background: color-mix(in srgb, var(--ok) 14%, var(--surface)); border-color: color-mix(in srgb, var(--ok) 35%, transparent); color: var(--ok); }
+.qchip.flag::after { content: ""; position: absolute; top: 4px; right: 4px; width: 7px; height: 7px; border-radius: 50%; background: var(--warn); }
+.qchip.on { background: var(--primary); border-color: var(--primary); color: #fff; }
+.qchip.wide { height: auto; padding: 6px 12px; flex-direction: column; gap: 0; }
+.ex-tools { display: flex; gap: 6px; flex-wrap: wrap; }
+.paused { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; padding: 70px 20px; border-radius: 24px; background: var(--card); border: 1px solid var(--card-line); }
+.paused > .i { width: 34px; height: 34px; color: var(--primary); }
+
+/* Hand in and marking */
+.drop.wide { padding: 18px; }
+.hand-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.hand-list li { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.hl-q { display: flex; flex-direction: column; min-width: 70px; }
+.hand-list .thumbs { flex: 1; }
+.thumbs { display: flex; gap: 8px; flex-wrap: wrap; }
+.thumb { margin: 0; width: 72px; height: 72px; border-radius: 12px; overflow: hidden; background: var(--surface-2); position: relative; }
+.thumb img { width: 100%; height: 100%; object-fit: cover; }
+.mark-nav { display: flex; gap: 6px; flex-wrap: wrap; }
+.mark-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+.ms-pane { position: sticky; top: 24px; }
+.score-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding-top: 6px; }
+.score-row input { width: 80px; }
+.ai-fb { display: flex; gap: 10px; align-items: flex-start; }
+.ai-fb > .i { color: var(--primary); margin-top: 2px; }
+
+/* Claude in the corner */
+.ai-dock { position: fixed; right: max(20px, env(safe-area-inset-right, 0px)); bottom: max(20px, env(safe-area-inset-bottom, 0px)); z-index: 80; }
+.ai-fab { font: inherit; display: flex; align-items: center; gap: 10px; height: 52px; padding: 0 20px 0 16px; border: 0; border-radius: 999px; background: linear-gradient(120deg, #9C86F7, #7B61FF); color: #fff; font-weight: 600; cursor: pointer; box-shadow: 0 14px 34px rgba(123, 97, 255, 0.4); }
+.ai-panel { width: min(380px, calc(100vw - 32px)); height: min(540px, calc(100vh - 120px)); display: flex; flex-direction: column; border-radius: 24px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-up); overflow: hidden; animation: rise 0.25s var(--ease); }
+.ai-panel header { display: flex; align-items: center; gap: 10px; padding: 14px 12px 14px 16px; border-bottom: 1px solid var(--line); }
+.ai-panel header > span:nth-child(2) { flex: 1; display: flex; flex-direction: column; line-height: 1.25; }
+.ai-panel header > span:nth-child(2) span { font-size: 0.8rem; color: var(--ink-3); }
+.ai-av { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(120deg, #9C86F7, #7B61FF); color: #fff; }
+.ai-msgs { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+.ai-hello { color: var(--ink-3); font-size: 0.9rem; }
+.msg { max-width: 86%; padding: 9px 13px; border-radius: 16px; font-size: 0.92rem; line-height: 1.5; overflow-wrap: anywhere; }
+.msg.me { align-self: flex-end; background: var(--primary); color: #fff; border-bottom-right-radius: 6px; }
+.msg.ai { align-self: flex-start; background: var(--surface-2); border-bottom-left-radius: 6px; }
+.ai-quick { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 14px 10px; }
+.ai-quick .chip { border: 0; cursor: pointer; font: inherit; font-size: 12px; }
+.ai-form { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--line); }
+.ai-form input { flex: 1; }
+@media (max-width: 1000px) {
+  .exam-mode { grid-template-columns: minmax(0, 1fr); }
+  .ex-side { position: sticky; top: 0; order: -1; flex-direction: row; flex-wrap: wrap; align-items: center; padding: 12px 14px; border-radius: 0 0 20px 20px; max-height: none; z-index: 20; }
+  .ex-side .label, .ex-title, .ex-side .help { display: none; }
+  .ex-clock .num { font-size: 1.6rem; }
+  .ex-side .exam-meter { flex-basis: 100%; order: 9; }
+  .ex-side .qnav { display: flex; overflow-x: auto; flex-basis: 100%; order: 8; }
+  .ex-side .qnav .qchip { flex: none; width: 40px; }
+  .ex-side > .btn.block { width: auto; margin-left: auto; }
+  .mark-cols { grid-template-columns: minmax(0, 1fr); }
+  .ms-pane { position: static; }
 }
 </style>
 <!-- head:end -->
@@ -4556,7 +4766,7 @@ div[data-subj] > ol.lessons { background: var(--card); -webkit-backdrop-filter: 
     learn: { label: 'My Subjects', short: 'Subjects', icon: 'book', href: 'study', pages: [['study', 'Bookshelf'], ['subjects', 'Choose subjects'], ['guide', 'How to revise'], ['library', 'Resources']] },
     labs: { label: 'The Labs', short: 'Labs', icon: 'flask', href: 'labs', pages: [] },
     plan: { label: 'Planner', icon: 'plan', href: 'plan', pages: [['plan', 'This week'], ['routine', 'My schedule'], ['deliverables', 'Weekly tasks'], ['exams', 'Exams'], ['strategy', 'Strategy']] },
-    practise: { label: 'Practise', icon: 'pen', href: 'papers', pages: [['papers', 'Past papers'], ['check', 'Check an answer'], ['checks', 'Marked answers'], ['cards', 'Flashcards']] },
+    practise: { label: 'Practise', icon: 'pen', href: 'papers', pages: [['papers', 'Exam centre'], ['cards', 'Flashcards'], ['check', 'Check an answer'], ['checks', 'Marked answers']] },
     focus: { label: 'Focus', icon: 'clock', href: 'focus', pages: [] }
   };
   // Area menus are drawn once by the page frame (see views.js), so pages no longer add their own.
@@ -4945,7 +5155,7 @@ div[data-subj] > ol.lessons { background: var(--card); -webkit-backdrop-filter: 
     const set = s.deliv.settings;
     const review = D.needsReview();
     let html = C.subnav('plan', 'deliverables');
-    html += C.page({ eyebrow: 'Week of ' + esc(U.fmtShort(ws)), title: 'Weekly tasks', lede: 'Hand these in by <b>' + esc(U.fmt(dl.date, { weekday: 'long' })) + ' ' + esc(dl.time) + '</b>. Each one needs proof, or is measured for you.',
+    html += C.page({ eyebrow: 'Week of ' + esc(U.fmtShort(ws)), title: 'Weekly tasks', lede: 'Hand these in by <b>' + esc(U.fmt(dl.date, { weekday: 'long' })) + ' ' + esc(dl.time) + '</b>.',
       actions: '<button type="button" class="icon-btn" data-action="dv-week" data-v="-7" aria-label="Previous week">' + C.icon('left') + '</button><button type="button" class="icon-btn" data-action="dv-week" data-v="7" aria-label="Next week"' + (ws >= cur ? ' disabled' : '') + '>' + C.icon('right') + '</button>' });
 
     if (review && ws === cur) html += reviewPanel(review);
@@ -5194,7 +5404,7 @@ div[data-subj] > ol.lessons { background: var(--card); -webkit-backdrop-filter: 
   V.areaOf = function (r) {
     if (r === 'home') return 'home';
     if (/^(study|subjects|s-|c-|t-|library|guide)/.test(r)) return 'learn';
-    if (/^(papers|paper-|exam$|mark$|check|checks|cards|deck-|review)/.test(r)) return 'practise';
+    if (/^(papers|paper-|sit-|exam$|mark$|handin$|check|checks|cards|deck-|review)/.test(r)) return 'practise';
     if (/^(plan|deliverables|routine|exams|strategy)$/.test(r)) return 'plan';
     if (r === 'focus') return 'focus';
     if (r === 'labs' || r.indexOf('lab-') === 0) return 'labs';
@@ -5203,7 +5413,7 @@ div[data-subj] > ol.lessons { background: var(--card); -webkit-backdrop-filter: 
   // The page inside an area that the current route belongs to.
   function currentPage(r) {
     if (/^[sct]-/.test(r)) return 'study';
-    if (/^(paper-|exam$|mark$)/.test(r)) return 'papers';
+    if (/^(paper-|sit-|exam$|mark$|handin$)/.test(r)) return 'papers';
     if (/^check-/.test(r)) return 'checks';
     if (/^(deck-|review)/.test(r)) return 'cards';
     return r;
@@ -5475,30 +5685,30 @@ div[data-subj] > ol.lessons { background: var(--card); -webkit-backdrop-filter: 
       (nx ? '<a class="btn lg" href="#t-' + nx.gid + '">' + (p.done ? 'Continue' : 'Start') + ': ' + M.lessonNum(s, nx) + C.icon('right') + '</a>' : '') + '</header>';
     if (sid === 'further' && !s.profile.fmOptions) html += V.fmOptionsCard();
     let group = '';
+    html += '<div class="ch-grid">';
     course.forEach(function (u) {
       const c = u.c, up = M.courseProgress(s, c.topics);
       if (c.group && c.group !== group) { html += '<p class="grp">' + esc(c.group) + '</p>'; group = c.group; }
       const chosen = !c.option || (s.profile.fmOptions || []).indexOf(c.option) !== -1;
-      html += '<section class="sec"><h2 class="sec-h"><span class="sec-n num">' + u.n + '</span><a href="#c-' + c.gid + '">' + esc(M.title(c.name)) + '</a>' + (c.option && !chosen ? '<span class="muted small">option</span>' : '') + '<span class="sec-c small muted">' + up.done + '/' + up.total + '</span></h2>' +
-        '<ol class="lessons">' + c.topics.map((t) => lessonRow(s, t)).join('') + '</ol></section>';
+      html += '<a class="ch-card' + (up.done === up.total ? ' all' : '') + (chosen ? '' : ' opt') + '" href="#c-' + c.gid + '"><span class="ch-n num">' + u.n + '</span><span class="ch-t"><b>' + esc(M.title(c.name)) + '</b><span>' + up.done + ' of ' + U.plural(up.total, 'lesson') + (c.option && !chosen ? ' · option' : '') + '</span></span><span class="sbar"><i style="width:' + Math.round(100 * up.frac) + '%"></i></span></a>';
     });
+    html += '</div>';
 
-    // Papers and whole-course extras.
+    // Papers and whole-subject extras, folded away.
     const exams = M.upcomingExams(s).filter((e) => e.subject === sid);
     const papers = sub.papers.filter((x) => !x.option || (s.profile.fmOptions && RH.FM_OPTIONS.some((o) => o.paper === x.id && s.profile.fmOptions.indexOf(o.id) !== -1)));
-    html += '<h2 class="h-rule">Exam papers</h2><div class="table-wrap"><table class="tbl"><thead><tr><th>Paper</th><th>Name</th><th>Date</th><th>Length</th></tr></thead><tbody>' + papers.map(function (x) {
-      const e = exams.find((y) => y.code === x.code);
-      return '<tr><td class="num">' + esc(x.code) + '</td><td>' + esc(x.name.replace(/^Paper \w+: /, '')) + '</td><td>' + (e ? esc(U.fmt(e.date)) + ' <span class="muted small">(' + U.countdown(C.daysTo(e.date)) + ')</span>' : '<span class="muted">Not on your timetable</span>') + '</td><td>' + U.mins(x.dur) + '</td></tr>';
-    }).join('') + '</tbody></table></div>';
     const extra = RH.SUBJECT_VIDEOS[sid] || [];
     const decks = Object.keys(s.decks).map((k) => s.decks[k]).filter((d) => d.subject === sid);
-    html += '<h2 class="h-rule">More for the whole subject</h2>';
-    if (extra.length) html += '<details class="fold"><summary>' + (sid === 'economics' ? 'Exam technique videos' : 'Whole-course videos') + ' <span class="muted small">' + extra.length + '</span></summary><div class="fold-body">' + C.videoGrid(extra.map((v) => ({ ch: v[0], id: v[1], title: v[2] })), sid) + '</div></details>';
-    html += '<details class="fold"><summary>Flashcard decks <span class="muted small">' + decks.length + '</span></summary><div class="fold-body">' +
-      (decks.length ? '<ul class="deck-list">' + decks.map(RH.cards.deckRow).join('') + '</ul>' : '<p class="muted small">No ' + esc(sub.name) + ' decks yet.</p>') +
-      '<div class="row-actions"><button type="button" class="btn alt sm" data-action="cards-import">' + C.icon('upload') + 'Import from Quizlet or Gizmo</button>' +
+    html += '<details class="fold"><summary>Exam papers</summary><div class="fold-body"><ul class="plain-rows">' + papers.map(function (x) {
+      const e = exams.find((y) => y.code === x.code);
+      return '<li><b>' + esc(x.name.replace(/^Paper \w+: /, '')) + '</b><span class="muted small">' + esc(x.code) + ' · ' + U.mins(x.dur) + (e ? ' · ' + esc(U.fmt(e.date)) : '') + '</span></li>';
+    }).join('') + '</ul></div></details>';
+    if (extra.length) html += '<details class="fold"><summary>' + (sid === 'economics' ? 'Exam technique videos' : 'Whole-course videos') + '</summary><div class="fold-body">' + C.videoGrid(extra.map((v) => ({ ch: v[0], id: v[1], title: v[2] })), sid) + '</div></details>';
+    html += '<details class="fold"><summary>Flashcard decks</summary><div class="fold-body">' +
+      (decks.length ? '<ul class="deck-list">' + decks.map(RH.cards.deckRow).join('') + '</ul>' : '') +
+      '<div class="row-actions"><button type="button" class="btn alt sm" data-action="cards-import">' + C.icon('upload') + 'Import from Quizlet</button>' +
       RH.STARTER_DECKS.filter((d) => d.subject === sid && !decks.some((x) => x.starter === d.id)).map((d) => '<button type="button" class="btn alt sm" data-action="starter-add" data-id="' + d.id + '">' + C.icon('plus') + esc(d.name) + '</button>').join('') + '</div></div></details>';
-    html += '<details class="fold"><summary>Past papers and resources <span class="muted small">' + sub.res.length + '</span></summary><div class="fold-body res-cols">' + C.resGroups(sub.res) + '</div></details>';
+    html += '<details class="fold"><summary>Past papers and resources</summary><div class="fold-body res-cols">' + C.resGroups(sub.res) + '</div></details>';
     return html + '</div>';
   };
 
@@ -5515,11 +5725,8 @@ div[data-subj] > ol.lessons { background: var(--card); -webkit-backdrop-filter: 
     html += docHead('Chapter ' + n + ' · ' + c.papers.map((x) => esc(sub.paper[x].code)).join(', '), esc(M.title(c.name)), U.plural(c.topics.length, 'lesson') + ' · <b>' + p.done + ' done</b> ' + progBar(p),
       nx ? '<a class="btn" href="#t-' + nx.gid + '">' + (p.done ? 'Continue' : 'Start') + ': ' + M.lessonNum(s, nx) + '</a>' : '');
     html += '<ol class="lessons">' + c.topics.map((t) => lessonRow(s, t)).join('') + '</ol>';
-    html += '<p class="small"><button type="button" class="btn link" data-action="comp-nt" data-comp="' + c.gid + '" data-v="' + (anyTaught ? 1 : 0) + '">' + (anyTaught ? 'Mark this chapter as not taught yet' : 'Mark this chapter as taught') + '</button> <span class="muted">The planner leaves untaught lessons until later.</span></p>';
-    [[['notes'], 'Notes for the whole chapter'], [['qs', 'papers'], 'Questions and papers'], [['cards', 'other'], 'More']].forEach(function (g) {
-      const list = res.filter((r) => g[0].indexOf(r.k) !== -1);
-      if (list.length) html += '<h2 class="h-rule">' + g[1] + '</h2>' + C.resList(list);
-    });
+    if (res.length) html += '<details class="fold"><summary>Notes and questions for the whole chapter</summary><div class="fold-body">' + C.resList(res) + '</div></details>';
+    html += '<p class="small"><button type="button" class="btn link" data-action="comp-nt" data-comp="' + c.gid + '" data-v="' + (anyTaught ? 1 : 0) + '">' + (anyTaught ? 'Not taught this chapter yet?' : 'Mark this chapter as taught') + '</button></p>';
     html += pager(comps[idx - 1] && ['c-' + comps[idx - 1].gid, 'Previous chapter', M.sectionNum(s, comps[idx - 1]) + ' ' + M.title(comps[idx - 1].name)], comps[idx + 1] && ['c-' + comps[idx + 1].gid, 'Next chapter', M.sectionNum(s, comps[idx + 1]) + ' ' + M.title(comps[idx + 1].name)]);
     return html + '</div>';
   };
@@ -5546,6 +5753,7 @@ div[data-subj] > ol.lessons { background: var(--card); -webkit-backdrop-filter: 
     return C.resList(head) + (rest.length ? '<details class="fold-lite"><summary>' + U.plural(rest.length, 'more link') + '</summary>' + C.resList(rest) + '</details>' : '');
   }
 
+  const tile = (attrs, ic, title, sub) => '<' + (/href=/.test(attrs) ? 'a' : 'button type="button"') + ' class="do-tile" ' + attrs + '><span class="dt-ic">' + C.icon(ic) + '</span><span class="dt-t"><b>' + title + '</b>' + (sub ? '<span>' + sub + '</span>' : '') + '</span>' + C.icon('right', 'dt-go') + '</' + (/href=/.test(attrs) ? 'a' : 'button') + '>';
   V.topic = function (gid) {
     const s = st(), t = M.topic[gid];
     if (!t) return V.notFound();
@@ -5553,48 +5761,49 @@ div[data-subj] > ol.lessons { background: var(--card); -webkit-backdrop-filter: 
     const prev = M.lessonAfter(s, t, -1), next = M.lessonAfter(s, t, 1);
     const ticks = ts.p || [], pts = t.pts || [];
     const res = M.resources(t, s);
-    const notes = res.filter((r) => r.k === 'notes' || r.k === 'mine'), practice = res.filter((r) => r.k === 'qs' || r.k === 'papers'), cardRes = res.filter((r) => r.k === 'cards'), other = res.filter((r) => r.k === 'other');
+    const notes = res.filter((r) => r.k === 'notes' || r.k === 'mine' || r.k === 'other'), practice = res.filter((r) => r.k === 'qs' || r.k === 'papers'), cardRes = res.filter((r) => r.k === 'cards');
     const decks = RH.cards.forTopic(gid);
-    const checks = s.checks.filter((x) => x.topic === gid);
-    const done = M.lessonDone(s, gid), steps = M.lessonSteps(s, gid);
+    const done = M.lessonDone(s, gid);
+    const NAMES = ['Watch', 'Key points', 'Test yourself', 'Exam questions', 'Finish'];
 
     let html = '<div class="lesson" data-subj="' + sub.id + '">' + C.crumbs([['My Subjects', 'study'], [sub.name, 's-' + sub.id], [M.sectionNum(s, c) + ' ' + M.title(c.name), 'c-' + c.gid]]);
-    html += docHead('Lesson ' + M.lessonNum(s, t) + ' · ' + c.papers.map((x) => esc(sub.paper[x].code)).join(', '), esc(M.title(t.name)),
-      (done ? '<b class="ok-t">Done</b>' : steps ? steps + ' of 5 steps done' : 'Not started') + (ts.nt ? ' · not taught yet' : ''),
-      '<button type="button" class="btn alt sm" data-action="add-today" data-id="' + gid + '">' + C.icon('plus') + 'Add to today</button>');
-    html += '<nav class="jump" aria-label="On this page"><span class="muted">On this page:</span>' + M.STEPS.map((x, i) => '<a href="#step-' + x[0] + '" data-action="to-step" data-k="' + x[0] + '"' + ((x[0] === 'finish' ? done : sd[x[0]]) ? ' class="on"' : '') + '>' + (i + 1) + '. ' + ['Watch', 'Key points', 'Test yourself', 'Exam questions', 'Finish'][i] + '</a>').join('') + '</nav>';
+    html += '<header class="lesson-h"><p class="kicker">Lesson ' + M.lessonNum(s, t) + (ts.nt ? ' · not taught yet' : '') + '</p><h1>' + esc(M.title(t.name)) + '</h1>' +
+      '<nav class="steps-bar" aria-label="Steps">' + M.STEPS.map((x, i) => '<a href="#step-' + x[0] + '" data-action="to-step" data-k="' + x[0] + '" class="' + ((x[0] === 'finish' ? done : sd[x[0]]) ? 'on' : '') + '"><i>' + ((x[0] === 'finish' ? done : sd[x[0]]) ? C.icon('tick') : i + 1) + '</i><span>' + NAMES[i] + '</span></a>').join('') + '</nav></header>';
 
     // 1. Watch
-    html += block('watch', 1, 'Watch', videoBlock(t), sd.watch, gid);
+    const vids = M.videos(t);
+    let watch = vids.length ? '<a class="vmain" href="https://www.youtube.com/watch?v=' + vids[0].id + '" target="_blank" rel="noopener"><span class="vthumb">' + (C.canThumb ? '<img loading="lazy" alt="" src="https://i.ytimg.com/vi/' + vids[0].id + '/mqdefault.jpg" onerror="this.remove()">' : '') + '<span class="vplay">' + C.icon('play') + '</span></span><span class="vm-t"><b>' + esc(vids[0].title) + '</b><span class="muted small">' + esc(C.channel(vids[0].ch)) + '</span></span></a>'
+      : '<p class="muted">No video picked yet. ' + searchLinks(t) + '</p>';
+    if (vids.length > 1) watch += '<details class="fold-lite"><summary>' + U.plural(vids.length - 1, 'more video') + '</summary><ul class="links">' + vids.slice(1).map((x) => '<li><a href="https://www.youtube.com/watch?v=' + x.id + '" target="_blank" rel="noopener">' + esc(x.title) + '</a> <span class="muted small">' + esc(C.channel(x.ch)) + '</span></li>').join('') + '</ul></details>';
+    html += block('watch', 1, 'Watch', watch, sd.watch, gid);
+
     // 2. Key points
-    let learn = '';
-    if (pts.length) learn += '<p class="sub-l">What you need to know <span class="muted num" id="kp-n">' + ticks.length + '/' + pts.length + '</span></p><ul class="checklist">' +
-      pts.map((x, i) => '<li><label><input type="checkbox" data-action="pt-toggle" data-id="' + gid + '" data-i="' + i + '"' + (ticks.indexOf(i) !== -1 ? ' checked' : '') + '><span>' + esc(x) + '</span></label></li>').join('') + '</ul><p class="help">Tick a point once you could explain it without your notes.</p>';
+    let learn = pts.length ? '<ul class="checklist">' + pts.map((x, i) => '<li><label><input type="checkbox" data-action="pt-toggle" data-id="' + gid + '" data-i="' + i + '"' + (ticks.indexOf(i) !== -1 ? ' checked' : '') + '><span>' + esc(x) + '</span></label></li>').join('') + '</ul><p class="help"><span class="num" id="kp-n">' + ticks.length + '/' + pts.length + '</span> ticked. Tick a point when you could explain it without notes.</p>' : '';
     if (t.tip) learn += '<p class="tip-line"><b>Exam tip:</b> ' + esc(t.tip) + '</p>';
-    if (notes.length) learn += '<p class="sub-l">Notes to read</p>' + resRows(notes, 4);
-    learn += '<details class="fold-lite"' + (ts.notes ? ' open' : '') + '><summary>Your own notes</summary><textarea id="notes-' + gid + '" class="notes" data-notes="' + gid + '" rows="5" placeholder="Key formulae, things you keep getting wrong, questions for your teacher…" aria-label="Your notes">' + esc(ts.notes || '') + '</textarea><span class="muted small" id="notes-saved">Saves as you type</span>' + myLinks(gid) + '</details>';
+    if (notes.length) learn += '<details class="fold-lite"><summary>Notes to read (' + notes.length + ')</summary>' + C.resList(notes) + '</details>';
+    learn += '<details class="fold-lite"' + (ts.notes ? ' open' : '') + '><summary>My notes</summary><textarea id="notes-' + gid + '" class="notes" data-notes="' + gid + '" rows="5" placeholder="Formulae, things you keep getting wrong, questions for your teacher" aria-label="Your notes">' + esc(ts.notes || '') + '</textarea><span class="muted small" id="notes-saved">Saves as you type</span>' + myLinks(gid) + '</details>';
     html += block('learn', 2, 'Key points', learn, sd.learn, gid);
+
     // 3. Test yourself
     const labs = RH.labs ? RH.labs.defs.filter((d) => d.topics.indexOf(gid) !== -1) : [];
-    const econLab = sub.id === 'economics';
-    let recall = labs.length ? '<p class="lab-try"><b>' + (econLab ? 'Diagram.' : 'Experiment.') + '</b> ' + (econLab ? 'Practise it in the ' : 'Try it in the ') + labs.map((d) => '<a href="#lab-' + d.id + '">' + esc(d.name) + (econLab ? ' diagram' : ' lab') + '</a>').join(' or the ') + (econLab ? ': shift the curves, watch the shaded areas change, then learn how to draw and evaluate it.' : sub.id === 'physics' ? ': change the variables and check the equations for yourself.' : ': change the variables, take readings and see the ideas in action.') + '</p>' : '';
-    recall += '<p><b>Blurt test.</b> Close your notes, write down everything you remember in 10 minutes, then compare it with the key points. <button type="button" class="btn alt sm" data-action="blurt" data-id="' + gid + '">Start</button></p>';
-    recall += '<p><b>Flashcards.</b> ' + (decks.length ? 'Your decks for this lesson:' : 'Make cards for the things you keep forgetting.') + ' <button type="button" class="btn link" data-action="deck-new" data-topic="' + gid + '">New deck</button> · <button type="button" class="btn link" data-action="cards-import" data-topic="' + gid + '">Import from Quizlet</button></p>';
-    if (decks.length) recall += '<ul class="deck-list">' + decks.map(RH.cards.deckRow).join('') + '</ul>';
-    if (cardRes.length) recall += C.resList(cardRes);
+    let recall = '<div class="do-tiles">' + tile('data-action="blurt" data-id="' + gid + '"', 'pen', 'Blurt test', '10 minutes from memory') +
+      (decks.length ? tile('href="#deck-' + decks[0].id + '"', 'cards', 'Flashcards', U.plural(decks.reduce((a, d) => a + d.cards.length, 0), 'card')) : tile('data-action="deck-new" data-topic="' + gid + '"', 'cards', 'Make flashcards', 'Or import from Quizlet')) +
+      labs.map((d) => tile('href="#lab-' + d.id + '"', 'flask', d.name, 'Interactive lab')).join('') + '</div>';
+    if (cardRes.length) recall += '<details class="fold-lite"><summary>Ready-made flashcards (' + cardRes.length + ')</summary>' + C.resList(cardRes) + '</details>';
     html += block('recall', 3, 'Test yourself', recall, sd.recall, gid);
-    // 4. Exam questions
-    let exam = practice.length ? resRows(practice, 4) : '<p class="muted">No question pack for this lesson. Use a past paper from the subject page.</p>';
-    exam += '<p><b>Get an answer marked.</b> Type or photograph a question and your answer, and Claude marks it like an Edexcel examiner. <button type="button" class="btn alt sm" data-action="check-topic" data-id="' + gid + '">' + C.icon('check') + 'Check an answer</button></p>';
-    if (checks.length) exam += '<ul class="links">' + checks.slice(0, 5).map((x) => '<li><a href="#check-' + x.id + '">' + esc((x.question || 'Question from a photo').slice(0, 80)) + '</a> <span class="num small">' + x.result.score + '/' + x.result.max + '</span> <span class="muted small">' + esc(U.fmtShort(x.date)) + '</span></li>').join('') + '</ul>';
+
+    // 4. Exam questions: each pack opens in the practice centre to sit against the clock.
+    let exam = practice.length ? '<div class="do-tiles">' + practice.slice(0, 4).map((r) => tile('data-action="pack-practise" data-u="' + esc(r.u) + '" data-t="' + esc(r.t) + '" data-topic="' + gid + '"', 'timer', esc(r.t.replace(/^PMT /, '')), 'Timed practice · ' + esc((RH.SITES[r.s] || {}).short || r.s))).join('') + '</div>' : '<p class="muted">No question pack for this lesson. Try a past paper from the subject page.</p>';
+    if (practice.length > 4) exam += '<details class="fold-lite"><summary>' + U.plural(practice.length - 4, 'more pack') + '</summary>' + C.resList(practice.slice(4)) + '</details>';
     html += block('exam', 4, 'Exam questions', exam, sd.exam, gid);
+
     // 5. Finish
-    let fin = '<p class="sub-l">How confident are you now?</p>' + C.ragFull(gid, ts.c || 0) + C.toggle('data-action="toggle-nt" data-id="' + gid + '"', 'Not taught yet', ts.nt, 'The planner leaves it until later.');
-    if (other.length) fin += '<details class="fold-lite"><summary>Other links</summary>' + C.resList(other) + '</details>';
-    fin += done ? '<p class="ok-t"><b>' + C.icon('tick', 'i-sm') + ' Lesson done.</b> <span class="muted">' + (ts.last ? 'Last revised ' + esc(U.fmtShort(ts.last)) : '') + '</span></p>' + (next ? '<p><a class="btn" href="#t-' + next.gid + '">Next lesson: ' + M.lessonNum(s, next) + ' ' + esc(M.title(next.name)) + '</a></p>' : '')
-      : '<p><button type="button" class="btn" data-action="lesson-done" data-id="' + gid + '">' + C.icon('tick') + 'Complete lesson' + (next ? ' and go to ' + M.lessonNum(s, next) : '') + '</button></p>';
+    let fin = '<p class="sub-l">How confident are you now?</p>' + C.ragFull(gid, ts.c || 0);
+    fin += done ? '<p class="ok-t"><b>' + C.icon('tick', 'i-sm') + ' Lesson done.</b></p>' + (next ? '<p><a class="btn" href="#t-' + next.gid + '">Next: ' + M.lessonNum(s, next) + ' ' + esc(M.title(next.name)) + C.icon('right') + '</a></p>' : '')
+      : '<p><button type="button" class="btn lg" data-action="lesson-done" data-id="' + gid + '">' + C.icon('tick') + 'Complete lesson</button></p>';
+    fin += '<details class="fold-lite"><summary>More</summary>' + C.toggle('data-action="toggle-nt" data-id="' + gid + '"', 'Not taught yet', ts.nt, 'The planner leaves it until later.') + '<p><button type="button" class="btn link" data-action="add-today" data-id="' + gid + '">Add this lesson to today’s plan</button></p></details>';
     html += block('finish', 5, 'Finish', fin, done, gid);
-    html += pager(prev && ['t-' + prev.gid, 'Previous lesson', M.lessonNum(s, prev) + ' ' + M.title(prev.name)], next && ['t-' + next.gid, 'Next lesson', M.lessonNum(s, next) + ' ' + M.title(next.name)]);
+    html += pager(prev && ['t-' + prev.gid, 'Previous', M.lessonNum(s, prev) + ' ' + M.title(prev.name)], next && ['t-' + next.gid, 'Next', M.lessonNum(s, next) + ' ' + M.title(next.name)]);
     return html + '</div>';
   };
   function myLinks(gid) {
@@ -5637,20 +5846,71 @@ div[data-subj] > ol.lessons { background: var(--card); -webkit-backdrop-filter: 
 })(window.RH = window.RH || {});
 </script>
 <script>
-/* My Subjects: a bookshelf with one book per subject. Click a book and it flies to the middle of the screen,
-   the cover swings open, a few pages flip, and the chapters (the subject's sections) appear on the right-hand page.
-   The covers are drawn here as SVG, so there are no image files. */
+/* My Subjects: a shelf of textbooks, one subject at a time. Each chapter is a book standing spine-out on an
+   endless shelf; the book in the middle turns to show its cover. Drag, scroll, use the arrows or ← →. Click the
+   cover and the book comes off the shelf and opens: the cover swings over, a few pages turn and settle, and the
+   chapter's lessons are on the right-hand page. Covers and spines are drawn here as SVG, so there are no images. */
 (function (RH) {
   'use strict';
   const U = RH.util, M = RH.model, C = RH.c, esc = U.esc;
   const st = () => RH.store.state;
   const V = RH.views;
+
+  const COL = { physics: '#2F5BD8', maths: '#0E8A6E', further: '#7A4FD0', economics: '#E0662F' };
+  const ABBR = { physics: 'PHY', maths: 'MATHS', further: 'F.MATHS', economics: 'ECON' };
+  const abbr = (sub) => ABBR[sub.id] || sub.tag || sub.name.slice(0, 4).toUpperCase();
+  const INK = '#221B45', CREAM = '#FBF6EC', VERM = '#F08A5D';
+  const SERIF = 'Onest, system-ui, sans-serif', SANS = 'Onest, system-ui, sans-serif';
   const reduce = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const EASE = 'cubic-bezier(.2,.8,.2,1)';
+
+  // ---------- The books: the chapters of one subject ----------
+  function curSub(s) {
+    let id = RH.ui.shelfSub;
+    if (!id || !M.subject[id] || !M.isMine(M.subject[id])) {
+      const today = U.today(), sess = s.plan.sessions.find((x) => x.d >= today && !x.done && x.t && M.topic[x.t]);
+      id = sess && M.isMine(M.topic[sess.t].subject) ? M.topic[sess.t].subject.id : M.subjects[0].id;
+    }
+    RH.ui.shelfSub = id;
+    return M.subject[id];
+  }
+  function bookList(s) {
+    const sub = curSub(s);
+    return M.compsFor(s, sub, true).map((c, j) => ({ i: j, sub: sub, c: c, n: M.sectionNum(s, c), title: M.title(c.name), col: COL[sub.id] || sub.color || '#555', variant: j % 3 }));
+  }
+  // Three print variants keep the shelf from looking uniform: colour cloth, cream board, ink board.
+  function inks(b) {
+    if (b.variant === 1) return { bg: CREAM, fg: INK, acc: b.col, alt: VERM };
+    if (b.variant === 2) return { bg: INK, fg: CREAM, acc: b.col, alt: VERM };
+    return { bg: b.col, fg: CREAM, acc: INK, alt: '#FFD58A' };
+  }
   function rng(seed) { let x = (seed * 9301 + 49297) % 233280; return () => (x = (x * 9301 + 49297) % 233280) / 233280; }
-  const ART = { fg: 'rgba(255,255,255,0.92)', acc: 'rgba(255,255,255,0.55)', alt: '#FFE29A' };
+  function wrap(text, max) {
+    const lines = [];
+    let cur = '';
+    text.split(' ').forEach(function (w) { if (cur && (cur + ' ' + w).length > max) { lines.push(cur); cur = w; } else cur = cur ? cur + ' ' + w : w; });
+    if (cur) lines.push(cur);
+    return lines;
+  }
+
+  function spineSVG(b) {
+    const k = inks(b), len = b.title.length * 44 * 0.47;
+    const motif = {
+      physics: '<circle cx="71" cy="176" r="20" fill="none" stroke="' + k.fg + '" stroke-width="3"/><circle cx="71" cy="176" r="6" fill="' + k.alt + '"/>',
+      maths: '<path d="M47 196 Q71 140 95 196" fill="none" stroke="' + k.fg + '" stroke-width="3"/><circle cx="71" cy="168" r="5" fill="' + k.alt + '"/>',
+      further: '<path d="M71 176 m0 -4 a4 4 0 1 1 -4 4 a8 8 0 1 1 8 8 a12 12 0 1 1 -12 -12 a16 16 0 1 1 16 16" fill="none" stroke="' + k.fg + '" stroke-width="3"/>',
+      economics: '<path d="M50 156 L92 198 M50 198 L92 156" stroke="' + k.fg + '" stroke-width="3"/><circle cx="71" cy="177" r="5" fill="' + k.alt + '"/>'
+    }[b.sub.id] || '<circle cx="71" cy="176" r="18" fill="none" stroke="' + k.fg + '" stroke-width="3"/><circle cx="71" cy="176" r="6" fill="' + k.alt + '"/>';
+    return '<svg viewBox="0 0 142 840" aria-hidden="true"><rect width="142" height="840" fill="' + k.bg + '"/>' +
+      '<rect width="9" height="840" fill="#000" opacity=".13"/><rect x="133" width="9" height="840" fill="#000" opacity=".2"/>' +
+      '<rect y="30" width="142" height="3" fill="' + k.fg + '" opacity=".85"/><rect y="806" width="142" height="3" fill="' + k.fg + '" opacity=".85"/>' +
+      '<rect x="41" y="56" width="60" height="60" fill="none" stroke="' + k.fg + '" stroke-width="2"/><text x="71" y="98" text-anchor="middle" font-family="' + SERIF + '" font-weight="700" font-size="30" fill="' + k.fg + '">' + esc(b.n) + '</text>' + motif +
+      '<text transform="translate(56 232) rotate(90)" font-family="' + SERIF + '" font-weight="600" font-size="40" fill="' + k.fg + '"' + (len > 500 ? ' textLength="500" lengthAdjust="spacingAndGlyphs"' : '') + '>' + esc(b.title) + '</text>' +
+      '<text x="71" y="772" text-anchor="middle" font-family="' + SANS + '" font-weight="700" font-size="' + (abbr(b.sub).length > 5 ? 15 : 19) + '" letter-spacing="2" fill="' + k.fg + '">' + esc(abbr(b.sub)) + '</text></svg>';
+  }
 
   function illustration(b, k, w, h) {
-    const r = rng(b.i + 3), P = k.acc, A = k.alt, F = k.fg;
+    const r = rng(b.i + 3), P = k.acc === INK ? CREAM : k.acc, A = k.alt, F = k.fg;
     let g = '';
     if (b.sub.id === 'physics') {
       const cx = w * (0.3 + r() * 0.4), cy = h * 0.45, R = Math.min(w, h) * 0.18;
@@ -5711,99 +5971,302 @@ div[data-subj] > ol.lessons { background: var(--card); -webkit-backdrop-filter: 
     return g;
   }
 
-
-  function art(sub, i) { return '<svg class="bk-art" viewBox="0 0 252 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">' + illustration({ i: i, sub: sub }, ART, 252, 200) + '</svg>'; }
-  function cover(sub, i, s) {
-    const p = M.courseProgress(s, M.subjectTopics(s, sub));
-    return '<span class="bk-face" style="--c:' + C.scol(sub) + '"><span class="bk-top"><span class="bk-board">' + esc(sub.board) + ' · ' + esc(sub.spec.split(' ')[0]) + '</span><b class="bk-name">' + esc(sub.name) + '</b></span>' + art(sub, i) +
-      '<span class="bk-foot"><span class="bk-bar"><i style="width:' + Math.round(100 * p.frac) + '%"></i></span><span>' + p.done + ' of ' + p.total + ' lessons</span></span></span>';
+  // The cover's contents in a 474 × 900 box: reused on the book and as the detail poster.
+  function coverInner(b) {
+    const k = inks(b);
+    let lines = wrap(b.title.toUpperCase(), 12), fs = 54, lh = 58;
+    if (lines.length > 3) { lines = wrap(b.title.toUpperCase(), 16); fs = 40; lh = 44; }
+    const ty = 186, iy = ty + lines.length * lh + 6, ih = 790 - iy;
+    const lessons = b.c.topics.length;
+    return '<rect width="474" height="900" fill="' + k.bg + '"/><rect width="12" height="900" fill="#000" opacity=".12"/>' +
+      '<text x="36" y="56" font-family="' + SANS + '" font-weight="600" font-size="13" letter-spacing="3" fill="' + k.fg + '">PREPPR · A LEVEL</text>' +
+      '<text x="440" y="56" text-anchor="end" font-family="' + SANS + '" font-weight="600" font-size="13" letter-spacing="2" fill="' + k.fg + '">' + esc(b.sub.spec) + '</text>' +
+      '<rect x="36" y="72" width="404" height="2" fill="' + k.fg + '"/>' +
+      '<text x="36" y="108" font-family="' + SANS + '" font-weight="700" font-size="15" letter-spacing="3" fill="' + (k.acc === INK ? CREAM : k.acc) + '">' + esc(b.sub.name.toUpperCase()) + '</text>' +
+      '<text x="440" y="108" text-anchor="end" font-family="' + SERIF + '" font-weight="600" font-size="16" fill="' + k.fg + '">Chapter ' + esc(b.n) + '</text>' +
+      lines.map((l, i) => '<text x="34" y="' + (ty + i * lh) + '" font-family="' + SERIF + '" font-weight="700" font-size="' + fs + '" letter-spacing="-1.5" fill="' + k.fg + '"' + (l.length * fs * 0.64 > 404 ? ' textLength="404" lengthAdjust="spacingAndGlyphs"' : '') + '>' + esc(l) + '</text>').join('') +
+      '<svg x="36" y="' + iy + '" width="402" height="' + ih + '" viewBox="0 0 402 ' + ih + '">' + illustration(b, k, 402, ih) + '</svg>' +
+      '<rect x="36" y="808" width="404" height="2" fill="' + k.fg + '"/>' +
+      '<text x="36" y="852" font-family="' + SANS + '" font-weight="600" font-size="14" letter-spacing="2" fill="' + k.fg + '">' + lessons + ' LESSON' + (lessons === 1 ? '' : 'S') + '</text>' +
+      '<rect x="356" y="830" width="84" height="32" fill="none" stroke="' + k.fg + '" stroke-width="2"/><text x="398" y="852" text-anchor="middle" font-family="' + SANS + '" font-weight="700" font-size="14" letter-spacing="2" fill="' + k.fg + '">A LVL</text>';
   }
 
-  // ---------- The shelf ----------
+  // ---------- Page ----------
+  let books = [], N = 0;
+  let s = null, T = null, active = -1, shownSub = null;
+  function startIndex(s0) {
+    const today = U.today();
+    const sess = s0.plan.sessions.find((x) => x.d >= today && !x.done && x.t && M.topic[x.t] && M.topic[x.t].subject.id === RH.ui.shelfSub);
+    const comp = sess ? M.topic[sess.t].comp : null;
+    const i = comp ? books.findIndex((b) => b.c === comp) : -1;
+    return i < 0 ? 0 : i;
+  }
+  function done(b) { return M.courseProgress(st(), b.c.topics); }
+
   V.study = function () {
-    const s = st(), list = M.subjects, rows = [];
-    for (let i = 0; i < list.length; i += 4) rows.push(list.slice(i, i + 4));
-    let html = '<header class="page-h"><div><h1>My Subjects</h1><p class="lede">Pick a book to open it.</p></div><a class="btn alt" href="#subjects">' + C.icon('plus') + 'Add or remove subjects</a></header>';
-    html += '<div class="shelf">' + rows.map((row, r) => '<div class="shelf-row"><div class="shelf-books">' + row.map(function (sub, j) {
-      const i = r * 4 + j;
-      return '<button type="button" class="bk" data-action="book-open" data-id="' + sub.id + '" data-i="' + i + '" aria-label="Open ' + esc(sub.name) + '" style="--c:' + C.scol(sub) + '"><span class="bk-spine"></span>' + cover(sub, i, s) + '</button>';
-    }).join('') + '</div><div class="plank"></div></div>').join('') + '</div>';
+    const s0 = st();
+    books = bookList(s0); N = books.length;
+    const sub = M.subject[RH.ui.shelfSub];
+    if (shownSub !== sub.id || T == null || T >= N * 4 || T <= -N * 4) { T = s = startIndex(s0); shownSub = sub.id; }
+    const p = M.courseProgress(s0, M.subjectTopics(s0, sub));
+    let html = '<div class="shelf-hero" id="shelf" tabindex="-1" data-subj="' + sub.id + '">';
+    html += '<nav class="sh-tabs" aria-label="Subjects">' + M.subjects.map((x) => '<button type="button" class="sh-tab' + (x.id === sub.id ? ' on' : '') + '" data-tab="' + x.id + '" data-subj="' + x.id + '" aria-pressed="' + (x.id === sub.id) + '">' + esc(x.name) + '</button>').join('') + '</nav>';
+    html += '<p class="sh-sum"><b>' + esc(sub.name) + '</b> · ' + p.done + ' of ' + p.total + ' lessons done</p>';
+    html += '<section class="sh-shelf" aria-label="' + esc(sub.name) + ' textbooks"><div class="sh-stage">' + books.map((b) =>
+      '<div class="bk" data-v="' + b.i + '" role="button" tabindex="-1" aria-label="' + esc('Chapter ' + b.n + ': ' + b.title) + '"><div class="bk-f spn">' + spineSVG(b) + '</div><div class="bk-f cv">' + '<svg viewBox="0 0 474 900" aria-hidden="true">' + coverInner(b) + '</svg></div></div>').join('') + '</div><div class="sh-plank" aria-hidden="true"></div></section>';
+    html += '<button type="button" class="sh-play" aria-label="Open this book"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.5 L10.5 6 L3 10.5Z"/></svg></button>';
+    html += '<div class="sh-cap" aria-live="polite"><div class="sh-m sh-ms"></div><div class="sh-m sh-mt"></div><div class="sh-m sh-mm"></div></div>';
+    html += '<button type="button" class="sh-arrow prev" aria-label="Previous book">' + C.icon('left') + '</button><button type="button" class="sh-arrow next" aria-label="Next book">' + C.icon('right') + '</button>';
+    html += '<span class="sh-probe" aria-hidden="true"></span>';
+    html += '<div class="sh-cur" aria-hidden="true"><span class="sh-ring"></span><span class="sh-dot"></span><span class="sh-open">Open</span></div>';
     html += '<div class="book-stage" id="bookStage" hidden></div>';
-    return html;
+    return html + '</div>';
   };
 
-  // ---------- The open book ----------
-  function inside(sub, s) {
-    const topics = M.subjectTopics(s, sub), p = M.courseProgress(s, topics), nx = M.nextLesson(s, sub, topics);
-    const ex = M.upcomingExams(s).filter((e) => e.subject === sub.id)[0];
-    return '<div class="ob-in"><p class="label">' + esc(sub.board.replace('Pearson ', '')) + ' · ' + esc(sub.spec) + '</p><h2>' + esc(sub.name) + '</h2>' +
-      '<div class="ob-ring">' + C.ring(p.frac, '<b>' + Math.round(100 * p.frac) + '</b>%', 96) + '<span><b>' + p.done + ' of ' + p.total + '</b> lessons done' + (ex ? '<br><span class="muted">First paper ' + esc(U.fmt(ex.date)) + '</span>' : '') + '</span></div>' +
-      (nx ? '<a class="btn block" href="#t-' + nx.gid + '">' + (p.done ? 'Continue' : 'Start') + ': ' + esc(M.lessonNum(s, nx) + ' ' + M.title(nx.name)) + '</a>' : '<p class="ok-t"><b>Every lesson done.</b></p>') +
-      '<a class="btn alt block" href="#s-' + sub.id + '">See every lesson</a></div>';
+  // ---------- Engine ----------
+  let root = null, stage = null, tapes = [], raf = 0, last = 0;
+  let H = 0, ws = 0, dd = 0, gap = 0, VW = 0;
+  let mx = -1e4, my = -1e4, cx = -1e4, cy = -1e4, tiltX = 0, tiltY = 0, onCover = false, isOpen = false;
+  let hover = -1, dragging = false, drag = null, suppress = false, wheelT = 0, curIn = false;
+  const lifts = [];
+  const sm = (x) => x * x * (3 - 2 * x);
+  const mod = (a, n) => ((a % n) + n) % n;
+  const Bf = (r) => Math.abs(r) < 1 ? (r + Math.sin(Math.PI * r) / Math.PI) / 2 : (r > 0 ? 0.5 : -0.5);
+  const Fx = (r) => r * (ws + gap) + (dd - ws + 1.6 * gap) * Bf(r);
+  const rel = (v) => mod(v - s + N / 2, N) - N / 2;
+
+  function measure() {
+    const probe = root.querySelector('.sh-probe');
+    H = probe.getBoundingClientRect().height;
+    VW = root.clientWidth;
+    ws = H * 142 / 840; dd = H * 474 / 900; gap = H * (VW < 700 ? 0.11 : 0.03);
+    stage.style.setProperty('--ws', ws + 'px');
+    stage.style.setProperty('--d', dd + 'px');
+    stage.style.setProperty('--h', H + 'px');
+    VW = root.clientWidth;
   }
-  // On a phone only one page shows, so the right-hand page starts with the subject's name and the next lesson.
-  function mini(sub, s) {
-    const nx = M.nextLesson(s, sub), p = M.courseProgress(s, M.subjectTopics(s, sub));
-    return '<div class="ob-mini"><h2>' + esc(sub.name) + '</h2><p class="muted small">' + p.done + ' of ' + p.total + ' lessons done</p>' + (nx ? '<a class="btn sm" href="#t-' + nx.gid + '">' + (p.done ? 'Continue' : 'Start') + ': ' + esc(M.lessonNum(s, nx)) + '</a>' : '') + '</div>';
+  function centre() { const r = root.querySelector('.sh-shelf').getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; }
+
+  // Caption: each line slides through its mask.
+  function swap(mask, html, dir) {
+    const span = document.createElement('span');
+    span.innerHTML = html;
+    const old = Array.prototype.filter.call(mask.children, (x) => !x.dataset.leaving);
+    mask.appendChild(span);
+    if (reduce() || !old.length) { old.forEach((x) => x.remove()); return; }
+    span.animate([{ transform: 'translateY(' + dir * 105 + '%)' }, { transform: 'translateY(0)' }], { duration: 650, easing: EASE, fill: 'both' });
+    old.forEach(function (x) {
+      x.dataset.leaving = '1';
+      const cur = getComputedStyle(x).transform;
+      x.animate([{ transform: cur === 'none' ? 'translateY(0)' : cur }, { transform: 'translateY(' + (-dir * 105) + '%)' }], { duration: 650, easing: EASE, fill: 'both' }).onfinish = () => x.remove();
+    });
   }
-  function contents(sub, s) {
-    const course = M.course(s, sub);
-    return '<div class="ob-toc"><p class="label">Contents</p><ol class="toc">' + course.map(function (u) {
-      const up = M.courseProgress(s, u.c.topics);
-      return '<li><a href="#c-' + u.c.gid + '"><span class="toc-n num">' + esc(u.n) + '</span><span class="toc-t">' + esc(M.title(u.c.name)) + '</span><span class="toc-d num' + (up.done === up.total ? ' all' : '') + '">' + up.done + '/' + up.total + '</span></a></li>';
-    }).join('') + '</ol></div>';
+  function setActive(i, dir) {
+    active = i;
+    const b = books[i], p = done(b);
+    swap(root.querySelector('.sh-mt'), esc(b.title), dir);
+    swap(root.querySelector('.sh-ms'), '<span style="color:' + b.col + '">Chapter ' + esc(b.n) + '</span>', dir);
+    swap(root.querySelector('.sh-mm'), U.plural(b.c.topics.length, 'lesson') + (p.done ? ' · ' + p.done + ' done' : ''), dir);
   }
-  let cur = null;
-  function open(sid, fromEl) {
-    const s = st(), sub = M.subject[sid], stage = document.getElementById('bookStage');
-    if (!sub || !stage) return;
-    const i = fromEl ? Number(fromEl.dataset.i) : M.subjects.indexOf(sub);
-    stage.innerHTML = '<div class="stage-bg" data-action="book-close"></div><div class="ob" style="--c:' + C.scol(sub) + '" data-subj="' + sub.id + '" role="dialog" aria-modal="true" aria-label="' + esc(sub.name) + '">' +
-      '<div class="ob-page ob-left"></div><div class="ob-page ob-right">' + mini(sub, s) + contents(sub, s) + '</div>' +
-      '<div class="ob-leaf"></div><div class="ob-leaf"></div><div class="ob-leaf"></div>' +
-      '<div class="ob-cover"><div class="ob-front">' + cover(sub, i, s) + '</div><div class="ob-back">' + inside(sub, s) + '</div></div></div>' +
+
+  function frame(now) {
+    if (!root || !document.body.contains(root)) { unmount(); return; }
+    raf = requestAnimationFrame(frame);
+    const dt = Math.min(0.05, (now - (last || now)) / 1000);
+    last = now;
+    const rm = reduce();
+    const k = dragging ? 18 : 5.2;
+    s = rm ? T : s + (T - s) * (1 - Math.exp(-k * dt));
+    if (Math.abs(T - s) < 1e-4) s = T;
+    if (Math.abs(s) > N * 4) { const sh = Math.round(s / N) * N; s -= sh; T -= sh; }
+    const a = mod(Math.round(s), N);
+    if (a !== active) setActive(a, Math.sign(T - s) || 1);
+
+    const c = centre(), rr = root.getBoundingClientRect();
+    cx += (mx - cx) * (1 - Math.exp(-16 * dt)); cy += (my - cy) * (1 - Math.exp(-16 * dt));
+    onCover = !isOpen && !BK.busy() && Math.abs(mx - c.x) < 0.55 * dd && Math.abs(my - c.y) < 0.55 * H && Math.abs(T - s) < 0.3;
+    const tyT = onCover ? (mx - c.x) / (0.55 * dd) * 9 : (mx - c.x) / (VW || 1) * 5;
+    const txT = onCover ? -(my - c.y) / (H / 2) * 6 : 0;
+    tiltY += (Math.max(-12, Math.min(12, tyT)) - tiltY) * (1 - Math.exp(-7 * dt));
+    tiltX += (txT - tiltX) * (1 - Math.exp(-7 * dt));
+
+    const lim = VW / 2 + 1.5 * dd;
+    for (let j = 0; j < tapes.length; j++) {
+      const el = tapes[j], r = rel(j), x = Fx(r);
+      if (Math.abs(x) > lim) { if (el.style.visibility !== 'hidden') el.style.visibility = 'hidden'; continue; }
+      if (el.style.visibility) el.style.visibility = '';
+      const o = sm(Math.max(0, 1 - Math.abs(r)));
+      const want = hover === j && Math.abs(r) > 0.5 ? 1 : 0;
+      lifts[j] = rm ? want : (lifts[j] || 0) + (want - (lifts[j] || 0)) * (1 - Math.exp(-12 * dt));
+      const y = -o * 0.025 * H - lifts[j] * 0.045 * H;
+      el.style.transform = 'translate3d(' + x.toFixed(2) + 'px,' + y.toFixed(2) + 'px,' + (o * 0.2 * H).toFixed(2) + 'px) rotateZ(' + (-4.5 * o).toFixed(3) + 'deg) rotateX(' + (tiltX * o).toFixed(3) + 'deg) rotateY(' + (-90 * o + tiltY * o).toFixed(3) + 'deg)';
+      el.style.zIndex = Math.round(100 - Math.abs(r) * 4);
+      el.style.setProperty('--ss', (o * 0.55).toFixed(3));
+      el.style.setProperty('--cs', ((1 - o) * 0.5).toFixed(3));
+    }
+    const play = root.querySelector('.sh-play');
+    const ps = isOpen ? 0 : sm(Math.max(0, 1 - Math.abs(T - s) * 3));
+    play.style.transform = 'translate(' + (c.x - rr.left - 0.5 * dd - 6 - 21) + 'px,' + (c.y - rr.top + 0.36 * H - 21) + 'px) scale(' + ps.toFixed(3) + ')';
+
+    const cur = root.querySelector('.sh-cur');
+    cur.style.transform = 'translate3d(' + cx + 'px,' + cy + 'px,0)';
+    const overTape = !isOpen && hover >= 0 && Math.abs(rel(hover)) > 0.5;
+    cur.classList.toggle('open', onCover);
+    cur.classList.toggle('spine', !onCover && overTape);
+  }
+
+  function go(t) { T = t; }
+  function jumpTo(i) { const c = Math.round(T); go(c + mod(i - mod(c, N) + N / 2, N) - N / 2); }
+
+  // ---------- Opening a book ----------
+  // The open book is a scene of its own: two pages, a cover and three leaves. Each piece is animated with the
+  // Web Animations API, and the leaves settle in a stack on the left so nothing has to fade away.
+  function activeTape() { return tapes[mod(Math.round(T), N)]; }
+  function lessonsPage(b, s0) {
+    return '<div class="ob-toc"><p class="ob-k">Contents</p><ol class="toc">' + b.c.topics.map((t) => '<li><a href="#t-' + t.gid + '">' + V.statusIcon(s0, t) + '<span class="toc-n num">' + esc(M.lessonNum(s0, t)) + '</span><span class="toc-t">' + esc(M.title(t.name)) + '</span></a></li>').join('') + '</ol></div>';
+  }
+  function insidePage(b, s0) {
+    const p = done(b), nx = M.nextLesson(s0, b.sub, b.c.topics);
+    return '<div class="ob-in"><p class="ob-k">' + esc(b.sub.name) + ' · Chapter ' + esc(b.n) + '</p><h2>' + esc(b.title) + '</h2>' +
+      '<div class="ob-ring">' + C.ring(p.frac, '<b>' + p.done + '</b>/' + p.total, 84) + '<span>' + (p.done === p.total ? 'Every lesson done' : U.plural(p.total - p.done, 'lesson') + ' to go') + '</span></div>' +
+      '<div class="ob-acts">' + (nx ? '<a class="btn block" href="#t-' + nx.gid + '">' + (p.done ? 'Continue' : 'Start') + ' lesson ' + esc(M.lessonNum(s0, nx)) + C.icon('right') + '</a>' : '') + '<a class="btn alt block" href="#c-' + b.c.gid + '">Chapter page</a></div></div>';
+  }
+  const BK = { anims: [], open: false, busy: () => BK.open };
+  function openDetail() {
+    if (BK.open || !root) return;
+    T = Math.round(T);
+    const b = books[mod(T, N)], s0 = st(), stg = root.querySelector('#bookStage'), k = inks(b);
+    const cover = '<svg viewBox="0 0 474 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">' + coverInner(b) + '</svg>';
+    stg.innerHTML = '<div class="stage-bg" data-action="book-close"></div>' +
+      '<div class="ob" style="--c:' + b.col + ';--cb:' + k.bg + '" role="dialog" aria-modal="true" aria-label="' + esc(b.title) + '">' +
+      '<div class="ob-shadow"></div><span class="ob-edge"></span><div class="ob-page ob-left"></div><div class="ob-page ob-right"><div class="ob-mini">' + insidePage(b, s0) + '</div>' + lessonsPage(b, s0) + '</div>' +
+      '<div class="ob-leaf l0"><div class="lf f"></div><div class="lf b"></div></div><div class="ob-leaf l1"><div class="lf f"></div><div class="lf b"></div></div>' +
+      '<div class="ob-leaf l2"><div class="lf f"></div><div class="lf b">' + insidePage(b, s0) + '</div></div>' +
+      '<div class="ob-cover"><div class="cf f">' + cover + '<i class="shade"></i></div><div class="cf b"><i class="shade"></i></div></div></div>' +
       '<button type="button" class="ob-x icon-btn" data-action="book-close" aria-label="Close the book">' + C.icon('x') + '</button>';
-    stage.hidden = false;
+    stg.hidden = false;
+    BK.open = true; isOpen = true;
     document.body.classList.add('book-open');
-    const ob = stage.querySelector('.ob'), cv = ob.querySelector('.ob-cover'), leaves = ob.querySelectorAll('.ob-leaf');
-    const narrow = window.innerWidth < 760;
+    const ob = stg.querySelector('.ob'), narrow = window.innerWidth < 760;
     ob.classList.toggle('one', narrow);
     const P = ob.querySelector('.ob-right').getBoundingClientRect().width;
     const box = ob.getBoundingClientRect(), cx = box.left + box.width / 2, cy = box.top + box.height / 2;
-    const rest = narrow ? 'translate(0px, 0px) scale(1)' : 'translate(' + (-P / 2) + 'px, 0px) scale(1)';
-    let from = rest;
-    if (fromEl) {
-      const b = fromEl.getBoundingClientRect(), sc = b.width / P;
-      const dx = b.left + b.width / 2 - cx - (narrow ? 0 : sc * P / 2), dy = b.top + b.height / 2 - cy;
-      from = 'translate(' + dx + 'px, ' + dy + 'px) scale(' + sc + ')';
-      fromEl.classList.add('lifted');
-    }
-    cur = { el: fromEl, anims: [] };
+    const closedX = narrow ? 0 : -P / 2;
+    const rest = 'translate(' + closedX + 'px, 0px) scale(1)';
+    const r = activeTape().querySelector('.cv').getBoundingClientRect(), sc = r.width / P;
+    const from = 'translate(' + (r.left + r.width / 2 - cx - (narrow ? 0 : sc * P / 2)) + 'px, ' + (r.top + r.height / 2 - cy) + 'px) scale(' + sc + ') rotate(-4deg)';
+    activeTape().classList.add('lifted');
+    BK.anims = [];
     if (reduce() || !ob.animate) { ob.classList.add('static'); return; }
-    const D = 1300, E = 'cubic-bezier(.65,0,.2,1)';
-    cur.anims.push(ob.animate([{ transform: from }, { transform: rest, offset: 0.34 }, { transform: rest, offset: 0.42 }, { transform: 'translate(0px, 0px) scale(1)' }], { duration: D, easing: E, fill: 'both' }));
-    cur.anims.push(cv.animate([{ transform: 'rotateY(0deg)' }, { transform: 'rotateY(0deg)', offset: 0.4 }, narrow ? { transform: 'rotateY(-180deg)', opacity: 0 } : { transform: 'rotateY(-180deg)' }], { duration: D, easing: E, fill: 'both' }));
-    leaves.forEach(function (lf, k) {
-      cur.anims.push(lf.animate([{ transform: 'rotateY(0deg)', opacity: 1 }, { transform: 'rotateY(0deg)', opacity: 1, offset: 0.45 + k * 0.08 }, { transform: 'rotateY(-175deg)', opacity: 0.9, offset: 0.92 }, { transform: 'rotateY(-180deg)', opacity: 0 }], { duration: D + 120, easing: E, fill: 'both' }));
+    const E = 'cubic-bezier(.6,0,.2,1)', D = 1700;
+    const anim = (el, frames, o) => { const a = el.animate(frames, Object.assign({ duration: D, easing: E, fill: 'both' }, o || {})); BK.anims.push(a); return a; };
+    // 1. Off the shelf and into the middle, closed. 2. Slide right as it opens so the spread is centred.
+    anim(ob, [{ transform: from }, { transform: rest, offset: 0.28 }, { transform: rest, offset: 0.36 }, { transform: 'translate(0px, 0px) scale(1)', offset: 0.8 }, { transform: 'translate(0px, 0px) scale(1)' }]);
+    // The left-hand page only exists once the cover has swung past upright.
+    anim(ob.querySelector('.ob-left'), [{ opacity: 0 }, { opacity: 0, offset: 0.55 }, { opacity: 1, offset: 0.58 }, { opacity: 1 }], { easing: 'linear' });
+    anim(ob.querySelector('.ob-shadow'), [{ opacity: 0 }, { opacity: 0.5, offset: 0.28 }, { opacity: 1, offset: 0.8 }, { opacity: 1 }]);
+    // The cover swings over first, then the three leaves, each a little later and settling slightly higher in the stack.
+    // Stacking: the cover starts on top on the right and ends at the bottom of the pile on the left, under the pages.
+    const swing = (z0, z1, a, b2) => [{ transform: 'rotateY(0deg) translateZ(' + z0 + 'px)' }, { transform: 'rotateY(0deg) translateZ(' + z0 + 'px)', offset: a }, { transform: 'rotateY(-92deg) translateZ(' + ((z0 - z1) / 2) + 'px) skewY(-2deg)', offset: (a + b2) / 2 }, { transform: 'rotateY(-180deg) translateZ(' + (-z1) + 'px)', offset: b2 }, { transform: 'rotateY(-180deg) translateZ(' + (-z1) + 'px)' }];
+    anim(ob.querySelector('.ob-cover'), narrow ? [{ transform: 'rotateY(0deg)', opacity: 1 }, { transform: 'rotateY(0deg)', opacity: 1, offset: 0.36 }, { transform: 'rotateY(-180deg)', opacity: 0, offset: 0.78 }, { transform: 'rotateY(-180deg)', opacity: 0 }] : swing(6, 0.5, 0.36, 0.76));
+    ob.querySelectorAll('.ob-cover .shade').forEach((sh, i) => anim(sh, [{ opacity: 0 }, { opacity: 0, offset: 0.4 }, { opacity: i ? 0 : 0.5, offset: 0.56 }, { opacity: i ? 0.45 : 0, offset: 0.6 }, { opacity: 0, offset: 0.78 }, { opacity: 0 }]));
+    ob.querySelectorAll('.ob-leaf').forEach(function (lf, i) {
+      const st0 = 0.46 + i * 0.07, end = Math.min(0.97, 0.8 + i * 0.07);
+      const fr = narrow
+        ? [{ transform: 'rotateY(0deg)', opacity: 1 }, { transform: 'rotateY(0deg)', opacity: 1, offset: st0 }, { transform: 'rotateY(-180deg)', opacity: 0, offset: end }, { transform: 'rotateY(-180deg)', opacity: 0 }]
+        : swing(4.5 - 1.5 * i, 1.5 + 1.5 * i, st0, end);
+      anim(lf, fr);
     });
-    ob.querySelectorAll('.ob-toc, .ob-in').forEach((x) => cur.anims.push(x.animate([{ opacity: 0 }, { opacity: 0, offset: 0.6 }, { opacity: 1 }], { duration: D, fill: 'both' })));
+    // The contents write themselves in, line by line.
+    ob.querySelectorAll('.ob-toc li, .ob-toc .ob-k').forEach((li, i) => anim(li, [{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 420, delay: D * 0.82 + i * 45, easing: EASE }));
+    ob.querySelectorAll('.ob-in > *').forEach((x, i) => anim(x, [{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 420, delay: D * 0.88 + i * 70, easing: EASE }));
     const first = ob.querySelector('.toc a');
-    cur.anims[0].finished.then(() => { if (first) first.focus({ preventScroll: true }); }).catch(() => {});
+    BK.anims[0].finished.then(() => { if (first && BK.open) first.focus({ preventScroll: true }); }).catch(() => {});
   }
-  function close() {
-    const stage = document.getElementById('bookStage');
-    if (!stage || stage.hidden) return;
-    const done = () => { stage.hidden = true; stage.innerHTML = ''; document.body.classList.remove('book-open'); if (cur && cur.el) { cur.el.classList.remove('lifted'); cur.el.focus({ preventScroll: true }); } cur = null; };
-    if (cur && cur.anims.length && !reduce()) {
-      cur.anims.forEach((a) => { a.playbackRate = 1.6; a.reverse(); });
-      cur.anims[0].finished.then(done).catch(done);
-    } else done();
+  function closeDetail() {
+    if (!BK.open || !root) return;
+    const stg = root.querySelector('#bookStage');
+    const fin = () => { stg.hidden = true; stg.innerHTML = ''; document.body.classList.remove('book-open'); tapes.forEach((t) => t.classList.remove('lifted')); BK.open = false; isOpen = false; if (root) root.focus({ preventScroll: true }); };
+    BK.open = false;
+    const main = BK.anims.filter((a) => (a.effect.getTiming().delay || 0) === 0);
+    if (main.length && !reduce()) {
+      BK.anims.forEach((a) => { if ((a.effect.getTiming().delay || 0) > 0) a.cancel(); });
+      main.forEach((a) => { a.playbackRate = 1.7; a.reverse(); });
+      main[0].finished.then(fin).catch(fin);
+    } else fin();
   }
-  RH.shelf = { open: open, close: close, isOpen: () => !!cur };
-  RH.actions['book-open'] = (el) => open(el.dataset.id, el);
-  RH.actions['book-close'] = () => close();
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && cur) close(); });
-  window.addEventListener('hashchange', function () { cur = null; document.body.classList.remove('book-open'); });
+
+  // ---------- Mounting ----------
+  function onKey(e) {
+    if (!root || RH.c.modalOpen()) return;
+    if (e.key === 'Escape' && BK.open) { closeDetail(); return; }
+    if (isOpen || /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) return;
+    if (e.key === 'ArrowLeft') { go(Math.round(T) - 1); e.preventDefault(); }
+    else if (e.key === 'ArrowRight') { go(Math.round(T) + 1); e.preventDefault(); }
+    else if (e.key === 'Enter' && (document.activeElement === document.body || document.activeElement === root)) { openDetail(); e.preventDefault(); }
+  }
+  function onMove(e) {
+    mx = e.clientX; my = e.clientY;
+    if (drag && Math.abs(e.clientX - drag.x) > 5) dragging = true;
+    if (dragging) T = drag.T - (e.clientX - drag.x) / (ws + gap);
+  }
+  function onUp() { if (dragging) { suppress = true; setTimeout(() => { suppress = false; }, 0); T = Math.round(T); } drag = null; dragging = false; }
+  function onResize() { if (root) measure(); }
+
+  function mount() {
+    root = document.getElementById('shelf');
+    stage = root.querySelector('.sh-stage');
+    tapes = Array.prototype.slice.call(stage.querySelectorAll('.bk'));
+    measure();
+    active = -1; last = 0; isOpen = false;
+    if (curIn) root.classList.add('cur-in');
+    tapes.forEach(function (el, j) {
+      el.addEventListener('pointerenter', () => { hover = j; });
+      el.addEventListener('pointerleave', () => { if (hover === j) hover = -1; });
+      el.addEventListener('click', function () {
+        if (suppress) return;
+        const r = rel(j);
+        if (Math.abs(r) < 0.5) openDetail(); else go(Math.round(T + r));
+      });
+    });
+    const shelf = root.querySelector('.sh-shelf');
+    shelf.addEventListener('pointerdown', (e) => { if (e.button === 0 && !isOpen) drag = { x: e.clientX, T: T }; });
+    shelf.addEventListener('wheel', function (e) {
+      if (isOpen) return;
+      e.preventDefault();
+      const dlt = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+      T += dlt / (ws + gap) * 0.5;
+      clearTimeout(wheelT);
+      wheelT = setTimeout(() => { T = Math.round(T); }, 160);
+    }, { passive: false });
+    root.addEventListener('pointerenter', () => { curIn = true; root.classList.add('cur-in'); });
+    root.addEventListener('pointerleave', () => { curIn = false; root.classList.remove('cur-in'); });
+    root.addEventListener('pointerover', (e) => { root.querySelector('.sh-cur').classList.toggle('btn', !!e.target.closest('button, a') && !e.target.closest('.bk')); });
+    root.querySelector('.sh-arrow.prev').addEventListener('click', () => go(Math.round(T) - 1));
+    root.querySelector('.sh-arrow.next').addEventListener('click', () => go(Math.round(T) + 1));
+    root.querySelector('.sh-play').addEventListener('click', openDetail);
+    root.querySelectorAll('.sh-tab').forEach((t) => t.addEventListener('click', function () {
+      if (RH.ui.shelfSub === t.dataset.tab) return;
+      RH.ui.shelfSub = t.dataset.tab;
+      RH.render();
+    }));
+    if (!SH.wired) {
+      SH.wired = true;
+      window.addEventListener('keydown', onKey);
+      window.addEventListener('pointermove', onMove, { passive: true });
+      window.addEventListener('pointerup', onUp);
+      window.addEventListener('pointercancel', onUp);
+      window.addEventListener('resize', onResize);
+    }
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(frame);
+  }
+  function unmount() { cancelAnimationFrame(raf); raf = 0; root = null; stage = null; tapes = []; hover = -1; isOpen = false; BK.open = false; document.body.classList.remove('book-open'); }
+  const SH = RH.shelf = { mount: mount, open: () => openDetail(), close: () => closeDetail(), state: () => ({ s: s, T: T, active: active, isOpen: BK.open, N: N, sub: RH.ui.shelfSub }), go: (t) => go(t) };
+  RH.actions['book-close'] = () => closeDetail();
+
+  // Preload nothing: the art is SVG. Mount whenever the shelf page is drawn.
+  RH.afterRender.push(function (r) { if (typeof r !== 'string') return; if (r === 'study' && document.getElementById('shelf')) mount(); else if (root) unmount(); });
 })(window.RH = window.RH || {});
 </script>
 <script>
@@ -5883,7 +6346,7 @@ div[data-subj] > ol.lessons { background: var(--card); -webkit-backdrop-filter: 
     const ws = U.weekStart(U.today());
     const tot = R.weekTotals(s, ws);
     const pd = RH.ui.rday != null ? RH.ui.rday : U.dow(U.today());
-    let html = C.page({ title: 'My schedule', lede: 'Tell Preppr when you’re at school, asleep or busy. Every revision session is then booked into the time that’s left. Changes save as you go.',
+    let html = C.page({ title: 'My schedule', lede: 'When you’re busy, so revision fits around it.',
       actions: '<button type="button" class="btn" data-action="routine-save">' + C.icon('rebuild') + 'Save and rebuild my plan</button>' });
     const stepH = (n, t, sub, right) => '<div class="step-h"><span class="step-n">' + n + '</span><div><h2>' + t + '</h2>' + (sub ? '<p class="muted small">' + sub + '</p>' : '') + '</div>' + (right || '') + '</div>';
 
@@ -5966,7 +6429,7 @@ div[data-subj] > ol.lessons { background: var(--card); -webkit-backdrop-filter: 
   // ---------- Exams ----------
   V.exams = function () {
     const s = st(), today = U.today();
-    let html = C.subnav('plan', 'exams') + C.page({ eyebrow: 'Plan', title: 'Exams and tests', lede: 'Official dates from the <a href="' + RH.EXAM_SOURCE.url + '" target="_blank" rel="noopener">Pearson Edexcel Summer 2027 final timetable</a>. Morning papers start at 9:00, afternoon papers at 1:30pm. Check with your exams officer.' });
+    let html = C.subnav('plan', 'exams') + C.page({ title: 'Exams and tests', lede: 'Official <a href="' + RH.EXAM_SOURCE.url + '" target="_blank" rel="noopener">Edexcel Summer 2027</a> dates. Add your school tests below.' });
     if (!s.profile.fmOptions) html += V.fmOptionsCard();
     let month = '';
     html += '<div class="exam-list">';
@@ -6002,7 +6465,7 @@ div[data-subj] > ol.lessons { background: var(--card); -webkit-backdrop-filter: 
     const range = (key, label, help, min, max, step) => '<div class="field"><label for="f-' + key + '" class="range-l"><span>' + label + '</span><output class="num" id="o-' + key + '">' + S[key] + '</output></label>' +
       '<input type="range" id="f-' + key + '" min="' + min + '" max="' + max + '" step="' + step + '" value="' + S[key] + '" data-set="' + key + '" data-num="1">' + (help ? '<p class="help">' + help + '</p>' : '') + '</div>';
     const tg = (key, label, help) => C.toggle('id="f-' + key + '" data-set="' + key + '"', label, S[key], help);
-    let html = C.subnav('plan', 'strategy') + C.page({ eyebrow: 'Plan', title: 'Strategy', lede: 'How the planner chooses what to revise. Your hours and free time are set in <a href="#routine">My schedule</a>.', actions: '<button type="button" class="btn" data-action="plan-build">' + C.icon('rebuild') + 'Rebuild plan</button>' });
+    let html = C.subnav('plan', 'strategy') + C.page({ title: 'Strategy', lede: 'How the planner picks what to revise.', actions: '<button type="button" class="btn" data-action="plan-build">' + C.icon('rebuild') + 'Rebuild plan</button>' });
     html += V.staleBanner();
     html += '<section class="card"><div class="card-head"><h2>Pick a strategy</h2></div><div class="presets">' + Object.keys(RH.PRESETS).map((k) => { const p = RH.PRESETS[k]; return '<button type="button" class="preset' + (S.preset === k ? ' on' : '') + '" data-action="preset" data-v="' + k + '" aria-pressed="' + (S.preset === k) + '"><b>' + p.label + '</b><span>' + p.note + '</span></button>'; }).join('') + '</div></section>';
     html += '<div class="grid-2"><section class="card"><div class="card-head"><h2>What matters most</h2></div>' + range('wWeak', 'Weak topics', 'Red and not-started topics first.', 0, 3, 0.25) + range('wUrg', 'Exam urgency', 'Topics in sooner papers first.', 0, 3, 0.25) + range('wCov', 'Cover untouched topics', 'Reach every topic at least once.', 0, 3, 0.25) + range('ppWeeks', 'Past papers: weeks before each exam', 'Timed papers start this many weeks out. 0 turns them off.', 0, 12, 1) + '</section>' +
@@ -7111,15 +7574,42 @@ div[data-subj] > ol.lessons { background: var(--card); -webkit-backdrop-filter: 
     return out;
   }
 
+  // ---------- Topic packs (PMT style): "Q1." starts a question, "(Total for question = 4 marks)" ends it,
+  // and the mark scheme follows in the same file from a page headed "Mark Scheme". ----------
+  const QSTART = /^Q(\d{1,3})\.?(\s|$)/, PEND = /\(\s*Total\s+for\s+question\s*=?\s*(\d+)\s*marks?\s*\)/i;
+  const after = (a, b) => a.p > b.p || (a.p === b.p && a.y < b.y);
+  function packSplit(pages) {
+    const ms = pages.findIndex((pg, p) => p > 0 && pg.lines.slice(0, 8).some((l) => /^Mark\s*Scheme/i.test(l.text)));
+    const qpN = ms > 0 ? ms : pages.length, starts = [], ends = [];
+    for (let p = 0; p < qpN; p++) pages[p].lines.forEach(function (l) {
+      const m = QSTART.exec(l.text);
+      if (m && l.x < pages[p].w * 0.25) starts.push({ n: m[1], p: p, y: l.y + l.h + 4 });
+      const e = PEND.exec(l.text);
+      if (e) ends.push({ p: p, y: l.y, marks: Number(e[1]) });
+    });
+    const qs = starts.map(function (st0, i) {
+      const nx = starts[i + 1];
+      const end = ends.find((e) => after(e, st0) && (!nx || after(nx, e)));
+      const to = end ? { p: end.p, y: end.y - 6 } : nx ? { p: nx.p, y: nx.y + 14 } : { p: qpN - 1, y: bottom(pages[qpN - 1]) };
+      return { n: st0.n, marks: end ? end.marks : null, regions: regionsBetween(pages, { p: st0.p, y: st0.y }, to) };
+    }).filter((q) => q.regions.length);
+    const msMap = {};
+    if (ms > 0) for (let p = ms; p < pages.length; p++) pages[p].lines.forEach(function (l) { const m = QSTART.exec(l.text); if (m && msMap[m[1]] == null) msMap[m[1]] = p; });
+    return { qs: qs, ms: ms, msMap: msMap };
+  }
+
   // ---------- Upload ----------
   P.analyse = async function (qpFile, msFile) {
     const id = 'x' + U.uid();
     const qpBuf = await qpFile.arrayBuffer();
     const qp = await readPdf(qpBuf.slice(0));
     const info = meta(qp.pages);
-    const qs = detect(qp.pages);
+    let qs = detect(qp.pages), pack = null;
+    // A topic pack with its own mark scheme at the back: split it into the questions and the scheme.
+    if (!msFile) { const pk = packSplit(qp.pages); if (pk.qs.length >= 2 && (pk.ms > 0 || pk.qs.length >= qs.length)) { pack = pk; qs = pk.qs; } }
     markChoices(qs, info.marks);
-    let ms = null, msMap = {};
+    let ms = null, msMap = pack ? pack.msMap : {};
+    if (pack && pack.ms > 0) await RH.files.put(id + ':ms', new Blob([qpBuf.slice(0)], { type: 'application/pdf' }));
     if (msFile) {
       const msBuf = await msFile.arrayBuffer();
       ms = await readPdf(msBuf.slice(0));
@@ -7132,10 +7622,13 @@ div[data-subj] > ol.lessons { background: var(--card); -webkit-backdrop-filter: 
     const paperDef = subject && info.code ? (M.subject[subject].papers.find((p) => p.code === info.code)) : null;
     const total = info.marks || qs.reduce((a, q) => a + (q.marks || 0), 0) || null;
     const title = (subject ? M.subject[subject].name + ' ' : '') + (paperDef ? paperDef.name.split(':')[0] : (info.code || qpFile.name.replace(/\.pdf$/i, ''))) + (info.series ? ' · ' + info.series : '');
+    const opt = arguments[2] || {};
+    const packMarks = qs.reduce((a, q) => a + (q.marks || 0), 0);
     const paper = {
-      id: id, title: title, file: qpFile.name, msFile: msFile ? msFile.name : '', subject: subject, code: info.code || '', series: info.series || '',
-      dur: info.dur || (paperDef && paperDef.dur) || 90, marks: total, pages: qp.pages.length, msPagesCount: ms ? ms.pages.length : 0,
-      questions: qs.map((q) => ({ n: q.n, marks: q.marks, r: q.regions.map((g) => [g.p, Math.round(g.top), Math.round(g.bottom)]), ms: msMap[q.n] != null ? msMap[q.n] : null, topic: '', choice: q.choice || '' })),
+      id: id, title: opt.title || title, file: qpFile.name, msFile: msFile ? msFile.name : pack && pack.ms > 0 ? 'Included in the PDF' : '', subject: opt.subject || subject, code: info.code || '', series: info.series || '',
+      dur: pack ? Math.max(10, Math.round((packMarks || qs.length * 4) * 1.2)) : info.dur || (paperDef && paperDef.dur) || 90, marks: pack ? packMarks || null : total, pages: qp.pages.length, msPagesCount: ms ? ms.pages.length : pack && pack.ms > 0 ? qp.pages.length : 0,
+      pack: !!pack, src: opt.src || '', topic: opt.topic || '',
+      questions: qs.map((q) => ({ n: q.n, marks: q.marks, r: q.regions.map((g) => [g.p, Math.round(g.top), Math.round(g.bottom)]), ms: msMap[q.n] != null ? msMap[q.n] : null, topic: opt.topic || '', choice: q.choice || '' })),
       method: qs.length && qs[0].marks != null && qs.every((q) => q.marks != null) ? 'markers' : 'pages', added: U.today()
     };
     store.update(function (s) { s.portal.papers[id] = paper; });
@@ -7269,58 +7762,100 @@ div[data-subj] > ol.lessons { background: var(--card); -webkit-backdrop-filter: 
     return list;
   }
 
+  const paperCard = function (p) {
+    const b = best(p.id), n = attemptsFor(p.id).length;
+    return '<article class="pcard"' + (p.subject ? ' data-subj="' + p.subject + '"' : '') + '><a class="pc-main" href="#paper-' + p.id + '"><span class="pc-kind">' + (p.pack ? 'Topic questions' : 'Past paper') + (p.subject && M.subject[p.subject] ? ' · ' + esc(M.subject[p.subject].name) : '') + '</span><b>' + esc(p.title) + '</b>' +
+      '<span class="pc-meta">' + U.plural(p.questions.length, 'question') + (p.marks ? ' · ' + p.marks + ' marks' : '') + (b >= 0 ? ' · best ' + U.pct(b) : n ? '' : ' · not sat yet') + '</span></a>' +
+      '<a class="btn sm" href="#sit-' + p.id + '">' + C.icon('play') + 'Sit</a></article>';
+  };
   RH.views.papers = RH.views.portal = function () {
-    const tab = C.tab('portal', 'papers');
-    let html = C.subnav('study', 'papers') + C.head('Practise', 'Past papers', 'Upload a past paper PDF. It is split into questions, you sit it against the clock with a pace guide, then mark it against the mark scheme or have Claude mark each answer.');
-    html += C.tabs('portal', [['papers', 'My papers', 'paper', Object.keys(st().portal.papers).length], ['results', 'Results', 'list', st().portal.attempts.length + st().papers.length], ['find', 'Find papers', 'link']], tab);
+    const tab = C.tab('portal', 'papers'), L = st().portal.live;
+    let html = '<header class="page-h"><div><h1>Exam centre</h1><p class="lede">Sit papers and topic questions against the clock, then mark them.</p></div><button type="button" class="btn" data-action="paper-add">' + C.icon('plus') + 'Add a paper</button></header>';
+    if (L && st().portal.papers[L.paper]) html += '<a class="resume-strip" href="#exam">' + C.icon('timer') + '<span><b>Exam in progress</b><span>' + esc(st().portal.papers[L.paper].title) + '</span></span><span class="btn sm white">Back to it</span></a>';
+    if (st().portal.marking) html += '<a class="resume-strip" href="#mark">' + C.icon('check') + '<span><b>Marking waiting</b><span>Finish marking your last sitting.</span></span><span class="btn sm white">Mark it</span></a>';
+    html += C.tabs('portal', [['papers', 'My papers'], ['results', 'Results'], ['find', 'Find papers']], tab);
     if (tab === 'results') return html + RH.views.results();
-    if (tab === 'find') {
-      return html + '<p class="help">Download a question paper and its mark scheme, then upload both on the <b>My papers</b> tab.</p><div class="res-cols">' +
-        M.subjects.map((s) => '<section class="card" data-subj="' + s.id + '"><h2>' + C.stag(s.id) + esc(s.name) + '</h2>' + C.resList(findPapers(s.id)) + '</section>').join('') + '</div>';
-    }
-    html += '<section class="card upload"><h2>Add a paper</h2><form id="uploadForm" class="upload-form">' +
-      '<label class="drop" for="up-qp">' + C.icon('upload') + '<b>Question paper (PDF)</b><span class="muted small" id="up-qp-name">Choose or drop the file</span><input type="file" id="up-qp" name="qp" accept="application/pdf,.pdf" required></label>' +
-      '<label class="drop" for="up-ms">' + C.icon('notes') + '<b>Mark scheme (PDF, optional)</b><span class="muted small" id="up-ms-name">Add it now or later</span><input type="file" id="up-ms" name="ms" accept="application/pdf,.pdf"></label>' +
-      '<button type="submit" class="btn lg" id="up-go">' + C.icon('paper') + 'Read paper</button></form>' +
-      '<p class="help" id="up-status">Works best with Pearson Edexcel papers from PMT, Mr Gale\'s past paper pages or the Pearson website. Files stay on this device.</p></section>';
+    if (tab === 'find') return html + '<div class="res-cols">' + M.subjects.map((sub) => '<details class="fold" data-subj="' + sub.id + '"><summary>' + esc(sub.name) + '</summary><div class="fold-body">' + C.resList(findPapers(sub.id)) + '</div></details>').join('') + '</div>';
     const list = papers();
-    html += list.length ? '<section class="card"><h2>Your papers</h2><ul class="paper-list">' + list.map(function (p) {
-      const b = best(p.id);
-      return '<li class="paper-item"' + (p.subject ? ' data-subj="' + p.subject + '"' : '') + '>' + (p.subject ? C.stag(p.subject) : '<span class="tag stag-none">PDF</span>') +
-        '<a class="pi-main" href="#paper-' + p.id + '"><b>' + esc(p.title) + '</b><span class="muted small">' + U.plural(p.questions.length, 'question') + (p.marks ? ' · ' + p.marks + ' marks' : '') + ' · ' + U.mins(p.dur) + (p.msFile ? ' · mark scheme added' : '') + '</span></a>' +
-        (b >= 0 ? '<span class="cd num">Best ' + U.pct(b) + '</span>' : '') +
-        '<button type="button" class="btn sm" data-action="exam-start" data-id="' + p.id + '">' + C.icon('timer') + 'Sit paper</button></li>';
-    }).join('') + '</ul></section>' : C.empty('No papers yet.', 'Download one from the "Find papers" tab, then add it above.');
+    html += list.length ? '<div class="pgrid">' + list.map(paperCard).join('') + '</div>'
+      : '<div class="empty big-empty">' + C.icon('paper') + '<p class="empty-t">No papers yet</p><p class="muted">Add a past paper PDF, or open any lesson and press a question pack under <b>Exam questions</b>.</p><button type="button" class="btn" data-action="paper-add">' + C.icon('plus') + 'Add a paper</button></div>';
     return html;
+  };
+  RH.actions['paper-add'] = function () {
+    C.openModal('Add a paper', '<form id="uploadForm" class="upload-form">' +
+      '<label class="drop" for="up-qp">' + C.icon('upload') + '<b>Question paper (PDF)</b><span class="muted small" id="up-qp-name">Choose or drop the file</span><input type="file" id="up-qp" name="qp" accept="application/pdf,.pdf" required></label>' +
+      '<label class="drop" for="up-ms">' + C.icon('notes') + '<b>Mark scheme (optional)</b><span class="muted small" id="up-ms-name">Add it now or later</span><input type="file" id="up-ms" name="ms" accept="application/pdf,.pdf"></label>' +
+      '<button type="submit" class="btn lg block" id="up-go">' + C.icon('paper') + 'Read paper</button></form><p class="help" id="up-status">Files stay on this device.</p>');
   };
 
   RH.views.paper = function (id) {
     const p = st().portal.papers[id];
-    if (!p) return C.head('', 'Paper not found', '') + '<a class="btn" href="#papers">Back to the exam portal</a>';
+    if (!p) return C.head('', 'Paper not found', '') + '<a class="btn" href="#papers">Back to the exam centre</a>';
     const mpm = p.marks ? p.dur / p.marks : null;
     const attempts = attemptsFor(id);
-    let html = C.subnav('study', 'papers') + C.crumbs([['Past papers', 'papers'], [p.title]]);
-    html += C.head((p.subject ? C.stag(p.subject) + ' ' : '') + esc(p.code || 'Uploaded paper'), esc(p.title), U.plural(p.questions.length, 'question') + (p.marks ? ' · ' + p.marks + ' marks' : '') + ' · ' + U.mins(p.dur) + (mpm ? ' · about ' + (Math.round(mpm * 10) / 10) + ' min per mark' : ''),
-      '<button type="button" class="btn lg" data-action="exam-start" data-id="' + p.id + '">' + C.icon('timer') + 'Sit full paper</button>');
-    const qsum = totals(p, p.questions.map((q, i) => i)).max;
-    if (p.method === 'markers' && p.marks && qsum !== p.marks) html += '<div class="note"><p><b>Check the marks.</b> The questions add up to ' + qsum + ' but the paper is out of ' + p.marks + '. Fix any question marks below that look wrong.</p></div>';
-    if (p.method !== 'markers') html += '<div class="note"><p><b>Check the questions.</b> The paper didn\'t have "Total for Question" lines, so it was split ' + (p.questions.length && p.questions[0].marks == null ? 'by page' : 'by question numbers') + '. Fix the marks below if they look wrong.</p></div>';
-    html += '<section class="card"><h2>Paper details</h2><div class="form-grid">' +
-      '<div class="field"><label for="pp-title">Title</label><input id="pp-title" data-paper="' + id + '" data-pf="title" value="' + esc(p.title) + '"></div>' +
-      '<div class="field"><label for="pp-subj">Subject</label><select id="pp-subj" data-paper="' + id + '" data-pf="subject"><option value="">Other</option>' + M.subjects.map((s) => '<option value="' + s.id + '"' + (p.subject === s.id ? ' selected' : '') + '>' + esc(s.name) + '</option>').join('') + '</select></div>' +
-      '<div class="form-grid"><div class="field"><label for="pp-dur">Minutes</label><input id="pp-dur" type="number" min="5" max="300" data-paper="' + id + '" data-pf="dur" value="' + p.dur + '"></div><div class="field"><label for="pp-marks">Marks</label><input id="pp-marks" type="number" min="1" max="400" data-paper="' + id + '" data-pf="marks" value="' + (p.marks || '') + '"></div></div></div>' +
-      '<div class="row-actions"><label class="btn alt file-btn">' + C.icon('upload') + (p.msFile ? 'Replace mark scheme' : 'Add mark scheme') + '<input type="file" accept="application/pdf,.pdf" data-paperfile="ms" data-paper="' + id + '"></label>' +
-      '<label class="btn alt file-btn">' + C.icon('upload') + 'Re-upload question paper<input type="file" accept="application/pdf,.pdf" data-paperfile="qp" data-paper="' + id + '"></label>' +
-      '<button type="button" class="btn alt danger" data-action="paper-remove" data-id="' + id + '">' + C.icon('trash') + 'Delete paper</button></div></section>';
-    html += '<section class="card"><div class="card-head"><h2>Questions</h2><span class="muted small">Click a question to preview it</span></div><div class="table-wrap"><table class="tbl qtbl"><thead><tr><th>Question</th><th class="num">Marks</th><th class="num">Suggested time</th><th>Pages</th><th>Topic</th><th></th></tr></thead><tbody>' +
-      p.questions.map((q, i) => '<tr><td><button type="button" class="btn link" data-action="q-preview" data-id="' + id + '" data-i="' + i + '"><b>Q' + esc(q.n) + '</b></button>' + (q.choice ? ' <span class="pill" title="' + esc(choiceNote(p, q)) + '">choice</span>' : '') + '</td>' +
-        '<td class="num"><input type="number" class="num-in" min="0" max="200" data-paper="' + id + '" data-qm="' + i + '" value="' + (q.marks == null ? '' : q.marks) + '" aria-label="Marks for question ' + esc(q.n) + '"></td>' +
-        '<td class="num num">' + (mpm && q.marks ? U.mins(Math.round(q.marks * mpm)) : '–') + '</td><td class="num small">' + q.r.map((r) => r[0] + 1).filter((v, k, a) => a.indexOf(v) === k).join(', ') + '</td>' +
-        '<td><select class="topic-sel" data-paper="' + id + '" data-qt="' + i + '" aria-label="Topic for question ' + esc(q.n) + '"><option value="">–</option>' + topicOpts(p.subject, q.topic) + '</select></td>' +
-        '<td class="row-actions"><button type="button" class="btn alt sm" data-action="exam-start" data-id="' + id + '" data-q="' + i + '">Practise</button>' + (i ? '<button type="button" class="icon-btn" data-action="q-merge" data-id="' + id + '" data-i="' + i + '" title="Merge into previous question" aria-label="Merge into previous question">' + C.icon('x') + '</button>' : '') + '</td></tr>').join('') +
-      '</tbody></table></div><p class="help">Linking questions to topics lets the portal add lost marks to that topic\'s mistakes log when you mark the paper.</p></section>';
+    let html = C.crumbs([['Exam centre', 'papers'], [p.title]]);
+    html += C.page({ title: esc(p.title), lede: U.plural(p.questions.length, 'question') + (p.marks ? ' · ' + p.marks + ' marks' : '') + ' · ' + U.mins(p.dur) + (p.msFile ? ' · mark scheme added' : ''), actions: '<a class="btn lg" href="#sit-' + p.id + '">' + C.icon('play') + 'Sit it</a>' });
     if (attempts.length) html += '<section class="card"><h2>Your attempts</h2>' + attemptTable(attempts) + '</section>';
+    html += '<section class="card"><div class="card-head"><h2>Questions</h2><span class="muted small">Tap one to preview or practise it alone</span></div><div class="qgrid">' +
+      p.questions.map((q, i) => '<div class="qitem"><button type="button" class="qi-main" data-action="q-preview" data-id="' + id + '" data-i="' + i + '"><b>Q' + esc(q.n) + '</b><span class="num">' + (q.marks == null ? '?' : q.marks) + ' marks' + (mpm && q.marks ? ' · ' + U.mins(Math.round(q.marks * mpm)) : '') + '</span></button><a class="icon-btn" href="#sit-' + id + '" data-action="sit-one" data-id="' + id + '" data-i="' + i + '" aria-label="Practise question ' + esc(q.n) + '">' + C.icon('play') + '</a></div>').join('') + '</div></section>';
+    html += '<details class="fold"><summary>Fix the paper’s details</summary><div class="fold-body">' +
+      (p.method !== 'markers' && !p.pack ? '<p class="note small">This paper had no "Total for Question" lines, so it was split ' + (p.questions.length && p.questions[0].marks == null ? 'by page' : 'by question numbers') + '. Check the marks.</p>' : '') +
+      '<div class="form-grid"><div class="field"><label for="pp-title">Title</label><input id="pp-title" data-paper="' + id + '" data-pf="title" value="' + esc(p.title) + '"></div>' +
+      '<div class="field"><label for="pp-subj">Subject</label><select id="pp-subj" data-paper="' + id + '" data-pf="subject"><option value="">Other</option>' + M.subjects.map((x) => '<option value="' + x.id + '"' + (p.subject === x.id ? ' selected' : '') + '>' + esc(x.name) + '</option>').join('') + '</select></div>' +
+      '<div class="field"><label for="pp-dur">Minutes</label><input id="pp-dur" type="number" min="5" max="400" data-paper="' + id + '" data-pf="dur" value="' + p.dur + '"></div><div class="field"><label for="pp-marks">Marks</label><input id="pp-marks" type="number" min="1" max="600" data-paper="' + id + '" data-pf="marks" value="' + (p.marks || '') + '"></div></div>' +
+      '<div class="table-wrap"><table class="tbl qtbl"><thead><tr><th>Question</th><th class="num">Marks</th><th>Topic</th><th></th></tr></thead><tbody>' +
+      p.questions.map((q, i) => '<tr><td><b>Q' + esc(q.n) + '</b>' + (q.choice ? ' <span class="pill" title="' + esc(choiceNote(p, q)) + '">choice</span>' : '') + '</td><td class="num"><input type="number" class="num-in" min="0" max="200" data-paper="' + id + '" data-qm="' + i + '" value="' + (q.marks == null ? '' : q.marks) + '" aria-label="Marks for question ' + esc(q.n) + '"></td>' +
+        '<td><select class="topic-sel" data-paper="' + id + '" data-qt="' + i + '" aria-label="Topic for question ' + esc(q.n) + '"><option value="">–</option>' + topicOpts(p.subject, q.topic) + '</select></td><td>' + (i ? '<button type="button" class="icon-btn" data-action="q-merge" data-id="' + id + '" data-i="' + i + '" title="Merge into previous question" aria-label="Merge into previous question">' + C.icon('x') + '</button>' : '') + '</td></tr>').join('') + '</tbody></table></div>' +
+      '<div class="row-actions"><label class="btn alt sm file-btn">' + C.icon('upload') + (p.msFile ? 'Replace mark scheme' : 'Add mark scheme') + '<input type="file" accept="application/pdf,.pdf" data-paperfile="ms" data-paper="' + id + '"></label>' +
+      '<label class="btn alt sm file-btn">' + C.icon('upload') + 'Re-upload paper<input type="file" accept="application/pdf,.pdf" data-paperfile="qp" data-paper="' + id + '"></label>' +
+      '<button type="button" class="btn ghost sm danger-t" data-action="paper-remove" data-id="' + id + '">' + C.icon('trash') + 'Delete paper</button></div></div></details>';
     return html;
+  };
+
+  // ---------- Before you start: the conditions ----------
+  // A long paper or pack can be sat as a set of questions that fills the time you have.
+  function nextSet(p, mins) {
+    const mpm = p.marks ? p.dur / p.marks : 1.2, sat = {};
+    attemptsFor(p.id).forEach((a) => (a.per || []).forEach((x) => { sat[x[0]] = 1; }));
+    let startI = p.questions.findIndex((q) => !sat[q.n]);
+    if (startI < 0) startI = 0;
+    const out = []; let m = 0;
+    for (let i = startI; i < p.questions.length && (m === 0 || m + (p.questions[i].marks || 4) * mpm <= mins * 1.1); i++) { out.push(i); m += (p.questions[i].marks || 4) * mpm; }
+    return out;
+  }
+  RH.views.sit = function (id) {
+    const p = st().portal.papers[id];
+    if (!p) return RH.views.paper(id);
+    const ui = RH.ui.sit = Object.assign({ paper: id, mode: p.dur > 75 && p.questions.length > 6 ? 'set' : 'all', mins: 30, extra: 0, strict: false, ai: false, one: null }, RH.ui.sit && RH.ui.sit.paper === id ? RH.ui.sit : {});
+    const mpm = p.marks ? p.dur / p.marks : 1.2;
+    const idx = ui.one != null ? [ui.one] : ui.mode === 'set' ? nextSet(p, ui.mins) : p.questions.map((q, i) => i);
+    const marks = idx.reduce((a, i) => a + (p.questions[i].marks || 0), 0);
+    const mins = Math.round((ui.one != null || ui.mode === 'set' ? Math.max(3, marks * mpm) : p.dur) * (1 + ui.extra / 100));
+    const opt = (k, v, label, sub) => '<button type="button" class="choice' + (String(ui[k]) === String(v) ? ' on' : '') + '" data-action="sit-set" data-k="' + k + '" data-v="' + v + '"><b>' + label + '</b>' + (sub ? '<span>' + sub + '</span>' : '') + '</button>';
+    let html = C.crumbs([['Exam centre', 'papers'], [p.title, 'paper-' + p.id], ['Start']]);
+    html += '<section class="sit"' + (p.subject ? ' data-subj="' + p.subject + '"' : '') + '><header><p class="kicker">' + (p.pack ? 'Topic questions' : 'Past paper') + '</p><h1>' + esc(p.title) + '</h1></header>';
+    if (ui.one != null) html += '<div class="sit-row"><p class="label">What you’ll sit</p><div class="choices">' + opt('one', ui.one, 'Question ' + esc(p.questions[ui.one].n), U.plural(p.questions[ui.one].marks || 0, 'mark')) + '<button type="button" class="choice" data-action="sit-set" data-k="one" data-v="">Pick something else</button></div></div>';
+    else html += '<div class="sit-row"><p class="label">What you’ll sit</p><div class="choices">' + opt('mode', 'all', 'The whole ' + (p.pack ? 'pack' : 'paper'), U.plural(p.questions.length, 'question') + ' · ' + U.mins(p.dur)) + opt('mode', 'set', 'A set of questions', 'Fill the time you have') + '</div>' +
+      (ui.mode === 'set' ? '<div class="seg-row"><span class="muted small">Time you have</span>' + C.seg([[20, '20 min'], [30, '30 min'], [45, '45 min'], [60, '1 hour']], ui.mins, 'data-action="sit-set" data-k="mins"') + '</div>' : '') + '</div>';
+    html += '<div class="sit-row"><p class="label">Conditions</p><div class="choices">' +
+      opt('strict', false, 'Practice', 'You can pause') + opt('strict', true, 'Exam conditions', 'No pausing, like the real thing') + '</div>' +
+      '<div class="choices">' + opt('ai', false, 'On my own', 'No help') + opt('ai', true, 'With the help of AI', 'Ask Claude for hints in the corner') + '</div>' +
+      '<div class="seg-row"><span class="muted small">Extra time</span>' + C.seg([[0, 'None'], [10, '10%'], [25, '25%'], [50, '50%']], ui.extra, 'data-action="sit-set" data-k="extra"') + '</div></div>';
+    html += '<div class="sit-go"><div><b>' + (idx.length === 1 ? 'Question ' + esc(p.questions[idx[0]].n) : 'Questions ' + esc(p.questions[idx[0]].n) + '–' + esc(p.questions[idx[idx.length - 1]].n)) + '</b><span class="muted">' + (marks ? marks + ' marks · ' : '') + U.mins(mins) + '</span></div>' +
+      '<button type="button" class="btn lg" data-action="sit-go" data-id="' + p.id + '" data-qs="' + idx.join(',') + '" data-mins="' + mins + '">' + C.icon('play') + 'Start the clock</button></div>' +
+      '<p class="help center">Have paper, a pen and a calculator ready. At the end you can photograph your answers.</p></section>';
+    return html;
+  };
+  RH.actions['sit-set'] = function (el) {
+    const k = el.dataset.k, raw = el.dataset.v, ui = RH.ui.sit || {};
+    ui[k] = k === 'strict' || k === 'ai' ? raw === 'true' : k === 'one' ? (raw === '' ? null : Number(raw)) : k === 'mode' ? raw : Number(raw);
+    RH.ui.sit = ui; RH.render({ keepScroll: true });
+  };
+  RH.actions['sit-one'] = function (el) { RH.ui.sit = { paper: el.dataset.id, one: Number(el.dataset.i), mode: 'all', mins: 30, extra: 0, strict: false, ai: false }; return true; };
+  RH.actions['sit-go'] = function (el) {
+    const ui = RH.ui.sit || {};
+    const go = () => { C.primeAudio(); P.start(el.dataset.id, el.dataset.qs.split(',').map(Number), { mins: Number(el.dataset.mins), strict: !!ui.strict, ai: !!ui.ai }); };
+    if (st().portal.live) C.confirm('Start a new exam?', 'You have an exam in progress. Starting another ends it without saving.', 'Start new exam', go); else go();
   };
 
   function topicOpts(sid, sel) {
@@ -7340,18 +7875,19 @@ div[data-subj] > ol.lessons { background: var(--card); -webkit-backdrop-filter: 
   function elapsedOn(L, i) { return (L.timeOn[i] || 0) + (L.current === i && !L.paused ? (Date.now() - L.since) / 1000 : 0); }
   function leftSec(L) { return L.paused ? L.pausedLeft : Math.max(0, (L.endsAt - Date.now()) / 1000); }
 
-  P.start = function (paperId, single, opts) {
+  P.start = function (paperId, qIdx, opts) {
     const p = st().portal.papers[paperId];
-    const qIdx = single != null ? [Number(single)] : p.questions.map((q, i) => i);
+    if (!Array.isArray(qIdx)) qIdx = qIdx != null ? [Number(qIdx)] : p.questions.map((q, i) => i);
+    opts = opts || {};
     const marks = totals(p, qIdx).max;
     const mpm = p.marks ? p.dur / p.marks : 1.2;
-    const extra = (opts && opts.extra) || 0;
-    const dur = Math.round((single != null ? Math.max(3, Math.round((p.questions[single].marks || 5) * mpm)) : p.dur) * 60 * (1 + extra / 100));
+    const dur = Math.round((opts.mins || (qIdx.length === p.questions.length ? p.dur : Math.max(3, marks * mpm))) * 60 * (opts.mins ? 1 : 1 + (opts.extra || 0) / 100));
     store.update(function (s) {
-      s.portal.live = { paper: paperId, single: single != null ? p.questions[single].n : null, qs: qIdx, current: qIdx[0], since: Date.now(), endsAt: Date.now() + dur * 1000, dur: dur, paused: false, pausedLeft: 0,
-        strict: !!(opts && opts.strict), timeOn: {}, flags: {}, visited: {}, done: {}, notes: {}, marks: marks, warned: {}, started: Date.now() };
+      s.portal.live = { paper: paperId, single: qIdx.length === 1 ? p.questions[qIdx[0]].n : null, qs: qIdx, current: qIdx[0], since: Date.now(), endsAt: Date.now() + dur * 1000, dur: dur, paused: false, pausedLeft: 0,
+        strict: !!opts.strict, ai: !!opts.ai, timeOn: {}, flags: {}, visited: {}, done: {}, notes: {}, marks: marks, warned: {}, started: Date.now() };
       s.portal.live.visited[qIdx[0]] = 1;
     }, { silent: true });
+    RH.ui.chat = [];
     location.hash = 'exam';
     RH.render();
   };
@@ -7366,35 +7902,32 @@ div[data-subj] > ol.lessons { background: var(--card); -webkit-backdrop-filter: 
 
   RH.views.exam = function () {
     const L = live();
-    if (!L) return C.empty('No exam in progress.', 'Start one from a paper in the exam portal.', '<a class="btn" href="#papers">Exam portal</a>');
+    if (!L) return C.empty('No exam in progress.', 'Start one from the exam centre.', '<a class="btn" href="#papers">Exam centre</a>');
     const p = st().portal.papers[L.paper];
     if (!p) return C.empty('That paper was deleted.', '', '<button type="button" class="btn" data-action="exam-quit">Close exam</button>');
     const pos = L.qs.indexOf(L.current);
     const q = p.questions[L.current];
     const mpm = p.marks ? p.dur / p.marks : 1.2;
     const sugg = q.marks ? Math.round(q.marks * mpm * 60) : null;
-    let html = '<div class="exam-mode" data-subj="' + (p.subject || '') + '">' +
-      '<div class="exam-bar"><div class="eb-title"><b>' + esc(p.title) + '</b><span class="muted small">' + (L.single ? 'Practice: question ' + esc(L.single) : U.plural(L.qs.length, 'question') + ' · ' + L.marks + ' marks') + (L.strict ? ' · exam conditions' : '') + '</span></div>' +
-      '<div class="eb-clock"><span class="num big" id="ex-left">' + RH.timer.fmt(leftSec(L)) + '</span><span class="small" id="ex-pace"></span></div>' +
-      '<div class="eb-actions">' + (L.strict ? '' : '<button type="button" class="btn alt sm" data-action="exam-pause">' + C.icon(L.paused ? 'play' : 'pause') + (L.paused ? 'Resume' : 'Pause') + '</button>') +
-      '<button type="button" class="btn alt sm" data-action="exam-full" title="Full screen">' + C.icon('expand') + '</button>' +
-      '<button type="button" class="btn sm" data-action="exam-finish">' + C.icon('tick') + 'Finish</button></div></div>' +
-      '<div class="meter exam-meter"><span id="ex-meter" style="width:0%"></span></div>';
-    html += '<div class="exam-cols"><nav class="qnav" aria-label="Questions">' + L.qs.map((i) => {
-      const qq = p.questions[i];
-      const cls = (i === L.current ? ' on' : '') + (L.done[i] ? ' done' : L.visited[i] ? ' seen' : '') + (L.flags[i] ? ' flag' : '');
-      return '<button type="button" class="qchip' + cls + '" data-action="exam-go" data-i="' + i + '" aria-current="' + (i === L.current) + '"' + (qq.choice ? ' title="' + esc(choiceNote(p, qq)) + '"' : '') + '><b>Q' + esc(qq.n) + (qq.choice ? ' <span class="or">or</span>' : '') + '</b><span class="num small">' + (qq.marks == null ? '?' : qq.marks) + 'm</span></button>';
-    }).join('') + '<p class="qnav-key small muted"><span class="k done"></span>done <span class="k flag"></span>flagged <span class="k seen"></span>seen</p></nav>';
-    html += '<section class="qpane">' + (L.paused ? '<div class="paused"><b>Paused</b><p class="muted">The clock is stopped. Questions are hidden until you resume.</p><button type="button" class="btn" data-action="exam-pause">' + C.icon('play') + 'Resume</button></div>' :
-      '<div class="q-head"><h2>Question ' + esc(q.n) + '</h2><span class="muted small">' + (q.marks == null ? 'marks unknown' : U.plural(q.marks, 'mark')) + (sugg ? ' · aim for ' + RH.timer.fmt(sugg) : '') + ' · on it for <span class="num" id="ex-qtime">' + RH.timer.fmt(elapsedOn(L, L.current)) + '</span></span></div>' +
+    let html = '<div class="exam-mode" data-subj="' + (p.subject || '') + '">';
+    html += '<section class="ex-main">' + (L.paused ? '<div class="paused">' + C.icon('pause') + '<b>Paused</b><p class="muted">The clock is stopped and the question is hidden.</p><button type="button" class="btn" data-action="exam-pause">' + C.icon('play') + 'Resume</button></div>' :
+      '<div class="ex-q-head"><h1>Question ' + esc(q.n) + '</h1><span class="muted">' + (q.marks == null ? '' : U.plural(q.marks, 'mark')) + (sugg ? ' · aim for ' + U.mins(Math.round(sugg / 60)) : '') + '</span></div>' +
       (q.choice ? '<p class="note choice-note">' + C.icon('flag') + esc(choiceNote(p, q)) + '</p>' : '') +
-      '<div class="qcrop" data-qdraw="' + L.current + '" data-paper="' + p.id + '"></div>' +
-      '<div class="field"><label for="ex-notes">Working or answer notes (optional)</label><textarea id="ex-notes" data-exnote="' + L.current + '" rows="3" placeholder="Most people write on paper. Use this for quick notes, or to type answers for essay questions.">' + esc(L.notes[L.current] || '') + '</textarea></div>' +
+      '<div class="qcrop paper-sheet" data-qdraw="' + L.current + '" data-paper="' + p.id + '"></div>' +
+      '<details class="fold-lite"' + (L.notes[L.current] ? ' open' : '') + '><summary>Type working or an answer</summary><textarea id="ex-notes" data-exnote="' + L.current + '" rows="4" placeholder="Optional. Most people write on paper and photograph it at the end.">' + esc(L.notes[L.current] || '') + '</textarea></details>' +
       '<div class="q-actions"><button type="button" class="btn alt" data-action="exam-go" data-i="' + (L.qs[pos - 1] != null ? L.qs[pos - 1] : '') + '"' + (pos > 0 ? '' : ' disabled') + '>' + C.icon('left') + 'Previous</button>' +
-      '<button type="button" class="btn alt' + (L.flags[L.current] ? ' on' : '') + '" data-action="exam-flag">' + C.icon('flag') + (L.flags[L.current] ? 'Flagged' : 'Flag to come back') + '</button>' +
-      '<button type="button" class="btn alt" data-action="exam-done">' + C.icon('tick') + (L.done[L.current] ? 'Marked as done' : 'Mark as done') + '</button>' +
-      (pos < L.qs.length - 1 ? '<button type="button" class="btn" data-action="exam-go" data-i="' + L.qs[pos + 1] + '">Next' + C.icon('right') + '</button>' : '<button type="button" class="btn" data-action="exam-finish">Finish' + C.icon('tick') + '</button>') + '</div>') +
-      '</section></div><p class="muted small center keys">Keys: ← → move between questions · F flag</p></div>';
+      (pos < L.qs.length - 1 ? '<button type="button" class="btn" data-action="exam-done">' + (L.done[L.current] ? 'Next' : 'Done, next') + C.icon('right') + '</button>' : '<button type="button" class="btn" data-action="exam-finish">Finish' + C.icon('tick') + '</button>') + '</div>') + '</section>';
+    html += '<aside class="ex-side" aria-label="Exam controls"><p class="ex-title">' + esc(p.title) + '</p><div class="ex-clock"><span class="num" id="ex-left">' + RH.timer.fmt(leftSec(L)) + '</span><span class="small" id="ex-pace"></span></div><div class="meter exam-meter"><span id="ex-meter" style="width:0%"></span></div>' +
+      '<p class="label">Questions</p><nav class="qnav" aria-label="Questions">' + L.qs.map((i) => {
+        const qq = p.questions[i];
+        const cls = (i === L.current ? ' on' : '') + (L.done[i] ? ' done' : L.visited[i] ? ' seen' : '') + (L.flags[i] ? ' flag' : '');
+        return '<button type="button" class="qchip' + cls + '" data-action="exam-go" data-i="' + i + '" aria-current="' + (i === L.current) + '" title="' + (qq.marks == null ? '' : qq.marks + ' marks') + '">' + esc(qq.n) + '</button>';
+      }).join('') + '</nav>' +
+      '<div class="ex-tools"><button type="button" class="btn alt sm' + (L.flags[L.current] ? ' on' : '') + '" data-action="exam-flag">' + C.icon('flag') + (L.flags[L.current] ? 'Flagged' : 'Flag') + '</button>' +
+      (L.strict ? '' : '<button type="button" class="btn alt sm" data-action="exam-pause">' + C.icon(L.paused ? 'play' : 'pause') + (L.paused ? 'Resume' : 'Pause') + '</button>') +
+      '<button type="button" class="btn alt sm" data-action="exam-full" aria-label="Full screen">' + C.icon('expand') + '</button></div>' +
+      '<button type="button" class="btn block" data-action="exam-finish">' + C.icon('tick') + 'Finish and hand in</button>' +
+      (L.strict ? '<p class="help center">Exam conditions: no pausing.</p>' : '') + '</aside></div>';
     return html;
   };
 
@@ -7434,48 +7967,105 @@ div[data-subj] > ol.lessons { background: var(--card); -webkit-backdrop-filter: 
       if (!L) return;
       if (!L.paused) L.timeOn[L.current] = (L.timeOn[L.current] || 0) + (Date.now() - L.since) / 1000;
       const left = L.paused ? L.pausedLeft : Math.max(0, (L.endsAt - Date.now()) / 1000);
-      s.portal.marking = { paper: L.paper, single: L.single, qs: L.qs, used: Math.round(L.dur - left), dur: Math.round(L.dur / 60), timeOn: L.timeOn, notes: L.notes, scores: {}, msPage: null, current: L.qs[0], logMistakes: true };
+      s.portal.marking = { paper: L.paper, single: L.single, qs: L.qs, used: Math.round(L.dur - left), dur: Math.round(L.dur / 60), timeOn: L.timeOn, notes: L.notes, scores: {}, msPage: null, current: L.qs[0], logMistakes: true, hw: {}, ai: L.ai, fb: {} };
       s.portal.live = null;
     });
-    location.hash = 'mark';
+    location.hash = 'handin';
     RH.render();
   }
+
+  // ---------- Hand in: photos of what you wrote ----------
+  const hwKey = (K, qi, k) => 'hw:' + K.paper + ':' + K.used + ':' + qi + ':' + k;
+  const hwBlobs = {};
+  async function hwList(K, qi) {
+    const ck = K.paper + ':' + K.used + ':' + qi;
+    if (hwBlobs[ck]) return hwBlobs[ck];
+    const out = [];
+    for (let k = 0; k < ((K.hw || {})[qi] || 0); k++) { const b = await RH.files.get(hwKey(K, qi, k)); if (b) out.push(b); }
+    return (hwBlobs[ck] = out);
+  }
+  const hwThumbs = (qi) => '<div class="thumbs" data-hwthumbs="' + qi + '"></div>';
+  RH.afterRender.push(function () {
+    const K = st().portal.marking;
+    if (!K) return;
+    document.querySelectorAll('[data-hwthumbs]').forEach(function (box) {
+      const qi = box.dataset.hwthumbs;
+      hwList(K, qi).then((list) => { box.innerHTML = list.map((b, n) => '<figure class="thumb"><img src="' + C.blobURL(b) + '" alt="Your answer, photo ' + (n + 1) + '"></figure>').join(''); });
+    });
+  });
+  RH.views.handin = function () {
+    const K = st().portal.marking;
+    if (!K) return C.empty('Nothing to hand in.', '', '<a class="btn" href="#papers">Exam centre</a>');
+    const p = st().portal.papers[K.paper];
+    if (!p) return C.empty('That paper was deleted.', '', '<a class="btn" href="#papers">Exam centre</a>');
+    let html = '<section class="sit handin"' + (p.subject ? ' data-subj="' + p.subject + '"' : '') + '><header><p class="kicker">Pens down · ' + RH.timer.fmt(K.used) + ' used</p><h1>Hand in your answers</h1><p class="lede">Photograph what you wrote for each question, so you can mark it against the scheme' + (RH.ai.status() === 'absent' ? '' : ' or have Claude mark it') + '. You can skip this.</p></header>';
+    html += '<label class="drop wide">' + C.icon('camera') + '<b>Add photos for the whole sitting</b><span class="muted small">' + (K.hw.all ? U.plural(K.hw.all, 'photo') + ' added' : 'Choose or take photos') + '</span><input type="file" accept="image/*" capture="environment" multiple data-hwq="all"></label>' + hwThumbs('all');
+    html += '<ul class="hand-list">' + K.qs.map(function (i) {
+      const q = p.questions[i];
+      return '<li><span class="hl-q"><b>Q' + esc(q.n) + '</b><span class="muted small">' + (q.marks == null ? '' : U.plural(q.marks, 'mark')) + '</span></span>' + hwThumbs(i) + '<label class="btn alt sm file-btn">' + C.icon('camera') + (K.hw[i] ? U.plural(K.hw[i], 'photo') : 'Add photo') + '<input type="file" accept="image/*" capture="environment" multiple data-hwq="' + i + '"></label></li>';
+    }).join('') + '</ul>';
+    html += '<div class="sit-go"><div><b>Ready to mark?</b><span class="muted">' + U.plural(Object.keys(K.hw).reduce((a, k) => a + K.hw[k], 0), 'photo') + ' handed in</span></div><a class="btn lg" href="#mark">Go to marking' + C.icon('right') + '</a></div></section>';
+    return html;
+  };
+  RH.onChange.push(function (el) {
+    if (el.dataset.hwq == null) return false;
+    const K = st().portal.marking, qi = el.dataset.hwq, files = C.imageFiles(el);
+    if (!K || !files.length) return true;
+    (async function () {
+      const start = (K.hw || {})[qi] || 0;
+      for (let k = 0; k < files.length; k++) await RH.files.put(hwKey(K, qi, start + k), files[k]);
+      delete hwBlobs[K.paper + ':' + K.used + ':' + qi];
+      store.update(function (s) { s.portal.marking.hw = s.portal.marking.hw || {}; s.portal.marking.hw[qi] = start + files.length; });
+    })();
+    return true;
+  });
 
   // ---------- Marking ----------
   RH.views.mark = function () {
     const K = st().portal.marking;
-    if (!K) return C.empty('Nothing to mark.', '', '<a class="btn" href="#papers">Exam portal</a>');
+    if (!K) return C.empty('Nothing to mark.', '', '<a class="btn" href="#papers">Exam centre</a>');
     const p = st().portal.papers[K.paper];
-    if (!p) return C.empty('That paper was deleted.', '', '<a class="btn" href="#papers">Exam portal</a>');
+    if (!p) return C.empty('That paper was deleted.', '', '<a class="btn" href="#papers">Exam centre</a>');
     const q = p.questions[K.current];
     const tt = totals(p, K.qs, K.scores), total = tt.max, score = tt.score;
     const msPage = K.msPage != null ? K.msPage : (q.ms != null ? q.ms : 0);
     const mpm = p.marks ? p.dur / p.marks : 1.2;
-    let html = C.subnav('study', 'papers') + C.crumbs([['Past papers', 'papers'], [p.title, 'paper-' + p.id], ['Marking']]);
-    html += C.head('Marking', esc(p.title), 'Time used ' + RH.timer.fmt(K.used) + ' of ' + U.mins(K.dur) + ' · running score <b class="num">' + score + ' / ' + total + '</b>' + (total ? ' (' + U.pct(score / total) + ')' : ''),
-      '<button type="button" class="btn lg" data-action="mark-save">' + C.icon('tick') + 'Save result</button>');
-    html += '<div class="mark-nav">' + K.qs.map((i) => {
-      const qq = p.questions[i];
-      const has = K.scores[i] != null && K.scores[i] !== '';
-      return '<button type="button" class="qchip' + (i === K.current ? ' on' : '') + (has ? ' done' : '') + '" data-action="mark-go" data-i="' + i + '"><b>Q' + esc(qq.n) + '</b><span class="num small">' + (has ? K.scores[i] : '–') + '/' + (qq.marks == null ? '?' : qq.marks) + '</span></button>';
-    }).join('') + '</div>';
+    const hasAns = (K.hw && (K.hw[K.current] || K.hw.all)) || K.notes[K.current];
+    let html = C.crumbs([['Exam centre', 'papers'], [p.title, 'paper-' + p.id], ['Marking']]);
+    html += C.page({ title: 'Marking', lede: esc(p.title) + ' · <b class="num">' + score + ' / ' + total + '</b>' + (total ? ' so far' : ''), actions: '<a class="btn alt" href="#handin">' + C.icon('camera') + 'Photos</a><button type="button" class="btn" data-action="mark-save">' + C.icon('tick') + 'Save result</button>' });
+    html += '<nav class="mark-nav">' + K.qs.map((i) => {
+      const qq = p.questions[i], has = K.scores[i] != null && K.scores[i] !== '';
+      return '<button type="button" class="qchip wide' + (i === K.current ? ' on' : '') + (has ? ' done' : '') + '" data-action="mark-go" data-i="' + i + '"><b>Q' + esc(qq.n) + '</b><span class="num small">' + (has ? K.scores[i] : '–') + '/' + (qq.marks == null ? '?' : qq.marks) + '</span></button>';
+    }).join('') + '</nav>';
     const t = K.timeOn[K.current] || 0, sugg = q.marks ? q.marks * mpm * 60 : 0;
-    html += '<div class="mark-cols"><section class="card"><div class="q-head"><h2>Question ' + esc(q.n) + '</h2><span class="muted small">You spent <b class="num">' + RH.timer.fmt(t) + '</b>' + (sugg ? ' (aim ' + RH.timer.fmt(sugg) + ')' + (t > sugg * 1.3 ? ' · <span class="pace-bad">too long</span>' : '') : '') + '</span></div>' +
-      (q.choice ? '<p class="note choice-note">' + C.icon('flag') + esc(choiceNote(p, q)) + ' Only your better mark counts.</p>' : '') +
-      '<div class="qcrop" data-qdraw="' + K.current + '" data-paper="' + p.id + '"></div>' +
-      (K.notes[K.current] ? '<div class="tip"><span class="label">Your notes</span><p>' + esc(K.notes[K.current]) + '</p></div>' : '') +
-      '<div class="score-row"><label for="mk-score"><b>Marks scored</b></label><input id="mk-score" type="number" min="0" max="' + (q.marks || 200) + '" data-mscore="' + K.current + '" value="' + (K.scores[K.current] != null ? esc(K.scores[K.current]) : '') + '" inputmode="numeric"><span class="num">/ ' + (q.marks == null ? '?' : q.marks) + '</span>' +
-      '<button type="button" class="btn alt sm" data-action="mark-full" data-i="' + K.current + '">Full marks</button><button type="button" class="btn alt sm" data-action="mark-zero" data-i="' + K.current + '">0</button>' +
-      '<button type="button" class="btn sm" data-action="mark-next">Next question' + C.icon('right') + '</button></div>' +
-      '<div class="note ai-mark"><p>' + C.icon('spark') + '<b>Get this answer marked by Claude.</b> Photograph what you wrote; the question' + (p.msFile ? ' and mark scheme page are' : ' is') + ' added for you.</p><button type="button" class="btn alt sm" data-action="mark-ai" data-i="' + K.current + '">' + C.icon('check') + 'Check with AI</button></div>' +
-      '<div class="field"><label for="mk-topic">Topic this question tests</label><select id="mk-topic" data-paper="' + p.id + '" data-qt="' + K.current + '"><option value="">–</option>' + topicOpts(p.subject, q.topic) + '</select></div></section>' +
+    html += '<div class="mark-cols"><section class="card"><div class="q-head"><h2>Question ' + esc(q.n) + '</h2><span class="muted small">' + RH.timer.fmt(t) + ' spent' + (sugg && t > sugg * 1.3 ? ' · <span class="pace-bad">longer than the ' + U.mins(Math.round(sugg / 60)) + ' it’s worth</span>' : '') + '</span></div>' +
+      '<div class="qcrop paper-sheet" data-qdraw="' + K.current + '" data-paper="' + p.id + '"></div>' +
+      '<p class="label">Your answer</p>' + hwThumbs(K.current) + (K.hw && K.hw.all ? hwThumbs('all') : '') + (K.notes[K.current] ? '<div class="tip"><p>' + esc(K.notes[K.current]) + '</p></div>' : '') + (hasAns ? '' : '<p class="muted small">No photo for this question. <a href="#handin">Add one</a>, or mark from memory.</p>') +
+      (K.fb && K.fb[K.current] ? '<div class="note ok-n ai-fb">' + C.icon('spark') + '<div>' + K.fb[K.current] + '</div></div>' : '') +
+      '<div class="score-row"><label for="mk-score"><b>Marks</b></label><input id="mk-score" type="number" min="0" max="' + (q.marks || 200) + '" data-mscore="' + K.current + '" value="' + (K.scores[K.current] != null ? esc(K.scores[K.current]) : '') + '" inputmode="numeric"><span class="num">/ ' + (q.marks == null ? '?' : q.marks) + '</span>' +
+      '<button type="button" class="btn alt sm" data-action="mark-full" data-i="' + K.current + '">Full</button><button type="button" class="btn alt sm" data-action="mark-zero" data-i="' + K.current + '">0</button>' +
+      (hasAns ? '<button type="button" class="btn alt sm" data-action="mark-ai" data-i="' + K.current + '">' + C.icon('spark') + 'Mark with Claude</button>' : '') +
+      '<button type="button" class="btn sm" data-action="mark-next">Next' + C.icon('right') + '</button></div></section>' +
       '<section class="card ms-pane"><div class="card-head"><h2>Mark scheme</h2>' + (p.msFile ? '<span class="row-actions"><button type="button" class="icon-btn" data-action="ms-page" data-v="-1" aria-label="Previous page">' + C.icon('left') + '</button><span class="num small">page ' + (msPage + 1) + (p.msPagesCount ? ' / ' + p.msPagesCount : '') + '</span><button type="button" class="icon-btn" data-action="ms-page" data-v="1" aria-label="Next page">' + C.icon('right') + '</button></span>' : '') + '</div>' +
-      (p.msFile ? '<div class="qcrop" data-pagedraw="' + msPage + '" data-kind="ms" data-paper="' + p.id + '"></div>'
-        : '<p class="muted">No mark scheme added for this paper.</p><label class="btn alt file-btn">' + C.icon('upload') + 'Add the mark scheme PDF<input type="file" accept="application/pdf,.pdf" data-paperfile="ms" data-paper="' + p.id + '"></label>') + '</section></div>';
-    html += '<label class="toggle"><input type="checkbox" data-mlog="1"' + (K.logMistakes ? ' checked' : '') + '><span class="tg" aria-hidden="true"></span><span class="tg-t"><b>Add lost marks to topic mistakes logs</b><span class="help">For questions linked to a topic, a line goes into that topic\'s notes when you lose more than half the marks.</span></span></label>';
+      (p.msFile ? '<div class="qcrop paper-sheet" data-pagedraw="' + msPage + '" data-kind="ms" data-paper="' + p.id + '"></div>'
+        : '<p class="muted">No mark scheme for this paper yet.</p><label class="btn alt file-btn">' + C.icon('upload') + 'Add the mark scheme PDF<input type="file" accept="application/pdf,.pdf" data-paperfile="ms" data-paper="' + p.id + '"></label>') + '</section></div>';
+    html += '<details class="fold-lite"><summary>Options</summary><label class="toggle"><input type="checkbox" data-mlog="1"' + (K.logMistakes ? ' checked' : '') + '><span class="tg" aria-hidden="true"></span><span class="tg-t"><b>Note lost marks in the topic’s notes</b></span></label><div class="field"><label for="mk-topic">Topic this question tests</label><select id="mk-topic" data-paper="' + p.id + '" data-qt="' + K.current + '"><option value="">–</option>' + topicOpts(p.subject, q.topic) + '</select></div></details>';
     return html;
   };
 
+  // Claude marks one answer: the question, your photos or typed answer, and the mark scheme page.
+  async function aiMark(i) {
+    const K = st().portal.marking, p = st().portal.papers[K.paper], q = p.questions[i];
+    const imgs = (await P.questionImages(p.id, i)).slice(0, 2);
+    const ans = (await hwList(K, i)).concat(K.hw && K.hw.all ? await hwList(K, 'all') : []).slice(0, 3);
+    const ms = q.ms != null && p.msFile ? await P.msImage(p.id, q.ms) : null;
+    const all = imgs.concat(ans).concat(ms ? [ms] : []).slice(0, Math.max(1, RH.ai.maxImages()));
+    const subj = p.subject && M.subject[p.subject] ? M.subject[p.subject].name : 'A-level';
+    const prompt = 'You are an experienced ' + subj + ' examiner. Mark one exam answer.\n\nImages, in order: ' + imgs.length + ' of the question (question ' + q.n + (q.marks ? ', ' + q.marks + ' marks' : '') + ')' + (ans.length ? ', then ' + ans.length + ' photo(s) of the student’s handwritten answer' + (K.hw && K.hw.all ? ' (one photo may cover several questions: mark only question ' + q.n + ')' : '') : '') + (ms ? ', then the mark scheme page' : '') + '.' +
+      (K.notes[i] ? '\n\nThe student also typed: """' + K.notes[i] + '"""' : '') +
+      '\n\nAward marks strictly by the mark scheme if you have it, otherwise by standard ' + subj + ' marking. Reply with JSON only: {"score": number, "max": number, "feedback": "two or three short sentences: what earned marks and the one thing that would have got the next mark"}';
+    return RH.ai.ask(prompt, { json: true, images: all, effort: 'high' });
+  }
   function saveResult() {
     const s0 = st(), K = s0.portal.marking, p = s0.portal.papers[K.paper];
     const tt = totals(p, K.qs, K.scores), max = tt.max, score = tt.score;
@@ -7609,26 +8199,8 @@ div[data-subj] > ol.lessons { background: var(--card); -webkit-backdrop-filter: 
   });
 
   RH.actions['exam-start'] = function (el) {
-    const id = el.dataset.id, single = el.dataset.q;
-    const p = st().portal.papers[id];
-    if (st().portal.live) {
-      C.confirm('Start a new exam?', 'You have an exam in progress. Starting another ends it without saving.', 'Start new exam', () => openStart(p, single));
-      return;
-    }
-    openStart(p, single);
-  };
-  function openStart(p, single) {
-    const q = single != null ? p.questions[Number(single)] : null;
-    C.openModal(single != null ? 'Practise question ' + esc(q.n) : 'Sit ' + esc(p.title),
-      '<p>' + (single != null ? U.plural(q.marks || 0, 'mark') + '. The timer is set from the paper\'s minutes per mark.' : U.plural(p.questions.length, 'question') + (p.marks ? ', ' + p.marks + ' marks' : '') + ', ' + U.mins(p.dur) + '.') + '</p>' +
-      '<div class="field"><label for="ex-extra">Extra time</label><select id="ex-extra"><option value="0">None</option><option value="10">10%</option><option value="25">25%</option><option value="50">50%</option></select></div>' +
-      '<label class="toggle"><input type="checkbox" id="ex-strict"><span class="tg" aria-hidden="true"></span><span class="tg-t"><b>Exam conditions</b><span class="help">No pausing. Have paper, pen and calculator ready.</span></span></label>' +
-      '<div class="row-actions"><button type="button" class="btn lg" data-action="exam-go-start" data-id="' + p.id + '"' + (single != null ? ' data-q="' + single + '"' : '') + '>' + C.icon('play') + 'Start the clock</button><button type="button" class="btn alt" data-action="modal-close">Cancel</button></div>');
-  }
-  RH.actions['exam-go-start'] = function (el) {
-    const extra = Number(($('#ex-extra') || {}).value || 0), strict = !!($('#ex-strict') || {}).checked;
-    C.closeModal(); C.primeAudio();
-    P.start(el.dataset.id, el.dataset.q != null ? Number(el.dataset.q) : null, { extra: extra, strict: strict });
+    RH.ui.sit = el.dataset.q != null ? { paper: el.dataset.id, one: Number(el.dataset.q), mode: 'all', mins: 30, extra: 0, strict: false, ai: false } : null;
+    location.hash = 'sit-' + el.dataset.id;
   };
   RH.actions['exam-go'] = (el) => { if (el.dataset.i !== '') switchTo(Number(el.dataset.i)); };
   RH.actions['exam-flag'] = () => { store.update(function (s) { const L = s.portal.live; L.flags[L.current] = !L.flags[L.current]; }, { silent: true }); RH.render({ keepScroll: true }); };
@@ -7674,16 +8246,15 @@ div[data-subj] > ol.lessons { background: var(--card); -webkit-backdrop-filter: 
     RH.render({ keepScroll: true });
   };
   RH.actions['mark-save'] = saveResult;
-  RH.actions['mark-ai'] = function (el) {
-    const K = st().portal.marking, p = st().portal.papers[K.paper], i = Number(el.dataset.i), q = p.questions[i];
-    RH.ui.tabs['ck-src'] = 'paper';
-    RH.checker.prefill({ subject: p.subject || 'maths', topic: q.topic || '', marks: q.marks ? String(q.marks) : '', answer: K.notes[i] || '', source: { kind: 'paper', paper: p.id, q: i, loading: true } });
-    P.questionImages(p.id, i).then(async function (imgs) {
-      const d = RH.ui.ck; d.qImgs = imgs;
-      const ms = q.ms != null && p.msFile ? await P.msImage(p.id, q.ms) : null;
-      d.msImgs = ms ? [ms] : []; d.source.loading = false; RH.ui.ckOpenMs = !!ms;
-      RH.render({ keepScroll: true });
-    }).catch((e) => C.toast(e.message));
+  RH.actions['mark-ai'] = async function (el) {
+    const i = Number(el.dataset.i);
+    el.disabled = true; el.innerHTML = C.icon('spark') + 'Marking…';
+    try {
+      const r = await aiMark(i);
+      const q = st().portal.papers[st().portal.marking.paper].questions[i];
+      const sc = Math.max(0, Math.min(q.marks || r.max || 99, Math.round(Number(r.score) || 0)));
+      store.update(function (s) { const K = s.portal.marking; K.scores[i] = String(sc); K.fb = K.fb || {}; K.fb[i] = '<b>Claude: ' + sc + '/' + (q.marks || r.max) + '.</b> ' + esc(String(r.feedback || '')); });
+    } catch (e) { C.toast(RH.ai.errorText(e)); RH.render({ keepScroll: true }); }
   };
   RH.actions['q-preview'] = function (el) {
     const p = st().portal.papers[el.dataset.id], i = Number(el.dataset.i);
@@ -7710,6 +8281,83 @@ div[data-subj] > ol.lessons { background: var(--card); -webkit-backdrop-filter: 
   RH.actions['attempt-del'] = function (el) {
     C.confirm('Delete this result?', 'It will be removed from your results.', 'Delete', () => store.update(function (s) { s.portal.attempts = s.portal.attempts.filter((a) => a.id !== el.dataset.id); }));
   };
+
+  // ---------- Practise a lesson's question pack ----------
+  // PMT packs can be fetched straight into the exam centre. Anything else (and anything inside claude.ai, which
+  // blocks downloads from other sites) is opened in a new tab for you to download and drop back in.
+  function packOpts(el) {
+    const t = M.topic[el.dataset.topic];
+    return { title: (t ? M.title(t.name) : 'Topic') + ': exam questions', subject: t ? t.subject.id : '', topic: el.dataset.topic || '', src: el.dataset.u };
+  }
+  async function importPack(file, o) {
+    const paper = await P.analyse(file, null, o);
+    C.closeModal();
+    C.toast('Added ' + U.plural(paper.questions.length, 'question') + (paper.msFile ? ' with the mark scheme' : ''));
+    RH.ui.sit = null;
+    location.hash = 'sit-' + paper.id;
+  }
+  RH.actions['pack-practise'] = async function (el) {
+    const o = packOpts(el), have = papers().find((p) => p.src && p.src === o.src);
+    if (have) { location.hash = 'sit-' + have.id; return; }
+    const pdf = /\.pdf(\?|#|$)/i.test(o.src);
+    if (pdf && !RH.ai.inClaude) {
+      C.openModal('Getting the questions', '<p class="muted">Downloading the PDF and splitting it into questions…</p>');
+      try {
+        const r = await fetch(o.src);
+        if (r.ok) { const b = await r.blob(); await importPack(new File([b], 'questions.pdf', { type: 'application/pdf' }), o); return; }
+      } catch (e) { /* fall back to downloading it yourself */ }
+    }
+    C.openModal('Bring it into the exam centre', '<ol class="pack-steps"><li><b>Open the questions and download the PDF.</b>' + (pdf ? '' : ' On the page, pick this topic’s question paper.') + '<a class="btn alt" href="' + esc(o.src) + '" target="_blank" rel="noopener">' + C.icon('ext') + 'Open the questions</a></li>' +
+      '<li><b>Drop the PDF here.</b><label class="drop">' + C.icon('upload') + '<span>Choose the downloaded file</span><input type="file" accept="application/pdf,.pdf" data-packfile="1" data-u="' + esc(o.src) + '" data-topic="' + esc(o.topic) + '"></label></li></ol><p class="help" id="pack-status">It’s split into questions, with the mark scheme if it’s in the file.</p>');
+  };
+  RH.onChange.push(function (el) {
+    if (!el.dataset.packfile) return false;
+    const f = el.files && el.files[0];
+    if (!f) return true;
+    const stEl = document.getElementById('pack-status'); if (stEl) stEl.textContent = 'Reading the PDF…';
+    importPack(f, packOpts(el)).catch((e) => { if (stEl) stEl.textContent = 'That file could not be read: ' + (e && e.message || 'unknown error'); });
+    return true;
+  });
+
+  // ---------- Claude in the corner (only when "With the help of AI" was chosen) ----------
+  const dock = document.createElement('div');
+  dock.id = 'aiDock'; dock.className = 'ai-dock'; dock.hidden = true;
+  document.body.appendChild(dock);
+  const chat = () => (RH.ui.chat = RH.ui.chat || []);
+  const fmtMsg = (t) => esc(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+  function paintDock() {
+    const L = live(), on = !!(L && L.ai && location.hash === '#exam' && !L.paused);
+    dock.hidden = !on;
+    if (!on) return;
+    const p = st().portal.papers[L.paper], q = p && p.questions[L.current];
+    if (!RH.ui.chatOpen) { dock.innerHTML = '<button type="button" class="ai-fab" data-action="chat-toggle">' + C.icon('spark') + '<span>Ask Claude</span></button>'; return; }
+    dock.innerHTML = '<section class="ai-panel" aria-label="Claude"><header><span class="ai-av">' + C.icon('spark') + '</span><span><b>Claude</b><span>Hints for question ' + esc(q ? q.n : '') + '</span></span><button type="button" class="icon-btn" data-action="chat-toggle" aria-label="Close">' + C.icon('x') + '</button></header>' +
+      '<div class="ai-msgs" id="aiMsgs">' + (chat().length ? chat().map((m) => '<div class="msg ' + (m.role === 'user' ? 'me' : 'ai') + '">' + fmtMsg(m.content || '…') + '</div>').join('') : '<p class="ai-hello">Stuck? Ask for a hint, an explanation of the idea, or a check of your method. Claude can see the question.</p>') + '</div>' +
+      '<div class="ai-quick">' + ['Give me a hint', 'Explain the idea', 'Is my method right?'].map((x) => '<button type="button" class="chip" data-action="chat-quick" data-v="' + x + '">' + x + '</button>').join('') + '</div>' +
+      '<form class="ai-form" id="aiChatForm"><input id="aiIn" autocomplete="off" placeholder="Ask about this question" aria-label="Message Claude"><button type="submit" class="btn sm" aria-label="Send">' + C.icon('send') + '</button></form></section>';
+    const box = document.getElementById('aiMsgs'); if (box) box.scrollTop = box.scrollHeight;
+  }
+  RH.afterRender.push(paintDock);
+  window.addEventListener('hashchange', paintDock);
+  async function send(text) {
+    const L = live(); if (!L || !text.trim()) return;
+    const p = st().portal.papers[L.paper], q = p.questions[L.current];
+    const msgs = chat();
+    msgs.push({ role: 'user', content: text.trim() });
+    const reply = { role: 'assistant', content: '' };
+    msgs.push(reply); paintDock();
+    const intro = 'You are a friendly A-level ' + (p.subject && M.subject[p.subject] ? M.subject[p.subject].name : '') + ' tutor helping a student during a timed practice question (question ' + q.n + (q.marks ? ', ' + q.marks + ' marks' : '') + ', shown in the image). Give hints and explain ideas briefly. Do not write out the full answer unless the student asks for it. Keep replies under 120 words.\n\n';
+    const turns = msgs.slice(0, -1).map((m, k) => ({ role: m.role, content: (k === 0 ? intro : '') + m.content }));
+    try {
+      const imgs = await P.questionImages(p.id, L.current).catch(() => []);
+      const out = await RH.ai.ask(turns, { images: imgs.slice(0, Math.max(0, RH.ai.maxImages())), effort: 'low', onText: (x) => { reply.content = x.text; const b = document.getElementById('aiMsgs'); if (b && b.lastElementChild) { b.lastElementChild.innerHTML = fmtMsg(x.text); b.scrollTop = b.scrollHeight; } } });
+      reply.content = out || reply.content;
+    } catch (e) { reply.content = RH.ai.errorText(e); }
+    paintDock();
+  }
+  RH.actions['chat-toggle'] = () => { RH.ui.chatOpen = !RH.ui.chatOpen; paintDock(); const i = document.getElementById('aiIn'); if (i) i.focus(); };
+  RH.actions['chat-quick'] = (el) => send(el.dataset.v);
+  RH.onSubmit.aiChatForm = function () { const i = document.getElementById('aiIn'); const v = i ? i.value : ''; if (i) i.value = ''; send(v); };
 
   P.key = function (ev) {
     if (location.hash !== '#exam' || C.modalOpen() || /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) return false;
@@ -8007,7 +8655,7 @@ div[data-subj] > ol.lessons { background: var(--card); -webkit-backdrop-filter: 
   // ---------- Pages ----------
   RH.views.check = function () {
     let html = C.subnav('check', 'check');
-    html += C.page({ eyebrow: 'Practise', title: 'Check an answer', lede: 'Get an exam answer marked like an Edexcel examiner would, then see exactly how to reach full marks.' });
+    html += C.page({ title: 'Check an answer', lede: 'Claude marks it like an examiner and shows how to get full marks.' });
     html += '<div class="ck">' + form() + '<div class="ck-side">' + running() + recentList(4) + howItWorks() + '</div></div>';
     return html;
   };
@@ -8026,7 +8674,7 @@ div[data-subj] > ol.lessons { background: var(--card); -webkit-backdrop-filter: 
   }
   RH.views.checks = function () {
     const list = st().checks;
-    let html = C.subnav('check', 'checks') + C.page({ eyebrow: 'Practise', title: 'Marked answers', lede: list.length ? U.plural(list.length, 'answer') + ' checked' : '' });
+    let html = C.subnav('check', 'checks') + C.page({ title: 'Marked answers', lede: list.length ? U.plural(list.length, 'answer') + ' checked' : '' });
     if (!list.length) return html + C.empty('No answers checked yet.', 'Mark your first answer and it appears here.', '<a class="btn" href="#check">Check an answer</a>');
     const bySubj = {};
     list.forEach((c) => { (bySubj[c.subject] = bySubj[c.subject] || []).push(c); });
@@ -8306,21 +8954,47 @@ div[data-subj] > ol.lessons { background: var(--card); -webkit-backdrop-filter: 
     const mine = LB.GROUPS.filter((g) => M.isMine(M.subject[g[0]] || { id: g[0] })), rest = LB.GROUPS.filter((g) => mine.indexOf(g) < 0);
     return { mine: mine, rest: rest, all: mine.concat(rest) };
   };
-  const card = function (d) {
-    const t = subjOf(d.topics[0]);
-    return '<a class="lab-card" href="#lab-' + d.id + '" data-subj="' + LB.subjectOf(d) + '"><span class="lab-ic" aria-hidden="true">' + (d.icon || '') + '</span><span class="lab-ct"><b>' + esc(d.name) + '</b><span class="muted small">' + esc(d.blurb) + '</span>' + (t ? '<span class="small lab-topic">' + esc(M.lessonNum(RH.store.state, t) + ' ' + M.title(t.name)) + '</span>' : '') + '</span></a>';
-  };
+  // The Labs page: one shelf per subject, each lab a cover showing a snapshot of the lab itself.
+  const card = (d) => '<a class="lab-cover" href="#lab-' + d.id + '" data-subj="' + LB.subjectOf(d) + '"><span class="lc-art"><canvas data-labthumb="' + d.id + '" aria-hidden="true"></canvas></span><b>' + esc(d.name) + '</b></a>';
   V.labs = function () {
     const gs = LB.groups();
-    let html = V.docHead('Labs', 'Labs', LB.defs.length + ' interactive experiments, simulations and diagrams. Move a slider and see the result straight away. Your subjects come first.');
+    let html = '<header class="page-h"><div><h1>The Labs</h1><p class="lede">Pick a lab and move the sliders.</p></div></header>';
     gs.all.forEach(function (g, i) {
       const list = LB.defs.filter((d) => LB.subjectOf(d) === g[0]);
       if (!list.length) return;
-      if (i === gs.mine.length && gs.mine.length && gs.rest.length) html += '<h2 class="lab-more-h">Labs for other subjects</h2>';
-      html += '<section class="lab-group" data-subj="' + g[0] + '" id="labs-' + g[0] + '"><div class="sec-head"><h2>' + g[1] + '</h2><span class="label">' + list.length + ' ' + (g[0] === 'economics' ? 'diagrams' : 'labs') + '</span></div><p class="muted">' + g[2] + '</p><div class="lab-cards">' + list.map(card).join('') + '</div></section>';
+      if (i === gs.mine.length && gs.mine.length && gs.rest.length) html += '<h2 class="lab-more-h">Other subjects</h2>';
+      html += '<section class="lab-shelf" data-subj="' + g[0] + '" id="labs-' + g[0] + '"><h2>' + g[1] + '</h2><div class="lab-row">' + list.map(card).join('') + '</div><div class="lab-plank" aria-hidden="true"></div></section>';
     });
     return html;
   };
+  // Draw each cover by running the lab for a moment off-screen.
+  const thumbs = {};
+  function thumb(id) {
+    if (thumbs[id]) return thumbs[id];
+    const d = LB.byId[id], W = 360, H = 270, c = document.createElement('canvas');
+    c.width = W * 2; c.height = H * 2;
+    const g = c.getContext('2d'); g.setTransform(2, 0, 0, 2, 0, 0);
+    try {
+      const p = defaults(d), inst = d.create(p);
+      if (inst.reset) inst.reset(p);
+      (d.actions || []).filter((a) => a.primary).slice(0, 1).forEach((a) => { if (inst.action) inst.action(a.id, p); });
+      for (let i = 0; i < 90; i++) inst.step(0.02, p);
+      inst.draw(g, W, H, p, LB.theme());
+    } catch (e) { g.fillStyle = '#ddd'; g.fillRect(0, 0, W, H); }
+    return (thumbs[id] = c.toDataURL('image/png'));
+  }
+  RH.afterRender.push(function (r) {
+    if (r !== 'labs') return;
+    const list = Array.prototype.slice.call(document.querySelectorAll('canvas[data-labthumb]'));
+    let i = 0;
+    (function next() {
+      const el = list[i++];
+      if (!el || !document.body.contains(el)) return;
+      const img = new Image(); img.alt = ''; img.src = thumb(el.dataset.labthumb);
+      el.replaceWith(img);
+      setTimeout(next, 0);
+    })();
+  });
   function control(c, p) {
     const hid = c.when && !c.when(p) ? ' hidden' : '';
     if (c.type === 'toggle') return '<div class="lc lc-t" data-lc="' + c.k + '"' + hid + '>' + C.toggle('data-lk="' + c.k + '"', c.label, p[c.k], c.help) + '</div>';
@@ -11821,7 +12495,7 @@ div[data-subj] > ol.lessons { background: var(--card); -webkit-backdrop-filter: 
       : sync === 'cloud-full' ? 'Saved in this browser. Some data is too big to sync, so export a backup regularly.'
       : sync === 'cloud-error' ? 'Saved in this browser. Syncing failed this time and will retry on your next change.'
       : 'Saved in this browser on this device. Export a backup to move it to another device.';
-    let html = C.page({ title: 'Settings', lede: 'Your account, Claude, Further Maths options and backups.' });
+    let html = C.page({ title: 'Settings' });
     const AC = RH.account || {}, me = AC.me;
     const pic = me && me.avatarUrl && me.name ? '<img src="' + esc(me.avatarUrl) + '" alt="">' : esc((s.profile.name || '?').charAt(0).toUpperCase());
     html += '<section class="card acct-card"><div class="acct-row"><span class="av lg">' + pic + '</span><span class="acct-t"><b>' + esc(s.profile.name || (me && me.name) || 'Your account') + '</b><span>' +
@@ -11909,13 +12583,14 @@ div[data-subj] > ol.lessons { background: var(--card); -webkit-backdrop-filter: 
 
   function pageFor(r) {
     const pre = (p) => r.indexOf(p) === 0 ? r.slice(p.length) : null;
-    const simple = { home: V.home, study: V.study, plan: V.plan, deliverables: V.deliverables, routine: V.routine, exams: V.exams, strategy: V.strategy, check: V.check, checks: V.checks, focus: V.focus, cards: V.cards, review: V.review, papers: V.papers, exam: V.exam, mark: V.mark, library: V.library, guide: V.guide, preferences: V.prefs, labs: V.labs, subjects: V.subjectsList, welcome: V.welcome, setup: V.setup };
+    const simple = { home: V.home, study: V.study, plan: V.plan, deliverables: V.deliverables, routine: V.routine, exams: V.exams, strategy: V.strategy, check: V.check, checks: V.checks, focus: V.focus, cards: V.cards, review: V.review, papers: V.papers, exam: V.exam, mark: V.mark, library: V.library, guide: V.guide, preferences: V.prefs, labs: V.labs, handin: V.handin, subjects: V.subjectsList, welcome: V.welcome, setup: V.setup };
     if (simple[r]) return simple[r]();
     let x;
     if ((x = pre('s-')) !== null) return V.subject(x);
     if ((x = pre('c-')) !== null) return V.section(x);
     if ((x = pre('t-')) !== null) return V.topic(x);
     if ((x = pre('paper-')) !== null) return V.paper(x);
+    if ((x = pre('sit-')) !== null) return V.sit(x);
     if ((x = pre('deck-')) !== null) return V.deck(x);
     if ((x = pre('check-')) !== null) return V.checkOne(x);
     if ((x = pre('lab-')) !== null) return V.lab(x);
@@ -11926,7 +12601,7 @@ div[data-subj] > ol.lessons { background: var(--card); -webkit-backdrop-filter: 
     const t = r.indexOf('t-') === 0 && M.topic[r.slice(2)];
     const c = r.indexOf('c-') === 0 && M.comp[r.slice(2)];
     const s = r.indexOf('s-') === 0 && M.subject[r.slice(2)];
-    const names = { study: 'My Subjects', subjects: 'Choose subjects', plan: 'This week', deliverables: 'Weekly tasks', routine: 'My schedule', exams: 'Exams', strategy: 'Strategy', check: 'Check an answer', checks: 'Checked answers', focus: 'Focus', papers: 'Past papers', exam: 'Exam in progress', mark: 'Marking', cards: 'Flashcards', review: 'Reviewing cards', library: 'Resources', guide: 'How to revise', preferences: 'Settings', labs: 'The Labs', welcome: 'Sign in', setup: 'Set up' };
+    const names = { study: 'My Subjects', subjects: 'Choose subjects', plan: 'This week', deliverables: 'Weekly tasks', routine: 'My schedule', exams: 'Exams', strategy: 'Strategy', check: 'Check an answer', checks: 'Checked answers', focus: 'Focus', papers: 'Exam centre', exam: 'Exam in progress', mark: 'Marking', handin: 'Hand in', cards: 'Flashcards', review: 'Reviewing cards', library: 'Resources', guide: 'How to revise', preferences: 'Settings', labs: 'The Labs', welcome: 'Sign in', setup: 'Set up' };
     const lab = r.indexOf('lab-') === 0 && RH.labs.byId[r.slice(4)];
     const name = t ? t.name : c ? c.name : s ? s.name : lab ? lab.name : names[r];
     return (name ? name + ' · ' : '') + 'Preppr';
@@ -11950,7 +12625,7 @@ div[data-subj] > ol.lessons { background: var(--card); -webkit-backdrop-filter: 
     const active = document.activeElement;
     const focusId = active && active.id && view.contains(active) ? active.id : null;
     const bare = r === 'welcome' || r === 'setup';
-    view.innerHTML = (bare ? '' : V.subnav(r)) + html;
+    view.innerHTML = (bare || r === 'exam' || r === 'review' ? '' : V.subnav(r)) + html;
     document.body.classList.toggle('bare', bare);
     $('#nav').innerHTML = V.nav(r);
     $('#acct').innerHTML = V.acct();

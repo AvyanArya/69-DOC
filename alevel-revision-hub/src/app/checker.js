@@ -281,7 +281,7 @@
   // ---------- Pages ----------
   RH.views.check = function () {
     let html = C.subnav('check', 'check');
-    html += C.page({ eyebrow: 'Practise', title: 'Check an answer', lede: 'Get an exam answer marked like an Edexcel examiner would, then see exactly how to reach full marks.' });
+    html += C.page({ title: 'Check an answer', lede: 'Claude marks it like an examiner and shows how to get full marks.' });
     html += '<div class="ck">' + form() + '<div class="ck-side">' + running() + recentList(4) + howItWorks() + '</div></div>';
     return html;
   };
@@ -300,7 +300,7 @@
   }
   RH.views.checks = function () {
     const list = st().checks;
-    let html = C.subnav('check', 'checks') + C.page({ eyebrow: 'Practise', title: 'Marked answers', lede: list.length ? U.plural(list.length, 'answer') + ' checked' : '' });
+    let html = C.subnav('check', 'checks') + C.page({ title: 'Marked answers', lede: list.length ? U.plural(list.length, 'answer') + ' checked' : '' });
     if (!list.length) return html + C.empty('No answers checked yet.', 'Mark your first answer and it appears here.', '<a class="btn" href="#check">Check an answer</a>');
     const bySubj = {};
     list.forEach((c) => { (bySubj[c.subject] = bySubj[c.subject] || []).push(c); });

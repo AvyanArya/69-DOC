@@ -104,7 +104,7 @@
     learn: { label: 'My Subjects', short: 'Subjects', icon: 'book', href: 'study', pages: [['study', 'Bookshelf'], ['subjects', 'Choose subjects'], ['guide', 'How to revise'], ['library', 'Resources']] },
     labs: { label: 'The Labs', short: 'Labs', icon: 'flask', href: 'labs', pages: [] },
     plan: { label: 'Planner', icon: 'plan', href: 'plan', pages: [['plan', 'This week'], ['routine', 'My schedule'], ['deliverables', 'Weekly tasks'], ['exams', 'Exams'], ['strategy', 'Strategy']] },
-    practise: { label: 'Practise', icon: 'pen', href: 'papers', pages: [['papers', 'Past papers'], ['check', 'Check an answer'], ['checks', 'Marked answers'], ['cards', 'Flashcards']] },
+    practise: { label: 'Practise', icon: 'pen', href: 'papers', pages: [['papers', 'Exam centre'], ['cards', 'Flashcards'], ['check', 'Check an answer'], ['checks', 'Marked answers']] },
     focus: { label: 'Focus', icon: 'clock', href: 'focus', pages: [] }
   };
   // Area menus are drawn once by the page frame (see views.js), so pages no longer add their own.
