@@ -65,6 +65,11 @@ export default function App() {
         </div>
       </header>
       <TickerStrip indices={briefing.data?.indices} />
+      {status.data?.preview && (
+        <div className="container" style={{ paddingTop: 14 }}>
+          <div className="notice info"><Icon name="info" /><div><b>Offline preview.</b> Real market data captured {new Date(status.data.generatedAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}. Prices are frozen, search covers the {Object.keys(window.__ALPHADESK_SNAPSHOT__.stocks).length} tickers in the snapshot, and the AI agent is off. Run the full app for live data.</div></div>
+        </div>
+      )}
       {status.data?.demo && (
         <div className="container" style={{ paddingTop: 14 }}>
           <div className="notice warn"><Icon name="info" /><div><b>Demo data.</b> DEMO_DATA is on, so all prices are randomly generated samples. Turn it off to see the real market.</div></div>

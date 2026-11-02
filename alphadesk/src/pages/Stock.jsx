@@ -179,7 +179,7 @@ function ChartCard({ d }) {
           <Change value={change} className="bold small" />
         </div>
         <div className="chip-group">
-          {RANGES.map(([l, days]) => <button key={l} className={range === days ? 'active' : ''} onClick={() => setRange(days)}>{l}</button>)}
+          {RANGES.filter(([, days], i) => i === 0 || RANGES[i - 1][1] < c.c.length).map(([l, days]) => <button key={l} className={range === days ? 'active' : ''} onClick={() => setRange(days)}>{l}</button>)}
         </div>
       </div>
       <PriceChart t={view.t} c={view.c} overlays={overlays} levels={levels} height={320} />

@@ -16,6 +16,18 @@ Everything except the AI works with **no API keys**. Market data comes from Yaho
 
 ---
 
+## Just want to see it? Open `preview.html`
+
+[`preview.html`](preview.html) is a single self-contained file. **Double-click it and it opens in your
+browser.** No install, no terminal, no internet needed. It contains the whole app plus a snapshot of real
+market data (about 100 tickers: the top-ranked stocks, every sector and theme ETF, and all commodities),
+so you can click through every page: today's pick, stock pages, sectors, game plans and the portfolio tracker.
+
+The preview's prices are frozen at the moment it was built, search only covers the tickers in the
+snapshot, and the AI agent is off. To regenerate it with today's data, run `npm run build:preview`.
+
+---
+
 ## Run it (2 minutes)
 
 You need [Node.js 18+](https://nodejs.org).
@@ -89,7 +101,8 @@ alphadesk/
   api/[...path].js  Vercel serverless entry
   server.js       production server (npm start)
   src/            React app (Today, Stock, Sectors & Commodities, Game Plan, Portfolio, Ask AI)
-  scripts/smoke-test.js   npm run check - exercises every API route
+  scripts/smoke-test.js     npm run check - exercises every API route
+  scripts/build-preview.js  npm run build:preview - writes the offline preview.html
 ```
 
 **Customise the watchlist:** add tickers to `STOCKS` in `lib/universe.js`.

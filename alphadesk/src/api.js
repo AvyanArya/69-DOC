@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { SNAPSHOT, snapshotApi } from './snapshot.js';
 
 export async function api(path, { method = 'GET', body } = {}) {
+  if (SNAPSHOT) return snapshotApi(path, method);
   const res = await fetch(path, {
     method,
     headers: body ? { 'Content-Type': 'application/json' } : undefined,
