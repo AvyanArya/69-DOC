@@ -6,7 +6,7 @@ swift test                  # all core tests (Linux or macOS); end-to-end tests 
 swift test --filter EndToEndHTTPTests
 ```
 
-## Automated tests (`Tests/NotchPilotCoreTests`, 83 tests)
+## Automated tests (`Tests/NotchPilotCoreTests`, 86 tests)
 
 | Suite | What it covers |
 |---|---|

@@ -636,6 +636,10 @@ struct AppearanceSettingsPane: View {
                     Slider(value: model.binding(\.appearance.expandedHeight), in: 340...620, step: 20)
                 }
                 Toggle("Show timer, music and agent status beside the notch", isOn: model.binding(\.appearance.showLiveActivities))
+                Toggle(isOn: model.binding(\.appearance.idleGlow)) {
+                    Text("Glow around the notch")
+                    Text("A ring of colour shows NotchPilot is there. Turn it off to save a little battery.")
+                }
             }
             Section("Displays") {
                 Picker("Show on", selection: model.binding(\.appearance.display)) {

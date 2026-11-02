@@ -640,6 +640,12 @@ struct ComposerView: View {
                     .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(palette.surface))
                     .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(focused ? palette.accent.opacity(0.7) : palette.stroke, lineWidth: 1))
                     .accessibilityLabel("Message")
+                    .overlay(alignment: .trailing) {
+                        if let result = QuickMath.evaluate(model.composerText) {
+                            QuickMathResult(value: result)
+                                .padding(.trailing, 8)
+                        }
+                    }
                 ModeMenu(model: model)
                 if running {
                     IconButton(symbol: "stop.circle.fill", help: "Stop (⌘.)", size: 18, tint: palette.danger) { model.stop() }
@@ -655,6 +661,34 @@ struct ComposerView: View {
 
     private var canSend: Bool {
         model.isProviderConfigured && (!model.composerText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || !model.pendingAttachments.isEmpty)
+    }
+}
+
+/// The answer to a sum typed into the message box, shown as you type.
+/// Click to copy it; nothing is sent anywhere.
+struct QuickMathResult: View {
+    let value: Double
+    @Environment(\.palette) private var palette
+    @State private var copied = false
+
+    var body: some View {
+        let text = QuickMath.format(value)
+        Button {
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.setString(text, forType: .string)
+            copied = true
+        } label: {
+            Text(copied ? "Copied" : "= \(text)")
+                .font(.system(size: 12, weight: .semibold))
+                .monospacedDigit()
+                .foregroundStyle(palette.accent)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 3)
+                .background(Capsule().fill(palette.accent.opacity(0.12)))
+        }
+        .buttonStyle(.plain)
+        .help("Copy the result")
+        .onChange(of: value) { _, _ in copied = false }
     }
 }
 

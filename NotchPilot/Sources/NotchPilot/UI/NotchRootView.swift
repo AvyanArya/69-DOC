@@ -1,5 +1,6 @@
 import NotchPilotCore
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// The island: black when collapsed (merging with the camera housing),
 /// expanding with a spring into the full panel.
@@ -23,6 +24,10 @@ struct NotchRootView: View {
         )
         VStack(spacing: 0) {
             ZStack(alignment: .top) {
+                if !expanded && model.settings.appearance.idleGlow {
+                    EdgeGlow(shape: shape, intense: model.liveActivity == .working || model.isDropTargeted, reduceMotion: model.reduceMotion)
+                        .transition(.opacity)
+                }
                 shape
                     .fill(expanded ? palette.background : Color.black)
                     .shadow(color: .black.opacity(expanded ? 0.5 : 0), radius: 16, y: 6)
@@ -39,6 +44,9 @@ struct NotchRootView: View {
                 .clipShape(shape)
             }
             .frame(width: size.width, height: size.height)
+            .onDrop(of: [.fileURL, .plainText], isTargeted: $model.isDropTargeted) { providers in
+                model.acceptDrop(providers)
+            }
             .overlay(alignment: .bottom) {
                 if expanded, let toast = model.toast {
                     ToastView(text: toast)
@@ -53,6 +61,7 @@ struct NotchRootView: View {
         .environment(\.colorScheme, palette.isDark ? .dark : .light)
         .animation(model.animation, value: model.shapeSize)
         .animation(model.animation, value: model.liveActivity)
+        .animation(model.animation, value: model.isDropTargeted)
     }
 }
 
@@ -86,7 +95,11 @@ struct CollapsedView: View {
                         .padding(.leading, 12)
                 }
                 Spacer(minLength: 0)
-                if !model.notch.hasNotch && model.liveActivity == .none {
+                if model.isDropTargeted {
+                    Label("Drop to attach", systemImage: "tray.and.arrow.down.fill")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(.white)
+                } else if !model.notch.hasNotch && model.liveActivity == .none {
                     AssistantGlyph(size: 14, reduceMotion: model.reduceMotion)
                 }
                 Spacer(minLength: 0)

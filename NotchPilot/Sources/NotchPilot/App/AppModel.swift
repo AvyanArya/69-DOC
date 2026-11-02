@@ -3,6 +3,7 @@ import NotchPilotCore
 import Observation
 import ServiceManagement
 import SwiftUI
+import UniformTypeIdentifiers
 
 enum PanelTab: String, CaseIterable, Identifiable {
     case assistant, today, tasks, notes, activity
@@ -109,6 +110,8 @@ final class AppModel {
     var showingHistory = false
     var composerText = ""
     var pendingAttachments: [DocumentAttachment] = []
+    /// A file or text is being dragged over the island.
+    var isDropTargeted = false
     var composerFocusRequest = 0
     var isComposerFocused = false
     var isModalOpen = false
@@ -246,7 +249,10 @@ final class AppModel {
         var width = notch.size.width
         var height = notch.size.height
         if liveActivity != .none { width += NotchLayout.wing * 2 }
-        if isPeeking {
+        if isDropTargeted {
+            width = max(width, 300)
+            height += 34
+        } else if isPeeking {
             width += NotchLayout.peekGrowth.width
             height += NotchLayout.peekGrowth.height
         }
@@ -406,6 +412,46 @@ final class AppModel {
                 showToast(error.localizedDescription)
             }
         }
+        expand(focusComposer: true, tab: .assistant)
+    }
+
+    /// Files or text dropped on the island become attachments for the next message.
+    func acceptDrop(_ providers: [NSItemProvider]) -> Bool {
+        var accepted = false
+        for provider in providers {
+            if provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
+                accepted = true
+                _ = provider.loadObject(ofClass: URL.self) { url, _ in
+                    guard let url else { return }
+                    Task { @MainActor [weak self] in self?.attachDropped(url) }
+                }
+            } else if provider.canLoadObject(ofClass: String.self) {
+                accepted = true
+                _ = provider.loadObject(ofClass: String.self) { text, _ in
+                    guard let text, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+                    Task { @MainActor [weak self] in self?.attachDroppedText(text) }
+                }
+            }
+        }
+        return accepted
+    }
+
+    private func attachDropped(_ url: URL) {
+        do {
+            let attachment = try DocumentImporter.load(url)
+            pendingAttachments.append(attachment)
+            if attachment.isTruncated {
+                showToast("\(attachment.fileName) is long; only the first \(DocumentImporter.maximumCharacters / 1000)k characters are available.")
+            }
+        } catch {
+            showToast(error.localizedDescription)
+        }
+        expand(focusComposer: true, tab: .assistant)
+    }
+
+    private func attachDroppedText(_ text: String) {
+        let clean = String(text.prefix(DocumentImporter.maximumCharacters))
+        pendingAttachments.append(DocumentAttachment(fileName: "Dropped text", text: clean, totalCharacters: text.count))
         expand(focusComposer: true, tab: .assistant)
     }
 

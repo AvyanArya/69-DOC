@@ -198,6 +198,44 @@ struct AssistantGlyph: View {
     }
 }
 
+/// A soft ring of colour that slowly turns around the collapsed island, so
+/// it's clear NotchPilot is there. Brighter while the agent works or a file
+/// is dragged over it; still (not turning) with Reduce Motion.
+struct EdgeGlow: View {
+    let shape: NotchShape
+    var intense = false
+    var reduceMotion = false
+    @State private var angle = 0.0
+
+    private static let colors: [Color] = [
+        Color(red: 0.03, green: 0.58, blue: 1.0),
+        Color(red: 0.79, green: 0.35, blue: 0.87),
+        Color(red: 1.0, green: 0.18, blue: 0.33),
+        Color(red: 1.0, green: 0.56, blue: 0.02),
+        Color(red: 0.03, green: 0.58, blue: 1.0),
+    ]
+
+    var body: some View {
+        let gradient = AngularGradient(colors: Self.colors, center: .center, angle: .degrees(angle))
+        ZStack {
+            shape.fill(gradient).blur(radius: intense ? 12 : 8).opacity(intense ? 0.95 : 0.7)
+            shape.stroke(gradient, lineWidth: 2)
+        }
+        .padding(-3)
+        // The top edge meets the top of the screen; only the sides and bottom glow.
+        .mask(VStack(spacing: 0) { Color.clear.frame(height: 3); Color.black })
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+        .onAppear { turn() }
+        .onChange(of: reduceMotion) { _, _ in turn() }
+    }
+
+    private func turn() {
+        guard !reduceMotion else { angle = 0; return }
+        withAnimation(.linear(duration: 8).repeatForever(autoreverses: false)) { angle = 360 }
+    }
+}
+
 // MARK: - Markdown
 
 /// Renders the Markdown subset assistants use (paragraphs, lists, headings,

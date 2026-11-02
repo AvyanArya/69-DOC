@@ -10,7 +10,7 @@ Native Swift, SwiftUI and AppKit. No Electron, no web views, no private APIs.
 
 | Area | State |
 |---|---|
-| Core: agent loop, providers, 40 tools, permissions, persistence, timer | ✅ Built and tested — 83 automated tests pass on Linux and on macOS in GitHub Actions |
+| Core: agent loop, providers, 40 tools, permissions, persistence, timer | ✅ Built and tested — 86 automated tests pass on Linux and on macOS in GitHub Actions |
 | Multi-step agent workflow over real HTTP (mock Anthropic & OpenAI servers) | ✅ Verified end-to-end, including verbatim thinking-block replay and persistence across restarts |
 | CLI (`notchpilot-cli`) | ✅ Built; workflow, persistence across processes and missing-credential handling verified |
 | macOS app (notch window, SwiftUI UI, EventKit, Keychain, media, notifications) | ✅ Compiled and smoke-tested on macOS in GitHub Actions (Xcode 26.6, universal arm64 + x86_64 `.app`): the real app launches, shows the island, expands and collapses, renders every tab, a live timer and an approval card, opens Settings and reports an unreachable provider cleanly — screenshots are in each run's artifacts |
@@ -25,6 +25,8 @@ Native Swift, SwiftUI and AppKit. No Electron, no web views, no private APIs.
 **The notch**
 * A black island that blends into the camera housing, measured from the real display geometry; spring-animated expand/collapse (or a simple fade with Reduce Motion).
 * Live activities beside the notch: a focus-timer ring and countdown, album art and equaliser for Music/Spotify, and the agent's status — working, waiting for approval, done (with a one-line result preview).
+* When idle, a slowly turning ring of colour glows around the notch so you can see NotchPilot is there; it brightens while the agent works or a file is dragged over it (turn it off in Settings → Appearance).
+* Drop files or text on the notch to attach them to your next message. Type a sum such as `18% of 2,450` and the answer appears as you type, without asking the AI.
 * Clicks pass through everywhere except the island. It never steals keyboard focus unless you click the message box or use the shortcut, and hands focus back when it closes.
 * Works on displays without a notch (a small island in the menu bar), across Spaces and next to full-screen apps. Menu-bar item and global shortcut as alternative entry points.
 
@@ -74,7 +76,7 @@ NotchPilot/
 ├─ Sources/NotchPilotCore/          platform-independent agent, providers, tools, stores (tested on Linux + macOS)
 ├─ Sources/NotchPilot/              the macOS app (AppKit window + SwiftUI + macOS integrations)
 ├─ Sources/NotchPilotCLI/           terminal front end
-├─ Tests/NotchPilotCoreTests/       83 unit and end-to-end tests (+ mock LLM server)
+├─ Tests/NotchPilotCoreTests/       86 unit and end-to-end tests (+ mock LLM server)
 ├─ Resources/                       Info.plist, entitlements, app icon
 ├─ scripts/build_app.sh             builds, signs and zips NotchPilot.app
 ├─ scripts/make_icon.py             renders the icon

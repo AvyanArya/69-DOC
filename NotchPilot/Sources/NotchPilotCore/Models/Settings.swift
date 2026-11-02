@@ -210,6 +210,8 @@ public struct AppearanceSettings: Codable, Equatable, Sendable {
     public var display: DisplayPreference = .notchedDisplay
     public var showLiveActivities: Bool = true
     public var hapticFeedback: Bool = true
+    /// A slowly turning ring of colour around the collapsed island, so it's clear NotchPilot is there.
+    public var idleGlow: Bool = true
 
     public init() {}
 }
