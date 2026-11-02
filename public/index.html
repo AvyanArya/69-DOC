@@ -932,6 +932,11 @@ a.lg-panel:hover, .lg-panel.lift:hover {
     transition: transform .6s var(--lg-ease); pointer-events: none;
 }
 .world-slab .who[src*="blaze"] { height: 9.5rem; bottom: 6px; object-fit: contain; }
+.world-slab .ribbon { position: absolute; z-index: 3; top: 22px; right: -46px; transform: rotate(35deg); width: 190px; text-align: center;
+    padding: .42rem 0; font-size: .7rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: #1A1206;
+    background: linear-gradient(100deg, #FCD34D, #F59E0B); box-shadow: 0 6px 18px rgba(0,0,0,.4); }
+.world-slab .stage .who { filter: saturate(.75) drop-shadow(0 16px 24px rgba(0,0,0,.35)); }
+.world-slab .stage::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(135deg, rgba(255,255,255,.05) 0 10px, transparent 10px 20px); pointer-events: none; }
 .world-slab:hover .who { transform: translateX(-50%) translateY(-6px); }
 .world-slab .body { padding: 1.2rem 1.4rem 1.4rem; display: flex; flex-direction: column; flex: 1; }
 .world-slab .tagline { font-size: .66rem; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); margin-bottom: .5rem; font-weight: 700; }
@@ -1151,7 +1156,7 @@ a.lg-panel:hover, .lg-panel.lift:hover {
     <section class="section" id="worlds">
         <div class="sec-head reveal">
             <div class="eyebrow">The Lumera family · Coming soon</div>
-            <h2 class="sec-title">Four worlds, <span class="grad">one financial life</span></h2>
+            <h2 class="sec-title">Four worlds, <span class="grad">arriving soon</span></h2>
             <p class="sec-sub">Lumera is the hub, and it is live now. These four worlds are coming soon: they are not out yet, but each will be its own space, with its own tools, colour and guide.</p>
         </div>
         <div class="world-rail" id="worldGrid"></div>
@@ -1186,15 +1191,6 @@ a.lg-panel:hover, .lg-panel.lift:hover {
         </div>
         <div class="flow reveal" id="stepGrid">
             <div class="flow-line" aria-hidden="true"></div>
-        </div>
-        <div class="flow-out lg-panel reveal">
-            <span class="arrow" aria-hidden="true">&rarr;</span>
-            <span><strong>Out the other end:</strong></span>
-            <span>a health score you can move</span>
-            <span class="arrow" aria-hidden="true">&middot;</span>
-            <span>the leak costing you most</span>
-            <span class="arrow" aria-hidden="true">&middot;</span>
-            <span>a 30-day plan sized to your income</span>
         </div>
     </section>
 
@@ -1513,13 +1509,13 @@ a.lg-panel:hover, .lg-panel.lift:hover {
 
     // ---- 1. Worlds: lit slabs, each carrying its own accent ----
     document.getElementById('worldGrid').innerHTML = WORLDS.map(w => `
-        <a class="world-slab lg-panel reveal" href="${w.href}" style="--accent:${w.c}">
-            <span class="stage" aria-hidden="true"><img class="who" src="assets/brand/${w.img}.webp" alt=""></span>
+        <a class="world-slab lg-panel reveal" href="${w.name.toLowerCase()}.html" aria-label="${esc(w.name)}, coming soon" style="--accent:${w.c}">
+            <span class="stage" aria-hidden="true"><img class="who" src="assets/brand/${w.img}.webp" alt=""><span class="ribbon">Coming soon</span></span>
             <span class="body">
                 <span class="tagline">${esc(w.guide)} &middot; ${esc(w.tag)}</span>
                 <h3>${esc(w.name)}</h3>
                 <p>${esc(w.blurb)}</p>
-                <span class="go">Explore ${esc(w.name)} &rarr;</span>
+                <span class="go">Not out yet &middot; see what&rsquo;s coming &rarr;</span>
             </span>
         </a>`).join('');
 

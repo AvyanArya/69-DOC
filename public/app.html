@@ -761,6 +761,10 @@
   .ws-btn{ background:rgba(255,255,255,.18) !important; color:#fff !important; border:1px solid rgba(255,255,255,.3) !important; }
   .ws-btn:hover{ background:rgba(255,255,255,.3) !important; }
   @media (prefers-reduced-motion: reduce){ .lg-workspace.ws-live,.ws-blob,.ws-tile::after{ animation:none; } }
+  .sub-card{ transition:transform .3s cubic-bezier(.2,.8,.2,1); }
+  .sub-card:hover{ transform:translateY(-5px); }
+  .ready-card{ transition:transform .35s cubic-bezier(.2,.8,.2,1); }
+  .ready-card:hover{ transform:translateY(-6px); }
   html[data-skin="glass"] .lg-inset{
     border-radius:20px; background:rgba(8,7,14,.32); border:1px solid rgba(255,255,255,.07);
     box-shadow:inset 0 1px 2px rgba(0,0,0,.35);
@@ -5300,8 +5304,16 @@ function Sidebar() {
     }, "Lumera"), core.map(navBtn)), products.length > 0 && React.createElement("div", {
       className: "mb-4"
     }, React.createElement("div", {
-      className: "px-3 mb-2 text-[10px] tracking-[.22em] uppercase text-faint"
-    }, "The Lumera family"), React.createElement("div", {
+      className: "px-3 mb-2 flex items-center justify-between gap-2"
+    }, React.createElement("span", {
+      className: "text-[10px] tracking-[.18em] uppercase text-faint whitespace-nowrap"
+    }, "Lumera family"), React.createElement("span", {
+      className: "text-[9px] font-extrabold uppercase tracking-wider rounded-full px-2 py-0.5 whitespace-nowrap",
+      style: {
+        background: 'linear-gradient(100deg,#FCD34D,#F59E0B)',
+        color: '#1A1206'
+      }
+    }, "Not out yet")), React.createElement("div", {
       className: "relative fam-soon",
       "aria-disabled": "true"
     }, React.createElement("span", {
@@ -6688,102 +6700,117 @@ function Review() {
     key: step,
     className: "anim-fadeUp"
   }, cur.type === 'intro' && React.createElement(React.Fragment, null, React.createElement("div", {
-    className: "relative overflow-hidden rounded-[26px] p-6 sm:p-7 mb-6",
+    className: "relative overflow-hidden rounded-[28px] p-6 sm:p-8 mb-5 text-white",
     style: {
-      background: 'radial-gradient(90% 120% at 0% 0%, rgba(157,124,255,.55), transparent 60%), radial-gradient(80% 100% at 100% 100%, rgba(236,72,153,.35), transparent 60%), linear-gradient(160deg, rgba(255,255,255,.10), rgba(255,255,255,.03))',
-      boxShadow: 'inset 0 1px 0 rgba(255,255,255,.2), inset 0 0 0 1px rgba(255,255,255,.12)'
+      background: 'linear-gradient(135deg,#6D28D9 0%,#9333EA 45%,#DB2777 100%)',
+      boxShadow: '0 26px 60px -28px rgba(219,39,119,.8)'
     }
   }, React.createElement("span", {
-    className: "absolute right-3 -bottom-2 hidden sm:block",
+    className: "absolute -right-2 -bottom-3 hidden sm:block",
     "aria-hidden": "true"
   }, React.createElement(Mascot, {
     kind: "lumera",
-    color: "#9D7CFF",
-    size: 120,
-    float: false
+    color: "#ffffff",
+    size: 130
   })), React.createElement("div", {
-    className: "relative sm:pr-32"
+    className: "relative sm:pr-36"
   }, React.createElement("div", {
-    className: "text-[11px] font-bold uppercase tracking-[.22em]",
-    style: {
-      color: '#F5D78A'
-    }
+    className: "text-[11px] font-bold uppercase tracking-[.22em] text-white/85"
   }, "Monthly Expense Review"), React.createElement("h1", {
-    className: "font-serif text-3xl sm:text-4xl text-charcoal mt-1"
-  }, "What to have ready."), React.createElement("p", {
-    className: "text-charcoal/85 mt-2 max-w-md"
-  }, "For when money is coming in, from a job, an allowance or side work. Rough monthly figures are fine."))), React.createElement("div", {
-    className: "grid sm:grid-cols-2 gap-3 mb-2"
-  }, React.createElement("label", {
-    className: "block"
-  }, React.createElement("span", {
-    className: "text-xs font-semibold text-muted mb-1.5 block"
-  }, "Language for this review"), React.createElement("select", {
+    className: "font-serif text-[2.4rem] sm:text-5xl leading-none mt-2",
+    style: {
+      color: '#fff'
+    }
+  }, "What to have ready"), React.createElement("p", {
+    className: "text-white/90 mt-3 max-w-md"
+  }, "Rough monthly figures are fine. Best if money comes in from a job, allowance or side work."), React.createElement("div", {
+    className: "flex flex-wrap gap-2 mt-4"
+  }, [['clock', 'About 5 minutes'], ['bulb', 'A statement helps'], ['refresh', 'Edit any time']].map(([ic, l]) => React.createElement("span", {
+    key: l,
+    className: "inline-flex items-center gap-1.5 rounded-full bg-white/18 border border-white/30 px-3 py-1.5 text-xs font-semibold",
+    style: {
+      background: 'rgba(255,255,255,.18)'
+    }
+  }, React.createElement(Icon, {
+    name: ic,
+    size: 13
+  }), l))), React.createElement("div", {
+    className: "flex flex-wrap gap-2 mt-4"
+  }, React.createElement("select", {
     value: app.lang,
     onChange: e => app.setLang(e.target.value),
-    className: "w-full rounded-xl border border-line bg-cream px-3 py-2.5 text-sm focus:border-gold focus:outline-none"
+    "aria-label": "Language for this review",
+    className: "rounded-full border border-white/40 px-3.5 py-2 text-sm font-semibold text-white focus:outline-none",
+    style: {
+      background: 'rgba(20,6,40,.35)'
+    }
   }, LANGS.map(l => React.createElement("option", {
     key: l.code,
-    value: l.code
-  }, l.native, " \xB7 ", l.label)))), React.createElement("label", {
-    className: "block"
-  }, React.createElement("span", {
-    className: "text-xs font-semibold text-muted mb-1.5 block"
-  }, "Currency for your figures"), React.createElement("select", {
+    value: l.code,
+    style: {
+      color: '#111'
+    }
+  }, "\uD83C\uDF10 ", l.native))), React.createElement("select", {
     value: app.profile.currency,
     onChange: e => app.updateProfile({
       currency: e.target.value
     }),
-    className: "w-full rounded-xl border border-line bg-cream px-3 py-2.5 text-sm focus:border-gold focus:outline-none"
+    "aria-label": "Currency for your figures",
+    className: "rounded-full border border-white/40 px-3.5 py-2 text-sm font-semibold text-white focus:outline-none",
+    style: {
+      background: 'rgba(20,6,40,.35)'
+    }
   }, Object.values(CURRENCIES).map(c => React.createElement("option", {
     key: c.code,
-    value: c.code
-  }, c.flag, " ", c.code, " \xB7 ", c.name))))), [['Money in', [['wallet', 'Income', 'Take-home pay', '#22C55E']]], ['Money out', [['home', 'Housing', 'Rent or mortgage', '#3B82F6'], ['cart', 'Food', 'Groceries, eating out', '#F97316'], ['bus', 'Transport', 'Fuel, fares', '#06B6D4'], ['tv', 'Bills', 'Utilities, subscriptions', '#8B5CF6'], ['gift', 'Lifestyle', 'Shopping, fun', '#EC4899'], ['credit', 'Debt', 'Cards, loans, BNPL', '#EF4444']]], ['Set aside', [['chart', 'Saving', 'Savings, investing', '#EAB308']]]].map(([group, items]) => React.createElement("section", {
-    key: group,
-    className: "mt-6"
-  }, React.createElement("h2", {
-    className: "text-[11px] font-semibold uppercase tracking-[.18em] text-faint mb-2.5"
-  }, group), React.createElement("div", {
-    className: "ready-grid"
-  }, items.map(([ic, ttl, hint, col]) => React.createElement("div", {
+    value: c.code,
+    style: {
+      color: '#111'
+    }
+  }, c.flag, " ", c.code)))))), React.createElement("div", {
+    className: "grid sm:grid-cols-3 gap-3"
+  }, [['Money in', 'wallet', ['#10B981', '#0D9488'], [['wallet', 'Take-home pay'], ['spark', 'Side income']]], ['Money out', 'cart', ['#F97316', '#E11D48'], [['home', 'Housing'], ['cart', 'Food'], ['bus', 'Transport'], ['tv', 'Bills & subscriptions'], ['gift', 'Lifestyle'], ['credit', 'Debt repayments']]], ['Set aside', 'chart', ['#3B82F6', '#7C3AED'], [['pig', 'Savings'], ['chart', 'Investing'], ['shield', 'Emergency fund']]]].map(([ttl, ic, g, items], i) => React.createElement("section", {
     key: ttl,
-    className: "ready-tile",
+    className: "ready-card rounded-[22px] p-5 text-white",
     style: {
-      background: `linear-gradient(150deg, ${col}33, ${col}0D 70%)`,
-      borderColor: col + '55'
+      background: `linear-gradient(160deg,${g[0]},${g[1]})`,
+      boxShadow: `0 20px 40px -22px ${g[1]}`,
+      animation: `fadeUp .5s ${.08 * i}s both`
     }
+  }, React.createElement("div", {
+    className: "flex items-center justify-between"
   }, React.createElement("span", {
-    className: "ready-ic",
-    "aria-hidden": "true",
+    className: "grid place-items-center h-11 w-11 rounded-2xl",
     style: {
-      background: `linear-gradient(140deg, ${col}, ${col}AA)`,
-      boxShadow: `0 8px 18px -8px ${col}`
-    }
+      background: 'rgba(255,255,255,.22)'
+    },
+    "aria-hidden": "true"
   }, React.createElement(Icon, {
     name: ic,
-    size: 18
+    size: 20
   })), React.createElement("span", {
-    className: "min-w-0"
-  }, React.createElement("span", {
-    className: "block text-sm font-semibold text-charcoal"
-  }, ttl), React.createElement("span", {
-    className: "block text-xs text-charcoal/70 truncate"
-  }, hint))))))), React.createElement("div", {
-    className: "mt-6 flex flex-wrap gap-2"
-  }, [['bulb', 'Last month’s statement helps', '#F5D78A'], ['clock', 'About five minutes', '#7CB4FF'], ['refresh', 'Edit any time', '#86EFAC']].map(([ic, l, c]) => React.createElement("span", {
-    key: l,
-    className: "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-charcoal/90",
+    className: "text-[11px] font-bold rounded-full px-2.5 py-1",
     style: {
-      background: c + '1F',
-      border: `1px solid ${c}55`
+      background: 'rgba(0,0,0,.18)'
+    }
+  }, items.length, " item", items.length > 1 ? 's' : '')), React.createElement("h2", {
+    className: "font-serif text-[1.7rem] leading-none mt-4",
+    style: {
+      color: '#fff'
+    }
+  }, ttl), React.createElement("ul", {
+    className: "mt-3 space-y-1.5"
+  }, items.map(([iic, l]) => React.createElement("li", {
+    key: l,
+    className: "flex items-center gap-2 text-[13px] font-medium"
+  }, React.createElement("span", {
+    className: "grid place-items-center h-5 w-5 rounded-md",
+    style: {
+      background: 'rgba(255,255,255,.22)'
     }
   }, React.createElement(Icon, {
-    name: ic,
-    size: 13,
-    style: {
-      color: c
-    }
-  }), l)))), cur.type === 'group' && React.createElement(React.Fragment, null, React.createElement(Eyebrow, {
+    name: iic,
+    size: 11
+  })), l))))))), cur.type === 'group' && React.createElement(React.Fragment, null, React.createElement(Eyebrow, {
     className: "mb-2"
   }, "Step ", step + 1, " of ", total), React.createElement("h1", {
     className: "font-serif text-3xl text-charcoal"
@@ -8771,7 +8798,7 @@ function Recommendations() {
   return React.createElement(AppShell, null, React.createElement(PageHead, {
     eyebrow: "AI recommendations",
     title: "What to do next, and why.",
-    desc: "Prioritised actions built from your own numbers, each with the reasoning, the steps and what it is worth."
+    desc: "Short, ranked actions from your own numbers. Tap How for the steps."
   }), insights.length > 0 && React.createElement("div", {
     className: "flex flex-wrap items-center gap-2 mb-4"
   }, React.createElement("span", {
@@ -8806,33 +8833,44 @@ function Recommendations() {
       className: cx('text-[10px] font-bold uppercase tracking-[.14em]', hi ? 'text-clayd' : 'text-goldd')
     }, ins.priority, " priority"), React.createElement("span", {
       className: "block text-[15px] font-semibold text-charcoal leading-snug mt-0.5"
-    }, ins.title))), React.createElement("p", {
-      className: "text-[13px] text-charcoal/85 leading-relaxed mt-3"
-    }, React.createElement("b", {
-      className: "text-charcoal"
-    }, "Why. "), ins.explanation), ins.steps && React.createElement("ol", {
-      className: "mt-3 space-y-1.5"
-    }, ins.steps.map((st, k) => React.createElement("li", {
+    }, ins.title))), React.createElement("div", {
+      className: "flex flex-wrap items-center gap-2 mt-3"
+    }, ins.impact > 0 && React.createElement("span", {
+      className: "rounded-full px-2.5 py-1 text-[12px] font-bold tnum",
+      style: {
+        background: 'rgba(52,211,153,.16)',
+        color: '#6EE7B7'
+      }
+    }, "+", fmt.money(ins.impact), "/mo \xB7 ", fmt.money(yearly), "/yr"), ins.tool && React.createElement("button", {
+      onClick: () => app.nav(ins.tool),
+      className: "btn btn-ghost px-3 py-1.5 text-xs"
+    }, "Open ", React.createElement(Icon, {
+      name: "arrowR",
+      size: 12
+    })), (ins.explanation || ins.steps) && React.createElement("button", {
+      onClick: () => setOpen(isOpen ? null : i),
+      "aria-expanded": isOpen,
+      className: "ml-auto text-xs font-semibold text-goldd flex items-center gap-1"
+    }, isOpen ? 'Hide' : 'How', React.createElement(Icon, {
+      name: "chevron",
+      size: 12,
+      className: isOpen ? '-rotate-90' : 'rotate-90'
+    }))), isOpen && React.createElement("div", {
+      className: "mt-3 pt-3 border-t border-line anim-fadeUp"
+    }, ins.steps ? React.createElement("ol", {
+      className: "space-y-1.5"
+    }, ins.steps.slice(0, 3).map((st, k) => React.createElement("li", {
       key: k,
       className: "flex gap-2 text-[13px] text-charcoal/85 leading-snug"
     }, React.createElement("span", {
       className: "grid place-items-center h-5 w-5 rounded-full bg-gold/15 text-goldd text-[10.5px] font-bold shrink-0"
-    }, k + 1), st))), ins.impact > 0 && React.createElement("div", {
-      className: "grid grid-cols-3 gap-2 mt-3"
-    }, [['A month', fmt.money(ins.impact)], ['A year', fmt.money(yearly)], ['5 years saved', fmt.money(five)]].map(([l, v]) => React.createElement("div", {
-      key: l,
-      className: "rounded-xl px-2.5 py-2 bg-white/[.05]"
-    }, React.createElement("div", {
-      className: "text-[10px] uppercase tracking-wider text-faint"
-    }, l), React.createElement("div", {
-      className: "text-sm font-semibold text-saged tnum"
-    }, v)))), ins.tool && React.createElement("button", {
-      onClick: () => app.nav(ins.tool),
-      className: "btn btn-ghost mt-3 px-3 py-2 text-xs self-start"
-    }, "Open the tool ", React.createElement(Icon, {
-      name: "arrowR",
-      size: 12
-    })));
+    }, k + 1), st))) : React.createElement("p", {
+      className: "text-[13px] text-charcoal/85 leading-relaxed"
+    }, String(ins.explanation).split(/(?<=\.)\s/)[0]), ins.impact > 0 && React.createElement("div", {
+      className: "text-[12px] text-faint mt-2"
+    }, "Kept up for 5 years: ", React.createElement("b", {
+      className: "text-saged tnum"
+    }, fmt.money(five)))));
   }), !insights.length && React.createElement(Card, {
     hover: false,
     className: "lg:col-span-2 text-center py-10"
@@ -9047,14 +9085,14 @@ function Dashboard() {
     className: "rounded-2xl rounded-bl-sm bg-white/20 border border-white/30 px-3.5 py-2 text-sm font-medium"
   }, greet, app.profile.name ? `, ${app.profile.name}` : '', "! ", hasData ? m.overall >= 70 ? 'You are on a roll. 🎉' : 'Let’s level up your money today. 🚀' : 'Add your income and I’ll score you. ✨')), React.createElement("h1", {
     id: "ws-title",
-    className: "font-display text-[2.5rem] sm:text-[3.4rem] leading-[1.02] mt-3",
+    className: "font-display text-[2.3rem] sm:text-[3rem] leading-[1.02] mt-3",
     style: {
-      color: '#fff',
-      textShadow: '0 4px 24px rgba(0,0,0,.25)'
+      color: 'rgba(255,255,255,.82)',
+      fontWeight: 400
     }
   }, "Your money, ", React.createElement("span", {
     style: {
-      color: '#FDE68A'
+      color: 'rgba(253,230,138,.85)'
     }
   }, "today"), "."), React.createElement("div", {
     className: "flex items-center gap-5 mt-5"
@@ -13061,75 +13099,104 @@ function Subscriptions() {
     variant: "ghost",
     onClick: () => setShowAdd(false)
   }, "Cancel"))), React.createElement("div", {
-    className: "flex flex-wrap justify-center gap-3 stagger"
+    className: "grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5"
+  }, [['Current / month', total, ['#6366F1', '#8B5CF6']], ['After your changes', kept, ['#10B981', '#0D9488']], ['Saved / month', cancelSum, ['#F43F5E', '#EC4899']], ['Saved / year', cancelSum * 12, ['#F59E0B', '#F97316']]].map(([l, v, g]) => React.createElement("div", {
+    key: l,
+    className: "rounded-2xl p-4 text-white",
+    style: {
+      background: `linear-gradient(150deg,${g[0]},${g[1]})`,
+      boxShadow: `0 16px 32px -18px ${g[1]}`
+    }
+  }, React.createElement("div", {
+    className: "text-[11px] font-bold uppercase tracking-wider text-white/85"
+  }, l), React.createElement("div", {
+    className: "font-serif text-[1.9rem] leading-none mt-2 tnum"
+  }, React.createElement(AnimatedNumber, {
+    value: v,
+    money: true
+  }))))), React.createElement("div", {
+    className: "grid sm:grid-cols-2 xl:grid-cols-3 gap-4 stagger"
   }, subs.map(s => {
     const dead = s.freq === 'Never' || s.freq === 'Rarely';
-    const hue = s.verdict === 'cancelled' ? '#E0505A' : s.verdict === 'paused' ? '#6E86A0' : dead ? '#D97706' : '#16A34A';
+    const hue = s.verdict === 'cancelled' ? '#F43F5E' : s.verdict === 'paused' ? '#94A3B8' : s.verdict === 'review' ? '#F59E0B' : dead ? '#F59E0B' : '#22C55E';
+    const a = subAdvice(s, fmt);
     return React.createElement("div", {
       key: s.id,
-      className: "lux-card lift !p-0 overflow-hidden flex flex-col w-full sm:w-[calc(50%-6px)] xl:w-[calc(33.333%-8px)]",
+      className: "sub-card rounded-[22px] overflow-hidden flex flex-col",
       style: {
-        '--glow': hexToRgbList(hue)
+        background: `linear-gradient(170deg, ${hue}26, rgba(255,255,255,.04) 60%)`,
+        boxShadow: `inset 0 0 0 1px ${hue}55`
       }
-    }, React.createElement("button", {
+    }, React.createElement("div", {
+      className: "h-1",
+      style: {
+        background: hue
+      }
+    }), React.createElement("button", {
       onClick: () => setOpenSub(s.id),
-      className: "text-left w-full flex items-center gap-3 px-4 pt-4 pb-3",
+      className: "text-left w-full flex items-center gap-3 p-4",
       "aria-label": `${s.name}, details`
     }, React.createElement(CompanyLogo, {
       name: s.name,
       domain: s.domain,
-      size: 44,
+      size: 46,
       hue: hue
     }), React.createElement("span", {
       className: "min-w-0 flex-1"
     }, React.createElement("span", {
-      className: "block font-semibold text-charcoal leading-tight truncate"
+      className: "block font-semibold text-[15px] text-charcoal leading-tight truncate"
     }, s.name), React.createElement("span", {
-      className: "mt-1 flex items-center gap-1.5 text-[11px] text-muted"
-    }, s.category && React.createElement(Fragment, null, React.createElement("span", {
-      className: "whitespace-nowrap"
-    }, s.category), React.createElement("span", {
-      "aria-hidden": "true"
-    }, "\xB7")), React.createElement("span", {
-      className: "whitespace-nowrap",
+      className: "inline-block mt-1.5 rounded-full px-2 py-0.5 text-[10.5px] font-bold",
       style: dead ? {
-        color: '#F5B95C',
-        fontWeight: 600
-      } : undefined
-    }, dead ? 'Barely used' : 'Used ' + String(s.freq || '').toLowerCase()))), React.createElement("span", {
+        background: 'rgba(245,158,11,.2)',
+        color: '#FCD34D'
+      } : {
+        background: 'rgba(34,197,94,.18)',
+        color: '#86EFAC'
+      }
+    }, dead ? 'Barely used' : 'Used ' + String(s.freq || '').toLowerCase())), React.createElement("span", {
       className: "text-right shrink-0"
     }, React.createElement("span", {
-      className: "block font-semibold text-lg text-charcoal tnum leading-none"
+      className: "block font-serif text-[1.6rem] text-charcoal tnum leading-none"
     }, fmt.money(s.cost)), React.createElement("span", {
       className: "block text-[10.5px] text-faint mt-1"
-    }, "a month"))), (() => {
-      const a = subAdvice(s, fmt);
-      return React.createElement("div", {
-        className: "px-4 pb-3 -mt-1 text-[12px] leading-snug space-y-1"
-      }, React.createElement("p", {
-        className: "text-charcoal/85"
-      }, React.createElement("b", {
-        className: "text-charcoal"
-      }, "Fix. "), a.fix), a.altText && React.createElement("p", {
-        className: "text-charcoal/85"
-      }, React.createElement("b", {
-        className: "text-charcoal"
-      }, "Instead. "), a.altText, a.save > 0 && React.createElement("span", {
-        className: "text-saged font-semibold"
-      }, " \xB7 save ", fmt.money(a.save), "/mo")));
-    })(), React.createElement("div", {
-      className: "mt-auto grid grid-cols-4 gap-1 px-2 pb-2"
-    }, ['active', 'review', 'paused', 'cancelled'].map(v => React.createElement("button", {
+    }, "a month"))), React.createElement("div", {
+      className: "px-4 pb-3 min-h-[2.5rem]"
+    }, a.altText ? React.createElement("div", {
+      className: "flex items-center gap-2 rounded-xl px-3 py-2 text-[12px]",
+      style: {
+        background: 'rgba(255,255,255,.06)'
+      }
+    }, React.createElement(Icon, {
+      name: "refresh",
+      size: 13,
+      className: "text-saged shrink-0"
+    }), React.createElement("span", {
+      className: "truncate text-charcoal/90"
+    }, a.altText), a.save > 0 && React.createElement("span", {
+      className: "ml-auto shrink-0 font-bold text-saged tnum"
+    }, "\u2212", fmt.money(a.save))) : React.createElement("div", {
+      className: "text-[12px] text-faint px-1 py-2"
+    }, "No cheaper swap. Keep or cancel.")), React.createElement("div", {
+      className: "mt-auto mx-3 mb-3 grid grid-cols-4 gap-1 rounded-full p-1",
+      style: {
+        background: 'rgba(0,0,0,.22)'
+      },
+      role: "group",
+      "aria-label": `Decision for ${s.name}`
+    }, [['active', 'Keep'], ['review', 'Review'], ['paused', 'Pause'], ['cancelled', 'Cancel']].map(([v, l]) => React.createElement("button", {
       key: v,
       onClick: () => setVerdict(s.id, v),
       "aria-pressed": s.verdict === v,
-      className: cx('rounded-lg py-1.5 text-[10.5px] font-semibold capitalize border transition', s.verdict === v ? '' : 'border-transparent text-muted hover:bg-sand'),
+      className: "rounded-full py-1.5 text-[11.5px] font-semibold transition",
       style: s.verdict === v ? {
-        borderColor: hue + '99',
-        background: hue + '22',
-        color: hue
-      } : undefined
-    }, v))));
+        background: hue,
+        color: '#fff',
+        boxShadow: `0 6px 14px -6px ${hue}`
+      } : {
+        color: 'rgb(var(--c-muted))'
+      }
+    }, l))));
   })), (() => {
     const s = subs.find(x => x.id === openSub);
     if (!s) return null;
@@ -13250,23 +13317,7 @@ function Subscriptions() {
         }, "No cheaper equivalent worth recommending. If you want to cut this one, the option is cancelling rather than switching.")
       }
     });
-  })(), React.createElement("div", {
-    className: "grid grid-cols-2 lg:grid-cols-4 gap-3 mt-4"
-  }, [['Current / month', total, 'charcoal'], ['After your changes', kept, 'sage'], ['Monthly saved', cancelSum, 'berry'], ['Annual saved', cancelSum * 12, 'gold']].map(([l, v, t]) => React.createElement(Card, {
-    key: l,
-    hover: false,
-    className: "!p-4"
-  }, React.createElement("div", {
-    className: "text-xs text-muted"
-  }, l), React.createElement("div", {
-    className: "font-serif text-2xl mt-0.5 tnum",
-    style: {
-      color: t === 'charcoal' ? COLORS.charcoal : COLORS[t]
-    }
-  }, React.createElement(AnimatedNumber, {
-    value: v,
-    money: true
-  }))))), cancelSum > 0 && React.createElement(Card, {
+  })(), cancelSum > 0 && React.createElement(Card, {
     hover: false,
     className: "mt-3",
     style: {
@@ -16394,14 +16445,14 @@ function Badges() {
       } : undefined
     }, t);
   })), React.createElement("div", {
-    className: "grid sm:grid-cols-2 lg:grid-cols-4 gap-4 stagger"
+    className: "flex flex-wrap justify-center gap-4 stagger"
   }, shown.map(b => {
     const got = b.got;
     const R = RARITY[b.rar] || RARITY.Common;
     const ring = R.rainbow ? 'conic-gradient(from 210deg,#EC4899,#F59E0B,#22C55E,#3B82F6,#A855F7,#EC4899)' : `conic-gradient(from 200deg, ${R.color}, ${R.color}AA, ${R.color})`;
     return React.createElement("div", {
       key: b.id,
-      className: cx('lux-card p-5 text-center h-full relative overflow-hidden', got && 'lift'),
+      className: cx('lux-card p-5 text-center relative overflow-hidden w-full sm:w-[calc(50%-8px)] lg:w-[calc(25%-12px)]', got && 'lift'),
       style: {
         borderColor: R.color + (got ? '80' : '40'),
         boxShadow: got ? `0 0 0 1px ${R.color}44, 0 18px 44px -18px ${R.glow}` : undefined
@@ -16466,7 +16517,7 @@ function Badges() {
       className: "text-[10.5px] text-faint mt-2 pt-2 border-t border-line"
     }, b.pct == null ? 'Rarity opens up as the community grows' : `${b.pct}% of members have this`));
   }), !shown.length && React.createElement("div", {
-    className: "sm:col-span-2 lg:col-span-4 text-center text-sm text-muted py-10"
+    className: "w-full text-center text-sm text-muted py-10"
   }, "No badges in this group yet.")), React.createElement("div", {
     className: "mt-5"
   }, React.createElement(StreakRewards, null)));
@@ -16494,26 +16545,15 @@ function HBar({
     className: "w-12 text-right text-sm tnum text-muted"
   }, v, suffix));
 }
-const ADMIN_KEY = 'lumera-admin-2026';
 function Analytics() {
   const app = useApp();
-  const [ok, setOk] = useState(() => {
-    try {
-      return sessionStorage.getItem('lumera_admin') === '1';
-    } catch (e) {
-      return false;
-    }
-  });
-  const [key, setKey] = useState('');
-  const [err, setErr] = useState('');
-  const unlock = () => {
-    if (key === ADMIN_KEY) {
-      try {
-        sessionStorage.setItem('lumera_admin', '1');
-      } catch (e) {}
-      setOk(true);
-    } else setErr('Incorrect access key.');
-  };
+  const ok = !!(app.user && app.user.isAdmin);
+  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    if (!ok) return;
+    const id = setInterval(() => setTick(t => t + 1), 3000);
+    return () => clearInterval(id);
+  }, [ok]);
   if (!ok) return React.createElement("div", {
     className: "min-h-screen grid place-items-center p-6"
   }, React.createElement("div", {
@@ -16525,34 +16565,12 @@ function Analytics() {
     size: 22
   })), React.createElement("h1", {
     className: "font-serif text-2xl text-charcoal"
-  }, "Admin analytics portal"), React.createElement("p", {
+  }, "Admins only"), React.createElement("p", {
     className: "text-sm text-muted mt-1 mb-4"
-  }, "Owner-only. Enter the admin access key to continue, this area is never shown to regular users."), React.createElement("input", {
-    type: "password",
-    value: key,
-    onChange: e => {
-      setKey(e.target.value);
-      setErr('');
-    },
-    onKeyDown: e => e.key === 'Enter' && unlock(),
-    placeholder: "Access key",
-    className: "w-full rounded-xl border border-line bg-cream px-3 py-2.5 text-center focus:border-gold focus:outline-none focus:ring-4 focus:ring-gold/10"
-  }), err && React.createElement("div", {
-    className: "text-xs text-berry mt-2"
-  }, err), React.createElement("button", {
-    onClick: unlock,
-    className: "btn btn-primary w-full mt-3 py-2.5 text-sm"
-  }, "Unlock portal"), React.createElement("button", {
+  }, "This page is for Lumera administrators. Sign in with an admin account to see it."), React.createElement("button", {
     onClick: () => app.nav('/dashboard'),
-    className: "text-xs text-muted hover:text-charcoal mt-3 block mx-auto"
-  }, "\u2190 Back to the app"), React.createElement("p", {
-    className: "text-[11px] text-faint mt-4 leading-relaxed"
-  }, "The figures below are illustrative sample telemetry. Real product analytics require a backend (PostHog / Plausible / GA4), see ", React.createElement("b", null, "INTEGRATION.md \u2192 Step 3"), ".")));
-  const [tick, setTick] = useState(0);
-  useEffect(() => {
-    const id = setInterval(() => setTick(t => t + 1), 3000);
-    return () => clearInterval(id);
-  }, []);
+    className: "btn btn-primary w-full py-2.5 text-sm"
+  }, "Back to the app")));
   const data = LA.read();
   const sessions = data.sessions || [];
   const events = data.events || [];
@@ -25436,204 +25454,222 @@ function DemoCommunity() {
     }
   }, initialsOf(name));
   const toggleConn = n => setConnected(c => c.includes(n) ? c.filter(x => x !== n) : [...c, n]);
-  return React.createElement(AppShell, null, React.createElement(PageHead, {
-    eyebrow: "Community",
-    title: "Connect with the Lumera community.",
-    desc: "Share what you\u2019re working on, add your LinkedIn, find people on the same path, and swap opportunities. This demo shows example posts and members."
-  }), React.createElement("div", {
-    className: "rounded-2xl p-5 mb-4 text-white flex flex-wrap items-center gap-6",
+  return React.createElement(AppShell, null, React.createElement("section", {
+    className: "rounded-[28px] p-5 sm:p-6 mb-5 text-white relative overflow-hidden",
     style: {
-      background: 'linear-gradient(135deg,#7C3AED 0%,#4F46E5 50%,#0D9488 100%)'
-    }
-  }, [['Example members', DEMO_MEMBERS.length], ['Your connections', connected.length], ['Example posts', DEMO_POSTS.length], ['Opportunities', DEMO_OPPS.length]].map(([l, n]) => React.createElement("div", {
-    key: l
-  }, React.createElement("div", {
-    className: "font-serif text-3xl"
-  }, n), React.createElement("div", {
-    className: "text-xs opacity-85"
-  }, l))), React.createElement("a", {
-    href: "https://www.linkedin.com/",
-    target: "_blank",
-    rel: "noopener noreferrer",
-    className: "ml-auto btn bg-white/15 hover:bg-white/25 text-white text-sm"
-  }, "Open LinkedIn ", React.createElement(Icon, {
-    name: "arrowR",
-    size: 13,
-    className: "-rotate-45"
-  }))), React.createElement("div", {
-    className: "flex gap-2 mb-4 flex-wrap"
-  }, ['Feed', 'Members', 'Opportunities'].map(t => React.createElement("button", {
-    key: t,
-    onClick: () => setTab(t),
-    className: cx('chip', tab === t && 'on')
-  }, t))), tab === 'Feed' && React.createElement("div", {
-    className: "grid lg:grid-cols-[220px_minmax(0,1fr)_280px] gap-5 items-start"
-  }, React.createElement("aside", {
-    className: "space-y-3 lg:sticky lg:top-24"
-  }, React.createElement("div", {
-    className: "rounded-2xl p-4",
-    style: {
-      background: 'linear-gradient(160deg,#F472B6,#8B5CF6)',
-      boxShadow: '0 14px 30px -14px #8B5CF6'
+      background: 'linear-gradient(120deg,#7C3AED 0%,#C026D3 45%,#F97316 100%)',
+      boxShadow: '0 26px 60px -30px rgba(192,38,211,.9)'
     }
   }, React.createElement("div", {
-    className: "text-[11px] font-bold uppercase tracking-wider text-white/85"
-  }, "Topics"), React.createElement("div", {
-    className: "flex flex-wrap gap-1.5 mt-3"
-  }, ['Saving', 'FirstJob', 'Apprenticeships', 'Investing', 'Budgeting', 'Placements', 'Freelance', 'Economics'].map(t => React.createElement("button", {
-    key: t,
-    onClick: () => setTopic(topic === t ? '' : t),
-    className: "text-[12px] font-bold rounded-full px-3 py-1 transition",
-    style: topic === t ? {
-      background: '#fff',
-      color: '#6D28D9'
-    } : {
-      background: 'rgba(255,255,255,.2)',
+    className: "flex flex-wrap items-center gap-3"
+  }, React.createElement("h1", {
+    className: "font-display text-[2.2rem] sm:text-[2.6rem] leading-none",
+    style: {
       color: '#fff'
     }
-  }, "#", t)))), React.createElement("div", {
-    className: "rounded-2xl p-4 text-white",
+  }, "Community"), React.createElement("span", {
+    className: "rounded-full px-2.5 py-1 text-[11px] font-bold",
     style: {
-      background: 'linear-gradient(160deg,#14B8A6,#2563EB)',
-      boxShadow: '0 14px 30px -14px #2563EB'
+      background: 'rgba(0,0,0,.2)'
     }
-  }, React.createElement("div", {
-    className: "font-serif text-3xl leading-none"
-  }, connected.length), React.createElement("div", {
-    className: "text-xs mt-1 opacity-90"
-  }, "connections you\u2019ve made in this demo"), React.createElement("a", {
+  }, "Example posts and members"), React.createElement("a", {
     href: "https://www.linkedin.com/",
     target: "_blank",
     rel: "noopener noreferrer",
-    className: "mt-3 inline-flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-[12px] font-bold",
+    className: "ml-auto inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[13px] font-bold",
     style: {
-      color: '#1D4ED8'
+      background: '#ffffff',
+      color: '#6D28D9'
     }
-  }, "Open LinkedIn ", React.createElement(Icon, {
+  }, "LinkedIn ", React.createElement(Icon, {
     name: "arrowR",
-    size: 11,
+    size: 12,
     className: "-rotate-45"
-  })))), React.createElement("div", {
+  }))), React.createElement("div", {
+    className: "flex gap-4 overflow-x-auto no-scrollbar mt-5 pb-1"
+  }, DEMO_MEMBERS.map(mem => {
+    const on = connected.includes(mem.name);
+    return React.createElement("button", {
+      key: mem.name,
+      onClick: () => toggleConn(mem.name),
+      "aria-pressed": on,
+      title: on ? 'Connected' : 'Connect',
+      className: "shrink-0 w-[76px] text-center group"
+    }, React.createElement("span", {
+      className: "block mx-auto rounded-full p-[3px] transition group-hover:scale-105",
+      style: {
+        background: on ? '#fff' : 'conic-gradient(#FDE047,#F472B6,#60A5FA,#34D399,#FDE047)'
+      }
+    }, React.createElement("span", {
+      className: "block rounded-full p-[2px]",
+      style: {
+        background: '#5B1C8F'
+      }
+    }, React.createElement(Avatar, {
+      name: mem.name,
+      size: 60
+    }))), React.createElement("span", {
+      className: "block text-[11.5px] font-semibold mt-1.5 truncate"
+    }, mem.name.split(' ')[0]), React.createElement("span", {
+      className: "block text-[10px] text-white/80"
+    }, on ? '✓ Connected' : 'Connect'));
+  })), React.createElement("div", {
+    role: "tablist",
+    "aria-label": "Community",
+    className: "inline-flex gap-1 rounded-full p-1 mt-4",
+    style: {
+      background: 'rgba(0,0,0,.22)'
+    }
+  }, ['Feed', 'Members', 'Opportunities'].map(t => React.createElement("button", {
+    key: t,
+    role: "tab",
+    "aria-selected": tab === t,
+    onClick: () => setTab(t),
+    className: "rounded-full px-4 py-1.5 text-[13px] font-bold transition",
+    style: tab === t ? {
+      background: '#fff',
+      color: '#7C3AED'
+    } : {
+      color: '#fff'
+    }
+  }, t)))), tab === 'Feed' && React.createElement("div", {
+    className: "grid lg:grid-cols-[minmax(0,1fr)_300px] gap-5 items-start"
+  }, React.createElement("div", {
     className: "space-y-4 min-w-0"
   }, React.createElement("div", {
-    className: "rounded-2xl p-4 flex items-center gap-3",
+    className: "rounded-2xl p-3.5 flex items-center gap-3",
     style: {
-      background: 'linear-gradient(120deg,rgba(251,191,36,.28),rgba(244,114,182,.24))',
-      boxShadow: 'inset 0 0 0 1px rgba(251,191,36,.45)'
+      background: 'rgba(255,255,255,.06)',
+      boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.1)'
     }
   }, React.createElement(Avatar, {
-    name: "You"
+    name: "You",
+    size: 40
   }), React.createElement("div", {
-    className: "flex-1 text-sm text-charcoal/85"
-  }, "Posting and linking your LinkedIn needs an account."), React.createElement(Btn, {
+    className: "flex-1 rounded-full px-4 py-2.5 text-sm text-faint",
+    style: {
+      background: 'rgba(255,255,255,.06)'
+    }
+  }, "Share an update\u2026 (needs an account)"), React.createElement(Btn, {
     variant: "gold",
     to: "/signup"
-  }, "Create account")), DEMO_POSTS.map((p, i) => ({
-    p,
-    i
-  })).filter(({
-    p
-  }) => !topic || p.tag.replace(/\W/g, '').toLowerCase().includes(topic.toLowerCase()) || p.text.toLowerCase().includes(topic.toLowerCase())).map(({
-    p,
-    i
-  }) => {
-    const h = avatarHue(p.name);
-    return React.createElement("article", {
-      key: i,
-      className: "rounded-2xl overflow-hidden transition hover:-translate-y-1",
+  }, "Join")), topic && React.createElement("div", {
+    className: "flex items-center gap-2 text-sm"
+  }, React.createElement("span", {
+    className: "text-muted"
+  }, "Showing"), React.createElement("span", {
+    className: "font-bold",
+    style: {
+      color: avatarHue(topic)
+    }
+  }, "#", topic), React.createElement("button", {
+    onClick: () => setTopic(''),
+    className: "text-xs text-faint underline"
+  }, "clear")), (() => {
+    const list = DEMO_POSTS.map((p, i) => ({
+      p,
+      i
+    })).filter(({
+      p
+    }) => !topic || (p.tag + ' ' + p.text).toLowerCase().includes(topic.toLowerCase().replace('firstjob', 'first')));
+    if (!list.length) return React.createElement("div", {
+      className: "rounded-2xl p-8 text-center text-sm text-muted",
       style: {
-        background: `linear-gradient(170deg, ${h}30, rgba(255,255,255,.04) 55%)`,
-        boxShadow: `inset 0 0 0 1px ${h}55, 0 18px 36px -22px ${h}`
+        background: 'rgba(255,255,255,.04)'
       }
-    }, React.createElement("div", {
-      className: "h-1.5",
-      style: {
-        background: `linear-gradient(90deg, ${h}, ${avatarHue(p.tag)})`
-      }
-    }), React.createElement("div", {
-      className: "p-4 flex gap-3"
-    }, React.createElement(Avatar, {
-      name: p.name
-    }), React.createElement("div", {
-      className: "flex-1 min-w-0"
-    }, React.createElement("div", {
-      className: "flex items-center gap-2 flex-wrap"
-    }, React.createElement("span", {
-      className: "font-semibold text-charcoal text-sm"
-    }, p.name), React.createElement(Ex, null), React.createElement("span", {
-      className: "text-xs text-faint"
-    }, "\xB7 ", p.ago), React.createElement("span", {
-      className: "ml-auto text-[11px] font-bold rounded-full px-2.5 py-0.5 text-white",
-      style: {
-        background: h
-      }
-    }, p.tag)), React.createElement("div", {
-      className: "text-xs text-charcoal/70"
-    }, p.head), React.createElement("p", {
-      className: "text-[15px] text-charcoal/95 mt-2 leading-relaxed"
-    }, p.text), React.createElement("div", {
-      className: "flex items-center gap-2 mt-3"
-    }, React.createElement("button", {
-      onClick: () => setLiked(l => l.includes(i) ? l.filter(x => x !== i) : [...l, i]),
-      "aria-pressed": liked.includes(i),
-      className: "text-xs font-semibold flex items-center gap-1 rounded-full px-3 py-1 transition",
-      style: liked.includes(i) ? {
-        background: '#F43F5E',
-        color: '#fff'
-      } : {
-        background: 'rgba(255,255,255,.1)',
-        color: 'rgb(var(--c-charcoal))'
-      }
-    }, React.createElement(Icon, {
-      name: "heart",
-      size: 13
-    }), p.likes + (liked.includes(i) ? 1 : 0))))));
-  })), React.createElement("aside", {
-    className: "space-y-4 lg:sticky lg:top-24"
+    }, "No example posts on #", topic, " yet.");
+    return list.map(({
+      p,
+      i
+    }) => {
+      const h = avatarHue(p.name);
+      const liked_ = liked.includes(i);
+      return React.createElement("article", {
+        key: i,
+        className: "rounded-[22px] p-5 transition hover:-translate-y-1",
+        style: {
+          background: `linear-gradient(160deg, ${h}2E, rgba(255,255,255,.035) 55%)`,
+          boxShadow: `inset 0 0 0 1px ${h}50, 0 20px 40px -26px ${h}`
+        }
+      }, React.createElement("div", {
+        className: "flex items-center gap-3"
+      }, React.createElement(Avatar, {
+        name: p.name
+      }), React.createElement("div", {
+        className: "min-w-0 flex-1"
+      }, React.createElement("div", {
+        className: "flex items-center gap-2 flex-wrap"
+      }, React.createElement("span", {
+        className: "font-semibold text-charcoal"
+      }, p.name), React.createElement(Ex, null)), React.createElement("div", {
+        className: "text-xs text-charcoal/70 truncate"
+      }, p.head, " \xB7 ", p.ago)), React.createElement("span", {
+        className: "text-[11px] font-bold rounded-full px-2.5 py-1 text-white shrink-0",
+        style: {
+          background: h
+        }
+      }, p.tag)), React.createElement("p", {
+        className: "text-[15.5px] text-charcoal/95 mt-3 leading-relaxed"
+      }, p.text), React.createElement("div", {
+        className: "flex items-center gap-2 mt-4"
+      }, React.createElement("button", {
+        onClick: () => setLiked(l => liked_ ? l.filter(x => x !== i) : [...l, i]),
+        "aria-pressed": liked_,
+        className: "text-xs font-bold flex items-center gap-1.5 rounded-full px-3 py-1.5 transition",
+        style: liked_ ? {
+          background: '#F43F5E',
+          color: '#fff'
+        } : {
+          background: 'rgba(255,255,255,.08)',
+          color: 'rgb(var(--c-charcoal))'
+        }
+      }, React.createElement(Icon, {
+        name: "heart",
+        size: 13
+      }), p.likes + (liked_ ? 1 : 0)), React.createElement("button", {
+        onClick: () => toggleConn(p.name),
+        className: "text-xs font-bold rounded-full px-3 py-1.5",
+        style: {
+          background: 'rgba(255,255,255,.08)',
+          color: 'rgb(var(--c-charcoal))'
+        }
+      }, connected.includes(p.name) ? '✓ Connected' : '+ Connect')));
+    });
+  })()), React.createElement("div", {
+    className: "space-y-4"
   }, React.createElement("div", {
     className: "rounded-2xl p-4",
     style: {
-      background: 'linear-gradient(170deg,rgba(139,92,246,.35),rgba(139,92,246,.08))',
-      boxShadow: 'inset 0 0 0 1px rgba(167,139,250,.45)'
+      background: 'linear-gradient(160deg,rgba(236,72,153,.28),rgba(139,92,246,.12))',
+      boxShadow: 'inset 0 0 0 1px rgba(244,114,182,.4)'
     }
   }, React.createElement("div", {
     className: "text-[11px] font-bold uppercase tracking-wider",
     style: {
-      color: '#C4B5FD'
+      color: '#F9A8D4'
     }
-  }, "People to meet"), React.createElement("div", {
-    className: "mt-3 space-y-2.5"
-  }, DEMO_MEMBERS.slice(0, 5).map(mem => {
-    const on = connected.includes(mem.name);
-    const h = avatarHue(mem.name);
-    return React.createElement("div", {
-      key: mem.name,
-      className: "flex items-center gap-2.5"
-    }, React.createElement(Avatar, {
-      name: mem.name,
-      size: 36
-    }), React.createElement("div", {
-      className: "flex-1 min-w-0"
-    }, React.createElement("div", {
-      className: "text-[13px] font-semibold text-charcoal truncate"
-    }, mem.name), React.createElement("div", {
-      className: "text-[11px] text-charcoal/70 truncate"
-    }, mem.head)), React.createElement("button", {
-      onClick: () => toggleConn(mem.name),
-      className: "rounded-full px-2.5 py-1 text-[11px] font-bold shrink-0",
+  }, "Trending topics"), React.createElement("div", {
+    className: "flex flex-wrap gap-1.5 mt-3"
+  }, ['Saving', 'FirstJob', 'Apprenticeships', 'Investing', 'Budgeting', 'Placements', 'Freelance'].map(t => {
+    const c = avatarHue(t);
+    const on = topic === t;
+    return React.createElement("button", {
+      key: t,
+      onClick: () => setTopic(on ? '' : t),
+      className: "text-[12px] font-bold rounded-full px-3 py-1 transition",
       style: on ? {
-        background: 'rgba(255,255,255,.15)',
-        color: '#fff'
+        background: '#fff',
+        color: c
       } : {
-        background: h,
+        background: c,
         color: '#fff'
       }
-    }, on ? '✓' : 'Connect'));
+    }, "#", t);
   }))), React.createElement("div", {
     className: "rounded-2xl p-4",
     style: {
-      background: 'linear-gradient(170deg,rgba(245,158,11,.35),rgba(245,158,11,.08))',
-      boxShadow: 'inset 0 0 0 1px rgba(251,191,36,.45)'
+      background: 'linear-gradient(160deg,rgba(245,158,11,.28),rgba(245,158,11,.06))',
+      boxShadow: 'inset 0 0 0 1px rgba(251,191,36,.42)'
     }
   }, React.createElement("div", {
     className: "text-[11px] font-bold uppercase tracking-wider",
@@ -25647,9 +25683,9 @@ function DemoCommunity() {
     href: o.li,
     target: "_blank",
     rel: "noopener noreferrer",
-    className: "block rounded-xl p-2.5 transition hover:-translate-y-0.5",
+    className: "block rounded-xl p-3 transition hover:-translate-y-0.5",
     style: {
-      background: 'rgba(255,255,255,.08)'
+      background: 'rgba(255,255,255,.07)'
     }
   }, React.createElement("div", {
     className: "text-[10px] font-bold uppercase",
@@ -25657,8 +25693,14 @@ function DemoCommunity() {
       color: '#FCD34D'
     }
   }, o.type), React.createElement("div", {
-    className: "text-[13px] font-semibold text-charcoal"
-  }, o.title))))))), tab === 'Members' && React.createElement("div", {
+    className: "text-[13px] font-semibold text-charcoal mt-0.5"
+  }, o.title)))), React.createElement("button", {
+    onClick: () => setTab('Opportunities'),
+    className: "mt-3 text-xs font-bold",
+    style: {
+      color: '#FCD34D'
+    }
+  }, "See all \u2192")))), tab === 'Members' && React.createElement("div", {
     className: "grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger"
   }, DEMO_MEMBERS.map(mem => {
     const on = connected.includes(mem.name);
@@ -25859,37 +25901,53 @@ function Community() {
     iconR: "arrowR",
     to: "/signup"
   }, "Create an account")));
-  return React.createElement(AppShell, null, React.createElement(PageHead, {
-    eyebrow: "Community",
-    title: "Connect with the Lumera community.",
-    desc: "Share what you are working on, find people on the same path, and swap opportunities."
-  }), React.createElement("div", {
-    className: "rounded-2xl p-5 mb-4 text-white flex flex-wrap items-center gap-6",
+  return React.createElement(AppShell, null, React.createElement("section", {
+    className: "rounded-[28px] p-5 sm:p-6 mb-5 text-white",
     style: {
-      background: 'linear-gradient(135deg,#7C3AED 0%,#4F46E5 50%,#0D9488 100%)'
+      background: 'linear-gradient(120deg,#7C3AED 0%,#C026D3 45%,#F97316 100%)',
+      boxShadow: '0 26px 60px -30px rgba(192,38,211,.9)'
     }
-  }, [['Members', stats && stats.members], ['Your connections', stats && stats.connections], ['Posts', stats && stats.posts], ['Opportunities', stats && stats.opportunities]].map(([l, n]) => React.createElement("div", {
-    key: l
   }, React.createElement("div", {
-    className: "font-serif text-3xl tnum"
-  }, n == null ? '–' : n), React.createElement("div", {
-    className: "text-xs opacity-85"
-  }, l))), profile && (profile.linkedin ? React.createElement("a", {
+    className: "flex flex-wrap items-center gap-3"
+  }, React.createElement("h1", {
+    className: "font-display text-[2.2rem] sm:text-[2.6rem] leading-none",
+    style: {
+      color: '#fff'
+    }
+  }, "Community"), profile && (profile.linkedin ? React.createElement("a", {
     href: profile.linkedin,
     target: "_blank",
     rel: "noopener noreferrer",
-    className: "ml-auto btn bg-white/15 hover:bg-white/25 text-white text-sm"
+    className: "ml-auto inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[13px] font-bold",
+    style: {
+      background: '#ffffff',
+      color: '#6D28D9'
+    }
   }, "Your LinkedIn ", React.createElement(Icon, {
     name: "arrowR",
-    size: 13,
+    size: 12,
     className: "-rotate-45"
   })) : React.createElement("button", {
     onClick: () => setEditing(true),
-    className: "ml-auto btn bg-white/15 hover:bg-white/25 text-white text-sm"
+    className: "ml-auto inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[13px] font-bold",
+    style: {
+      background: '#ffffff',
+      color: '#6D28D9'
+    }
   }, "Add your LinkedIn ", React.createElement(Icon, {
     name: "plus",
-    size: 13
-  })))), profile === undefined ? React.createElement("div", {
+    size: 12
+  })))), React.createElement("div", {
+    className: "flex flex-wrap gap-2 mt-4"
+  }, [['Members', stats && stats.members], ['Your connections', stats && stats.connections], ['Posts', stats && stats.posts], ['Opportunities', stats && stats.opportunities]].map(([l, n]) => React.createElement("span", {
+    key: l,
+    className: "rounded-full px-3 py-1.5 text-[12px] font-semibold",
+    style: {
+      background: 'rgba(0,0,0,.2)'
+    }
+  }, React.createElement("b", {
+    className: "tnum"
+  }, n == null ? '–' : n), " ", l)))), profile === undefined ? React.createElement("div", {
     className: "space-y-3",
     "aria-label": "Loading"
   }, React.createElement("div", {
@@ -26120,11 +26178,12 @@ function StreakRewards() {
   const next = STREAK_TIERS.find(r => best < r.at);
   const prog = next ? clamp(s / next.at * 100, 0, 100) : 100;
   return React.createElement(Card, {
-    hover: false
+    hover: false,
+    className: "text-center"
   }, React.createElement("div", {
-    className: "flex flex-wrap items-center justify-between gap-3"
+    className: "flex flex-col items-center gap-3"
   }, React.createElement("div", {
-    className: "flex items-center gap-3"
+    className: "flex flex-col items-center gap-2"
   }, React.createElement("span", {
     className: "grid place-items-center h-12 w-12 rounded-2xl bg-clay/15 text-clay"
   }, React.createElement(Icon, {
@@ -26144,7 +26203,7 @@ function StreakRewards() {
     name: checkedToday ? 'check' : 'flame',
     size: 15
   }), checkedToday ? 'Checked in today' : 'Check in today')), next && React.createElement("div", {
-    className: "mt-4"
+    className: "mt-4 max-w-xl mx-auto text-left"
   }, React.createElement("div", {
     className: "flex items-center justify-between text-xs mb-1.5"
   }, React.createElement("span", {
@@ -26157,7 +26216,7 @@ function StreakRewards() {
     value: prog,
     tone: "gold"
   })), React.createElement("div", {
-    className: "grid grid-cols-3 sm:grid-cols-6 gap-2.5 mt-4"
+    className: "grid grid-cols-3 sm:grid-cols-6 gap-2.5 mt-4 max-w-3xl mx-auto"
   }, STREAK_TIERS.map(r => {
     const unlocked = best >= r.at;
     return React.createElement("div", {
@@ -26175,7 +26234,7 @@ function StreakRewards() {
       className: "text-[10.5px] text-faint tnum"
     }, r.at, " days \xB7 ", r.at === 100 ? 'Mythic badge' : `+${r.xp} XP`));
   })), React.createElement("p", {
-    className: "text-[11px] text-faint mt-3 flex items-center gap-1.5"
+    className: "text-[11px] text-faint mt-3 flex items-center justify-center gap-1.5"
   }, React.createElement(Icon, {
     name: "info",
     size: 12

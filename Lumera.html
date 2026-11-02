@@ -763,6 +763,10 @@
   .ws-btn{ background:rgba(255,255,255,.18) !important; color:#fff !important; border:1px solid rgba(255,255,255,.3) !important; }
   .ws-btn:hover{ background:rgba(255,255,255,.3) !important; }
   @media (prefers-reduced-motion: reduce){ .lg-workspace.ws-live,.ws-blob,.ws-tile::after{ animation:none; } }
+  .sub-card{ transition:transform .3s cubic-bezier(.2,.8,.2,1); }
+  .sub-card:hover{ transform:translateY(-5px); }
+  .ready-card{ transition:transform .35s cubic-bezier(.2,.8,.2,1); }
+  .ready-card:hover{ transform:translateY(-6px); }
   html[data-skin="glass"] .lg-inset{
     border-radius:20px; background:rgba(8,7,14,.32); border:1px solid rgba(255,255,255,.07);
     box-shadow:inset 0 1px 2px rgba(0,0,0,.35);
@@ -2619,7 +2623,8 @@ function Sidebar(){
             {core.map(navBtn)}
           </div>
           {products.length>0 && <div className="mb-4">
-            <div className="px-3 mb-2 text-[10px] tracking-[.22em] uppercase text-faint">The Lumera family</div>
+            <div className="px-3 mb-2 flex items-center justify-between gap-2"><span className="text-[10px] tracking-[.18em] uppercase text-faint whitespace-nowrap">Lumera family</span>
+              <span className="text-[9px] font-extrabold uppercase tracking-wider rounded-full px-2 py-0.5 whitespace-nowrap" style={{background:'linear-gradient(100deg,#FCD34D,#F59E0B)',color:'#1A1206'}}>Not out yet</span></div>
             {/* Not launched yet: shown under a diagonal "Coming soon" band, and inert. */}
             <div className="relative fam-soon" aria-disabled="true">
             <span className="fam-ribbon" aria-hidden="true">Coming soon</span>
@@ -3202,39 +3207,40 @@ function Review(){
         </div>
         <div key={step} className="anim-fadeUp">
           {cur.type==='intro' && <>
-            <div className="relative overflow-hidden rounded-[26px] p-6 sm:p-7 mb-6" style={{background:'radial-gradient(90% 120% at 0% 0%, rgba(157,124,255,.55), transparent 60%), radial-gradient(80% 100% at 100% 100%, rgba(236,72,153,.35), transparent 60%), linear-gradient(160deg, rgba(255,255,255,.10), rgba(255,255,255,.03))', boxShadow:'inset 0 1px 0 rgba(255,255,255,.2), inset 0 0 0 1px rgba(255,255,255,.12)'}}>
-              <span className="absolute right-3 -bottom-2 hidden sm:block" aria-hidden="true"><Mascot kind="lumera" color="#9D7CFF" size={120} float={false}/></span>
-              <div className="relative sm:pr-32">
-                <div className="text-[11px] font-bold uppercase tracking-[.22em]" style={{color:'#F5D78A'}}>Monthly Expense Review</div>
-                <h1 className="font-serif text-3xl sm:text-4xl text-charcoal mt-1">What to have ready.</h1>
-                <p className="text-charcoal/85 mt-2 max-w-md">For when money is coming in, from a job, an allowance or side work. Rough monthly figures are fine.</p>
+            {/* One hero: what this is, how long it takes, and the language/currency it runs in */}
+            <div className="relative overflow-hidden rounded-[28px] p-6 sm:p-8 mb-5 text-white" style={{background:'linear-gradient(135deg,#6D28D9 0%,#9333EA 45%,#DB2777 100%)', boxShadow:'0 26px 60px -28px rgba(219,39,119,.8)'}}>
+              <span className="absolute -right-2 -bottom-3 hidden sm:block" aria-hidden="true"><Mascot kind="lumera" color="#ffffff" size={130}/></span>
+              <div className="relative sm:pr-36">
+                <div className="text-[11px] font-bold uppercase tracking-[.22em] text-white/85">Monthly Expense Review</div>
+                <h1 className="font-serif text-[2.4rem] sm:text-5xl leading-none mt-2" style={{color:'#fff'}}>What to have ready</h1>
+                <p className="text-white/90 mt-3 max-w-md">Rough monthly figures are fine. Best if money comes in from a job, allowance or side work.</p>
+                <div className="flex flex-wrap gap-2 mt-4">
+                  {[['clock','About 5 minutes'],['bulb','A statement helps'],['refresh','Edit any time']].map(([ic,l])=>
+                    <span key={l} className="inline-flex items-center gap-1.5 rounded-full bg-white/18 border border-white/30 px-3 py-1.5 text-xs font-semibold" style={{background:'rgba(255,255,255,.18)'}}><Icon name={ic} size={13}/>{l}</span>)}
+                </div>
+                <div className="flex flex-wrap gap-2 mt-4">
+                  <select value={app.lang} onChange={e=>app.setLang(e.target.value)} aria-label="Language for this review" className="rounded-full border border-white/40 px-3.5 py-2 text-sm font-semibold text-white focus:outline-none" style={{background:'rgba(20,6,40,.35)'}}>
+                    {LANGS.map(l=><option key={l.code} value={l.code} style={{color:'#111'}}>🌐 {l.native}</option>)}</select>
+                  <select value={app.profile.currency} onChange={e=>app.updateProfile({currency:e.target.value})} aria-label="Currency for your figures" className="rounded-full border border-white/40 px-3.5 py-2 text-sm font-semibold text-white focus:outline-none" style={{background:'rgba(20,6,40,.35)'}}>
+                    {Object.values(CURRENCIES).map(c=><option key={c.code} value={c.code} style={{color:'#111'}}>{c.flag} {c.code}</option>)}</select>
+                </div>
               </div>
             </div>
-            {/* Do the review in your language and currency */}
-            <div className="grid sm:grid-cols-2 gap-3 mb-2">
-              <label className="block"><span className="text-xs font-semibold text-muted mb-1.5 block">Language for this review</span>
-                <select value={app.lang} onChange={e=>app.setLang(e.target.value)} className="w-full rounded-xl border border-line bg-cream px-3 py-2.5 text-sm focus:border-gold focus:outline-none">
-                  {LANGS.map(l=><option key={l.code} value={l.code}>{l.native} · {l.label}</option>)}</select></label>
-              <label className="block"><span className="text-xs font-semibold text-muted mb-1.5 block">Currency for your figures</span>
-                <select value={app.profile.currency} onChange={e=>app.updateProfile({currency:e.target.value})} className="w-full rounded-xl border border-line bg-cream px-3 py-2.5 text-sm focus:border-gold focus:outline-none">
-                  {Object.values(CURRENCIES).map(c=><option key={c.code} value={c.code}>{c.flag} {c.code} · {c.name}</option>)}</select></label>
-            </div>
-            {[['Money in', [['wallet','Income','Take-home pay','#22C55E']]],
-              ['Money out', [['home','Housing','Rent or mortgage','#3B82F6'],['cart','Food','Groceries, eating out','#F97316'],['bus','Transport','Fuel, fares','#06B6D4'],
-                ['tv','Bills','Utilities, subscriptions','#8B5CF6'],['gift','Lifestyle','Shopping, fun','#EC4899'],['credit','Debt','Cards, loans, BNPL','#EF4444']]],
-              ['Set aside', [['chart','Saving','Savings, investing','#EAB308']]]].map(([group, items])=>
-              <section key={group} className="mt-6">
-                <h2 className="text-[11px] font-semibold uppercase tracking-[.18em] text-faint mb-2.5">{group}</h2>
-                <div className="ready-grid">
-                  {items.map(([ic,ttl,hint,col])=><div key={ttl} className="ready-tile" style={{background:`linear-gradient(150deg, ${col}33, ${col}0D 70%)`, borderColor:col+'55'}}>
-                    <span className="ready-ic" aria-hidden="true" style={{background:`linear-gradient(140deg, ${col}, ${col}AA)`, boxShadow:`0 8px 18px -8px ${col}`}}><Icon name={ic} size={18}/></span>
-                    <span className="min-w-0"><span className="block text-sm font-semibold text-charcoal">{ttl}</span>
-                      <span className="block text-xs text-charcoal/70 truncate">{hint}</span></span></div>)}
-                </div>
-              </section>)}
-            <div className="mt-6 flex flex-wrap gap-2">
-              {[['bulb','Last month’s statement helps','#F5D78A'],['clock','About five minutes','#7CB4FF'],['refresh','Edit any time','#86EFAC']].map(([ic,l,c])=>
-                <span key={l} className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-charcoal/90" style={{background:c+'1F', border:`1px solid ${c}55`}}><Icon name={ic} size={13} style={{color:c}}/>{l}</span>)}
+            {/* Three bold cards: the figures you will be asked for */}
+            <div className="grid sm:grid-cols-3 gap-3">
+              {[['Money in','wallet',['#10B981','#0D9488'],[['wallet','Take-home pay'],['spark','Side income']]],
+                ['Money out','cart',['#F97316','#E11D48'],[['home','Housing'],['cart','Food'],['bus','Transport'],['tv','Bills & subscriptions'],['gift','Lifestyle'],['credit','Debt repayments']]],
+                ['Set aside','chart',['#3B82F6','#7C3AED'],[['pig','Savings'],['chart','Investing'],['shield','Emergency fund']]]].map(([ttl,ic,g,items],i)=>
+                <section key={ttl} className="ready-card rounded-[22px] p-5 text-white" style={{background:`linear-gradient(160deg,${g[0]},${g[1]})`, boxShadow:`0 20px 40px -22px ${g[1]}`, animation:`fadeUp .5s ${.08*i}s both`}}>
+                  <div className="flex items-center justify-between">
+                    <span className="grid place-items-center h-11 w-11 rounded-2xl" style={{background:'rgba(255,255,255,.22)'}} aria-hidden="true"><Icon name={ic} size={20}/></span>
+                    <span className="text-[11px] font-bold rounded-full px-2.5 py-1" style={{background:'rgba(0,0,0,.18)'}}>{items.length} item{items.length>1?'s':''}</span>
+                  </div>
+                  <h2 className="font-serif text-[1.7rem] leading-none mt-4" style={{color:'#fff'}}>{ttl}</h2>
+                  <ul className="mt-3 space-y-1.5">
+                    {items.map(([iic,l])=><li key={l} className="flex items-center gap-2 text-[13px] font-medium"><span className="grid place-items-center h-5 w-5 rounded-md" style={{background:'rgba(255,255,255,.22)'}}><Icon name={iic} size={11}/></span>{l}</li>)}
+                  </ul>
+                </section>)}
             </div>
           </>}
           {cur.type==='group' && <>
@@ -3987,7 +3993,7 @@ function Recommendations(){
   // it. The reasoning sits one click away, so the list stays short.
   return <AppShell>
     <PageHead eyebrow="AI recommendations" title="What to do next, and why."
-      desc="Prioritised actions built from your own numbers, each with the reasoning, the steps and what it is worth."/>
+      desc="Short, ranked actions from your own numbers. Tap How for the steps."/>
     {insights.length>0 && <div className="flex flex-wrap items-center gap-2 mb-4">
       <span className="lg-pill"><span className="lg-orb warn" aria-hidden="true"/>{insights.filter(i=>i.priority==='High').length} high priority</span>
       <span className="lg-pill">{insights.length} action{insights.length===1?'':'s'}</span>
@@ -4004,14 +4010,18 @@ function Recommendations(){
               <span className="block text-[15px] font-semibold text-charcoal leading-snug mt-0.5">{ins.title}</span>
             </span>
           </div>
-          <p className="text-[13px] text-charcoal/85 leading-relaxed mt-3"><b className="text-charcoal">Why. </b>{ins.explanation}</p>
-          {ins.steps && <ol className="mt-3 space-y-1.5">{ins.steps.map((st,k)=><li key={k} className="flex gap-2 text-[13px] text-charcoal/85 leading-snug">
-            <span className="grid place-items-center h-5 w-5 rounded-full bg-gold/15 text-goldd text-[10.5px] font-bold shrink-0">{k+1}</span>{st}</li>)}</ol>}
-          {ins.impact>0 && <div className="grid grid-cols-3 gap-2 mt-3">
-            {[['A month',fmt.money(ins.impact)],['A year',fmt.money(yearly)],['5 years saved',fmt.money(five)]].map(([l,v])=>
-              <div key={l} className="rounded-xl px-2.5 py-2 bg-white/[.05]"><div className="text-[10px] uppercase tracking-wider text-faint">{l}</div><div className="text-sm font-semibold text-saged tnum">{v}</div></div>)}
+          <div className="flex flex-wrap items-center gap-2 mt-3">
+            {ins.impact>0 && <span className="rounded-full px-2.5 py-1 text-[12px] font-bold tnum" style={{background:'rgba(52,211,153,.16)',color:'#6EE7B7'}}>+{fmt.money(ins.impact)}/mo · {fmt.money(yearly)}/yr</span>}
+            {ins.tool && <button onClick={()=>app.nav(ins.tool)} className="btn btn-ghost px-3 py-1.5 text-xs">Open <Icon name="arrowR" size={12}/></button>}
+            {(ins.explanation||ins.steps) && <button onClick={()=>setOpen(isOpen?null:i)} aria-expanded={isOpen} className="ml-auto text-xs font-semibold text-goldd flex items-center gap-1">{isOpen?'Hide':'How'}<Icon name="chevron" size={12} className={isOpen?'-rotate-90':'rotate-90'}/></button>}
+          </div>
+          {isOpen && <div className="mt-3 pt-3 border-t border-line anim-fadeUp">
+            {ins.steps
+              ? <ol className="space-y-1.5">{ins.steps.slice(0,3).map((st,k)=><li key={k} className="flex gap-2 text-[13px] text-charcoal/85 leading-snug">
+                  <span className="grid place-items-center h-5 w-5 rounded-full bg-gold/15 text-goldd text-[10.5px] font-bold shrink-0">{k+1}</span>{st}</li>)}</ol>
+              : <p className="text-[13px] text-charcoal/85 leading-relaxed">{String(ins.explanation).split(/(?<=\.)\s/)[0]}</p>}
+            {ins.impact>0 && <div className="text-[12px] text-faint mt-2">Kept up for 5 years: <b className="text-saged tnum">{fmt.money(five)}</b></div>}
           </div>}
-          {ins.tool && <button onClick={()=>app.nav(ins.tool)} className="btn btn-ghost mt-3 px-3 py-2 text-xs self-start">Open the tool <Icon name="arrowR" size={12}/></button>}
         </div>; })}
       {!insights.length && <Card hover={false} className="lg:col-span-2 text-center py-10">
         <div className="font-display text-2xl text-charcoal">Nothing urgent right now</div>
@@ -4110,7 +4120,7 @@ function Dashboard(){
             <Mascot kind="lumera" color="#ffffff" size={64}/>
             <div className="rounded-2xl rounded-bl-sm bg-white/20 border border-white/30 px-3.5 py-2 text-sm font-medium">{greet}{app.profile.name?`, ${app.profile.name}`:''}! {hasData?(m.overall>=70?'You are on a roll. 🎉':'Let’s level up your money today. 🚀'):'Add your income and I’ll score you. ✨'}</div>
           </div>
-          <h1 id="ws-title" className="font-display text-[2.5rem] sm:text-[3.4rem] leading-[1.02] mt-3" style={{color:'#fff',textShadow:'0 4px 24px rgba(0,0,0,.25)'}}>Your money, <span style={{color:'#FDE68A'}}>today</span>.</h1>
+          <h1 id="ws-title" className="font-display text-[2.3rem] sm:text-[3rem] leading-[1.02] mt-3" style={{color:'rgba(255,255,255,.82)',fontWeight:400}}>Your money, <span style={{color:'rgba(253,230,138,.85)'}}>today</span>.</h1>
           <div className="flex items-center gap-5 mt-5">
             <WsRing value={hasData?m.overall:0}/>
             <div>
@@ -5567,37 +5577,46 @@ function Subscriptions(){
       </div>
       <div className="flex gap-2 mt-3"><Btn variant="gold" onClick={addSub}>Add subscription</Btn><Btn variant="ghost" onClick={()=>setShowAdd(false)}>Cancel</Btn></div>
     </Card>}
-    {/* Each subscription leads with the company, then the plan and the cost.
-        The logo is a compact tile beside the name, not the whole card. */}
-    {/* Centred rows: a last row with fewer cards sits in the middle. */}
-    <div className="flex flex-wrap justify-center gap-3 stagger">
+    {/* Totals first, as bright tiles */}
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+      {[['Current / month',total,['#6366F1','#8B5CF6']],['After your changes',kept,['#10B981','#0D9488']],['Saved / month',cancelSum,['#F43F5E','#EC4899']],['Saved / year',cancelSum*12,['#F59E0B','#F97316']]].map(([l,v,g])=>
+        <div key={l} className="rounded-2xl p-4 text-white" style={{background:`linear-gradient(150deg,${g[0]},${g[1]})`,boxShadow:`0 16px 32px -18px ${g[1]}`}}>
+          <div className="text-[11px] font-bold uppercase tracking-wider text-white/85">{l}</div>
+          <div className="font-serif text-[1.9rem] leading-none mt-2 tnum"><AnimatedNumber value={v} money/></div></div>)}
+    </div>
+    {/* One card per subscription: logo, name, cost, usage, a swap, and a decision */}
+    <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4 stagger">
       {subs.map(s=>{
         const dead = s.freq==='Never'||s.freq==='Rarely';
-        const hue = s.verdict==='cancelled' ? '#E0505A' : s.verdict==='paused' ? '#6E86A0'
-                  : dead ? '#D97706' : '#16A34A';
-        return <div key={s.id} className="lux-card lift !p-0 overflow-hidden flex flex-col w-full sm:w-[calc(50%-6px)] xl:w-[calc(33.333%-8px)]" style={{'--glow':hexToRgbList(hue)}}>
-          <button onClick={()=>setOpenSub(s.id)} className="text-left w-full flex items-center gap-3 px-4 pt-4 pb-3" aria-label={`${s.name}, details`}>
-            <CompanyLogo name={s.name} domain={s.domain} size={44} hue={hue}/>
+        const hue = s.verdict==='cancelled' ? '#F43F5E' : s.verdict==='paused' ? '#94A3B8'
+                  : s.verdict==='review' ? '#F59E0B' : dead ? '#F59E0B' : '#22C55E';
+        const a=subAdvice(s, fmt);
+        return <div key={s.id} className="sub-card rounded-[22px] overflow-hidden flex flex-col" style={{background:`linear-gradient(170deg, ${hue}26, rgba(255,255,255,.04) 60%)`, boxShadow:`inset 0 0 0 1px ${hue}55`}}>
+          <div className="h-1" style={{background:hue}}/>
+          <button onClick={()=>setOpenSub(s.id)} className="text-left w-full flex items-center gap-3 p-4" aria-label={`${s.name}, details`}>
+            <CompanyLogo name={s.name} domain={s.domain} size={46} hue={hue}/>
             <span className="min-w-0 flex-1">
-              <span className="block font-semibold text-charcoal leading-tight truncate">{s.name}</span>
-              <span className="mt-1 flex items-center gap-1.5 text-[11px] text-muted">
-                {s.category && <Fragment><span className="whitespace-nowrap">{s.category}</span><span aria-hidden="true">·</span></Fragment>}
-                <span className="whitespace-nowrap" style={dead?{color:'#F5B95C',fontWeight:600}:undefined}>{dead?'Barely used':'Used '+String(s.freq||'').toLowerCase()}</span></span>
+              <span className="block font-semibold text-[15px] text-charcoal leading-tight truncate">{s.name}</span>
+              <span className="inline-block mt-1.5 rounded-full px-2 py-0.5 text-[10.5px] font-bold" style={dead?{background:'rgba(245,158,11,.2)',color:'#FCD34D'}:{background:'rgba(34,197,94,.18)',color:'#86EFAC'}}>{dead?'Barely used':'Used '+String(s.freq||'').toLowerCase()}</span>
             </span>
             <span className="text-right shrink-0">
-              <span className="block font-semibold text-lg text-charcoal tnum leading-none">{fmt.money(s.cost)}</span>
+              <span className="block font-serif text-[1.6rem] text-charcoal tnum leading-none">{fmt.money(s.cost)}</span>
               <span className="block text-[10.5px] text-faint mt-1">a month</span>
             </span>
           </button>
-          {(()=>{ const a=subAdvice(s, fmt); return <div className="px-4 pb-3 -mt-1 text-[12px] leading-snug space-y-1">
-            <p className="text-charcoal/85"><b className="text-charcoal">Fix. </b>{a.fix}</p>
-            {a.altText && <p className="text-charcoal/85"><b className="text-charcoal">Instead. </b>{a.altText}{a.save>0 && <span className="text-saged font-semibold"> · save {fmt.money(a.save)}/mo</span>}</p>}
-          </div>; })()}
-          <div className="mt-auto grid grid-cols-4 gap-1 px-2 pb-2">
-            {['active','review','paused','cancelled'].map(v=>
+          <div className="px-4 pb-3 min-h-[2.5rem]">
+            {a.altText
+              ? <div className="flex items-center gap-2 rounded-xl px-3 py-2 text-[12px]" style={{background:'rgba(255,255,255,.06)'}}>
+                  <Icon name="refresh" size={13} className="text-saged shrink-0"/>
+                  <span className="truncate text-charcoal/90">{a.altText}</span>
+                  {a.save>0 && <span className="ml-auto shrink-0 font-bold text-saged tnum">−{fmt.money(a.save)}</span>}</div>
+              : <div className="text-[12px] text-faint px-1 py-2">No cheaper swap. Keep or cancel.</div>}
+          </div>
+          <div className="mt-auto mx-3 mb-3 grid grid-cols-4 gap-1 rounded-full p-1" style={{background:'rgba(0,0,0,.22)'}} role="group" aria-label={`Decision for ${s.name}`}>
+            {[['active','Keep'],['review','Review'],['paused','Pause'],['cancelled','Cancel']].map(([v,l])=>
               <button key={v} onClick={()=>setVerdict(s.id,v)} aria-pressed={s.verdict===v}
-                className={cx('rounded-lg py-1.5 text-[10.5px] font-semibold capitalize border transition', s.verdict===v?'':'border-transparent text-muted hover:bg-sand')}
-                style={s.verdict===v?{borderColor:hue+'99',background:hue+'22',color:hue}:undefined}>{v}</button>)}
+                className="rounded-full py-1.5 text-[11.5px] font-semibold transition"
+                style={s.verdict===v?{background:hue,color:'#fff',boxShadow:`0 6px 14px -6px ${hue}`}:{color:'rgb(var(--c-muted))'}}>{l}</button>)}
           </div>
         </div>; })}
     </div>
@@ -5673,11 +5692,6 @@ function Subscriptions(){
                 No cheaper equivalent worth recommending. If you want to cut this one, the option is
                 cancelling rather than switching.</p>,
         }}/>; })()}
-    {/* Totals sit below the list, where you expect them. */}
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-4">
-      {[['Current / month',total,'charcoal'],['After your changes',kept,'sage'],['Monthly saved',cancelSum,'berry'],['Annual saved',cancelSum*12,'gold']].map(([l,v,t])=>
-        <Card key={l} hover={false} className="!p-4"><div className="text-xs text-muted">{l}</div><div className="font-serif text-2xl mt-0.5 tnum" style={{color:t==='charcoal'?COLORS.charcoal:COLORS[t]}}><AnimatedNumber value={v} money/></div></Card>)}
-    </div>
     {cancelSum>0 && <Card hover={false} className="mt-3" style={{background:'linear-gradient(135deg,#6D28D9,#4F46E5)',border:'none'}}>
       <div className="flex items-start gap-2 text-sm" style={{color:'#fff'}}><Icon name="spark" size={16} className="mt-0.5 shrink-0"/>
         <span>Cancelling {toCancel.length} subscription{toCancel.length>1?'s':''} drops your monthly bill from <b>{fmt.money(total)}</b> to <b>{fmt.money(kept)}</b>, saving <b>{fmt.money(cancelSum*12)}</b> a year.</span></div>
@@ -6780,7 +6794,8 @@ function Badges(){
       return <button key={t} onClick={()=>setFilter(t)} className={cx('chip',on&&'on')}
         style={on&&R?{background:`linear-gradient(180deg,${R.color},${R.color}CC)`,borderColor:'transparent',color:'#fff'}:undefined}>{t}</button>; })}</div>
 
-    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 stagger">
+    {/* Centred rows, so a short last row sits in the middle */}
+    <div className="flex flex-wrap justify-center gap-4 stagger">
       {shown.map(b=>{ const got=b.got; const R=RARITY[b.rar]||RARITY.Common;
         const ring = R.rainbow
           ? 'conic-gradient(from 210deg,#EC4899,#F59E0B,#22C55E,#3B82F6,#A855F7,#EC4899)'
@@ -6788,7 +6803,7 @@ function Badges(){
         // Every badge carries a thick ring in its rarity colour, earned or not,
         // so the tier reads at a glance. Earned ones glow; locked ones are
         // dimmer but stay readable rather than fading into the page.
-        return <div key={b.id} className={cx('lux-card p-5 text-center h-full relative overflow-hidden', got&&'lift')}
+        return <div key={b.id} className={cx('lux-card p-5 text-center relative overflow-hidden w-full sm:w-[calc(50%-8px)] lg:w-[calc(25%-12px)]', got&&'lift')}
             style={{borderColor:R.color+(got?'80':'40'), boxShadow:got?`0 0 0 1px ${R.color}44, 0 18px 44px -18px ${R.glow}`:undefined}}>
             <span aria-hidden="true" className="absolute inset-x-0 top-0 h-1.5" style={{background:ring, opacity:got?1:.55}}/>
             <span aria-hidden="true" className="absolute -top-12 -right-12 h-28 w-28 rounded-full blur-2xl" style={{background:R.color+(got?'40':'1C')}}/>
@@ -6812,7 +6827,7 @@ function Badges(){
             <div className="text-[10.5px] text-faint mt-2 pt-2 border-t border-line">
               {b.pct==null? 'Rarity opens up as the community grows' : `${b.pct}% of members have this`}</div>
           </div>; })}
-      {!shown.length && <div className="sm:col-span-2 lg:col-span-4 text-center text-sm text-muted py-10">No badges in this group yet.</div>}
+      {!shown.length && <div className="w-full text-center text-sm text-muted py-10">No badges in this group yet.</div>}
     </div>
 
     <div className="mt-5"><StreakRewards/></div>
@@ -6827,25 +6842,19 @@ function HBar({ l, v, color=COLORS.gold, suffix='%' }){
     <span className="flex-1 h-2.5 rounded-full bg-sand overflow-hidden"><span className="block h-full rounded-full" style={{width:clamp(v,0,100)+'%', background:color, transition:'width .8s cubic-bezier(.22,1,.36,1)'}}/></span>
     <span className="w-12 text-right text-sm tnum text-muted">{v}{suffix}</span></div>;
 }
-const ADMIN_KEY='lumera-admin-2026';
 function Analytics(){
   const app=useApp();
-  const [ok,setOk]=useState(()=>{ try{ return sessionStorage.getItem('lumera_admin')==='1'; }catch(e){ return false; } });
-  const [key,setKey]=useState(''); const [err,setErr]=useState('');
-  const unlock=()=>{ if(key===ADMIN_KEY){ try{ sessionStorage.setItem('lumera_admin','1'); }catch(e){} setOk(true); } else setErr('Incorrect access key.'); };
+  // Admin only, decided by the server (ADMIN_EMAILS). No key ships in the page.
+  const ok=!!(app.user&&app.user.isAdmin);
+  const [tick,setTick]=useState(0);
+  useEffect(()=>{ if(!ok) return; const id=setInterval(()=>setTick(t=>t+1),3000); return ()=>clearInterval(id); },[ok]);
   if(!ok) return <div className="min-h-screen grid place-items-center p-6">
     <div className="w-full max-w-sm lux-card !p-7 text-center anim-scaleIn">
       <span className="mx-auto grid place-items-center h-12 w-12 rounded-2xl bg-charcoal text-gold mb-3"><Icon name="lock" size={22}/></span>
-      <h1 className="font-serif text-2xl text-charcoal">Admin analytics portal</h1>
-      <p className="text-sm text-muted mt-1 mb-4">Owner-only. Enter the admin access key to continue, this area is never shown to regular users.</p>
-      <input type="password" value={key} onChange={e=>{setKey(e.target.value);setErr('');}} onKeyDown={e=>e.key==='Enter'&&unlock()} placeholder="Access key" className="w-full rounded-xl border border-line bg-cream px-3 py-2.5 text-center focus:border-gold focus:outline-none focus:ring-4 focus:ring-gold/10"/>
-      {err&&<div className="text-xs text-berry mt-2">{err}</div>}
-      <button onClick={unlock} className="btn btn-primary w-full mt-3 py-2.5 text-sm">Unlock portal</button>
-      <button onClick={()=>app.nav('/dashboard')} className="text-xs text-muted hover:text-charcoal mt-3 block mx-auto">← Back to the app</button>
-      <p className="text-[11px] text-faint mt-4 leading-relaxed">The figures below are illustrative sample telemetry. Real product analytics require a backend (PostHog / Plausible / GA4), see <b>INTEGRATION.md → Step 3</b>.</p>
+      <h1 className="font-serif text-2xl text-charcoal">Admins only</h1>
+      <p className="text-sm text-muted mt-1 mb-4">This page is for Lumera administrators. Sign in with an admin account to see it.</p>
+      <button onClick={()=>app.nav('/dashboard')} className="btn btn-primary w-full py-2.5 text-sm">Back to the app</button>
     </div></div>;
-  const [tick,setTick]=useState(0);
-  useEffect(()=>{ const id=setInterval(()=>setTick(t=>t+1),3000); return ()=>clearInterval(id); },[]);
   const data=LA.read(); const sessions=data.sessions||[]; const events=data.events||[];
   const accounts=(()=>{ try{ return JSON.parse(localStorage.getItem('lumera_accounts'))||{}; }catch(e){ return {}; } })();
   const DAY=864e5; const startToday=new Date(); startToday.setHours(0,0,0,0);
@@ -11018,63 +11027,63 @@ function DemoCommunity(){
   const Avatar=({name,size=44})=><span className="grid place-items-center rounded-full text-white font-semibold shrink-0" style={{width:size,height:size,background:`linear-gradient(135deg,${avatarHue(name)},${avatarHue(name)}AA)`,fontSize:size*0.36}}>{initialsOf(name)}</span>;
   const toggleConn=(n)=>setConnected(c=>c.includes(n)?c.filter(x=>x!==n):[...c,n]);
   return <AppShell>
-    <PageHead eyebrow="Community" title="Connect with the Lumera community." desc="Share what you’re working on, add your LinkedIn, find people on the same path, and swap opportunities. This demo shows example posts and members."/>
-    <div className="rounded-2xl p-5 mb-4 text-white flex flex-wrap items-center gap-6" style={{background:'linear-gradient(135deg,#7C3AED 0%,#4F46E5 50%,#0D9488 100%)'}}>
-      {[['Example members',DEMO_MEMBERS.length],['Your connections',connected.length],['Example posts',DEMO_POSTS.length],['Opportunities',DEMO_OPPS.length]].map(([l,n])=><div key={l}><div className="font-serif text-3xl">{n}</div><div className="text-xs opacity-85">{l}</div></div>)}
-      <a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" className="ml-auto btn bg-white/15 hover:bg-white/25 text-white text-sm">Open LinkedIn <Icon name="arrowR" size={13} className="-rotate-45"/></a>
-    </div>
-    <div className="flex gap-2 mb-4 flex-wrap">{['Feed','Members','Opportunities'].map(t=><button key={t} onClick={()=>setTab(t)} className={cx('chip',tab===t&&'on')}>{t}</button>)}</div>
-    {tab==='Feed' && <div className="grid lg:grid-cols-[220px_minmax(0,1fr)_280px] gap-5 items-start">
-      {/* Left: topics, each in its own colour */}
-      <aside className="space-y-3 lg:sticky lg:top-24">
-        <div className="rounded-2xl p-4" style={{background:'linear-gradient(160deg,#F472B6,#8B5CF6)',boxShadow:'0 14px 30px -14px #8B5CF6'}}>
-          <div className="text-[11px] font-bold uppercase tracking-wider text-white/85">Topics</div>
-          <div className="flex flex-wrap gap-1.5 mt-3">{['Saving','FirstJob','Apprenticeships','Investing','Budgeting','Placements','Freelance','Economics'].map(t=>
-            <button key={t} onClick={()=>setTopic(topic===t?'':t)} className="text-[12px] font-bold rounded-full px-3 py-1 transition"
-              style={topic===t?{background:'#fff',color:'#6D28D9'}:{background:'rgba(255,255,255,.2)',color:'#fff'}}>#{t}</button>)}</div>
-        </div>
-        <div className="rounded-2xl p-4 text-white" style={{background:'linear-gradient(160deg,#14B8A6,#2563EB)',boxShadow:'0 14px 30px -14px #2563EB'}}>
-          <div className="font-serif text-3xl leading-none">{connected.length}</div>
-          <div className="text-xs mt-1 opacity-90">connections you’ve made in this demo</div>
-          <a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-[12px] font-bold" style={{color:'#1D4ED8'}}>Open LinkedIn <Icon name="arrowR" size={11} className="-rotate-45"/></a>
-        </div>
-      </aside>
-      {/* Centre: the feed, each post with its own colour band */}
-      <div className="space-y-4 min-w-0">
-        <div className="rounded-2xl p-4 flex items-center gap-3" style={{background:'linear-gradient(120deg,rgba(251,191,36,.28),rgba(244,114,182,.24))',boxShadow:'inset 0 0 0 1px rgba(251,191,36,.45)'}}>
-          <Avatar name="You"/>
-          <div className="flex-1 text-sm text-charcoal/85">Posting and linking your LinkedIn needs an account.</div>
-          <Btn variant="gold" to="/signup">Create account</Btn></div>
-        {DEMO_POSTS.map((p,i)=>({p,i})).filter(({p})=>!topic||p.tag.replace(/\W/g,'').toLowerCase().includes(topic.toLowerCase())||p.text.toLowerCase().includes(topic.toLowerCase())).map(({p,i})=>{ const h=avatarHue(p.name);
-          return <article key={i} className="rounded-2xl overflow-hidden transition hover:-translate-y-1" style={{background:`linear-gradient(170deg, ${h}30, rgba(255,255,255,.04) 55%)`, boxShadow:`inset 0 0 0 1px ${h}55, 0 18px 36px -22px ${h}`}}>
-            <div className="h-1.5" style={{background:`linear-gradient(90deg, ${h}, ${avatarHue(p.tag)})`}}/>
-            <div className="p-4 flex gap-3"><Avatar name={p.name}/><div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap"><span className="font-semibold text-charcoal text-sm">{p.name}</span><Ex/><span className="text-xs text-faint">· {p.ago}</span>
-                <span className="ml-auto text-[11px] font-bold rounded-full px-2.5 py-0.5 text-white" style={{background:h}}>{p.tag}</span></div>
-              <div className="text-xs text-charcoal/70">{p.head}</div>
-              <p className="text-[15px] text-charcoal/95 mt-2 leading-relaxed">{p.text}</p>
-              <div className="flex items-center gap-2 mt-3">
-                <button onClick={()=>setLiked(l=>l.includes(i)?l.filter(x=>x!==i):[...l,i])} aria-pressed={liked.includes(i)} className="text-xs font-semibold flex items-center gap-1 rounded-full px-3 py-1 transition"
-                  style={liked.includes(i)?{background:'#F43F5E',color:'#fff'}:{background:'rgba(255,255,255,.1)',color:'rgb(var(--c-charcoal))'}}><Icon name="heart" size={13}/>{p.likes+(liked.includes(i)?1:0)}</button>
-              </div></div></div>
-          </article>; })}
+    {/* Compact colourful header: title, counts, tabs, and members as stories */}
+    <section className="rounded-[28px] p-5 sm:p-6 mb-5 text-white relative overflow-hidden" style={{background:'linear-gradient(120deg,#7C3AED 0%,#C026D3 45%,#F97316 100%)',boxShadow:'0 26px 60px -30px rgba(192,38,211,.9)'}}>
+      <div className="flex flex-wrap items-center gap-3">
+        <h1 className="font-display text-[2.2rem] sm:text-[2.6rem] leading-none" style={{color:'#fff'}}>Community</h1>
+        <span className="rounded-full px-2.5 py-1 text-[11px] font-bold" style={{background:'rgba(0,0,0,.2)'}}>Example posts and members</span>
+        <a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" className="ml-auto inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[13px] font-bold" style={{background:'#ffffff',color:'#6D28D9'}}>LinkedIn <Icon name="arrowR" size={12} className="-rotate-45"/></a>
       </div>
-      {/* Right: people and opportunities */}
-      <aside className="space-y-4 lg:sticky lg:top-24">
-        <div className="rounded-2xl p-4" style={{background:'linear-gradient(170deg,rgba(139,92,246,.35),rgba(139,92,246,.08))',boxShadow:'inset 0 0 0 1px rgba(167,139,250,.45)'}}>
-          <div className="text-[11px] font-bold uppercase tracking-wider" style={{color:'#C4B5FD'}}>People to meet</div>
-          <div className="mt-3 space-y-2.5">{DEMO_MEMBERS.slice(0,5).map(mem=>{ const on=connected.includes(mem.name); const h=avatarHue(mem.name);
-            return <div key={mem.name} className="flex items-center gap-2.5"><Avatar name={mem.name} size={36}/>
-              <div className="flex-1 min-w-0"><div className="text-[13px] font-semibold text-charcoal truncate">{mem.name}</div><div className="text-[11px] text-charcoal/70 truncate">{mem.head}</div></div>
-              <button onClick={()=>toggleConn(mem.name)} className="rounded-full px-2.5 py-1 text-[11px] font-bold shrink-0"
-                style={on?{background:'rgba(255,255,255,.15)',color:'#fff'}:{background:h,color:'#fff'}}>{on?'✓':'Connect'}</button></div>; })}</div>
+      <div className="flex gap-4 overflow-x-auto no-scrollbar mt-5 pb-1">
+        {DEMO_MEMBERS.map(mem=>{ const on=connected.includes(mem.name);
+          return <button key={mem.name} onClick={()=>toggleConn(mem.name)} aria-pressed={on} title={on?'Connected':'Connect'} className="shrink-0 w-[76px] text-center group">
+            <span className="block mx-auto rounded-full p-[3px] transition group-hover:scale-105" style={{background:on?'#fff':'conic-gradient(#FDE047,#F472B6,#60A5FA,#34D399,#FDE047)'}}>
+              <span className="block rounded-full p-[2px]" style={{background:'#5B1C8F'}}><Avatar name={mem.name} size={60}/></span></span>
+            <span className="block text-[11.5px] font-semibold mt-1.5 truncate">{mem.name.split(' ')[0]}</span>
+            <span className="block text-[10px] text-white/80">{on?'✓ Connected':'Connect'}</span>
+          </button>; })}
+      </div>
+      <div role="tablist" aria-label="Community" className="inline-flex gap-1 rounded-full p-1 mt-4" style={{background:'rgba(0,0,0,.22)'}}>
+        {['Feed','Members','Opportunities'].map(t=><button key={t} role="tab" aria-selected={tab===t} onClick={()=>setTab(t)}
+          className="rounded-full px-4 py-1.5 text-[13px] font-bold transition" style={tab===t?{background:'#fff',color:'#7C3AED'}:{color:'#fff'}}>{t}</button>)}
+      </div>
+    </section>
+    {tab==='Feed' && <div className="grid lg:grid-cols-[minmax(0,1fr)_300px] gap-5 items-start">
+      <div className="space-y-4 min-w-0">
+        <div className="rounded-2xl p-3.5 flex items-center gap-3" style={{background:'rgba(255,255,255,.06)',boxShadow:'inset 0 0 0 1px rgba(255,255,255,.1)'}}>
+          <Avatar name="You" size={40}/>
+          <div className="flex-1 rounded-full px-4 py-2.5 text-sm text-faint" style={{background:'rgba(255,255,255,.06)'}}>Share an update… (needs an account)</div>
+          <Btn variant="gold" to="/signup">Join</Btn></div>
+        {topic && <div className="flex items-center gap-2 text-sm"><span className="text-muted">Showing</span><span className="font-bold" style={{color:avatarHue(topic)}}>#{topic}</span><button onClick={()=>setTopic('')} className="text-xs text-faint underline">clear</button></div>}
+        {(()=>{ const list=DEMO_POSTS.map((p,i)=>({p,i})).filter(({p})=>!topic||(p.tag+' '+p.text).toLowerCase().includes(topic.toLowerCase().replace('firstjob','first')));
+          if(!list.length) return <div className="rounded-2xl p-8 text-center text-sm text-muted" style={{background:'rgba(255,255,255,.04)'}}>No example posts on #{topic} yet.</div>;
+          return list.map(({p,i})=>{ const h=avatarHue(p.name); const liked_=liked.includes(i);
+          return <article key={i} className="rounded-[22px] p-5 transition hover:-translate-y-1" style={{background:`linear-gradient(160deg, ${h}2E, rgba(255,255,255,.035) 55%)`, boxShadow:`inset 0 0 0 1px ${h}50, 0 20px 40px -26px ${h}`}}>
+            <div className="flex items-center gap-3"><Avatar name={p.name}/>
+              <div className="min-w-0 flex-1"><div className="flex items-center gap-2 flex-wrap"><span className="font-semibold text-charcoal">{p.name}</span><Ex/></div>
+                <div className="text-xs text-charcoal/70 truncate">{p.head} · {p.ago}</div></div>
+              <span className="text-[11px] font-bold rounded-full px-2.5 py-1 text-white shrink-0" style={{background:h}}>{p.tag}</span></div>
+            <p className="text-[15.5px] text-charcoal/95 mt-3 leading-relaxed">{p.text}</p>
+            <div className="flex items-center gap-2 mt-4">
+              <button onClick={()=>setLiked(l=>liked_?l.filter(x=>x!==i):[...l,i])} aria-pressed={liked_} className="text-xs font-bold flex items-center gap-1.5 rounded-full px-3 py-1.5 transition"
+                style={liked_?{background:'#F43F5E',color:'#fff'}:{background:'rgba(255,255,255,.08)',color:'rgb(var(--c-charcoal))'}}><Icon name="heart" size={13}/>{p.likes+(liked_?1:0)}</button>
+              <button onClick={()=>toggleConn(p.name)} className="text-xs font-bold rounded-full px-3 py-1.5" style={{background:'rgba(255,255,255,.08)',color:'rgb(var(--c-charcoal))'}}>{connected.includes(p.name)?'✓ Connected':'+ Connect'}</button>
+            </div>
+          </article>; }); })()}
+      </div>
+      <div className="space-y-4">
+        <div className="rounded-2xl p-4" style={{background:'linear-gradient(160deg,rgba(236,72,153,.28),rgba(139,92,246,.12))',boxShadow:'inset 0 0 0 1px rgba(244,114,182,.4)'}}>
+          <div className="text-[11px] font-bold uppercase tracking-wider" style={{color:'#F9A8D4'}}>Trending topics</div>
+          <div className="flex flex-wrap gap-1.5 mt-3">{['Saving','FirstJob','Apprenticeships','Investing','Budgeting','Placements','Freelance'].map(t=>{ const c=avatarHue(t); const on=topic===t;
+            return <button key={t} onClick={()=>setTopic(on?'':t)} className="text-[12px] font-bold rounded-full px-3 py-1 transition" style={on?{background:'#fff',color:c}:{background:c,color:'#fff'}}>#{t}</button>; })}</div>
         </div>
-        <div className="rounded-2xl p-4" style={{background:'linear-gradient(170deg,rgba(245,158,11,.35),rgba(245,158,11,.08))',boxShadow:'inset 0 0 0 1px rgba(251,191,36,.45)'}}>
+        <div className="rounded-2xl p-4" style={{background:'linear-gradient(160deg,rgba(245,158,11,.28),rgba(245,158,11,.06))',boxShadow:'inset 0 0 0 1px rgba(251,191,36,.42)'}}>
           <div className="text-[11px] font-bold uppercase tracking-wider" style={{color:'#FCD34D'}}>Opportunities</div>
-          <div className="mt-3 space-y-2">{DEMO_OPPS.slice(0,3).map(o=><a key={o.title} href={o.li} target="_blank" rel="noopener noreferrer" className="block rounded-xl p-2.5 transition hover:-translate-y-0.5" style={{background:'rgba(255,255,255,.08)'}}>
-            <div className="text-[10px] font-bold uppercase" style={{color:'#FCD34D'}}>{o.type}</div><div className="text-[13px] font-semibold text-charcoal">{o.title}</div></a>)}</div>
+          <div className="mt-3 space-y-2">{DEMO_OPPS.slice(0,3).map(o=><a key={o.title} href={o.li} target="_blank" rel="noopener noreferrer" className="block rounded-xl p-3 transition hover:-translate-y-0.5" style={{background:'rgba(255,255,255,.07)'}}>
+            <div className="text-[10px] font-bold uppercase" style={{color:'#FCD34D'}}>{o.type}</div><div className="text-[13px] font-semibold text-charcoal mt-0.5">{o.title}</div></a>)}</div>
+          <button onClick={()=>setTab('Opportunities')} className="mt-3 text-xs font-bold" style={{color:'#FCD34D'}}>See all →</button>
         </div>
-      </aside>
+      </div>
     </div>}
     {tab==='Members' && <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">{DEMO_MEMBERS.map(mem=>{ const on=connected.includes(mem.name);
       return <Card key={mem.name}><div className="flex items-center gap-3"><Avatar name={mem.name} size={52}/><div className="min-w-0"><div className="font-serif text-lg text-charcoal truncate">{mem.name}</div><div className="text-xs text-faint flex items-center gap-1.5">{mem.loc} <Ex/></div></div></div>
@@ -11131,14 +11140,18 @@ function Community(){
   </AppShell>;
 
   return <AppShell>
-    <PageHead eyebrow="Community" title="Connect with the Lumera community." desc="Share what you are working on, find people on the same path, and swap opportunities."/>
-    <div className="rounded-2xl p-5 mb-4 text-white flex flex-wrap items-center gap-6" style={{background:'linear-gradient(135deg,#7C3AED 0%,#4F46E5 50%,#0D9488 100%)'}}>
-      {[['Members',stats&&stats.members],['Your connections',stats&&stats.connections],['Posts',stats&&stats.posts],['Opportunities',stats&&stats.opportunities]].map(([l,n])=>
-        <div key={l}><div className="font-serif text-3xl tnum">{n==null?'–':n}</div><div className="text-xs opacity-85">{l}</div></div>)}
-      {profile && (profile.linkedin
-        ? <a href={profile.linkedin} target="_blank" rel="noopener noreferrer" className="ml-auto btn bg-white/15 hover:bg-white/25 text-white text-sm">Your LinkedIn <Icon name="arrowR" size={13} className="-rotate-45"/></a>
-        : <button onClick={()=>setEditing(true)} className="ml-auto btn bg-white/15 hover:bg-white/25 text-white text-sm">Add your LinkedIn <Icon name="plus" size={13}/></button>)}
-    </div>
+    <section className="rounded-[28px] p-5 sm:p-6 mb-5 text-white" style={{background:'linear-gradient(120deg,#7C3AED 0%,#C026D3 45%,#F97316 100%)',boxShadow:'0 26px 60px -30px rgba(192,38,211,.9)'}}>
+      <div className="flex flex-wrap items-center gap-3">
+        <h1 className="font-display text-[2.2rem] sm:text-[2.6rem] leading-none" style={{color:'#fff'}}>Community</h1>
+        {profile && (profile.linkedin
+          ? <a href={profile.linkedin} target="_blank" rel="noopener noreferrer" className="ml-auto inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[13px] font-bold" style={{background:'#ffffff',color:'#6D28D9'}}>Your LinkedIn <Icon name="arrowR" size={12} className="-rotate-45"/></a>
+          : <button onClick={()=>setEditing(true)} className="ml-auto inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[13px] font-bold" style={{background:'#ffffff',color:'#6D28D9'}}>Add your LinkedIn <Icon name="plus" size={12}/></button>)}
+      </div>
+      <div className="flex flex-wrap gap-2 mt-4">
+        {[['Members',stats&&stats.members],['Your connections',stats&&stats.connections],['Posts',stats&&stats.posts],['Opportunities',stats&&stats.opportunities]].map(([l,n])=>
+          <span key={l} className="rounded-full px-3 py-1.5 text-[12px] font-semibold" style={{background:'rgba(0,0,0,.2)'}}><b className="tnum">{n==null?'–':n}</b> {l}</span>)}
+      </div>
+    </section>
     {profile===undefined ? <div className="space-y-3" aria-label="Loading"><div className="skeleton h-28"/><div className="skeleton h-40"/></div>
     : profile===null ? <Card hover={false} className="max-w-2xl">
         <Eyebrow className="mb-2">Your community profile</Eyebrow>
@@ -11232,22 +11245,22 @@ function StreakRewards(){
   const app=useApp(); const s=app.profile.streak||0; const best=Math.max(app.profile.streakBest||0,s);
   const today=new Date().toISOString().slice(0,10); const checkedToday=app.profile.lastCheckin===today;
   const next=STREAK_TIERS.find(r=>best<r.at); const prog=next?clamp(s/next.at*100,0,100):100;
-  return <Card hover={false}>
-    <div className="flex flex-wrap items-center justify-between gap-3">
-      <div className="flex items-center gap-3"><span className="grid place-items-center h-12 w-12 rounded-2xl bg-clay/15 text-clay"><Icon name="flame" size={24}/></span>
+  return <Card hover={false} className="text-center">
+    <div className="flex flex-col items-center gap-3">
+      <div className="flex flex-col items-center gap-2"><span className="grid place-items-center h-12 w-12 rounded-2xl bg-clay/15 text-clay"><Icon name="flame" size={24}/></span>
         <div><Eyebrow>Daily streak</Eyebrow><div className="font-display text-[2rem] text-charcoal leading-none mt-0.5"><span className="tnum">{s}</span> day{s===1?'':'s'}</div><div className="text-[11px] text-faint mt-0.5">Best: {best}</div></div></div>
       <button onClick={()=>app.checkIn&&app.checkIn()} disabled={checkedToday} className={cx('btn px-4 py-2.5 text-sm', checkedToday?'btn-ghost opacity-60 cursor-default':'btn-gold')}>
         <Icon name={checkedToday?'check':'flame'} size={15}/>{checkedToday?'Checked in today':'Check in today'}</button>
     </div>
-    {next && <div className="mt-4"><div className="flex items-center justify-between text-xs mb-1.5"><span className="text-muted">Next milestone: <b className="text-charcoal">{next.label}</b> · +{next.xp} XP</span><span className="tnum text-faint">{s} / {next.at} days</span></div><ProgressBar value={prog} tone="gold"/></div>}
-    <div className="grid grid-cols-3 sm:grid-cols-6 gap-2.5 mt-4">
+    {next && <div className="mt-4 max-w-xl mx-auto text-left"><div className="flex items-center justify-between text-xs mb-1.5"><span className="text-muted">Next milestone: <b className="text-charcoal">{next.label}</b> · +{next.xp} XP</span><span className="tnum text-faint">{s} / {next.at} days</span></div><ProgressBar value={prog} tone="gold"/></div>}
+    <div className="grid grid-cols-3 sm:grid-cols-6 gap-2.5 mt-4 max-w-3xl mx-auto">
       {STREAK_TIERS.map(r=>{ const unlocked=best>=r.at; return <div key={r.at} className={cx('rounded-xl2 border p-3 text-center transition', unlocked?'border-gold/60 bg-gold/10':'border-line')}>
         <div className="text-2xl" style={{filter:unlocked?'none':'grayscale(.8)', opacity:unlocked?1:.7}}>{r.emoji}</div>
         <div className="text-[12px] font-semibold text-charcoal mt-1">{r.label}</div>
         <div className="text-[10.5px] text-faint tnum">{r.at} days · {r.at===100?'Mythic badge':`+${r.xp} XP`}</div>
       </div>; })}
     </div>
-    <p className="text-[11px] text-faint mt-3 flex items-center gap-1.5"><Icon name="info" size={12}/>Check in once a day. Miss a day and the streak restarts; milestones you have reached stay yours.</p>
+    <p className="text-[11px] text-faint mt-3 flex items-center justify-center gap-1.5"><Icon name="info" size={12}/>Check in once a day. Miss a day and the streak restarts; milestones you have reached stay yours.</p>
   </Card>;
 }
 

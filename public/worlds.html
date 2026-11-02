@@ -932,6 +932,11 @@ a.lg-panel:hover, .lg-panel.lift:hover {
     transition: transform .6s var(--lg-ease); pointer-events: none;
 }
 .world-slab .who[src*="blaze"] { height: 9.5rem; bottom: 6px; object-fit: contain; }
+.world-slab .ribbon { position: absolute; z-index: 3; top: 22px; right: -46px; transform: rotate(35deg); width: 190px; text-align: center;
+    padding: .42rem 0; font-size: .7rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: #1A1206;
+    background: linear-gradient(100deg, #FCD34D, #F59E0B); box-shadow: 0 6px 18px rgba(0,0,0,.4); }
+.world-slab .stage .who { filter: saturate(.75) drop-shadow(0 16px 24px rgba(0,0,0,.35)); }
+.world-slab .stage::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(135deg, rgba(255,255,255,.05) 0 10px, transparent 10px 20px); pointer-events: none; }
 .world-slab:hover .who { transform: translateX(-50%) translateY(-6px); }
 .world-slab .body { padding: 1.2rem 1.4rem 1.4rem; display: flex; flex-direction: column; flex: 1; }
 .world-slab .tagline { font-size: .66rem; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); margin-bottom: .5rem; font-weight: 700; }
@@ -1129,6 +1134,7 @@ body {
     border-color: color-mix(in srgb, var(--accent-b) 38%, rgba(255,255,255,.08));
 }
 .rest .panel h3, .rest .eyebrow { color: color-mix(in srgb, var(--accent-c) 70%, #ffffff); }
+.soon-banner { display: inline-block; margin-bottom: 1rem; padding: .45rem .95rem; border-radius: 999px; font-size: .78rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: #1A1206; background: linear-gradient(100deg,#FCD34D,#F59E0B); box-shadow: 0 8px 22px -8px #F59E0B; }
 .page-hero.has-art { display: grid; grid-template-columns: minmax(180px, 320px) 1fr; gap: 2.5rem; align-items: center; }
 .hero-mascot { width: 100%; height: auto; pointer-events: none;
     filter: drop-shadow(0 30px 60px color-mix(in srgb, var(--accent-b) 75%, transparent)); animation: heroFloat 6s ease-in-out infinite; }
@@ -1203,6 +1209,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
 .legal a { color: hsl(var(--foreground)); text-decoration: underline; text-underline-offset: 3px; }
 .legal strong { color: hsl(var(--foreground)); font-weight: 600; }
 .legal table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+@media (max-width: 640px) { .legal table { display: block; overflow-x: auto; } .legal th, .legal td { min-width: 9rem; } }
 .legal th, .legal td {
     text-align: left; padding: .7rem .8rem; vertical-align: top;
     border-bottom: 1px solid hsl(var(--foreground) / .1);
@@ -1222,7 +1229,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
 .fill {
     background: rgba(252, 211, 77, .13); color: #fcd34d;
     border-radius: 5px; padding: .05em .4em; font-weight: 600;
-    font-size: .95em; white-space: nowrap;
+    font-size: .95em; white-space: normal; overflow-wrap: anywhere;
 }
 .callout {
     border-radius: 16px; padding: 1.1rem 1.3rem; margin: 1.6rem 0;
@@ -1271,22 +1278,22 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
     <div class="page-hero has-art">
         <img class="hero-mascot" src="assets/brand/family.webp" alt="" aria-hidden="true">
         <div class="hero-text">
-        <h1 class="page-title">Four worlds, <span class="grad">one financial life</span></h1>
-        <p class="page-lede">Lumera is the hub. Each world below is its own space, with its own tools, colour and guide, and you only ever see the ones you switch on.</p>
+        <span class="soon-banner">Coming soon &middot; not out yet</span><h1 class="page-title">Four worlds, <span class="grad">coming soon</span></h1>
+        <p class="page-lede">Lumera is the hub, and it is live now. These four worlds are coming soon: none of them is out yet. Here is what each one will hold.</p>
         <div class="page-actions"><a class="btn-solid" href="app.html#/signup">Start free</a><a class="hero-secondary liquid-glass" style="padding:1rem 1.9rem" href="app.html#/login">Open the app</a></div>
         </div>
     </div>
 </div>
 
 <main class="rest" id="main">
-    <section class="section tight"><div class="grid-4"><a class="panel lg-panel world-card reveal" href="leaf.html" style="text-decoration:none;color:inherit;background:linear-gradient(165deg,#20B25755,#20B2571A 70%),rgba(26,22,44,.7) !important;border-color:#20B257AA !important;box-shadow:0 22px 44px -26px #20B257"><span class="wash" style="background:#20B257"></span><img class="card-mascot" src="assets/brand/sprout.webp" alt="" aria-hidden="true"><span class="tag" style="color:#20B257">Learn &amp; grow</span><h3>Leaf</h3><p>Bite-size lessons, a daily word, flashcards that stick and a knowledge hub that goes as deep as you want.</p><span class="link" style="color:#20B257">Explore Leaf &rarr;</span></a><a class="panel lg-panel world-card reveal" href="atlas.html" style="text-decoration:none;color:inherit;background:linear-gradient(165deg,#2D68E255,#2D68E21A 70%),rgba(26,22,44,.7) !important;border-color:#2D68E2AA !important;box-shadow:0 22px 44px -26px #2D68E2"><span class="wash" style="background:#2D68E2"></span><img class="card-mascot" src="assets/brand/nova.webp" alt="" aria-hidden="true"><span class="tag" style="color:#2D68E2">Markets &amp; investing</span><h3>Atlas</h3><p>Every index, sector and stock with a plain-English read on why it moved.</p><span class="link" style="color:#2D68E2">Explore Atlas &rarr;</span></a><a class="panel lg-panel world-card reveal" href="shield.html" style="text-decoration:none;color:inherit;background:linear-gradient(165deg,#94A8C855,#94A8C81A 70%),rgba(26,22,44,.7) !important;border-color:#94A8C8AA !important;box-shadow:0 22px 44px -26px #94A8C8"><span class="wash" style="background:#94A8C8"></span><img class="card-mascot" src="assets/brand/sentinel.webp" alt="" aria-hidden="true"><span class="tag" style="color:#94A8C8">Protect &amp; plan</span><h3>Shield</h3><p>Credit building, debt payoff, insurance and the long horizon.</p><span class="link" style="color:#94A8C8">Explore Shield &rarr;</span></a><a class="panel lg-panel world-card reveal" href="forge.html" style="text-decoration:none;color:inherit;background:linear-gradient(165deg,#E38F1155,#E38F111A 70%),rgba(26,22,44,.7) !important;border-color:#E38F11AA !important;box-shadow:0 22px 44px -26px #E38F11"><span class="wash" style="background:#E38F11"></span><img class="card-mascot" src="assets/brand/blaze.webp" alt="" aria-hidden="true"><span class="tag" style="color:#E38F11">Career &amp; income</span><h3>Forge</h3><p>Careers, firms, universities, admissions tests and what roles really pay.</p><span class="link" style="color:#E38F11">Explore Forge &rarr;</span></a></div></section>
+    <section class="section tight"><div class="grid-4"><a class="panel lg-panel world-card reveal" href="leaf.html" style="text-decoration:none;color:inherit;background:linear-gradient(165deg,#20B25755,#20B2571A 70%),rgba(26,22,44,.7) !important;border-color:#20B257AA !important;box-shadow:0 22px 44px -26px #20B257"><span class="wash" style="background:#20B257"></span><img class="card-mascot" src="assets/brand/sprout.webp" alt="" aria-hidden="true"><span class="tag" style="color:#20B257">Learn &amp; grow</span><h3>Leaf</h3><p>Bite-size lessons, a daily word, flashcards that stick and a knowledge hub that goes as deep as you want.</p><span class="link" style="color:#20B257">Coming soon &middot; see what&rsquo;s planned &rarr;</span></a><a class="panel lg-panel world-card reveal" href="atlas.html" style="text-decoration:none;color:inherit;background:linear-gradient(165deg,#2D68E255,#2D68E21A 70%),rgba(26,22,44,.7) !important;border-color:#2D68E2AA !important;box-shadow:0 22px 44px -26px #2D68E2"><span class="wash" style="background:#2D68E2"></span><img class="card-mascot" src="assets/brand/nova.webp" alt="" aria-hidden="true"><span class="tag" style="color:#2D68E2">Markets &amp; investing</span><h3>Atlas</h3><p>Every index, sector and stock with a plain-English read on why it moved.</p><span class="link" style="color:#2D68E2">Coming soon &middot; see what&rsquo;s planned &rarr;</span></a><a class="panel lg-panel world-card reveal" href="shield.html" style="text-decoration:none;color:inherit;background:linear-gradient(165deg,#94A8C855,#94A8C81A 70%),rgba(26,22,44,.7) !important;border-color:#94A8C8AA !important;box-shadow:0 22px 44px -26px #94A8C8"><span class="wash" style="background:#94A8C8"></span><img class="card-mascot" src="assets/brand/sentinel.webp" alt="" aria-hidden="true"><span class="tag" style="color:#94A8C8">Protect &amp; plan</span><h3>Shield</h3><p>Credit building, debt payoff, insurance and the long horizon.</p><span class="link" style="color:#94A8C8">Coming soon &middot; see what&rsquo;s planned &rarr;</span></a><a class="panel lg-panel world-card reveal" href="forge.html" style="text-decoration:none;color:inherit;background:linear-gradient(165deg,#E38F1155,#E38F111A 70%),rgba(26,22,44,.7) !important;border-color:#E38F11AA !important;box-shadow:0 22px 44px -26px #E38F11"><span class="wash" style="background:#E38F11"></span><img class="card-mascot" src="assets/brand/blaze.webp" alt="" aria-hidden="true"><span class="tag" style="color:#E38F11">Career &amp; income</span><h3>Forge</h3><p>Careers, firms, universities, admissions tests and what roles really pay.</p><span class="link" style="color:#E38F11">Coming soon &middot; see what&rsquo;s planned &rarr;</span></a></div></section>
     <section class="section">
         <div class="sec-head left reveal">
             <div class="eyebrow">Everything in one place</div>
             <h2 class="sec-title">One account, <span class="grad">every world</span></h2>
             <p class="sec-sub">Sign up once. Your figures, streak and progress follow you across all four.</p>
         </div>
-        <div class="page-actions"><a class="btn-solid" href="app.html#/signup">Start your 30-day review</a><a class="hero-secondary liquid-glass" style="padding:1rem 1.9rem" href="app.html#/hub">Open the family hub</a></div>
+        <div class="page-actions"><a class="btn-solid" href="app.html#/signup">Start your 30-day review</a></div>
     </section>
 
 

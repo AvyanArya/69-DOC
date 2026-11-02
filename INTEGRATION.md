@@ -138,7 +138,7 @@ Analyst ratings: the educational Strong Buy → Sell labels can stay as your own
 
 ## Step 3 — Real Product Analytics (the owner-only portal)
 
-The in-app **Admin Analytics Portal** (visit `#/analytics`, key: `lumera-admin-2026` — change this) currently shows **sample** numbers. A static file literally cannot count real users — analytics must be collected on a server. Use a managed product:
+The in-app **Admin Analytics Portal** (visit `#/analytics` while signed in with an account listed in `ADMIN_EMAILS`) currently shows **sample** numbers. A static file literally cannot count real users — analytics must be collected on a server. Use a managed product:
 
 | Tool | Why |
 |---|---|
@@ -230,7 +230,7 @@ Everything else — the dashboard, budgeting, benchmarks, money-leak detector, w
 "No data found in this origin" happens because a double-clicked `.html` file runs in its own isolated sandbox, so two separate files can't share storage. Pick whichever is easiest:
 
 **A. Easiest — use the built-in dashboard (zero setup).**
-The same comprehensive, live, auto-refreshing dashboard is *inside* Lumera, so it always has the data. In Lumera, go to the address bar and append `#/analytics` to the URL (e.g. `…/Lumera.html#/analytics`), enter the key `lumera-admin-2026`. Done — real metrics, updating every 3 seconds. You don't need `admin-portal.html` at all unless you want it on a separate screen.
+The same comprehensive, live, auto-refreshing dashboard is *inside* Lumera, so it always has the data. In Lumera, go to the address bar and append `#/analytics` to the URL (e.g. `…/Lumera.html#/analytics`), signed in with an admin account (one listed in `ADMIN_EMAILS` on the server). Done — real metrics, updating every 3 seconds. You don't need `admin-portal.html` at all unless you want it on a separate screen.
 
 **B. Load a snapshot into the standalone portal.**
 In Lumera's analytics, click **Export** (downloads a JSON file). Open `admin-portal.html`, and use **Option B → choose the file**. Instant dashboard from that snapshot.

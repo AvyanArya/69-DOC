@@ -90,6 +90,7 @@ body {
     border-color: color-mix(in srgb, var(--accent-b) 38%, rgba(255,255,255,.08));
 }
 .rest .panel h3, .rest .eyebrow { color: color-mix(in srgb, var(--accent-c) 70%, #ffffff); }
+.soon-banner { display: inline-block; margin-bottom: 1rem; padding: .45rem .95rem; border-radius: 999px; font-size: .78rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: #1A1206; background: linear-gradient(100deg,#FCD34D,#F59E0B); box-shadow: 0 8px 22px -8px #F59E0B; }
 .page-hero.has-art { display: grid; grid-template-columns: minmax(180px, 320px) 1fr; gap: 2.5rem; align-items: center; }
 .hero-mascot { width: 100%; height: auto; pointer-events: none;
     filter: drop-shadow(0 30px 60px color-mix(in srgb, var(--accent-b) 75%, transparent)); animation: heroFloat 6s ease-in-out infinite; }
@@ -164,6 +165,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
 .legal a { color: hsl(var(--foreground)); text-decoration: underline; text-underline-offset: 3px; }
 .legal strong { color: hsl(var(--foreground)); font-weight: 600; }
 .legal table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+@media (max-width: 640px) { .legal table { display: block; overflow-x: auto; } .legal th, .legal td { min-width: 9rem; } }
 .legal th, .legal td {
     text-align: left; padding: .7rem .8rem; vertical-align: top;
     border-bottom: 1px solid hsl(var(--foreground) / .1);
@@ -183,7 +185,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
 .fill {
     background: rgba(252, 211, 77, .13); color: #fcd34d;
     border-radius: 5px; padding: .05em .4em; font-weight: 600;
-    font-size: .95em; white-space: nowrap;
+    font-size: .95em; white-space: normal; overflow-wrap: anywhere;
 }
 .callout {
     border-radius: 16px; padding: 1.1rem 1.3rem; margin: 1.6rem 0;
@@ -271,7 +273,7 @@ def page(fname, title, desc, accents, head, grad, lede, body, actions=None):
     <div class="page-hero%s">
         %s
         <div class="hero-text">
-        <h1 class="page-title">%s <span class="grad">%s</span></h1>
+        %s<h1 class="page-title">%s <span class="grad">%s</span></h1>
         <p class="page-lede">%s</p>
         %s
         </div>
@@ -289,7 +291,7 @@ def page(fname, title, desc, accents, head, grad, lede, body, actions=None):
 </body>
 </html>
 ''' % (title, desc, HEAD_LINKS, STYLE, a, b, c, SUB_CSS, ATMO, NAV,
-       (' has-art' if mascot else ''), mascot, head, grad, lede, actions_html, body, FOOTER, CONSENT_HTML, SCRIPT)
+       (' has-art' if mascot else ''), mascot, ('<span class="soon-banner">Coming soon &middot; not out yet</span>' if mascot else ''), head, grad, lede, actions_html, body, FOOTER, CONSENT_HTML, SCRIPT)
 
     open(os.path.join(ROOT, fname), 'w').write(html)
     return fname
@@ -399,7 +401,7 @@ WORLD_CARD = ('<a class="panel lg-panel world-card reveal" href="{key}.html" sty
               '<img class="card-mascot" src="assets/brand/{img}.webp" alt="" aria-hidden="true">'
               '<span class="tag" style="color:{c}">{tag}</span>'
               '<h3>{name}</h3><p>{blurb}</p>'
-              '<span class="link" style="color:{c}">Explore {name} &rarr;</span></a>')
+              '<span class="link" style="color:{c}">Coming soon &middot; see what&rsquo;s planned &rarr;</span></a>')
 
 MINI_CARD = ('<a class="panel lg-panel reveal" href="{key}.html" style="text-decoration:none;color:inherit;background:linear-gradient(165deg,{c}55,{c}1A 70%),rgba(26,22,44,.7) !important;border-color:{c}AA !important;box-shadow:0 22px 44px -26px {c}">'
              '<img class="card-mascot" src="assets/brand/{img}.webp" alt="" aria-hidden="true">'
@@ -425,13 +427,12 @@ def build():
     made.append(page('worlds.html', 'The Lumera family | Lumera',
         'Four worlds, one financial life. Leaf, Atlas, Shield and Forge.',
         ('#8E7BFF', '#6E6CF6', '#EBC77A'),
-        'Four worlds,', 'one financial life',
-        'Lumera is the hub. Each world below is its own space, with its own tools, colour and guide, and you only ever see the ones you switch on.',
+        'Four worlds,', 'coming soon',
+        'Lumera is the hub, and it is live now. These four worlds are coming soon: none of them is out yet. Here is what each one will hold.',
         '    <section class="section tight"><div class="grid-4">' + world_cards(WORLDS) + '</div></section>\n'
         + sec('Everything in one place', 'One account,', 'every world',
               'Sign up once. Your figures, streak and progress follow you across all four.',
-              actions_row([('Start your 30-day review', 'app.html#/signup', True),
-                           ('Open the family hub', 'app.html#/hub', False)])),
+              actions_row([('Start your 30-day review', 'app.html#/signup', True)])),
         actions=[('Start free', 'app.html#/signup', True), ('Open the app', 'app.html#/login', False)]))
 
     for w in WORLDS:
@@ -439,9 +440,9 @@ def build():
         inside = '<ul class="tool-list">' + ''.join('<li>%s</li>' % i for i in w['inside']) + '</ul>'
         body = ('    <section class="section tight">' + panels(w['tools'], 2) + '</section>\n'
                 + sec('What is inside', 'The tools', 'you get',
-                      'Every one of these will live inside %s.' % w['name'], inside)
+                      '%s is not out yet. These are the tools it will have when it arrives.' % w['name'], inside)
                 + sec('The rest of the family', 'It does not', 'stop here',
-                      'Lumera is the hub, and the other three worlds are one click away.',
+                      'The other three worlds are on their way too.',
                       '<div class="grid-3">' + world_cards(others, MINI_CARD) + '</div>'))
         made.append(page('%s.html' % w['key'],
             '%s by Lumera | %s' % (w['name'], w['tag'].replace('&amp;', '&')),
