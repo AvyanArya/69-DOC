@@ -67,6 +67,10 @@
       html += '<a class="resume" href="#t-' + t.gid + '" data-subj="' + t.subject.id + '"><span class="rs-l"><span class="small muted">' + esc(resume.why) + ' · ' + esc(t.subject.name) + ' · Lesson ' + M.lessonNum(s, t) + '</span><b>' + esc(M.title(t.name)) + '</b><span class="small muted">' + (steps ? steps + ' of 5 steps done' : 'Not started') + '</span></span><span class="btn">' + (steps ? 'Continue' : 'Start') + ' lesson</span></a>';
     }
 
+    html += '<div class="subj-cards">' + M.subjects.map(function (sub) {
+      const p = M.courseProgress(s, M.subjectTopics(s, sub));
+      return '<a class="subj-card" href="#s-' + sub.id + '" data-subj="' + sub.id + '"><i>' + esc((C.TAG[sub.id] || sub.name.slice(0, 2)).slice(0, 3)) + '</i><b>' + esc(sub.name) + '</b><span>' + esc(sub.spec) + ' · ' + U.plural(p.total, 'lesson') + '</span><span class="pbar"><span style="width:' + Math.round(100 * p.frac) + '%"></span></span><span>' + p.done + ' of ' + p.total + ' done</span></a>';
+    }).join('') + '</div>';
     html += '<div class="cols"><div class="col-main">';
     // Today
     const todays = s.plan.sessions.filter((x) => x.d === today);
