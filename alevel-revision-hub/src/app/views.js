@@ -8,10 +8,11 @@
   // ---------- Areas and navigation ----------
   V.areaOf = function (r) {
     if (r === 'home') return 'home';
-    if (/^(study|s-|c-|t-|library|guide)/.test(r)) return 'learn';
+    if (/^(study|subjects|s-|c-|t-|library|guide)/.test(r)) return 'learn';
     if (/^(papers|paper-|exam$|mark$|check|checks|cards|deck-|review)/.test(r)) return 'practise';
     if (/^(plan|deliverables|routine|exams|strategy)$/.test(r)) return 'plan';
     if (r === 'focus') return 'focus';
+    if (r === 'labs' || r.indexOf('lab-') === 0) return 'labs';
     return 'settings';
   };
   // Which entry in the bar under the menu is the current page.
@@ -30,11 +31,11 @@
     return { home: todayLeft ? '<span class="count">' + todayLeft + '</span>' : '', plan: sum && sum.overdue ? '<span class="count bad">' + sum.overdue + '</span>' : '', focus: RH.face.on ? '<span class="live-dot" title="Tracker on"></span>' : '' };
   }
   // The top menu: home, the four subjects, then the tools.
-  const NAV = [['home', 'Home'], ['s-physics', 'Physics'], ['s-maths', 'Maths'], ['s-further', 'Further Maths'], ['s-economics', 'Economics'], ['papers', 'Practise'], ['plan', 'Planner'], ['focus', 'Focus']];
+  const NAV = [['home', 'Home'], ['study', 'Bookshelf'], ['s-physics', 'Physics'], ['s-maths', 'Maths'], ['s-further', 'Further Maths'], ['s-economics', 'Economics'], ['labs', 'Labs'], ['papers', 'Practise'], ['plan', 'Planner'], ['focus', 'Focus']];
   function navKey(r) {
     const area = V.areaOf(r), cur = currentPage(r);
-    if (area === 'learn') return /^s-/.test(cur) ? cur : '';
-    return area === 'practise' ? 'papers' : area === 'plan' ? 'plan' : area;
+    if (area === 'learn') return /^s-/.test(cur) || cur === 'study' ? cur : '';
+    return area === 'practise' ? 'papers' : area === 'plan' ? 'plan' : area === 'labs' ? 'labs' : area;
   }
   V.nav = function (r) {
     const key = navKey(r), b = badges();
@@ -65,9 +66,11 @@
   V.side = function (r) {
     const area = V.areaOf(r), cur = currentPage(r);
     let x = null;
+    if (r === 'study') return '';
     if (area === 'learn') x = /^[ct]-/.test(r) ? sideTree(r) : sideLinks('Learn', RH.AREAS.learn.pages, cur);
     else if (area === 'practise') x = sideLinks('Practise', RH.AREAS.practise.pages, cur);
     else if (area === 'plan') x = sideLinks('Planner', RH.AREAS.plan.pages, cur);
+    else if (area === 'labs') x = sideLinks('Physics labs', [['labs', 'All labs']].concat(RH.labs.defs.map((d) => ['lab-' + d.id, d.name])), cur);
     if (!x) return '';
     return '<details class="side-box"' + (window.innerWidth > 860 ? ' open' : '') + '><summary><span class="side-t">' + esc(x.title) + '</span><span class="side-cur">' + esc(x.cur) + '</span></summary>' + x.body + '</details>';
   };

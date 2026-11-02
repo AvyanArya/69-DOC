@@ -75,6 +75,7 @@
     pcircle: '<circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l5.5-3.5z"/>',
     brain: '<path d="M9 4.5a3 3 0 0 0-3 3 3 3 0 0 0-1.5 5.5A3 3 0 0 0 8 17.5a2.5 2.5 0 0 0 4 1.5V6a2.5 2.5 0 0 0-3-1.5zM15 4.5a3 3 0 0 1 3 3 3 3 0 0 1 1.5 5.5A3 3 0 0 1 16 17.5a2.5 2.5 0 0 1-4 1.5"/>',
     trophy: '<path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H4.5a3 3 0 0 0 3.5 4M16 6h3.5a3 3 0 0 1-3.5 4M12 13v4M8.5 20h7M10 17h4v3h-4z"/>',
+    flask: '<path d="M9.5 3h5M10.5 3v6L5 18.5A1.6 1.6 0 0 0 6.4 21h11.2a1.6 1.6 0 0 0 1.4-2.5L13.5 9V3"/><path d="M7.5 15h9"/>',
     menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
     more: '<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>'
   };
@@ -97,8 +98,9 @@
   // The five areas in the top menu, and the pages each one lists in the bar under it.
   RH.AREAS = {
     home: { label: 'Home', icon: 'home', href: 'home', pages: [] },
-    learn: { label: 'Subjects', icon: 'study', href: 'study', pages: [['study', 'All subjects'], ['s-physics', 'Physics', 'physics'], ['s-maths', 'Maths', 'maths'], ['s-further', 'Further Maths', 'further'], ['s-economics', 'Economics', 'economics'], ['guide', 'How to revise'], ['library', 'Resources']] },
+    learn: { label: 'Subjects', icon: 'study', href: 'study', pages: [['study', 'Bookshelf'], ['subjects', 'All subjects'], ['s-physics', 'Physics', 'physics'], ['s-maths', 'Maths', 'maths'], ['s-further', 'Further Maths', 'further'], ['s-economics', 'Economics', 'economics'], ['guide', 'How to revise'], ['library', 'Resources']] },
     practise: { label: 'Practise', icon: 'qs', href: 'papers', pages: [['papers', 'Past papers'], ['check', 'Check an answer'], ['checks', 'Marked answers'], ['cards', 'Flashcards']] },
+    labs: { label: 'Labs', icon: 'flask', href: 'labs', pages: [] },
     plan: { label: 'Planner', icon: 'plan', href: 'plan', pages: [['plan', 'This week'], ['deliverables', 'Deliverables'], ['routine', 'Routine'], ['exams', 'Exams'], ['strategy', 'Strategy']] },
     focus: { label: 'Focus', icon: 'focus', href: 'focus', pages: [] }
   };

@@ -13,7 +13,7 @@
   // Some names are reserved by the claude.ai viewer, so they map to other pages.
   const RESERVED = { settings: 'preferences', sidebar: 'home', customize: 'preferences', upgrade: 'home', downloads: 'preferences' };
   // Old links that are now tabs inside another page.
-  const ALIAS = { today: ['home'], planner: ['plan'], subjects: ['study'], portal: ['papers'], results: ['papers', 'portal', 'results'], timers: ['focus'], practise: ['papers'], more: ['home'] };
+  const ALIAS = { today: ['home'], planner: ['plan'], portal: ['papers'], results: ['papers', 'portal', 'results'], timers: ['focus'], practise: ['papers'], more: ['home'] };
   function route() {
     let h = (location.hash || '').replace(/^#/, '');
     h = RESERVED[h] || h || 'home';
@@ -29,7 +29,7 @@
 
   function pageFor(r) {
     const pre = (p) => r.indexOf(p) === 0 ? r.slice(p.length) : null;
-    const simple = { home: V.home, study: V.study, plan: V.plan, deliverables: V.deliverables, routine: V.routine, exams: V.exams, strategy: V.strategy, check: V.check, checks: V.checks, focus: V.focus, cards: V.cards, review: V.review, papers: V.papers, exam: V.exam, mark: V.mark, library: V.library, guide: V.guide, preferences: V.prefs };
+    const simple = { home: V.home, study: V.study, plan: V.plan, deliverables: V.deliverables, routine: V.routine, exams: V.exams, strategy: V.strategy, check: V.check, checks: V.checks, focus: V.focus, cards: V.cards, review: V.review, papers: V.papers, exam: V.exam, mark: V.mark, library: V.library, guide: V.guide, preferences: V.prefs, labs: V.labs, subjects: V.subjectsList };
     if (simple[r]) return simple[r]();
     let x;
     if ((x = pre('s-')) !== null) return V.subject(x);
@@ -38,6 +38,7 @@
     if ((x = pre('paper-')) !== null) return V.paper(x);
     if ((x = pre('deck-')) !== null) return V.deck(x);
     if ((x = pre('check-')) !== null) return V.checkOne(x);
+    if ((x = pre('lab-')) !== null) return V.lab(x);
     return V.notFound();
   }
 
@@ -45,8 +46,9 @@
     const t = r.indexOf('t-') === 0 && M.topic[r.slice(2)];
     const c = r.indexOf('c-') === 0 && M.comp[r.slice(2)];
     const s = r.indexOf('s-') === 0 && M.subject[r.slice(2)];
-    const names = { study: 'Your courses', plan: 'This week', deliverables: 'Deliverables', routine: 'Routine', exams: 'Exams', strategy: 'Strategy', check: 'Check an answer', checks: 'Checked answers', focus: 'Focus', papers: 'Past papers', exam: 'Exam in progress', mark: 'Marking', cards: 'Flashcards', review: 'Reviewing cards', library: 'Resources', guide: 'How to revise', preferences: 'Settings' };
-    const name = t ? t.name : c ? c.name : s ? s.name : names[r];
+    const names = { study: 'Bookshelf', subjects: 'Your subjects', plan: 'This week', deliverables: 'Deliverables', routine: 'Routine', exams: 'Exams', strategy: 'Strategy', check: 'Check an answer', checks: 'Checked answers', focus: 'Focus', papers: 'Past papers', exam: 'Exam in progress', mark: 'Marking', cards: 'Flashcards', review: 'Reviewing cards', library: 'Resources', guide: 'How to revise', preferences: 'Settings', labs: 'Labs' };
+    const lab = r.indexOf('lab-') === 0 && RH.labs.byId[r.slice(4)];
+    const name = t ? t.name : c ? c.name : s ? s.name : lab ? lab.name : names[r];
     return (name ? name + ' · ' : '') + 'A-Level Revision Hub';
   }
 

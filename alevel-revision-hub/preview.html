@@ -9,7 +9,7 @@
 <meta name="description" content="Edexcel A-level Physics, Maths, Further Maths and Economics revision: a timed weekly plan around your routine, weekly deliverables, an AI answer checker, past-paper exams, flashcards and a webcam focus tracker.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&display=swap">
 <style>
 /* Layout: a revision site in the Save My Exams mould. A navy bar with the subjects across the top,
    a plain menu down the left (a subject's lessons, or the pages in this area), and white pages that read
@@ -62,6 +62,12 @@
   --wide: 1240px;
   --side: 260px;
   --subj: var(--primary);
+  --paper: #EDEBE6;
+  --sheet: #F4F2ED;
+  --sh-ink: #141414;
+  --sh-muted: #6D6A63;
+  --sh-rule: rgba(20, 20, 20, 0.9);
+  --grain: 0.55;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -77,6 +83,7 @@
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 4px 14px rgba(0, 0, 0, 0.25);
     --shadow-up: 0 14px 40px rgba(0, 0, 0, 0.55);
     color-scheme: dark;
+    --paper: #1b1a17; --sheet: #23211d; --sh-ink: #ECE8DF; --sh-muted: #A29E94; --sh-rule: rgba(236, 232, 223, 0.85); --grain: 0.3;
   }
 }
 :root[data-theme="dark"] {
@@ -92,6 +99,7 @@
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 4px 14px rgba(0, 0, 0, 0.25);
   --shadow-up: 0 14px 40px rgba(0, 0, 0, 0.55);
   color-scheme: dark;
+  --paper: #1b1a17; --sheet: #23211d; --sh-ink: #ECE8DF; --sh-muted: #A29E94; --sh-rule: rgba(236, 232, 223, 0.85); --grain: 0.3;
 }
 [data-subj="physics"] { --subj: var(--phy); }
 [data-subj="maths"] { --subj: var(--mat); }
@@ -131,16 +139,16 @@ blockquote { margin: 4px 0; padding: 6px 12px; border-left: 3px solid var(--line
 .top-in { max-width: var(--wide); margin: 0 auto; display: flex; align-items: center; gap: 16px; height: 58px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 .brand { display: flex; align-items: center; gap: 9px; text-decoration: none; color: var(--on-navy); flex: none; }
 .brand-mark { width: 30px; height: 30px; border-radius: 6px; background: var(--on-navy); color: var(--navy); display: grid; place-items: center; font-weight: 800; font-size: 0.85rem; letter-spacing: -0.04em; flex: none; }
-.brand-name { font-weight: 700; font-size: 1rem; letter-spacing: -0.01em; }
+.brand-name { font-weight: 700; font-size: 1rem; letter-spacing: -0.01em; display: none; }
 .top-nav { display: flex; align-self: stretch; min-width: 0; overflow-x: auto; scrollbar-width: none; }
 .top-nav::-webkit-scrollbar { display: none; }
-.nav-item { display: inline-flex; align-items: center; gap: 6px; padding: 0 11px; border-bottom: 3px solid transparent; border-top: 3px solid transparent; text-decoration: none; color: rgba(255, 255, 255, 0.78); font-weight: 500; font-size: 0.92rem; white-space: nowrap; }
+.nav-item { display: inline-flex; align-items: center; gap: 6px; padding: 0 9px; border-bottom: 3px solid transparent; border-top: 3px solid transparent; text-decoration: none; color: rgba(255, 255, 255, 0.78); font-weight: 500; font-size: 0.92rem; white-space: nowrap; }
 .nav-item:hover { color: #fff; background: rgba(255, 255, 255, 0.06); }
 .nav-item.on { color: #fff; border-bottom-color: #fff; font-weight: 600; }
 .count { min-width: 18px; padding: 0 5px; border-radius: 999px; background: rgba(255, 255, 255, 0.18); color: #fff; font-size: 0.7rem; line-height: 1.6; text-align: center; font-variant-numeric: tabular-nums; }
 .count.bad { background: var(--bad); }
 .live-dot { width: 8px; height: 8px; border-radius: 50%; background: #4cd38a; }
-.search { position: relative; flex: 0 1 210px; margin-left: auto; min-width: 120px; }
+.search { position: relative; flex: 0 1 190px; margin-left: auto; min-width: 120px; }
 .search > .i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--ink-3); pointer-events: none; width: 16px; height: 16px; }
 .search input { width: 100%; padding: 7px 10px 7px 32px; border-radius: 6px; border: 0; background: #fff; color: #1a2233; font: inherit; font-size: 0.88rem; }
 .search input::placeholder { color: #6b7489; }
@@ -935,6 +943,134 @@ textarea.cell:hover { border-color: var(--line-2); }
 .choice-note .i { width: 16px; height: 16px; color: var(--warn); }
 body.in-exam .tabbar { display: none !important; }
 
+/* ---------- Bookshelf ---------- */
+body[data-route="study"] .page { max-width: none; padding: 0; }
+body[data-route="study"] .page .view { padding: 0; max-width: none; gap: 0; }
+body[data-route="study"] .foot { display: none; }
+.shelf-hero { --H: min(44vh, 30vw); position: relative; height: calc(100vh - 58px); min-height: 560px; overflow: hidden; background: var(--paper); color: var(--sh-ink); user-select: none; -webkit-user-select: none; outline: none; }
+.sh-lbl { font-family: var(--f-body); font-weight: 600; font-size: 10.5px; line-height: 1; letter-spacing: 0.09em; text-transform: uppercase; }
+.sh-lbl a { color: inherit; text-decoration: none; }
+.sh-lbl a:hover { text-decoration: underline; }
+.sh-box { display: inline-flex; align-items: center; height: 21px; padding: 0 8px; border: 1px solid var(--sh-rule); color: var(--sh-ink); text-decoration: none; background: none; cursor: pointer; }
+.sh-top { position: absolute; top: 0; left: 0; right: 0; height: 64px; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; z-index: 5; }
+.sh-tabs { position: absolute; left: 50%; transform: translateX(-50%); top: calc(50% - var(--H) / 2 - 86px); display: flex; z-index: 5; }
+.sh-tab { position: relative; z-index: 1; height: 23px; padding: 0 11px; border: 1px solid var(--sh-rule); margin-left: -1px; background: none; color: var(--sh-ink); white-space: nowrap; cursor: pointer; transition: color 0.45s var(--ease, cubic-bezier(.2,.8,.2,1)); }
+.sh-tab.on { color: #fff; }
+.sh-ind { position: absolute; left: 0; top: 0; height: 23px; width: 0; background: #1F3FB0; transition: width 0.6s cubic-bezier(.2,.8,.2,1), transform 0.6s cubic-bezier(.2,.8,.2,1), background-color 0.6s cubic-bezier(.2,.8,.2,1); }
+.sh-shelf { position: absolute; left: 0; right: 0; top: calc(50% - var(--H) / 2 - 40px); height: calc(var(--H) + 80px); perspective: 2200px; perspective-origin: 50% 50%; touch-action: pan-y; }
+.sh-stage { position: absolute; left: 50%; top: 50%; width: 0; height: 0; transform-style: preserve-3d; }
+.bk { position: absolute; left: 0; top: 0; width: 0; height: 0; transform-style: preserve-3d; will-change: transform; cursor: pointer; }
+.bk-f { position: absolute; height: var(--h); top: calc(var(--h) / -2); backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 2px; overflow: hidden; }
+.bk-f svg { display: block; width: 100%; height: 100%; }
+.bk-f::after { content: ""; position: absolute; inset: 0; background: #000; pointer-events: none; }
+.sp { width: var(--ws); left: calc(var(--ws) / -2); transform: translateZ(calc(var(--d) / 2)); }
+.sp::after { opacity: var(--ss, 0); }
+.cv { width: var(--d); left: calc(var(--d) / -2); transform: rotateY(90deg) translateZ(calc(var(--ws) / 2)); box-shadow: 0 30px 60px -28px rgba(20, 16, 10, 0.55); }
+.cv::after { opacity: var(--cs, 0.5); }
+.sh-play { position: absolute; left: 0; top: 0; width: 42px; height: 42px; border-radius: 50%; border: 1px solid #1F3FB0; color: #1F3FB0; background: rgba(237, 235, 230, 0.75); display: grid; place-items: center; cursor: pointer; z-index: 6; padding: 0; transform: scale(0); }
+.sh-play svg { width: 12px; height: 12px; margin-left: 2px; fill: currentColor; }
+.sh-cap { position: absolute; left: 0; right: 0; top: calc(50% + var(--H) / 2 + 30px); display: flex; flex-direction: column; align-items: center; gap: 9px; pointer-events: none; z-index: 5; }
+.sh-m { position: relative; overflow: hidden; width: min(92vw, 760px); text-align: center; }
+.sh-m > span { display: block; }
+.sh-m > span:not(:first-child) { position: absolute; left: 0; right: 0; top: 0; }
+.sh-mt { font-family: Newsreader, Georgia, serif; font-size: 31px; line-height: 1.12; letter-spacing: -0.01em; }
+.sh-ms { font-weight: 600; font-size: 10.5px; line-height: 1.2; letter-spacing: 0.09em; text-transform: uppercase; }
+.sh-mm { font-weight: 500; font-size: 11px; letter-spacing: 0.08em; color: var(--sh-muted); }
+.sh-arrow { position: absolute; top: calc(50% + var(--H) / 2 + 40px); width: 44px; height: 44px; display: grid; place-items: center; background: none; border: 0; color: var(--sh-ink); cursor: pointer; z-index: 6; }
+.sh-arrow.prev { left: 20px; } .sh-arrow.next { right: 20px; }
+.sh-arrow svg { width: 18px; height: 10px; fill: none; stroke: currentColor; stroke-width: 1.2; }
+.sh-foot { position: absolute; left: 32px; right: 32px; bottom: 26px; display: flex; justify-content: space-between; gap: 16px; z-index: 5; }
+.sh-grain { position: absolute; inset: 0; z-index: 40; pointer-events: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .42 0 0 0 0 .38 0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); background-size: 220px 220px; mix-blend-mode: multiply; opacity: var(--grain); }
+.sh-probe { position: absolute; left: -10px; top: 0; width: 1px; height: var(--H); visibility: hidden; }
+.sh-cur { position: fixed; left: 0; top: 0; width: 58px; height: 58px; margin: -29px 0 0 -29px; z-index: 100; pointer-events: none; display: none; }
+.sh-ring { position: absolute; inset: 0; border: 1.5px solid var(--sh-ink); border-radius: 50%; transition: transform 0.5s cubic-bezier(.2,.8,.2,1), background-color 0.4s cubic-bezier(.2,.8,.2,1), border-color 0.4s cubic-bezier(.2,.8,.2,1); }
+.sh-dot { position: absolute; left: 26px; top: 26px; width: 6px; height: 6px; border-radius: 50%; background: var(--sh-ink); transition: transform 0.4s cubic-bezier(.2,.8,.2,1); }
+.sh-open { position: absolute; inset: 0; display: grid; place-items: center; color: #fff; font-weight: 600; font-size: 10px; line-height: 1.25; letter-spacing: 0.1em; text-transform: uppercase; transform: scale(0); transition: transform 0.45s cubic-bezier(.2,.8,.2,1); }
+.sh-cur.spine .sh-ring { transform: scale(0.72); }
+.sh-cur.btn .sh-ring { transform: scale(0.55); }
+.sh-cur.btn .sh-dot { transform: scale(0); }
+.sh-cur.open .sh-ring { transform: scale(1.75); background: #1F3FB0; border-color: #1F3FB0; }
+.sh-cur.open .sh-dot { transform: scale(0); }
+.sh-cur.open .sh-open { transform: scale(1); }
+@media (pointer: fine) {
+  .shelf-hero.cur-in .sh-cur { display: block; }
+  .shelf-hero.cur-in, .shelf-hero.cur-in * { cursor: none !important; }
+}
+.sh-detail { position: fixed; inset: 0; z-index: 60; background: var(--sheet); color: var(--sh-ink); visibility: hidden; overflow-y: auto; }
+.sh-close { position: absolute; top: 31px; left: 32px; z-index: 2; }
+.shd-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4vw; padding: 90px 6vw 48px 7vw; min-height: 100%; align-items: center; }
+.shd-text { display: flex; flex-direction: column; gap: 12px; max-width: 520px; }
+.shd-m { overflow: hidden; }
+.shd-text h2 { font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: clamp(40px, 4.8vw, 76px); line-height: 1; letter-spacing: -0.025em; color: var(--sh-ink); margin: 2px 0 6px; }
+.shd-meta { color: var(--sh-muted); margin-bottom: 6px; }
+.shd-l { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid color-mix(in srgb, var(--sh-ink) 14%, transparent); color: var(--sh-ink); text-decoration: none; font-size: 15px; }
+.shd-l:hover span:last-child { text-decoration: underline; }
+.shd-l .num { color: var(--sh-muted); min-width: 40px; font-size: 13px; }
+.shd-l .ls-ic { width: 16px; height: 16px; }
+.shd-credit { font-family: Newsreader, Georgia, serif; font-style: italic; font-size: 15px; color: var(--sh-muted); margin-top: 8px; }
+.shd-acts { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 6px; }
+.sh-btn { display: inline-flex; align-items: center; height: 44px; padding: 0 20px; border: 1px solid var(--bk, #1F3FB0); color: var(--bk, #1F3FB0); text-decoration: none; }
+.sh-btn:hover { background: var(--bk, #1F3FB0); color: #fff; }
+.shd-poster { height: min(100%, 78vh); aspect-ratio: 474 / 900; max-width: 100%; justify-self: center; }
+.shd-poster svg { display: block; width: 100%; height: 100%; }
+@media (max-width: 1220px) {
+  .shelf-hero { height: calc(100svh - 58px - 62px); }
+}
+@media (max-width: 767px) {
+  .shelf-hero { --H: min(60vw, 36svh); min-height: 480px; }
+  .sh-top { height: 52px; padding: 0 16px; }
+  .sh-top .sh-lbl, .sh-foot .sh-lbl { font-size: 9px; }
+  .sh-tabs { top: calc(50% - var(--H) / 2 - 70px); }
+  .sh-tab { padding: 0 7px; font-size: 9px; }
+  .sh-mt { font-size: 24px; }
+  .sh-arrow.prev { left: 6px; } .sh-arrow.next { right: 6px; }
+  .sh-foot { left: 16px; right: 16px; bottom: 18px; }
+  .sh-foot > :first-child { display: none; }
+  .shd-grid { grid-template-columns: minmax(0, 1fr); padding: 76px 22px 40px; gap: 24px; align-items: start; }
+  .shd-poster { order: -1; height: 46svh; }
+  .shd-text h2 { font-size: 42px; }
+  .sh-close { top: 21px; left: 16px; }
+}
+
+/* ---------- Labs ---------- */
+.lab-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+.lab-card { display: flex; gap: 14px; align-items: flex-start; padding: 16px; border: 1px solid var(--line); border-radius: var(--r); text-decoration: none; color: var(--ink); background: var(--surface); }
+.lab-card:hover { background: var(--surface-2); border-color: var(--line-2); }
+.lab-card:hover b { color: var(--accent); text-decoration: underline; }
+.lab-ic { width: 48px; height: 48px; flex: none; color: var(--primary); display: grid; place-items: center; border-radius: 8px; background: var(--accent-soft); }
+.lab-ic svg { width: 34px; height: 34px; }
+.lab-ct { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.lab-ct b { font-size: 1.02rem; }
+.lab-topic { color: var(--ink-2); }
+.lab { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 24px; align-items: start; }
+.lab-main { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.lab-stage, .lab-graph { border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; background: var(--surface); }
+.lab-graph { padding: 8px 8px 4px; }
+.lab-cv, .lab-gc { display: block; width: 100%; touch-action: none; }
+.lab-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.lab-speed { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; }
+.lab-panel { display: flex; flex-direction: column; gap: 12px; position: sticky; top: 76px; max-height: calc(100vh - 92px); overflow-y: auto; padding-right: 4px; }
+.lab-panel h2 { font-size: 1rem; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+.lab-ctrls { display: flex; flex-direction: column; gap: 14px; }
+.lc { display: flex; flex-direction: column; gap: 6px; font-size: 0.88rem; }
+.lc-h { display: flex; justify-content: space-between; gap: 10px; font-weight: 500; }
+.lc-h output { color: var(--primary); font-weight: 600; text-align: right; }
+.lc input[type="range"] { accent-color: var(--primary); }
+.lc-seg { align-self: stretch; }
+.lc-seg button { flex: 1; }
+.lab-read { margin: 0; display: flex; flex-direction: column; font-size: 0.86rem; }
+.lab-read > div { display: flex; justify-content: space-between; gap: 10px; padding: 5px 0; border-bottom: 1px solid var(--line); }
+.lab-read dt { color: var(--ink-2); }
+.lab-read dd { margin: 0; font-weight: 600; text-align: right; }
+.lab-read .th dd { color: var(--ok); }
+.lab-tbl { font-size: 0.82rem; }
+.lab-tbl th, .lab-tbl td { padding: 4px 6px !important; }
+.lab-notes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 36px; align-items: start; }
+.lab-tasks { margin: 12px 0 0; padding-left: 22px; display: flex; flex-direction: column; gap: 10px; }
+.lab-theory { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; max-width: 70ch; }
+.eq { padding: 9px 12px; border-radius: 6px; background: var(--surface-2); font-weight: 600; overflow-wrap: anywhere; }
+.lab-try { padding: 10px 14px; border-left: 3px solid var(--primary); background: var(--accent-soft); border-radius: 0 6px 6px 0; }
+
 /* ---------- Modal & toasts ---------- */
 #modal-root { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
 .modal-bg { position: absolute; inset: 0; background: rgba(10, 14, 12, 0.45); }
@@ -965,10 +1101,12 @@ body.in-exam .tabbar { display: none !important; }
   .trend-grid, .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .mark-cols { grid-template-columns: minmax(0, 1fr); }
   .ms-pane { position: static; }
+  .lab, .lab-notes { grid-template-columns: minmax(0, 1fr); }
+  .lab-panel { position: static; max-height: none; }
   .timer-pill #timerLabel { display: none; }
   .timer-pill.running #timerLabel { display: inline; }
 }
-@media (max-width: 1000px) {
+@media (max-width: 1220px) {
   .top-nav { display: none; }
   .search { flex: 1; max-width: none; }
   .view { padding-top: 18px; padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
@@ -3583,6 +3721,7 @@ body.in-exam .tabbar { display: none !important; }
     pcircle: '<circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l5.5-3.5z"/>',
     brain: '<path d="M9 4.5a3 3 0 0 0-3 3 3 3 0 0 0-1.5 5.5A3 3 0 0 0 8 17.5a2.5 2.5 0 0 0 4 1.5V6a2.5 2.5 0 0 0-3-1.5zM15 4.5a3 3 0 0 1 3 3 3 3 0 0 1 1.5 5.5A3 3 0 0 1 16 17.5a2.5 2.5 0 0 1-4 1.5"/>',
     trophy: '<path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H4.5a3 3 0 0 0 3.5 4M16 6h3.5a3 3 0 0 1-3.5 4M12 13v4M8.5 20h7M10 17h4v3h-4z"/>',
+    flask: '<path d="M9.5 3h5M10.5 3v6L5 18.5A1.6 1.6 0 0 0 6.4 21h11.2a1.6 1.6 0 0 0 1.4-2.5L13.5 9V3"/><path d="M7.5 15h9"/>',
     menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
     more: '<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>'
   };
@@ -3605,8 +3744,9 @@ body.in-exam .tabbar { display: none !important; }
   // The five areas in the top menu, and the pages each one lists in the bar under it.
   RH.AREAS = {
     home: { label: 'Home', icon: 'home', href: 'home', pages: [] },
-    learn: { label: 'Subjects', icon: 'study', href: 'study', pages: [['study', 'All subjects'], ['s-physics', 'Physics', 'physics'], ['s-maths', 'Maths', 'maths'], ['s-further', 'Further Maths', 'further'], ['s-economics', 'Economics', 'economics'], ['guide', 'How to revise'], ['library', 'Resources']] },
+    learn: { label: 'Subjects', icon: 'study', href: 'study', pages: [['study', 'Bookshelf'], ['subjects', 'All subjects'], ['s-physics', 'Physics', 'physics'], ['s-maths', 'Maths', 'maths'], ['s-further', 'Further Maths', 'further'], ['s-economics', 'Economics', 'economics'], ['guide', 'How to revise'], ['library', 'Resources']] },
     practise: { label: 'Practise', icon: 'qs', href: 'papers', pages: [['papers', 'Past papers'], ['check', 'Check an answer'], ['checks', 'Marked answers'], ['cards', 'Flashcards']] },
+    labs: { label: 'Labs', icon: 'flask', href: 'labs', pages: [] },
     plan: { label: 'Planner', icon: 'plan', href: 'plan', pages: [['plan', 'This week'], ['deliverables', 'Deliverables'], ['routine', 'Routine'], ['exams', 'Exams'], ['strategy', 'Strategy']] },
     focus: { label: 'Focus', icon: 'focus', href: 'focus', pages: [] }
   };
@@ -4244,10 +4384,11 @@ body.in-exam .tabbar { display: none !important; }
   // ---------- Areas and navigation ----------
   V.areaOf = function (r) {
     if (r === 'home') return 'home';
-    if (/^(study|s-|c-|t-|library|guide)/.test(r)) return 'learn';
+    if (/^(study|subjects|s-|c-|t-|library|guide)/.test(r)) return 'learn';
     if (/^(papers|paper-|exam$|mark$|check|checks|cards|deck-|review)/.test(r)) return 'practise';
     if (/^(plan|deliverables|routine|exams|strategy)$/.test(r)) return 'plan';
     if (r === 'focus') return 'focus';
+    if (r === 'labs' || r.indexOf('lab-') === 0) return 'labs';
     return 'settings';
   };
   // Which entry in the bar under the menu is the current page.
@@ -4266,11 +4407,11 @@ body.in-exam .tabbar { display: none !important; }
     return { home: todayLeft ? '<span class="count">' + todayLeft + '</span>' : '', plan: sum && sum.overdue ? '<span class="count bad">' + sum.overdue + '</span>' : '', focus: RH.face.on ? '<span class="live-dot" title="Tracker on"></span>' : '' };
   }
   // The top menu: home, the four subjects, then the tools.
-  const NAV = [['home', 'Home'], ['s-physics', 'Physics'], ['s-maths', 'Maths'], ['s-further', 'Further Maths'], ['s-economics', 'Economics'], ['papers', 'Practise'], ['plan', 'Planner'], ['focus', 'Focus']];
+  const NAV = [['home', 'Home'], ['study', 'Bookshelf'], ['s-physics', 'Physics'], ['s-maths', 'Maths'], ['s-further', 'Further Maths'], ['s-economics', 'Economics'], ['labs', 'Labs'], ['papers', 'Practise'], ['plan', 'Planner'], ['focus', 'Focus']];
   function navKey(r) {
     const area = V.areaOf(r), cur = currentPage(r);
-    if (area === 'learn') return /^s-/.test(cur) ? cur : '';
-    return area === 'practise' ? 'papers' : area === 'plan' ? 'plan' : area;
+    if (area === 'learn') return /^s-/.test(cur) || cur === 'study' ? cur : '';
+    return area === 'practise' ? 'papers' : area === 'plan' ? 'plan' : area === 'labs' ? 'labs' : area;
   }
   V.nav = function (r) {
     const key = navKey(r), b = badges();
@@ -4301,9 +4442,11 @@ body.in-exam .tabbar { display: none !important; }
   V.side = function (r) {
     const area = V.areaOf(r), cur = currentPage(r);
     let x = null;
+    if (r === 'study') return '';
     if (area === 'learn') x = /^[ct]-/.test(r) ? sideTree(r) : sideLinks('Learn', RH.AREAS.learn.pages, cur);
     else if (area === 'practise') x = sideLinks('Practise', RH.AREAS.practise.pages, cur);
     else if (area === 'plan') x = sideLinks('Planner', RH.AREAS.plan.pages, cur);
+    else if (area === 'labs') x = sideLinks('Physics labs', [['labs', 'All labs']].concat(RH.labs.defs.map((d) => ['lab-' + d.id, d.name])), cur);
     if (!x) return '';
     return '<details class="side-box"' + (window.innerWidth > 860 ? ' open' : '') + '><summary><span class="side-t">' + esc(x.title) + '</span><span class="side-cur">' + esc(x.cur) + '</span></summary>' + x.body + '</details>';
   };
@@ -4517,7 +4660,7 @@ body.in-exam .tabbar { display: none !important; }
   V.docHead = docHead;
 
   // ---------- All subjects ----------
-  V.study = function () {
+  V.subjectsList = function () {
     const s = st();
     let html = docHead('Learn', 'Your subjects', 'Each subject is a list of lessons. Open one and work down the page: watch, learn the key points, test yourself, then exam questions.');
     html += '<ul class="subj-list">' + M.subjects.map(function (sub) {
@@ -4643,7 +4786,9 @@ body.in-exam .tabbar { display: none !important; }
     learn += '<details class="fold-lite"' + (ts.notes ? ' open' : '') + '><summary>Your own notes</summary><textarea id="notes-' + gid + '" class="notes" data-notes="' + gid + '" rows="5" placeholder="Key formulae, things you keep getting wrong, questions for your teacher…" aria-label="Your notes">' + esc(ts.notes || '') + '</textarea><span class="muted small" id="notes-saved">Saves as you type</span>' + myLinks(gid) + '</details>';
     html += block('learn', 2, 'Key points', learn, sd.learn, gid);
     // 3. Test yourself
-    let recall = '<p><b>Blurt test.</b> Close your notes, write down everything you remember in 10 minutes, then compare it with the key points. <button type="button" class="btn alt sm" data-action="blurt" data-id="' + gid + '">Start</button></p>';
+    const labs = RH.labs ? RH.labs.defs.filter((d) => d.topics.indexOf(gid) !== -1) : [];
+    let recall = labs.length ? '<p class="lab-try"><b>Experiment.</b> Try it in the ' + labs.map((d) => '<a href="#lab-' + d.id + '">' + esc(d.name) + ' lab</a>').join(' or the ') + ': change the variables and check the equations for yourself.</p>' : '';
+    recall += '<p><b>Blurt test.</b> Close your notes, write down everything you remember in 10 minutes, then compare it with the key points. <button type="button" class="btn alt sm" data-action="blurt" data-id="' + gid + '">Start</button></p>';
     recall += '<p><b>Flashcards.</b> ' + (decks.length ? 'Your decks for this lesson:' : 'Make cards for the things you keep forgetting.') + ' <button type="button" class="btn link" data-action="deck-new" data-topic="' + gid + '">New deck</button> · <button type="button" class="btn link" data-action="cards-import" data-topic="' + gid + '">Import from Quizlet</button></p>';
     if (decks.length) recall += '<ul class="deck-list">' + decks.map(RH.cards.deckRow).join('') + '</ul>';
     if (cardRes.length) recall += C.resList(cardRes);
@@ -4699,6 +4844,386 @@ body.in-exam .tabbar { display: none !important; }
     html += '<h2 class="h-rule">Subject by subject</h2>' + M.subjects.map((sub) => '<h3>' + esc(sub.name) + '</h3><ul class="bullets">' + RH.GUIDE.subjects[sub.id].map((h) => '<li>' + esc(h) + '</li>').join('') + '</ul>').join('');
     return html;
   };
+})(window.RH = window.RH || {});
+</script>
+<script>
+/* The bookshelf: every section of every subject as a worn textbook standing spine-out on an endless shelf.
+   The active book turns in 3D to show its cover; opening it grows a sheet of paper out of the cover that becomes
+   the section's lesson list, with the cover bleeding in as ink. One requestAnimationFrame loop drives the shelf,
+   the Web Animations API drives the reveals. Book art is drawn here as SVG, so there are no image files. */
+(function (RH) {
+  'use strict';
+  const U = RH.util, M = RH.model, C = RH.c, esc = U.esc;
+  const st = () => RH.store.state;
+  const V = RH.views;
+
+  const COL = { physics: '#1F3FB0', maths: '#0E6B55', further: '#5B3AA8', economics: '#C8442A' };
+  const ABBR = { physics: 'PHY', maths: 'MATHS', further: 'F.MATHS', economics: 'ECON' };
+  const INK = '#141414', CREAM = '#F1E9D6', VERM = '#E0522B';
+  const SERIF = 'Newsreader, Georgia, serif', SANS = 'Inter, system-ui, sans-serif';
+  const reduce = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const EASE = 'cubic-bezier(.2,.8,.2,1)', SHEET_EASE = 'cubic-bezier(.76,0,.18,1)';
+  const BLOBS = [[150, 330, 0], [340, 600, 120], [250, 120, 220], [90, 760, 300], [400, 250, 360], [260, 860, 420], [230, 470, 180]];
+
+  // ---------- The books ----------
+  function bookList(s) {
+    const out = [];
+    M.subjects.forEach(function (sub) {
+      M.compsFor(s, sub, true).forEach(function (c, j) {
+        out.push({ i: out.length, sub: sub, c: c, n: M.sectionNum(s, c), title: M.title(c.name), col: COL[sub.id], variant: (j + (sub.id === 'maths' ? 1 : sub.id === 'economics' ? 2 : 0)) % 3 });
+      });
+    });
+    return out;
+  }
+  // Three print variants keep the shelf from looking uniform: colour cloth, cream board, ink board.
+  function inks(b) {
+    if (b.variant === 1) return { bg: CREAM, fg: INK, acc: b.col, alt: VERM };
+    if (b.variant === 2) return { bg: INK, fg: CREAM, acc: b.col === '#1F3FB0' ? '#5E7DF0' : b.col, alt: VERM };
+    return { bg: b.col, fg: CREAM, acc: INK, alt: VERM };
+  }
+  function rng(seed) { let x = (seed * 9301 + 49297) % 233280; return () => (x = (x * 9301 + 49297) % 233280) / 233280; }
+  function wrap(text, max) {
+    const lines = [];
+    let cur = '';
+    text.split(' ').forEach(function (w) { if (cur && (cur + ' ' + w).length > max) { lines.push(cur); cur = w; } else cur = cur ? cur + ' ' + w : w; });
+    if (cur) lines.push(cur);
+    return lines;
+  }
+
+  function spineSVG(b) {
+    const k = inks(b), len = b.title.length * 44 * 0.47;
+    const motif = {
+      physics: '<circle cx="71" cy="176" r="20" fill="none" stroke="' + k.fg + '" stroke-width="3"/><circle cx="71" cy="176" r="6" fill="' + k.alt + '"/>',
+      maths: '<path d="M47 196 Q71 140 95 196" fill="none" stroke="' + k.fg + '" stroke-width="3"/><circle cx="71" cy="168" r="5" fill="' + k.alt + '"/>',
+      further: '<path d="M71 176 m0 -4 a4 4 0 1 1 -4 4 a8 8 0 1 1 8 8 a12 12 0 1 1 -12 -12 a16 16 0 1 1 16 16" fill="none" stroke="' + k.fg + '" stroke-width="3"/>',
+      economics: '<path d="M50 156 L92 198 M50 198 L92 156" stroke="' + k.fg + '" stroke-width="3"/><circle cx="71" cy="177" r="5" fill="' + k.alt + '"/>'
+    }[b.sub.id];
+    return '<svg viewBox="0 0 142 840" aria-hidden="true"><rect width="142" height="840" fill="' + k.bg + '"/>' +
+      '<rect width="9" height="840" fill="#000" opacity=".13"/><rect x="133" width="9" height="840" fill="#000" opacity=".2"/>' +
+      '<rect y="30" width="142" height="3" fill="' + k.fg + '" opacity=".85"/><rect y="806" width="142" height="3" fill="' + k.fg + '" opacity=".85"/>' +
+      '<rect x="41" y="56" width="60" height="60" fill="none" stroke="' + k.fg + '" stroke-width="2"/><text x="71" y="98" text-anchor="middle" font-family="' + SERIF + '" font-size="32" fill="' + k.fg + '">' + esc(b.n) + '</text>' + motif +
+      '<text transform="translate(56 232) rotate(90)" font-family="' + SERIF + '" font-size="44" fill="' + k.fg + '"' + (len > 500 ? ' textLength="500" lengthAdjust="spacingAndGlyphs"' : '') + '>' + esc(b.title) + '</text>' +
+      '<text x="71" y="772" text-anchor="middle" font-family="' + SANS + '" font-weight="700" font-size="' + (ABBR[b.sub.id].length > 5 ? 15 : 19) + '" letter-spacing="2" fill="' + k.fg + '">' + ABBR[b.sub.id] + '</text></svg>';
+  }
+
+  function illustration(b, k, w, h) {
+    const r = rng(b.i + 3), P = k.acc === INK ? CREAM : k.acc, A = k.alt, F = k.fg;
+    let g = '';
+    if (b.sub.id === 'physics') {
+      const cx = w * (0.3 + r() * 0.4), cy = h * 0.45, R = Math.min(w, h) * 0.18;
+      for (let i = 4; i >= 1; i--) g += '<ellipse cx="' + cx + '" cy="' + cy + '" rx="' + (R + i * 34) + '" ry="' + (R * 0.55 + i * 20) + '" fill="none" stroke="' + F + '" stroke-width="2" opacity="' + (0.35 + 0.15 * i) + '" transform="rotate(' + (-18 + r() * 10) + ' ' + cx + ' ' + cy + ')"/>';
+      g += '<circle cx="' + cx + '" cy="' + cy + '" r="' + R + '" fill="' + A + '"/>';
+      for (let i = 0; i < 4; i++) g += '<circle cx="' + (cx + Math.cos(i * 1.7 + r()) * (R + 34 + i * 34)) + '" cy="' + (cy + Math.sin(i * 1.7) * (R * 0.55 + 20 + i * 20)) + '" r="' + (6 + r() * 6) + '" fill="' + F + '"/>';
+      let d = 'M0 ' + (h * 0.88);
+      const f = 2 + Math.floor(r() * 3);
+      for (let x = 0; x <= w; x += 6) d += ' L' + x + ' ' + (h * 0.88 + Math.sin(x / w * Math.PI * 2 * f) * 18).toFixed(1);
+      g += '<path d="' + d + '" fill="none" stroke="' + P + '" stroke-width="5"/>';
+    } else if (b.sub.id === 'maths') {
+      for (let x = 0; x <= w; x += 34) g += '<line x1="' + x + '" y1="0" x2="' + x + '" y2="' + h + '" stroke="' + F + '" stroke-width="1" opacity=".22"/>';
+      for (let y = 0; y <= h; y += 34) g += '<line x1="0" y1="' + y + '" x2="' + w + '" y2="' + y + '" stroke="' + F + '" stroke-width="1" opacity=".22"/>';
+      const a = 0.004 + r() * 0.006, vx = w * (0.35 + r() * 0.3), vy = h * (0.75 + r() * 0.15);
+      let d = '';
+      for (let x = 0; x <= w; x += 6) { const y = vy - a * (x - vx) * (x - vx) * -1 - 0; const yy = Math.max(-20, vy - (h * 0.7) + a * (x - vx) * (x - vx)); d += (d ? ' L' : 'M') + x + ' ' + yy.toFixed(1); }
+      g += '<path d="' + d + '" fill="none" stroke="' + P + '" stroke-width="6"/>';
+      const tx = vx + w * 0.22, ty = vy - h * 0.7 + a * (tx - vx) * (tx - vx), m = 2 * a * (tx - vx);
+      g += '<line x1="' + (tx - 160) + '" y1="' + (ty - 160 * m) + '" x2="' + (tx + 160) + '" y2="' + (ty + 160 * m) + '" stroke="' + A + '" stroke-width="4"/><circle cx="' + tx + '" cy="' + ty + '" r="10" fill="' + F + '"/>';
+      g += '<rect x="' + (w * 0.08) + '" y="' + (h * 0.62) + '" width="' + (w * 0.22) + '" height="' + (w * 0.22) + '" fill="' + A + '" opacity=".9"/>';
+    } else if (b.sub.id === 'further') {
+      const cx = w / 2, cy = h / 2, R = Math.min(w, h) * 0.38, n = 5 + Math.floor(r() * 4);
+      let d = '';
+      for (let t = 0; t < 26; t += 0.15) { const rr = 4 + t * R / 26; d += (d ? ' L' : 'M') + (cx + Math.cos(t) * rr).toFixed(1) + ' ' + (cy + Math.sin(t) * rr).toFixed(1); }
+      g += '<circle cx="' + cx + '" cy="' + cy + '" r="' + R + '" fill="none" stroke="' + F + '" stroke-width="2" opacity=".5"/><path d="' + d + '" fill="none" stroke="' + P + '" stroke-width="4"/>';
+      let poly = '';
+      for (let i = 0; i < n; i++) { const x = cx + Math.cos(i * 2 * Math.PI / n - Math.PI / 2) * R, y = cy + Math.sin(i * 2 * Math.PI / n - Math.PI / 2) * R; poly += x.toFixed(1) + ',' + y.toFixed(1) + ' '; g += '<circle cx="' + x + '" cy="' + y + '" r="9" fill="' + A + '"/>'; }
+      g = '<polygon points="' + poly + '" fill="none" stroke="' + F + '" stroke-width="2"/>' + g;
+      g += '<line x1="0" y1="' + cy + '" x2="' + w + '" y2="' + cy + '" stroke="' + F + '" stroke-width="1.5" opacity=".5"/><line x1="' + cx + '" y1="0" x2="' + cx + '" y2="' + h + '" stroke="' + F + '" stroke-width="1.5" opacity=".5"/>';
+    } else {
+      const ox = 30, oy = h - 26, ex = w * (0.42 + r() * 0.16), ey = h * (0.38 + r() * 0.16);
+      g += '<polygon points="' + ox + ',' + (h * 0.12) + ' ' + ex + ',' + ey + ' ' + ox + ',' + ey + '" fill="' + P + '" opacity=".85"/>';
+      g += '<line x1="' + ox + '" y1="10" x2="' + ox + '" y2="' + oy + '" stroke="' + F + '" stroke-width="3"/><line x1="' + ox + '" y1="' + oy + '" x2="' + (w - 10) + '" y2="' + oy + '" stroke="' + F + '" stroke-width="3"/>';
+      g += '<line x1="' + ox + '" y1="' + (h * 0.12) + '" x2="' + (w - 20) + '" y2="' + (h * 0.82) + '" stroke="' + F + '" stroke-width="5"/>';
+      g += '<line x1="' + (ox + 20) + '" y1="' + (h * 0.8) + '" x2="' + (w - 30) + '" y2="' + (h * 0.08) + '" stroke="' + A + '" stroke-width="5"/>';
+      g += '<line x1="' + ex + '" y1="' + ey + '" x2="' + ex + '" y2="' + oy + '" stroke="' + F + '" stroke-width="2" stroke-dasharray="8 7"/><circle cx="' + ex + '" cy="' + ey + '" r="11" fill="' + F + '"/>';
+      for (let i = 0; i < 4; i++) { const bh = 30 + r() * 70; g += '<rect x="' + (w - 150 + i * 30) + '" y="' + (oy - bh) + '" width="20" height="' + bh + '" fill="' + F + '" opacity=".75"/>'; }
+    }
+    return g;
+  }
+
+  // The cover's contents in a 474 × 900 box: reused on the book and as the detail poster.
+  function coverInner(b) {
+    const k = inks(b);
+    let lines = wrap(b.title.toUpperCase(), 12), fs = 54, lh = 58;
+    if (lines.length > 3) { lines = wrap(b.title.toUpperCase(), 16); fs = 40; lh = 44; }
+    const ty = 186, iy = ty + lines.length * lh + 6, ih = 790 - iy;
+    const lessons = b.c.topics.length;
+    return '<rect width="474" height="900" fill="' + k.bg + '"/><rect width="12" height="900" fill="#000" opacity=".12"/>' +
+      '<text x="36" y="56" font-family="' + SANS + '" font-weight="600" font-size="13" letter-spacing="3" fill="' + k.fg + '">REVISION HUB · A LEVEL</text>' +
+      '<text x="440" y="56" text-anchor="end" font-family="' + SANS + '" font-weight="600" font-size="13" letter-spacing="2" fill="' + k.fg + '">' + esc(b.sub.spec) + '</text>' +
+      '<rect x="36" y="72" width="404" height="2" fill="' + k.fg + '"/>' +
+      '<text x="36" y="108" font-family="' + SANS + '" font-weight="700" font-size="15" letter-spacing="3" fill="' + (k.acc === INK ? CREAM : k.acc) + '">' + esc(b.sub.name.toUpperCase()) + '</text>' +
+      '<text x="440" y="108" text-anchor="end" font-family="' + SERIF + '" font-style="italic" font-size="18" fill="' + k.fg + '">Section ' + esc(b.n) + '</text>' +
+      lines.map((l, i) => '<text x="34" y="' + (ty + i * lh) + '" font-family="' + SERIF + '" font-size="' + fs + '" letter-spacing="-1" fill="' + k.fg + '"' + (l.length * fs * 0.64 > 404 ? ' textLength="404" lengthAdjust="spacingAndGlyphs"' : '') + '>' + esc(l) + '</text>').join('') +
+      '<svg x="36" y="' + iy + '" width="402" height="' + ih + '" viewBox="0 0 402 ' + ih + '">' + illustration(b, k, 402, ih) + '</svg>' +
+      '<rect x="36" y="808" width="404" height="2" fill="' + k.fg + '"/>' +
+      '<text x="36" y="852" font-family="' + SANS + '" font-weight="600" font-size="14" letter-spacing="2" fill="' + k.fg + '">' + lessons + ' LESSON' + (lessons === 1 ? '' : 'S') + '</text>' +
+      '<rect x="356" y="830" width="84" height="32" fill="none" stroke="' + k.fg + '" stroke-width="2"/><text x="398" y="852" text-anchor="middle" font-family="' + SANS + '" font-weight="700" font-size="14" letter-spacing="2" fill="' + k.fg + '">A LVL</text>';
+  }
+
+  // ---------- Page ----------
+  let books = [], N = 0;
+  let s = null, T = null, active = -1;
+  function startIndex(s0) {
+    const today = U.today();
+    const sess = s0.plan.sessions.find((x) => x.d >= today && !x.done && x.t && M.topic[x.t]);
+    const comp = sess ? M.topic[sess.t].comp : null;
+    const i = comp ? books.findIndex((b) => b.c === comp) : -1;
+    return i < 0 ? 0 : i;
+  }
+  function done(b) { return M.courseProgress(st(), b.c.topics); }
+
+  V.study = function () {
+    const s0 = st();
+    books = bookList(s0); N = books.length;
+    if (T == null || T >= N * 4 || T <= -N * 4) { T = s = startIndex(s0); }
+    const all = M.activeTopics(s0), p = M.courseProgress(s0, all);
+    let html = '<div class="shelf-hero" id="shelf" tabindex="-1">';
+    html += '<div class="sh-top"><a class="sh-lbl sh-box" href="#subjects">List view</a><span class="sh-lbl">' + p.done + ' of ' + p.total + ' lessons done</span></div>';
+    html += '<nav class="sh-tabs" aria-label="Subjects"><span class="sh-ind" aria-hidden="true"></span>' +
+      [['all', 'All']].concat(M.subjects.map((x) => [x.id, x.name])).map((t) => '<button type="button" class="sh-lbl sh-tab" data-tab="' + t[0] + '">' + esc(t[1]) + '</button>').join('') + '</nav>';
+    html += '<section class="sh-shelf" aria-label="Textbook shelf"><div class="sh-stage">' + books.map((b) =>
+      '<div class="bk" data-v="' + b.i + '" role="button" tabindex="-1" aria-label="' + esc(b.sub.name + ', section ' + b.n + ': ' + b.title) + '"><div class="bk-f sp">' + spineSVG(b) + '</div><div class="bk-f cv">' + '<svg viewBox="0 0 474 900" aria-hidden="true">' + coverInner(b) + '</svg></div></div>').join('') + '</div></section>';
+    html += '<button type="button" class="sh-play" aria-label="Open this book"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.5 L10.5 6 L3 10.5Z"/></svg></button>';
+    html += '<div class="sh-cap" aria-live="polite"><div class="sh-m sh-mt"></div><div class="sh-m sh-ms"></div><div class="sh-m sh-mm"></div></div>';
+    html += '<button type="button" class="sh-arrow prev" aria-label="Previous book"><svg viewBox="0 0 18 10" aria-hidden="true"><path d="M5 1 L1 5 L5 9 M1 5 H17"/></svg></button><button type="button" class="sh-arrow next" aria-label="Next book"><svg viewBox="0 0 18 10" aria-hidden="true"><path d="M13 1 L17 5 L13 9 M17 5 H1"/></svg></button>';
+    html += '<div class="sh-foot"><span class="sh-lbl">Scroll, drag or use ← → to browse · Enter to open</span><span class="sh-lbl"><a href="#guide">How to revise</a> / <a href="#library">Resources</a></span></div>';
+    html += '<div class="sh-grain" aria-hidden="true"></div><span class="sh-probe" aria-hidden="true"></span>';
+    html += '<div class="sh-cur" aria-hidden="true"><span class="sh-ring"></span><span class="sh-dot"></span><span class="sh-open">Open</span></div>';
+    html += '<div class="sh-detail" role="dialog" aria-modal="true" aria-labelledby="shd-title"><button type="button" class="sh-lbl sh-box sh-close">Close</button><div class="shd-grid"><div class="shd-text"></div><div class="shd-poster"><svg viewBox="0 0 474 900" aria-hidden="true"><defs>' +
+      '<filter id="sh-inkf" x="-40%" y="-40%" width="180%" height="180%"><feTurbulence type="fractalNoise" baseFrequency=".011" numOctaves="3" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="120" xChannelSelector="R" yChannelSelector="G"/></filter>' +
+      '<mask id="sh-ink" maskUnits="userSpaceOnUse" x="-200" y="-200" width="874" height="1300"><g filter="url(#sh-inkf)">' + BLOBS.map((b) => '<circle cx="' + b[0] + '" cy="' + b[1] + '" r="0" fill="#fff"/>').join('') + '</g></mask></defs><g mask="url(#sh-ink)" class="shd-art"></g></svg></div></div></div>';
+    return html + '</div>';
+  };
+
+  // ---------- Engine ----------
+  let root = null, stage = null, tapes = [], raf = 0, last = 0;
+  let H = 0, ws = 0, dd = 0, gap = 0, VW = 0;
+  let mx = -1e4, my = -1e4, cx = -1e4, cy = -1e4, tiltX = 0, tiltY = 0, onCover = false, isOpen = false;
+  let hover = -1, dragging = false, drag = null, suppress = false, wheelT = 0, curIn = false;
+  const lifts = [];
+  const sm = (x) => x * x * (3 - 2 * x);
+  const mod = (a, n) => ((a % n) + n) % n;
+  const Bf = (r) => Math.abs(r) < 1 ? (r + Math.sin(Math.PI * r) / Math.PI) / 2 : (r > 0 ? 0.5 : -0.5);
+  const Fx = (r) => r * (ws + gap) + (dd - ws + 1.6 * gap) * Bf(r);
+  const rel = (v) => mod(v - s + N / 2, N) - N / 2;
+
+  function measure() {
+    const probe = root.querySelector('.sh-probe');
+    H = probe.getBoundingClientRect().height;
+    ws = H * 142 / 840; dd = H * 474 / 900; gap = H * 0.03;
+    stage.style.setProperty('--ws', ws + 'px');
+    stage.style.setProperty('--d', dd + 'px');
+    stage.style.setProperty('--h', H + 'px');
+    VW = root.clientWidth;
+  }
+  function centre() { const r = root.querySelector('.sh-shelf').getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; }
+
+  // Caption: each line slides through its mask.
+  function swap(mask, html, dir) {
+    const span = document.createElement('span');
+    span.innerHTML = html;
+    const old = Array.prototype.filter.call(mask.children, (x) => !x.dataset.leaving);
+    mask.appendChild(span);
+    if (reduce() || !old.length) { old.forEach((x) => x.remove()); return; }
+    span.animate([{ transform: 'translateY(' + dir * 105 + '%)' }, { transform: 'translateY(0)' }], { duration: 650, easing: EASE, fill: 'both' });
+    old.forEach(function (x) {
+      x.dataset.leaving = '1';
+      const cur = getComputedStyle(x).transform;
+      x.animate([{ transform: cur === 'none' ? 'translateY(0)' : cur }, { transform: 'translateY(' + (-dir * 105) + '%)' }], { duration: 650, easing: EASE, fill: 'both' }).onfinish = () => x.remove();
+    });
+  }
+  function setActive(i, dir) {
+    active = i;
+    const b = books[i], p = done(b);
+    swap(root.querySelector('.sh-mt'), esc(b.title), dir);
+    swap(root.querySelector('.sh-ms'), '<span style="color:' + b.col + '">' + esc(b.sub.name) + ' / Section ' + esc(b.n) + '</span>', dir);
+    swap(root.querySelector('.sh-mm'), U.plural(b.c.topics.length, 'lesson') + ' · ' + p.done + ' done · ' + b.c.papers.map((x) => esc(b.sub.paper[x].code)).join(', '), dir);
+    const tab = root.querySelector('.sh-tab[data-tab="' + b.sub.id + '"]'), ind = root.querySelector('.sh-ind');
+    root.querySelectorAll('.sh-tab').forEach((t) => t.classList.toggle('on', t === tab));
+    ind.style.width = tab.offsetWidth + 'px';
+    ind.style.transform = 'translateX(' + tab.offsetLeft + 'px)';
+    ind.style.background = b.col;
+  }
+
+  function frame(now) {
+    if (!root || !document.body.contains(root)) { unmount(); return; }
+    raf = requestAnimationFrame(frame);
+    const dt = Math.min(0.05, (now - (last || now)) / 1000);
+    last = now;
+    const rm = reduce();
+    const k = dragging ? 18 : 5.2;
+    s = rm ? T : s + (T - s) * (1 - Math.exp(-k * dt));
+    if (Math.abs(T - s) < 1e-4) s = T;
+    if (Math.abs(s) > N * 4) { const sh = Math.round(s / N) * N; s -= sh; T -= sh; }
+    const a = mod(Math.round(s), N);
+    if (a !== active) setActive(a, Math.sign(T - s) || 1);
+
+    const c = centre(), rr = root.getBoundingClientRect();
+    cx += (mx - cx) * (1 - Math.exp(-16 * dt)); cy += (my - cy) * (1 - Math.exp(-16 * dt));
+    onCover = !isOpen && Math.abs(mx - c.x) < 0.55 * dd && Math.abs(my - c.y) < 0.55 * H && Math.abs(T - s) < 0.3;
+    const tyT = onCover ? (mx - c.x) / (0.55 * dd) * 9 : (mx - c.x) / (VW || 1) * 5;
+    const txT = onCover ? -(my - c.y) / (H / 2) * 6 : 0;
+    tiltY += (Math.max(-12, Math.min(12, tyT)) - tiltY) * (1 - Math.exp(-7 * dt));
+    tiltX += (txT - tiltX) * (1 - Math.exp(-7 * dt));
+
+    const lim = VW / 2 + 1.5 * dd;
+    for (let j = 0; j < tapes.length; j++) {
+      const el = tapes[j], r = rel(j), x = Fx(r);
+      if (Math.abs(x) > lim) { if (el.style.visibility !== 'hidden') el.style.visibility = 'hidden'; continue; }
+      if (el.style.visibility) el.style.visibility = '';
+      const o = sm(Math.max(0, 1 - Math.abs(r)));
+      const want = hover === j && Math.abs(r) > 0.5 ? 1 : 0;
+      lifts[j] = rm ? want : (lifts[j] || 0) + (want - (lifts[j] || 0)) * (1 - Math.exp(-12 * dt));
+      const y = -o * 0.025 * H - lifts[j] * 0.045 * H;
+      el.style.transform = 'translate3d(' + x.toFixed(2) + 'px,' + y.toFixed(2) + 'px,' + (o * 0.2 * H).toFixed(2) + 'px) rotateZ(' + (-4.5 * o).toFixed(3) + 'deg) rotateX(' + (tiltX * o).toFixed(3) + 'deg) rotateY(' + (-90 * o + tiltY * o).toFixed(3) + 'deg)';
+      el.style.zIndex = Math.round(100 - Math.abs(r) * 4);
+      el.style.setProperty('--ss', (o * 0.55).toFixed(3));
+      el.style.setProperty('--cs', ((1 - o) * 0.5).toFixed(3));
+    }
+    const play = root.querySelector('.sh-play');
+    const ps = isOpen ? 0 : sm(Math.max(0, 1 - Math.abs(T - s) * 3));
+    play.style.transform = 'translate(' + (c.x - rr.left - 0.5 * dd - 6 - 21) + 'px,' + (c.y - rr.top + 0.36 * H - 21) + 'px) scale(' + ps.toFixed(3) + ')';
+
+    const cur = root.querySelector('.sh-cur');
+    cur.style.transform = 'translate3d(' + cx + 'px,' + cy + 'px,0)';
+    const overTape = !isOpen && hover >= 0 && Math.abs(rel(hover)) > 0.5;
+    cur.classList.toggle('open', onCover);
+    cur.classList.toggle('spine', !onCover && overTape);
+  }
+
+  function go(t) { T = t; }
+  function jumpTo(i) { const c = Math.round(T); go(c + mod(i - mod(c, N) + N / 2, N) - N / 2); }
+
+  // ---------- Opening a book ----------
+  function activeTape() { return tapes[mod(Math.round(T), N)]; }
+  function openDetail() {
+    if (isOpen) return;
+    T = Math.round(T);
+    const b = books[mod(T, N)], s0 = st(), p = done(b), nx = M.nextLesson(s0, b.sub, b.c.topics);
+    const det = root.querySelector('.sh-detail');
+    det.style.setProperty('--bk', b.col);
+    const lines = [
+      '<p class="sh-lbl" style="color:' + b.col + '">' + esc(b.sub.name) + ' / Section ' + esc(b.n) + '</p>',
+      '<h2 id="shd-title">' + esc(b.title) + '</h2>',
+      '<p class="sh-lbl shd-meta">' + U.plural(b.c.topics.length, 'lesson') + ' / ' + p.done + ' done / ' + b.c.papers.map((x) => esc(b.sub.paper[x].code)).join(', ') + '</p>'
+    ].concat(b.c.topics.map((t) => '<a class="shd-l" href="#t-' + t.gid + '">' + V.statusIcon(s0, t) + '<span class="num">' + M.lessonNum(s0, t) + '</span><span>' + esc(M.title(t.name)) + '</span></a>'))
+      .concat(['<p class="shd-credit">' + esc(b.sub.board) + ' ' + esc(b.sub.spec) + ' · work through it in order, one lesson at a time.</p>',
+        '<div class="shd-acts">' + (nx ? '<a class="sh-lbl sh-btn" href="#t-' + nx.gid + '">' + (p.done ? 'Continue' : 'Start') + ': lesson ' + M.lessonNum(s0, nx) + '</a>' : '') + '<a class="sh-lbl sh-box" href="#c-' + b.c.gid + '">Section page</a></div>']);
+    det.querySelector('.shd-text').innerHTML = lines.map((l) => '<div class="shd-m"><div class="shd-r">' + l + '</div></div>').join('');
+    det.querySelector('.shd-art').innerHTML = coverInner(b);
+    const circles = det.querySelectorAll('mask circle');
+    circles.forEach((c) => c.setAttribute('r', 0));
+    const rect = activeTape().querySelector('.cv').getBoundingClientRect();
+    isOpen = true;
+    det.style.visibility = 'visible';
+    det.style.transformOrigin = (rect.left + rect.width / 2) + 'px ' + (rect.top + rect.height / 2) + 'px';
+    const rm = reduce();
+    det.getAnimations().forEach((x) => x.cancel());
+    det.animate([{ clipPath: inset(rect) + ' round 3px)', transform: 'rotate(-4.5deg)' }, { clipPath: 'inset(0px 0px 0px 0px round 0px)', transform: 'rotate(0deg)' }], { duration: rm ? 1 : 1050, easing: SHEET_EASE, fill: 'both' });
+    det.querySelectorAll('.shd-r').forEach((x, i) => x.animate([{ transform: 'translateY(110%)' }, { transform: 'translateY(0)' }], { duration: rm ? 1 : 900, delay: rm ? 0 : 620 + i * 75, easing: EASE, fill: 'both' }));
+    const t0 = performance.now() + (rm ? -5000 : 520);
+    (function ink(now) {
+      const t = now - t0;
+      circles.forEach(function (c, i) { const q = Math.max(0, Math.min(1, (t - BLOBS[i][2]) / 1250)); c.setAttribute('r', (720 * (1 - Math.pow(1 - q, 3))).toFixed(1)); });
+      if (t < 2400 && isOpen) requestAnimationFrame(ink);
+    })(performance.now());
+    det.querySelector('.sh-close').focus({ preventScroll: true });
+  }
+  const inset = (r) => 'inset(' + Math.max(0, r.top) + 'px ' + Math.max(0, window.innerWidth - r.right) + 'px ' + Math.max(0, window.innerHeight - r.bottom) + 'px ' + Math.max(0, r.left) + 'px';
+  function closeDetail() {
+    if (!isOpen) return;
+    const det = root.querySelector('.sh-detail');
+    const rect = activeTape().querySelector('.cv').getBoundingClientRect();
+    isOpen = false;
+    det.getAnimations().forEach((x) => { if (x.effect && x.effect.target === det) x.cancel(); });
+    const an = det.animate([{ clipPath: 'inset(0px 0px 0px 0px round 0px)', transform: 'rotate(0deg)' }, { clipPath: inset(rect) + ' round 3px)', transform: 'rotate(-4.5deg)' }], { duration: reduce() ? 1 : 850, easing: SHEET_EASE, fill: 'both' });
+    an.onfinish = function () { det.style.visibility = 'hidden'; det.getAnimations({ subtree: true }).forEach((x) => x.cancel()); };
+    root.focus({ preventScroll: true });
+  }
+
+  // ---------- Mounting ----------
+  function onKey(e) {
+    if (!root || RH.c.modalOpen()) return;
+    if (e.key === 'Escape' && isOpen) { closeDetail(); return; }
+    if (isOpen || /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) return;
+    if (e.key === 'ArrowLeft') { go(Math.round(T) - 1); e.preventDefault(); }
+    else if (e.key === 'ArrowRight') { go(Math.round(T) + 1); e.preventDefault(); }
+    else if (e.key === 'Enter' && (document.activeElement === document.body || document.activeElement === root)) { openDetail(); e.preventDefault(); }
+  }
+  function onMove(e) {
+    mx = e.clientX; my = e.clientY;
+    if (drag && Math.abs(e.clientX - drag.x) > 5) dragging = true;
+    if (dragging) T = drag.T - (e.clientX - drag.x) / (ws + gap);
+  }
+  function onUp() { if (dragging) { suppress = true; setTimeout(() => { suppress = false; }, 0); T = Math.round(T); } drag = null; dragging = false; }
+  function onResize() { if (root) measure(); }
+
+  function mount() {
+    root = document.getElementById('shelf');
+    stage = root.querySelector('.sh-stage');
+    tapes = Array.prototype.slice.call(stage.querySelectorAll('.bk'));
+    measure();
+    active = -1; last = 0; isOpen = false;
+    if (curIn) root.classList.add('cur-in');
+    tapes.forEach(function (el, j) {
+      el.addEventListener('pointerenter', () => { hover = j; });
+      el.addEventListener('pointerleave', () => { if (hover === j) hover = -1; });
+      el.addEventListener('click', function () {
+        if (suppress) return;
+        const r = rel(j);
+        if (Math.abs(r) < 0.5) openDetail(); else go(Math.round(T + r));
+      });
+    });
+    const shelf = root.querySelector('.sh-shelf');
+    shelf.addEventListener('pointerdown', (e) => { if (e.button === 0 && !isOpen) drag = { x: e.clientX, T: T }; });
+    shelf.addEventListener('wheel', function (e) {
+      if (isOpen) return;
+      e.preventDefault();
+      const dlt = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+      T += dlt / (ws + gap) * 0.5;
+      clearTimeout(wheelT);
+      wheelT = setTimeout(() => { T = Math.round(T); }, 160);
+    }, { passive: false });
+    root.addEventListener('pointerenter', () => { curIn = true; root.classList.add('cur-in'); });
+    root.addEventListener('pointerleave', () => { curIn = false; root.classList.remove('cur-in'); });
+    root.addEventListener('pointerover', (e) => { root.querySelector('.sh-cur').classList.toggle('btn', !!e.target.closest('button, a') && !e.target.closest('.bk')); });
+    root.querySelector('.sh-arrow.prev').addEventListener('click', () => go(Math.round(T) - 1));
+    root.querySelector('.sh-arrow.next').addEventListener('click', () => go(Math.round(T) + 1));
+    root.querySelector('.sh-play').addEventListener('click', openDetail);
+    root.querySelector('.sh-close').addEventListener('click', closeDetail);
+    root.querySelectorAll('.sh-tab').forEach((t) => t.addEventListener('click', function () {
+      const id = t.dataset.tab;
+      jumpTo(id === 'all' ? 0 : books.findIndex((b) => b.sub.id === id));
+    }));
+    root.querySelector('.sh-detail').addEventListener('click', function (e) {
+      const a = e.target.closest('a[href^="#t-"], a[href^="#c-"]');
+      if (a) { isOpen = false; }
+    });
+    if (!SH.wired) {
+      SH.wired = true;
+      window.addEventListener('keydown', onKey);
+      window.addEventListener('pointermove', onMove, { passive: true });
+      window.addEventListener('pointerup', onUp);
+      window.addEventListener('pointercancel', onUp);
+      window.addEventListener('resize', onResize);
+    }
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(frame);
+  }
+  function unmount() { cancelAnimationFrame(raf); raf = 0; root = null; stage = null; tapes = []; hover = -1; isOpen = false; }
+  const SH = RH.shelf = { mount: mount, open: () => openDetail(), close: () => closeDetail(), state: () => ({ s: s, T: T, active: active, isOpen: isOpen, N: N }), go: (t) => go(t) };
+
+  // Preload nothing: the art is SVG. Mount whenever the shelf page is drawn.
+  RH.afterRender.push(function (r) { if (typeof r !== 'string') return; if (r === 'study' && document.getElementById('shelf')) mount(); else if (root) unmount(); });
 })(window.RH = window.RH || {});
 </script>
 <script>
@@ -7026,6 +7551,1119 @@ body.in-exam .tabbar { display: none !important; }
 })(window.RH = window.RH || {});
 </script>
 <script>
+/* Labs: interactive physics experiments in the style of PhET. Each lab is a small simulation of the real equations
+   with sliders for its variables, live readouts, graphs and a list of experiments to try.
+   This file is the frame: the Labs pages, the controls, the canvas loop and the graph drawing. The labs themselves
+   are in labs-sims.js and register with RH.labs.add(). */
+(function (RH) {
+  'use strict';
+  const U = RH.util, M = RH.model, C = RH.c, esc = U.esc;
+  const V = RH.views;
+  const LB = RH.labs = { defs: [], byId: {} };
+  LB.add = function (def) { LB.defs.push(def); LB.byId[def.id] = def; };
+
+  // ---------- Numbers and colours ----------
+  LB.fmt = function (x, dp) {
+    if (x == null || !isFinite(x)) return '–';
+    const a = Math.abs(x);
+    if (dp == null) dp = a >= 100 ? 0 : a >= 10 ? 1 : a >= 1 ? 2 : 3;
+    return x.toFixed(dp);
+  };
+  LB.sci = function (x, sf) {
+    if (!isFinite(x) || x === 0) return x === 0 ? '0' : '–';
+    const e = Math.floor(Math.log10(Math.abs(x))), m = x / Math.pow(10, e);
+    return m.toFixed((sf || 3) - 1) + ' × 10' + String(e).split('').map((ch) => '⁰¹²³⁴⁵⁶⁷⁸⁹'['0123456789'.indexOf(ch)] || (ch === '-' ? '⁻' : ch)).join('');
+  };
+  // Colours from the page's theme, read on each mount and when the theme changes.
+  LB.theme = function () {
+    const cs = getComputedStyle(document.documentElement), v = (n) => cs.getPropertyValue(n).trim();
+    return { ink: v('--ink'), ink2: v('--ink-2'), ink3: v('--ink-3'), line: v('--line'), line2: v('--line-2'), bg: v('--surface'), bg2: v('--surface-2'), bg3: v('--surface-3'), primary: v('--primary'), bad: v('--bad'), ok: v('--ok'), warn: v('--c2'), accent: v('--eco'), purple: v('--fm'), green: v('--mat'), dark: /dark/.test(cs.getPropertyValue('color-scheme')) };
+  };
+  // Visible light as a colour; ultraviolet and infrared shown as dim violet and dim red.
+  LB.waveColour = function (nm, alpha) {
+    let r = 0, g = 0, b = 0;
+    if (nm < 380) { r = 0.45; g = 0.3; b = 0.75; }
+    else if (nm < 440) { r = -(nm - 440) / 60; b = 1; }
+    else if (nm < 490) { g = (nm - 440) / 50; b = 1; }
+    else if (nm < 510) { g = 1; b = -(nm - 510) / 20; }
+    else if (nm < 580) { r = (nm - 510) / 70; g = 1; }
+    else if (nm < 645) { r = 1; g = -(nm - 645) / 65; }
+    else if (nm <= 780) { r = 1; }
+    else { r = 0.5; g = 0.1; b = 0.1; }
+    let f = 1;
+    if (nm >= 380 && nm < 420) f = 0.4 + 0.6 * (nm - 380) / 40; else if (nm > 700 && nm <= 780) f = 0.4 + 0.6 * (780 - nm) / 80;
+    const c = (x) => Math.round(255 * Math.pow(Math.max(0, x) * f, 0.8));
+    return 'rgba(' + c(r) + ',' + c(g) + ',' + c(b) + ',' + (alpha == null ? 1 : alpha) + ')';
+  };
+
+  // ---------- Drawing helpers ----------
+  LB.arrow = function (g, x1, y1, x2, y2, col, w) {
+    const a = Math.atan2(y2 - y1, x2 - x1), L = Math.hypot(x2 - x1, y2 - y1), hd = Math.min(10, L * 0.4);
+    g.strokeStyle = col; g.fillStyle = col; g.lineWidth = w || 2;
+    g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2 - Math.cos(a) * hd * 0.6, y2 - Math.sin(a) * hd * 0.6); g.stroke();
+    if (L < 2) return;
+    g.beginPath(); g.moveTo(x2, y2); g.lineTo(x2 - hd * Math.cos(a - 0.4), y2 - hd * Math.sin(a - 0.4)); g.lineTo(x2 - hd * Math.cos(a + 0.4), y2 - hd * Math.sin(a + 0.4)); g.closePath(); g.fill();
+  };
+  LB.text = function (g, s, x, y, o) {
+    o = o || {};
+    g.font = (o.weight || 500) + ' ' + (o.size || 12) + 'px Inter, system-ui, sans-serif';
+    g.fillStyle = o.col; g.textAlign = o.align || 'left'; g.textBaseline = o.base || 'alphabetic';
+    g.fillText(s, x, y);
+  };
+  function nice(span, n) {
+    const raw = span / (n || 5), p = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / p;
+    return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * p;
+  }
+  LB.nice = nice;
+  // A graph with axes, ticks, labels and any number of series: {pts: [[x,y]...], col, dash, dots, width}.
+  LB.plot = function (g, th, o) {
+    const x = o.x, y = o.y, w = o.w, h = o.h, pl = 46, pb = 30, pt = 14, pr = 12;
+    const X0 = x + pl, X1 = x + w - pr, Y0 = y + h - pb, Y1 = y + pt;
+    const sx = (v) => X0 + (v - o.x0) / (o.x1 - o.x0) * (X1 - X0), sy = (v) => Y0 - (v - o.y0) / (o.y1 - o.y0) * (Y0 - Y1);
+    g.save();
+    g.lineWidth = 1;
+    const tx = nice(o.x1 - o.x0, Math.max(3, Math.floor(w / 90))), ty = nice(o.y1 - o.y0, Math.max(3, Math.floor(h / 50)));
+    g.strokeStyle = th.line; g.beginPath();
+    for (let v = Math.ceil(o.x0 / tx) * tx; v <= o.x1 + 1e-9; v += tx) { g.moveTo(sx(v), Y0); g.lineTo(sx(v), Y1); }
+    for (let v = Math.ceil(o.y0 / ty) * ty; v <= o.y1 + 1e-9; v += ty) { g.moveTo(X0, sy(v)); g.lineTo(X1, sy(v)); }
+    g.stroke();
+    const lab = (v, t) => { const d = t < 1 ? Math.min(4, Math.ceil(-Math.log10(t))) : 0; return (Math.abs(v) < t / 1e6 ? 0 : v).toFixed(d); };
+    for (let v = Math.ceil(o.x0 / tx) * tx; v <= o.x1 + 1e-9; v += tx) LB.text(g, lab(v, tx), sx(v), Y0 + 15, { col: th.ink3, size: 11, align: 'center' });
+    for (let v = Math.ceil(o.y0 / ty) * ty; v <= o.y1 + 1e-9; v += ty) LB.text(g, lab(v, ty), X0 - 6, sy(v) + 4, { col: th.ink3, size: 11, align: 'right' });
+    g.strokeStyle = th.ink2; g.lineWidth = 1.5; g.beginPath();
+    const zx = o.x0 <= 0 && o.x1 >= 0 ? sx(0) : X0, zy = o.y0 <= 0 && o.y1 >= 0 ? sy(0) : Y0;
+    g.moveTo(X0, zy); g.lineTo(X1, zy); g.moveTo(zx, Y0); g.lineTo(zx, Y1); g.stroke();
+    if (o.xl) LB.text(g, o.xl, X1, Y0 + 27, { col: th.ink2, size: 11, align: 'right', weight: 600 });
+    if (o.yl) LB.text(g, o.yl, X0 + 4, Y1 + 2, { col: th.ink2, size: 11, weight: 600, base: 'top' });
+    g.beginPath(); g.rect(X0, Y1 - 2, X1 - X0, Y0 - Y1 + 4); g.clip();
+    (o.series || []).forEach(function (s) {
+      if (!s.pts || !s.pts.length) return;
+      g.strokeStyle = s.col; g.fillStyle = s.col; g.lineWidth = s.width || 2; g.setLineDash(s.dash || []);
+      if (s.dots) s.pts.forEach((p) => { g.beginPath(); g.arc(sx(p[0]), sy(p[1]), s.r || 4, 0, 7); g.fill(); });
+      else { g.beginPath(); s.pts.forEach((p, i) => { const X = sx(p[0]), Y = sy(p[1]); if (i) g.lineTo(X, Y); else g.moveTo(X, Y); }); g.stroke(); }
+      g.setLineDash([]);
+    });
+    (o.vlines || []).forEach(function (v) { g.strokeStyle = v.col || th.ink3; g.setLineDash([4, 4]); g.lineWidth = 1; g.beginPath(); g.moveTo(sx(v.x), Y0); g.lineTo(sx(v.x), Y1); g.stroke(); g.setLineDash([]); if (v.label) LB.text(g, v.label, sx(v.x) + 4, Y1 + 12, { col: v.col || th.ink3, size: 11, weight: 600 }); });
+    (o.hlines || []).forEach(function (v) { g.strokeStyle = v.col || th.ink3; g.setLineDash([4, 4]); g.lineWidth = 1; g.beginPath(); g.moveTo(X0, sy(v.y)); g.lineTo(X1, sy(v.y)); g.stroke(); g.setLineDash([]); if (v.label) LB.text(g, v.label, X1 - 4, sy(v.y) - 5, { col: v.col || th.ink3, size: 11, weight: 600, align: 'right' }); });
+    g.restore();
+    return { sx: sx, sy: sy };
+  };
+  LB.legend = function (g, th, x, y, items) {
+    let cx = x;
+    items.forEach(function (it) {
+      g.fillStyle = it[1]; g.fillRect(cx, y - 8, 14, 3);
+      LB.text(g, it[0], cx + 19, y - 3, { col: th.ink2, size: 11, weight: 600 });
+      g.font = '600 11px Inter, system-ui, sans-serif';
+      cx += 34 + g.measureText(it[0]).width;
+    });
+  };
+
+  // ---------- Pages ----------
+  const subjOf = (gid) => M.topic[gid];
+  V.labs = function () {
+    let html = V.docHead('Labs', 'Physics labs', 'Interactive experiments built on the real equations. Change the variables, watch what happens, take readings and plot graphs, like the practicals in Paper 3.');
+    html += '<div class="lab-cards">' + LB.defs.map(function (d) {
+      const t = subjOf(d.topics[0]);
+      return '<a class="lab-card" href="#lab-' + d.id + '"><span class="lab-ic" aria-hidden="true">' + (d.icon || '') + '</span><span class="lab-ct"><b>' + esc(d.name) + '</b><span class="muted small">' + esc(d.blurb) + '</span>' + (t ? '<span class="small lab-topic">' + esc(M.lessonNum(RH.store.state, t) + ' ' + M.title(t.name)) + '</span>' : '') + '</span></a>';
+    }).join('') + '</div>';
+    return html;
+  };
+  function control(c, p) {
+    const hid = c.when && !c.when(p) ? ' hidden' : '';
+    if (c.type === 'toggle') return '<div class="lc lc-t" data-lc="' + c.k + '"' + hid + '>' + C.toggle('data-lk="' + c.k + '"', c.label, p[c.k], c.help) + '</div>';
+    if (c.type === 'seg') return '<div class="lc" data-lc="' + c.k + '"' + hid + '><span class="lc-h"><span>' + c.label + '</span></span><div class="seg lc-seg">' + c.options.map((o) => '<button type="button" data-lk="' + c.k + '" data-v="' + o[0] + '"' + (String(p[c.k]) === String(o[0]) ? ' class="on" aria-pressed="true"' : ' aria-pressed="false"') + '>' + o[1] + '</button>').join('') + '</div></div>';
+    if (c.type === 'select') return '<label class="lc" data-lc="' + c.k + '"' + hid + '><span class="lc-h"><span>' + c.label + '</span></span><select data-lk="' + c.k + '">' + c.options.map((o, i) => '<option value="' + i + '"' + (String(o[0]) === String(p[c.k]) ? ' selected' : '') + '>' + esc(o[1]) + '</option>').join('') + '</select></label>';
+    return '<label class="lc" data-lc="' + c.k + '"' + hid + '><span class="lc-h"><span>' + c.label + '</span><output class="num" id="lo-' + c.k + '">' + showVal(c, p[c.k], p) + '</output></span><input type="range" min="' + c.min + '" max="' + c.max + '" step="' + c.step + '" value="' + p[c.k] + '" data-lk="' + c.k + '" aria-label="' + esc(c.label) + '"></label>';
+  }
+  const showVal = (c, v, p) => (c.show ? c.show(v, p) : LB.fmt(Number(v), c.dp)) + (c.unit ? ' ' + c.unit : '');
+
+  V.lab = function (id) {
+    const d = LB.byId[id];
+    if (!d) return V.notFound();
+    const cur = LB.cur && LB.cur.id === id ? LB.cur : null;
+    const p = cur ? cur.p : defaults(d);
+    const t = subjOf(d.topics[0]);
+    let html = C.crumbs([['Labs', 'labs'], [d.name]]);
+    html += V.docHead('Lab' + (t ? ' · ' + esc(t.subject.name) + ' ' + M.lessonNum(RH.store.state, t) : ''), esc(d.name), esc(d.blurb),
+      d.topics.map((g) => subjOf(g) ? '<a class="btn alt sm" href="#t-' + g + '">Lesson: ' + esc(M.title(subjOf(g).name)) + '</a>' : '').join(''));
+    html += '<div class="lab" data-lab="' + id + '"><div class="lab-main"><div class="lab-stage"><canvas class="lab-cv" aria-label="' + esc(d.name) + ' simulation"></canvas></div>' +
+      '<div class="lab-bar"><button type="button" class="btn sm" data-lab-act="play">' + C.icon('pause') + '<span>Pause</span></button><button type="button" class="btn alt sm" data-lab-act="reset">' + C.icon('rebuild') + 'Reset</button>' +
+      (d.actions || []).map((a) => '<button type="button" class="btn ' + (a.primary ? '' : 'alt ') + 'sm" data-lab-act="' + a.id + '">' + esc(a.label) + '</button>').join('') +
+      '<span class="lab-speed"><span class="small muted">Speed</span>' + C.seg([[0.25, '¼×'], [0.5, '½×'], [1, '1×'], [2, '2×']].concat(d.fast ? [[d.fast, d.fast + '×']] : []), cur ? cur.speed : 1, 'data-lab-speed="1"') + '</span></div>' +
+      (d.graph ? '<div class="lab-graph"><canvas class="lab-gc" aria-label="Graph"></canvas></div>' : '') + '</div>' +
+      '<aside class="lab-panel"><h2>Variables</h2><div class="lab-ctrls">' + d.controls.map((c) => control(c, p)).join('') + '</div><h2>Readings</h2><p class="help">Green values are predicted by the equations; the others are measured in the simulation.</p><dl class="lab-read"></dl><div class="lab-extra"></div></aside></div>';
+    html += '<div class="lab-notes"><section><h2 class="h-rule">Experiments to try</h2><ol class="lab-tasks">' + d.tasks.map((x) => '<li>' + x + '</li>').join('') + '</ol></section>' +
+      '<section><h2 class="h-rule">The physics</h2><div class="lab-theory">' + d.theory + '</div></section></div>';
+    return html;
+  };
+  function defaults(d) { const p = {}; d.controls.forEach((c) => { p[c.k] = c.v; }); return p; }
+
+  // ---------- Running a lab ----------
+  let raf = 0;
+  function mount(id) {
+    const d = LB.byId[id], root = document.querySelector('.lab[data-lab="' + id + '"]');
+    if (!d || !root) return;
+    let cur = LB.cur && LB.cur.id === id ? LB.cur : null;
+    if (!cur) { const p = defaults(d); cur = LB.cur = { id: id, p: p, inst: d.create(p), speed: 1, playing: true }; }
+    const p = cur.p, inst = cur.inst;
+    const cv = root.querySelector('.lab-cv'), gc = root.querySelector('.lab-gc');
+    const g = cv.getContext('2d'), gg = gc && gc.getContext('2d');
+    let th = LB.theme(), W = 0, Hh = 0, GW = 0, GH = 0, frame = 0, lastRead = '', lastExtra = '';
+    function size() {
+      const dpr = window.devicePixelRatio || 1;
+      W = cv.parentNode.clientWidth; Hh = Math.round(Math.min(W * (d.aspect || 0.56), d.maxH || 460));
+      cv.width = Math.round(W * dpr); cv.height = Math.round(Hh * dpr); cv.style.height = Hh + 'px';
+      g.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if (gc) { GW = gc.parentNode.clientWidth; GH = d.graphH || 220; gc.width = Math.round(GW * dpr); gc.height = Math.round(GH * dpr); gc.style.height = GH + 'px'; gg.setTransform(dpr, 0, 0, dpr, 0, 0); }
+    }
+    size();
+    const ro = window.ResizeObserver ? new ResizeObserver(() => size()) : null;
+    if (ro) ro.observe(root.querySelector('.lab-stage'));
+    const playBtn = root.querySelector('[data-lab-act="play"]');
+    const paintPlay = () => { playBtn.innerHTML = C.icon(cur.playing ? 'pause' : 'play') + '<span>' + (cur.playing ? 'Pause' : 'Play') + '</span>'; };
+    paintPlay();
+    function refreshVisibility() { d.controls.forEach((c) => { if (c.when) { const el = root.querySelector('[data-lc="' + c.k + '"]'); if (el) el.hidden = !c.when(p); } }); }
+    function set(k, v) {
+      const c = d.controls.find((x) => x.k === k);
+      p[k] = v;
+      d.controls.forEach(function (x) { const o = root.querySelector('#lo-' + x.k); if (o && (x.k === k || x.show)) o.textContent = showVal(x, p[x.k], p); });
+      refreshVisibility();
+      if (inst.change) inst.change(k, p);
+    }
+    root.querySelector('.lab-ctrls').addEventListener('input', function (e) {
+      const el = e.target, k = el.dataset.lk;
+      if (!k || el.type === 'checkbox' || el.tagName === 'SELECT') return;
+      set(k, Number(el.value));
+    });
+    root.querySelector('.lab-ctrls').addEventListener('change', function (e) {
+      const el = e.target, k = el.dataset.lk;
+      if (!k) return;
+      if (el.type === 'checkbox') set(k, el.checked);
+      else if (el.tagName === 'SELECT') { const c = d.controls.find((x) => x.k === k); set(k, c.options[Number(el.value)][0]); }
+    });
+    root.addEventListener('click', function (e) {
+      const b = e.target.closest('button');
+      if (!b) return;
+      if (b.dataset.lk && b.dataset.v != null) {
+        const c = d.controls.find((x) => x.k === b.dataset.lk), raw = b.dataset.v, v = isNaN(Number(raw)) ? raw : Number(raw);
+        b.parentNode.querySelectorAll('button').forEach((x) => { const on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-pressed', String(on)); });
+        set(c.k, v);
+      } else if (b.dataset.labSpeed) {
+        cur.speed = Number(b.dataset.v);
+        b.parentNode.querySelectorAll('button').forEach((x) => { const on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-pressed', String(on)); });
+      } else if (b.dataset.labAct === 'play') { cur.playing = !cur.playing; paintPlay(); }
+      else if (b.dataset.labAct === 'reset') { cur.inst.reset(p); cur.playing = true; paintPlay(); }
+      else if (b.dataset.labAct && inst.action) { inst.action(b.dataset.labAct, p); if (!cur.playing) { cur.playing = true; paintPlay(); } }
+    });
+    if (d.onCanvas) {
+      const toWorld = (e) => { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+      cv.addEventListener('pointerdown', (e) => { const q = toWorld(e); if (inst.pointer && inst.pointer('down', q[0], q[1], p)) { cv.setPointerCapture(e.pointerId); e.preventDefault(); } });
+      cv.addEventListener('pointermove', (e) => { const q = toWorld(e); if (inst.pointer) inst.pointer('move', q[0], q[1], p); });
+      cv.addEventListener('pointerup', (e) => { const q = toWorld(e); if (inst.pointer) inst.pointer('up', q[0], q[1], p); });
+    }
+    let last = 0;
+    cancelAnimationFrame(raf);
+    function loop(now) {
+      if (!document.body.contains(cv)) { if (ro) ro.disconnect(); return; }
+      raf = requestAnimationFrame(loop);
+      const dt = Math.min(0.05, (now - (last || now)) / 1000);
+      last = now;
+      if (++frame % 30 === 0) th = LB.theme();
+      if (cur.playing) inst.step(dt * cur.speed, p);
+      g.clearRect(0, 0, W, Hh);
+      inst.draw(g, W, Hh, p, th);
+      if (gg) { gg.clearRect(0, 0, GW, GH); inst.graph(gg, GW, GH, p, th); }
+      if (frame % 6 === 1) {
+        const read = (inst.readouts(p) || []).map((r) => '<div' + (r[2] ? ' class="' + r[2] + '"' : '') + '><dt>' + r[0] + '</dt><dd class="num">' + r[1] + '</dd></div>').join('');
+        if (read !== lastRead) { root.querySelector('.lab-read').innerHTML = read; lastRead = read; }
+        const ex = inst.extra ? inst.extra(p) : '';
+        if (ex !== lastExtra) { root.querySelector('.lab-extra').innerHTML = ex; lastExtra = ex; }
+      }
+    }
+    raf = requestAnimationFrame(loop);
+  }
+  RH.afterRender.push(function (r) { if (typeof r === 'string' && r.indexOf('lab-') === 0) mount(r.slice(4)); });
+})(window.RH = window.RH || {});
+</script>
+<script>
+/* The physics labs. Each one integrates the real equations (SI units throughout) and draws itself on a canvas.
+   A lab: create(p) returns { reset, step(dt, p), draw(g, w, h, p, th), graph(g, w, h, p, th), readouts(p), change, action, extra }. */
+(function (RH) {
+  'use strict';
+  const LB = RH.labs, f = LB.fmt, T = LB.text, U = RH.util, esc = U.esc;
+  const icon = (d) => '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>';
+  const GRAV = [[9.81, 'Earth (9.81 m/s²)'], [1.62, 'Moon (1.62 m/s²)'], [3.71, 'Mars (3.71 m/s²)'], [24.8, 'Jupiter (24.8 m/s²)']];
+  const rk4 = function (x, v, t, h, acc) {
+    const a1 = acc(x, v, t), x2 = x + v * h / 2, v2 = v + a1 * h / 2, a2 = acc(x2, v2, t + h / 2);
+    const x3 = x + v2 * h / 2, v3 = v + a2 * h / 2, a3 = acc(x3, v3, t + h / 2), x4 = x + v3 * h, v4 = v + a3 * h, a4 = acc(x4, v4, t + h);
+    return [x + h * (v + 2 * v2 + 2 * v3 + v4) / 6, v + h * (a1 + 2 * a2 + 2 * a3 + a4) / 6];
+  };
+
+  // ---------- 1. Projectile motion ----------
+  const BALLS = { football: { m: 0.43, d: 0.22, cd: 0.25 }, golf: { m: 0.046, d: 0.0427, cd: 0.25 }, pingpong: { m: 0.0027, d: 0.04, cd: 0.5 }, shot: { m: 7.26, d: 0.12, cd: 0.47 } };
+  LB.add({
+    id: 'projectile', name: 'Projectile motion', topics: ['phy-t2-motion', 'phy-cp-cp1'],
+    blurb: 'Launch a ball at any angle and speed, with or without air resistance, on Earth, the Moon, Mars or Jupiter.',
+    icon: icon('<path d="M6 40 Q22 2 42 40"/><circle cx="31" cy="17" r="3" fill="currentColor"/><path d="M4 42h40"/>'),
+    aspect: 0.52, maxH: 460, graph: true, graphH: 200,
+    controls: [
+      { k: 'v', label: 'Launch speed', min: 1, max: 40, step: 0.5, v: 18, unit: 'm/s', dp: 1 },
+      { k: 'angle', label: 'Launch angle', min: 0, max: 90, step: 1, v: 45, unit: '°', dp: 0 },
+      { k: 'h0', label: 'Launch height', min: 0, max: 30, step: 0.5, v: 0, unit: 'm', dp: 1 },
+      { k: 'g', type: 'select', label: 'Gravity', options: GRAV, v: 9.81 },
+      { k: 'drag', type: 'toggle', label: 'Air resistance', v: false, help: 'Drag force ½ρC<sub>d</sub>Av² opposes the motion.' },
+      { k: 'ball', type: 'select', label: 'Ball', options: [['football', 'Football (430 g)'], ['golf', 'Golf ball (46 g)'], ['pingpong', 'Table-tennis ball (2.7 g)'], ['shot', 'Shot put (7.26 kg)']], v: 'football', when: (p) => p.drag },
+      { k: 'vec', type: 'toggle', label: 'Show velocity components', v: true },
+      { k: 'target', label: 'Target distance', min: 5, max: 120, step: 1, v: 40, unit: 'm', dp: 0 }
+    ],
+    actions: [{ id: 'fire', label: 'Fire', primary: true }, { id: 'clear', label: 'Clear shots' }],
+    tasks: [
+      'Fire at <b>30°</b> and then at <b>60°</b> with the same speed. Without air resistance they land in the same place. Why? (Hint: sin 2θ.)',
+      'Find the angle that gives the greatest range. Now turn on air resistance and use the table-tennis ball. Is 45° still best?',
+      'Switch to the Moon. Range and flight time go up by about 6×, because R = u² sin 2θ / g.',
+      'Raise the launch height to 20 m. Is 45° still the best angle?',
+      'Set the speed to 25 m/s and hit the target at 50 m. There are two angles that work.',
+      'Fire straight across (0°) from 20 m. The time to land is the same as dropping it: t = √(2h/g). Horizontal and vertical motion are independent.'
+    ],
+    theory: '<p>With no air resistance the horizontal velocity is constant and the vertical acceleration is −g:</p><p class="eq">x = u cos θ · t &nbsp;&nbsp; y = h + u sin θ · t − ½ g t²</p><p class="eq">R = u² sin 2θ / g &nbsp;&nbsp; H = u² sin² θ / 2g &nbsp;&nbsp; T = 2u sin θ / g</p><p>(The range and flight-time formulas are for launch and landing at the same height.) With air resistance the drag force F = ½ ρ C<sub>d</sub> A v² acts against the velocity, so the ball loses horizontal speed and lands shorter and steeper. The simulation steps these equations 500 times a second.</p>',
+    create: function (p) {
+      const S = { shots: [], sc: 0 };
+      const cols = (th) => [th.primary, th.accent, th.green, th.purple, th.warn];
+      function fire() {
+        const a = p.angle * Math.PI / 180;
+        S.shots.push({ x: 0, y: p.h0, vx: p.v * Math.cos(a), vy: p.v * Math.sin(a), t: 0, maxY: p.h0, pts: [[0, p.h0, p.v * Math.sin(a), 0]], done: false, rec: 0, v0: p.v, ang: p.angle, drag: p.drag, ball: p.ball, g: p.g, h0: p.h0 });
+        if (S.shots.length > 8) S.shots.shift();
+      }
+      function theory() {
+        const a = p.angle * Math.PI / 180, vx = p.v * Math.cos(a), vy = p.v * Math.sin(a);
+        const tl = (vy + Math.sqrt(vy * vy + 2 * p.g * p.h0)) / p.g;
+        return { R: vx * tl, H: p.h0 + vy * vy / (2 * p.g), T: tl, vx: vx, vy: vy };
+      }
+      const inst = {
+        reset: function () { S.shots = []; fire(); },
+        action: function (id) { if (id === 'fire') fire(); if (id === 'clear') S.shots = []; },
+        step: function (dt) {
+          S.shots.forEach(function (s) {
+            if (s.done) return;
+            const n = Math.max(1, Math.ceil(dt / 0.002)), h = dt / n, B = BALLS[s.ball];
+            const k = s.drag ? 0.5 * 1.2 * B.cd * Math.PI * B.d * B.d / 4 / B.m : 0;
+            for (let i = 0; i < n && !s.done; i++) {
+              const sp = Math.hypot(s.vx, s.vy), px = s.x, py = s.y;
+              s.vx += -k * sp * s.vx * h; s.vy += (-s.g - k * sp * s.vy) * h;
+              s.x += s.vx * h; s.y += s.vy * h; s.t += h;
+              if (s.y > s.maxY) s.maxY = s.y;
+              if (s.y < 0 && s.t > 0.001) {
+                const fr = py / (py - s.y);
+                s.x = px + (s.x - px) * fr; s.t -= h * (1 - fr); s.y = 0; s.done = true;
+                s.impact = sp;
+              }
+              s.rec += h;
+              if (s.rec >= 0.02 || s.done) { s.rec = 0; s.pts.push([s.x, s.y, s.vy, s.t]); }
+            }
+          });
+        },
+        draw: function (g, W, H, p, th) {
+          const tr = theory();
+          let X = Math.max(tr.R, p.target + 4, 10), Y = Math.max(tr.H, p.h0, 4);
+          S.shots.forEach((s) => { X = Math.max(X, s.x); Y = Math.max(Y, s.maxY); });
+          const want = Math.min((W - 80) / (X * 1.06), (H - 60) / (Y * 1.15));
+          S.sc = S.sc ? S.sc + (want - S.sc) * 0.1 : want;
+          const sc = S.sc, ox = 52, oy = H - 34, sx = (x) => ox + x * sc, sy = (y) => oy - y * sc;
+          g.fillStyle = th.bg2; g.fillRect(0, oy, W, H - oy);
+          const step = LB.nice(Math.max((W - ox) / sc, (oy) / sc), 8);
+          g.strokeStyle = th.line; g.lineWidth = 1; g.beginPath();
+          for (let x = 0; sx(x) < W; x += step) { g.moveTo(sx(x), oy); g.lineTo(sx(x), 0); }
+          for (let y = step; sy(y) > 0; y += step) { g.moveTo(ox, sy(y)); g.lineTo(W, sy(y)); }
+          g.stroke();
+          for (let x = 0; sx(x) < W - 10; x += step) T(g, x + ' m', sx(x), oy + 18, { col: th.ink3, size: 11, align: 'center' });
+          for (let y = step; sy(y) > 12; y += step) T(g, y + ' m', ox - 6, sy(y) + 4, { col: th.ink3, size: 11, align: 'right' });
+          g.strokeStyle = th.ink2; g.lineWidth = 2; g.beginPath(); g.moveTo(0, oy); g.lineTo(W, oy); g.stroke();
+          // Target
+          const tx = sx(p.target);
+          g.strokeStyle = th.ink; g.lineWidth = 2; g.beginPath(); g.moveTo(tx, oy); g.lineTo(tx, oy - 34); g.stroke();
+          g.fillStyle = th.bad; g.beginPath(); g.moveTo(tx, oy - 34); g.lineTo(tx + 20, oy - 28); g.lineTo(tx, oy - 22); g.fill();
+          g.fillStyle = th.bad; g.globalAlpha = 0.25; g.fillRect(sx(p.target - 1), oy - 3, 2 * sc, 6); g.globalAlpha = 1;
+          // Tower and launcher
+          if (p.h0 > 0) { g.fillStyle = th.bg3; g.fillRect(ox - 9, sy(p.h0), 18, oy - sy(p.h0)); g.strokeStyle = th.ink3; g.lineWidth = 1; g.strokeRect(ox - 9, sy(p.h0), 18, oy - sy(p.h0)); }
+          const a = p.angle * Math.PI / 180;
+          g.strokeStyle = th.ink; g.lineWidth = 8; g.lineCap = 'round'; g.beginPath(); g.moveTo(ox, sy(p.h0)); g.lineTo(ox + Math.cos(a) * 30, sy(p.h0) - Math.sin(a) * 30); g.stroke(); g.lineCap = 'butt';
+          g.fillStyle = th.ink2; g.beginPath(); g.arc(ox, sy(p.h0), 9, 0, 7); g.fill();
+          // Prediction without air resistance
+          g.setLineDash([5, 6]); g.strokeStyle = th.ink3; g.lineWidth = 1.2; g.beginPath();
+          for (let i = 0; i <= 60; i++) { const t = tr.T * i / 60, x = tr.vx * t, y = p.h0 + tr.vy * t - 0.5 * p.g * t * t; if (i) g.lineTo(sx(x), sy(y)); else g.moveTo(sx(x), sy(y)); }
+          g.stroke(); g.setLineDash([]);
+          // Shots
+          const C = cols(th);
+          S.shots.forEach(function (s, i) {
+            const latest = i === S.shots.length - 1, col = C[i % C.length];
+            g.globalAlpha = latest ? 1 : 0.45; g.strokeStyle = col; g.lineWidth = latest ? 3 : 2;
+            g.beginPath(); s.pts.forEach((q, j) => { if (j) g.lineTo(sx(q[0]), sy(q[1])); else g.moveTo(sx(q[0]), sy(q[1])); }); g.lineTo(sx(s.x), sy(s.y)); g.stroke();
+            if (s.done) { g.fillStyle = col; g.fillRect(sx(s.x) - 1, oy - 8, 2, 8); }
+            g.globalAlpha = 1;
+            if (!s.done || latest) {
+              g.fillStyle = col; g.beginPath(); g.arc(sx(s.x), sy(s.y), 7, 0, 7); g.fill();
+              if (p.vec && !s.done) {
+                const k = 2.6;
+                LB.arrow(g, sx(s.x), sy(s.y), sx(s.x) + s.vx * k, sy(s.y), th.primary, 2);
+                LB.arrow(g, sx(s.x), sy(s.y), sx(s.x), sy(s.y) - s.vy * k, th.bad, 2);
+                LB.arrow(g, sx(s.x), sy(s.y), sx(s.x) + s.vx * k, sy(s.y) - s.vy * k, th.ink, 1.5);
+              }
+            }
+            if (latest && s.done) {
+              const top = s.pts.reduce((m, q) => q[1] > m[1] ? q : m, s.pts[0]);
+              g.setLineDash([3, 4]); g.strokeStyle = th.ink3; g.lineWidth = 1; g.beginPath(); g.moveTo(sx(top[0]), sy(top[1])); g.lineTo(sx(top[0]), oy); g.stroke(); g.setLineDash([]);
+              T(g, 'max ' + f(s.maxY) + ' m', sx(top[0]) + 6, sy(top[1]) - 8, { col: th.ink2, size: 12, weight: 600 });
+              T(g, f(s.x) + ' m', sx(s.x), oy - 12, { col: col, size: 12, weight: 700, align: 'center' });
+            }
+          });
+          if (p.vec) LB.legend(g, th, W - 240, 20, [['vₓ', th.primary], ['v_y', th.bad], ['v', th.ink]]);
+          const last = S.shots[S.shots.length - 1];
+          if (last && last.done && Math.abs(last.x - p.target) <= 1) T(g, 'Hit the target!', tx, oy - 44, { col: th.ok, size: 14, weight: 700, align: 'center' });
+        },
+        graph: function (g, W, H, p, th) {
+          const s = S.shots[S.shots.length - 1], w = W / 2;
+          const pts = s ? s.pts : [], tmax = Math.max(1, s ? s.t : 1);
+          const ymax = Math.max(1, s ? s.maxY : 1), vmax = Math.max(1, ...pts.map((q) => Math.abs(q[2])));
+          LB.plot(g, th, { x: 0, y: 0, w: w - 6, h: H, x0: 0, x1: tmax * 1.05, y0: 0, y1: ymax * 1.15, xl: 't / s', yl: 'height / m', series: [{ pts: pts.map((q) => [q[3], q[1]]), col: th.primary }] });
+          LB.plot(g, th, { x: w + 6, y: 0, w: w - 6, h: H, x0: 0, x1: tmax * 1.05, y0: -vmax * 1.15, y1: vmax * 1.15, xl: 't / s', yl: 'vertical velocity / m s⁻¹', series: [{ pts: pts.map((q) => [q[3], q[2]]), col: th.bad }] });
+        },
+        readouts: function () {
+          const s = S.shots[S.shots.length - 1], tr = theory();
+          return [
+            ['Flight time', s ? f(s.t) + ' s' : '–'], ['Range', s && s.done ? f(s.x) + ' m' : '–'], ['Max height', s ? f(s.maxY) + ' m' : '–'], ['Impact speed', s && s.done ? f(s.impact) + ' m/s' : '–'],
+            ['Predicted range (no air)', f(tr.R) + ' m', 'th'], ['Predicted max height', f(tr.H) + ' m', 'th'], ['Predicted flight time', f(tr.T) + ' s', 'th']
+          ];
+        },
+        extra: function () {
+          const done = S.shots.filter((s) => s.done);
+          if (!done.length) return '';
+          return '<h2>Shots</h2><table class="tbl lab-tbl"><thead><tr><th>θ</th><th>u</th><th>Air</th><th>Range</th><th>Height</th></tr></thead><tbody>' +
+            done.slice(-6).reverse().map((s) => '<tr><td>' + s.ang + '°</td><td>' + f(s.v0) + '</td><td>' + (s.drag ? 'on' : 'off') + '</td><td>' + f(s.x) + ' m</td><td>' + f(s.maxY) + ' m</td></tr>').join('') + '</tbody></table>';
+        }
+      };
+      inst.reset();
+      return inst;
+    }
+  });
+
+  // ---------- 2. Pendulum and spring: SHM, damping, resonance ----------
+  LB.add({
+    id: 'shm', name: 'Pendulum and spring (SHM)', topics: ['phy-t13-shm', 'phy-t13-damping', 'phy-cp-cp16'],
+    blurb: 'Time a pendulum or a mass on a spring, add damping, then drive it to find resonance.',
+    icon: icon('<path d="M24 4v4M10 4h28"/><path d="M24 8 L32 34"/><circle cx="33" cy="37" r="5"/><path d="M14 30 a12 12 0 0 0 20 0" stroke-dasharray="3 3"/>'),
+    aspect: 0.5, maxH: 420, graph: true, graphH: 210,
+    controls: [
+      { k: 'mode', type: 'seg', label: 'Oscillator', options: [['pendulum', 'Pendulum'], ['spring', 'Mass on a spring']], v: 'pendulum' },
+      { k: 'L', label: 'String length', min: 0.1, max: 2.5, step: 0.05, v: 1, unit: 'm', dp: 2, when: (p) => p.mode === 'pendulum' },
+      { k: 'm', label: 'Mass', min: 0.1, max: 2, step: 0.05, v: 0.5, unit: 'kg', dp: 2 },
+      { k: 'k', label: 'Spring constant', min: 5, max: 100, step: 1, v: 20, unit: 'N/m', dp: 0, when: (p) => p.mode === 'spring' },
+      { k: 'amp', label: 'Release angle', min: 2, max: 85, step: 1, v: 10, unit: '°', dp: 0, when: (p) => p.mode === 'pendulum' },
+      { k: 'ampx', label: 'Release displacement', min: 0, max: 0.3, step: 0.01, v: 0.1, unit: 'm', dp: 2, when: (p) => p.mode === 'spring' },
+      { k: 'b', label: 'Damping', min: 0, max: 2, step: 0.02, v: 0, unit: 'kg/s', dp: 2 },
+      { k: 'g', type: 'select', label: 'Gravity', options: GRAV, v: 9.81, when: (p) => p.mode === 'pendulum' },
+      { k: 'drive', type: 'toggle', label: 'Driving force', v: false, help: 'A motor pushes the mass with F₀ cos 2πft.', when: (p) => p.mode === 'spring' },
+      { k: 'fd', label: 'Driving frequency', min: 0.1, max: 3, step: 0.01, v: 0.8, unit: 'Hz', dp: 2, when: (p) => p.mode === 'spring' && p.drive },
+      { k: 'F0', label: 'Driving force', min: 0.1, max: 2, step: 0.1, v: 0.5, unit: 'N', dp: 1, when: (p) => p.mode === 'spring' && p.drive }
+    ],
+    actions: [{ id: 'rec', label: 'Record amplitude' }, { id: 'clearres', label: 'Clear resonance curve' }],
+    tasks: [
+      'Time the pendulum with L = 0.5 m, then with L = 2.0 m. Quadrupling the length doubles the period, because T ∝ √L.',
+      'Change the mass on the pendulum. The period does not change.',
+      'Release the pendulum at 70°. The measured period is longer than 2π√(L/g): the small-angle approximation (sin θ ≈ θ) has broken down.',
+      'Mass on a spring: multiply k by 4 and the period halves. T = 2π√(m/k).',
+      'Add damping and watch the amplitude decay. Total energy falls while the period hardly changes.',
+      '<b>Resonance (CP16):</b> turn on driving, set a small damping, and step the driving frequency from 0.3 Hz to 2 Hz. Let it settle and press <i>Record amplitude</i> at each step. The peak is at the natural frequency f₀. More damping gives a lower, broader peak.'
+    ],
+    theory: '<p>An oscillator moves with simple harmonic motion when its acceleration is proportional to its displacement and directed towards equilibrium: a = −ω²x.</p><p class="eq">Mass on a spring: T = 2π √(m/k) &nbsp;&nbsp; Pendulum (small angles): T = 2π √(L/g)</p><p>The pendulum here uses the exact equation θ″ = −(g/L) sin θ − (b/m) θ′, so it shows where the small-angle formula stops working. Damping removes energy; a driving force at the natural frequency f₀ = ω₀/2π transfers energy most efficiently, giving resonance.</p>',
+    create: function (p) {
+      const S = { x: 0, v: 0, t: 0, hist: [], ups: [], peak: 0, amp: 0, res: [], rec: 0 };
+      const isP = () => p.mode === 'pendulum';
+      const acc = (x, v, t) => isP() ? -(p.g / p.L) * Math.sin(x) - (p.b / p.m) * v : -(p.k / p.m) * x - (p.b / p.m) * v + (p.drive ? p.F0 / p.m * Math.cos(2 * Math.PI * p.fd * t) : 0);
+      const T0 = () => isP() ? 2 * Math.PI * Math.sqrt(p.L / p.g) : 2 * Math.PI * Math.sqrt(p.m / p.k);
+      const energy = function () {
+        if (isP()) return { ke: 0.5 * p.m * Math.pow(p.L * S.v, 2), pe: p.m * p.g * p.L * (1 - Math.cos(S.x)) };
+        return { ke: 0.5 * p.m * S.v * S.v, pe: 0.5 * p.k * S.x * S.x };
+      };
+      const inst = {
+        reset: function () { S.x = isP() ? p.amp * Math.PI / 180 : p.ampx; S.v = 0; S.t = 0; S.hist = []; S.ups = []; S.peak = 0; S.amp = Math.abs(S.x); S.E0 = null; },
+        change: function (k) { if (['mode', 'L', 'k', 'amp', 'ampx', 'g', 'm'].indexOf(k) !== -1) { inst.reset(); if (k === 'mode' || k === 'm' || k === 'k') S.res = []; } },
+        action: function (id) {
+          if (id === 'clearres') S.res = [];
+          if (id === 'rec') {
+            if (isP() || !p.drive) { RH.toast('Switch to the mass on a spring and turn on the driving force first.'); return; }
+            S.res = S.res.filter((q) => Math.abs(q[0] - p.fd) > 0.005).concat([[p.fd, S.amp * 100]]).sort((a, b) => a[0] - b[0]);
+          }
+        },
+        step: function (dt) {
+          const n = Math.max(1, Math.ceil(dt / 0.001)), h = dt / n;
+          for (let i = 0; i < n; i++) {
+            const px = S.x, r = rk4(S.x, S.v, S.t, h, acc);
+            S.x = r[0]; S.v = r[1]; S.t += h;
+            S.peak = Math.max(S.peak, Math.abs(S.x));
+            if (px < 0 && S.x >= 0) { S.ups.push(S.t - h * S.x / (S.x - px)); if (S.ups.length > 6) S.ups.shift(); S.amp = S.peak; S.peak = 0; }
+            S.rec += h;
+            if (S.rec >= 1 / 60) { S.rec = 0; S.hist.push([S.t, S.x, S.v]); }
+          }
+          while (S.hist.length && S.hist[0][0] < S.t - 10) S.hist.shift();
+        },
+        draw: function (g, W, H, p, th) {
+          const e = energy(), cx = W * 0.32;
+          g.fillStyle = th.bg2; g.fillRect(cx - 120, 0, 240, 14);
+          g.strokeStyle = th.ink3; g.lineWidth = 1; g.beginPath();
+          for (let x = cx - 116; x < cx + 120; x += 10) { g.moveTo(x, 14); g.lineTo(x + 8, 4); }
+          g.stroke();
+          if (isP()) {
+            const sc = (H - 70) / 2.55, px = cx + Math.sin(S.x) * p.L * sc, py = 14 + Math.cos(S.x) * p.L * sc;
+            g.setLineDash([4, 5]); g.strokeStyle = th.ink3; g.beginPath(); g.moveTo(cx, 14); g.lineTo(cx, 14 + p.L * sc + 20); g.stroke(); g.setLineDash([]);
+            g.strokeStyle = th.ink3; g.lineWidth = 1; g.beginPath(); g.arc(cx, 14, Math.min(60, p.L * sc * 0.4), Math.PI / 2, Math.PI / 2 - S.x, S.x > 0); g.stroke();
+            g.strokeStyle = th.ink; g.lineWidth = 2; g.beginPath(); g.moveTo(cx, 14); g.lineTo(px, py); g.stroke();
+            g.fillStyle = th.primary; g.beginPath(); g.arc(px, py, 9 + 9 * Math.cbrt(p.m), 0, 7); g.fill();
+            T(g, 'θ = ' + f(S.x * 180 / Math.PI, 1) + '°', cx + 10, 40 + Math.min(60, p.L * sc * 0.4), { col: th.ink2, size: 12, weight: 600 });
+          } else {
+            const sc = (H * 0.32) / 0.3, eq = H * 0.52;
+            let topY = 14;
+            if (p.drive) { const wy = 26, ang = 2 * Math.PI * p.fd * S.t; g.strokeStyle = th.ink3; g.beginPath(); g.arc(cx + 70, wy, 10, 0, 7); g.stroke(); g.fillStyle = th.accent; g.beginPath(); g.arc(cx + 70 + Math.cos(ang) * 10, wy + Math.sin(ang) * 10, 3, 0, 7); g.fill(); T(g, 'driver ' + f(p.fd) + ' Hz', cx + 86, wy + 4, { col: th.ink3, size: 11 }); }
+            const my = eq + S.x * sc, bh = 22 + 16 * Math.cbrt(p.m), coils = 14;
+            g.strokeStyle = th.ink; g.lineWidth = 1.6; g.beginPath(); g.moveTo(cx, topY);
+            const len = my - topY - 10;
+            for (let i = 0; i <= coils * 2; i++) g.lineTo(cx + (i === 0 || i === coils * 2 ? 0 : (i % 2 ? 14 : -14)), topY + 10 + len * i / (coils * 2));
+            g.lineTo(cx, my); g.stroke();
+            g.fillStyle = th.primary; g.fillRect(cx - 28, my, 56, bh);
+            T(g, f(p.m) + ' kg', cx, my + bh / 2 + 4, { col: '#fff', size: 12, weight: 700, align: 'center' });
+            g.setLineDash([4, 5]); g.strokeStyle = th.ink3; g.beginPath(); g.moveTo(cx - 70, eq); g.lineTo(cx + 70, eq); g.stroke(); g.setLineDash([]);
+            T(g, 'equilibrium', cx - 74, eq - 5, { col: th.ink3, size: 11, align: 'right' });
+            const rx = cx + 100;
+            g.strokeStyle = th.ink3; g.lineWidth = 1; g.beginPath(); g.moveTo(rx, eq - 0.3 * sc); g.lineTo(rx, eq + 0.3 * sc);
+            for (let c = -30; c <= 30; c += 5) { g.moveTo(rx, eq + c / 100 * sc); g.lineTo(rx + (c % 10 ? 5 : 10), eq + c / 100 * sc); }
+            g.stroke();
+            for (let c = -30; c <= 30; c += 10) T(g, c + ' cm', rx + 14, eq + c / 100 * sc + 4, { col: th.ink3, size: 10 });
+          }
+          // Energy bars
+          const E = e.ke + e.pe, bx = W * 0.68, bw = 44, top = 40, base = H - 40;
+          if (S.E0 == null || S.t < 0.02) S.E0 = Math.max(E, 1e-9);
+          const scale = (base - top) / Math.max(S.E0 * 1.1, E * 1.1, 1e-9);
+          [['KE', e.ke, th.accent], ['PE', e.pe, th.primary], ['Total', E, th.ink2]].forEach(function (q, i) {
+            const x = bx + i * (bw + 18), hgt = q[1] * scale;
+            g.fillStyle = th.bg2; g.fillRect(x, top, bw, base - top);
+            g.fillStyle = q[2]; g.fillRect(x, base - hgt, bw, hgt);
+            T(g, q[0], x + bw / 2, base + 16, { col: th.ink2, size: 12, weight: 600, align: 'center' });
+            T(g, f(q[1] * 1000, 1) + ' mJ', x + bw / 2, top - 8, { col: th.ink3, size: 11, align: 'center' });
+          });
+          T(g, 'Energy', bx, top - 24, { col: th.ink, size: 13, weight: 700 });
+        },
+        graph: function (g, W, H, p, th) {
+          const res = !isP() && (p.drive || S.res.length), w = res ? W * 0.58 : W;
+          const k = isP() ? 180 / Math.PI : 100, unit = isP() ? 'θ / °' : 'x / cm';
+          const amax = Math.max(1, ...S.hist.map((q) => Math.abs(q[1] * k))) * 1.15;
+          LB.plot(g, th, { x: 0, y: 0, w: w, h: H, x0: Math.max(0, S.t - 10), x1: Math.max(10, S.t), y0: -amax, y1: amax, xl: 't / s', yl: unit, series: [{ pts: S.hist.map((q) => [q[0], q[1] * k]), col: th.primary }] });
+          if (res) {
+            const f0 = 1 / T0(), ymax = Math.max(5, ...S.res.map((q) => q[1])) * 1.2;
+            LB.plot(g, th, { x: w + 8, y: 0, w: W - w - 8, h: H, x0: 0, x1: 3, y0: 0, y1: ymax, xl: 'f / Hz', yl: 'amplitude / cm', series: [{ pts: S.res, col: th.accent, width: 1.5 }, { pts: S.res, col: th.accent, dots: true }, { pts: [[p.fd, S.amp * 100]], col: th.ink, dots: true, r: 3 }], vlines: [{ x: f0, label: 'f₀', col: th.ok }] });
+          }
+        },
+        readouts: function () {
+          const e = energy(), u = S.ups, Tm = u.length > 2 ? (u[u.length - 1] - u[u.length - 3]) / 2 : null;
+          const t0 = T0();
+          return [
+            ['Measured period', Tm ? f(Tm, 3) + ' s' : 'timing…'], [isP() ? 'Small-angle period 2π√(L/g)' : 'Period 2π√(m/k)', f(t0, 3) + ' s', 'th'], ['Natural frequency f₀', f(1 / t0, 3) + ' Hz', 'th'],
+            ['Amplitude', isP() ? f(S.amp * 180 / Math.PI, 1) + '°' : f(S.amp * 100, 1) + ' cm'], ['Kinetic energy', f(e.ke * 1000, 1) + ' mJ'], ['Potential energy', f(e.pe * 1000, 1) + ' mJ'], ['Total energy', f((e.ke + e.pe) * 1000, 1) + ' mJ']
+          ];
+        }
+      };
+      inst.reset();
+      return inst;
+    }
+  });
+
+  // ---------- 3. EMF and internal resistance ----------
+  LB.add({
+    id: 'emf', name: 'EMF and internal resistance', topics: ['phy-t3-emf', 'phy-cp-cp3'],
+    blurb: 'Change the load resistance, record readings of V and I, and find the EMF and internal resistance from a graph.',
+    icon: icon('<path d="M6 24h10M16 14v20M22 18v12M22 24h20"/><rect x="28" y="20" width="10" height="8"/><circle cx="12" cy="38" r="5"/>'),
+    aspect: 0.48, maxH: 380, graph: true, graphH: 240,
+    controls: [
+      { k: 'emf', label: 'EMF of the cell, ε', min: 1.5, max: 12, step: 0.5, v: 6, unit: 'V', dp: 1 },
+      { k: 'r', label: 'Internal resistance, r', min: 0, max: 5, step: 0.1, v: 1.5, unit: 'Ω', dp: 1 },
+      { k: 'R', label: 'Load resistance, R', min: 0.2, max: 30, step: 0.1, v: 6, unit: 'Ω', dp: 1 },
+      { k: 'noise', type: 'toggle', label: 'Realistic meter readings', v: true, help: 'Meters read to 0.01 with a small random error.' },
+      { k: 'hide', type: 'toggle', label: 'Hide ε and r (find them yourself)', v: false }
+    ],
+    actions: [{ id: 'rec', label: 'Record reading', primary: true }, { id: 'clear', label: 'Clear readings' }],
+    tasks: [
+      '<b>CP3:</b> turn on <i>Hide ε and r</i>. Record at least 6 readings across a wide range of R, then read r from the gradient and ε from the y-intercept of the best-fit line.',
+      'Set r = 0. The terminal p.d. no longer drops as the current rises: there are no lost volts.',
+      'Watch the lost volts (Ir) as you lower R. Why does a car’s headlight dim when the starter motor runs?',
+      'Find the load resistance that gives the most power in R. It is when R = r.'
+    ],
+    theory: '<p>A real cell has an internal resistance r, so some of its EMF is used up inside it:</p><p class="eq">ε = I(R + r) = V + Ir &nbsp;⟹&nbsp; V = −r I + ε</p><p>So a graph of terminal p.d. V against current I is a straight line with gradient −r and y-intercept ε. The power delivered to the load, P = I²R, is greatest when R = r.</p>',
+    create: function (p) {
+      const S = { pts: [], phase: 0 };
+      const cur = () => p.emf / (p.R + p.r);
+      const meter = (x) => p.noise ? Math.round(x * (1 + (Math.random() - 0.5) * 0.01) * 100) / 100 : x;
+      function fit() {
+        const n = S.pts.length;
+        if (n < 2) return null;
+        let sx = 0, sy = 0, sxx = 0, sxy = 0;
+        S.pts.forEach((q) => { sx += q[0]; sy += q[1]; sxx += q[0] * q[0]; sxy += q[0] * q[1]; });
+        const den = n * sxx - sx * sx;
+        if (Math.abs(den) < 1e-12) return null;
+        const m = (n * sxy - sx * sy) / den;
+        return { m: m, c: (sy - m * sx) / n };
+      }
+      const inst = {
+        reset: function () { S.pts = []; },
+        action: function (id) { if (id === 'clear') S.pts = []; if (id === 'rec') { const I = cur(); S.pts.push([meter(I), meter(I * p.R)]); } },
+        step: function (dt) { S.phase += dt * cur() * 40; },
+        draw: function (g, W, H, p, th) {
+          const I = cur(), V = I * p.R, x0 = W * 0.2, x1 = W * 0.8, y0 = 60, y1 = H - 46, ym = (y0 + y1) / 2;
+          g.strokeStyle = th.ink; g.lineWidth = 2;
+          // Wires
+          g.beginPath(); g.moveTo(x0, ym - 30); g.lineTo(x0, y0); g.lineTo(x1, y0); g.lineTo(x1, ym - 28); g.moveTo(x1, ym + 28); g.lineTo(x1, y1); g.lineTo(x0, y1); g.lineTo(x0, ym + 46); g.stroke();
+          // Cell with internal resistance in a dashed box
+          g.setLineDash([5, 4]); g.strokeStyle = th.ink3; g.lineWidth = 1; g.strokeRect(x0 - 40, ym - 40, 80, 96); g.setLineDash([]);
+          g.strokeStyle = th.ink; g.lineWidth = 2;
+          g.beginPath(); g.moveTo(x0 - 18, ym - 30); g.lineTo(x0 + 18, ym - 30); g.stroke(); g.lineWidth = 5; g.beginPath(); g.moveTo(x0 - 9, ym - 20); g.lineTo(x0 + 9, ym - 20); g.stroke();
+          g.lineWidth = 2; g.beginPath(); g.moveTo(x0, ym - 20); g.lineTo(x0, ym + 4); g.stroke(); g.strokeRect(x0 - 8, ym + 4, 16, 28); g.beginPath(); g.moveTo(x0, ym + 32); g.lineTo(x0, ym + 46); g.stroke();
+          T(g, 'ε' + (p.hide ? '' : ' = ' + f(p.emf, 1) + ' V'), x0 - 48, ym - 22, { col: th.ink2, size: 12, align: 'right', weight: 600 });
+          T(g, 'r' + (p.hide ? '' : ' = ' + f(p.r, 1) + ' Ω'), x0 - 48, ym + 22, { col: th.ink2, size: 12, align: 'right', weight: 600 });
+          // Load resistor (variable)
+          g.fillStyle = th.bg; g.fillRect(x1 - 12, ym - 28, 24, 56); g.strokeRect(x1 - 12, ym - 28, 24, 56);
+          LB.arrow(g, x1 - 26, ym + 24, x1 + 24, ym - 24, th.ink, 1.5);
+          T(g, 'R = ' + f(p.R, 1) + ' Ω', x1 + 30, ym + 4, { col: th.ink, size: 13, weight: 700 });
+          // Ammeter
+          const ax = (x0 + x1) / 2;
+          g.fillStyle = th.bg; g.beginPath(); g.arc(ax, y0, 17, 0, 7); g.fill(); g.strokeStyle = th.ink; g.stroke();
+          T(g, 'A', ax, y0 + 5, { col: th.ink, size: 14, weight: 700, align: 'center' });
+          T(g, f(I, 2) + ' A', ax, y0 - 26, { col: th.primary, size: 15, weight: 700, align: 'center' });
+          // Voltmeter across the terminals
+          const vx = x0 - 110;
+          g.strokeStyle = th.ink3; g.lineWidth = 1.5; g.beginPath(); g.moveTo(x0, y0 + 0.01); g.lineTo(vx, y0); g.lineTo(vx, ym - 17); g.moveTo(vx, ym + 17); g.lineTo(vx, y1); g.lineTo(x0, y1); g.stroke();
+          g.fillStyle = th.bg; g.beginPath(); g.arc(vx, ym, 17, 0, 7); g.fill(); g.strokeStyle = th.ink; g.lineWidth = 2; g.stroke();
+          T(g, 'V', vx, ym + 5, { col: th.ink, size: 14, weight: 700, align: 'center' });
+          T(g, f(V, 2) + ' V', vx - 24, ym + 5, { col: th.bad, size: 15, weight: 700, align: 'right' });
+          // Moving charge (conventional current, clockwise from +)
+          const path = [[x0, ym - 30], [x0, y0], [x1, y0], [x1, y1], [x0, y1], [x0, ym + 46]];
+          const segs = [], total = path.slice(1).reduce((a, q, i) => { const L = Math.hypot(q[0] - path[i][0], q[1] - path[i][1]); segs.push(L); return a + L; }, 0);
+          g.fillStyle = th.accent;
+          for (let dpos = S.phase % 26; dpos < total; dpos += 26) {
+            let d = dpos, i = 0;
+            while (i < segs.length && d > segs[i]) { d -= segs[i]; i++; }
+            if (i >= segs.length) break;
+            const a = path[i], b = path[i + 1], t = d / segs[i];
+            g.beginPath(); g.arc(a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, 3, 0, 7); g.fill();
+          }
+        },
+        graph: function (g, W, H, p, th) {
+          const F = fit(), I = cur();
+          const xmax = Math.max(I, ...S.pts.map((q) => q[0]), 0.1) * 1.2, ymax = p.emf * 1.15;
+          const series = [{ pts: S.pts, col: th.primary, dots: true }];
+          if (F) series.push({ pts: [[0, F.c], [xmax, F.c + F.m * xmax]], col: th.accent, width: 1.5 });
+          series.push({ pts: [[I, I * p.R]], col: th.ink3, dots: true, r: 3 });
+          LB.plot(g, th, { x: 0, y: 0, w: W, h: H, x0: 0, x1: xmax, y0: 0, y1: ymax, xl: 'current I / A', yl: 'terminal p.d. V / V', series: series });
+          if (F) T(g, 'Best fit: gradient = ' + f(F.m, 2) + ' Ω, intercept = ' + f(F.c, 2) + ' V  →  r = ' + f(-F.m, 2) + ' Ω, ε = ' + f(F.c, 2) + ' V', W - 16, 34, { col: th.accent, size: 12, weight: 700, align: 'right' });
+          else T(g, 'Record two or more readings to draw a best-fit line', W - 16, 34, { col: th.ink3, size: 12, align: 'right' });
+        },
+        readouts: function () {
+          const I = cur();
+          return [['Current I', f(I, 3) + ' A'], ['Terminal p.d. V', f(I * p.R, 3) + ' V'], ['Lost volts Ir', p.hide ? '?' : f(I * p.r, 3) + ' V'], ['Power in R', f(I * I * p.R, 3) + ' W'], ['Efficiency R/(R+r)', p.hide ? '?' : f(100 * p.R / (p.R + p.r), 1) + ' %'], ['Readings', String(S.pts.length)]];
+        },
+        extra: function () {
+          if (!S.pts.length) return '';
+          return '<h2>Readings</h2><table class="tbl lab-tbl"><thead><tr><th>I / A</th><th>V / V</th></tr></thead><tbody>' + S.pts.slice().reverse().map((q) => '<tr><td>' + q[0].toFixed(2) + '</td><td>' + q[1].toFixed(2) + '</td></tr>').join('') + '</tbody></table>';
+        }
+      };
+      return inst;
+    }
+  });
+
+  // ---------- 4. Capacitor charging and discharging ----------
+  LB.add({
+    id: 'capacitor', name: 'Capacitor charge and discharge', topics: ['phy-t7-capacitors', 'phy-cp-cp11'],
+    blurb: 'Charge and discharge a capacitor through a resistor and measure the time constant RC.',
+    icon: icon('<path d="M4 24h16M28 24h16M20 12v24M28 12v24"/><path d="M8 40 Q20 8 44 6" stroke-dasharray="3 3"/>'),
+    aspect: 0.42, maxH: 340, graph: true, graphH: 230, fast: 10,
+    controls: [
+      { k: 'Vs', label: 'Supply voltage', min: 1, max: 12, step: 0.5, v: 6, unit: 'V', dp: 1 },
+      { k: 'R', label: 'Resistance', min: 1, max: 100, step: 1, v: 22, unit: 'kΩ', dp: 0 },
+      { k: 'C', label: 'Capacitance', min: 10, max: 1000, step: 10, v: 220, unit: 'μF', dp: 0 },
+      { k: 'mode', type: 'seg', label: 'Switch', options: [['charge', 'Charge'], ['discharge', 'Discharge']], v: 'charge' },
+      { k: 'ln', type: 'toggle', label: 'Plot ln(V) instead of V', v: false, help: 'For discharge, ln V against t is a straight line with gradient −1/RC.' }
+    ],
+    tasks: [
+      'Charge the capacitor, then switch to discharge. Read the time for V to fall to 37% of its starting value and compare it with RC.',
+      'Double R, then double C. Both double the time constant.',
+      'Turn on <i>Plot ln(V)</i> while discharging. The gradient of the line is −1/RC.',
+      'Watch the current: it is largest at the moment you flip the switch and falls exponentially, just like the p.d. on discharge.',
+      'How much energy is stored when fully charged? Check ½CV² against the readout.'
+    ],
+    theory: '<p>Through a resistor R, a capacitor charges and discharges exponentially with time constant τ = RC:</p><p class="eq">Discharge: V = V₀ e<sup>−t/RC</sup> &nbsp;&nbsp; Charge: V = V₀ (1 − e<sup>−t/RC</sup>) &nbsp;&nbsp; Q = CV &nbsp;&nbsp; E = ½CV²</p><p>After one time constant a discharging capacitor is at 37% of V₀ (a charging one is at 63% of the supply). Taking logs gives ln V = ln V₀ − t/RC, a straight line.</p>',
+    create: function (p) {
+      const S = { Vc: 0, t: 0, hist: [], V0: 0 };
+      const tau = () => p.R * 1e3 * p.C * 1e-6;
+      const target = () => p.mode === 'charge' ? p.Vs : 0;
+      const I = () => (target() - S.Vc) / (p.R * 1e3);
+      const inst = {
+        reset: function () { S.Vc = 0; S.t = 0; S.hist = [[0, 0, I()]]; S.V0 = 0; },
+        change: function (k) { if (k === 'ln') return; S.t = 0; S.V0 = S.Vc; S.hist = [[0, S.Vc, I()]]; },
+        step: function (dt) {
+          S.Vc = target() + (S.Vc - target()) * Math.exp(-dt / tau());
+          S.t += dt;
+          if (S.t < 8 * tau()) S.hist.push([S.t, S.Vc, I()]);
+          if (S.hist.length > 3000) S.hist = S.hist.filter((q, i) => i % 2 === 0);
+        },
+        draw: function (g, W, H, p, th) {
+          const x0 = W * 0.16, x1 = W * 0.78, y0 = 50, y1 = H - 40, ym = (y0 + y1) / 2, sw = x0 + 70;
+          g.strokeStyle = th.ink; g.lineWidth = 2;
+          g.beginPath(); g.moveTo(x0, ym - 8); g.lineTo(x0, y0); g.lineTo(sw - 20, y0); g.stroke();
+          g.beginPath(); g.moveTo(x0, ym + 8); g.lineTo(x0, y1); g.lineTo(x1, y1); g.lineTo(x1, ym + 8); g.moveTo(x1, ym - 8); g.lineTo(x1, y0); g.lineTo(sw + 34, y0); g.stroke();
+          g.lineWidth = 2; g.beginPath(); g.moveTo(x0 - 16, ym - 8); g.lineTo(x0 + 16, ym - 8); g.stroke(); g.lineWidth = 5; g.beginPath(); g.moveTo(x0 - 8, ym + 8); g.lineTo(x0 + 8, ym + 8); g.stroke();
+          T(g, f(p.Vs, 1) + ' V', x0 - 22, ym + 4, { col: th.ink2, size: 12, weight: 600, align: 'right' });
+          // Two-way switch: A goes to the battery, B to the bypass wire
+          g.lineWidth = 2; g.fillStyle = th.ink;
+          const A = [sw - 20, y0], P = [sw + 34, y0], B = [sw - 20, y0 + 34];
+          [A, P, B].forEach((q) => { g.beginPath(); g.arc(q[0], q[1], 3.5, 0, 7); g.fill(); });
+          const to = p.mode === 'charge' ? A : B;
+          g.beginPath(); g.moveTo(P[0], P[1]); g.lineTo(to[0] + 4, to[1] + (to === B ? -4 : -10)); g.stroke();
+          g.strokeStyle = th.ink3; g.beginPath(); g.moveTo(B[0], B[1]); g.lineTo(B[0], y1 - 0.01); g.stroke();
+          T(g, 'charge', A[0] - 6, y0 - 10, { col: p.mode === 'charge' ? th.primary : th.ink3, size: 11, weight: 600, align: 'right' });
+          T(g, 'discharge', B[0] - 8, B[1] + 4, { col: p.mode === 'discharge' ? th.primary : th.ink3, size: 11, weight: 600, align: 'right' });
+          // Resistor
+          const rx = (sw + 34 + x1) / 2;
+          g.fillStyle = th.bg; g.fillRect(rx - 26, y0 - 9, 52, 18); g.strokeStyle = th.ink; g.strokeRect(rx - 26, y0 - 9, 52, 18);
+          T(g, p.R + ' kΩ', rx, y0 - 16, { col: th.ink2, size: 12, weight: 600, align: 'center' });
+          // Capacitor with charge
+          g.lineWidth = 3; g.beginPath(); g.moveTo(x1 - 20, ym - 8); g.lineTo(x1 + 20, ym - 8); g.moveTo(x1 - 20, ym + 8); g.lineTo(x1 + 20, ym + 8); g.stroke();
+          const n = Math.round(6 * S.Vc / 12);
+          for (let i = 0; i < n; i++) { T(g, '+', x1 - 17 + i * 7, ym - 13, { col: th.bad, size: 11, weight: 700 }); T(g, '−', x1 - 17 + i * 7, ym + 22, { col: th.primary, size: 11, weight: 700 }); }
+          T(g, p.C + ' μF', x1 + 28, ym + 4, { col: th.ink2, size: 12, weight: 600 });
+          T(g, 'V = ' + f(S.Vc, 2) + ' V', x1 + 28, ym + 22, { col: th.primary, size: 13, weight: 700 });
+          const i = I() * 1000;
+          if (Math.abs(i) > 0.001) LB.arrow(g, rx - 30 * Math.sign(i), y0 + 20, rx + 30 * Math.sign(i), y0 + 20, th.accent, 2);
+          T(g, 'I = ' + f(Math.abs(i), 3) + ' mA', rx, y0 + 40, { col: th.accent, size: 12, weight: 700, align: 'center' });
+        },
+        graph: function (g, W, H, p, th) {
+          const t1 = Math.max(5 * tau(), S.t) * 1.02, w = W / 2, ta = tau();
+          const vl = [1, 2, 3, 4, 5].map((n) => ({ x: n * ta, label: n === 1 ? 'τ' : n + 'τ' }));
+          if (p.ln) {
+            const pts = S.hist.filter((q) => q[1] > 1e-3).map((q) => [q[0], Math.log(q[1])]);
+            const lo = Math.min(-1, ...pts.map((q) => q[1])), hi = Math.max(1, ...pts.map((q) => q[1]));
+            LB.plot(g, th, { x: 0, y: 0, w: w - 6, h: H, x0: 0, x1: t1, y0: lo - 0.3, y1: hi + 0.3, xl: 't / s', yl: 'ln(V / V)', series: [{ pts: pts, col: th.primary }], vlines: vl });
+          } else {
+            const hl = p.mode === 'discharge' && S.V0 ? [{ y: S.V0 * 0.37, label: '37%' }] : p.mode === 'charge' ? [{ y: p.Vs * 0.63, label: '63%' }] : [];
+            LB.plot(g, th, { x: 0, y: 0, w: w - 6, h: H, x0: 0, x1: t1, y0: 0, y1: Math.max(p.Vs, S.Vc) * 1.1, xl: 't / s', yl: 'p.d. across C / V', series: [{ pts: S.hist.map((q) => [q[0], q[1]]), col: th.primary }], vlines: vl, hlines: hl });
+          }
+          const imax = Math.max(0.01, ...S.hist.map((q) => Math.abs(q[2] * 1000))) * 1.1;
+          LB.plot(g, th, { x: w + 6, y: 0, w: w - 6, h: H, x0: 0, x1: t1, y0: -imax, y1: imax, xl: 't / s', yl: 'current / mA', series: [{ pts: S.hist.map((q) => [q[0], q[2] * 1000]), col: th.accent }], vlines: vl });
+        },
+        readouts: function () {
+          return [['Time constant τ = RC', f(tau(), 2) + ' s', 'th'], ['Time since switching', f(S.t, 1) + ' s'], ['t / τ', f(S.t / tau(), 2)], ['p.d. across C', f(S.Vc, 3) + ' V'], ['Charge Q = CV', f(p.C * S.Vc, 0) + ' μC'], ['Current', f(Math.abs(I()) * 1000, 3) + ' mA'], ['Energy ½CV²', f(0.5 * p.C * 1e-6 * S.Vc * S.Vc * 1000, 2) + ' mJ']];
+        }
+      };
+      inst.reset();
+      return inst;
+    }
+  });
+
+  // ---------- 5. Young's slits and the diffraction grating ----------
+  LB.add({
+    id: 'slits', name: 'Young’s slits and gratings', topics: ['phy-t5-diffraction', 'phy-t5-stationary', 'phy-cp-cp8'],
+    blurb: 'Shine monochromatic light through one, two or many slits and measure the interference pattern on a screen.',
+    icon: icon('<path d="M18 6v14M18 26v4M18 36v6"/><path d="M4 24h10"/><path d="M22 22 a8 8 0 0 1 0 6M24 17 a14 14 0 0 1 0 16"/><path d="M42 6v36"/>'),
+    aspect: 0.5, maxH: 420, graph: true, graphH: 200,
+    controls: [
+      { k: 'lam', label: 'Wavelength λ', min: 380, max: 750, step: 1, v: 532, unit: 'nm', dp: 0 },
+      { k: 'mode', type: 'seg', label: 'Slits', options: [['1', 'Single'], ['2', 'Double'], ['5', 'Five'], ['g', 'Grating']], v: '2' },
+      { k: 'd', label: 'Slit separation s', min: 0.05, max: 1, step: 0.01, v: 0.25, unit: 'mm', dp: 2, when: (p) => p.mode === '2' || p.mode === '5' },
+      { k: 'a', label: 'Slit width', min: 0.01, max: 0.15, step: 0.005, v: 0.04, unit: 'mm', dp: 3, when: (p) => p.mode !== 'g' },
+      { k: 'lines', label: 'Lines per mm', min: 100, max: 800, step: 10, v: 300, unit: '', dp: 0, when: (p) => p.mode === 'g' },
+      { k: 'D', label: 'Slit to screen distance D', min: 0.5, max: 3, step: 0.05, v: 1.5, unit: 'm', dp: 2 }
+    ],
+    tasks: [
+      'Double slit: double the slit separation s. The fringes get twice as close together: w = λD/s.',
+      'Change the colour from blue to red. Red light gives wider fringes because its wavelength is longer.',
+      'Move the screen further away. The fringe spacing grows in proportion to D.',
+      'Single slit: make the slit narrower. The central maximum gets wider, and it is twice as wide as the other maxima.',
+      'Compare two slits with five. The bright fringes stay in the same places but get sharper, with faint maxima between them.',
+      '<b>CP8:</b> with a grating of 300 lines/mm, measure the angle to the first and second orders and use d sin θ = nλ to find λ.'
+    ],
+    theory: '<p>Light from each slit spreads out by diffraction. Where the waves meet in phase (a path difference of nλ) you get a bright fringe; where they are in antiphase you get a dark fringe.</p><p class="eq">Double slit: w = λD / s &nbsp;&nbsp; Grating: d sin θ = nλ, with d = 1 / (lines per metre)</p><p>The pattern drawn here is the full intensity I = I₀ (sin β / β)² (sin Nα / N sin α)², where α = πd sin θ/λ and β = πa sin θ/λ. The single-slit envelope multiplies the many-slit fringes.</p>',
+    create: function (p) {
+      const S = { ph: 0 };
+      const N = () => p.mode === 'g' ? 40 : Number(p.mode);
+      const dm = () => (p.mode === 'g' ? 1 / p.lines : p.mode === '1' ? 0 : p.d) * 1e-3;
+      const am = () => (p.mode === 'g' ? 0.4 / p.lines : p.a) * 1e-3;
+      const lam = () => p.lam * 1e-9;
+      function I(sinT) {
+        const b = Math.PI * am() * sinT / lam(), al = Math.PI * dm() * sinT / lam(), n = N();
+        const env = Math.abs(b) < 1e-9 ? 1 : Math.pow(Math.sin(b) / b, 2);
+        if (n === 1) return env;
+        const sa = Math.sin(al), m = Math.abs(sa) < 1e-9 ? 1 : Math.pow(Math.sin(n * al) / (n * sa), 2);
+        return env * m;
+      }
+      const yRange = () => p.mode === 'g' ? p.D * 2.2 : Math.min(0.08, Math.max(1.8 * lam() * p.D / am(), 4 * lam() * p.D / Math.max(dm(), 1e-6)));
+      const intensityAt = (y) => { const th = Math.atan(y / p.D); return I(Math.sin(th)); };
+      return {
+        reset: function () { S.ph = 0; },
+        step: function (dt) { S.ph += dt; },
+        draw: function (g, W, H, p, th) {
+          g.fillStyle = th.dark ? '#05070c' : '#0d1220'; g.fillRect(0, 0, W, H);
+          const bx = W * 0.28, sxc = W * 0.86, cy = H / 2, col = LB.waveColour(p.lam);
+          // Laser and beam
+          g.fillStyle = '#3a4152'; g.fillRect(16, cy - 14, 54, 28); T(g, 'laser', 43, cy + 4, { col: '#cfd6e4', size: 11, align: 'center', weight: 600 });
+          g.fillStyle = LB.waveColour(p.lam, 0.6); g.fillRect(70, cy - 3, bx - 70, 6);
+          // Barrier with slits
+          const n = p.mode === 'g' ? 12 : N(), gapPx = p.mode === 'g' ? 6 : Math.max(8, Math.min(40, dm() / 0.25e-3 * 18));
+          const ys = []; for (let i = 0; i < n; i++) ys.push(cy + (i - (n - 1) / 2) * gapPx);
+          g.fillStyle = '#9aa3b5'; g.fillRect(bx - 3, 0, 6, H);
+          g.fillStyle = th.dark ? '#05070c' : '#0d1220';
+          const sw = p.mode === 'g' ? 2 : Math.max(2, Math.min(8, am() / 0.04e-3 * 4));
+          ys.forEach((y) => g.fillRect(bx - 4, y - sw / 2, 8, sw));
+          // Wavefronts
+          const wl = 10 + (p.lam - 380) / 370 * 14, sp = 60;
+          g.save(); g.beginPath(); g.rect(bx + 3, 0, sxc - bx - 3, H); g.clip();
+          g.lineWidth = 1.5;
+          if (p.mode === 'g') {
+            const dd = dm();
+            for (let k = -3; k <= 3; k++) { const s = k * lam() / dd; if (Math.abs(s) >= 1) continue; const a = Math.asin(s); g.strokeStyle = LB.waveColour(p.lam, k === 0 ? 0.8 : 0.55); g.lineWidth = 3; g.beginPath(); g.moveTo(bx, cy); g.lineTo(bx + Math.cos(a) * W, cy + Math.sin(a) * W); g.stroke(); }
+          } else {
+            ys.forEach(function (y) {
+              for (let r = (S.ph * sp) % wl; r < sxc - bx; r += wl) { g.strokeStyle = LB.waveColour(p.lam, Math.max(0, 0.45 - r / (sxc - bx) * 0.35)); g.beginPath(); g.arc(bx, y, r, -Math.PI / 2, Math.PI / 2); g.stroke(); }
+            });
+          }
+          g.restore();
+          // Screen showing the pattern
+          const Y = yRange();
+          for (let py = 0; py < H; py++) {
+            const yv = (py - cy) / (H / 2) * Y, i = intensityAt(yv);
+            g.fillStyle = LB.waveColour(p.lam, Math.min(1, Math.pow(i, 0.7)));
+            g.fillRect(sxc, py, 26, 1);
+          }
+          g.strokeStyle = '#9aa3b5'; g.lineWidth = 1; g.strokeRect(sxc, 0, 26, H);
+          T(g, 'screen', sxc + 13, H - 8, { col: '#cfd6e4', size: 11, align: 'center', weight: 600 });
+          T(g, 'D = ' + f(p.D, 2) + ' m (not to scale)', (bx + sxc) / 2, H - 10, { col: '#8b93a6', size: 11, align: 'center' });
+          T(g, 'λ = ' + p.lam + ' nm', 20, 24, { col: col, size: 13, weight: 700 });
+        },
+        graph: function (g, W, H, p, th) {
+          const Y = yRange(), unit = p.mode === 'g' ? 1 : 1000, pts = [];
+          for (let i = 0; i <= 600; i++) { const y = -Y + 2 * Y * i / 600; pts.push([y * unit, intensityAt(y)]); }
+          const w = lam() * p.D / Math.max(dm(), 1e-9) * unit;
+          const vl = p.mode === '2' || p.mode === '5' ? [{ x: w, label: 'w' }, { x: -w }] : [];
+          LB.plot(g, th, { x: 0, y: 0, w: W, h: H, x0: -Y * unit, x1: Y * unit, y0: 0, y1: 1.1, xl: p.mode === 'g' ? 'position on screen / m' : 'position on screen / mm', yl: 'relative intensity', series: [{ pts: pts, col: LB.waveColour(Math.min(700, Math.max(420, p.lam))) }], vlines: vl });
+        },
+        readouts: function () {
+          const out = [];
+          if (p.mode === '2' || p.mode === '5') out.push(['Fringe spacing w = λD/s', f(lam() * p.D / dm() * 1000, 2) + ' mm', 'th']);
+          if (p.mode !== 'g') out.push(['Central maximum width 2λD/a', f(2 * lam() * p.D / am() * 1000, 1) + ' mm', 'th']);
+          if (p.mode === 'g') {
+            const d = dm(), nmax = Math.floor(d / lam());
+            out.push(['Grating spacing d', f(d * 1e6, 3) + ' μm', 'th'], ['Highest order visible', String(nmax), 'th']);
+            for (let n = 1; n <= Math.min(3, nmax); n++) { const a = Math.asin(n * lam() / d); out.push(['Order ' + n + ' angle', f(a * 180 / Math.PI, 1) + '°'], ['Order ' + n + ' on screen', f(p.D * Math.tan(a), 3) + ' m']); }
+          }
+          out.push(['Wavelength', p.lam + ' nm'], ['Frequency c/λ', LB.sci(3e8 / lam()) + ' Hz']);
+          return out;
+        }
+      };
+    }
+  });
+
+  // ---------- 6. Collisions ----------
+  LB.add({
+    id: 'collisions', name: 'Momentum and collisions', topics: ['phy-t2-momentum', 'phy-t6-impulse', 'phy-cp-cp9'],
+    blurb: 'Crash two trolleys together. Momentum is always conserved; kinetic energy only in an elastic collision.',
+    icon: icon('<rect x="4" y="18" width="16" height="12" rx="2"/><rect x="28" y="18" width="16" height="12" rx="2"/><circle cx="8" cy="33" r="2.5"/><circle cx="16" cy="33" r="2.5"/><circle cx="32" cy="33" r="2.5"/><circle cx="40" cy="33" r="2.5"/><path d="M20 24h8"/>'),
+    aspect: 0.42, maxH: 340, graph: true, graphH: 200,
+    controls: [
+      { k: 'm1', label: 'Mass of A', min: 0.5, max: 5, step: 0.1, v: 2, unit: 'kg', dp: 1 },
+      { k: 'u1', label: 'Velocity of A', min: -5, max: 5, step: 0.1, v: 3, unit: 'm/s', dp: 1 },
+      { k: 'm2', label: 'Mass of B', min: 0.5, max: 5, step: 0.1, v: 1, unit: 'kg', dp: 1 },
+      { k: 'u2', label: 'Velocity of B', min: -5, max: 5, step: 0.1, v: -1, unit: 'm/s', dp: 1 },
+      { k: 'e', label: 'Elasticity (coefficient of restitution)', min: 0, max: 1, step: 0.05, v: 1, unit: '', dp: 2, show: (v) => Number(v) === 1 ? '1 (elastic)' : Number(v) === 0 ? '0 (stick together)' : Number(v).toFixed(2) }
+    ],
+    tasks: [
+      'Equal masses, B at rest, elastic: after the collision the velocities swap and A stops dead.',
+      'Set elasticity to 0. The trolleys stick together. Momentum is still conserved but kinetic energy is lost (to heat and sound).',
+      'Fire a heavy trolley into a light one at rest. The light one shoots off faster than the heavy one was moving.',
+      'Fire a light trolley into a heavy one. It bounces back.',
+      'Check the momentum bars: the total before and after is always the same, whatever you change.'
+    ],
+    theory: '<p>In any collision with no external forces, total momentum is conserved:</p><p class="eq">m₁u₁ + m₂u₂ = m₁v₁ + m₂v₂</p><p>In an elastic collision kinetic energy is also conserved; in an inelastic one some is transferred to other stores. The elasticity e is the ratio of the speed of separation to the speed of approach (e = 1 elastic, e = 0 the objects stick). Force = rate of change of momentum, F = Δp/Δt.</p>',
+    create: function (p) {
+      const S = {};
+      const wid = (m) => 0.45 * Math.cbrt(m);
+      const inst = {
+        reset: function () { S.x1 = 3; S.x2 = 7; S.v1 = p.u1; S.v2 = p.u2; S.hit = false; S.t = 0; S.after = null; S.hist = []; },
+        change: function () { inst.reset(); },
+        step: function (dt) {
+          if (S.t > 10) return;
+          const n = Math.max(1, Math.ceil(dt / 0.002)), h = dt / n;
+          for (let i = 0; i < n; i++) {
+            S.x1 += S.v1 * h; S.x2 += S.v2 * h; S.t += h;
+            if (!S.hit && S.x2 - S.x1 <= (wid(p.m1) + wid(p.m2)) / 2 && S.v1 > S.v2) {
+              const P = p.m1 * S.v1 + p.m2 * S.v2, M = p.m1 + p.m2;
+              const v1 = (P + p.m2 * p.e * (S.v2 - S.v1)) / M, v2 = (P + p.m1 * p.e * (S.v1 - S.v2)) / M;
+              S.v1 = v1; S.v2 = v2; S.hit = true; S.after = [v1, v2];
+            }
+          }
+          S.hist.push([S.t, p.m1 * S.v1, p.m2 * S.v2]);
+          if (S.hist.length > 900) S.hist.shift();
+        },
+        draw: function (g, W, H, p, th) {
+          const sc = (W - 40) / 10, ox = 20, ty = H * 0.62, sx = (x) => ox + x * sc;
+          g.fillStyle = th.bg2; g.fillRect(0, ty, W, 10); g.strokeStyle = th.ink3; g.lineWidth = 1; g.beginPath(); g.moveTo(0, ty); g.lineTo(W, ty); g.stroke();
+          for (let x = 0; x <= 10; x++) { T(g, x + ' m', sx(x), ty + 26, { col: th.ink3, size: 10, align: 'center' }); g.beginPath(); g.moveTo(sx(x), ty); g.lineTo(sx(x), ty + 6); g.stroke(); }
+          [[S.x1, p.m1, S.v1, th.primary, 'A'], [S.x2, p.m2, S.v2, th.accent, 'B']].forEach(function (c) {
+            const w = wid(c[1]) * sc, hgt = 26 + 14 * Math.cbrt(c[1]), x = sx(c[0]);
+            g.fillStyle = c[3]; g.fillRect(x - w / 2, ty - hgt - 8, w, hgt);
+            g.fillStyle = th.ink; [x - w / 3, x + w / 3].forEach((wx) => { g.beginPath(); g.arc(wx, ty - 5, 5, 0, 7); g.fill(); });
+            T(g, c[4] + ' · ' + f(c[1], 1) + ' kg', x, ty - hgt / 2 - 4, { col: '#fff', size: 12, weight: 700, align: 'center' });
+            if (Math.abs(c[2]) > 0.01) LB.arrow(g, x, ty - hgt - 22, x + c[2] * 18, ty - hgt - 22, c[3], 3);
+            T(g, f(c[2], 2) + ' m/s', x, ty - hgt - 32, { col: th.ink, size: 12, weight: 600, align: 'center' });
+          });
+          if (S.hit) T(g, 'Collision', W / 2, 22, { col: th.ink3, size: 12, weight: 600, align: 'center' });
+        },
+        graph: function (g, W, H, p, th) {
+          const pb = p.m1 * p.u1 + p.m2 * p.u2, pmax = Math.max(1, Math.abs(p.m1 * p.u1), Math.abs(p.m2 * p.u2), Math.abs(pb), ...S.hist.map((q) => Math.max(Math.abs(q[1]), Math.abs(q[2])))) * 1.2;
+          LB.plot(g, th, { x: 0, y: 0, w: W, h: H, x0: 0, x1: Math.max(4, S.t), y0: -pmax, y1: pmax, xl: 't / s', yl: 'momentum / kg m s⁻¹', series: [{ pts: S.hist.map((q) => [q[0], q[1]]), col: th.primary }, { pts: S.hist.map((q) => [q[0], q[2]]), col: th.accent }, { pts: S.hist.map((q) => [q[0], q[1] + q[2]]), col: th.ink, width: 2.5 }] });
+          LB.legend(g, th, W - 260, 24, [['A', th.primary], ['B', th.accent], ['Total', th.ink]]);
+        },
+        readouts: function () {
+          const pb = p.m1 * p.u1 + p.m2 * p.u2, kb = 0.5 * p.m1 * p.u1 * p.u1 + 0.5 * p.m2 * p.u2 * p.u2;
+          const out = [['Momentum before', f(pb, 2) + ' kg m/s'], ['KE before', f(kb, 2) + ' J']];
+          if (S.after) {
+            const pa = p.m1 * S.after[0] + p.m2 * S.after[1], ka = 0.5 * p.m1 * S.after[0] * S.after[0] + 0.5 * p.m2 * S.after[1] * S.after[1];
+            out.push(['Momentum after', f(pa, 2) + ' kg m/s'], ['KE after', f(ka, 2) + ' J'], ['KE lost', f(kb - ka, 2) + ' J (' + f(kb ? 100 * (kb - ka) / kb : 0, 0) + '%)'], ['A after', f(S.after[0], 2) + ' m/s'], ['B after', f(S.after[1], 2) + ' m/s']);
+          } else out.push(['After', p.u1 <= p.u2 ? 'They never meet: A must be faster than B' : 'waiting for the collision…']);
+          return out;
+        }
+      };
+      inst.reset();
+      return inst;
+    }
+  });
+
+  // ---------- 7. Photoelectric effect ----------
+  const METALS = [[2.28, 'Sodium (φ = 2.28 eV)'], [2.3, 'Potassium (φ = 2.30 eV)'], [2.87, 'Calcium (φ = 2.87 eV)'], [4.3, 'Zinc (φ = 4.30 eV)'], [4.7, 'Copper (φ = 4.70 eV)'], [5.65, 'Platinum (φ = 5.65 eV)']];
+  LB.add({
+    id: 'photoelectric', name: 'Photoelectric effect', topics: ['phy-t5-photons'],
+    blurb: 'Shine light on a metal and see when electrons are released, how fast they leave and the stopping potential.',
+    icon: icon('<path d="M6 8 l6 4 -4 2 6 4"/><rect x="18" y="18" width="5" height="22"/><circle cx="32" cy="24" r="2" fill="currentColor"/><circle cx="38" cy="30" r="2" fill="currentColor"/><path d="M44 16v26"/>'),
+    aspect: 0.48, maxH: 380, graph: true, graphH: 220,
+    controls: [
+      { k: 'lam', label: 'Wavelength of light', min: 100, max: 850, step: 1, v: 400, unit: 'nm', dp: 0 },
+      { k: 'int', label: 'Intensity', min: 0, max: 100, step: 1, v: 60, unit: '%', dp: 0 },
+      { k: 'phi', type: 'select', label: 'Metal', options: METALS, v: 2.28 },
+      { k: 'Vs', label: 'Stopping (reverse) voltage', min: 0, max: 8, step: 0.05, v: 0, unit: 'V', dp: 2 }
+    ],
+    tasks: [
+      'Shine bright red light (700 nm, 100%) on zinc. No electrons at all: each photon has too little energy, however many there are.',
+      'Lower the wavelength until electrons appear. That is the threshold wavelength, λ₀ = hc/φ.',
+      'Above the threshold, double the intensity. The current doubles but the maximum kinetic energy stays the same.',
+      'Raise the stopping voltage until the current just reaches zero. Check that eV<sub>s</sub> = hf − φ.',
+      'Look at the graph: every metal gives a line with the same gradient (the Planck constant h) and an intercept of −φ.'
+    ],
+    theory: '<p>Light arrives as photons of energy E = hf = hc/λ. One photon gives all its energy to one electron. If hf is larger than the work function φ, the electron can escape with kinetic energy up to:</p><p class="eq">KE<sub>max</sub> = hf − φ &nbsp;&nbsp; eV<sub>s</sub> = KE<sub>max</sub> &nbsp;&nbsp; f₀ = φ / h</p><p>Intensity sets the number of photons per second, so it changes the current but not the electrons’ energies. The wave model cannot explain the threshold frequency or the instant emission; the photon model can.</p>',
+    create: function (p) {
+      const S = { ph: [], el: [], acc: 0, arrive: [], t: 0, W: 600, H: 300 };
+      const E = () => 1240 / p.lam;
+      const geo = () => ({ px: S.W * 0.3, cx: S.W * 0.78, top: S.H * 0.22, bot: S.H * 0.78 });
+      const inst = {
+        reset: function () { S.ph = []; S.el = []; S.arrive = []; },
+        change: function () { },
+        step: function (dt) {
+          S.t += dt;
+          const G = geo(), c = 180, D = G.cx - G.px;
+          S.acc += dt * p.int / 100 * 45;
+          while (S.acc >= 1) { S.acc -= 1; const y = G.top + 14 + Math.random() * (G.bot - G.top - 28); S.ph.push({ x: 40, y0: 30, y: y, t: 0 }); }
+          S.ph = S.ph.filter(function (q) {
+            q.t += dt * 2.2;
+            if (q.t < 1) return true;
+            if (E() > p.phi) { const ke = (E() - p.phi) * Math.random(); S.el.push({ x: G.px + 4, y: q.y, v: c * Math.sqrt(ke), ke: ke }); }
+            return false;
+          });
+          const a = p.Vs > 0 ? c * c * p.Vs / (2 * D) : 0;
+          S.el = S.el.filter(function (e) {
+            e.v -= a * dt; e.x += e.v * dt;
+            if (e.x >= G.cx) { S.arrive.push(S.t); return false; }
+            return e.x > G.px;
+          });
+          while (S.arrive.length && S.arrive[0] < S.t - 1) S.arrive.shift();
+        },
+        draw: function (g, W, H, p, th) {
+          S.W = W; S.H = H;
+          const G = geo(), col = LB.waveColour(p.lam);
+          g.fillStyle = th.bg2; g.strokeStyle = th.ink3; g.lineWidth = 1.5;
+          g.beginPath(); g.roundRect ? g.roundRect(G.px - 30, G.top - 20, G.cx - G.px + 60, G.bot - G.top + 40, 40) : g.rect(G.px - 30, G.top - 20, G.cx - G.px + 60, G.bot - G.top + 40); g.fill(); g.stroke();
+          T(g, 'vacuum', (G.px + G.cx) / 2, G.top - 6, { col: th.ink3, size: 11, align: 'center' });
+          g.fillStyle = '#9aa3b5'; g.fillRect(G.px - 6, G.top, 10, G.bot - G.top); g.fillStyle = th.ink2; g.fillRect(G.cx, G.top, 6, G.bot - G.top);
+          T(g, 'metal', G.px - 1, G.bot + 16, { col: th.ink2, size: 11, align: 'center', weight: 600 });
+          T(g, 'collector', G.cx + 3, G.bot + 16, { col: th.ink2, size: 11, align: 'center', weight: 600 });
+          // Lamp
+          g.fillStyle = col; g.beginPath(); g.arc(34, 30, 14, 0, 7); g.fill(); g.strokeStyle = th.ink3; g.stroke();
+          T(g, p.lam < 380 ? 'ultraviolet' : p.lam > 750 ? 'infrared' : 'visible', 54, 34, { col: th.ink2, size: 11, weight: 600 });
+          S.ph.forEach(function (q) {
+            const x = 40 + (G.px - 46) * q.t, y = 30 + (q.y - 30) * q.t, ang = Math.atan2(q.y - 30, G.px - 46);
+            g.strokeStyle = col; g.lineWidth = 2; g.beginPath();
+            for (let i = -10; i <= 10; i += 2) { const px = x + Math.cos(ang) * i - Math.sin(ang) * Math.sin(i * 0.8) * 3, py = y + Math.sin(ang) * i + Math.cos(ang) * Math.sin(i * 0.8) * 3; if (i === -10) g.moveTo(px, py); else g.lineTo(px, py); }
+            g.stroke();
+          });
+          g.fillStyle = th.primary;
+          S.el.forEach((e) => { g.beginPath(); g.arc(e.x, e.y, 3.5, 0, 7); g.fill(); });
+          // Circuit with battery and ammeter
+          const by = H - 18;
+          g.strokeStyle = th.ink; g.lineWidth = 1.5; g.beginPath(); g.moveTo(G.px - 1, G.bot); g.lineTo(G.px - 1, by); g.lineTo(G.cx + 3, by); g.lineTo(G.cx + 3, G.bot); g.stroke();
+          const mx = (G.px + G.cx) / 2;
+          g.fillStyle = th.bg; g.fillRect(mx - 60, by - 12, 120, 24); g.strokeRect(mx - 60, by - 12, 120, 24);
+          T(g, 'V = ' + f(p.Vs, 2) + ' V   I ∝ ' + S.arrive.length + ' e⁻/s', mx, by + 4, { col: th.ink, size: 11, weight: 600, align: 'center' });
+          if (E() <= p.phi) T(g, 'No electrons: hf < φ', (G.px + G.cx) / 2, (G.top + G.bot) / 2, { col: th.bad, size: 14, weight: 700, align: 'center' });
+        },
+        graph: function (g, W, H, p, th) {
+          const h = 4.1357e-15, fq = 3e8 / (p.lam * 1e-9) / 1e14, f0 = p.phi / h / 1e14;
+          const line = [[0, -p.phi], [30, 30e14 * h - p.phi]];
+          LB.plot(g, th, { x: 0, y: 0, w: W, h: H, x0: 0, x1: 30, y0: -p.phi - 0.5, y1: 8, xl: 'frequency / 10¹⁴ Hz', yl: 'KE max / eV', series: [{ pts: line, col: th.ink3, dash: [5, 5], width: 1.5 }, { pts: [[f0, 0], [30, 30e14 * h - p.phi]], col: th.primary }, { pts: [[fq, Math.max(0, fq * 1e14 * h - p.phi)]], col: th.accent, dots: true, r: 6 }], vlines: [{ x: f0, label: 'f₀', col: th.ok }] });
+        },
+        readouts: function () {
+          const e = E(), ke = e - p.phi, h = 6.626e-34;
+          return [['Photon energy hf', f(e, 2) + ' eV'], ['Frequency', LB.sci(3e8 / (p.lam * 1e-9)) + ' Hz'], ['Threshold frequency f₀', LB.sci(p.phi * 1.602e-19 / h) + ' Hz', 'th'], ['Threshold wavelength', f(1240 / p.phi, 0) + ' nm', 'th'],
+            ['KE max', ke > 0 ? f(ke, 2) + ' eV = ' + LB.sci(ke * 1.602e-19) + ' J' : 'none'], ['Fastest electron', ke > 0 ? LB.sci(Math.sqrt(2 * ke * 1.602e-19 / 9.11e-31)) + ' m/s' : '–'], ['Stopping potential needed', ke > 0 ? f(ke, 2) + ' V' : '–', 'th'], ['Electrons reaching collector', S.arrive.length + ' per second']];
+        }
+      };
+      return inst;
+    }
+  });
+
+  // ---------- 8. Radioactive decay ----------
+  LB.add({
+    id: 'decay', name: 'Radioactive decay and half-life', topics: ['phy-t11-halflife', 'phy-t11-decay'],
+    blurb: 'Watch a sample of unstable nuclei decay at random and measure the half-life from the decay curve.',
+    icon: icon('<circle cx="12" cy="12" r="3"/><circle cx="24" cy="12" r="3" fill="currentColor"/><circle cx="36" cy="12" r="3"/><circle cx="12" cy="24" r="3" fill="currentColor"/><circle cx="24" cy="24" r="3"/><circle cx="36" cy="24" r="3" fill="currentColor"/><path d="M6 44 Q16 30 42 40"/>'),
+    aspect: 0.42, maxH: 340, graph: true, graphH: 220, fast: 4,
+    controls: [
+      { k: 'N0', type: 'seg', label: 'Number of nuclei', options: [[100, '100'], [400, '400'], [900, '900'], [2500, '2,500']], v: 900 },
+      { k: 'half', label: 'Half-life', min: 1, max: 20, step: 0.5, v: 5, unit: 's', dp: 1 }
+    ],
+    tasks: [
+      'Read the half-life off the graph: the time for N to fall from N₀ to N₀/2. Then from N₀/2 to N₀/4. It is the same every time.',
+      'With 100 nuclei the curve is ragged. With 2,500 it follows the exponential closely. Decay is random, but large numbers are predictable.',
+      'After 3 half-lives, about 1/8 of the nuclei are left. After 10, about 1/1000.',
+      'The activity (decays per second) also halves every half-life, because A = λN.'
+    ],
+    theory: '<p>Each nucleus has the same, fixed chance of decaying in any second: the decay constant λ. So the rate of decay is proportional to the number left:</p><p class="eq">A = −dN/dt = λN &nbsp;&nbsp; N = N₀ e<sup>−λt</sup> &nbsp;&nbsp; t½ = ln 2 / λ</p><p>Here every nucleus is given its own random chance to decay each step, so you see the randomness of individual decays and the smooth curve that emerges from many of them.</p>',
+    create: function (p) {
+      const S = {};
+      const lam = () => Math.LN2 / p.half;
+      const inst = {
+        reset: function () { S.n = p.N0; S.dead = new Float32Array(S.n); S.alive = S.n; S.t = 0; S.hist = [[0, S.n]]; S.rec = 0; S.recent = []; S.halfAt = null; },
+        change: function () { inst.reset(); },
+        step: function (dt) {
+          if (!S.alive) return;
+          const pr = 1 - Math.exp(-lam() * dt);
+          S.t += dt;
+          for (let i = 0; i < S.n; i++) if (!S.dead[i] && Math.random() < pr) { S.dead[i] = S.t; S.alive--; S.recent.push(S.t); }
+          while (S.recent.length && S.recent[0] < S.t - 1) S.recent.shift();
+          if (S.halfAt == null && S.alive <= S.n / 2) S.halfAt = S.t;
+          S.rec += dt;
+          if (S.rec >= 0.1) { S.rec = 0; S.hist.push([S.t, S.alive]); }
+        },
+        draw: function (g, W, H, p, th) {
+          const cols = Math.ceil(Math.sqrt(S.n * W / H)), rows = Math.ceil(S.n / cols), cw = (W - 20) / cols, ch = (H - 20) / rows, r = Math.max(1.5, Math.min(cw, ch) * 0.36);
+          for (let i = 0; i < S.n; i++) {
+            const x = 10 + (i % cols + 0.5) * cw, y = 10 + (Math.floor(i / cols) + 0.5) * ch, d = S.dead[i];
+            if (!d) g.fillStyle = th.purple; else if (S.t - d < 0.35) g.fillStyle = th.warn; else g.fillStyle = th.bg3;
+            g.beginPath(); g.arc(x, y, d && S.t - d < 0.35 ? r * 1.4 : r, 0, 7); g.fill();
+          }
+        },
+        graph: function (g, W, H, p, th) {
+          const t1 = Math.max(5 * p.half, S.t), th0 = [];
+          for (let i = 0; i <= 200; i++) { const t = t1 * i / 200; th0.push([t, S.n * Math.exp(-lam() * t)]); }
+          LB.plot(g, th, { x: 0, y: 0, w: W, h: H, x0: 0, x1: t1, y0: 0, y1: S.n * 1.08, xl: 't / s', yl: 'undecayed nuclei N', series: [{ pts: th0, col: th.ink3, dash: [5, 5], width: 1.5 }, { pts: S.hist, col: th.purple }], vlines: [1, 2, 3, 4].map((k) => ({ x: k * p.half, label: k === 1 ? 't½' : k + 't½' })), hlines: [{ y: S.n / 2, label: 'N₀/2' }, { y: S.n / 4, label: 'N₀/4' }] });
+        },
+        readouts: function () {
+          return [['Time', f(S.t, 1) + ' s'], ['Undecayed N', String(S.alive)], ['Fraction left', f(100 * S.alive / S.n, 1) + ' %'], ['Decay constant λ', f(lam(), 3) + ' s⁻¹', 'th'], ['Activity (last second)', S.recent.length + ' Bq'], ['λN', f(lam() * S.alive, 0) + ' Bq', 'th'], ['Measured half-life', S.halfAt ? f(S.halfAt, 2) + ' s' : 'waiting…']];
+        }
+      };
+      inst.reset();
+      return inst;
+    }
+  });
+
+  // ---------- 9. Orbits ----------
+  LB.add({
+    id: 'orbits', name: 'Orbits and escape velocity', topics: ['phy-t12-orbits', 'phy-t12-gfields', 'phy-t6-circular'],
+    blurb: 'Launch a satellite sideways from any height. Find the speed for a circular orbit and the speed to escape.',
+    icon: icon('<circle cx="24" cy="24" r="7"/><ellipse cx="24" cy="24" rx="19" ry="11"/><circle cx="43" cy="24" r="2.5" fill="currentColor"/>'),
+    aspect: 0.62, maxH: 520, graph: false,
+    controls: [
+      { k: 'M', label: 'Planet mass', min: 0.1, max: 5, step: 0.1, v: 1, unit: 'Earth masses', dp: 1 },
+      { k: 'alt', label: 'Launch altitude', min: 200, max: 40000, step: 100, v: 4000, unit: 'km', dp: 0 },
+      { k: 'vf', label: 'Launch speed', min: 0.3, max: 1.6, step: 0.01, v: 1, unit: '', dp: 2, show: (v, p) => { const r = 6.371e6 * Math.cbrt(p.M) + p.alt * 1e3, vc = Math.sqrt(6.674e-11 * 5.972e24 * p.M / r); return f(Number(v) * vc / 1000, 2) + ' km/s (' + Number(v).toFixed(2) + '× circular)'; } }
+    ],
+    actions: [{ id: 'launch', label: 'Launch', primary: true }],
+    tasks: [
+      'Launch at 1.00× the circular speed. The orbit is a circle: the gravitational force provides exactly the centripetal force.',
+      'Try 0.85×: an ellipse that comes back closer to the planet. Try 0.6×: it crashes.',
+      'Increase the speed to 1.41× (√2 × circular). That is the escape velocity: the satellite never comes back.',
+      'Raise the launch altitude. The circular speed falls and the period grows: T² ∝ r³ (Kepler’s third law).',
+      'Double the planet’s mass. The circular speed rises by √2.'
+    ],
+    theory: '<p>For a circular orbit, gravity provides the centripetal force:</p><p class="eq">GMm / r² = mv² / r &nbsp;⟹&nbsp; v = √(GM/r) &nbsp;&nbsp; T = 2π √(r³/GM) &nbsp;&nbsp; v<sub>escape</sub> = √(2GM/r)</p><p>Launched faster than circular speed, the satellite climbs into an ellipse; at √2 times the circular speed it has enough kinetic energy to escape (total energy ½mv² − GMm/r ≥ 0). The simulation integrates Newton’s law of gravitation step by step.</p>',
+    onCanvas: false,
+    create: function (p) {
+      const G = 6.674e-11, S = {};
+      const Mk = () => 5.972e24 * p.M, Rp = () => 6.371e6 * Math.cbrt(p.M), r0 = () => Rp() + p.alt * 1e3;
+      const vc = () => Math.sqrt(G * Mk() / r0());
+      const inst = {
+        reset: function () { S.x = r0(); S.y = 0; S.vx = 0; S.vy = p.vf * vc(); S.trail = [[S.x, S.y]]; S.state = 'orbit'; S.t = 0; S.sc = 0; S.rec = 0; },
+        change: function () { inst.reset(); },
+        action: function () { inst.reset(); },
+        step: function (dt) {
+          if (S.state !== 'orbit') return;
+          const per = 2 * Math.PI * Math.sqrt(Math.pow(r0(), 3) / (G * Mk()));
+          const simDt = dt * per / 6, n = 400, h = simDt / n;
+          for (let i = 0; i < n; i++) {
+            let r = Math.hypot(S.x, S.y), a = -G * Mk() / (r * r * r);
+            S.vx += a * S.x * h / 2; S.vy += a * S.y * h / 2;
+            S.x += S.vx * h; S.y += S.vy * h;
+            r = Math.hypot(S.x, S.y); a = -G * Mk() / (r * r * r);
+            S.vx += a * S.x * h / 2; S.vy += a * S.y * h / 2;
+            S.t += h;
+            if (r < Rp()) { S.state = 'crashed'; break; }
+          }
+          S.rec += dt;
+          if (S.rec > 1 / 60) { S.rec = 0; S.trail.push([S.x, S.y]); if (S.trail.length > 1500) S.trail.shift(); }
+          if (Math.hypot(S.x, S.y) > 12 * r0()) S.state = 'escaped';
+        },
+        draw: function (g, W, H, p, th) {
+          const want = Math.min(W, H) * 0.42 / (r0() * 1.9);
+          S.sc = S.sc ? S.sc + (want - S.sc) * 0.1 : want;
+          const cx = W * 0.5, cy = H * 0.5, sc = S.sc;
+          g.fillStyle = th.dark ? '#05070c' : '#0d1220'; g.fillRect(0, 0, W, H);
+          for (let i = 0; i < 70; i++) { g.fillStyle = 'rgba(255,255,255,' + (0.2 + (i * 37 % 10) / 20) + ')'; g.fillRect((i * 151) % W, (i * 89) % H, 1.5, 1.5); }
+          g.strokeStyle = 'rgba(160,180,220,.35)'; g.setLineDash([4, 6]); g.lineWidth = 1; g.beginPath(); g.arc(cx, cy, r0() * sc, 0, 7); g.stroke(); g.setLineDash([]);
+          const grd = g.createRadialGradient(cx - Rp() * sc * 0.3, cy - Rp() * sc * 0.3, 2, cx, cy, Rp() * sc);
+          grd.addColorStop(0, '#6fa8ff'); grd.addColorStop(1, '#1d3f8a');
+          g.fillStyle = grd; g.beginPath(); g.arc(cx, cy, Rp() * sc, 0, 7); g.fill();
+          g.strokeStyle = 'rgba(255,190,90,.9)'; g.lineWidth = 2; g.beginPath();
+          S.trail.forEach((q, i) => { const X = cx + q[0] * sc, Y = cy - q[1] * sc; if (i) g.lineTo(X, Y); else g.moveTo(X, Y); }); g.stroke();
+          const X = cx + S.x * sc, Y = cy - S.y * sc;
+          g.fillStyle = '#fff'; g.beginPath(); g.arc(X, Y, 5, 0, 7); g.fill();
+          if (S.state === 'orbit') LB.arrow(g, X, Y, X + S.vx / vc() * 40, Y - S.vy / vc() * 40, '#ffd27a', 2);
+          T(g, S.state === 'crashed' ? 'Crashed into the planet' : S.state === 'escaped' ? 'Escaped!' : '', W / 2, 30, { col: S.state === 'escaped' ? '#7be0a6' : '#ff8a80', size: 15, weight: 700, align: 'center' });
+        },
+        graph: function () { },
+        readouts: function () {
+          const r = Math.hypot(S.x, S.y), v = Math.hypot(S.vx, S.vy), mu = G * Mk();
+          const E = v * v / 2 - mu / r, a = -mu / (2 * E);
+          return [['Altitude now', f((r - Rp()) / 1000, 0) + ' km'], ['Speed now', f(v / 1000, 2) + ' km/s'], ['Circular speed √(GM/r)', f(vc() / 1000, 2) + ' km/s', 'th'], ['Escape speed √(2GM/r)', f(vc() * Math.SQRT2 / 1000, 2) + ' km/s', 'th'],
+            ['Orbital period', E < 0 ? f(2 * Math.PI * Math.sqrt(a * a * a / mu) / 3600, 2) + ' h' : 'no orbit (escapes)'], ['g at launch height', f(mu / (r0() * r0()), 2) + ' N/kg'], ['Status', S.state === 'orbit' ? (E >= 0 ? 'escaping' : Math.abs(p.vf - 1) < 0.005 ? 'circular orbit' : 'elliptical orbit') : S.state]];
+        }
+      };
+      inst.reset();
+      return inst;
+    }
+  });
+})(window.RH = window.RH || {});
+</script>
+<script>
 /* Settings: you, Claude connection, Further Maths options, data and backups. */
 (function (RH) {
   'use strict';
@@ -7106,7 +8744,7 @@ body.in-exam .tabbar { display: none !important; }
   // Some names are reserved by the claude.ai viewer, so they map to other pages.
   const RESERVED = { settings: 'preferences', sidebar: 'home', customize: 'preferences', upgrade: 'home', downloads: 'preferences' };
   // Old links that are now tabs inside another page.
-  const ALIAS = { today: ['home'], planner: ['plan'], subjects: ['study'], portal: ['papers'], results: ['papers', 'portal', 'results'], timers: ['focus'], practise: ['papers'], more: ['home'] };
+  const ALIAS = { today: ['home'], planner: ['plan'], portal: ['papers'], results: ['papers', 'portal', 'results'], timers: ['focus'], practise: ['papers'], more: ['home'] };
   function route() {
     let h = (location.hash || '').replace(/^#/, '');
     h = RESERVED[h] || h || 'home';
@@ -7122,7 +8760,7 @@ body.in-exam .tabbar { display: none !important; }
 
   function pageFor(r) {
     const pre = (p) => r.indexOf(p) === 0 ? r.slice(p.length) : null;
-    const simple = { home: V.home, study: V.study, plan: V.plan, deliverables: V.deliverables, routine: V.routine, exams: V.exams, strategy: V.strategy, check: V.check, checks: V.checks, focus: V.focus, cards: V.cards, review: V.review, papers: V.papers, exam: V.exam, mark: V.mark, library: V.library, guide: V.guide, preferences: V.prefs };
+    const simple = { home: V.home, study: V.study, plan: V.plan, deliverables: V.deliverables, routine: V.routine, exams: V.exams, strategy: V.strategy, check: V.check, checks: V.checks, focus: V.focus, cards: V.cards, review: V.review, papers: V.papers, exam: V.exam, mark: V.mark, library: V.library, guide: V.guide, preferences: V.prefs, labs: V.labs, subjects: V.subjectsList };
     if (simple[r]) return simple[r]();
     let x;
     if ((x = pre('s-')) !== null) return V.subject(x);
@@ -7131,6 +8769,7 @@ body.in-exam .tabbar { display: none !important; }
     if ((x = pre('paper-')) !== null) return V.paper(x);
     if ((x = pre('deck-')) !== null) return V.deck(x);
     if ((x = pre('check-')) !== null) return V.checkOne(x);
+    if ((x = pre('lab-')) !== null) return V.lab(x);
     return V.notFound();
   }
 
@@ -7138,8 +8777,9 @@ body.in-exam .tabbar { display: none !important; }
     const t = r.indexOf('t-') === 0 && M.topic[r.slice(2)];
     const c = r.indexOf('c-') === 0 && M.comp[r.slice(2)];
     const s = r.indexOf('s-') === 0 && M.subject[r.slice(2)];
-    const names = { study: 'Your courses', plan: 'This week', deliverables: 'Deliverables', routine: 'Routine', exams: 'Exams', strategy: 'Strategy', check: 'Check an answer', checks: 'Checked answers', focus: 'Focus', papers: 'Past papers', exam: 'Exam in progress', mark: 'Marking', cards: 'Flashcards', review: 'Reviewing cards', library: 'Resources', guide: 'How to revise', preferences: 'Settings' };
-    const name = t ? t.name : c ? c.name : s ? s.name : names[r];
+    const names = { study: 'Bookshelf', subjects: 'Your subjects', plan: 'This week', deliverables: 'Deliverables', routine: 'Routine', exams: 'Exams', strategy: 'Strategy', check: 'Check an answer', checks: 'Checked answers', focus: 'Focus', papers: 'Past papers', exam: 'Exam in progress', mark: 'Marking', cards: 'Flashcards', review: 'Reviewing cards', library: 'Resources', guide: 'How to revise', preferences: 'Settings', labs: 'Labs' };
+    const lab = r.indexOf('lab-') === 0 && RH.labs.byId[r.slice(4)];
+    const name = t ? t.name : c ? c.name : s ? s.name : lab ? lab.name : names[r];
     return (name ? name + ' · ' : '') + 'A-Level Revision Hub';
   }
 

@@ -30,7 +30,7 @@
   V.docHead = docHead;
 
   // ---------- All subjects ----------
-  V.study = function () {
+  V.subjectsList = function () {
     const s = st();
     let html = docHead('Learn', 'Your subjects', 'Each subject is a list of lessons. Open one and work down the page: watch, learn the key points, test yourself, then exam questions.');
     html += '<ul class="subj-list">' + M.subjects.map(function (sub) {
@@ -156,7 +156,9 @@
     learn += '<details class="fold-lite"' + (ts.notes ? ' open' : '') + '><summary>Your own notes</summary><textarea id="notes-' + gid + '" class="notes" data-notes="' + gid + '" rows="5" placeholder="Key formulae, things you keep getting wrong, questions for your teacher…" aria-label="Your notes">' + esc(ts.notes || '') + '</textarea><span class="muted small" id="notes-saved">Saves as you type</span>' + myLinks(gid) + '</details>';
     html += block('learn', 2, 'Key points', learn, sd.learn, gid);
     // 3. Test yourself
-    let recall = '<p><b>Blurt test.</b> Close your notes, write down everything you remember in 10 minutes, then compare it with the key points. <button type="button" class="btn alt sm" data-action="blurt" data-id="' + gid + '">Start</button></p>';
+    const labs = RH.labs ? RH.labs.defs.filter((d) => d.topics.indexOf(gid) !== -1) : [];
+    let recall = labs.length ? '<p class="lab-try"><b>Experiment.</b> Try it in the ' + labs.map((d) => '<a href="#lab-' + d.id + '">' + esc(d.name) + ' lab</a>').join(' or the ') + ': change the variables and check the equations for yourself.</p>' : '';
+    recall += '<p><b>Blurt test.</b> Close your notes, write down everything you remember in 10 minutes, then compare it with the key points. <button type="button" class="btn alt sm" data-action="blurt" data-id="' + gid + '">Start</button></p>';
     recall += '<p><b>Flashcards.</b> ' + (decks.length ? 'Your decks for this lesson:' : 'Make cards for the things you keep forgetting.') + ' <button type="button" class="btn link" data-action="deck-new" data-topic="' + gid + '">New deck</button> · <button type="button" class="btn link" data-action="cards-import" data-topic="' + gid + '">Import from Quizlet</button></p>';
     if (decks.length) recall += '<ul class="deck-list">' + decks.map(RH.cards.deckRow).join('') + '</ul>';
     if (cardRes.length) recall += C.resList(cardRes);

@@ -29,7 +29,9 @@ Elsewhere it lists the pages in that area. Pages are plain white with headings, 
 | Area | Pages |
 |---|---|
 | **Home** | The lesson to carry on with, today's timeline, what's due this week, exam countdown. |
+| **Bookshelf** | Every section of every subject as a textbook on an endless 3D shelf. The middle book turns to show its cover; click it (or press Enter) and a sheet of paper grows out of the cover into the section's lesson list. Scroll, drag, use the arrows or the subject tabs to browse. *List view* (`#subjects`) is the plain list. |
 | **Physics / Maths / Further Maths / Economics** | Every section and lesson in order, then the exam papers, whole-course videos, flashcards and resources. How to revise and Resources are in the left menu. |
+| **Labs** | Nine PhET-style physics experiments (see below). |
 | **Practise** | Past papers, Check an answer (AI marking), Marked answers, Flashcards. |
 | **Planner** | This week, Deliverables, Routine, Exams, Strategy. |
 | **Focus** | Pomodoro, countdown, exam timer and stopwatch, plus the focus tracker. |
@@ -52,6 +54,8 @@ specification numbers).
 
 | Feature | What it does |
 |---|---|
+| **Physics labs** | Interactive simulations built on the real equations, in the style of PhET. Each has sliders for its variables, play/pause/slow-motion, live readings (green = predicted by the equations, black = measured), graphs, experiments to try and the theory. **Projectile motion** (angle, speed, height, gravity, air resistance, a target), **Pendulum and spring** (exact pendulum equation, damping, driven oscillations and a resonance curve for CP16), **EMF and internal resistance** (record readings, best-fit line gives r and ε, CP3), **Capacitor charge and discharge** (time constant, ln V plot, CP11), **Young's slits and gratings** (full intensity pattern, fringe spacing, grating orders, CP8), **Momentum and collisions** (elasticity, momentum and KE before and after), **Photoelectric effect** (photons, work functions, stopping potential, KE against f), **Radioactive decay** (random decay of up to 2,500 nuclei, half-life from the curve) and **Orbits** (circular speed, ellipses, escape velocity). Each physics lesson links to its lab. |
+| **Bookshelf** | The subjects as a shelf of textbooks you browse in 3D (see the table above). The covers and spines are drawn in code, one design per subject. |
 | **Save My Exams-style design** | Navy top bar with the subjects, a left-hand menu with the topic tree, plain white pages, one typeface (Inter), far fewer boxes. |
 | **Routine by day** | The routine is set in three columns: Monday–Thursday, Friday, then Saturday & Sunday, with a switch to set any of those days one at a time. Every day has its own school times, travel there and back, break after school, wake-up, getting ready, bedtime, wind-down, hours of revision, hours of free time, and earliest/latest revision. Travel and the other extras are optional: leave a box empty and the planner leaves that time out. |
 | **Course layout** | Subjects are lists of numbered lessons. Subjects are courses, sections are numbered, and each lesson is one ordered page (watch, learn, test yourself, exam questions, finish) instead of separate tabs. Home picks up the lesson you're on. |
@@ -112,7 +116,8 @@ alevel-revision-hub/
     │                     # exams.js (official 2027 timetable), guide.js,
     │                     # videos.js (direct videos + Mr Gale resources), decks.js (starter flashcards)
     └── app/              # util.js, model.js, routine.js (time slots), planner.js, store.js, ai.js (Claude),
-                          # ui.js, deliverables.js, views.js, home.js, study.js (courses & lessons), plan.js, focus.js,
+                          # ui.js, deliverables.js, views.js, home.js, study.js (courses & lessons), shelf.js (bookshelf),
+                          # labs.js + labs-sims.js (physics labs), plan.js, focus.js,
                           # cards.js, portal.js, checker.js, settings.js, main.js (router)
 ```
 
