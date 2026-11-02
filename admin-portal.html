@@ -1,0 +1,1945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https://www.google.com https://*.gstatic.com; connect-src 'self'; base-uri 'none'; form-action 'self'" />
+<meta name="robots" content="noindex, nofollow"/>
+<title>Lumera — Admin</title>
+<link rel="icon" type="image/png" href="assets/brand/favicon-64.png"/>
+<style>
+  @font-face{ font-family:'Manrope'; src:url('assets/fonts/manrope-latin-wght-normal.woff2') format('woff2'); font-weight:200 800; font-style:normal; font-display:swap; }
+  @font-face{ font-family:'Instrument Serif'; src:url('assets/fonts/instrument-serif-latin-400-normal.woff2') format('woff2'); font-weight:400; font-style:normal; font-display:swap; }
+
+  /* Spatial: the same ground, glass and depth as the site and the app. */
+  :root{
+    color-scheme:dark;
+    --ivory:hsl(248 21% 6%); --cream:rgba(255,255,255,.035); --card:rgba(255,255,255,.035); --sand:rgba(255,255,255,.06);
+    --line:rgba(255,255,255,.09); --line-hi:rgba(255,255,255,.18);
+    --charcoal:#ECEAF6; --ink:#FAF9FD; --muted:#A9A7C2; --faint:#817F9C;
+    --gold:#8E7BFF; --goldd:#B9AEFF; --golddd:#6E6CF6; --amber:#EBC77A;
+    --sage:#4ADE9B; --saged:#5EE3A6; --clay:#F5B95C; --clayd:#F6C77F; --berry:#FB7185; --sky:#7CB4FF;
+    --lg-glass:rgba(26,24,38,.58); --lg-glass-strong:rgba(22,21,33,.9);
+    --lg-edge:rgba(255,255,255,.10); --lg-edge-hi:rgba(255,255,255,.20);
+    --lg-rim:inset 0 1px 0 rgba(255,255,255,.09), inset 0 0 0 1px rgba(255,255,255,.012);
+    --lg-depth-1:0 1px 2px rgba(0,0,0,.30), 0 12px 28px -16px rgba(0,0,0,.62);
+    --lg-depth-2:0 2px 4px rgba(0,0,0,.24), 0 20px 46px -20px rgba(0,0,0,.68), 0 46px 96px -50px rgba(30,16,74,.72);
+    --lg-blur:blur(28px) saturate(150%);
+    --lg-sweep:linear-gradient(100deg,#EBC77A 0%,#C6A8FF 46%,#8E7BFF 100%);
+    --lg-ease:cubic-bezier(.22,1,.36,1);
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body{ margin:0; font-family:'Manrope',system-ui,sans-serif; color:var(--charcoal); background:var(--ivory);
+    background-image:radial-gradient(1100px 600px at 100% -10%, rgba(142,123,255,.16), transparent 60%),
+                     radial-gradient(900px 520px at -10% 110%, rgba(110,108,246,.10), transparent 55%);
+    background-attachment:fixed; min-height:100vh; -webkit-font-smoothing:antialiased; font-size:14px; }
+  h1,h2,h3{ font-weight:600; letter-spacing:-.015em; }
+  .serif{ font-family:'Instrument Serif',Georgia,serif; font-weight:400; letter-spacing:-.01em; }
+  ::selection{ background:rgba(142,123,255,.34); color:#fff; }
+  ::-webkit-scrollbar{ width:10px; height:10px; }
+  ::-webkit-scrollbar-thumb{ background:rgba(255,255,255,.12); border-radius:20px; border:2px solid var(--ivory); }
+  :focus-visible{ outline:2px solid var(--goldd); outline-offset:2px; }
+  .sr-only{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+  svg.i{ width:16px; height:16px; flex-shrink:0; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+
+  /* Shell: a floating glass sidebar beside the content. */
+  .app{ display:grid; grid-template-columns:262px minmax(0,1fr); min-height:100vh; }
+  .sidebar{ position:sticky; top:12px; height:calc(100vh - 24px); margin:12px 0 12px 12px; padding:16px 12px 18px; overflow-y:auto;
+    background:var(--lg-glass); border:1px solid var(--lg-edge); border-radius:22px; box-shadow:var(--lg-rim), var(--lg-depth-2);
+    backdrop-filter:var(--lg-blur); -webkit-backdrop-filter:var(--lg-blur); }
+  .brand{ display:flex; align-items:center; gap:10px; padding:4px 8px 16px; }
+  .brand img{ width:34px; height:34px; object-fit:contain; }
+  .brand .mark{ font-weight:700; letter-spacing:.2em; font-size:14px; }
+  .brand .sub{ display:block; font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint); font-weight:600; margin-top:2px; }
+  .role-chip{ display:inline-flex; align-items:center; gap:6px; margin:0 8px 14px; padding:4px 10px; border-radius:99px; background:var(--sand); color:var(--muted); font-size:11px; font-weight:600; white-space:nowrap; max-width:calc(100% - 16px); overflow:hidden; text-overflow:ellipsis; }
+  .navg{ display:block; margin-bottom:12px; }
+  .navg .label{ font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--faint); padding:0 10px 6px; font-weight:700; }
+  .navi{ display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:11px; font:inherit; font-size:13px; font-weight:500; color:var(--muted); cursor:pointer; border:none; background:none; width:100%; text-align:left; transition:background .2s, color .2s; position:relative; }
+  .navi:hover:not(:disabled){ background:var(--sand); color:var(--charcoal); }
+  .navi.active{ background:rgba(255,255,255,.075); color:var(--ink); box-shadow:var(--lg-rim); }
+  .navi.active::before{ content:""; position:absolute; left:0; top:22%; bottom:22%; width:3px; border-radius:99px; background:var(--lg-sweep); }
+  .navi.disabled{ cursor:not-allowed; opacity:.4; }
+  .navi .count{ margin-left:auto; font-size:10.5px; font-weight:700; padding:1px 7px; border-radius:99px; background:rgba(251,113,133,.16); color:var(--berry); }
+  body:not([data-mode]) [data-only], body[data-mode="server"] [data-only="local"], body[data-mode="local"] [data-only="server"]{ display:none !important; }
+
+  .main{ padding:26px 32px 64px; max-width:1180px; width:100%; min-width:0; }
+  .top{ display:flex; align-items:center; gap:10px; margin-bottom:20px; flex-wrap:wrap; }
+  .live-dot{ width:7px; height:7px; border-radius:50%; background:var(--sage); display:inline-block; box-shadow:0 0 10px rgba(74,222,155,.7); }
+  .live-dot.warn{ background:var(--clay); box-shadow:0 0 10px rgba(245,185,92,.7); }
+  .live-dot.bad{ background:var(--berry); box-shadow:0 0 10px rgba(251,113,133,.7); }
+  h1.page{ font-family:'Instrument Serif',Georgia,serif; font-weight:400; font-size:36px; line-height:1.05; margin:0 0 6px; letter-spacing:-.01em; }
+  .page-desc{ color:var(--muted); margin:0 0 20px; max-width:680px; font-size:14px; line-height:1.6; }
+
+  /* Content panels: a lit translucent fill (no blur), raised by depth. */
+  .card{ background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.02)); border:1px solid var(--lg-edge); border-radius:20px; padding:18px;
+    box-shadow:var(--lg-rim), var(--lg-depth-1); min-width:0; }
+  .card + .card{ margin-top:14px; }
+  .row{ display:grid; gap:14px; margin-bottom:14px; }
+  .row.cols-2{ grid-template-columns:1fr 1fr; }
+  .row.cols-3{ grid-template-columns:repeat(3,1fr); }
+  .row.cols-4{ grid-template-columns:repeat(4,1fr); }
+  .row > .card + .card{ margin-top:0; }
+  @media (max-width:860px){
+    .app{ grid-template-columns:minmax(0,1fr); }
+    .sidebar{ position:relative; top:0; height:auto; margin:12px 12px 0; }
+    .main{ padding:18px 16px 48px; }
+    .row.cols-2, .row.cols-3, .row.cols-4{ grid-template-columns:1fr 1fr; }
+  }
+  @media (max-width:520px){ .row.cols-2,.row.cols-3,.row.cols-4{ grid-template-columns:1fr; } h1.page{ font-size:30px; } }
+  .eyebrow{ font-size:10.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--goldd); font-weight:700; margin-bottom:8px; }
+  .kpi{ position:relative; overflow:hidden; }
+  .kpi .v{ font-family:'Instrument Serif',Georgia,serif; font-size:38px; line-height:1; font-weight:400; color:var(--ink); }
+  .kpi .l{ font-size:12px; color:var(--muted); margin-top:4px; }
+  .kpi .delta{ font-size:11px; font-weight:600; margin-top:6px; }
+  .kpi .delta.up{ color:var(--saged); } .kpi .delta.down{ color:var(--clayd); }
+  .bar{ display:flex; align-items:center; gap:10px; margin:7px 0; font-size:13px; }
+  .bar .lab{ width:170px; color:var(--charcoal); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .bar .track{ flex:1; height:8px; border-radius:99px; background:var(--sand); overflow:hidden; }
+  .bar .fill{ height:100%; border-radius:99px; background:linear-gradient(90deg,#8E7BFF,#C6A8FF); transition:width .6s var(--lg-ease); }
+  .bar .val{ width:54px; text-align:right; color:var(--muted); font-variant-numeric:tabular-nums; }
+
+  .btn{ border:1px solid var(--lg-edge); background:rgba(255,255,255,.04); border-radius:99px; padding:8px 14px; font:inherit; font-size:12.5px; font-weight:600; cursor:pointer; color:var(--charcoal);
+    transition:background .2s, border-color .2s, transform .2s var(--lg-ease), box-shadow .2s; display:inline-flex; align-items:center; gap:6px; text-decoration:none; box-shadow:var(--lg-rim); white-space:nowrap; }
+  .btn:hover:not(:disabled){ background:rgba(255,255,255,.08); border-color:var(--lg-edge-hi); }
+  .btn:active:not(:disabled){ transform:translateY(1px); }
+  .btn:disabled{ opacity:.4; cursor:not-allowed; }
+  .btn.gold{ background:var(--lg-sweep); color:#17110A; border:none; box-shadow:inset 0 1px 0 rgba(255,255,255,.45), 0 10px 26px -14px rgba(198,168,255,.9); }
+  .btn.gold:hover:not(:disabled){ filter:brightness(1.06); background:var(--lg-sweep); }
+  .btn.danger{ background:transparent; color:var(--berry); border-color:rgba(251,113,133,.32); }
+  .btn.danger:hover:not(:disabled){ background:rgba(251,113,133,.08); border-color:rgba(251,113,133,.5); }
+  .btn.ghost{ background:transparent; }
+  .btn.sm{ padding:5px 10px; font-size:11.5px; }
+  input,textarea,select{ font:inherit; font-size:14px; border:1px solid var(--lg-edge); border-radius:12px; padding:9px 12px; width:100%; background:rgba(255,255,255,.035); color:var(--charcoal); transition:border-color .2s, box-shadow .2s; }
+  select option{ background:#16141f; }
+  input::placeholder,textarea::placeholder{ color:var(--faint); }
+  input:focus,textarea:focus,select:focus{ outline:none; border-color:rgba(185,174,255,.6); box-shadow:0 0 0 4px rgba(142,123,255,.16); }
+  label.fl{ display:block; font-size:12px; color:var(--muted); margin-bottom:5px; font-weight:600; }
+  .pill{ display:inline-flex; align-items:center; gap:6px; padding:3px 9px; border-radius:99px; font-size:11px; font-weight:600; background:var(--sand); color:var(--muted); white-space:nowrap; }
+  .pill.draft{ background:rgba(255,255,255,.06); color:var(--muted); }
+  .pill.live{ background:rgba(74,222,155,.13); color:var(--saged); }
+  .pill.unp{ background:rgba(245,185,92,.13); color:var(--clayd); }
+  .pill.bad{ background:rgba(251,113,133,.14); color:var(--berry); }
+  .pill.gold{ background:rgba(142,123,255,.18); color:var(--goldd); }
+  .muted{ color:var(--muted); } .faint{ color:var(--faint); } .tnum{ font-variant-numeric:tabular-nums; }
+  .upd{ display:flex; gap:14px; padding:14px; border:1px solid var(--line); border-radius:16px; margin-bottom:10px; background:rgba(255,255,255,.02); transition:border-color .2s; }
+  .upd:hover{ border-color:var(--lg-edge-hi); }
+  .upd .ic{ width:40px; height:40px; border-radius:12px; background:rgba(142,123,255,.14); color:var(--goldd); display:grid; place-items:center; flex-shrink:0; font-size:18px; }
+  .upd .body{ flex:1; min-width:0; }
+  .upd .ttl{ font-weight:600; font-size:14px; margin:0 0 4px; overflow-wrap:anywhere; }
+  .upd .meta{ font-size:11px; color:var(--faint); display:flex; gap:10px; align-items:center; margin-bottom:6px; flex-wrap:wrap; }
+  .upd .desc{ font-size:13px; color:var(--muted); margin:0; line-height:1.5; overflow-wrap:anywhere; white-space:pre-wrap; }
+  .upd .acts{ display:flex; gap:6px; align-items:flex-start; flex-shrink:0; flex-wrap:wrap; justify-content:flex-end; }
+  @media (max-width:640px){ .upd{ flex-wrap:wrap; } .upd .acts{ width:100%; justify-content:flex-start; } }
+  .modal-bg{ position:fixed; inset:0; background:rgba(6,5,12,.62); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:grid; place-items:center; padding:20px; z-index:99; animation:fadeIn .2s; }
+  @keyframes fadeIn{ from{opacity:0} to{opacity:1} }
+  .modal{ background:var(--lg-glass-strong); border:1px solid var(--lg-edge); border-radius:22px; padding:22px; max-width:520px; width:100%; box-shadow:var(--lg-rim), var(--lg-depth-2); max-height:90vh; overflow-y:auto; }
+  .modal h3{ font-size:20px; margin:0 0 6px; }
+  .modal .acts{ display:flex; justify-content:flex-end; gap:8px; margin-top:18px; flex-wrap:wrap; }
+  .gate{ min-height:100vh; display:grid; place-items:center; padding:24px; }
+  .gate .card{ max-width:400px; width:100%; padding:30px 28px; background:var(--lg-glass); backdrop-filter:var(--lg-blur); -webkit-backdrop-filter:var(--lg-blur); box-shadow:var(--lg-rim), var(--lg-depth-2); }
+  .gate .logo{ display:block; width:64px; height:64px; margin:0 auto 14px; object-fit:contain; }
+  .gate h1{ font-family:'Instrument Serif',Georgia,serif; font-weight:400; font-size:32px; margin:0 0 6px; text-align:center; }
+  .gate .lede{ color:var(--muted); font-size:13px; margin:0 0 18px; text-align:center; line-height:1.55; }
+  .gate .field{ margin-bottom:12px; }
+  .gate .err{ color:var(--berry); font-size:12.5px; margin:4px 0 0; min-height:1em; }
+  .gate .note{ color:var(--faint); font-size:11.5px; margin:16px 0 0; line-height:1.6; }
+  .role-founder,.role-admin{ background:rgba(142,123,255,.18); color:var(--goldd); }
+  .role-ops{ background:rgba(124,180,255,.16); color:var(--sky); }
+  .role-product{ background:rgba(74,222,155,.14); color:var(--saged); }
+  .role-research{ background:rgba(245,185,92,.14); color:var(--clayd); }
+  .role-beta{ background:rgba(255,255,255,.06); color:var(--muted); }
+  .empty{ text-align:center; padding:32px 16px; color:var(--muted); font-size:13px; }
+  code{ background:rgba(255,255,255,.06); padding:1px 6px; border-radius:6px; font-size:.9em; overflow-wrap:anywhere; }
+  .tbl{ overflow-x:auto; }
+  table{ width:100%; border-collapse:collapse; font-size:13px; }
+  table th{ text-align:left; padding:10px 8px; font-weight:600; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--faint); border-bottom:1px solid var(--lg-edge-hi); white-space:nowrap; }
+  table td{ padding:10px 8px; border-bottom:1px solid var(--line); vertical-align:middle; }
+  table tr:last-child td{ border-bottom:none; }
+  .seg{ display:inline-flex; gap:0; border:1px solid var(--lg-edge); border-radius:99px; padding:3px; background:rgba(255,255,255,.03); flex-wrap:wrap; }
+  .seg button{ border:none; background:none; border-radius:99px; padding:5px 12px; font:inherit; font-size:12px; font-weight:600; color:var(--muted); cursor:pointer; }
+  .seg button.on{ background:rgba(255,255,255,.1); color:var(--ink); box-shadow:var(--lg-rim); }
+  .toolbar{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .toolbar .grow{ flex:1; min-width:180px; }
+  .logo-tile{ width:36px; height:36px; border-radius:10px; background:#fff; display:grid; place-items:center; overflow:hidden; flex-shrink:0; }
+  .logo-tile img{ width:100%; height:100%; object-fit:contain; }
+  .logo-tile.mono{ background:rgba(142,123,255,.18); color:var(--goldd); font-weight:700; }
+  .donut-wrap{ display:flex; align-items:center; gap:18px; }
+  .legend{ font-size:12.5px; }
+  .legend .li{ display:flex; align-items:center; gap:7px; margin:4px 0; }
+  .legend .sw{ width:11px; height:11px; border-radius:3px; }
+  .heat{ display:grid; grid-template-columns:repeat(24,1fr); gap:3px; }
+  .heat .h{ aspect-ratio:1; border-radius:3px; background:var(--sand); }
+  .skel{ height:14px; border-radius:8px; background:linear-gradient(90deg,rgba(255,255,255,.04),rgba(255,255,255,.09),rgba(255,255,255,.04)); background-size:200% 100%; animation:sk 1.4s linear infinite; margin:10px 0; }
+  @keyframes sk{ to{ background-position:-200% 0; } }
+  .toast{ position:fixed; left:50%; bottom:22px; transform:translateX(-50%); z-index:120; padding:10px 16px; border-radius:99px; font-size:13px; font-weight:600;
+    background:var(--lg-glass-strong); border:1px solid var(--lg-edge); box-shadow:var(--lg-rim), var(--lg-depth-2); backdrop-filter:var(--lg-blur); -webkit-backdrop-filter:var(--lg-blur); max-width:calc(100vw - 32px); }
+  .toast.bad{ color:var(--berry); }
+  @media (prefers-reduced-motion:reduce){ *{ animation:none !important; transition:none !important; } }
+</style>
+</head>
+<body>
+
+<div id="gate" class="gate">
+  <div class="card" role="main">
+    <img class="logo" src="assets/brand/logo-mark.webp" alt="Lumera"/>
+    <h1>Admin portal</h1>
+    <p class="lede" id="gateLede">Checking the connection…</p>
+
+    <!-- Server: sign in with an account that has the admin role. -->
+    <form id="gateServer" data-only="server" onsubmit="event.preventDefault(); signIn();" autocomplete="on" novalidate>
+      <div class="field"><label class="fl" for="gEmail">Email</label>
+        <input id="gEmail" type="email" autocomplete="username" required/></div>
+      <div class="field"><label class="fl" for="gPass">Password</label>
+        <input id="gPass" type="password" autocomplete="current-password" required/></div>
+      <p class="err" id="gErrS" role="alert"></p>
+      <button class="btn gold" id="gBtn" type="submit" style="width:100%; justify-content:center; margin-top:6px;">Sign in</button>
+      <p class="note">Only accounts with the admin role can open the portal. Admin roles are granted from this portal or with <code>ADMIN_EMAILS</code> on the server.</p>
+    </form>
+
+    <!-- Offline: no server, so a team key unlocks the editors for this browser only. -->
+    <form id="gateLocal" data-only="local" onsubmit="event.preventDefault(); tryUnlock();" novalidate>
+      <div class="field"><label class="fl" for="key">Team key</label>
+        <input id="key" type="password" autocomplete="off"/></div>
+      <p class="err" id="gerr" role="alert"></p>
+      <button class="btn gold" type="submit" style="width:100%; justify-content:center; margin-top:6px;">Unlock</button>
+      <p class="note">Offline mode: no Lumera server answered, so changes are saved in this browser only. Run the server to manage members and publish to everyone.</p>
+    </form>
+  </div>
+</div>
+
+<div id="app" class="app" style="display:none;">
+  <aside class="sidebar" aria-label="Admin navigation">
+    <div class="brand">
+      <img src="assets/brand/logo-mark.webp" alt=""/>
+      <span><span class="mark">LUMERA</span><span class="sub">Admin</span></span>
+    </div>
+    <span class="role-chip" id="roleChip">Role</span>
+    <div class="navg">
+      <div class="label">Overview</div>
+      <button class="navi" data-only="server" data-tab="overview" data-icon="grid">Overview</button>
+      <button class="navi" data-only="local" data-tab="dashboard" data-icon="grid">Dashboard</button>
+    </div>
+    <div class="navg" data-only="server">
+      <div class="label">Members</div>
+      <button class="navi" data-only="server" data-tab="users" data-icon="user">Accounts</button>
+      <button class="navi" data-only="server" data-tab="posts" data-icon="chats">Community</button>
+      <button class="navi" data-only="server" data-tab="reports" data-icon="flag">Reports <span class="count" id="repCount" hidden></span></button>
+    </div>
+    <div class="navg" data-only="local">
+      <div class="label">Analytics</div>
+      <button class="navi" data-only="local" data-tab="insights" data-icon="users">User insights</button>
+      <button class="navi" data-only="local" data-tab="usage" data-icon="bar">Usage reports</button>
+    </div>
+    <div class="navg">
+      <div class="label">Content</div>
+      <button class="navi" data-tab="updates" data-icon="megaphone">Product updates</button>
+      <button class="navi" data-tab="news" data-icon="news">News feed</button>
+      <button class="navi" data-only="local" data-tab="offers" data-icon="tag">Discounts &amp; offers</button>
+      <button class="navi" data-tab="about" data-icon="info">About &amp; team</button>
+      <button class="navi" data-only="local" data-tab="brand" data-icon="palette">Brand &amp; characters</button>
+    </div>
+    <div class="navg">
+      <div class="label">Product</div>
+      <button class="navi" data-only="local" data-tab="feedback" data-icon="message">User feedback</button>
+      <button class="navi" data-tab="features" data-icon="toggle">Feature flags</button>
+      <button class="navi" data-tab="sections" data-icon="layout">Sections &amp; layout</button>
+      <button class="navi" data-only="server" data-tab="companies" data-icon="building">Subscription logos</button>
+    </div>
+    <div class="navg" data-only="local">
+      <div class="label">Research</div>
+      <button class="navi" data-only="local" data-tab="trends" data-icon="trend">Trend monitor</button>
+      <button class="navi" data-only="local" data-tab="market" data-icon="globe">Market tracker</button>
+    </div>
+    <div class="navg">
+      <div class="label">Account</div>
+      <button class="navi" data-only="local" data-tab="permissions" data-icon="key">Permissions</button>
+      <button class="navi" data-only="server" data-tab="audit" data-icon="history">Audit log</button>
+      <button class="navi" data-icon="power" onclick="lock()" id="lockBtn">Lock portal</button>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="top">
+      <span class="pill" id="statusPill"><span class="live-dot" id="statusDot"></span><span id="statusText">Live</span></span>
+      <span class="faint" id="updatedAt" style="font-size:12px;"></span>
+      <span style="flex:1"></span>
+      <a class="btn ghost" href="app.html" target="_blank" rel="noopener">Open the app &rarr;</a>
+      <button class="btn ghost" data-only="local" onclick="exportData()">Export JSON</button>
+      <button class="btn ghost" data-only="local" onclick="seedDemo()">Seed demo data</button>
+      <button class="btn ghost" data-only="local" onclick="clearData()">Clear local</button>
+    </div>
+    <div id="content"></div>
+  </main>
+</div>
+
+<script>
+/* ============================================================
+   Roles & access — keys verified by SHA-256 hash (no plaintext)
+   ============================================================ */
+const ROLE_KEY_HASHES = {
+  '6amaKQQaPKpH7vitzjbX5v/iI6FYoKB7qEjyi/fXDrM=' : 'founder',
+  'Fum6ZqB3N6zT0RAUd3eoLuHjONjBwfdERpOd90JOuh0=' : 'ops',
+  'TfoTznSBnrVDPrbNFclvwLA0rpkdL1lsNqshSLr/WZs=' : 'product',
+  'Wuiq/AJhUQYduNVdeCjW7Y6bnIQJm+MmdQl4ZF1AkVg=' : 'research',
+};
+const ROLES = {
+  founder:  { label:'Founder',                badge:'role-founder',  scope:['*'] },
+  ops:      { label:'Operations Associate',   badge:'role-ops',      scope:['dashboard','insights','usage','updates','news','about','brand','permissions'] },
+  product:  { label:'Product Dev Associate',  badge:'role-product',  scope:['dashboard','feedback','features','sections','updates','about','brand','permissions'] },
+  research: { label:'Innovation & Research',  badge:'role-research', scope:['dashboard','trends','market','news','offers','permissions'] },
+  beta:     { label:'Beta Tester',            badge:'role-beta',     scope:[] },
+  // Server mode: an account with the admin role.
+  admin:    { label:'Administrator',          badge:'role-admin',    scope:['*'] },
+};
+let CURRENT_ROLE = null;
+let MODE = null, ME = null, SYS = {};            // MODE is 'server' or 'local' once detected
+const SERVER_EMPTY = {};
+// Tabs that only make sense with or without the server.
+const LOCAL_ONLY = ['dashboard','insights','usage','offers','brand','feedback','trends','market','permissions'];
+const SERVER_ONLY = ['overview','users','posts','reports','companies','audit'];
+
+/* Web Crypto only exists in a secure context, so opening this file from disk
+   or inside a frame left crypto.subtle undefined, sha256b64 threw, and every
+   key was rejected. This falls back to a plain implementation. */
+function sha256Bytes(str){
+  const K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+    0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+    0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+    0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+    0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+    0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+    0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+    0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+  let H=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+  const bytes=Array.from(new TextEncoder().encode(str));
+  const bitLen=bytes.length*8;
+  bytes.push(0x80);
+  while(bytes.length%64!==56) bytes.push(0);
+  const hi=Math.floor(bitLen/4294967296), lo=bitLen>>>0;
+  bytes.push((hi>>>24)&255,(hi>>>16)&255,(hi>>>8)&255,hi&255,(lo>>>24)&255,(lo>>>16)&255,(lo>>>8)&255,lo&255);
+  const rotr=(x,n)=>(x>>>n)|(x<<(32-n));
+  for(let i=0;i<bytes.length;i+=64){
+    const w=new Array(64);
+    for(let t=0;t<16;t++) w[t]=(bytes[i+t*4]<<24)|(bytes[i+t*4+1]<<16)|(bytes[i+t*4+2]<<8)|bytes[i+t*4+3];
+    for(let t=16;t<64;t++){
+      const s0=rotr(w[t-15],7)^rotr(w[t-15],18)^(w[t-15]>>>3);
+      const s1=rotr(w[t-2],17)^rotr(w[t-2],19)^(w[t-2]>>>10);
+      w[t]=(w[t-16]+s0+w[t-7]+s1)|0;
+    }
+    let [a,b,c,d,e,f,g,h]=H;
+    for(let t=0;t<64;t++){
+      const S1=rotr(e,6)^rotr(e,11)^rotr(e,25);
+      const ch=(e&f)^(~e&g);
+      const t1=(h+S1+ch+K[t]+w[t])|0;
+      const S0=rotr(a,2)^rotr(a,13)^rotr(a,22);
+      const maj=(a&b)^(a&c)^(b&c);
+      const t2=(S0+maj)|0;
+      h=g; g=f; f=e; e=(d+t1)|0; d=c; c=b; b=a; a=(t1+t2)|0;
+    }
+    H=[(H[0]+a)|0,(H[1]+b)|0,(H[2]+c)|0,(H[3]+d)|0,(H[4]+e)|0,(H[5]+f)|0,(H[6]+g)|0,(H[7]+h)|0];
+  }
+  const out=[];
+  H.forEach(v=>out.push((v>>>24)&255,(v>>>16)&255,(v>>>8)&255,v&255));
+  return out;
+}
+async function sha256b64(str){
+  try{
+    if(window.crypto && window.crypto.subtle){
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+      return btoa(String.fromCharCode(...new Uint8Array(buf)));
+    }
+  }catch(e){}
+  return btoa(String.fromCharCode.apply(null, sha256Bytes(str)));
+}
+function hasAccess(tab){
+  if(!CURRENT_ROLE) return false;
+  if(MODE === 'server' ? LOCAL_ONLY.includes(tab) : SERVER_ONLY.includes(tab)) return false;
+  const scope = ROLES[CURRENT_ROLE].scope;
+  if(scope.includes('*')) return true;
+  return scope.includes(tab);
+}
+async function tryUnlock(){
+  const k = document.getElementById('key').value.trim();
+  let role=null;
+  try{ role = ROLE_KEY_HASHES[await sha256b64(k)]; }catch(e){}
+  if(!role){ document.getElementById('gerr').textContent = 'That key is not recognised.'; return; }
+  document.getElementById('gerr').textContent = '';
+  CURRENT_ROLE = role;
+  try{ sessionStorage.setItem('lumera_admin_role', role); }catch(e){}
+  showApp();
+}
+function lock(){
+  if(MODE === 'server'){
+    API.post('/api/auth/logout').catch(()=>{}).then(()=>sessionEnded(''));
+    return;
+  }
+  CURRENT_ROLE = null; clearInterval(DASH_TIMER);
+  try{ sessionStorage.removeItem('lumera_admin_role'); }catch(e){}
+  document.getElementById('app').style.display='none';
+  document.getElementById('gate').style.display='grid';
+  document.getElementById('key').value='';
+}
+function showApp(){
+  document.getElementById('gate').style.display='none';
+  document.getElementById('app').style.display='grid';
+  const cfg = ROLES[CURRENT_ROLE];
+  const chip = document.getElementById('roleChip');
+  chip.textContent = (MODE === 'server' && ME) ? `${cfg.label} · ${ME.name}` : cfg.label;
+  chip.title = (MODE === 'server' && ME) ? ME.email : '';
+  chip.className = 'role-chip ' + cfg.badge;
+  document.querySelectorAll('.navi').forEach(b=>{
+    const tab = b.getAttribute('data-tab');
+    if(!tab){ return; }
+    if(!hasAccess(tab)){ b.classList.add('disabled'); b.disabled = true; }
+    else { b.classList.remove('disabled'); b.disabled = false; }
+    b.onclick = ()=>switchTab(tab);
+  });
+  const firstTab = MODE === 'server' ? 'overview' : (cfg.scope.includes('*') ? 'dashboard' : (cfg.scope[0]||'dashboard'));
+  switchTab(firstTab);
+}
+
+let ACTIVE_TAB = null, DASH_TIMER = null;
+function switchTab(tab){
+  clearInterval(DASH_TIMER); DASH_TIMER = null;
+  if(!hasAccess(tab)){
+    document.getElementById('content').innerHTML = `<div class="card empty">
+      <div style="font-size:30px; margin-bottom:8px;">🔒</div>
+      <p><strong>${ROLES[CURRENT_ROLE].label}</strong> doesn&apos;t have access to this section.</p>
+      <p class="faint" style="margin-top:6px;">Access for each role is set in <code>ROLES</code> in this file.</p></div>`;
+    return;
+  }
+  ACTIVE_TAB = tab;
+  document.querySelectorAll('.navi').forEach(b=>{ b.classList.toggle('active', b.getAttribute('data-tab')===tab); });
+  render();
+  setStatus();
+  // Live auto-refresh for the analytics views (offline mode reads this browser's storage)
+  if(MODE === 'local' && ['dashboard','insights','usage'].includes(tab)) DASH_TIMER = setInterval(()=>{ if(ACTIVE_TAB===tab) render(); }, 3000);
+}
+
+/* ============================================================
+   Storage + analytics helpers (reads what the Lumera app records)
+   ============================================================ */
+const ACCT='lumera_accounts', ANALYTICS='lumera_analytics', UPDATES='lumera_updates', NEWS='lumera_news', OFFERS='lumera_offers', FEEDBACK='lumera_feedback', FEATURES='lumera_flags';
+const loadJSON = (k, def)=>{ try{ const v=JSON.parse(localStorage.getItem(k)); return (v==null)?def:v; }catch(e){ return def; } };
+const DAY=864e5;
+const LABELS={'/dashboard':'Dashboard','/budget':'Budget','/goals':'Goals','/emergency':'Emergency Fund','/subscriptions':'Subscriptions','/networth':'Net Worth','/simulator':'Wealth Simulator','/twin':'Financial Twin','/invest':'Investing','/market':'Stock Market','/globe':'Global Markets','/world':'World Monitor','/news':'News','/learn':'Learn','/resources':'Knowledge Hub','/badges':'Badges','/updates':"What's New",'/credit':'Credit','/debt':'Debt','/insurance':'Insurance','/retirement':'Retirement','/assistant':'AI Assistant','/hub':'Products','/leaf':'Leaf','/atlas':'Atlas','/shield':'Shield','/forge':'Forge','/':'Landing','/login':'Login','/signup':'Sign up','/onboarding':'Onboarding','/review':'Review','/settings':'Settings'};
+const labelOf=p=>LABELS[p]||p||'—';
+const langName=c=>({en:'English',ar:'Arabic',ur:'Urdu',hi:'Hindi',fr:'French',es:'Spanish',de:'German'}[c]||c||'—');
+const fmtDur=ms=>{ const s=Math.round(ms/1000); if(s<60) return s+'s'; const m=Math.floor(s/60); return m+'m '+(s%60)+'s'; };
+
+function computeAnalytics(){
+  const an = loadJSON(ANALYTICS, {sessions:[],events:[]});
+  const sessions = an.sessions||[], events = an.events||[];
+  const accts = loadJSON(ACCT, {});
+  // distinct users = registered accounts ∪ named (non-guest) session users
+  const userSet = new Set(Object.keys(accts));
+  sessions.forEach(s=>{ if(s.user && s.user!=='guest') userSet.add(s.user); });
+  const distinctUsers = userSet.size;
+  const logons = sessions.length;                 // each app session = one logon/visit
+  const guestSessions = sessions.filter(s=>!s.user || s.user==='guest').length;
+  const avgLogons = distinctUsers ? logons/distinctUsers : 0;
+  // per-user session counts → new vs returning
+  const byUser = {}; sessions.forEach(s=>{ const u=s.user||'guest'; if(u==='guest') return; byUser[u]=(byUser[u]||0)+1; });
+  const returningUsers = Object.values(byUser).filter(n=>n>1).length;
+  const retentionPct = distinctUsers ? Math.round(returningUsers/distinctUsers*100) : 0;
+  // time windows
+  const start0=new Date(); start0.setHours(0,0,0,0); const todayMs=start0.getTime();
+  const activeToday = sessions.filter(s=>(s.start||0)>=todayMs).length;
+  const active7 = new Set(); sessions.forEach(s=>{ if((s.start||0)>=Date.now()-7*DAY && s.user && s.user!=='guest') active7.add(s.user); });
+  // duration
+  const durs = sessions.map(s=>Math.max(0,(s.end||s.start||0)-(s.start||0)));
+  const avgDur = durs.length ? durs.reduce((a,b)=>a+b,0)/durs.length : 0;
+  // views
+  const views = events.filter(e=>e.type==='view');
+  const viewsPerSession = sessions.length ? views.length/sessions.length : 0;
+  // sessions over last 14 days
+  const days=[]; for(let i=13;i>=0;i--){ const d=new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()-i); const a=d.getTime(); days.push({t:a, n:sessions.filter(s=>(s.start||0)>=a && (s.start||0)<a+DAY).length}); }
+  // peak hours
+  const hours=new Array(24).fill(0); sessions.forEach(s=>{ if(s.start) hours[new Date(s.start).getHours()]++; });
+  // feature usage (views by route)
+  const feat={}; views.forEach(v=>{ const k=labelOf(v.path); feat[k]=(feat[k]||0)+1; });
+  // breakdowns
+  const langs={}, currs={}; sessions.forEach(s=>{ const l=s.lang||'en', c=s.cur||'—'; langs[l]=(langs[l]||0)+1; currs[c]=(currs[c]||0)+1; });
+  return { sessions, events, accts, distinctUsers, logons, guestSessions, avgLogons, returningUsers, retentionPct,
+    activeToday, active7:active7.size, avgDur, views, viewsPerSession, days, hours, feat, langs, currs };
+}
+
+const C = document.getElementById('content');
+function escapeHtml(s){ return String(s==null?'':s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function pageHead(title, desc){ return `<h1 class="page">${title}</h1><p class="page-desc">${desc}</p>`; }
+function kpi(eyebrow, value, label, delta){ return `<div class="card kpi"><div class="eyebrow">${eyebrow}</div><div class="v tnum">${value}</div><div class="l">${label||''}</div>${delta||''}</div>`; }
+function barRows(obj, fmt){ const ent=Object.entries(obj).sort((a,b)=>b[1]-a[1]); const max=Math.max(1,...ent.map(e=>e[1]));
+  return ent.length? ent.map(([k,v])=>`<div class="bar"><div class="lab">${escapeHtml(k)}</div><div class="track"><div class="fill" style="width:${Math.round(v/max*100)}%"></div></div><div class="val tnum">${fmt?fmt(v):v}</div></div>`).join('') : '<p class="empty">No data yet.</p>'; }
+
+function sparkline(days){
+  const vals=days.map(d=>d.n); const max=Math.max(1,...vals); const w=620,h=150,pl=8,pr=8,pt=18,pb=26,n=vals.length;
+  const X=i=>pl+(i/((n-1)||1))*(w-pl-pr);
+  const Y=v=>h-pb-(v/max)*(h-pb-pt);
+  const line=vals.map((v,i)=>`${i?'L':'M'}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+  const area=`M${X(0)},${h-pb} `+vals.map((v,i)=>`L${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ')+` L${X(n-1)},${h-pb} Z`;
+  const labs=days.map((d,i)=> (i%2===0)? `<text x="${X(i)}" y="${h-8}" text-anchor="middle" font-size="9" fill="#9EA0B6">${new Date(d.t).toLocaleDateString([], {day:'numeric',month:'short'})}</text>`:'').join('');
+  const dots=vals.map((v,i)=>`<circle cx="${X(i)}" cy="${Y(v)}" r="3" fill="#8B5CF6"/>`).join('');
+  const nums=vals.map((v,i)=> v? `<text x="${X(i)}" y="${Y(v)-7}" text-anchor="middle" font-size="9.5" font-weight="700" fill="#E9EAF4">${v}</text>`:'').join('');
+  return `<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto" font-family="inherit">
+    <path d="${area}" fill="rgba(139,92,246,.14)"/>
+    <path d="${line}" fill="none" stroke="#A78BFA" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    ${dots}${nums}${labs}</svg>`;
+}
+function donut(obj, colors){
+  const ent=Object.entries(obj).sort((a,b)=>b[1]-a[1]).slice(0,6); const total=Math.max(1,ent.reduce((a,e)=>a+e[1],0));
+  let acc=0; const R=52, Cx=60, Cy=60, SW=18;
+  const segs=ent.map(([k,v],i)=>{ const frac=v/total; const a0=acc*2*Math.PI-Math.PI/2; acc+=frac; const a1=acc*2*Math.PI-Math.PI/2;
+    const x0=Cx+R*Math.cos(a0), y0=Cy+R*Math.sin(a0), x1=Cx+R*Math.cos(a1), y1=Cy+R*Math.sin(a1); const large=frac>.5?1:0;
+    return `<path d="M${x0.toFixed(1)},${y0.toFixed(1)} A${R},${R} 0 ${large} 1 ${x1.toFixed(1)},${y1.toFixed(1)}" fill="none" stroke="${colors[i%colors.length]}" stroke-width="${SW}"/>`;
+  }).join('');
+  const legend=ent.map(([k,v],i)=>`<div class="li"><span class="sw" style="background:${colors[i%colors.length]}"></span>${escapeHtml(k)} <span class="faint tnum" style="margin-left:auto">${Math.round(v/total*100)}%</span></div>`).join('');
+  return `<div class="donut-wrap"><svg width="120" height="120" viewBox="0 0 120 120">${segs}<circle cx="60" cy="60" r="${R-SW/2}" fill="none"/></svg><div class="legend" style="flex:1">${legend||'<span class="faint">No data.</span>'}</div></div>`;
+}
+
+/* ============================================================
+   Render router
+   ============================================================ */
+function render(){
+  if(!ACTIVE_TAB) return;
+  ({ dashboard:renderDashboard, insights:renderInsights, usage:renderUsage, updates:renderUpdates, news:renderNews,
+     offers:renderOffers, feedback:renderFeedback, features:renderFeatures, trends:renderTrends, market:renderMarket,
+     about:renderAbout, brand:renderBrand, sections:renderSections, permissions:renderPermissions,
+     overview:renderOverview, users:renderUsers, posts:renderPosts, reports:renderReports, companies:renderCompanies, audit:renderAudit }[ACTIVE_TAB]
+   || (MODE === 'server' ? renderOverview : renderDashboard))();
+  document.getElementById('updatedAt').textContent = `Updated ${new Date().toLocaleTimeString()}`;
+}
+
+function renderDashboard(){
+  const A=computeAnalytics();
+  const updates = loadJSON(UPDATES, []);
+  const published = updates.filter(u=>u.status==='published').length;
+  const drafts = updates.filter(u=>u.status==='draft').length;
+  C.innerHTML = `
+    ${pageHead('Admin overview', `Welcome back, ${ROLES[CURRENT_ROLE].label}. Live snapshot — refreshes every 3 seconds.`)}
+    <div class="row cols-4">
+      ${kpi('Distinct users', A.distinctUsers, 'Unique people')}
+      ${kpi('Total logons', A.logons, 'Sessions / visits')}
+      ${kpi('Avg logons / user', A.avgLogons.toFixed(1), 'Visits per person')}
+      ${kpi('Active today', A.activeToday, 'Sessions since midnight')}
+    </div>
+    <div class="row cols-4">
+      ${kpi('Returning users', A.returningUsers, A.retentionPct+'% of users return')}
+      ${kpi('Page views', A.views.length, A.viewsPerSession.toFixed(1)+' per session')}
+      ${kpi('Avg session', fmtDur(A.avgDur), 'Time on site')}
+      ${kpi('Active · 7 days', A.active7, 'Weekly active users')}
+    </div>
+    <div class="card">
+      <div class="eyebrow">Sessions · last 14 days</div>
+      ${A.logons? sparkline(A.days) : '<p class="empty">No sessions captured yet. Use Lumera in this browser/origin to populate live data — or click “Seed demo data”.</p>'}
+    </div>
+    <div class="row cols-2">
+      <div class="card"><div class="eyebrow">Most-used features</div>${barRows(A.feat)}</div>
+      <div class="card"><div class="eyebrow">Recent updates</div>
+        ${updates.slice(0,3).map(u=>`<div class="upd"><div class="ic">📝</div><div class="body">
+          <h3 class="ttl">${escapeHtml(u.title)}</h3>
+          <div class="meta"><span class="pill ${u.status==='published'?'live':'draft'}">${u.status}</span><span>${escapeHtml(u.date)}</span></div>
+          <p class="desc">${escapeHtml((u.body||'').slice(0,120))}${(u.body||'').length>120?'…':''}</p></div></div>`).join('') || '<p class="empty">No updates yet.</p>'}
+      </div>
+    </div>
+    <div class="card"><div class="eyebrow">Quick actions</div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:6px;">
+        ${hasAccess('insights') ? `<button class="btn gold" onclick="switchTab('insights')">Open user insights</button>`:''}
+        ${hasAccess('updates') ? '<button class="btn" onclick="newUpdate()">+ New update</button>' : ''}
+        ${hasAccess('news')    ? '<button class="btn" onclick="newNews()">+ News headline</button>' : ''}
+      </div>
+    </div>`;
+}
+
+function renderInsights(){
+  const A=computeAnalytics();
+  const recent = A.sessions.slice(-14).reverse();
+  const peakMax=Math.max(1,...A.hours);
+  const goldRamp=['#8B5CF6','#A78BFA','#60A5FA','#34D399','#FBBF24','#FB7185'];
+  C.innerHTML = `
+    ${pageHead('User insights', 'Who is using Lumera, how often, and how deeply — computed live from real sessions on this origin.')}
+    <div class="row cols-4">
+      ${kpi('Distinct users', A.distinctUsers, 'Unique people')}
+      ${kpi('Total logons', A.logons, 'All sessions')}
+      ${kpi('Avg logons / user', A.avgLogons.toFixed(1), 'Loyalty')}
+      ${kpi('Return rate', A.retentionPct+'%', A.returningUsers+' came back')}
+    </div>
+    <div class="row cols-4">
+      ${kpi('Active today', A.activeToday, 'Sessions')}
+      ${kpi('Weekly active', A.active7, 'Users · 7 days')}
+      ${kpi('Avg session', fmtDur(A.avgDur), A.viewsPerSession.toFixed(1)+' views/session')}
+      ${kpi('Guest visits', A.guestSessions, 'Not signed in')}
+    </div>
+    <div class="card"><div class="eyebrow">Sessions · last 14 days</div>${A.logons? sparkline(A.days):'<p class="empty">No sessions yet.</p>'}</div>
+    <div class="row cols-2">
+      <div class="card"><div class="eyebrow">By language</div>${donut(A.langs, goldRamp)}</div>
+      <div class="card"><div class="eyebrow">By currency</div>${donut(A.currs, goldRamp)}</div>
+    </div>
+    <div class="card"><div class="eyebrow">Active hours (sessions by hour of day)</div>
+      <div class="heat" style="margin-top:8px">${A.hours.map(v=>`<div class="h" title="${v} sessions" style="background:rgba(139,92,246,${(v/peakMax*0.85+0.06).toFixed(2)})"></div>`).join('')}</div>
+      <div style="display:flex;justify-content:space-between;font-size:9.5px;color:var(--faint);margin-top:4px"><span>12am</span><span>6am</span><span>12pm</span><span>6pm</span><span>11pm</span></div>
+    </div>
+    <div class="card"><div class="eyebrow">Recent sessions</div>
+      ${recent.length? `<table><thead><tr><th>When</th><th>User</th><th>Views</th><th>Duration</th><th>Lang · Cur</th></tr></thead><tbody>
+        ${recent.map(s=>`<tr><td class="faint">${new Date(s.start||Date.now()).toLocaleString()}</td>
+          <td>${escapeHtml(s.user||'guest')}</td><td class="tnum">${s.views||0}</td>
+          <td class="tnum">${fmtDur(Math.max(0,(s.end||s.start||0)-(s.start||0)))}</td>
+          <td class="faint">${langName(s.lang)} · ${escapeHtml(s.cur||'—')}</td></tr>`).join('')}</tbody></table>`
+        : '<p class="empty">No sessions yet.</p>'}
+    </div>`;
+}
+
+function renderUsage(){
+  const A=computeAnalytics();
+  const routeViews={}; A.views.forEach(v=>{ const k=labelOf(v.path); routeViews[k]=(routeViews[k]||0)+1; });
+  const sorted=Object.entries(routeViews).sort((a,b)=>b[1]-a[1]);
+  C.innerHTML = `
+    ${pageHead('Usage reports', 'Page-by-page activity across this origin, refreshing live.')}
+    <div class="row cols-3">
+      ${kpi('Total sessions', A.logons)}
+      ${kpi('Total page views', A.views.length)}
+      ${kpi('Distinct routes', sorted.length)}
+    </div>
+    <div class="card"><div class="eyebrow">Top pages</div>
+      ${sorted.length? barRows(routeViews) : '<p class="empty">No view events yet. Use Lumera in the same browser to populate these (or click “Seed demo data”).</p>'}
+    </div>`;
+}
+
+/* ===== Content management (updates / news / offers / feedback / flags) ===== */
+// Mirrors UPDATES_SEED in Lumera.html: what members see until updates are published here.
+const UPDATES_SEED = [
+  { id:'u1', date:'May 2026', tag:'Live now', status:'published', title:'Live currency conversion + 10 currencies', body:'Switch display currency and every value recalculates at live exchange rates, with country flags.', published_at:0 },
+  { id:'u2', date:'May 2026', tag:'Live now', status:'published', title:'7 languages with auto-translation', body:'Interface and dynamic text translate across English, Arabic, Urdu, Hindi, French, Spanish and German.', published_at:0 },
+  { id:'u3', date:'Jun 2026', tag:'Live now', status:'published', title:'Retirement Centre, Global Markets globe & World Monitor', body:'A retirement projection hub, an interactive markets globe you can spin, and a world-intelligence monitor linking the most trusted live sources.', published_at:0 },
+  { id:'u4', date:'Jun 2026', tag:'Live now', status:'published', title:'Streak rewards, custom entries & Knowledge Hub', body:'Daily check-in rewards, your own budget categories and subscriptions, and a curated shelf of the best places to learn.', published_at:0 },
+  { id:'u5', date:'Next', tag:'Coming', status:'published', title:'Live market data & headlines', body:'Real-time prices and news via a market-data provider (see the integration guide).', published_at:0 },
+];
+(function migrateUpdates(){ let arr=loadJSON(UPDATES,null); if(!Array.isArray(arr)||arr.length===0){ saveJSON(UPDATES, UPDATES_SEED); } })();
+
+function renderUpdates(){
+  const list = loadJSON(UPDATES, []);
+  const groups={ draft:[], published:[], archived:[] }; list.forEach(u=>(groups[u.status]||groups.published).push(u));
+  C.innerHTML = `
+    ${pageHead('Product updates', 'Edit, publish or archive changelog entries. Published items appear on What&rsquo;s New in Lumera; publishing asks for confirmation.')}
+    ${MODE === 'server' && SERVER_EMPTY.updates ? `<div class="card" style="margin-bottom:14px;"><p class="muted" style="margin:0;font-size:13px;">Members currently see the app&rsquo;s built-in list, shown below. Your first change saves this list to the server.</p></div>` : ''}
+    <div class="card"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+      <div><div class="eyebrow">Update library</div><span class="faint" style="font-size:12px;">${groups.published.length} published · ${groups.draft.length} draft · ${groups.archived.length} archived</span></div>
+      <button class="btn gold" onclick="newUpdate()">+ New update</button></div></div>
+    <div class="card"><div class="eyebrow">Drafts (${groups.draft.length})</div>${groups.draft.map(updateRow).join('')||'<p class="empty">No drafts.</p>'}</div>
+    <div class="card"><div class="eyebrow">Published (${groups.published.length})</div>${groups.published.map(updateRow).join('')||'<p class="empty">No published updates yet.</p>'}</div>
+    ${groups.archived.length?`<div class="card"><div class="eyebrow">Archived (${groups.archived.length})</div>${groups.archived.map(updateRow).join('')}</div>`:''}`;
+}
+function updateRow(u){
+  const pill=u.status==='published'?'<span class="pill live">Published</span>':u.status==='draft'?'<span class="pill draft">Draft</span>':'<span class="pill unp">Archived</span>';
+  return `<div class="upd"><div class="ic">📝</div><div class="body">
+    <h3 class="ttl">${escapeHtml(u.title)||'<span class="faint">(untitled)</span>'}</h3>
+    <div class="meta">${pill}<span>${escapeHtml(u.date)}</span>${u.published_at?`<span class="faint">${new Date(u.published_at).toLocaleDateString()}</span>`:''}</div>
+    <p class="desc">${escapeHtml((u.body||'').slice(0,200))}${(u.body||'').length>200?'…':''}</p></div>
+    <div class="acts"><button class="btn sm" onclick="editUpdate('${u.id}')">Edit</button>
+      ${u.status!=='published'?`<button class="btn sm gold" onclick="askPublish('${u.id}')">Publish</button>`:''}
+      ${u.status==='published'?`<button class="btn sm ghost" onclick="setStatus('${u.id}','draft')">Unpublish</button>`:''}
+      <button class="btn sm danger" onclick="deleteUpdate('${u.id}')">Delete</button></div></div>`;
+}
+function newUpdate(){ const list=loadJSON(UPDATES,[]); const u={id:'u'+Math.random().toString(36).slice(2,8), date:new Date().toLocaleDateString('en-GB',{month:'short',year:'numeric'}), tag:'Coming', status:'draft', title:'', body:'', published_at:0}; list.unshift(u); saveJSON(UPDATES,list); switchTab('updates'); editUpdate(u.id); }
+function editUpdate(id){ const u=loadJSON(UPDATES,[]).find(x=>x.id===id); if(!u) return;
+  document.body.appendChild(mkModal(`<h3>${u.title?'Edit update':'New update'}</h3>
+    <p class="muted" style="font-size:13px;margin:0 0 14px;">Saves to draft. Publish from the row when ready.</p>
+    <label class="fl">Title</label><input id="md_title" value="${escapeHtml(u.title)}"/>
+    <div style="height:10px"></div><label class="fl">Date label</label><input id="md_date" value="${escapeHtml(u.date)}"/>
+    <div style="height:10px"></div><label class="fl">Tag</label><select id="md_tag">${['Live now','Coming','Shipped'].map(t=>`<option ${u.tag===t?'selected':''}>${t}</option>`).join('')}</select>
+    <div style="height:10px"></div><label class="fl">Body</label><textarea id="md_body" rows="5">${escapeHtml(u.body)}</textarea>
+    <div class="acts"><button class="btn ghost" onclick="closeModal()">Close</button><button class="btn gold" onclick="saveEdit('${u.id}')">Save</button></div>`));
+  setTimeout(()=>{ const t=document.getElementById('md_title'); if(t) t.focus(); },50); }
+function saveEdit(id){ const list=loadJSON(UPDATES,[]); const i=list.findIndex(x=>x.id===id); if(i<0) return;
+  list[i].title=document.getElementById('md_title').value.trim(); list[i].date=document.getElementById('md_date').value.trim();
+  list[i].tag=document.getElementById('md_tag').value; list[i].body=document.getElementById('md_body').value.trim();
+  saveJSON(UPDATES,list); broadcast('lumera_updates'); closeModal(); render(); }
+function askPublish(id){ const u=loadJSON(UPDATES,[]).find(x=>x.id===id); if(!u) return; if(!u.title){ alert('Add a title before publishing.'); editUpdate(id); return; }
+  document.body.appendChild(mkModal(`<h3>Publish this update?</h3>
+    <p class="muted" style="font-size:13.5px;margin:0 0 6px;">${MODE === 'server' ? 'Members see it on What&rsquo;s New the next time they open Lumera.' : 'Offline mode: it appears in the app in this browser only.'}</p>
+    <div style="background:var(--cream);border:1px solid var(--line);border-radius:10px;padding:12px;margin:14px 0;">
+      <div style="font-weight:600">${escapeHtml(u.title)}</div><div class="faint" style="font-size:11px;margin-top:3px">${escapeHtml(u.date)} · ${escapeHtml(u.tag)}</div></div>
+    <div class="acts"><button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn gold" onclick="doPublish('${u.id}')">Confirm &amp; publish</button></div>`)); }
+function doPublish(id){ setStatus(id,'published',Date.now()); closeModal(); }
+function setStatus(id,status,ts){ const list=loadJSON(UPDATES,[]); const i=list.findIndex(x=>x.id===id); if(i<0) return; list[i].status=status; if(status==='published') list[i].published_at=ts||Date.now(); saveJSON(UPDATES,list); broadcast('lumera_updates'); render(); }
+function deleteUpdate(id){ if(!confirm('Permanently delete this update?')) return; saveJSON(UPDATES, loadJSON(UPDATES,[]).filter(x=>x.id!==id)); broadcast('lumera_updates'); render(); }
+
+function renderNews(){ const list=loadJSON(NEWS,[]);
+  C.innerHTML=`${pageHead('News feed','Headlines that appear in Lumera under /news. Custom rows surface above the seeded feed.')}
+    <div class="card"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+      <div class="eyebrow">Custom headlines (${list.length})</div><button class="btn gold" onclick="newNews()">+ Add headline</button></div></div>
+    <div class="card">${list.length===0?'<p class="empty">No custom headlines yet — Lumera uses the seeded feed.</p>':list.map((n,i)=>`
+      <div class="upd"><div class="ic">📰</div><div class="body"><h3 class="ttl">${escapeHtml(n.title)}</h3>
+        <div class="meta"><span class="pill gold">${escapeHtml(n.cat||'Markets')}</span><span>${escapeHtml(n.source||'Lumera')}</span><span class="faint">${escapeHtml(n.date||'')}</span></div>
+        <p class="desc">${escapeHtml(n.body||n.summary||'')}</p></div>
+      <div class="acts"><button class="btn sm" onclick="editNews(${i})">Edit</button><button class="btn sm danger" onclick="delNews(${i})">Delete</button></div></div>`).join('')}</div>`; }
+function newNews(){ const list=loadJSON(NEWS,[]); list.unshift({title:'',body:'',cat:'Markets',source:'Lumera',date:new Date().toLocaleDateString('en-GB',{month:'short',year:'numeric'}),url:''}); saveJSON(NEWS,list); switchTab('news'); editNews(0); }
+function editNews(i){ const list=loadJSON(NEWS,[]); const n=list[i]; if(!n) return;
+  document.body.appendChild(mkModal(`<h3>Edit news headline</h3>
+    <label class="fl">Title</label><input id="n_title" value="${escapeHtml(n.title)}"/><div style="height:8px"></div>
+    <label class="fl">Category</label><select id="n_cat">${['Markets','Economy','Rates','Saving'].map(c=>`<option ${n.cat===c?'selected':''}>${c}</option>`).join('')}</select><div style="height:8px"></div>
+    <label class="fl">Source</label><input id="n_source" value="${escapeHtml(n.source||'')}"/><div style="height:8px"></div>
+    <label class="fl">Date label</label><input id="n_date" value="${escapeHtml(n.date||'')}"/><div style="height:8px"></div>
+    <label class="fl">URL</label><input id="n_url" value="${escapeHtml(n.url||'')}"/><div style="height:8px"></div>
+    <label class="fl">Body</label><textarea id="n_body" rows="4">${escapeHtml(n.body||n.summary||'')}</textarea>
+    <div class="acts"><button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn gold" onclick="saveNews(${i})">Save</button></div>`)); }
+function saveNews(i){ const list=loadJSON(NEWS,[]); const n=list[i]; if(!n) return;
+  n.title=document.getElementById('n_title').value.trim(); n.cat=document.getElementById('n_cat').value; n.source=document.getElementById('n_source').value.trim();
+  n.date=document.getElementById('n_date').value.trim(); n.url=document.getElementById('n_url').value.trim(); n.body=document.getElementById('n_body').value.trim();
+  saveJSON(NEWS,list); broadcast('lumera_news'); closeModal(); render(); }
+function delNews(i){ if(!confirm('Delete this headline?')) return; const list=loadJSON(NEWS,[]); list.splice(i,1); saveJSON(NEWS,list); broadcast('lumera_news'); render(); }
+
+function renderOffers(){ const list=loadJSON(OFFERS,[]);
+  C.innerHTML=`${pageHead('Discounts & offers','Curated offers shown on Lumera /discounts.')}
+    <div class="card">${list.length===0?'<p class="empty">No custom offers — Lumera is using the seeded list.</p>':list.map((o,i)=>`
+      <div class="upd"><div class="ic">🎁</div><div class="body"><h3 class="ttl">${escapeHtml(o.title||'(untitled)')}</h3>
+        <div class="meta"><span class="pill gold">${escapeHtml(o.category||'—')}</span><span>${escapeHtml(o.provider||'')}</span><span class="faint">${escapeHtml(o.country||'')} · expires ${escapeHtml(o.expires||'')}</span></div>
+        <p class="desc">${escapeHtml(o.desc||'')}</p></div><div class="acts"><button class="btn sm danger" onclick="delOffer(${i})">Delete</button></div></div>`).join('')}</div>
+    <div class="card"><div class="eyebrow">Add offers via console</div><p class="muted" style="font-size:13px;">In the Lumera console: <code>localStorage.setItem('lumera_offers', JSON.stringify([...]))</code> then reload /discounts.</p></div>`; }
+function delOffer(i){ if(!confirm('Delete this offer?')) return; const list=loadJSON(OFFERS,[]); list.splice(i,1); saveJSON(OFFERS,list); broadcast('lumera_offers'); render(); }
+
+function renderFeedback(){ const list=loadJSON(FEEDBACK,[]);
+  C.innerHTML=`${pageHead('User feedback','Feedback submitted in-app surfaces here in real time.')}
+    <div class="card">${list.length===0?'<p class="empty">No feedback yet. Wire an in-app feedback button to push to <code>localStorage[\'lumera_feedback\']</code>.</p>':list.slice().reverse().map(f=>`
+      <div class="upd"><div class="ic">💬</div><div class="body"><h3 class="ttl">${escapeHtml(f.subject||'Feedback')}</h3>
+        <div class="meta"><span>${escapeHtml(f.email||'anonymous')}</span><span class="faint">${new Date(f.at||Date.now()).toLocaleString()}</span></div>
+        <p class="desc">${escapeHtml(f.body||'')}</p></div></div>`).join('')}</div>`; }
+
+// Must mirror FEATURES in Lumera.html (same keys, same storage key 'lumera_flags').
+const APP_FEATURES=[
+  ['community','Community','Member feed, connections and shared opportunities'],
+  ['careerLab','CV & LinkedIn Lab','CV templates, best practices and free courses'],
+  ['sideIncome','Side Income','Placeholder page, awaiting a live source. Safe to switch off.'],
+  ['testCentre','Test Centre','Score tracking, admissions percentiles, SAT calculator and test tips'],
+  ['opportunities','Opportunities','Internships, competitions, programmes and scholarships'],
+  ['salary','Salary Check','Benchmark pay by role and level'],
+  ['universities','Universities','Ranked university shortlist and comparison'],
+  ['subjects','Subject Selection','Recommended subjects per career path'],
+  ['prep','Career Prep Hub','Skill roadmaps for interviews'],
+  ['wordOfDay','Word of the Day','Daily vocabulary with spaced repetition'],
+  ['worldMonitor','World Monitor','Interactive global risk map'],
+  ['globe','Global Markets','Spinnable globe of exchanges'],
+];
+// Each feature has three states so you can preview before launching:
+//   off   - hidden from everyone
+//   beta  - visible only in beta preview (adds ?beta=1 to the app URL)
+//   live  - visible to everyone
+function featureState(flags,k){ const v=flags[k]; if(v==='beta') return 'beta'; if(v===false||v==='off') return 'off'; return 'live'; }
+function renderFeatures(){ const flags=loadJSON(FEATURES,{});
+  const st=(k)=>featureState(flags,k);
+  const live=APP_FEATURES.filter(f=>st(f[0])==='live').length;
+  const beta=APP_FEATURES.filter(f=>st(f[0])==='beta').length;
+  const off=APP_FEATURES.filter(f=>st(f[0])==='off').length;
+  const chip=(k,val,label,colour)=>`<button onclick="setFlagState('${k}','${val}')"
+    style="border:1px solid ${st(k)===val?colour:'var(--line)'};background:${st(k)===val?colour:'transparent'};
+    color:${st(k)===val?'#fff':'var(--muted)'};border-radius:99px;padding:5px 12px;font-size:11.5px;font-weight:600;cursor:pointer;">${label}</button>`;
+  C.innerHTML=`${pageHead('Feature flags','Stage a rollout without shipping code. Off hides a feature entirely, Beta shows it only in beta preview, Live releases it to everyone.')}
+    <div class="row cols-4" style="margin-bottom:14px;">
+      <div class="card kpi"><div class="v" style="color:var(--saged)">${live}</div><div class="l">Live</div></div>
+      <div class="card kpi"><div class="v" style="color:var(--clayd)">${beta}</div><div class="l">In beta</div></div>
+      <div class="card kpi"><div class="v" style="color:var(--faint)">${off}</div><div class="l">Off</div></div>
+      <div class="card kpi"><div class="v">${APP_FEATURES.length}</div><div class="l">Total features</div></div>
+    </div>
+    <div class="card" style="margin-bottom:14px;">
+      <div class="eyebrow">Beta preview</div>
+      <p class="page-desc" style="margin-bottom:10px;">Open the app with beta preview to see everything marked Beta before it goes live. The link works on this origin.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <a class="btn gold" href="app.html?beta=1" target="_blank" rel="noopener">Open beta preview &rarr;</a>
+        <a class="btn ghost" href="app.html" target="_blank" rel="noopener">Open live site &rarr;</a>
+        <button class="btn ghost" onclick="allBetaLive()">Promote all beta to live</button>
+      </div>
+    </div>
+    <div class="card">${APP_FEATURES.map(([k,label,desc])=>`
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid var(--line);flex-wrap:wrap;">
+        <span style="flex:1;min-width:200px;"><span style="font-size:14px;font-weight:600;">${label}</span>
+          <span class="faint" style="display:block;font-size:12px;">${desc}</span></span>
+        <span style="display:flex;gap:6px;">${chip(k,'off','Off','#6E6F88')}${chip(k,'beta','Beta','#D97706')}${chip(k,'live','Live','#16A34A')}</span>
+      </div>`).join('')}</div>`; }
+function setFlagState(k,val){ const flags=loadJSON(FEATURES,{}); flags[k]=(val==='live')?true:(val==='off')?false:'beta';
+  saveJSON(FEATURES,flags); broadcast(FEATURES); render(); }
+function allBetaLive(){ const flags=loadJSON(FEATURES,{});
+  Object.keys(flags).forEach(k=>{ if(flags[k]==='beta') flags[k]=true; });
+  saveJSON(FEATURES,flags); broadcast(FEATURES); render(); }
+function toggleFlag(k,v){ setFlagState(k, v?'live':'off'); }
+
+
+/* ============================================================
+   SECTIONS & LAYOUT
+   Owns the shape of the app's navigation: the order of sections and of
+   the pages inside them, whether a section is shown at all, and whether
+   a whole world (Leaf, Atlas, Shield, Forge) is switched on.
+   Mirrors NAV and SUBS in Lumera.html; written to 'lumera_layout'.
+   ============================================================ */
+const LAYOUT='lumera_layout';
+const WORLDS=[
+  ['leaf','Leaf','Learn & grow','#22C55E','Lessons, quizzes, challenges and the knowledge hub'],
+  ['atlas','Atlas','Markets & investing','#3B82F6','Investing, markets, exchanges, the globe and news'],
+  ['shield','Shield','Protect & plan','#64748B','Credit, debt, insurance and retirement'],
+  ['forge','Forge','Career & income','#C0873A','Careers, firms, universities, tests, prep and salary'],
+];
+// Must mirror NAV in Lumera.html (same section names, same routes).
+const APP_NAV=[
+  ['Overview',[['/dashboard','Dashboard'],['/twin','Financial Twin'],['/simulator','Wealth Simulator']]],
+  ['Money',[['/budget','Budget'],['/goals','Goals'],['/emergency','Emergency Fund'],['/subscriptions','Subscriptions'],['/debt','Debt'],['/networth','Net Worth'],['/retirement','Retirement']]],
+  ['Optimise',[['/insurance','Insurance'],['/credit','Credit']]],
+  ['Markets',[['/invest','Investing'],['/market','Markets'],['/globe','Global Markets'],['/world','World Monitor'],['/news','News']]],
+  ['Grow',[['/learn','Learn'],['/resources','Knowledge Hub'],['/badges','Badges'],['/updates','Updates'],['/pricing','Pricing'],['/privacy','Privacy']]],
+];
+// Which world each route belongs to, so a world toggle can grey out its pages.
+const ROUTE_WORLD={};
+[['leaf',['/learn','/quiz','/challenges','/resources']],
+ ['atlas',['/invest','/market','/exchanges','/globe','/world','/news']],
+ ['shield',['/credit','/debt','/insurance','/retirement']],
+ ['forge',['/careers','/firms','/universities','/tests','/subjects','/finance-vs-econ','/prep','/career-lab','/opportunities','/sideincome','/salary']]
+].forEach(([k,rs])=>rs.forEach(r=>{ ROUTE_WORLD[r]=k; }));
+
+const NAV_LABEL={}; APP_NAV.forEach(([,items])=>items.forEach(([to,label])=>{ NAV_LABEL[to]=label; }));
+
+// Every page that lives inside a world, so any of them can be moved into the
+// main Lumera menu. Must mirror SUBS in Lumera.html.
+const WORLD_PAGES=[
+  ['/learn','Learn','leaf'],['/quiz','Money Quiz','leaf'],['/challenges','Challenges','leaf'],['/resources','Knowledge Hub','leaf'],
+  ['/invest','Investing','atlas'],['/market','Markets','atlas'],['/exchanges','How Markets Work','atlas'],['/globe','Global Markets','atlas'],['/world','World Monitor','atlas'],['/news','News','atlas'],
+  ['/credit','Credit','shield'],['/debt','Debt','shield'],['/insurance','Insurance','shield'],['/retirement','Retirement','shield'],
+  ['/careers','Finance Careers','forge'],['/firms','Top Finance Firms','forge'],['/universities','Universities','forge'],['/tests','Test Centre','forge'],
+  ['/subjects','Subject Selection','forge'],['/finance-vs-econ','Finance vs Economics','forge'],['/prep','Career Prep Hub','forge'],
+  ['/career-lab','CV & LinkedIn Lab','forge'],['/opportunities','Opportunities','forge'],['/sideincome','Side Income','forge'],['/salary','Salary Check','forge'],
+];
+function setMoved(route,on){ const L=getLayout(); const m=new Set(L.moved||[]); if(on) m.add(route); else m.delete(route); L.moved=[...m]; putLayout(L); }
+function defaultLayout(){
+  return { worlds:WORLDS.reduce((o,w)=>{ o[w[0]]=true; return o; },{}),
+           sections:APP_NAV.map(([name,items])=>({ name, on:true, items:items.map(i=>i[0]) })), moved:[] };
+}
+
+/* Saved layout merged over the defaults, so a page added in code still appears. */
+function getLayout(){
+  const def=defaultLayout(); const saved=loadJSON(LAYOUT,null);
+  if(!saved || typeof saved!=='object') return def;
+  const worlds={}; WORLDS.forEach(w=>{ worlds[w[0]] = (saved.worlds && w[0] in saved.worlds) ? !!saved.worlds[w[0]] : true; });
+  const known={}; def.sections.forEach(sec=>{ known[sec.name]=sec; });
+  const seenSec={}, seenItem={}; const sections=[];
+  (Array.isArray(saved.sections)?saved.sections:[]).forEach(sec=>{
+    if(!sec || !known[sec.name] || seenSec[sec.name]) return;
+    seenSec[sec.name]=1;
+    const valid=known[sec.name].items;
+    const items=(Array.isArray(sec.items)?sec.items:[]).filter(r=> valid.includes(r) && !seenItem[r] && (seenItem[r]=1));
+    sections.push({ name:sec.name, on:sec.on!==false, items });
+  });
+  def.sections.forEach(sec=>{
+    const existing=sections.find(x=>x.name===sec.name);
+    const missing=sec.items.filter(r=>!seenItem[r]);
+    if(existing) existing.items=existing.items.concat(missing);
+    else if(!seenSec[sec.name]) sections.push({ name:sec.name, on:true, items:missing.length?missing:sec.items.slice() });
+    missing.forEach(r=>{ seenItem[r]=1; });
+  });
+  const moved=(Array.isArray(saved.moved)?saved.moved:[]).filter(r=>WORLD_PAGES.some(p=>p[0]===r));
+  return { worlds, sections, moved };
+}
+
+function putLayout(l){ saveJSON(LAYOUT,l); broadcast(LAYOUT); render(); }
+
+function renderSections(){
+  const L=getLayout();
+  const worldsOff=WORLDS.filter(w=>!L.worlds[w[0]]).length;
+  const secsOff=L.sections.filter(s=>!s.on).length;
+  const pages=L.sections.reduce((n,s)=>n+s.items.length,0);
+
+  const worldCard=([k,name,tag,colour,desc])=>{
+    const on=L.worlds[k]!==false;
+    return `<div style="display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid var(--line);flex-wrap:wrap;">
+      <span style="width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-weight:700;
+        background:${colour}22;color:${colour};">${name[0]}</span>
+      <span style="flex:1;min-width:200px;">
+        <span style="font-size:14px;font-weight:600;">${escapeHtml(name)}</span>
+        <span class="faint" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-left:8px;">${escapeHtml(tag)}</span>
+        <span class="faint" style="display:block;font-size:12px;">${escapeHtml(desc)}</span></span>
+      <span style="display:flex;gap:6px;">
+        <button onclick="setWorld('${k}',false)" style="border:1px solid ${!on?'#6E6F88':'var(--line)'};background:${!on?'#6E6F88':'transparent'};color:${!on?'#fff':'var(--muted)'};border-radius:99px;padding:5px 12px;font-size:11.5px;font-weight:600;cursor:pointer;">Off</button>
+        <button onclick="setWorld('${k}',true)" style="border:1px solid ${on?'#16A34A':'var(--line)'};background:${on?'#16A34A':'transparent'};color:${on?'#fff':'var(--muted)'};border-radius:99px;padding:5px 12px;font-size:11.5px;font-weight:600;cursor:pointer;">On</button>
+      </span></div>`;
+  };
+
+  const sectionCard=(sec,si)=>{
+    const rows=sec.items.map((to,ii)=>{
+      const w=ROUTE_WORLD[to];
+      const dimmed = w && L.worlds[w]===false;
+      return `<div style="display:flex;align-items:center;gap:8px;padding:7px 4px;border-bottom:1px solid var(--line);opacity:${dimmed?.45:1};">
+        <span style="flex:1;min-width:0;font-size:13px;">${escapeHtml(NAV_LABEL[to]||to)}
+          <span class="faint" style="font-size:11px;margin-left:6px;">${escapeHtml(to)}</span>
+          ${dimmed?`<span class="faint" style="font-size:11px;margin-left:6px;">${escapeHtml(w)} is off</span>`:''}</span>
+        <button class="btn ghost" style="padding:2px 8px;" onclick="moveItem(${si},${ii},-1)" ${ii===0?'disabled':''}>&uarr;</button>
+        <button class="btn ghost" style="padding:2px 8px;" onclick="moveItem(${si},${ii},1)" ${ii===sec.items.length-1?'disabled':''}>&darr;</button>
+      </div>`;
+    }).join('') || '<p class="empty">No pages in this section.</p>';
+
+    return `<div class="card" style="margin-bottom:12px;opacity:${sec.on?1:.6};">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
+        <span style="flex:1;min-width:160px;font-size:15px;font-weight:700;">${escapeHtml(sec.name)}
+          <span class="faint" style="font-weight:400;font-size:12px;margin-left:8px;">${sec.items.length} page${sec.items.length===1?'':'s'}</span></span>
+        <button class="btn ghost" style="padding:3px 10px;" onclick="moveSection(${si},-1)" ${si===0?'disabled':''}>&uarr; Up</button>
+        <button class="btn ghost" style="padding:3px 10px;" onclick="moveSection(${si},1)" ${si===L.sections.length-1?'disabled':''}>&darr; Down</button>
+        <button class="btn ${sec.on?'ghost':'gold'}" style="padding:3px 10px;" onclick="toggleSection(${si})">${sec.on?'Hide section':'Show section'}</button>
+      </div>
+      ${rows}</div>`;
+  };
+
+  C.innerHTML=`${pageHead('Sections & layout', MODE==='server'
+    ? 'Rearrange the navigation and switch whole worlds off. Saved to the server; members get the new layout the next time they open Lumera.'
+    : 'Rearrange the navigation and switch whole worlds off. Offline mode: changes apply to the app in this browser only.')}
+    <div class="row cols-4" style="margin-bottom:14px;">
+      <div class="card kpi"><div class="v">${L.sections.length - secsOff}</div><div class="l">Sections shown</div></div>
+      <div class="card kpi"><div class="v" style="color:var(--faint)">${secsOff}</div><div class="l">Sections hidden</div></div>
+      <div class="card kpi"><div class="v" style="color:var(--saged)">${WORLDS.length - worldsOff}</div><div class="l">Worlds on</div></div>
+      <div class="card kpi"><div class="v">${pages}</div><div class="l">Pages arranged</div></div>
+    </div>
+
+    <div class="card" style="margin-bottom:14px;">
+      <div class="eyebrow">Worlds</div>
+      <p class="page-desc" style="margin-bottom:6px;">Switching a world off removes it from the family grid, the sidebar and the landing page, and closes its pages by URL as well.</p>
+      ${WORLDS.map(worldCard).join('')}
+    </div>
+
+    <div class="card" style="margin-bottom:14px;">
+      <div class="eyebrow">Move world pages into Lumera</div>
+      <p class="page-desc" style="margin-bottom:8px;">A moved page appears in the main Lumera menu, opens in the Lumera look, and leaves its world's menu. It stays reachable even if its world is switched off.</p>
+      ${WORLDS.map(([wk,wname,,colour])=>`<div style="margin-top:12px;"><div style="font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${colour};margin-bottom:6px;">${escapeHtml(wname)}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">${WORLD_PAGES.filter(p=>p[2]===wk).map(([r,label])=>{ const on=(L.moved||[]).includes(r);
+          return `<button class="btn sm ${on?'gold':'ghost'}" onclick="setMoved('${r}',${!on})" aria-pressed="${on}">${on?'✓ In Lumera':'Move to Lumera'} · ${escapeHtml(label)}</button>`; }).join('')}</div></div>`).join('')}
+    </div>
+
+    <div class="card" style="margin-bottom:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      <span style="flex:1;min-width:200px;font-size:13px;" class="faint">Move sections and pages with the arrows. The app reads this order live.</span>
+      <a class="btn ghost" href="app.html" target="_blank" rel="noopener">Open the app &rarr;</a>
+      <button class="btn ghost" onclick="resetLayout()">Reset to default order</button>
+    </div>
+
+    ${L.sections.map(sectionCard).join('')}`;
+}
+
+function setWorld(k,on){ const L=getLayout(); L.worlds[k]=!!on; putLayout(L); }
+function toggleSection(si){ const L=getLayout(); if(!L.sections[si]) return; L.sections[si].on=!L.sections[si].on; putLayout(L); }
+function moveSection(si,dir){ const L=getLayout(); const j=si+dir;
+  if(j<0 || j>=L.sections.length) return;
+  const [row]=L.sections.splice(si,1); L.sections.splice(j,0,row); putLayout(L); }
+function moveItem(si,ii,dir){ const L=getLayout(); const sec=L.sections[si]; if(!sec) return;
+  const j=ii+dir; if(j<0 || j>=sec.items.length) return;
+  const [row]=sec.items.splice(ii,1); sec.items.splice(j,0,row); putLayout(L); }
+function resetLayout(){ if(!confirm('Reset every section, page order and world switch to the default?')) return;
+  putLayout(defaultLayout()); }
+
+function renderTrends(){ const news=loadJSON(NEWS,[]),updates=loadJSON(UPDATES,[]);
+  const text=[...news.map(n=>n.title+' '+(n.body||n.summary||'')),...updates.map(u=>u.title+' '+u.body)].join(' ').toLowerCase();
+  const stop=new Set('a an the and or but for of to in on at by with from as is are was were be been being have has had do does did will would can could should may might must this that these those it its we our you your i my they their lumera live new now'.split(' '));
+  const words=(text.match(/[a-z]{4,}/g)||[]).filter(w=>!stop.has(w)); const freq={}; words.forEach(w=>freq[w]=(freq[w]||0)+1);
+  const top=Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,25);
+  C.innerHTML=`${pageHead('Trend monitor','Top concepts emerging across published content, news and updates.')}
+    <div class="card"><div class="eyebrow">Term frequency</div>${top.length===0?'<p class="empty">Not enough content to compute trends yet.</p>':top.map(([w,n])=>{const pct=Math.round(n/top[0][1]*100);return `<div class="bar"><div class="lab">${w}</div><div class="track"><div class="fill" style="width:${pct}%"></div></div><div class="val tnum">${n}</div></div>`;}).join('')}</div>`; }
+
+function renderMarket(){
+  C.innerHTML=`${pageHead('Market tracker','Quick-links into the live external dashboards Lumera surfaces.')}
+    <div class="row cols-2">${[['Reuters Markets','https://www.reuters.com/markets/'],['Bloomberg Markets','https://www.bloomberg.com/markets'],['FRED','https://fred.stlouisfed.org/'],['Trading Economics','https://tradingeconomics.com/'],['CFR Conflict Tracker','https://www.cfr.org/global-conflict-tracker'],['Freightos FBX','https://fbx.freightos.com/'],['MarineTraffic','https://www.marinetraffic.com/'],['Zoom Earth','https://zoom.earth/']].map(([n,u])=>`<div class="card"><div class="eyebrow">${escapeHtml(n)}</div><a class="btn" href="${u}" target="_blank" rel="noopener noreferrer">Open ↗</a></div>`).join('')}</div>`; }
+
+function renderPermissions(){ const tabs=['dashboard','insights','usage','updates','news','offers','about','brand','feedback','features','trends','market','permissions'];
+  C.innerHTML=`${pageHead('Permissions','Matrix of which role can access which section. Founder-only edits.')}
+    <div class="card" style="overflow-x:auto;"><table><thead><tr><th>Section</th>${Object.values(ROLES).map(r=>`<th style="text-align:center;">${r.label}</th>`).join('')}</tr></thead>
+      <tbody>${tabs.map(tab=>`<tr><td style="font-weight:500;">${tab}</td>${Object.values(ROLES).map(r=>{const has=r.scope.includes('*')||r.scope.includes(tab);return `<td style="text-align:center;">${has?'<span style="color:var(--saged);font-size:18px;">✓</span>':'<span style="color:var(--faint);">·</span>'}</td>`;}).join('')}</tr>`).join('')}</tbody></table></div>
+    <div class="card"><div class="eyebrow">Role keys</div><p class="muted" style="font-size:13px;margin:0;">Each role unlocks with a distinct key (verified by SHA-256 hash). Replace a hash in <code>ROLE_KEY_HASHES</code> to change a key. <strong>Beta Testers</strong> have no access; that role exists for scope completeness only.</p></div>`; }
+
+/* ============================================================
+   Modals + utilities
+   ============================================================ */
+function mkModal(html){ closeModal(); const wrap=document.createElement('div'); wrap.className='modal-bg'; wrap.id='modal'; wrap.onclick=e=>{ if(e.target===wrap) closeModal(); };
+  wrap.innerHTML=`<div class="modal" role="dialog" aria-modal="true">${html}</div>`;
+  MODAL_RETURN=document.activeElement;
+  setTimeout(()=>{ const f=wrap.querySelector('input:not([readonly]),textarea,select,button.gold,button.danger'); if(f) f.focus(); },40);
+  return wrap; }
+let MODAL_RETURN=null;
+document.addEventListener('keydown', e=>{ if(e.key==='Escape' && document.getElementById('modal')) closeModal(); });
+
+/* ============================================================
+   About & team editor — writes localStorage['lumera_about'],
+   which the Lumera app reads for /team and /about.
+   ============================================================ */
+const ABOUT='lumera_about';
+// Mirrors TEAM_DEFAULT in Lumera.html (team.json).
+const TEAM_SEED=[
+ {
+  "name": "Avyan Arya",
+  "role": "Founder & CEO",
+  "focus": "“In the future, I want to build a legacy that outlives me.”",
+  "photo": "assets/team/avyan-arya.webp",
+  "bio": "Helping my mum with finances and my sister with her future career made me think: why not make this guidance accessible to everyone? Someone had to do it.",
+  "words": [
+   "Ambitious",
+   "Curious",
+   "Collaborative"
+  ],
+  "interests": [
+   "MUN",
+   "Boxing",
+   "Cars",
+   "Perfumes",
+   "Watches",
+   "Aspiring private banker"
+  ],
+  "li": ""
+ },
+ {
+  "name": "Ernie Engmann",
+  "role": "Operations & Executive Associate",
+  "focus": "“In the future, I want to live in a small boat by the beach.”",
+  "photo": "assets/team/ernie-engmann.webp",
+  "bio": "I like Lumera because it helps target a very large real-life problem within young people.",
+  "words": [
+   "Helpful",
+   "Driven",
+   "Reliable"
+  ],
+  "interests": [
+   "Music",
+   "Football",
+   "Cooking",
+   "Hanging out with friends",
+   "Future doctor"
+  ],
+  "li": ""
+ },
+ {
+  "name": "Alaya Ahmad",
+  "role": "Outreach & Marketing Associate",
+  "focus": "“In the future, I want to work in motorsport.”",
+  "photo": "assets/team/alaya-ahmad.webp",
+  "bio": "",
+  "words": [
+   "Creative",
+   "Passionate",
+   "Dedicated"
+  ],
+  "interests": [
+   "Formula 1",
+   "Music",
+   "Watching movies",
+   "Reading",
+   "Future psychologist"
+  ],
+  "li": ""
+ },
+ {
+  "name": "William Iantorno",
+  "role": "Outreach & Marketing Associate",
+  "focus": "“In the future, I want to publish my own book.”",
+  "photo": "assets/team/william-iantorno.webp",
+  "bio": "",
+  "words": [
+   "Innovative",
+   "Curious",
+   "Ambitious"
+  ],
+  "interests": [
+   "Reading",
+   "Writing",
+   "History",
+   "Gaming",
+   "Lawyer",
+   "Author"
+  ],
+  "li": ""
+ },
+ {
+  "name": "Reaan Verma",
+  "role": "UI & UX Designer",
+  "focus": "",
+  "photo": null,
+  "bio": "",
+  "words": [],
+  "interests": [],
+  "li": ""
+ },
+ {
+  "name": "Jonathan Jebin Thomas",
+  "role": "UI & UX Designer",
+  "focus": "",
+  "photo": null,
+  "bio": "",
+  "words": [],
+  "interests": [],
+  "li": ""
+ },
+ {
+  "name": "Aarav Raney",
+  "role": "UI & UX Designer",
+  "focus": "",
+  "photo": null,
+  "bio": "",
+  "words": [],
+  "interests": [],
+  "li": ""
+ },
+ {
+  "name": "Rishit Dhanak",
+  "role": "Market Research Associate",
+  "focus": "“In the future, I want to be a trillionaire.”",
+  "photo": "assets/team/rishit-dhanak.webp",
+  "bio": "I like how Lumera is integrating AI to make finance more accessible and easy to understand.",
+  "words": [
+   "Motivated",
+   "Innovative",
+   "Adaptable"
+  ],
+  "interests": [
+   "Lifting",
+   "Padel",
+   "Private equity",
+   "Markets"
+  ],
+  "li": ""
+ },
+ {
+  "name": "Zafar Masud",
+  "role": "Market Research Associate",
+  "focus": "“In the future, I want to own a bookstore in central London.”",
+  "photo": "assets/team/zafar-masud.webp",
+  "bio": "I like Lumera because it’s inclusive of everyone, regardless of gender, race, or age, meaning that people aren’t shut out of financial services; we actually get a real bridge into them.",
+  "words": [
+   "Aspiring",
+   "Resourceful",
+   "Dependable"
+  ],
+  "interests": [
+   "Investment banking & strategy",
+   "Rugby",
+   "Tennis",
+   "Tracking the markets"
+  ],
+  "li": ""
+ },
+ {
+  "name": "Muhammad Suleman",
+  "role": "Growth & Strategy Associate",
+  "focus": "“In the future, I want to continue exploring new ideas and opportunities.”",
+  "photo": "assets/team/muhammad-suleman.webp",
+  "bio": "",
+  "words": [
+   "Ambitious",
+   "Curious",
+   "Strategic"
+  ],
+  "interests": [
+   "Finance",
+   "Engineering & strategy",
+   "Consulting",
+   "Business",
+   "Solving complex problems"
+  ],
+  "li": ""
+ },
+ {
+  "name": "Zaid Qadri",
+  "role": "Growth & Strategy Associate",
+  "focus": "“In the future, I want to work in finance.”",
+  "photo": "assets/team/zaid-qadri.webp",
+  "bio": "",
+  "words": [
+   "Hardworking",
+   "Compassionate",
+   "Ambitious"
+  ],
+  "interests": [
+   "Cricket",
+   "Football",
+   "Chess",
+   "Reading",
+   "Economics"
+  ],
+  "li": ""
+ },
+ {
+  "name": "Aryaman Aggarwal",
+  "role": "Outreach & Marketing Associate",
+  "focus": "",
+  "photo": "assets/team/aryaman-aggarwal.webp",
+  "bio": "",
+  "words": [],
+  "interests": [],
+  "li": ""
+ }
+];
+function getAbout(){ const a=loadJSON(ABOUT,{})||{}; if(!Array.isArray(a.team)||!a.team.length) a.team=TEAM_SEED.slice(); return a; }
+function putAbout(a){ saveJSON(ABOUT,a); broadcast(ABOUT); }
+function renderAbout(){ const a=getAbout();
+  const field=(id,label,val,ph)=>`<label class="fl">${label}</label><input id="${id}" value="${escapeHtml(val||'')}" placeholder="${escapeHtml(ph||'')}"/><div style="height:10px"></div>`;
+  C.innerHTML=`${pageHead('About &amp; team','Edit the public About and Team pages. Changes appear in the app straight away — leave a field blank to fall back to the built-in copy.')}
+    <div class="card" style="margin-bottom:14px;">
+      <div class="eyebrow">About page</div>
+      <div style="height:10px"></div>
+      ${field('ab_title','Headline',a.aboutTitle,'Built to make financial clarity accessible to everyone.')}
+      <label class="fl">Standfirst</label><textarea id="ab_desc" rows="2" placeholder="One or two sentences under the headline.">${escapeHtml(a.aboutDesc||'')}</textarea>
+      <div style="height:10px"></div>
+      <label class="fl">Mission statement</label><textarea id="ab_mission" rows="3">${escapeHtml(a.mission||'')}</textarea>
+      <div style="height:10px"></div>
+      ${field('ab_teamEyebrow','Team page eyebrow',a.teamEyebrow,'Our team')}
+      ${field('ab_teamTitle','Team page headline',a.teamTitle,'The people building Lumera.')}
+      <label class="fl">Team page standfirst</label><textarea id="ab_teamDesc" rows="2">${escapeHtml(a.teamDesc||'')}</textarea>
+      <div style="height:10px"></div>
+      ${field('ab_joinTitle','Join-us heading',a.joinTitle,'Want to join us?')}
+      ${field('ab_joinDesc','Join-us text',a.joinDesc,'We are always happy to hear from people who care about this problem.')}
+      ${field('ab_email','Contact email',a.email,'hello@lumera.app')}
+      <div class="acts" style="margin-top:4px;"><button class="btn gold" onclick="saveAboutCopy()">Save about copy</button></div>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div><div class="eyebrow">Founding team</div>
+        <p class="page-desc" style="margin:2px 0 0;">${a.team.length} people. ${MODE === 'server' ? 'Photos are resized and saved with the page content.' : 'Photos are resized and stored in this browser.'}</p></div>
+        <button class="btn ghost" style="margin-left:auto" onclick="addMember()">+ Add person</button>
+      </div>
+      <div style="height:12px"></div>
+      <div class="row cols-3">${a.team.map((p,i)=>memberCard(p,i)).join('')}</div>
+    </div>`;
+}
+function memberCard(p,i){
+  return `<div class="card" style="padding:14px;">
+    <div style="aspect-ratio:4/3;border-radius:10px;overflow:hidden;background:var(--cream);border:1px solid var(--line);display:grid;place-items:center;margin-bottom:10px;">
+      ${p.photo?`<img src="${escapeHtml(p.photo)}" alt="" style="width:100%;height:100%;object-fit:cover;"/>`
+               :`<span class="faint" style="font-size:12px;">No photo yet</span>`}
+    </div>
+    <label class="fl">Name</label><input id="tm_name_${i}" value="${escapeHtml(p.name||'')}"/>
+    <div style="height:8px"></div><label class="fl">Title</label><input id="tm_role_${i}" value="${escapeHtml(p.role||'')}" placeholder="Add role"/>
+    <div style="height:8px"></div><label class="fl">Focus (optional)</label><input id="tm_focus_${i}" value="${escapeHtml(p.focus||'')}"/>
+    <div style="height:8px"></div><label class="fl">Short description</label><textarea id="tm_bio_${i}" rows="3" placeholder="A sentence or two.">${escapeHtml(p.bio||'')}</textarea>
+    <div style="height:8px"></div><label class="fl">LinkedIn URL</label><input id="tm_li_${i}" value="${escapeHtml(p.li||'')}" placeholder="https://linkedin.com/in/..."/>
+    <div style="height:10px"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      <input type="file" accept="image/*" id="tm_file_${i}" style="display:none" onchange="uploadPhoto(${i},this)"/>
+      <button class="btn ghost" onclick="document.getElementById('tm_file_${i}').click()">Upload photo</button>
+      ${p.photo?`<button class="btn ghost" onclick="clearPhoto(${i})">Remove photo</button>`:''}
+      <button class="btn gold" style="margin-left:auto" onclick="saveMember(${i})">Save</button>
+      <button class="btn ghost" onclick="removeMember(${i})">Delete</button>
+    </div>
+  </div>`;
+}
+function saveAboutCopy(){ const a=getAbout();
+  const g=(id)=>{ const el=document.getElementById(id); return el?el.value.trim():''; };
+  a.aboutTitle=g('ab_title'); a.aboutDesc=g('ab_desc'); a.mission=g('ab_mission');
+  a.teamEyebrow=g('ab_teamEyebrow'); a.teamTitle=g('ab_teamTitle'); a.teamDesc=g('ab_teamDesc');
+  a.joinTitle=g('ab_joinTitle'); a.joinDesc=g('ab_joinDesc'); a.email=g('ab_email');
+  putAbout(a); render(); }
+function readMember(a,i){ const g=(f)=>{ const el=document.getElementById('tm_'+f+'_'+i); return el?el.value.trim():undefined; };
+  const p=a.team[i]; ['name','role','focus','bio','li'].forEach(f=>{ const v=g(f); if(v!==undefined) p[f]=v; }); }
+function saveMember(i){ const a=getAbout(); readMember(a,i); putAbout(a); render(); }
+function addMember(){ const a=getAbout(); a.team.forEach((_,i)=>readMember(a,i));
+  a.team.push({name:'New person', role:'Add role', focus:'', photo:null, bio:'', li:''}); putAbout(a); render(); }
+function removeMember(i){ const a=getAbout(); if(!confirm(`Remove ${a.team[i].name} from the team page?`)) return;
+  a.team.splice(i,1); putAbout(a); render(); }
+function clearPhoto(i){ const a=getAbout(); readMember(a,i); a.team[i].photo=null; putAbout(a); render(); }
+function uploadPhoto(i,input){ const f=input.files&&input.files[0]; if(!f) return;
+  if(!/^image\//.test(f.type)){ toast('Choose an image file.', true); input.value=''; return; }
+  if(f.size>15e6){ toast('That image is over 15 MB. Choose a smaller one.', true); input.value=''; return; }
+  shrinkImage(f, 640).then(url=>{ const a=getAbout(); readMember(a,i); a.team[i].photo=url; putAbout(a); render(); })
+    .catch(e=>toast(e.message, true)); }
+
+
+/* ============================================================
+   Brand & characters — uploads the logo and the five character
+   illustrations into localStorage['lumera_assets'] as data URLs.
+   ============================================================ */
+const ASSETS='lumera_assets';
+const ASSET_SLOTS=[
+  ['logo','Lumera logo','The wave-and-star mark on its own. Square, transparent PNG or SVG. Used in the sidebar, header and sign-in.'],
+  ['logoWordmark','Full lockup','Mark + LUMERA + tagline. Used on the AI Recommendations banner.'],
+  ['mascot_lumera','Lumi · Lumera','Violet character with the halo. Transparent PNG works best.'],
+  ['mascot_leaf','Sprout · Leaf','Green seedling character.'],
+  ['mascot_atlas','Nova · Atlas','Blue starfield character with the orbital ring.'],
+  ['mascot_shield','Sentinel · Shield','Grey armoured character with the gold shield.'],
+  ['mascot_forge','Blaze · Forge','Orange flame character.'],
+];
+const ASSET_TINT={logo:'#8B5CF6',logoWordmark:'#8B5CF6',mascot_lumera:'#8B5CF6',mascot_leaf:'#22C55E',
+  mascot_atlas:'#3B82F6',mascot_shield:'#64748B',mascot_forge:'#D97706'};
+
+// The sources listed on the app's Knowledge Hub, so each can carry a real logo.
+const HUB_SOURCES=[
+  ['Bulls, Bears & Beyond','YouTube'],['The Headliner','Newsletter'],
+  ['Investopedia','Reference'],['Khan Academy, Personal Finance','Course'],
+  ['Bogleheads','Community'],['Morningstar','Research'],
+  ['Coursera, Finance','Course'],['edX, Finance','Course'],['SEC Investor.gov','Official'],
+  ['World Bank Data','Data'],['IMF Data','Data'],['OECD Data','Data'],['FRED','Data'],
+  ['Financial Times','News'],['Bloomberg','News'],['Reuters Markets','News'],
+];
+// Must match srcKey() in the app so the uploaded slot is found at render time.
+const srcKey=(name)=>String(name).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,32);
+function srcCard(a,name,tag){
+  const k='src_'+srcKey(name); const src=a[k];
+  return `<div class="card" style="padding:12px;">
+    <div style="aspect-ratio:1/1;border-radius:10px;display:grid;place-items:center;margin-bottom:8px;overflow:hidden;
+      background:var(--cream);border:${src?'1px solid var(--line)':'2px dashed var(--line)'};">
+      ${src?`<img src="${escapeHtml(src)}" alt="" style="max-width:80%;max-height:80%;object-fit:contain;"/>`
+           :`<span class="faint" style="font-size:22px;font-weight:700;">${escapeHtml(name.trim()[0])}</span>`}
+    </div>
+    <div style="font-weight:600;font-size:12.5px;line-height:1.3;">${escapeHtml(name)}</div>
+    <div class="faint" style="font-size:10.5px;margin:2px 0 8px;">${escapeHtml(tag)}</div>
+    <input type="file" accept="image/*" id="as_${k}" style="display:none" onchange="uploadAsset('${k}',this)"/>
+    <div style="display:flex;gap:6px;">
+      <button class="btn ghost" style="flex:1;font-size:11.5px;padding:6px 8px;" onclick="document.getElementById('as_${k}').click()">${src?'Replace':'Upload'}</button>
+      ${src?`<button class="btn ghost" style="font-size:11.5px;padding:6px 8px;" onclick="clearAsset('${k}')">&times;</button>`:''}
+    </div>
+  </div>`;
+}
+
+// Card products shown on the app's Credit page.
+const CARD_PRODUCTS=[
+  ['Emirates NBD Skywards Signature','Emirates NBD'],
+  ['ADCB Traveller','ADCB'],
+  ['First Abu Dhabi Bank Cashback','FAB'],
+  ['Mashreq Solitaire','Mashreq'],
+];
+function cardArtCard(a,name,bank){
+  const k='card_'+srcKey(name); const src=a[k];
+  return `<div class="card" style="padding:12px;">
+    <div style="aspect-ratio:1.586/1;border-radius:10px;display:grid;place-items:center;margin-bottom:8px;overflow:hidden;
+      background:var(--cream);border:${src?'1px solid var(--line)':'2px dashed var(--line)'};">
+      ${src?`<img src="${escapeHtml(src)}" alt="" style="width:100%;height:100%;object-fit:cover;"/>`
+           :`<span class="faint" style="font-size:11px;">Drawn face in use</span>`}
+    </div>
+    <div style="font-weight:600;font-size:12.5px;line-height:1.3;">${escapeHtml(name)}</div>
+    <div class="faint" style="font-size:10.5px;margin:2px 0 8px;">${escapeHtml(bank)}</div>
+    <input type="file" accept="image/*" id="as_${k}" style="display:none" onchange="uploadAsset('${k}',this)"/>
+    <div style="display:flex;gap:6px;">
+      <button class="btn ghost" style="flex:1;font-size:11.5px;padding:6px 8px;" onclick="document.getElementById('as_${k}').click()">${src?'Replace':'Upload'}</button>
+      ${src?`<button class="btn ghost" style="font-size:11.5px;padding:6px 8px;" onclick="clearAsset('${k}')">&times;</button>`:''}
+    </div>
+  </div>`;
+}
+function getAssets(){ return loadJSON(ASSETS,{})||{}; }
+function putAssets(a){ saveJSON(ASSETS,a); broadcast(ASSETS); }
+function renderBrand(){ const a=getAssets();
+  const filled=ASSET_SLOTS.filter(([k])=>a[k]).length;
+  C.innerHTML=`${pageHead('Brand &amp; characters','Upload the logo and the five character illustrations. They replace the built-in drawings everywhere in the app the moment you save. Transparent PNGs look best; anything not uploaded keeps its fallback drawing.')}
+    <div class="row cols-4" style="margin-bottom:14px;">
+      <div class="card kpi"><div class="v" style="color:var(--saged)">${filled}</div><div class="l">Uploaded</div></div>
+      <div class="card kpi"><div class="v" style="color:var(--faint)">${ASSET_SLOTS.length-filled}</div><div class="l">Still placeholder</div></div>
+      <div class="card kpi"><div class="v">${ASSET_SLOTS.length}</div><div class="l">Total slots</div></div>
+      <div class="card kpi"><div class="v" style="font-size:15px;line-height:1.35">${Math.round(JSON.stringify(a).length/1024)} KB</div><div class="l">Stored size</div></div>
+    </div>
+    <div class="row cols-3">${ASSET_SLOTS.map(([k,label,hint])=>assetCard(a,k,label,hint)).join('')}</div>
+    <div class="card" style="margin-top:14px;">
+      <div class="eyebrow">Knowledge hub source logos</div>
+      <p class="page-desc" style="margin:6px 0 12px;">Each source on the app's Knowledge Hub shows a coloured
+      initial until you upload its logo here. Square, transparent PNGs work best.</p>
+      <div class="row cols-4">${HUB_SOURCES.map(([name,tag])=>srcCard(a,name,tag)).join('')}</div>
+    </div>
+    <div class="card" style="margin-top:14px;">
+      <div class="eyebrow">Credit card artwork</div>
+      <p class="page-desc" style="margin:6px 0 12px;">The app draws a realistic card face by default. Upload the
+      real product shot here to replace it. Landscape, roughly 1.586:1, the standard card ratio.</p>
+      <div class="row cols-4">${CARD_PRODUCTS.map(([name,bank])=>cardArtCard(a,name,bank)).join('')}</div>
+    </div>
+    <div class="card" style="margin-top:14px;">
+      <div class="eyebrow">Notes</div>
+      <p class="page-desc" style="margin:6px 0 0;">Artwork is stored in this browser as data URLs, so keep each file under about 400&nbsp;KB.
+      Square images with transparent backgrounds sit best in the app: the coloured tiles behind each character come from the product theme,
+      so art with its own solid background will show as a block.</p>
+    </div>`;
+}
+function assetCard(a,k,label,hint){
+  const tint=ASSET_TINT[k]||'#8B5CF6'; const src=a[k];
+  return `<div class="card" style="padding:14px;">
+    <div style="aspect-ratio:1/1;border-radius:12px;display:grid;place-items:center;margin-bottom:10px;overflow:hidden;
+      background:linear-gradient(140deg,${tint}22,${tint}08);border:${src?`1px solid var(--line)`:`2px dashed ${tint}77`};">
+      ${src?`<img src="${escapeHtml(src)}" alt="" style="max-width:88%;max-height:88%;object-fit:contain;"/>`
+           :`<div style="text-align:center;padding:12px;">
+               <div style="font-size:26px;opacity:.5;">🖼️</div>
+               <div class="faint" style="font-size:11px;margin-top:6px;">Placeholder</div></div>`}
+    </div>
+    <div style="font-weight:600;font-size:14px;">${escapeHtml(label)}</div>
+    <p class="faint" style="font-size:11.5px;margin:4px 0 10px;line-height:1.5;">${escapeHtml(hint)}</p>
+    <input type="file" accept="image/*" id="as_${k}" style="display:none" onchange="uploadAsset('${k}',this)"/>
+    <div style="display:flex;gap:8px;">
+      <button class="btn gold" style="flex:1" onclick="document.getElementById('as_${k}').click()">${src?'Replace':'Upload'}</button>
+      ${src?`<button class="btn ghost" onclick="clearAsset('${k}')">Remove</button>`:''}
+    </div>
+  </div>`;
+}
+function uploadAsset(k,input){ const f=input.files&&input.files[0]; if(!f) return;
+  if(f.size>600000){ alert('That image is '+Math.round(f.size/1024)+' KB. Please use one under 600 KB — artwork is stored in this browser.'); input.value=''; return; }
+  const r=new FileReader();
+  r.onload=()=>{ const a=getAssets(); a[k]=r.result; putAssets(a); render(); };
+  r.readAsDataURL(f); }
+function clearAsset(k){ const a=getAssets(); delete a[k]; putAssets(a); render(); }
+
+function closeModal(){ const m=document.getElementById('modal'); if(m){ m.remove(); if(MODAL_RETURN && document.contains(MODAL_RETURN)) try{ MODAL_RETURN.focus(); }catch(e){} MODAL_RETURN=null; } }
+function broadcast(ch){ try{ const bc=new BroadcastChannel(ch); bc.postMessage({}); bc.close(); }catch(e){} }
+// Live sync: when Lumera writes analytics, refresh the open analytics view.
+try{ const bc=new BroadcastChannel('lumera_analytics'); bc.onmessage=()=>{ if(['dashboard','insights','usage'].includes(ACTIVE_TAB)) render(); }; }catch(e){}
+
+function exportData(){
+  const A=computeAnalytics();
+  const data={ role:CURRENT_ROLE, generated:new Date().toISOString(),
+    summary:{ distinctUsers:A.distinctUsers, totalLogons:A.logons, avgLogonsPerUser:+A.avgLogons.toFixed(2), returnRatePct:A.retentionPct, activeToday:A.activeToday, weeklyActive:A.active7, avgSessionMs:Math.round(A.avgDur), pageViews:A.views.length },
+    analytics:loadJSON(ANALYTICS,{}), accounts:Object.keys(loadJSON(ACCT,{})), updates:loadJSON(UPDATES,[]), news:loadJSON(NEWS,[]), offers:loadJSON(OFFERS,[]), feedback:loadJSON(FEEDBACK,[]), features:loadJSON(FEATURES,{}) };
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=`lumera-admin-${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(url);
+}
+function clearData(){ if(!confirm('Clear all locally-stored analytics, news, offers, updates, feedback, features? Cannot be undone.')) return;
+  [ANALYTICS,NEWS,OFFERS,FEEDBACK,FEATURES].forEach(k=>localStorage.removeItem(k)); saveJSON(UPDATES,UPDATES_SEED);
+  broadcast('lumera_updates'); broadcast('lumera_news'); broadcast('lumera_offers'); render(); }
+
+// Generate realistic demo analytics so the dashboard is populated for a walkthrough.
+function seedDemo(){
+  if(!confirm('Add ~40 demo sessions/users to local analytics so you can see the dashboard populated? (Does not affect real data shape.)')) return;
+  const an=loadJSON(ANALYTICS,{sessions:[],events:[]});
+  const langs=['en','en','en','ar','fr','es','hi'], curs=['USD','AED','GBP','EUR','INR'];
+  const routes=['/dashboard','/budget','/invest','/market','/learn','/goals','/subscriptions','/leaf','/atlas','/news','/credit','/simulator'];
+  const users=[]; for(let i=0;i<18;i++) users.push('user'+(i+1)+'@demo.app');
+  for(let s=0;s<42;s++){
+    const start=Date.now()-Math.floor(Math.random()*13)*DAY-Math.floor(Math.random()*86400000);
+    const dur=60000+Math.floor(Math.random()*900000);
+    const user=Math.random()<0.78? users[Math.floor(Math.random()*users.length)] : 'guest';
+    const lang=langs[Math.floor(Math.random()*langs.length)], cur=curs[Math.floor(Math.random()*curs.length)];
+    const id='s'+start.toString(36)+s; const nViews=2+Math.floor(Math.random()*6);
+    an.sessions.push({ id, start, end:start+dur, views:nViews, lang, cur, user });
+    for(let v=0; v<nViews; v++){ an.events.push({ ts:start+v*30000, type:'view', path:routes[Math.floor(Math.random()*routes.length)], user }); }
+  }
+  an.sessions=an.sessions.slice(-2000); an.events=an.events.slice(-4000);
+  saveJSON(ANALYTICS,an);
+  const accts=loadJSON(ACCT,{}); users.forEach(u=>{ if(!accts[u]) accts[u]={name:u.split('@')[0], onboarded:Math.random()<0.7}; }); saveJSON(ACCT,accts);
+  render();
+}
+
+/* ============================================================
+   Server mode. Served by the Lumera server, the portal signs in with a
+   member account, the server checks the admin role on every request, and
+   content changes are saved to the server so they reach every member.
+   Opened from disk or a static host there is no server, so it falls back
+   to the offline key gate and edits this browser's storage only.
+   ============================================================ */
+/* Preview mode (previews/admin.html): the real portal UI, running against
+   invented example data instead of a server. Nothing is saved anywhere. */
+const PREVIEW = /[?&]preview=1\b/.test(location.search) || (function(){ try{ return window.parent!==window && !!window.parent.__LUMERA_ADMIN_PREVIEW; }catch(e){ return false; } })();
+const DAYMS = 864e5, NOWMS = Date.now();
+const EX = {
+  user:{ id:1, email:'admin@example.com', name:'Example Admin', role:'admin', isAdmin:true },
+  users:[
+    { id:1, email:'admin@example.com', name:'Example Admin', role:'admin', status:'active', created_at:NOWMS-90*DAYMS, last_login_at:NOWMS-3600e3, onboarded:true, posts:2 },
+    { id:2, email:'maya@example.com', name:'Maya (example)', role:'user', status:'active', created_at:NOWMS-40*DAYMS, last_login_at:NOWMS-5*3600e3, onboarded:true, posts:4 },
+    { id:3, email:'theo@example.com', name:'Theo (example)', role:'user', status:'active', created_at:NOWMS-12*DAYMS, last_login_at:NOWMS-DAYMS, onboarded:true, posts:1 },
+    { id:4, email:'sam@example.com', name:'Sam (example)', role:'user', status:'disabled', created_at:NOWMS-8*DAYMS, last_login_at:NOWMS-6*DAYMS, onboarded:false, posts:0 },
+  ],
+  posts:[
+    { id:11, tag:'Milestone', body:'Hit three months of emergency savings today.', link:'', hidden:false, created_at:NOWMS-2*3600e3, email:'maya@example.com', name:'Maya (example)', reports:0, likes:24 },
+    { id:12, tag:'Question', body:'Pension top-up or clear a £900 card first?', link:'', hidden:false, created_at:NOWMS-5*3600e3, email:'theo@example.com', name:'Theo (example)', reports:1, likes:11 },
+  ],
+  reports:{ member:[{ id:21, kind:'post', target_id:12, reason:'Looks like financial advice', reporter:'maya@example.com', content:'Pension top-up or clear a £900 card first?', status:'open', created_at:NOWMS-3600e3 }],
+    error:[{ id:31, kind:'error', reason:'TypeError: cannot read properties of undefined', detail:{ path:'/budget', ua:'Example browser', stack:'at Budget (app.html:1:1)' }, reporter:null, status:'open', created_at:NOWMS-7200e3 }] },
+  companies:[
+    { key:'netflix', name:'Netflix', domain:'netflix.com', status:'found', source:'auto', locked:false, checkedAt:NOWMS-DAYMS, logoUrl:'https://www.google.com/s2/favicons?domain=netflix.com&sz=128' },
+    { key:'spotify', name:'Spotify', domain:'spotify.com', status:'found', source:'auto', locked:false, checkedAt:NOWMS-DAYMS, logoUrl:'https://www.google.com/s2/favicons?domain=spotify.com&sz=128' },
+    { key:'boutique gym app', name:'Boutique gym app', domain:null, status:'missing', source:'auto', locked:false, checkedAt:NOWMS-DAYMS, logoUrl:null },
+  ],
+  audit:[{ id:1, action:'post.hide', target:'9', at:NOWMS-86e5, actor:'admin@example.com' },{ id:2, action:'config.flags', target:'', at:NOWMS-2*86e5, actor:'admin@example.com' }],
+};
+function previewApi(method, path){
+  const u = new URL(path, 'http://x'); const p = u.pathname;
+  if(method !== 'GET'){
+    if(p === '/api/auth/login' || p === '/api/auth/logout') return { user:EX.user, ok:true };
+    if(/reset-link$/.test(p)) return { path:'/app.html#/reset?token=example-only', expiresAt:NOWMS+3600e3 };
+    toast('Preview only: example data, nothing is saved.'); return { ok:true, company:EX.companies[0] };
+  }
+  if(p === '/api/health') return { ok:true, service:'lumera', version:'preview', time:NOWMS };
+  if(p === '/api/auth/me') return { user:EX.user };
+  if(p === '/api/admin/overview') return { users:4, admins:1, disabled:1, activeThisWeek:3, onboarded:3, posts:2, hiddenPosts:0, openReports:1, openErrors:1, companies:3, companiesMissing:1, waitlist:{ Pro:12, Premium:5 } };
+  if(p === '/api/admin/users') return { users:EX.users, more:false };
+  if(p === '/api/admin/posts') return { posts:EX.posts };
+  if(p === '/api/admin/reports') return { reports: u.searchParams.get('status') === 'resolved' ? [] : EX.reports[u.searchParams.get('kind') === 'error' ? 'error' : 'member'] };
+  if(p === '/api/admin/companies') return { companies:EX.companies };
+  if(p === '/api/admin/audit') return { entries:EX.audit };
+  if(p === '/api/admin/config') return { flags:null, layout:null, updates:null, news:null, about:null };
+  if(p === '/api/admin/waitlist') return { entries:[{ plan:'Pro', name:'Maya (example)', email:'maya@example.com', created_at:NOWMS-DAYMS }] };
+  return {};
+}
+const API = {
+  async req(method, path, body){
+    if(PREVIEW) return previewApi(method, path);
+    const headers = { 'X-Lumera':'1' };
+    if(body !== undefined) headers['Content-Type'] = 'application/json';
+    let res;
+    try{ res = await fetch(path, { method, credentials:'same-origin', cache:'no-store', headers, body: body===undefined ? undefined : JSON.stringify(body) }); }
+    catch(e){ const err = new Error('Could not reach the server. Check your connection and try again.'); err.offline = true; throw err; }
+    let data = null; try{ data = await res.json(); }catch(e){}
+    if(!res.ok){
+      const err = new Error((data && data.error) || ('The server returned ' + res.status + '.'));
+      err.status = res.status; err.code = data && data.code;
+      if(res.status === 401 && MODE === 'server' && ME) sessionEnded('Your session has ended. Sign in again to continue.');
+      if(res.status === 403 && err.code !== 'csrf' && MODE === 'server' && ME) sessionEnded('This account no longer has admin access.');
+      throw err;
+    }
+    return data;
+  },
+  get(p){ return this.req('GET', p); },
+  post(p, b){ return this.req('POST', p, b || {}); },
+  put(p, b){ return this.req('PUT', p, b || {}); },
+  patch(p, b){ return this.req('PATCH', p, b || {}); },
+  del(p, b){ return this.req('DELETE', p, b); },
+};
+
+async function detectServer(){
+  if(PREVIEW) return true;
+  if(!/^https?:$/.test(location.protocol)) return false;
+  try{
+    const r = await fetch('/api/health', { credentials:'same-origin', cache:'no-store' });
+    if(!r.ok) return false;
+    const j = await r.json();
+    return !!(j && j.service === 'lumera');
+  }catch(e){ return false; }
+}
+
+// Portal storage keys that the server keeps for everyone, and their config names.
+const CONFIG_MAP = { lumera_flags:'flags', lumera_layout:'layout', lumera_updates:'updates', lumera_news:'news', lumera_about:'about' };
+const pendingCfg = {}; let cfgTimer = null, cfgChain = Promise.resolve();
+function saveJSON(k, v){
+  try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){}
+  if(MODE === 'server' && CONFIG_MAP[k]){
+    pendingCfg[CONFIG_MAP[k]] = v; SERVER_EMPTY[CONFIG_MAP[k]] = false;
+    clearTimeout(cfgTimer); cfgTimer = setTimeout(flushConfig, 250);
+    setStatus('saving');
+  }
+}
+function flushConfig(){
+  const body = Object.assign({}, pendingCfg);
+  Object.keys(pendingCfg).forEach(k=>{ delete pendingCfg[k]; });
+  if(!Object.keys(body).length) return;
+  cfgChain = cfgChain.then(()=>API.put('/api/admin/config', body))
+    .then(()=>setStatus('saved'))
+    .catch(e=>{ setStatus('error'); toast(e.status === 413 ? 'That is too large to save. Use smaller photos.' : e.message, true); });
+}
+async function loadServerConfig(){
+  const cfg = await API.get('/api/admin/config');
+  Object.entries(CONFIG_MAP).forEach(([key, name])=>{
+    const v = cfg[name];
+    SERVER_EMPTY[name] = (v == null);
+    try{
+      if(v != null) localStorage.setItem(key, JSON.stringify(v));
+      else if(name === 'updates') localStorage.setItem(key, JSON.stringify(UPDATES_SEED));  // what members see today
+      else localStorage.removeItem(key);
+    }catch(e){}
+  });
+}
+
+/* ---- status + toasts ---- */
+function setStatus(state){
+  const dot = document.getElementById('statusDot'), txt = document.getElementById('statusText');
+  if(!dot || !txt) return;
+  dot.className = 'live-dot';
+  if(MODE === 'local'){
+    const live = ['dashboard','insights','usage'].includes(ACTIVE_TAB);
+    dot.classList.add('warn'); txt.textContent = live ? 'Offline · this browser · refreshing 3s' : 'Offline · saved in this browser only';
+    return;
+  }
+  if(state === 'saving'){ dot.classList.add('warn'); txt.textContent = 'Saving…'; return; }
+  if(state === 'error'){ dot.classList.add('bad'); txt.textContent = 'Not saved'; return; }
+  txt.textContent = PREVIEW ? 'Preview · example data' : state === 'saved' ? 'Saved to the server' : 'Connected to the server';
+}
+let toastTimer = null;
+function toast(msg, bad){
+  let t = document.getElementById('toast');
+  if(!t){ t = document.createElement('div'); t.id = 'toast'; t.setAttribute('role','status'); document.body.appendChild(t); }
+  t.className = 'toast' + (bad ? ' bad' : ''); t.textContent = msg; t.hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(()=>{ t.hidden = true; }, bad ? 6000 : 2600);
+}
+
+/* ---- sign in / out ---- */
+function gateMsg(text){ document.getElementById('gateLede').textContent = text; }
+async function signIn(){
+  const email = document.getElementById('gEmail').value.trim();
+  const password = document.getElementById('gPass').value;
+  const err = document.getElementById('gErrS'), btn = document.getElementById('gBtn');
+  err.textContent = '';
+  if(!email || !password){ err.textContent = 'Enter your email and password.'; return; }
+  btn.disabled = true; btn.textContent = 'Signing in…';
+  try{
+    const r = await API.post('/api/auth/login', { email, password });
+    if(!r.user || r.user.role !== 'admin'){
+      await API.post('/api/auth/logout').catch(()=>{});
+      err.textContent = 'This account does not have admin access.';
+      return;
+    }
+    document.getElementById('gPass').value = '';
+    await enterServer(r.user);
+  }catch(e){
+    err.textContent = e.status === 401 ? 'That email and password do not match an account.' : e.message;
+  }finally{ btn.disabled = false; btn.textContent = 'Sign in'; }
+}
+async function enterServer(user){
+  ME = user; CURRENT_ROLE = 'admin';
+  try{ await loadServerConfig(); }
+  catch(e){ ME = null; CURRENT_ROLE = null; document.getElementById('gErrS').textContent = e.message; return; }
+  showApp();
+  refreshCounts();
+}
+function sessionEnded(msg){
+  ME = null; CURRENT_ROLE = null; ACTIVE_TAB = null; clearInterval(DASH_TIMER);
+  closeModal();
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('gate').style.display = 'grid';
+  gateMsg('Sign in with an admin account.');
+  document.getElementById('gErrS').textContent = msg || '';
+}
+
+/* ---- shared bits for the server views ---- */
+const fmtDate = (ms)=> ms ? new Date(ms).toLocaleDateString(undefined, { day:'numeric', month:'short', year:'numeric' }) : '—';
+const fmtWhen = (ms)=> ms ? new Date(ms).toLocaleString(undefined, { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : '—';
+const skeleton = (n)=> '<div class="card">' + Array.from({ length:n || 4 }, (_, i)=>`<div class="skel" style="width:${92 - i * 11}%"></div>`).join('') + '</div>';
+async function serverView(tab, title, desc, build){
+  C.innerHTML = pageHead(title, desc) + skeleton();
+  try{
+    const html = await build();
+    if(ACTIVE_TAB !== tab) return;
+    C.innerHTML = pageHead(title, desc) + html;
+  }catch(e){
+    if(ACTIVE_TAB !== tab || !ME) return;
+    C.innerHTML = pageHead(title, desc) + `<div class="card empty"><p style="margin:0 0 12px;">${escapeHtml(e.message)}</p>
+      <button class="btn" onclick="render()">Try again</button></div>`;
+  }
+}
+async function act(promise, okMsg){
+  try{ await promise; if(okMsg) toast(okMsg); render(); refreshCounts(); return true; }
+  catch(e){ toast(e.message, true); return false; }
+}
+async function refreshCounts(){
+  if(MODE !== 'server' || !ME) return;
+  try{
+    const o = await API.get('/api/admin/overview');
+    const n = o.openReports + o.openErrors, el = document.getElementById('repCount');
+    if(el){ el.hidden = !n; el.textContent = n; }
+  }catch(e){}
+}
+
+/* ---- overview ---- */
+function renderOverview(){
+  serverView('overview', 'Overview', PREVIEW ? 'Example figures for the preview. In the live portal these come straight from the database.' : `Signed in as ${escapeHtml(ME.email)}. These figures come straight from the database.`, async()=>{
+    const [o, health] = await Promise.all([API.get('/api/admin/overview'), API.get('/api/health').catch(()=>({}))]);
+    SYS = health || {};
+    const todo = [];
+    if(o.openReports) todo.push(`<button class="btn" onclick="R_STATE.kind='member';R_STATE.status='open';switchTab('reports')">${o.openReports} member report${o.openReports === 1 ? '' : 's'} to review</button>`);
+    if(o.openErrors) todo.push(`<button class="btn" onclick="R_STATE.kind='error';R_STATE.status='open';switchTab('reports')">${o.openErrors} app error${o.openErrors === 1 ? '' : 's'} reported</button>`);
+    if(o.companiesMissing) todo.push(`<button class="btn" onclick="switchTab('companies')">${o.companiesMissing} subscription${o.companiesMissing === 1 ? '' : 's'} without a logo</button>`);
+    return `<div class="row cols-4">
+        ${kpi('Accounts', o.users, `${o.admins} admin${o.admins === 1 ? '' : 's'}`)}
+        ${kpi('Active · 7 days', o.activeThisWeek, 'Signed in this week')}
+        ${kpi('Onboarded', o.onboarded, 'Saved their figures')}
+        ${kpi('Disabled', o.disabled, 'Cannot sign in')}
+      </div>
+      <div class="row cols-4">
+        ${kpi('Community posts', o.posts, `${o.hiddenPosts} hidden`)}
+        ${kpi('Open reports', o.openReports, 'From members')}
+        ${kpi('App errors', o.openErrors, 'Open')}
+        ${kpi('Companies', o.companies, `${o.companiesMissing} without a logo`)}
+      </div>
+      <div class="row cols-3">
+        <div class="card"><div class="eyebrow">Needs attention</div>
+          ${todo.length ? `<div class="toolbar">${todo.join('')}</div>` : '<p class="muted" style="margin:0;">Nothing waiting. Reports, app errors and missing logos show up here.</p>'}
+        </div>
+        <div class="card"><div class="eyebrow">System status</div>
+          <div class="toolbar"><span class="pill live"><span class="live-dot"></span> Server ${escapeHtml(SYS.version || 'online')}</span>
+            <span class="pill">${SYS.time ? 'Checked ' + escapeHtml(fmtWhen(SYS.time)) : ''}</span></div>
+          <p class="muted" style="margin:10px 0 0;font-size:13px;">Logo lookups, sessions and the database are served by this server. See BACKEND.md for configuration.</p>
+        </div>
+        <div class="card"><div class="eyebrow">Plan waitlist</div>
+          <p class="muted" style="margin:0 0 12px;font-size:13px;">Members who asked to be emailed when a paid plan launches.</p>
+          <div class="toolbar"><span class="pill gold">Pro · ${(o.waitlist && o.waitlist.Pro) || 0}</span><span class="pill gold">Premium · ${(o.waitlist && o.waitlist.Premium) || 0}</span>
+            <span class="grow"></span>${(o.waitlist && Object.values(o.waitlist).some(Boolean)) ? '<button class="btn sm" onclick="downloadWaitlist()">Download CSV</button>' : ''}</div>
+        </div>
+      </div>`;
+  });
+}
+// Spreadsheet-safe CSV: quoted fields, and no cell that starts like a formula.
+function csvCell(v){ let t = String(v == null ? '' : v); if(/^[=+\-@\t\r]/.test(t)) t = "'" + t; return '"' + t.replace(/"/g, '""') + '"'; }
+async function downloadWaitlist(){
+  try{
+    const r = await API.get('/api/admin/waitlist');
+    const lines = [['Plan','Name','Email','Joined'].map(csvCell).join(',')]
+      .concat(r.entries.map(e=>[e.plan, e.name, e.email, new Date(e.created_at).toISOString()].map(csvCell).join(',')));
+    const url = URL.createObjectURL(new Blob([lines.join('\r\n')], { type:'text/csv' }));
+    const a = document.createElement('a'); a.href = url; a.download = `lumera-waitlist-${new Date().toISOString().slice(0,10)}.csv`; a.click();
+    setTimeout(()=>URL.revokeObjectURL(url), 1000);
+  }catch(e){ toast(e.message, true); }
+}
+
+/* ---- accounts ---- */
+const U_STATE = { q:'', page:0 };
+let uSearchTimer = null;
+function renderUsers(){
+  serverView('users', 'Accounts', 'Everyone with a Lumera account. Change roles, disable access or issue a password reset link.', async()=>{
+    const r = await API.get(`/api/admin/users?q=${encodeURIComponent(U_STATE.q)}&page=${U_STATE.page}`);
+    const rows = r.users.map(u=>{
+      const self = u.id === ME.id;
+      return `<tr>
+        <td><div style="font-weight:600;">${escapeHtml(u.name)}${self ? ' <span class="pill gold">You</span>' : ''}</div><div class="faint" style="font-size:12px;">${escapeHtml(u.email)}</div></td>
+        <td>${u.role === 'admin' ? '<span class="pill gold">Admin</span>' : '<span class="pill">Member</span>'}</td>
+        <td>${u.status === 'disabled' ? '<span class="pill bad">Disabled</span>' : '<span class="pill live">Active</span>'}</td>
+        <td class="faint">${fmtDate(u.created_at)}</td>
+        <td class="faint">${fmtWhen(u.last_login_at)}</td>
+        <td class="tnum">${u.onboarded ? 'Yes' : '<span class="faint">No</span>'}</td>
+        <td class="tnum">${u.posts}</td>
+        <td><div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
+          ${self ? '' : (u.role === 'admin'
+            ? `<button class="btn sm ghost" onclick="setRole(${u.id},'user')">Remove admin</button>`
+            : `<button class="btn sm ghost" onclick="setRole(${u.id},'admin')">Make admin</button>`)}
+          ${self ? '' : (u.status === 'disabled'
+            ? `<button class="btn sm" onclick="setUserStatus(${u.id},'active')">Enable</button>`
+            : `<button class="btn sm ghost" onclick="setUserStatus(${u.id},'disabled')">Disable</button>`)}
+          <button class="btn sm ghost" onclick="resetLink(${u.id})">Reset link</button>
+          ${self ? '' : `<button class="btn sm danger" onclick="deleteUser(${u.id})">Delete</button>`}
+        </div></td></tr>`;
+    }).join('');
+    USERS_CACHE = {}; r.users.forEach(u=>{ USERS_CACHE[u.id] = u; });
+    return `<div class="card" style="margin-bottom:14px;"><div class="toolbar">
+        <label class="sr-only" for="uSearch">Search accounts</label>
+        <input id="uSearch" class="grow" type="search" placeholder="Search by name or email" value="${escapeHtml(U_STATE.q)}" oninput="searchUsers(this.value)" autocomplete="off"/>
+        <span class="faint" style="font-size:12px;">${r.users.length}${r.more ? '+' : ''} shown</span>
+      </div></div>
+      <div class="card tbl">${r.users.length ? `<table><thead><tr><th>Account</th><th>Role</th><th>Status</th><th>Joined</th><th>Last sign-in</th><th>Onboarded</th><th>Posts</th><th></th></tr></thead><tbody>${rows}</tbody></table>`
+        : `<p class="empty">${U_STATE.q ? 'No accounts match that search.' : 'No accounts yet.'}</p>`}
+        ${(U_STATE.page > 0 || r.more) ? `<div class="toolbar" style="justify-content:flex-end;margin-top:12px;">
+          <button class="btn sm ghost" ${U_STATE.page === 0 ? 'disabled' : ''} onclick="U_STATE.page--;render()">&larr; Newer</button>
+          <button class="btn sm ghost" ${r.more ? '' : 'disabled'} onclick="U_STATE.page++;render()">Older &rarr;</button></div>` : ''}
+      </div>`;
+  }).then(()=>{ const s = document.getElementById('uSearch'); if(s && U_STATE.q && document.activeElement !== s){ s.focus(); s.setSelectionRange(s.value.length, s.value.length); } });
+}
+let USERS_CACHE = {};
+function searchUsers(v){ clearTimeout(uSearchTimer); uSearchTimer = setTimeout(()=>{ U_STATE.q = v.trim(); U_STATE.page = 0; render(); }, 300); }
+function confirmModal(title, text, label, danger, onOk, extra){
+  document.body.appendChild(mkModal(`<h3>${title}</h3><p class="muted" style="font-size:13.5px;margin:0;line-height:1.55;">${text}</p>${extra || ''}
+    <div class="acts"><button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn ${danger ? 'danger' : 'gold'}" id="mdOk">${label}</button></div>`));
+  document.getElementById('mdOk').onclick = onOk;
+}
+function setRole(id, role){
+  const u = USERS_CACHE[id]; if(!u) return;
+  const grant = role === 'admin';
+  confirmModal(grant ? 'Make this account an admin?' : 'Remove admin access?',
+    grant ? `<strong>${escapeHtml(u.email)}</strong> will be able to manage accounts, community posts, content and settings.`
+          : `<strong>${escapeHtml(u.email)}</strong> will go back to a member account and lose access to this portal.`,
+    grant ? 'Make admin' : 'Remove admin', !grant,
+    ()=>{ closeModal(); act(API.patch('/api/admin/users/' + id, { role }), grant ? 'Admin access granted.' : 'Admin access removed.'); });
+}
+function setUserStatus(id, status){
+  const u = USERS_CACHE[id]; if(!u) return;
+  if(status === 'active'){ act(API.patch('/api/admin/users/' + id, { status }), 'Account enabled.'); return; }
+  confirmModal('Disable this account?', `<strong>${escapeHtml(u.email)}</strong> will be signed out everywhere and cannot sign in until you enable the account again. Their data is kept.`,
+    'Disable account', true, ()=>{ closeModal(); act(API.patch('/api/admin/users/' + id, { status }), 'Account disabled.'); });
+}
+async function resetLink(id){
+  const u = USERS_CACHE[id]; if(!u) return;
+  try{
+    const r = await API.post(`/api/admin/users/${id}/reset-link`);
+    const url = new URL(r.path, location.href).href;
+    document.body.appendChild(mkModal(`<h3>Password reset link</h3>
+      <p class="muted" style="font-size:13.5px;margin:0 0 12px;line-height:1.55;">Send this to <strong>${escapeHtml(u.email)}</strong> yourself. It works once and expires at ${escapeHtml(fmtWhen(r.expiresAt))}. Lumera does not email it.</p>
+      <label class="sr-only" for="rlUrl">Reset link</label>
+      <input id="rlUrl" readonly value="${escapeHtml(url)}" onclick="this.select()"/>
+      <div class="acts"><button class="btn ghost" onclick="closeModal()">Done</button><button class="btn gold" onclick="copyField('rlUrl')">Copy link</button></div>`));
+  }catch(e){ toast(e.message, true); }
+}
+function copyField(id){
+  const el = document.getElementById(id); if(!el) return;
+  el.select();
+  const done = ()=>toast('Copied.');
+  if(navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(el.value).then(done, ()=>{ document.execCommand('copy'); done(); });
+  else { try{ document.execCommand('copy'); done(); }catch(e){ toast('Select the link and copy it.', true); } }
+}
+function deleteUser(id){
+  const u = USERS_CACHE[id]; if(!u) return;
+  confirmModal('Delete this account?', `This permanently deletes <strong>${escapeHtml(u.email)}</strong>, their saved figures, community posts, replies and connections. It cannot be undone.`,
+    'Delete account', true, ()=>{
+      const v = (document.getElementById('mdConfirm') || {}).value || '';
+      if(v.trim().toLowerCase() !== u.email.toLowerCase()){ document.getElementById('mdErr').textContent = 'Type the email address exactly to confirm.'; return; }
+      closeModal(); act(API.del('/api/admin/users/' + id), 'Account deleted.');
+    },
+    `<div style="height:12px"></div><label class="fl" for="mdConfirm">Type the email address to confirm</label><input id="mdConfirm" autocomplete="off"/><p class="err" id="mdErr" style="color:var(--berry);font-size:12.5px;margin:6px 0 0;"></p>`);
+}
+
+/* ---- community moderation ---- */
+const P_STATE = { filter:'all' };
+function renderPosts(){
+  const seg = ['all','reported','hidden'].map(f=>`<button class="${P_STATE.filter === f ? 'on' : ''}" onclick="P_STATE.filter='${f}';render()">${f[0].toUpperCase() + f.slice(1)}</button>`).join('');
+  serverView('posts', 'Community', 'Posts from the member feed. Hiding a post removes it from the feed for everyone and resolves its reports; you can show it again later.', async()=>{
+    const r = await API.get('/api/admin/posts?filter=' + P_STATE.filter);
+    return `<div class="card" style="margin-bottom:14px;"><div class="toolbar"><div class="seg" role="group" aria-label="Filter posts">${seg}</div>
+        <span class="faint" style="font-size:12px;">${r.posts.length} post${r.posts.length === 1 ? '' : 's'}${r.posts.length === 100 ? ' (latest 100)' : ''}</span></div></div>
+      <div class="card">${r.posts.length ? r.posts.map(p=>`<div class="upd"><div class="ic">${escapeHtml((p.name || '?').trim()[0] || '?')}</div><div class="body">
+          <h3 class="ttl">${escapeHtml(p.name)} <span class="faint" style="font-weight:400;font-size:12px;">${escapeHtml(p.email)}</span></h3>
+          <div class="meta"><span class="pill gold">${escapeHtml(p.tag)}</span><span>${fmtWhen(p.created_at)}</span><span>${p.likes} like${p.likes === 1 ? '' : 's'}</span>
+            ${p.reports ? `<span class="pill bad">${p.reports} open report${p.reports === 1 ? '' : 's'}</span>` : ''}${p.hidden ? '<span class="pill unp">Hidden</span>' : ''}</div>
+          <p class="desc">${escapeHtml(p.body)}</p>${p.link ? `<p class="desc" style="margin-top:6px;"><a href="${escapeHtml(p.link)}" target="_blank" rel="noopener noreferrer nofollow" style="color:var(--goldd);">${escapeHtml(p.link)}</a></p>` : ''}</div>
+        <div class="acts">${p.hidden ? `<button class="btn sm" onclick="act(API.patch('/api/admin/posts/${p.id}',{hidden:false}),'Post shown again.')">Show</button>`
+                                     : `<button class="btn sm ghost" onclick="act(API.patch('/api/admin/posts/${p.id}',{hidden:true}),'Post hidden.')">Hide</button>`}
+          <button class="btn sm danger" onclick="deletePost(${p.id})">Delete</button></div></div>`).join('')
+        : `<p class="empty">${P_STATE.filter === 'reported' ? 'No posts with open reports.' : P_STATE.filter === 'hidden' ? 'No hidden posts.' : 'No community posts yet.'}</p>`}</div>`;
+  });
+}
+function deletePost(id){
+  confirmModal('Delete this post?', 'The post, its replies and likes are removed for everyone. It cannot be undone. Hide it instead if you might want it back.',
+    'Delete post', true, ()=>{ closeModal(); act(API.del('/api/admin/posts/' + id), 'Post deleted.'); });
+}
+
+/* ---- reports ---- */
+const R_STATE = { kind:'member', status:'open' };
+function renderReports(){
+  const segK = [['member','Member reports'],['error','App errors']].map(([k, l])=>`<button class="${R_STATE.kind === k ? 'on' : ''}" onclick="R_STATE.kind='${k}';render()">${l}</button>`).join('');
+  const segS = [['open','Open'],['resolved','Resolved']].map(([k, l])=>`<button class="${R_STATE.status === k ? 'on' : ''}" onclick="R_STATE.status='${k}';render()">${l}</button>`).join('');
+  serverView('reports', 'Reports', 'What members have flagged in the community, and errors the app has reported from members’ browsers.', async()=>{
+    const r = await API.get(`/api/admin/reports?kind=${R_STATE.kind}&status=${R_STATE.status}`);
+    const toggle = (x)=> x.status === 'open'
+      ? `<button class="btn sm" onclick="act(API.patch('/api/admin/reports/${x.id}',{status:'resolved'}),'Marked resolved.')">Resolve</button>`
+      : `<button class="btn sm ghost" onclick="act(API.patch('/api/admin/reports/${x.id}',{status:'open'}),'Reopened.')">Reopen</button>`;
+    const list = r.reports.map(x=> R_STATE.kind === 'error'
+      ? `<div class="upd"><div class="ic">!</div><div class="body">
+          <h3 class="ttl">${escapeHtml(x.reason)}</h3>
+          <div class="meta"><span>${fmtWhen(x.created_at)}</span>${x.detail && x.detail.path ? `<code>${escapeHtml(x.detail.path)}</code>` : ''}<span>${escapeHtml(x.reporter || 'Signed out')}</span></div>
+          ${x.detail && x.detail.ua ? `<p class="desc faint" style="font-size:12px;">${escapeHtml(x.detail.ua)}</p>` : ''}
+          ${x.detail && x.detail.stack ? `<details style="margin-top:6px;"><summary class="faint" style="cursor:pointer;font-size:12px;">Stack trace</summary><pre style="white-space:pre-wrap;font-size:11.5px;color:var(--muted);margin:8px 0 0;overflow-wrap:anywhere;">${escapeHtml(x.detail.stack)}</pre></details>` : ''}</div>
+        <div class="acts">${toggle(x)}</div></div>`
+      : `<div class="upd"><div class="ic">⚑</div><div class="body">
+          <h3 class="ttl">${escapeHtml(x.reason || 'No reason given')}</h3>
+          <div class="meta"><span class="pill">${x.kind === 'reply' ? 'Reply' : 'Post'} #${x.target_id}</span><span>${fmtWhen(x.created_at)}</span><span>Reported by ${escapeHtml(x.reporter || 'a deleted account')}</span></div>
+          <p class="desc">${x.content != null ? escapeHtml(x.content) : '<span class="faint">The reported content has been deleted.</span>'}</p></div>
+        <div class="acts">${x.status === 'open' && x.content != null ? `<button class="btn sm ghost" onclick="act(API.patch('/api/admin/reports/${x.id}',{status:'resolved',hideTarget:true}),'Hidden and resolved.')">Hide &amp; resolve</button>` : ''}${toggle(x)}</div></div>`).join('');
+    return `<div class="card" style="margin-bottom:14px;"><div class="toolbar">
+        <div class="seg" role="group" aria-label="Report type">${segK}</div><div class="seg" role="group" aria-label="Report status">${segS}</div></div></div>
+      <div class="card">${list || `<p class="empty">${R_STATE.status === 'open' ? 'Nothing open. ' : ''}${R_STATE.kind === 'error' ? 'No app errors here.' : 'No member reports here.'}</p>`}</div>`;
+  });
+}
+
+/* ---- subscription logos ---- */
+let CO_LIST = [];
+function renderCompanies(){
+  serverView('companies', 'Subscription logos', 'Members’ subscriptions show the company’s logo, looked up once on the server and cached. Set a domain to fix a wrong or missing logo; domains you set are locked and never overwritten by the automatic lookup.', async()=>{
+    const r = await API.get('/api/admin/companies');
+    CO_LIST = r.companies;
+    const pill = (c)=> c.status === 'found' ? '<span class="pill live">Logo found</span>' : c.status === 'missing' ? '<span class="pill unp">No logo</span>' : '<span class="pill">Pending</span>';
+    const letter = (c)=> escapeHtml((c.name.trim()[0] || '?').toUpperCase());
+    const tile = (c)=> c.logoUrl
+      ? `<span class="logo-tile" data-letter="${letter(c)}"><img src="${escapeHtml(c.logoUrl)}?v=${c.checkedAt || 0}" alt="" loading="lazy" onerror="logoFail(this)"/></span>`
+      : `<span class="logo-tile mono">${letter(c)}</span>`;
+    const rows = r.companies.map((c, i)=>`<tr>
+        <td><div style="display:flex;align-items:center;gap:10px;">${tile(c)}<span style="font-weight:600;">${escapeHtml(c.name)}</span></div></td>
+        <td>${c.domain ? `<code>${escapeHtml(c.domain)}</code>` : '<span class="faint">—</span>'}${c.locked ? ' <span class="pill gold" title="Set by an admin">Locked</span>' : ''}</td>
+        <td>${pill(c)}</td>
+        <td class="faint">${fmtDate(c.checkedAt)}</td>
+        <td><div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
+          <button class="btn sm" onclick="setCompanyDomain(${i})">Set domain</button>
+          <button class="btn sm ghost" onclick="refreshCompany(${i})">Look up again</button>
+          <button class="btn sm danger" onclick="deleteCompany(${i})">Remove</button></div></td></tr>`).join('');
+    return `<div class="card" style="margin-bottom:14px;"><div class="eyebrow">Add a company</div>
+        <form class="toolbar" onsubmit="event.preventDefault(); addCompany();">
+          <label class="sr-only" for="coName">Company name</label><input id="coName" class="grow" placeholder="Company name, e.g. Notion" maxlength="80" required/>
+          <label class="sr-only" for="coDomain">Domain (optional)</label><input id="coDomain" class="grow" placeholder="Domain (optional), e.g. notion.so" maxlength="120"/>
+          <button class="btn gold" type="submit" id="coBtn">Add</button></form></div>
+      <div class="card tbl">${r.companies.length ? `<table><thead><tr><th>Company</th><th>Domain</th><th>Status</th><th>Checked</th><th></th></tr></thead><tbody>${rows}</tbody></table>`
+        : '<p class="empty">No companies yet. They appear here as members add subscriptions, or add one above.</p>'}</div>`;
+  });
+}
+async function addCompany(){
+  const name = document.getElementById('coName').value.trim(), domain = document.getElementById('coDomain').value.trim();
+  if(!name){ toast('Enter a company name.', true); return; }
+  const btn = document.getElementById('coBtn'); btn.disabled = true; btn.textContent = 'Looking up…';
+  const ok = await act(API.post('/api/admin/companies', domain ? { name, domain } : { name }), 'Company saved.');
+  if(!ok){ btn.disabled = false; btn.textContent = 'Add'; }
+}
+function logoFail(img){ const t = img.parentNode; t.className = 'logo-tile mono'; t.textContent = t.getAttribute('data-letter') || '?'; }
+function setCompanyDomain(i){
+  const c = CO_LIST[i]; if(!c) return;
+  document.body.appendChild(mkModal(`<h3>Set the domain for ${escapeHtml(c.name)}</h3>
+    <p class="muted" style="font-size:13.5px;margin:0 0 12px;line-height:1.55;">The logo is fetched from this domain and the entry is locked, so automatic lookups leave it alone.</p>
+    <form onsubmit="event.preventDefault(); saveCompanyDomain(${i});">
+      <label class="fl" for="cdDomain">Domain</label><input id="cdDomain" value="${escapeHtml(c.domain || '')}" placeholder="example.com" required/>
+      <div class="acts"><button type="button" class="btn ghost" onclick="closeModal()">Cancel</button><button type="submit" class="btn gold" id="cdBtn">Save</button></div></form>`));
+  setTimeout(()=>{ const i = document.getElementById('cdDomain'); if(i) i.focus(); }, 50);
+}
+async function saveCompanyDomain(i){
+  const c = CO_LIST[i]; if(!c) return;
+  const domain = document.getElementById('cdDomain').value.trim(), btn = document.getElementById('cdBtn');
+  btn.disabled = true; btn.textContent = 'Fetching logo…';
+  try{ await API.put('/api/admin/companies/' + encodeURIComponent(c.key), { domain, name:c.name }); closeModal(); toast('Domain saved.'); render(); }
+  catch(e){ toast(e.message, true); btn.disabled = false; btn.textContent = 'Save'; }
+}
+function refreshCompany(i){ const c = CO_LIST[i]; if(!c) return; toast('Looking up…'); act(API.post('/api/admin/companies/' + encodeURIComponent(c.key) + '/refresh'), 'Lookup finished.'); }
+function deleteCompany(i){
+  const c = CO_LIST[i]; if(!c) return;
+  confirmModal('Remove this company?', `<strong>${escapeHtml(c.name)}</strong> is removed from the cache. If a member still has it as a subscription, it is looked up again the next time it is shown.`,
+    'Remove', true, ()=>{ closeModal(); act(API.del('/api/admin/companies/' + encodeURIComponent(c.key)), 'Removed.'); });
+}
+
+/* ---- audit log ---- */
+function renderAudit(){
+  serverView('audit', 'Audit log', 'Every admin action, newest first (the latest 200).', async()=>{
+    const r = await API.get('/api/admin/audit');
+    return `<div class="card tbl">${r.entries.length ? `<table><thead><tr><th>When</th><th>Admin</th><th>Action</th><th>Detail</th></tr></thead><tbody>
+      ${r.entries.map(a=>`<tr><td class="faint" style="white-space:nowrap;">${fmtWhen(a.at)}</td><td>${escapeHtml(a.actor || 'Deleted account')}</td><td><code>${escapeHtml(a.action)}</code></td><td class="muted" style="overflow-wrap:anywhere;">${escapeHtml(a.target)}</td></tr>`).join('')}
+      </tbody></table>` : '<p class="empty">No admin actions yet.</p>'}</div>`;
+  });
+}
+
+/* Team photos are resized before saving, so the About content stays small. */
+function shrinkImage(file, max){
+  return new Promise((resolve, reject)=>{
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = ()=>{
+      const s = Math.min(1, (max || 640) / Math.max(img.width, img.height));
+      const c = document.createElement('canvas'); c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      resolve(c.toDataURL('image/jpeg', 0.86));
+    };
+    img.onerror = ()=>{ URL.revokeObjectURL(url); reject(new Error('That file could not be read as an image.')); };
+    img.src = url;
+  });
+}
+
+const ICONS = {
+  grid:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+  users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  user:'<circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/>',
+  chats:'<path d="M14 9a2 2 0 0 1-2 2H6l-4 4V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2z"/><path d="M18 9h2a2 2 0 0 1 2 2v11l-4-4h-6a2 2 0 0 1-2-2v-1"/>',
+  flag:'<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/>',
+  bar:'<path d="M3 3v18h18"/><path d="M7 16v-4"/><path d="M12 16V8"/><path d="M17 16v-7"/>',
+  megaphone:'<path d="m3 11 18-5v12L3 13v-2z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>',
+  news:'<path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/>',
+  tag:'<path d="M12.6 2.6A2 2 0 0 0 11.2 2H4a2 2 0 0 0-2 2v7.2a2 2 0 0 0 .6 1.4l8.7 8.7a2.4 2.4 0 0 0 3.4 0l6.6-6.6a2.4 2.4 0 0 0 0-3.4z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
+  info:'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+  palette:'<circle cx="13.5" cy="6.5" r="1.5"/><circle cx="17.5" cy="10.5" r="1.5"/><circle cx="8.5" cy="7.5" r="1.5"/><circle cx="6.5" cy="12.5" r="1.5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.6-.7 1.6-1.7 0-.4-.2-.8-.4-1.1-.3-.3-.4-.7-.4-1.1 0-.9.8-1.7 1.7-1.7h2c3.1 0 5.6-2.5 5.6-5.6C22 6 17.5 2 12 2z"/>',
+  message:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+  toggle:'<rect x="2" y="6" width="20" height="12" rx="6"/><circle cx="16" cy="12" r="3"/>',
+  layout:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/>',
+  building:'<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01M16 6h.01M12 6h.01M12 10h.01M12 14h.01M16 10h.01M16 14h.01M8 10h.01M8 14h.01"/>',
+  trend:'<path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/>',
+  globe:'<circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
+  key:'<circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/>',
+  history:'<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
+  power:'<path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77.04"/>',
+};
+document.querySelectorAll('[data-icon]').forEach(el=>{
+  const p = ICONS[el.getAttribute('data-icon')];
+  if(p) el.insertAdjacentHTML('afterbegin', `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`);
+});
+
+(async function boot(){
+  const server = await detectServer();
+  MODE = server ? 'server' : 'local';
+  document.body.setAttribute('data-mode', MODE);
+  if(PREVIEW) document.body.insertAdjacentHTML('afterbegin', '<div role="note" style="position:sticky;top:0;z-index:200;text-align:center;padding:8px 12px;font-size:12.5px;font-weight:700;background:linear-gradient(90deg,#9D7CFF,#F08BC4);color:#fff">Admin portal preview · example data only, not connected to a server</div>');
+  document.getElementById('lockBtn').lastChild.textContent = server ? 'Sign out' : 'Lock portal';
+  if(!server){
+    gateMsg('Enter your team key.');
+    try{ const r = sessionStorage.getItem('lumera_admin_role'); if(r && ROLES[r] && r !== 'admin'){ CURRENT_ROLE = r; showApp(); return; } }catch(e){}
+    setTimeout(()=>{ const k = document.getElementById('key'); if(k) k.focus(); }, 50);
+    return;
+  }
+  gateMsg('Sign in with an admin account.');
+  try{
+    const me = await API.get('/api/auth/me');
+    if(me && me.user && me.user.role === 'admin'){ await enterServer(me.user); return; }
+    if(me && me.user) document.getElementById('gErrS').textContent = `You are signed in as ${me.user.email}, which does not have admin access. Sign in with an admin account.`;
+  }catch(e){ /* not signed in */ }
+  setTimeout(()=>{ const k = document.getElementById('gEmail'); if(k) k.focus(); }, 50);
+})();
+</script>
+</body>
+</html>
