@@ -134,7 +134,7 @@ struct CollapsedView: View {
 
     private var tabForTap: PanelTab {
         switch model.liveActivity {
-        case .timer, .media: return .today
+        case .timer, .media, .event: return .today
         case .working, .needsApproval, .done: return .assistant
         case .none: return model.selectedTab
         }
@@ -152,6 +152,8 @@ struct CollapsedView: View {
             TimerRing(timer: model.services.timer, size: 16, lineWidth: 2.5)
         case .media:
             ArtworkView(image: model.media.artwork, size: 20, corner: 5)
+        case .event:
+            Image(systemName: "calendar").foregroundStyle(.red).font(.system(size: 13, weight: .semibold))
         case .none:
             EmptyView()
         }
@@ -174,6 +176,15 @@ struct CollapsedView: View {
             }
         case .media:
             EqualizerBars(active: model.media.nowPlaying?.isPlaying == true && !model.reduceMotion)
+        case .event:
+            if let event = model.soonEvent {
+                let minutes = max(1, Int(event.start.timeIntervalSince(model.ambientNow) / 60))
+                Text("in \(minutes)m")
+                    .font(.system(size: 12, weight: .semibold))
+                    .monospacedDigit()
+                    .foregroundStyle(.white)
+                    .help(event.title)
+            }
         case .none:
             EmptyView()
         }

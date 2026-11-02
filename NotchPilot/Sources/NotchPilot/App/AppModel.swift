@@ -71,6 +71,8 @@ enum LiveActivity: Equatable {
     case done
     case timer
     case media
+    /// A calendar event starts within the next half hour.
+    case event
 }
 
 enum ConnectionTestState: Equatable {
@@ -123,6 +125,9 @@ final class AppModel {
     var connectionTest: ConnectionTestState = .idle
     private(set) var calendarAuthorization: AuthorizationState = .notDetermined
     private(set) var upcomingEvents: [CalendarEventInfo] = []
+    /// Advances every 30 seconds so passive activities (an event starting soon) appear and expire on their own.
+    private(set) var ambientNow = Date()
+    @ObservationIgnored private var ambientTask: Task<Void, Never>?
     var settingsPane: SettingsPane = .general
 
     // MARK: Hooks set by controllers
@@ -203,6 +208,7 @@ final class AppModel {
             let removed = services.conversations.applyRetention(days: settings.settings.features.conversationRetentionDays, now: Date())
             if removed > 0 { AppLog.info("Removed \(removed) expired conversations", category: .storage) }
             Task { await refreshUpcoming() }
+            startAmbientTicker()
         } else {
             services.timer.activate()
         }
@@ -237,7 +243,13 @@ final class AppModel {
             return .timer
         }
         if media.nowPlaying?.isPlaying == true { return .media }
+        if soonEvent != nil { return .event }
         return .none
+    }
+
+    /// The next timed event that starts within 30 minutes, shown beside the notch.
+    var soonEvent: CalendarEventInfo? {
+        upcomingEvents.first { !$0.isAllDay && $0.start > ambientNow && $0.start.timeIntervalSince(ambientNow) <= 30 * 60 }
     }
 
     /// The island's outer size (including the concave top ears).
@@ -591,6 +603,22 @@ final class AppModel {
     }
 
     // MARK: Calendar
+
+    /// Keeps passive activities current without user interaction: the clock
+    /// every 30 seconds, the calendar every five minutes.
+    private func startAmbientTicker() {
+        ambientTask?.cancel()
+        ambientTask = Task { [weak self] in
+            var ticks = 0
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: 30_000_000_000)
+                guard let self, !Task.isCancelled else { return }
+                self.ambientNow = Date()
+                ticks += 1
+                if ticks % 10 == 0 { await self.refreshUpcoming() }
+            }
+        }
+    }
 
     func requestCalendarAccess() async {
         calendarAuthorization = await calendarService.requestEventsAccess()

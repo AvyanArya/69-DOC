@@ -142,6 +142,26 @@ button.pill:hover { background: #fff; }
 @keyframes turn { to { --ang: 360deg; } }
 .reduce .glow { animation: none; }
 
+/* ---------- Passive views: the second-activity bubble, alerts and the hover card ---------- */
+.bubble { position: absolute; top: 0; left: calc(50% + var(--w) / 2 + 10px); z-index: 32; height: 32px; min-width: 32px; padding: 0 8px; border-radius: 0 0 14px 14px; background: #000; color: #fff;
+  display: flex; align-items: center; justify-content: center; gap: 5px; font: 600 12px var(--font-ui); font-variant-numeric: tabular-nums; cursor: pointer; border: 0;
+  transition: left 0.55s var(--spring), opacity 0.25s ease, transform 0.45s var(--spring); box-shadow: 0 6px 18px -6px color-mix(in srgb, var(--s2) 60%, transparent); }
+.bubble.gone { opacity: 0; transform: translateX(-24px) scale(0.6); pointer-events: none; }
+.alert, .lcard { position: absolute; inset: 0; padding: 30px 16px 12px 16px; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; color: #fff; animation: fadeIn 0.3s ease 0.15s both; }
+.alert b, .lcard b { display: block; font-size: 14px; font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.alert span.sub, .lcard span.sub { display: block; font-size: 12px; color: rgba(255, 255, 255, 0.65); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.alert .acts, .lcard .acts { display: flex; gap: 6px; align-items: center; }
+.alert .btn, .lcard .btn { background: rgba(255, 255, 255, 0.16); color: #fff; }
+.alert .btn.default, .lcard .btn.default { background: var(--accent); }
+.lcard .ctl { width: 34px; height: 34px; border: 0; border-radius: 50%; background: rgba(255, 255, 255, 0.12); color: #fff; display: grid; place-items: center; cursor: pointer; padding: 0; }
+.lcard .ctl:hover { background: rgba(255, 255, 255, 0.22); }
+.lcard .ctl svg { width: 16px; height: 16px; }
+.lcard .bar { margin-top: 7px; background: rgba(255, 255, 255, 0.18); height: 4px; }
+.lcard .bar i { background: #fff; }
+.lcard .big { font: 700 26px/1 var(--font-rounded); font-variant-numeric: tabular-nums; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } }
+.reduce .alert, .reduce .lcard { animation: none; }
+
 /* ---------- The island ---------- */
 .hwnotch { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 184px; height: 32px; background: #000; border-radius: 0 0 11px 11px; z-index: 33; pointer-events: none; }
 .hwnotch::before, .hwnotch::after { content: ""; position: absolute; top: 0; width: 8px; height: 8px; }
@@ -512,7 +532,7 @@ button.lrow:hover { background: var(--surface); }
       <span class="pill" id="aiPill"><i></i><span>Connecting to Claude…</span></span>
       <button class="pill" type="button" id="aboutBtn" aria-expanded="false">About this preview</button>
     </div>
-    <p class="tip tiny">The glowing notch is NotchPilot. Hover or click it, press <span class="kbd">⌘K</span>, or drag a file onto it.</p>
+    <p class="tip tiny">The glowing notch is NotchPilot. It shows your timer, music and next event at a glance; hover for controls, click to open, or press <span class="kbd">⌘K</span>.</p>
   </aside>
   <section class="about" id="about" hidden aria-label="About this preview">
     <button class="ibtn close" type="button" id="aboutClose" aria-label="Close"></button>
@@ -535,6 +555,7 @@ button.lrow:hover { background: var(--surface); }
 
   <div class="glow" id="glow" aria-hidden="true"><i class="g-halo"></i><i class="g-blur"></i><i class="g-ring"></i></div>
   <div class="hwnotch" id="hwnotch" aria-hidden="true"></div>
+  <button class="bubble gone" id="bubble" type="button" aria-label="Activity"></button>
   <div class="island" id="island" role="region" aria-label="NotchPilot">
     <div class="collapsed" id="collapsed" tabindex="0" role="button" aria-label="Open NotchPilot"></div>
     <div class="drop-hint">Drop to put it on the Shelf</div>
@@ -713,6 +734,7 @@ button.lrow:hover { background: var(--surface); }
     events: [
       { id: 1, title: "Microeconomics seminar", start: evBase + 2 * H, end: evBase + 3.5 * H, where: "Room 2.14", color: "#0a84ff" },
       { id: 2, title: "Gym with Sam", start: evBase + 4 * H, end: evBase + 5 * H, where: "", color: "#30d158" },
+      { id: 4, title: "Call with Mum", start: Math.ceil((now() + 18 * MIN) / MIN) * MIN, end: Math.ceil((now() + 38 * MIN) / MIN) * MIN, where: "FaceTime", color: "#ff2d55" },
       { id: 3, title: "Statistics lecture", start: dayStart() + 2 * 24 * H + 10 * H, end: dayStart() + 2 * 24 * H + 11 * H, where: "Hall B", color: "#bf5af2" },
     ],
     freeSlot: null, activity: [], shelf: [], attach: [],
@@ -901,17 +923,25 @@ button.lrow:hover { background: var(--surface); }
     if (S.pending) return "approval";
     if (S.run && S.run.active) return "working";
     if (S.doneUntil > now()) return "done";
-    if (!S.set.live) return "none";
-    if (S.timer.phase === "running" || S.timer.phase === "paused") return "timer";
-    if (Radio.st.playing) return "media";
-    return "none";
+    return liveKinds()[0] || "none";
   }
+  // Everything that can sit beside the notch on its own, most important first.
+  const soonEvent = () => (S.set.features.calendar ? S.events.filter((e) => e.start > now() && e.start - now() <= 30 * MIN).sort((a, b) => a.start - b.start)[0] : null);
+  function liveKinds() {
+    if (!S.set.live) return [];
+    const k = [];
+    if (S.timer.phase === "running" || S.timer.phase === "paused") k.push("timer");
+    if (Radio.st.playing) k.push("media");
+    if (soonEvent()) k.push("event");
+    return k;
+  }
+  const isLive = (a) => a === "timer" || a === "media" || a === "event";
   function layout() {
     island.classList.toggle("expanded", S.expanded);
     island.classList.toggle("working", !!(S.run && S.run.active));
     island.classList.toggle("drop-target", S.dropping);
     island.classList.toggle("black", S.set.panel === "black");
-    $("glow").className = "glow" + (S.expanded ? " open" : "") + ((S.run && S.run.active) || S.dropping || S.pending ? " busy" : "") + (S.set.glow ? "" : " off");
+    $("glow").className = "glow" + (S.expanded ? " open" : "") + ((S.run && S.run.active) || S.dropping || S.pending || S.alert ? " busy" : "") + (S.set.glow ? "" : " off");
     desk.classList.toggle("reduce", S.reduce);
     let w, h;
     if (S.expanded) { ({ ew: w, eh: h } = sizes()); island.classList.remove("peek"); }
@@ -920,11 +950,14 @@ button.lrow:hover { background: var(--surface); }
       w = notchW() + (act !== "none" ? 150 : 0); h = 32;
       if (preview) { w = Math.max(w, Math.min(440, desk.clientWidth - 24)); h = 62; }
       if (S.dropping) { w = Math.max(w, 300); h = 72; }
+      if (S.alert) { w = Math.min(460, desk.clientWidth - 16); h = 96; }
+      else if (S.card && isLive(act)) { w = Math.min(430, desk.clientWidth - 16); h = 122; }
       const peek = S.peek && act === "none" && !preview && !S.dropping;
       if (peek) { w += 20; h = 38; }
       island.classList.toggle("peek", peek);
     }
     desk.style.setProperty("--w", w + "px"); desk.style.setProperty("--h", h + "px");
+    renderBubble();
     document.querySelector(".phead .gap").style.width = notchW() + "px";
     $("hwnotch").style.width = notchW() + "px";
   }
@@ -952,9 +985,10 @@ button.lrow:hover { background: var(--surface); }
       right = `<span style="color:var(--orange)">Approve?</span>`;
     } else if (act === "done") {
       left = `<span style="color:var(--green);display:grid">${icon("checkCircle", { width: 17, height: 17 })}</span>`; right = "Done";
-    } else if (act === "timer" && Radio.st.playing) {
-      left = `${ring(timerProgress(), timerColor())}<span data-bind="timer" style="color:${timerColor()}">${mmss(timerLeft())}</span>`;
-      right = `<span class="art" style="${artCss(track(), 20)}"></span><span class="eq" id="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>`;
+    } else if (act === "event") {
+      const e = soonEvent();
+      left = `<span style="color:#ff453a;display:grid">${icon("calendarFill", { width: 15, height: 15 })}</span>`;
+      right = `<span data-bind="event">in ${Math.max(1, Math.round((e.start - now()) / MIN))}m</span>`;
     } else if (act === "timer") {
       left = ring(timerProgress(), timerColor());
       right = `<span data-bind="timer" style="color:${timerColor()};${S.timer.phase === "paused" ? "opacity:.5" : ""}">${mmss(timerLeft())}</span>`;
@@ -962,9 +996,61 @@ button.lrow:hover { background: var(--surface); }
       left = `<span class="art" style="${artCss(track(), 20)}"></span>`;
       right = `<span class="eq" id="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>`;
     }
+    if (S.alert) { collapsed.innerHTML = alertHTML(S.alert); collapsed.setAttribute("aria-label", S.alert.title); return; }
+    if (S.card && isLive(act)) { collapsed.innerHTML = cardHTML(act); collapsed.setAttribute("aria-label", "Open NotchPilot"); return; }
     const preview = act === "done" ? lastAnswer() : "";
     collapsed.innerHTML = `<div class="row"><span class="wing">${left}</span><span class="wing">${right}</span></div>${preview ? `<div class="preview-line">${esc(preview)}</div>` : ""}`;
     collapsed.setAttribute("aria-label", act === "none" ? "Open NotchPilot" : `Open NotchPilot (${act})`);
+  }
+
+  // ===================== Passive views =====================
+  const tileHTML = (ic, color) => `<span class="tile" style="width:40px;height:40px;border-radius:11px;background:linear-gradient(160deg, color-mix(in srgb, ${color} 80%, #fff), ${color})">${icon(ic, { width: 20, height: 20 })}</span>`;
+  function alertHTML(a) {
+    const lead = a.art ? `<span class="art" style="${artCss(track(), 44)};border-radius:10px"></span>` : tileHTML(a.icon, a.color);
+    return `<div class="alert" role="status">${lead}<div><b>${esc(a.title)}</b><span class="sub">${esc(a.sub)}</span></div><div class="acts">${(a.acts || []).map(([l, k], i) => `<button class="btn sm ${i === 0 ? "default" : ""}" data-alert-act="${k}">${esc(l)}</button>`).join("")}</div></div>`;
+  }
+  function cardHTML(kind) {
+    if (kind === "media") {
+      const tr = track(), el = Radio.elapsed();
+      return `<div class="lcard"><span class="art" style="${artCss(tr, 56)};border-radius:12px"></span><div><b>${esc(tr.title)}</b><span class="sub">${esc(tr.artist)}</span><div class="bar"><i data-bind="prog" style="width:${(100 * el) / tr.dur}%"></i></div></div>
+        <div class="acts"><button class="ctl" data-lc="prev" aria-label="Previous track">${icon("backward")}</button><button class="ctl" data-lc="toggle" aria-label="${Radio.st.playing ? "Pause" : "Play"}">${icon(Radio.st.playing ? "pause" : "play")}</button><button class="ctl" data-lc="next" aria-label="Next track">${icon("forward")}</button></div></div>`;
+    }
+    if (kind === "timer") {
+      const t = S.timer;
+      return `<div class="lcard">${ring(timerProgress(), timerColor(), 52, 2.4)}<div><span class="big" data-bind="timer" style="color:${timerColor()}">${mmss(timerLeft())}</span><span class="sub">${esc(t.label)}${t.phase === "paused" ? " · Paused" : ""}${S.cycles ? ` · Session ${S.cycles + (t.kind === "focus" ? 1 : 0)}` : ""}</span></div>
+        <div class="acts"><button class="ctl" data-lc="${t.phase === "running" ? "pause" : "resume"}" aria-label="${t.phase === "running" ? "Pause" : "Resume"}">${icon(t.phase === "running" ? "pause" : "play")}</button><button class="ctl" data-lc="plus" aria-label="Add 5 minutes">${icon("plus")}</button><button class="ctl" data-lc="reset" aria-label="Stop">${icon("stop")}</button></div></div>`;
+    }
+    const e = soonEvent();
+    return `<div class="lcard">${tileHTML("calendarFill", "#ff3b30")}<div><b>${esc(e.title)}</b><span class="sub">${hhmm(e.start)}–${hhmm(e.end)}${e.where ? " · " + esc(e.where) : ""} · in ${Math.max(1, Math.round((e.start - now()) / MIN))} min</span></div><div class="acts"><button class="btn sm default" data-lc="today">Today</button></div></div>`;
+  }
+  // A second activity sits in its own small bubble beside the notch, like the iPhone's split island.
+  function renderBubble() {
+    const b = $("bubble"), kinds = liveKinds(), act = activity();
+    const second = !S.expanded && !S.alert && !S.card && !S.dropping && isLive(act) ? kinds[1] : null;
+    b.classList.toggle("gone", !second);
+    if (!second) { b.dataset.kind = ""; return; }
+    b.dataset.kind = second;
+    b.setAttribute("aria-label", { timer: "Timer", media: "Now playing", event: "Next event" }[second]);
+    b.innerHTML = second === "media" ? `<span class="art" style="${artCss(track(), 20)}"></span>`
+      : second === "timer" ? `${ring(timerProgress(), timerColor(), 18)}`
+      : `<span style="color:#ff453a;display:grid">${icon("calendarFill", { width: 14, height: 14 })}</span><span data-bind="event">${Math.max(1, Math.round((soonEvent().start - now()) / MIN))}m</span>`;
+  }
+  let alertT = 0;
+  // Briefly grows the collapsed island to tell you something, then shrinks back.
+  function showAlert(a, ms = 5500) {
+    if (S.expanded) { hud(a.title); return; }
+    S.alert = a; S.card = false; render();
+    clearTimeout(alertT);
+    a.ms = ms;
+    alertT = setTimeout(() => { if (S.alert === a) { S.alert = null; render(); } }, ms);
+  }
+  const nowPlayingAlert = () => { if (Radio.st.playing && !S.expanded) showAlert({ art: true, title: track().title, sub: `Now playing · ${track().artist}` }, 2800); };
+  let eventAlerted = 0;
+  function checkEventAlert() {
+    const e = soonEvent();
+    if (!e || eventAlerted === e.id) return;
+    eventAlerted = e.id;
+    showAlert({ icon: "calendarFill", color: "#ff3b30", title: e.title, sub: `Starts in ${Math.max(1, Math.round((e.start - now()) / MIN))} min${e.where ? " · " + e.where : ""}`, acts: [["Open Today", "today"], ["Dismiss", "dismiss"]] });
   }
 
   // ===================== Panel header =====================
@@ -1236,16 +1322,33 @@ button.lrow:hover { background: var(--surface); }
   let hoverT = 0, leaveT = 0;
   island.addEventListener("mouseenter", () => {
     clearTimeout(leaveT);
-    if (!S.expanded && S.set.hover) { S.peek = true; layout(); hoverT = setTimeout(() => expand(undefined, "hover"), 230); }
+    if (S.expanded) return;
+    if (S.alert) { clearTimeout(alertT); return; }
+    if (isLive(activity())) { hoverT = setTimeout(() => { S.card = true; render(); }, 150); return; }
+    if (S.set.hover) { S.peek = true; layout(); hoverT = setTimeout(() => expand(undefined, "hover"), 230); }
   });
   island.addEventListener("mouseleave", () => {
     clearTimeout(hoverT);
     if (S.peek) { S.peek = false; layout(); }
+    if (S.card) leaveT = setTimeout(() => { S.card = false; render(); }, 400);
+    if (S.alert) { const a = S.alert; alertT = setTimeout(() => { if (S.alert === a) { S.alert = null; render(); } }, 1800); }
     if (S.expanded && S.openedBy === "hover") leaveT = setTimeout(() => { if (!S.pinned && !S.pending && !busyTyping() && $("modeMenu")?.hidden !== false) collapse(); }, 800);
   });
-  collapsed.addEventListener("click", () => {
+  collapsed.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-lc], [data-alert-act]");
+    if (b) {
+      const k = b.dataset.lc || b.dataset.alertAct;
+      if (["prev", "toggle", "next"].includes(k)) mediaAction(k);
+      else if (["pause", "resume", "plus", "reset"].includes(k)) timerAction(k);
+      else if (k === "break") { startTimer(5, "break", "Break"); S.alert = null; }
+      else if (k === "skip") { timerAction("reset"); S.alert = null; }
+      else if (k === "dismiss") S.alert = null;
+      else if (k === "today") { S.alert = null; S.card = false; return expand("today"); }
+      return render();
+    }
+    S.alert = null; S.card = false;
     const act = activity();
-    expand(act === "timer" || act === "media" ? "today" : act === "none" ? undefined : "assistant");
+    expand(isLive(act) ? "today" : act === "none" ? undefined : "assistant");
     setTimeout(() => S.tab === "assistant" && $("msg")?.focus(), 320);
   });
   collapsed.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); collapsed.click(); } });
@@ -1366,6 +1469,7 @@ button.lrow:hover { background: var(--surface); }
     if (a === "toggle") { if (!Radio.toggle()) hud("This browser can't play generated audio"); }
     if (a === "next") { Radio.next(); Radio.play(); }
     if (a === "prev") { Radio.prev(); Radio.play(); }
+    if (a !== "toggle" || Radio.st.playing) { if (!S.card) nowPlayingAlert(); }
   }
   const clockText = () => {
     const d = new Date();
@@ -1379,10 +1483,18 @@ button.lrow:hover { background: var(--surface); }
       if (k === "focus") S.cycles = (S.cycles || 0) + 1;
       const long = k === "focus" && S.cycles % 4 === 0, breakMin = long ? 15 : 5;
       if (k === "focus" && S.set.autoBreak) startTimer(breakMin, "break", long ? "Long break" : "Break");
-      if (S.set.focusNotes) { Radio.chime("done"); notify(k === "focus" ? `Focus session ${S.cycles} complete` : "Break over", k === "focus" ? (S.set.autoBreak ? `${label} is done. Your ${breakMin}-minute break has started.` : `${label} is done. Time for a ${breakMin}-minute break.`) : "Ready for the next session?", () => expand("today")); }
+      if (S.set.focusNotes) Radio.chime("done");
+      if (!S.expanded) showAlert(k === "focus"
+        ? { icon: "timer", color: "#ff9500", title: `Focus session ${S.cycles} complete`, sub: S.set.autoBreak ? `${label} is done. Your ${breakMin}-minute break has started.` : `${label} is done. Time for a ${breakMin}-minute break.`, acts: S.set.autoBreak ? [["OK", "dismiss"], ["Skip Break", "skip"]] : [["Start Break", "break"], ["Dismiss", "dismiss"]] }
+        : { icon: "timer", color: "#34c759", title: "Break over", sub: "Ready for the next session?", acts: [["OK", "dismiss"]] }, 8000);
+      else if (S.set.focusNotes) { notify(k === "focus" ? `Focus session ${S.cycles} complete` : "Break over", k === "focus" ? (S.set.autoBreak ? `${label} is done. Your ${breakMin}-minute break has started.` : `${label} is done. Time for a ${breakMin}-minute break.`) : "Ready for the next session?", () => expand("today")); }
       render();
     }
     document.querySelectorAll('[data-bind="timer"]').forEach((el) => { el.textContent = mmss(timerLeft()); });
+    if (S.lastLive !== liveKinds().join()) { S.lastLive = liveKinds().join(); render(); }
+    checkEventAlert();
+    const ev = soonEvent(); if (ev) document.querySelectorAll('[data-bind="event"]').forEach((el) => { const m = Math.max(1, Math.round((ev.start - now()) / MIN)); el.textContent = el.closest('.bubble') ? `${m}m` : `in ${m}m`; });
+    if (!S.expanded && (S.card || S.alert) && Radio.st.playing) { const p = collapsed.querySelector('[data-bind="prog"]'); if (p) p.style.width = (100 * Radio.elapsed()) / track().dur + "%"; }
     document.querySelectorAll('[data-ring="1"]').forEach((c) => { const len = parseFloat(c.getAttribute("stroke-dasharray")); c.setAttribute("stroke-dashoffset", len * (1 - timerProgress())); });
     const el = document.querySelector('[data-bind="elapsed"]'); if (el && S.run) el.textContent = Math.round((now() - S.run.started) / 1000) + "s";
     if (S.expanded && S.tab === "today" && Radio.st.playing) {
@@ -1936,7 +2048,7 @@ button.lrow:hover { background: var(--surface); }
   $("dock").addEventListener("click", (e) => {
     const b = e.target.closest("[data-app]"); if (!b) return;
     const a = b.dataset.app;
-    if (a === "music") { if (!Radio.st.playing) { Radio.play(); if (S.expanded && !S.pinned) collapse(); else render(); } else expand("today"); return; }
+    if (a === "music") { if (!Radio.st.playing) { Radio.play(); if (S.expanded && !S.pinned) collapse(); nowPlayingAlert(); render(); } else expand("today"); return; }
     if (a === "focus") { if (S.timer.phase !== "running" && S.timer.phase !== "paused") { timerAction("focus"); if (S.expanded && !S.pinned) collapse(); else render(); } else expand("today"); return; }
     if (a === "settings") return openSettings();
     if (S.expanded && S.tab === a) return collapse();
@@ -2120,7 +2232,9 @@ button.lrow:hover { background: var(--surface); }
   // ===================== Start =====================
   makePoster(); renderFiles(); applyAccent(); Wall.start(); setAiState("connecting"); render();
   // The island opens on load so the first view shows what it does.
-  setTimeout(() => { if (!S.expanded) expand("assistant", "intro"); }, S.reduce ? 0 : 1600);
+  // Start glanceable: the notch shows what's coming up and announces the next event.
+  setTimeout(checkEventAlert, S.reduce ? 0 : 1400);
+  $("bubble").addEventListener("click", () => { const k = $("bubble").dataset.kind; if (k) expand("today"); });
   (async () => {
     let sample = null;
     try { sample = window.claude && typeof window.claude.use === "function" ? await window.claude.use("sample") : null; } catch { sample = null; }

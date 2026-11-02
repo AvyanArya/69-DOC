@@ -24,7 +24,7 @@ Native Swift, SwiftUI and AppKit. No Electron, no web views, no private APIs.
 
 **The notch**
 * A black island that blends into the camera housing, measured from the real display geometry; spring-animated expand/collapse (or a simple fade with Reduce Motion).
-* Live activities beside the notch: a focus-timer ring and countdown, album art and equaliser for Music/Spotify, and the agent's status — working, waiting for approval, done (with a one-line result preview).
+* Live activities beside the notch: a focus-timer ring and countdown, album art and equaliser for Music/Spotify, a countdown when a calendar event starts within 30 minutes, and the agent's status — working, waiting for approval, done (with a one-line result preview).
 * When idle, a slowly turning ring of colour glows around the notch so you can see NotchPilot is there; it brightens while the agent works or a file is dragged over it (turn it off in Settings → Appearance).
 * Drop files or text on the notch to attach them to your next message. Type a sum such as `18% of 2,450` and the answer appears as you type, without asking the AI.
 * Clicks pass through everywhere except the island. It never steals keyboard focus unless you click the message box or use the shortcut, and hands focus back when it closes.
