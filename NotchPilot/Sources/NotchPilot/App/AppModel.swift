@@ -32,7 +32,7 @@ enum PanelTab: String, CaseIterable, Identifiable {
 }
 
 enum SettingsPane: String, CaseIterable, Identifiable {
-    case general, ai, agent, features, memory, privacy, appearance, about
+    case general, ai, agent, briefing, features, memory, privacy, appearance, about
 
     var id: String { rawValue }
 
@@ -41,6 +41,7 @@ enum SettingsPane: String, CaseIterable, Identifiable {
         case .general: return "General"
         case .ai: return "AI Provider"
         case .agent: return "Agent"
+        case .briefing: return "Briefing"
         case .features: return "Features"
         case .memory: return "Memory"
         case .privacy: return "Privacy"
@@ -59,6 +60,7 @@ enum SettingsPane: String, CaseIterable, Identifiable {
         case .privacy: return "hand.raised"
         case .appearance: return "paintbrush"
         case .about: return "info.circle"
+        case .briefing: return "sun.horizon"
         }
     }
 }
@@ -167,6 +169,7 @@ final class AppModel {
         secrets = secretStore
         confirmations = ConfirmationCenter()
         notifications = NotificationService()
+        services.mail = MailService()
         notifications.isDisabled = smokeTest
         session = ConversationSession(conversation: Conversation(createdAt: Date()), store: services.conversations)
         orchestrator = AgentOrchestrator(services: services, registry: BuiltinTools.makeRegistry(), confirmations: confirmations) {
@@ -209,6 +212,7 @@ final class AppModel {
             if removed > 0 { AppLog.info("Removed \(removed) expired conversations", category: .storage) }
             Task { await refreshUpcoming() }
             startAmbientTicker()
+            scheduleAutomaticBriefing()
         } else {
             services.timer.activate()
         }
@@ -543,6 +547,7 @@ final class AppModel {
         onHotKeyChanged?()
         proactive.scheduleRefresh()
         refreshKeyStatus()
+        if !isSmokeTest { scheduleAutomaticBriefing() }
     }
 
     func refreshKeyStatus() {
@@ -600,6 +605,74 @@ final class AppModel {
         } catch {
             connectionTest = .failure(error.localizedDescription)
         }
+    }
+
+    // MARK: Briefing
+
+    /// “Brief me”: the assistant gathers the sources chosen in Settings → Briefing and says what to do.
+    func briefMe() {
+        ask("Brief me.")
+    }
+
+    /// Lets the user pick folders the assistant may look in (read only).
+    func connectFolders() {
+        isModalOpen = true
+        defer { isModalOpen = false }
+        let panel = NSOpenPanel()
+        panel.title = "Connect folders to NotchPilot"
+        panel.message = "NotchPilot can list, search and read text files in these folders for briefings and when you ask. It never changes them."
+        panel.prompt = "Connect"
+        panel.canChooseDirectories = true
+        panel.canChooseFiles = false
+        panel.allowsMultipleSelection = true
+        panel.level = NSWindow.Level(rawValue: panelLevel.rawValue + 1)
+        NSApp.activate()
+        guard panel.runModal() == .OK else { return }
+        let chosen = panel.urls.map(\.path)
+        services.settings.updateSettings { settings in
+            for path in chosen where !settings.briefing.connectedFolders.contains(path) {
+                settings.briefing.connectedFolders.append(path)
+            }
+        }
+    }
+
+    func disconnectFolder(_ path: String) {
+        services.settings.updateSettings { $0.briefing.connectedFolders.removeAll { $0 == path } }
+    }
+
+    func requestRemindersAccess() async {
+        _ = await calendarService.requestRemindersAccess()
+        remindersAuthorization = calendarService.remindersAuthorization()
+    }
+
+    private(set) var remindersAuthorization: AuthorizationState = .notDetermined
+    @ObservationIgnored private var briefingTask: Task<Void, Never>?
+
+    /// When the user opted in, prepares the briefing at the morning-briefing
+    /// time without being asked. The run can only read (no changes), and the
+    /// result waits in a new conversation with a notification.
+    private func scheduleAutomaticBriefing() {
+        briefingTask?.cancel()
+        remindersAuthorization = calendarService.remindersAuthorization()
+        guard settings.briefing.prepareAutomatically,
+              let time = DateCoding.parseClockTime(settings.proactive.morningBriefingTime) else { return }
+        let calendar = Calendar.current
+        let now = Date()
+        var fire = calendar.date(bySettingHour: time.hour, minute: time.minute, second: 0, of: now) ?? now
+        if fire <= now { fire = calendar.date(byAdding: .day, value: 1, to: fire) ?? fire.addingTimeInterval(86_400) }
+        briefingTask = Task { [weak self] in
+            try? await Task.sleep(nanoseconds: UInt64(max(1, fire.timeIntervalSinceNow) * 1_000_000_000))
+            guard let self, !Task.isCancelled else { return }
+            self.prepareAutomaticBriefing()
+            self.scheduleAutomaticBriefing()
+        }
+    }
+
+    private func prepareAutomaticBriefing() {
+        guard settings.briefing.prepareAutomatically, isProviderConfigured, !orchestrator.isRunning else { return }
+        session = ConversationSession(conversation: Conversation(createdAt: Date()), store: services.conversations)
+        guard orchestrator.send("Brief me. (Prepared automatically this morning.)", session: session, readOnly: true) != nil else { return }
+        notifications.schedule(id: "briefing-ready", title: "Your briefing is ready", body: "Open NotchPilot to see what to do today.", at: nil, category: .briefing, userInfo: ["tab": "assistant"])
     }
 
     // MARK: Calendar

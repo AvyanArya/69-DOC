@@ -89,6 +89,38 @@ public protocol CalendarService: AnyObject {
     func events(from start: Date, to end: Date) async throws -> [CalendarEventInfo]
     func createEvent(title: String, start: Date, end: Date, notes: String?, location: String?) async throws -> CalendarEventInfo
     func createReminder(title: String, due: DateCoding.ParsedDate?, notes: String?) async throws -> ReminderInfo
+    /// Incomplete reminders due before `date` (or with no due date when `includeUndated`).
+    func openReminders(dueBefore date: Date, includeUndated: Bool) async throws -> [ReminderInfo]
+}
+
+public extension CalendarService {
+    func openReminders(dueBefore date: Date, includeUndated: Bool) async throws -> [ReminderInfo] { [] }
+}
+
+// MARK: - Mail
+
+public struct MailMessageSummary: Sendable, Equatable {
+    public var sender: String
+    public var subject: String
+    public var received: String
+
+    public init(sender: String, subject: String, received: String) {
+        self.sender = sender
+        self.subject = subject
+        self.received = received
+    }
+}
+
+/// Reads unread message headers (never bodies) for briefings.
+public protocol MailSummaryProvider: AnyObject {
+    func unreadMessages(limit: Int) async throws -> [MailMessageSummary]
+}
+
+public final class UnavailableMailSummary: MailSummaryProvider {
+    public init() {}
+    public func unreadMessages(limit: Int) async throws -> [MailMessageSummary] {
+        throw ToolError.unsupported("Reading Mail isn't available here.")
+    }
 }
 
 // MARK: - Media

@@ -488,7 +488,7 @@ struct EmptyAssistantView: View {
     }
 
     private let suggestions = [
-        Suggestion(symbol: "sun.max", title: "Summarise my day", prompt: "Summarise my day and tell me what I need to prioritise."),
+        Suggestion(symbol: "sun.max", title: "Brief me", prompt: "Brief me."),
         Suggestion(symbol: "timer", title: "Focus for 25 minutes", prompt: "Give me 25 minutes to focus on my most important task, then remind me to take a break."),
         Suggestion(symbol: "calendar", title: "Find study time", prompt: "Find a suitable time for a 90-minute study session today based on my calendar."),
         Suggestion(symbol: "calendar.badge.clock", title: "Plan my week", prompt: "Help me plan my week around my deadlines."),

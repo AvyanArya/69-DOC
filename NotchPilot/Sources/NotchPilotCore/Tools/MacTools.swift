@@ -277,6 +277,6 @@ enum MacTools {
 @MainActor
 public enum BuiltinTools {
     public static func makeRegistry() -> ToolRegistry {
-        ToolRegistry(ProductivityTools.all() + AssistantTools.all() + MacTools.all())
+        ToolRegistry(ProductivityTools.all() + AssistantTools.all() + MacTools.all() + FileTools.all())
     }
 }

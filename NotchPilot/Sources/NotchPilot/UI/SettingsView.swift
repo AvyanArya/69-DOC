@@ -62,6 +62,7 @@ struct SettingsView: View {
                 case .general: GeneralSettings(model: model)
                 case .ai: AISettings(model: model)
                 case .agent: AgentSettingsPane(model: model)
+                case .briefing: BriefingSettingsPane(model: model)
                 case .features: FeatureSettings(model: model)
                 case .memory: MemorySettings(model: model)
                 case .privacy: PrivacySettings(model: model)
@@ -96,6 +97,7 @@ extension SettingsPane {
         case .general: return "gearshape.fill"
         case .ai: return "sparkles"
         case .agent: return "checkmark.shield.fill"
+        case .briefing: return "sun.horizon.fill"
         case .features: return "switch.2"
         case .memory: return "memorychip.fill"
         case .privacy: return "hand.raised.fill"
@@ -110,8 +112,84 @@ extension SettingsPane {
         case .ai: return .purple
         case .agent, .privacy: return .blue
         case .features: return .orange
+        case .briefing: return .red
         case .memory: return .pink
         case .appearance: return .indigo
+        }
+    }
+}
+
+// MARK: - Briefing
+
+struct BriefingSettingsPane: View {
+    @Bindable var model: AppModel
+
+    var body: some View {
+        let briefing = model.settings.briefing
+        Form {
+            Section {
+                LabeledContent("Ask “Brief me”") {
+                    Button("Brief Me Now") { model.briefMe() }
+                        .disabled(!model.isProviderConfigured)
+                }
+            } footer: {
+                Text("NotchPilot gathers what you choose below, sends it to your AI provider and replies with a prioritised list: what's overdue or urgent, today in order, and what can wait.")
+            }
+            Section("Look at") {
+                Toggle("Calendars: today and tomorrow", isOn: model.binding(\.briefing.includeCalendar))
+                Toggle("Reminders that are due", isOn: model.binding(\.briefing.includeReminders))
+                Toggle("NotchPilot tasks", isOn: model.binding(\.briefing.includeTasks))
+                Toggle("Notes edited in the last three days", isOn: model.binding(\.briefing.includeNotes))
+                Toggle("Recently changed files in connected folders", isOn: model.binding(\.briefing.includeFiles))
+                Toggle(isOn: model.binding(\.briefing.includeMail)) {
+                    Text("Unread Mail")
+                    Text("Senders and subjects only, and only while Mail is open. macOS asks once before NotchPilot can read Mail.")
+                }
+            }
+            Section {
+                ForEach(briefing.connectedFolders, id: \.self) { path in
+                    HStack {
+                        Label((path as NSString).lastPathComponent, systemImage: "folder.fill")
+                        Spacer()
+                        Text((path as NSString).abbreviatingWithTildeInPath)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                        Button("Remove") { model.disconnectFolder(path) }
+                    }
+                }
+                Button("Connect a Folder…") { model.connectFolders() }
+                Picker("Recently changed means", selection: model.binding(\.briefing.recentFileDays)) {
+                    Text("Since yesterday").tag(1)
+                    Text("The last two days").tag(2)
+                    Text("The last week").tag(7)
+                }
+            } header: {
+                Text("Connected folders")
+            } footer: {
+                Text("The assistant can list, search and read text files in these folders only, and never changes them. Connecting Desktop, Documents or Downloads makes macOS ask for permission once.")
+            }
+            Section {
+                Toggle(isOn: model.binding(\.briefing.prepareAutomatically)) {
+                    Text("Prepare my briefing every morning")
+                    Text("At the time below, NotchPilot sends the sources above to your AI provider without asking, so the briefing is waiting when you open it. It can only read; nothing is changed.")
+                }
+                DatePicker("Time", selection: model.clockBinding({ model.settings.proactive.morningBriefingTime }, { value in
+                    model.services.settings.updateSettings { $0.proactive.morningBriefingTime = value }
+                }), displayedComponents: .hourAndMinute)
+                .disabled(!briefing.prepareAutomatically)
+            } header: {
+                Text("Every morning")
+            }
+            Section("Permissions") {
+                LabeledContent("Reminders") {
+                    if model.remindersAuthorization == .authorized {
+                        Text("Allowed").foregroundStyle(.secondary)
+                    } else {
+                        Button("Allow Reminders…") { Task { await model.requestRemindersAccess() } }
+                    }
+                }
+            }
         }
     }
 }

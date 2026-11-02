@@ -33,6 +33,7 @@ final class FakeCalendarService: CalendarService {
     var events: [CalendarEventInfo] = []
     var createdEvents: [CalendarEventInfo] = []
     var createdReminders: [ReminderInfo] = []
+    var openRemindersList: [ReminderInfo] = []
     var accessRequests = 0
 
     func eventsAuthorization() -> AuthorizationState { authorization }
@@ -43,6 +44,9 @@ final class FakeCalendarService: CalendarService {
         return authorization
     }
     func requestRemindersAccess() async -> AuthorizationState { await requestEventsAccess() }
+    func openReminders(dueBefore date: Date, includeUndated: Bool) async throws -> [ReminderInfo] {
+        openRemindersList.filter { ($0.due.map { $0 < date }) ?? includeUndated }
+    }
     func events(from start: Date, to end: Date) async throws -> [CalendarEventInfo] {
         events.filter { $0.end > start && $0.start < end }.sorted { $0.start < $1.start }
     }
@@ -189,4 +193,9 @@ extension XCTestCase {
             try? await Task.sleep(nanoseconds: 5_000_000)
         }
     }
+}
+
+final class FakeMail: MailSummaryProvider {
+    var messages: [MailMessageSummary] = []
+    func unreadMessages(limit: Int) async throws -> [MailMessageSummary] { Array(messages.prefix(limit)) }
 }

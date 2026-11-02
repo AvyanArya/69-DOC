@@ -71,6 +71,8 @@ public final class AgentRun: Identifiable {
     public nonisolated let id = UUID()
     public let conversationID: UUID
     public let mode: AgentMode
+    /// Unattended runs (the automatic morning briefing) may only use tools that read.
+    public internal(set) var readOnly = false
     public let startedAt: Date
     public internal(set) var phase: Phase = .starting
     /// Assistant text streaming for the current model call.

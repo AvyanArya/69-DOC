@@ -63,3 +63,10 @@ All proactive features are **off or local by default** and individually switchab
 ## Deleting your data
 
 Settings → Privacy → **Delete all NotchPilot data** removes tasks, notes, memories, preferences, conversations and the activity log (it does not touch events or reminders in Apple's apps). API keys are removed in Settings → AI Provider → **Remove**. To remove everything manually see [SETUP.md](SETUP.md#uninstall).
+
+## Briefings and connected folders
+
+* **What a briefing reads** is set in Settings → Briefing: calendars (today and tomorrow), Reminders that are due, NotchPilot tasks and recent notes, recently changed files in connected folders, and — off by default — the senders and subjects of unread Mail (never message bodies; only while Mail is open; macOS asks once for Automation access). Nothing is read until you ask for a briefing, or at the morning time if you turned on automatic preparation.
+* **Connected folders** are the only places the assistant can look on your disk. It can list, search and read text files there and cannot change, move or delete them. Paths are resolved before every read, so `..` and symbolic links can't reach outside a connected folder. Hidden files, app bundles and dependency or build folders are skipped. Remove a folder at any time.
+* **Automatic morning briefing** is the one case where NotchPilot sends data to your AI provider without a tap, so it is off until you switch it on, and the setting says so. That run is read-only: any tool that would change something is refused in code.
+* Everything a briefing collects is treated as data, not instructions: file contents, note text, calendar text and email subjects cannot direct the assistant.

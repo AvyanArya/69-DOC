@@ -47,12 +47,13 @@ public final class AgentOrchestrator {
     /// If the provider is not configured, returns a failed run and leaves the
     /// conversation untouched, so nothing is sent without credentials.
     @discardableResult
-    public func send(_ text: String, attachments: [DocumentAttachment] = [], session: ConversationSession) -> AgentRun? {
+    public func send(_ text: String, attachments: [DocumentAttachment] = [], session: ConversationSession, readOnly: Bool = false) -> AgentRun? {
         guard !isRunning else { return nil }
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty || !attachments.isEmpty else { return nil }
         let settings = services.settings.settings
         let run = AgentRun(conversationID: session.id, mode: settings.agent.mode, startedAt: services.clock.now())
+        run.readOnly = readOnly
         currentRun = run
 
         let provider: AIProvider
@@ -347,6 +348,10 @@ public final class AgentOrchestrator {
         store(record, run: run, session: session)
 
         // 3. Permission policy, enforced in code.
+        if run.readOnly && tool.definition.risk != .read {
+            let reason = "This briefing was prepared without you present, so it can only read, not change anything."
+            return result(.denied, summary: reason, content: errorJSON("Not permitted: \(reason)"), isError: true)
+        }
         switch PermissionPolicy.evaluate(tool.definition, settings: services.settings.settings) {
         case .deny(let reason):
             return result(.denied, summary: reason, content: errorJSON("Not permitted: \(reason)"), isError: true)

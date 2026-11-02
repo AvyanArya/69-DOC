@@ -93,6 +93,25 @@ final class EventKitCalendarService: CalendarService {
         return CalendarEventInfo(id: event.eventIdentifier ?? "", title: title, start: start, end: end, location: location, calendarName: calendar.title, notes: notes)
     }
 
+    func openReminders(dueBefore date: Date, includeUndated: Bool) async throws -> [ReminderInfo] {
+        guard remindersAuthorization() == .authorized else {
+            throw ToolError.notAuthorized("Reminders access is off. Allow NotchPilot in System Settings › Privacy & Security › Reminders.")
+        }
+        let predicate = store.predicateForIncompleteReminders(withDueDateStarting: nil, ending: includeUndated ? nil : date, calendars: nil)
+        let found: [ReminderInfo] = await withCheckedContinuation { continuation in
+            store.fetchReminders(matching: predicate) { reminders in
+                let items = (reminders ?? []).compactMap { reminder -> ReminderInfo? in
+                    let due = reminder.dueDateComponents.flatMap { Calendar.current.date(from: $0) }
+                    if let due, due >= date { return nil }
+                    if due == nil && !includeUndated { return nil }
+                    return ReminderInfo(id: reminder.calendarItemIdentifier, title: reminder.title ?? "Untitled", due: due, listName: reminder.calendar?.title ?? "")
+                }
+                continuation.resume(returning: items)
+            }
+        }
+        return found.sorted { ($0.due ?? .distantFuture) < ($1.due ?? .distantFuture) }
+    }
+
     func createReminder(title: String, due: DateCoding.ParsedDate?, notes: String?) async throws -> ReminderInfo {
         let state = remindersAuthorization()
         guard state == .authorized || state == .writeOnly else {

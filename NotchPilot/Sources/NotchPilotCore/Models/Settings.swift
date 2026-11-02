@@ -144,6 +144,8 @@ public struct AgentSettings: Codable, Equatable, Sendable {
 
 public struct FeatureToggles: Codable, Equatable, Sendable {
     public var calendar: Bool = true
+    /// Reading files in the folders the user connected (Settings → Briefing).
+    public var files: Bool = true
     public var reminders: Bool = true
     public var media: Bool = true
     public var appLaunching: Bool = true
@@ -233,12 +235,34 @@ public struct HotKeySetting: Codable, Equatable, Sendable {
     public static let defaultToggle = HotKeySetting(keyCode: 49, modifiers: 0x100 | 0x200, display: "⇧⌘Space")
 }
 
+/// What “Brief me” looks at. Every source is the user's choice; nothing here
+/// is read until a briefing is asked for (or, if the user opts in, prepared at
+/// the morning-briefing time).
+public struct BriefingSettings: Codable, Equatable, Sendable {
+    public var includeCalendar = true
+    public var includeReminders = true
+    public var includeTasks = true
+    public var includeNotes = true
+    public var includeFiles = true
+    /// Unread message subjects from the Mail app (asks for Automation access once). Off by default.
+    public var includeMail = false
+    /// Folders the user connected; the assistant can list, search and read text files inside them only.
+    public var connectedFolders: [String] = []
+    /// How far back “recently changed files” goes.
+    public var recentFileDays = 2
+    /// Prepare the briefing automatically each morning. This sends the sources above to the AI provider without a tap, so it is off until the user turns it on.
+    public var prepareAutomatically = false
+
+    public init() {}
+}
+
 public struct AppSettings: Codable, Equatable, Sendable {
     public var provider = ProviderSettings()
     public var agent = AgentSettings()
     public var features = FeatureToggles()
     public var proactive = ProactiveSettings()
     public var appearance = AppearanceSettings()
+    public var briefing = BriefingSettings()
     public var toggleHotKeyEnabled = true
     public var toggleHotKey: HotKeySetting = .defaultToggle
     public var launchAtLogin = false

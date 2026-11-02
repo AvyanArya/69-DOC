@@ -15,7 +15,7 @@ struct TodayView: View {
                     Spacer()
                     if model.isProviderConfigured {
                         PanelButton(title: "Brief me", symbol: "sparkles", prominent: true) {
-                            model.ask("Summarise my day and tell me what I need to prioritise.")
+                            model.briefMe()
                         }
                     }
                 }

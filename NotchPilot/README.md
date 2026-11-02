@@ -10,7 +10,7 @@ Native Swift, SwiftUI and AppKit. No Electron, no web views, no private APIs.
 
 | Area | State |
 |---|---|
-| Core: agent loop, providers, 40 tools, permissions, persistence, timer | ✅ Built and tested — 86 automated tests pass on Linux and on macOS in GitHub Actions |
+| Core: agent loop, providers, 43 tools, permissions, persistence, timer, briefing | ✅ Built and tested — 91 automated tests pass on Linux (the last macOS run passed 83 before the newest additions) |
 | Multi-step agent workflow over real HTTP (mock Anthropic & OpenAI servers) | ✅ Verified end-to-end, including verbatim thinking-block replay and persistence across restarts |
 | CLI (`notchpilot-cli`) | ✅ Built; workflow, persistence across processes and missing-credential handling verified |
 | macOS app (notch window, SwiftUI UI, EventKit, Keychain, media, notifications) | ✅ Compiled and smoke-tested on macOS in GitHub Actions (Xcode 26.6, universal arm64 + x86_64 `.app`): the real app launches, shows the island, expands and collapses, renders every tab, a live timer and an approval card, opens Settings and reports an unreachable provider cleanly — screenshots are in each run's artifacts |
@@ -38,6 +38,8 @@ Native Swift, SwiftUI and AppKit. No Electron, no web views, no private APIs.
 **Built-in tools** — tasks, notes, focus/break timers, preferences, approved long-term memory, conversation search, daily overview, calendar events, free-time search, calendar events and reminders (with approval), open apps and links, system/battery/top-memory processes, now playing and playback control, Shortcuts, clipboard, email drafts (never sent), date extraction and attached-document reading. Full list: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#tools).
 
 **Designed to feel like part of macOS** — the system font and SF Symbols throughout; macOS system colours and your own accent colour (System Settings → Appearance); standard Mac push buttons, switches and spinners; Messages-style chat bubbles; approval prompts worded like the system's ("Don’t Allow" / "Allow"); and a settings window laid out like System Settings, with coloured sidebar icons and grouped sections. The island stays black like the hardware notch, Dynamic Island–style, unless you choose *Match system appearance*.
+
+**Brief me** — say “Brief me” (or press Brief Me on the Today tab) and NotchPilot looks across your Mac — all your calendars for today and tomorrow, Reminders that are due, its own tasks and recent notes, files that changed in the folders you connect, and, if you turn it on, the senders and subjects of unread Mail — then tells you what to do in order: overdue and urgent first, today's commitments next, then what can wait. You choose every source in Settings → Briefing. Turn on *Prepare my briefing every morning* and it's ready when you sit down; that unattended run can only read, never change anything. The assistant can also search and read text files in your connected folders whenever you ask.
 
 **Around the assistant** — Today dashboard (timer, now playing, next events, focus list, battery/memory/disk), Tasks with priorities and due dates, Notes with search and “Summarise / Make tasks”, an Activity log of every action, and proactive notifications (morning briefing, deadline reminders, event preparation, end-of-day summary, focus-session end) — each optional.
 
@@ -76,7 +78,7 @@ NotchPilot/
 ├─ Sources/NotchPilotCore/          platform-independent agent, providers, tools, stores (tested on Linux + macOS)
 ├─ Sources/NotchPilot/              the macOS app (AppKit window + SwiftUI + macOS integrations)
 ├─ Sources/NotchPilotCLI/           terminal front end
-├─ Tests/NotchPilotCoreTests/       86 unit and end-to-end tests (+ mock LLM server)
+├─ Tests/NotchPilotCoreTests/       91 unit and end-to-end tests (+ mock LLM server)
 ├─ Resources/                       Info.plist, entitlements, app icon
 ├─ scripts/build_app.sh             builds, signs and zips NotchPilot.app
 ├─ scripts/make_icon.py             renders the icon

@@ -29,7 +29,7 @@ public enum ToolRisk: Int, Codable, Comparable, Sendable {
 /// Settings area that can switch a group of tools off.
 public enum FeatureArea: String, Sendable, CaseIterable {
     case core, tasks, notes, timer, memory, preferences, conversations
-    case calendar, reminders, media, appLaunching, webLinks, shortcuts, systemInfo, clipboard, emailDrafts, documents
+    case calendar, reminders, media, appLaunching, webLinks, shortcuts, systemInfo, clipboard, emailDrafts, documents, files
 
     public var displayName: String {
         switch self {
@@ -50,6 +50,7 @@ public enum FeatureArea: String, Sendable, CaseIterable {
         case .clipboard: return "Clipboard"
         case .emailDrafts: return "Email drafts"
         case .documents: return "Attached documents"
+        case .files: return "Connected folders"
         }
     }
 
@@ -68,6 +69,7 @@ public enum FeatureArea: String, Sendable, CaseIterable {
         case .systemInfo: return toggles.systemInfo
         case .clipboard: return toggles.clipboard
         case .emailDrafts: return toggles.emailDrafts
+        case .files: return toggles.files
         }
     }
 }
@@ -231,6 +233,10 @@ public final class AgentServices {
     public let clipboard: ClipboardWriter
     public let dateExtractor: DateExtracting
     public let clock: AppClock
+    /// Unread mail for briefings; unavailable unless the app supplies one.
+    public var mail: MailSummaryProvider = UnavailableMailSummary()
+    /// The folders the user connected, as currently set.
+    public var connectedFiles: ConnectedFiles { ConnectedFiles(paths: settings.settings.briefing.connectedFolders) }
 
     public init(
         tasks: TaskStore, notes: NoteStore, memory: MemoryStore, settings: SettingsStore, conversations: ConversationStore,
