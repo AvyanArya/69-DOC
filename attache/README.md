@@ -16,7 +16,7 @@ Each edition is a two-minute read, written for a phone on the way out in the mor
 | **Before you go** | One number, one word of the day, one conversation opener, and one topic to handle with care. |
 | **And finally** | A lighter closing line, often local to the UAE. |
 
-**Brief me aloud** reads the front page to you in a British English voice, highlighting each story as it goes.
+**Listen** reads the front page aloud, highlighting each story as it goes. It uses the most natural-sounding English voice installed on your device, and you can pick another from the voice menu. On iPhone, download an Enhanced or Premium voice under Settings › Accessibility › Spoken Content › Voices › English for the best result.
 
 **Ask Attaché** is a concierge that answers questions about the current edition, for example "prepare me for dinner with a banker" or "go deeper on Hormuz". It runs on the viewer's own Claude account.
 
