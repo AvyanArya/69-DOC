@@ -32,7 +32,7 @@ export default function SearchBox({ onPick, placeholder = 'Search any ticker or 
     const id = setTimeout(async () => {
       try {
         const res = await api(`/api/search?q=${encodeURIComponent(query)}`);
-        setItems(res);
+        setItems(onPick ? res.filter((x) => !x.topicKey) : res); // trade form only wants tickers
         setActive(0);
       } catch { setItems([]); }
       setLoading(false);
@@ -44,7 +44,8 @@ export default function SearchBox({ onPick, placeholder = 'Search any ticker or 
     setOpen(false);
     setQ('');
     input.current?.blur();
-    if (onPick) onPick(it);
+    if (it.topicKey) go(`topic/${it.topicKey}`);
+    else if (onPick) onPick(it);
     else go(stockPath(it.symbol));
   };
 

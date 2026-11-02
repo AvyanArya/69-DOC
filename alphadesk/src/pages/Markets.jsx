@@ -58,7 +58,7 @@ export default function Markets({ briefing }) {
             <button key={k} className={tab === k ? 'active' : ''} onClick={() => setTab(k)}>{l}</button>
           ))}
         </div>
-        <span className="faint small">Click anything for the full analysis</span>
+        <span className="faint small">Click a sector or theme to open its topic page</span>
       </div>
 
       {tab !== 'commodities' && <AreaTable rows={tab === 'sectors' ? b.sectors : b.themes} stocks={b.stocks} />}
@@ -110,7 +110,7 @@ function AreaTable({ rows, stocks }) {
             {rows.map((r, i) => {
               const leaders = r.members.map((s) => bySymbol[s]).filter(Boolean).sort((a, b) => b.score - a.score).slice(0, 3);
               return (
-                <tr key={r.symbol} className="click" onClick={() => go(stockPath(r.symbol))}>
+                <tr key={r.symbol} className="click" onClick={() => go(r.topicKey ? `topic/${r.topicKey}` : stockPath(r.symbol))}>
                   <td><span className="rank">{i + 1}</span></td>
                   <td><SymbolCell symbol={r.name} name={r.symbol} /></td>
                   <td className="r">{price(r.price)}</td>

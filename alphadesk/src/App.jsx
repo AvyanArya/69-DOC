@@ -6,6 +6,8 @@ import SearchBox from './components/SearchBox.jsx';
 import Today from './pages/Today.jsx';
 import Stock from './pages/Stock.jsx';
 import Markets from './pages/Markets.jsx';
+import Topics from './pages/Topics.jsx';
+import Topic from './pages/Topic.jsx';
 import Plan from './pages/Plan.jsx';
 import Portfolio from './pages/Portfolio.jsx';
 import Ask from './pages/Ask.jsx';
@@ -13,7 +15,8 @@ import { price } from './format.js';
 
 const NAV = [
   { path: '', label: 'Today', icon: 'today' },
-  { path: 'markets', label: 'Sectors & Commodities', short: 'Markets', icon: 'markets' },
+  { path: 'topics', label: 'Topics', icon: 'gem' },
+  { path: 'markets', label: 'Markets', icon: 'markets' },
   { path: 'plan', label: 'Game Plan', short: 'Plan', icon: 'plan' },
   { path: 'portfolio', label: 'My Portfolio', short: 'Portfolio', icon: 'portfolio' },
   { path: 'ask', label: 'Ask AI', short: 'Ask AI', icon: 'ai' },
@@ -36,13 +39,15 @@ export default function App() {
   const [page, arg] = route.parts;
   let view;
   if (page === 'stock' && arg) view = <Stock symbol={arg.toUpperCase()} status={status.data} />;
+  else if (page === 'topic' && arg) view = <Topic topicKey={arg} />;
+  else if (page === 'topics') view = <Topics briefing={briefing} />;
   else if (page === 'markets') view = <Markets briefing={briefing} />;
   else if (page === 'plan') view = <Plan briefing={briefing} />;
   else if (page === 'portfolio') view = <Portfolio query={route.query} />;
   else if (page === 'ask') view = <Ask status={status.data} query={route.query} />;
   else view = <Today briefing={briefing} status={status.data} />;
 
-  const active = page === 'stock' ? null : page || '';
+  const active = page === 'stock' ? null : page === 'topic' ? 'topics' : page || '';
   return (
     <div className="shell">
       <header className="topbar">

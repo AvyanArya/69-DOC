@@ -1,6 +1,6 @@
 // One router shared by the local dev server (Vite plugin), `npm start`
 // (server.js) and Vercel serverless functions (api/*.js).
-import { buildBriefing, stockDetail, searchSymbols, quotes, marketDate } from './market.js';
+import { buildBriefing, stockDetail, topicDetail, searchSymbols, quotes, marketDate } from './market.js';
 import { aiEnabled, aiBriefing, cachedAiBriefing, aiStock, aiAsk } from './agent.js';
 import { isDemo } from './demo.js';
 
@@ -12,6 +12,7 @@ const routes = {
     const capital = Math.min(Math.max(Number(query.capital) || 100000, 1000), 1e9);
     return stockDetail(query.symbol, { capital, profile: query.profile || 'balanced' });
   },
+  'GET /api/topic': async ({ query }) => topicDetail(String(query.key || '')),
   'GET /api/search': async ({ query }) => searchSymbols(String(query.q || '').slice(0, 60)),
   'GET /api/quotes': async ({ query }) => {
     const syms = String(query.symbols || '').split(',').map((s) => s.trim()).filter(Boolean).slice(0, 60);

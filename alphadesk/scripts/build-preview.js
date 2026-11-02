@@ -42,6 +42,22 @@ await mapLimit([...symbols], 3, async (sym) => {
   if (++done % 10 === 0) console.log(`   ${done}/${symbols.size}`);
 });
 
+console.log(`   + ${briefing.topics.length} topic pages (news per topic)…`);
+const { topicDetail } = await import('../lib/market.js');
+const topics = {};
+await mapLimit(briefing.topics.map((t) => t.key), 3, async (key) => {
+  try { topics[key] = await topicDetail(key); } catch (err) { console.warn(`   skipped topic ${key}: ${err.message}`); }
+});
+// Make sure every topic's best pick and members have a stock page in the preview.
+const extra = [...new Set(Object.values(topics).flatMap((t) => [t.topPick.symbol, t.etf.symbol, ...t.members.map((m) => m.symbol)]))].filter((x) => !stocks[x]);
+await mapLimit(extra, 3, async (sym) => {
+  try {
+    const d = await stockDetail(sym);
+    const n = 252, c = d.chart;
+    stocks[d.symbol] = { ...d, intraday: undefined, chart: { t: c.t.slice(-n), c: c.c.slice(-n).map(r), sma20: c.sma20.slice(-n).map(r), sma50: c.sma50.slice(-n).map(r), sma200: c.sma200.slice(-n).map(r) } };
+  } catch { /* skip */ }
+});
+
 const names = Object.fromEntries([
   ...STOCKS.map((s) => [s.symbol, s.name]),
   ...SECTORS.map((s) => [s.symbol, `${s.name} sector ETF`]),
@@ -69,7 +85,7 @@ const favicon = fs.readFileSync(path.join(root, 'public/favicon.svg'), 'utf8');
 html = html.replace(/<link rel="icon"[^>]*>/, `<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,${encodeURIComponent(favicon)}" />`);
 html = html.replace('<title>AlphaDesk · 6-Week Challenge Copilot</title>', '<title>AlphaDesk · Preview</title>');
 
-const snapshot = { generatedAt: new Date().toISOString(), briefing, stocks, index };
+const snapshot = { generatedAt: new Date().toISOString(), briefing, stocks, topics, index };
 const json = JSON.stringify(snapshot).replace(/</g, '\\u003c');
 html = html.replace('</body>', `<script>window.__ALPHADESK_SNAPSHOT__ = ${json};</script>\n<script type="module">${safe(appJs)}</script>\n</body>`);
 

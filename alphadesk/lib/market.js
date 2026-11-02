@@ -9,6 +9,7 @@ import { mapLimit } from './http.js';
 import { isDemo } from './demo.js';
 import { INDICES, SECTORS, THEMES, COMMODITIES, STOCKS, SAFE, LEVERAGED, SECTOR_BY_SYMBOL, localSearch } from './universe.js';
 import { buildPlans, GAME_PLAN, RULES } from './plans.js';
+import { TOPICS, heatOf } from './topics.js';
 
 const MIN = 60 * 1000;
 
@@ -34,7 +35,7 @@ function regimeOf(spy, vix) {
 }
 
 export async function buildBriefing() {
-  const key = `briefing:v2:${marketDate()}:${isDemo() ? 'demo' : 'live'}`;
+  const key = `briefing:v4:${marketDate()}:${isDemo() ? 'demo' : 'live'}`;
   return cached(key, 15 * MIN, async () => {
     const symbols = [
       ...INDICES.map((x) => x.symbol), ...SECTORS.map((x) => x.symbol), ...THEMES.map((x) => x.symbol),
@@ -67,6 +68,7 @@ export async function buildBriefing() {
         ret5: m.ret5, ret21: m.ret21, ret63: m.ret63, growth: growthOf(m), score: a.score, signal: a.signal,
         members: x.members || STOCKS.filter((st) => st.sector === x.symbol).map((st) => st.symbol),
         spark: s.c.slice(-63),
+        topicKey: TOPICS.find((t) => t.etf === x.symbol)?.key,
       };
     };
     const sectors = SECTORS.map((x) => areaOf(x, 'Sector')).filter(Boolean).sort((a, b) => b.growth - a.growth);
@@ -127,6 +129,7 @@ export async function buildBriefing() {
     if (top.newsPulse.earningsSoon) top.reasons.cons.unshift('Headlines point to an earnings report soon - expect a big move either way');
 
     const plans = buildPlans({ stocks, areas, commodities, core: coreList, leveraged, crypto, cash, regime });
+    const topics = buildTopics({ data, spy, stocks });
 
     return {
       date: marketDate(),
@@ -142,11 +145,60 @@ export async function buildBriefing() {
       commodities: commodities.map((c, i) => ({ ...c, news: i === 0 ? commodityNews : undefined })),
       marketNews,
       plans,
+      topics,
       gamePlan: GAME_PLAN,
       rules: RULES,
       universeSize: stocks.length,
     };
   });
+}
+
+// ---------- Topics ----------
+const ETF_NAMES = Object.fromEntries([
+  ...SECTORS.map((x) => [x.symbol, `${x.name} Select Sector SPDR`]),
+  ...THEMES.map((x) => [x.symbol, `${x.name} ETF`]),
+  ...COMMODITIES.map((c) => [c.etf, `${c.name} ETF`]),
+]);
+const slim = (x) => ({
+  symbol: x.symbol, name: x.name, price: x.price, changePct: x.changePct, score: x.score, signal: x.signal,
+  ret5: x.ret5, ret21: x.ret21, ret63: x.ret63, rsi: x.rsi, fromHigh: x.fromHigh, rs63: x.rs63, sectorName: x.sectorName, why: x.why, isEtf: x.isEtf,
+});
+
+function buildTopics({ data, spy, stocks }) {
+  const bySym = Object.fromEntries(stocks.map((s) => [s.symbol, s]));
+  const etfOf = (sym) => (data[sym] ? compact(analyze(data[sym], spy), { name: ETF_NAMES[sym] || sym, isEtf: true }) : null);
+  const list = TOPICS.map((t) => {
+    const etf = etfOf(t.etf);
+    if (!etf) return null;
+    const memberSyms = t.members || THEMES.find((x) => x.symbol === t.etf)?.members || [];
+    const members = memberSyms.map((s) => bySym[s] || etfOf(s)).filter(Boolean).sort((a, b) => b.score - a.score);
+    // The best single name - unless every name is weaker than simply owning the ETF.
+    const best = members[0] && members[0].score >= etf.score - 3 ? members[0] : etf;
+    return {
+      key: t.key, name: t.name, group: t.group, blurb: t.blurb, drivers: t.drivers, watch: t.watch, newsQuery: t.newsQuery,
+      etf: { ...etf, spark: data[t.etf].c.slice(-63) },
+      ret5: etf.ret5, ret21: etf.ret21, ret63: etf.ret63, growth: 0.2 * etf.ret5 + 0.5 * etf.ret21 + 0.3 * etf.ret63,
+      score: etf.score, signal: etf.signal,
+      topPick: { ...best, spark: data[best.symbol] ? data[best.symbol].c.slice(-63) : [] },
+      members: members.map(slim),
+      buyCount: members.filter((x) => x.score >= 62).length,
+    };
+  }).filter(Boolean);
+  const ranked = [...list].sort((a, b) => b.growth - a.growth);
+  ranked.forEach((t, i) => { t.rank = i + 1; t.heat = heatOf(i, ranked.length, t.growth, t.ret63); });
+  return list.map((t) => ({ ...t, of: ranked.length }));
+}
+
+/** One topic with its news (for the topic page). */
+export async function topicDetail(key) {
+  const b = await buildBriefing();
+  const t = b.topics.find((x) => x.key === key);
+  if (!t) throw Object.assign(new Error(`Unknown topic "${key}"`), { status: 404 });
+  const [news, pickNews] = await Promise.all([
+    searchNews(t.newsQuery, 8).catch(() => []),
+    t.topPick.isEtf ? [] : getTickerNews(t.topPick.symbol, t.topPick.name, 4).catch(() => []),
+  ]);
+  return { ...t, news, newsPulse: newsPulse(news), pickNews, date: b.date, generatedAt: b.generatedAt };
 }
 
 /** Everything about one symbol for the detail page. */
@@ -204,8 +256,16 @@ export async function stockDetail(symbol, { capital = 100000, profile = 'balance
   };
 }
 
+function topicSearch(q) {
+  const n = q.trim().toLowerCase();
+  if (n.length < 3) return [];
+  return TOPICS.filter((t) => t.name.toLowerCase().includes(n) || t.key.includes(n.replace(/\s+/g, '-')))
+    .slice(0, 3)
+    .map((t) => ({ symbol: t.name, name: `Topic · ${t.group}`, type: 'Topic', topicKey: t.key }));
+}
+
 export async function searchSymbols(q) {
-  const local = localSearch(q);
+  const local = [...topicSearch(q), ...localSearch(q)];
   try {
     const remote = await yahooSearch(q);
     const seen = new Set();

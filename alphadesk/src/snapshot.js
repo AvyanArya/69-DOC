@@ -17,18 +17,25 @@ export function snapshotApi(path, method) {
       const d = s.stocks[String(q.symbol || '').toUpperCase()];
       return d || notInPreview(`"${q.symbol}"`);
     }
+    case 'GET /api/topic': {
+      const t = s.topics && s.topics[q.key];
+      return t || notInPreview('This topic');
+    }
     case 'GET /api/search': {
       const needle = String(q.q || '').trim().toLowerCase();
       if (!needle) return [];
-      return s.index
+      const topicHits = needle.length < 3 ? [] : Object.values(s.topics || {})
+        .filter((t) => t.name.toLowerCase().includes(needle))
+        .slice(0, 3)
+        .map((t) => ({ symbol: t.name, name: `Topic · ${t.group}`, type: 'Topic', topicKey: t.key, rank: 90 }));
+      return [...topicHits, ...s.index
         .map((it) => {
           const sym = it.symbol.toLowerCase(), nm = it.name.toLowerCase();
           const rank = sym === needle ? 100 : sym.startsWith(needle) ? 80 : nm.startsWith(needle) ? 70 : nm.includes(needle) ? 50 : 0;
           return { ...it, rank };
         })
         .filter((it) => it.rank)
-        .sort((a, b) => b.rank - a.rank)
-        .slice(0, 10);
+        .sort((a, b) => b.rank - a.rank)].slice(0, 10);
     }
     case 'GET /api/quotes': {
       const out = {};

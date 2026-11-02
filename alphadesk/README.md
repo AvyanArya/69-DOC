@@ -6,6 +6,7 @@ the market and tells you:
 - **Today's top pick**, with a 0–100 score, a one-line "why", short reasons for and against, a buy zone, a stop-loss, a 6-week target and how many shares to buy.
 - **The area with the most growth** (sector or theme), the best stocks inside it, and the news driving it.
 - **Top-ranked stocks** across about 90 large and popular names. Click any of them for the full breakdown.
+- **Topics**: 28 topic pages, one for every area of the market. That's 11 sectors, 12 themes (chips, software, defense, uranium, biotech, cybersecurity…) and 5 commodity and crypto groups (precious metals, oil and gas, copper, agriculture, crypto). Each page shows a Hot / Warming / Cooling / Cold label, the growth over 1 week, 1 month and 3 months, the best pick inside it with a buy zone, stop and target, "how to play it" advice, what drives it, what to watch, every name ranked, and the news driving it. You can search for topics too.
 - **Commodities and crypto** (gold, silver, oil, copper, natural gas, bitcoin and more), with the ETF you'd actually buy for each.
 - **Game plans**: Conservative, Balanced or Aggressive splits of your $100k across asset classes (core ETFs, momentum stocks, sector ETFs, commodities, swing trades, day trading, leveraged ETFs, crypto, cash). Each plan is filled with today's best tickers and comes with a week-by-week playbook.
 - **Search** for any ticker or company name (stocks, ETFs, futures, crypto). You get a chart, key numbers, the score breakdown, news with sentiment, and a trade plan sized to your account.
@@ -95,12 +96,13 @@ alphadesk/
     analyze.js    indicators -> score, signal, reasons, levels, position size
     market.js     daily briefing (top pick, hottest area, rankings, commodities)
     plans.js      allocation plans, 6-week playbook, rules
+    topics.js     the 28 topics: members, what drives each one, what to watch
     agent.js      Claude agent: tools over the data + web search, structured reports
     universe.js   the stocks / ETFs / commodities that get scanned - edit freely
     routes.js     /api router
   api/[...path].js  Vercel serverless entry
   server.js       production server (npm start)
-  src/            React app (Today, Stock, Sectors & Commodities, Game Plan, Portfolio, Ask AI)
+  src/            React app (Today, Topics, Stock, Markets, Game Plan, Portfolio, Ask AI)
   scripts/smoke-test.js     npm run check - exercises every API route
   scripts/build-preview.js  npm run build:preview - writes the offline preview.html
 ```

@@ -66,13 +66,13 @@ function RegimeBar({ regime }) {
   );
 }
 
-export function TopPick({ p, settings }) {
+export function TopPick({ p, settings, title = "Today's top pick" }) {
   const size = sizeFor(p.levels, p.price, settings);
   return (
     <div className="card hero">
       <div className="row" style={{ justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
         <div style={{ minWidth: 0 }}>
-          <div className="eyebrow"><Icon name="target" size={15} />Today's top pick</div>
+          <div className="eyebrow"><Icon name="target" size={15} />{title}</div>
           <div className="row wrap" style={{ marginTop: 10, gap: 14, alignItems: 'baseline' }}>
             <a className="hero-sym" href={`#/${stockPath(p.symbol)}`}>{p.symbol}</a>
             <span className="hero-price">${price(p.price)}</span>
@@ -119,8 +119,8 @@ function Hottest({ h }) {
         <div className="card-title"><Icon name="fire" size={15} />Most growth right now</div>
         <span className="badge info">{h.kind}</span>
       </div>
-      <a href={`#/${stockPath(h.symbol)}`} style={{ display: 'block' }}>
-        <div style={{ fontSize: 24, fontWeight: 800, letterSpacing: '-0.03em' }}>{h.name}</div>
+      <a href={h.topicKey ? `#/topic/${h.topicKey}` : `#/${stockPath(h.symbol)}`} style={{ display: 'block' }}>
+        <div style={{ fontSize: 24, fontWeight: 800, letterSpacing: '-0.03em' }}>{h.name} <span className="small" style={{ color: 'var(--accent)', fontWeight: 600, letterSpacing: 0 }}>Open topic →</span></div>
         <div className="faint small">ETF: <b className="muted">{h.symbol}</b> · ${price(h.price)}</div>
       </a>
       <div className="row" style={{ gap: 18, margin: '14px 0 6px' }}>
@@ -206,7 +206,7 @@ function SectorCard({ sectors, themes }) {
           </div>
         </div>
       </div>
-      <GrowthBars rows={rows} valueKey={period} onClick={(r) => go(stockPath(r.symbol))} />
+      <GrowthBars rows={rows} valueKey={period} onClick={(r) => go(r.topicKey ? `topic/${r.topicKey}` : stockPath(r.symbol))} />
     </div>
   );
 }

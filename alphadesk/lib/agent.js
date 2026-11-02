@@ -42,6 +42,7 @@ const dataTools = () => [
         topStocks: b.stocks.slice(0, n).map(slimStock),
         weakestStocks: b.stocks.slice(-5).map(slimStock),
         commodities: b.commodities.map((c) => ({ name: c.name, future: c.symbol, etf: c.etf, score: c.score, signal: c.signal?.label, ret1m: pct(c.ret21), ret3m: pct(c.ret63), rsi: Math.round(c.rsi) })),
+        topics: [...b.topics].sort((x, y) => x.rank - y.rank).map((t) => ({ name: t.name, group: t.group, etf: t.etf.symbol, heat: t.heat.label, ret1m: pct(t.ret21), bestPick: t.topPick.symbol, bestPickScore: t.topPick.score })),
         headlines: b.marketNews.map((n) => n.title),
       });
     },
