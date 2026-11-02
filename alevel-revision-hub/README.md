@@ -1,4 +1,6 @@
-# A-Level Revision Hub
+# Preppr
+
+*preppr.* — A-level revision for Edexcel.
 
 A revision website for **Pearson Edexcel A-level Physics (9PH0), Mathematics (9MA0), Further
 Mathematics (9FM0) and Economics A (9EC0)**. It plans every revision session at a real time around
@@ -54,6 +56,8 @@ specification numbers).
 
 | Feature | What it does |
 |---|---|
+| **Preppr brand and print design** | The site is now Preppr, with the logo redrawn as an inline SVG wordmark (and a favicon) in the logo's cream, ink and violet. One design language everywhere, taken from the bookshelf: warm paper with a fine grain, ink rules, an editorial serif (Newsreader) for headings, small uppercase labels in ruled boxes (Inter Tight), square corners and no shadows. Each subject keeps one printing ink to mark it. Light and dark themes. |
+| **Economics diagrams** | Thirteen interactive Edexcel diagrams in Labs: supply and demand, PED and revenue, indirect taxes and subsidies (specific, ad valorem, incidence), maximum and minimum prices, externalities, the PPF, AD/AS (classical and Keynesian, with 2008 and 2022 shock presets), costs and revenue under perfect competition and monopoly, the labour market and minimum wage (including monopsony), the Lorenz curve and Gini, tariffs, the multiplier and exchange rates. Each shades the right areas (surplus, tax revenue, welfare loss), gives the numbers, and has things to try, the theory and an **In the exam** section: how to draw it, evaluation points and real-world examples. Economics lessons link to their diagram. |
 | **Physics labs** | Interactive simulations built on the real equations, in the style of PhET. Each has sliders for its variables, play/pause/slow-motion, live readings (green = predicted by the equations, black = measured), graphs, experiments to try and the theory. **Projectile motion** (angle, speed, height, gravity, air resistance, a target), **Pendulum and spring** (exact pendulum equation, damping, driven oscillations and a resonance curve for CP16), **EMF and internal resistance** (record readings, best-fit line gives r and ε, CP3), **Capacitor charge and discharge** (time constant, ln V plot, CP11), **Young's slits and gratings** (full intensity pattern, fringe spacing, grating orders, CP8), **Momentum and collisions** (elasticity, momentum and KE before and after), **Photoelectric effect** (photons, work functions, stopping potential, KE against f), **Radioactive decay** (random decay of up to 2,500 nuclei, half-life from the curve) and **Orbits** (circular speed, ellipses, escape velocity). Each physics lesson links to its lab. |
 | **Bookshelf** | The subjects as a shelf of textbooks you browse in 3D (see the table above). The covers and spines are drawn in code, one design per subject. |
 | **Save My Exams-style design** | Navy top bar with the subjects, a left-hand menu with the topic tree, plain white pages, one typeface (Inter), far fewer boxes. |

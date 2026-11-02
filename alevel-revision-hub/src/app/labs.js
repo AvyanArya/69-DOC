@@ -24,7 +24,7 @@
   // Colours from the page's theme, read on each mount and when the theme changes.
   LB.theme = function () {
     const cs = getComputedStyle(document.documentElement), v = (n) => cs.getPropertyValue(n).trim();
-    return { ink: v('--ink'), ink2: v('--ink-2'), ink3: v('--ink-3'), line: v('--line'), line2: v('--line-2'), bg: v('--surface'), bg2: v('--surface-2'), bg3: v('--surface-3'), primary: v('--primary'), bad: v('--bad'), ok: v('--ok'), warn: v('--c2'), accent: v('--eco'), purple: v('--fm'), green: v('--mat'), dark: /dark/.test(cs.getPropertyValue('color-scheme')) };
+    return { ink: v('--ink'), ink2: v('--ink-2'), ink3: v('--ink-3'), line: v('--line'), line2: v('--line-2'), bg: v('--surface'), bg2: v('--surface-2'), bg3: v('--surface-3'), primary: v('--accent'), brand: v('--brand'), phy: v('--phy'), bad: v('--bad'), ok: v('--ok'), warn: v('--c2'), accent: v('--eco'), purple: v('--fm'), green: v('--mat'), dark: /dark/.test(cs.getPropertyValue('color-scheme')) };
   };
   // Visible light as a colour; ultraviolet and infrared shown as dim violet and dim red.
   LB.waveColour = function (nm, alpha) {
@@ -53,7 +53,7 @@
   };
   LB.text = function (g, s, x, y, o) {
     o = o || {};
-    g.font = (o.weight || 500) + ' ' + (o.size || 12) + 'px Inter, system-ui, sans-serif';
+    g.font = (o.weight || 500) + ' ' + (o.size || 12) + 'px "Inter Tight", Inter, system-ui, sans-serif';
     g.fillStyle = o.col; g.textAlign = o.align || 'left'; g.textBaseline = o.base || 'alphabetic';
     g.fillText(s, x, y);
   };
@@ -100,19 +100,26 @@
     items.forEach(function (it) {
       g.fillStyle = it[1]; g.fillRect(cx, y - 8, 14, 3);
       LB.text(g, it[0], cx + 19, y - 3, { col: th.ink2, size: 11, weight: 600 });
-      g.font = '600 11px Inter, system-ui, sans-serif';
+      g.font = '600 11px "Inter Tight", Inter, system-ui, sans-serif';
       cx += 34 + g.measureText(it[0]).width;
     });
   };
 
   // ---------- Pages ----------
   const subjOf = (gid) => M.topic[gid];
+  LB.GROUPS = [['physics', 'Physics labs', 'Experiments built on the real equations. Change the variables, take readings and plot graphs, like the practicals in Paper 3.'], ['economics', 'Economics diagrams', 'Every diagram Edexcel expects you to draw, live. Shift the curves and watch prices, quantities and the shaded areas change, then read how to draw and evaluate it in the exam.']];
+  LB.subjectOf = (d) => d.subject || 'physics';
+  const card = function (d) {
+    const t = subjOf(d.topics[0]);
+    return '<a class="lab-card" href="#lab-' + d.id + '" data-subj="' + LB.subjectOf(d) + '"><span class="lab-ic" aria-hidden="true">' + (d.icon || '') + '</span><span class="lab-ct"><b>' + esc(d.name) + '</b><span class="muted small">' + esc(d.blurb) + '</span>' + (t ? '<span class="small lab-topic">' + esc(M.lessonNum(RH.store.state, t) + ' ' + M.title(t.name)) + '</span>' : '') + '</span></a>';
+  };
   V.labs = function () {
-    let html = V.docHead('Labs', 'Physics labs', 'Interactive experiments built on the real equations. Change the variables, watch what happens, take readings and plot graphs, like the practicals in Paper 3.');
-    html += '<div class="lab-cards">' + LB.defs.map(function (d) {
-      const t = subjOf(d.topics[0]);
-      return '<a class="lab-card" href="#lab-' + d.id + '"><span class="lab-ic" aria-hidden="true">' + (d.icon || '') + '</span><span class="lab-ct"><b>' + esc(d.name) + '</b><span class="muted small">' + esc(d.blurb) + '</span>' + (t ? '<span class="small lab-topic">' + esc(M.lessonNum(RH.store.state, t) + ' ' + M.title(t.name)) + '</span>' : '') + '</span></a>';
-    }).join('') + '</div>';
+    let html = V.docHead('Labs', 'Labs', 'Interactive physics experiments and economics diagrams. Move a slider and see the result straight away.');
+    LB.GROUPS.forEach(function (g) {
+      const list = LB.defs.filter((d) => LB.subjectOf(d) === g[0]);
+      if (!list.length) return;
+      html += '<section class="lab-group" data-subj="' + g[0] + '" id="labs-' + g[0] + '"><div class="sec-head"><h2>' + g[1] + '</h2><span class="label">' + list.length + ' ' + (g[0] === 'economics' ? 'diagrams' : 'labs') + '</span></div><p class="muted">' + g[2] + '</p><div class="lab-cards">' + list.map(card).join('') + '</div></section>';
+    });
     return html;
   };
   function control(c, p) {
@@ -133,14 +140,16 @@
     let html = C.crumbs([['Labs', 'labs'], [d.name]]);
     html += V.docHead('Lab' + (t ? ' · ' + esc(t.subject.name) + ' ' + M.lessonNum(RH.store.state, t) : ''), esc(d.name), esc(d.blurb),
       d.topics.map((g) => subjOf(g) ? '<a class="btn alt sm" href="#t-' + g + '">Lesson: ' + esc(M.title(subjOf(g).name)) + '</a>' : '').join(''));
-    html += '<div class="lab" data-lab="' + id + '"><div class="lab-main"><div class="lab-stage"><canvas class="lab-cv" aria-label="' + esc(d.name) + ' simulation"></canvas></div>' +
-      '<div class="lab-bar"><button type="button" class="btn sm" data-lab-act="play">' + C.icon('pause') + '<span>Pause</span></button><button type="button" class="btn alt sm" data-lab-act="reset">' + C.icon('rebuild') + 'Reset</button>' +
+    const econ = LB.subjectOf(d) === 'economics';
+    html += '<div class="lab" data-lab="' + id + '" data-subj="' + LB.subjectOf(d) + '"><div class="lab-main"><div class="lab-stage"><canvas class="lab-cv" aria-label="' + esc(d.name) + ' simulation"></canvas></div>' +
+      (d.still && !(d.actions || []).length ? '<div class="lab-bar" hidden>' : '<div class="lab-bar">') + (d.still ? '' : '<button type="button" class="btn sm" data-lab-act="play">' + C.icon('pause') + '<span>Pause</span></button><button type="button" class="btn alt sm" data-lab-act="reset">' + C.icon('rebuild') + 'Reset</button>') +
       (d.actions || []).map((a) => '<button type="button" class="btn ' + (a.primary ? '' : 'alt ') + 'sm" data-lab-act="' + a.id + '">' + esc(a.label) + '</button>').join('') +
-      '<span class="lab-speed"><span class="small muted">Speed</span>' + C.seg([[0.25, '¼×'], [0.5, '½×'], [1, '1×'], [2, '2×']].concat(d.fast ? [[d.fast, d.fast + '×']] : []), cur ? cur.speed : 1, 'data-lab-speed="1"') + '</span></div>' +
+      (d.still ? '' : '<span class="lab-speed"><span class="small muted">Speed</span>' + C.seg([[0.25, '¼×'], [0.5, '½×'], [1, '1×'], [2, '2×']].concat(d.fast ? [[d.fast, d.fast + '×']] : []), cur ? cur.speed : 1, 'data-lab-speed="1"') + '</span>') + '</div>' +
       (d.graph ? '<div class="lab-graph"><canvas class="lab-gc" aria-label="Graph"></canvas></div>' : '') + '</div>' +
-      '<aside class="lab-panel"><h2>Variables</h2><div class="lab-ctrls">' + d.controls.map((c) => control(c, p)).join('') + '</div><h2>Readings</h2><p class="help">Green values are predicted by the equations; the others are measured in the simulation.</p><dl class="lab-read"></dl><div class="lab-extra"></div></aside></div>';
-    html += '<div class="lab-notes"><section><h2 class="h-rule">Experiments to try</h2><ol class="lab-tasks">' + d.tasks.map((x) => '<li>' + x + '</li>').join('') + '</ol></section>' +
-      '<section><h2 class="h-rule">The physics</h2><div class="lab-theory">' + d.theory + '</div></section></div>';
+      '<aside class="lab-panel"><h2>Variables</h2><div class="lab-ctrls">' + d.controls.map((c) => control(c, p)).join('') + '</div><h2>Readings</h2>' + (d.subject === 'economics' ? '' : '<p class="help">Green values are predicted by the equations; the others are measured in the simulation.</p>') + '<dl class="lab-read"></dl><div class="lab-extra"></div></aside></div>';
+    html += '<div class="lab-notes"><section><h2 class="h-rule">' + (econ ? 'Things to try' : 'Experiments to try') + '</h2><ol class="lab-tasks">' + d.tasks.map((x) => '<li>' + x + '</li>').join('') + '</ol></section>' +
+      '<section><h2 class="h-rule">' + (econ ? 'The economics' : 'The physics') + '</h2><div class="lab-theory">' + d.theory + '</div></section></div>';
+    if (d.exam) html += '<section class="lab-exam" data-subj="' + LB.subjectOf(d) + '"><h2 class="h-rule">In the exam</h2><div class="lab-exam-cols">' + d.exam.map((x) => '<div><p class="label">' + esc(x[0]) + '</p>' + (x[2] === 'ol' ? '<ol>' : '<ul>') + x[1].map((i) => '<li>' + i + '</li>').join('') + (x[2] === 'ol' ? '</ol>' : '</ul>') + '</div>').join('') + '</div></section>';
     return html;
   };
   function defaults(d) { const p = {}; d.controls.forEach((c) => { p[c.k] = c.v; }); return p; }
@@ -158,7 +167,7 @@
     let th = LB.theme(), W = 0, Hh = 0, GW = 0, GH = 0, frame = 0, lastRead = '', lastExtra = '';
     function size() {
       const dpr = window.devicePixelRatio || 1;
-      W = cv.parentNode.clientWidth; Hh = Math.round(Math.min(W * (d.aspect || 0.56), d.maxH || 460));
+      W = cv.parentNode.clientWidth; Hh = Math.round(Math.min(W * (W < 560 ? Math.max(0.9, d.aspect || 0.56) : (d.aspect || 0.56)), d.maxH || 460));
       cv.width = Math.round(W * dpr); cv.height = Math.round(Hh * dpr); cv.style.height = Hh + 'px';
       g.setTransform(dpr, 0, 0, dpr, 0, 0);
       if (gc) { GW = gc.parentNode.clientWidth; GH = d.graphH || 220; gc.width = Math.round(GW * dpr); gc.height = Math.round(GH * dpr); gc.style.height = GH + 'px'; gg.setTransform(dpr, 0, 0, dpr, 0, 0); }
@@ -167,7 +176,7 @@
     const ro = window.ResizeObserver ? new ResizeObserver(() => size()) : null;
     if (ro) ro.observe(root.querySelector('.lab-stage'));
     const playBtn = root.querySelector('[data-lab-act="play"]');
-    const paintPlay = () => { playBtn.innerHTML = C.icon(cur.playing ? 'pause' : 'play') + '<span>' + (cur.playing ? 'Pause' : 'Play') + '</span>'; };
+    const paintPlay = () => { if (!playBtn) return; playBtn.innerHTML = C.icon(cur.playing ? 'pause' : 'play') + '<span>' + (cur.playing ? 'Pause' : 'Play') + '</span>'; };
     paintPlay();
     function refreshVisibility() { d.controls.forEach((c) => { if (c.when) { const el = root.querySelector('[data-lc="' + c.k + '"]'); if (el) el.hidden = !c.when(p); } }); }
     function set(k, v) {

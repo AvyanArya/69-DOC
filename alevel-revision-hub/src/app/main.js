@@ -49,7 +49,7 @@
     const names = { study: 'Bookshelf', subjects: 'Your subjects', plan: 'This week', deliverables: 'Deliverables', routine: 'Routine', exams: 'Exams', strategy: 'Strategy', check: 'Check an answer', checks: 'Checked answers', focus: 'Focus', papers: 'Past papers', exam: 'Exam in progress', mark: 'Marking', cards: 'Flashcards', review: 'Reviewing cards', library: 'Resources', guide: 'How to revise', preferences: 'Settings', labs: 'Labs' };
     const lab = r.indexOf('lab-') === 0 && RH.labs.byId[r.slice(4)];
     const name = t ? t.name : c ? c.name : s ? s.name : lab ? lab.name : names[r];
-    return (name ? name + ' · ' : '') + 'A-Level Revision Hub';
+    return (name ? name + ' · ' : '') + 'Preppr';
   }
 
   let lastRoute = null;
@@ -154,7 +154,7 @@
     const pad = (n) => String(n).padStart(2, '0');
     const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
     const escI = (t) => String(t).replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/,/g, '\\,').replace(/;/g, '\\;');
-    const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//A-Level Revision Hub//EN', 'CALSCALE:GREGORIAN', 'X-WR-CALNAME:A-Level revision'];
+    const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Preppr//EN', 'CALSCALE:GREGORIAN', 'X-WR-CALNAME:A-Level revision'];
     calendarItems().forEach(function (it, i) {
       const d = it.date.replace(/-/g, '');
       lines.push('BEGIN:VEVENT', 'UID:alh-' + d + '-' + i + '@revision-hub', 'DTSTAMP:' + stamp);
@@ -415,7 +415,7 @@
 
   function importBackup(text) {
     try { store.importJSON(text); applyTheme(); C.toast('Backup imported'); }
-    catch (e) { C.toast(e.message && e.message.indexOf('Revision Hub') !== -1 ? e.message : 'That file could not be read. Choose a .json backup from this hub.'); }
+    catch (e) { C.toast(e.message && e.message.indexOf('Preppr') !== -1 ? e.message : 'That file could not be read. Choose a .json backup from this hub.'); }
   }
 
   // ---------- Theme ----------

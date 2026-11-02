@@ -70,7 +70,16 @@
     if (area === 'learn') x = /^[ct]-/.test(r) ? sideTree(r) : sideLinks('Learn', RH.AREAS.learn.pages, cur);
     else if (area === 'practise') x = sideLinks('Practise', RH.AREAS.practise.pages, cur);
     else if (area === 'plan') x = sideLinks('Planner', RH.AREAS.plan.pages, cur);
-    else if (area === 'labs') x = sideLinks('Physics labs', [['labs', 'All labs']].concat(RH.labs.defs.map((d) => ['lab-' + d.id, d.name])), cur);
+    else if (area === 'labs') {
+      const L = RH.labs, pages = [['labs', 'All labs']];
+      x = sideLinks('Labs', pages, cur);
+      L.GROUPS.forEach(function (g) {
+        const list = L.defs.filter((d) => L.subjectOf(d) === g[0]);
+        if (list.length) x.body += '<p class="label side-group">' + g[1] + '</p><nav class="side-nav" data-subj="' + g[0] + '">' + list.map((d) => '<a href="#lab-' + d.id + '"' + (cur === 'lab-' + d.id ? ' class="on" aria-current="page"' : '') + '>' + esc(d.name) + '</a>').join('') + '</nav>';
+      });
+      const on = L.byId[cur.replace(/^lab-/, '')];
+      if (on) x.cur = on.name;
+    }
     if (!x) return '';
     return '<details class="side-box"' + (window.innerWidth > 860 ? ' open' : '') + '><summary><span class="side-t">' + esc(x.title) + '</span><span class="side-cur">' + esc(x.cur) + '</span></summary>' + x.body + '</details>';
   };

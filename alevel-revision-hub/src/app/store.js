@@ -206,7 +206,7 @@
   S.exportJSON = () => JSON.stringify(Object.assign({ app: 'alevel-revision-hub' }, S.state), null, 1);
   S.importJSON = function (text) {
     const raw = JSON.parse(text);
-    if (!raw || typeof raw !== 'object' || !raw.profile || !raw.topics) throw new Error('That file is not a Revision Hub backup.');
+    if (!raw || typeof raw !== 'object' || !raw.profile || !raw.topics) throw new Error('That file is not a Preppr backup.');
     delete raw.app;
     const before = Object.keys(S.state.decks);
     S.state = normalise(raw);

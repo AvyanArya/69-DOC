@@ -157,7 +157,8 @@
     html += block('learn', 2, 'Key points', learn, sd.learn, gid);
     // 3. Test yourself
     const labs = RH.labs ? RH.labs.defs.filter((d) => d.topics.indexOf(gid) !== -1) : [];
-    let recall = labs.length ? '<p class="lab-try"><b>Experiment.</b> Try it in the ' + labs.map((d) => '<a href="#lab-' + d.id + '">' + esc(d.name) + ' lab</a>').join(' or the ') + ': change the variables and check the equations for yourself.</p>' : '';
+    const econLab = sub.id === 'economics';
+    let recall = labs.length ? '<p class="lab-try"><b>' + (econLab ? 'Diagram.' : 'Experiment.') + '</b> ' + (econLab ? 'Practise it in the ' : 'Try it in the ') + labs.map((d) => '<a href="#lab-' + d.id + '">' + esc(d.name) + (econLab ? ' diagram' : ' lab') + '</a>').join(' or the ') + (econLab ? ': shift the curves, watch the shaded areas change, then learn how to draw and evaluate it.' : ': change the variables and check the equations for yourself.') + '</p>' : '';
     recall += '<p><b>Blurt test.</b> Close your notes, write down everything you remember in 10 minutes, then compare it with the key points. <button type="button" class="btn alt sm" data-action="blurt" data-id="' + gid + '">Start</button></p>';
     recall += '<p><b>Flashcards.</b> ' + (decks.length ? 'Your decks for this lesson:' : 'Make cards for the things you keep forgetting.') + ' <button type="button" class="btn link" data-action="deck-new" data-topic="' + gid + '">New deck</button> · <button type="button" class="btn link" data-action="cards-import" data-topic="' + gid + '">Import from Quizlet</button></p>';
     if (decks.length) recall += '<ul class="deck-list">' + decks.map(RH.cards.deckRow).join('') + '</ul>';
