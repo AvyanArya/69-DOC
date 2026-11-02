@@ -1,0 +1,736 @@
+<meta charset="utf-8">
+<title>Attaché</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..600&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..500&family=Schibsted+Grotesk:wght@400..700&display=swap">
+<style>
+/* Layout: a private dossier. Engraved masthead and seal, one reading column,
+   and a margin column of talking points beside each dispatch. */
+:root {
+  --paper: #e8eef0;        /* pale blue laid paper */
+  --leaf: #f4f7f7;         /* lighter leaf for raised panels */
+  --ink: #15233b;          /* deep navy ink */
+  --ink-soft: #4b5872;     /* secondary text */
+  --rule: rgba(21, 35, 59, 0.16);
+  --seal: #7b1f2e;         /* oxblood wax */
+  --seal-wash: rgba(123, 31, 46, 0.08);
+  --ok: #2f5d4a;
+  --warn: #8a5a12;
+
+  --display: "Bodoni Moda", "Didot", "Bodoni 72", Georgia, serif;
+  --body: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --utility: "Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
+
+  --step--1: 0.8rem;
+  --step-0: 1.0625rem;
+  --step-1: 1.3rem;
+  --step-2: 1.7rem;
+  --step-3: clamp(2rem, 4.2vw, 2.9rem);
+  --step-4: clamp(2.6rem, 7vw, 4.6rem);
+  --measure: 40rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0d1524; --leaf: #142037; --ink: #e5e8ee; --ink-soft: #a3adc0;
+    --rule: rgba(229, 232, 238, 0.14); --seal: #d37183; --seal-wash: rgba(211, 113, 131, 0.12);
+    --ok: #86c2a6; --warn: #e0b46a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0d1524; --leaf: #142037; --ink: #e5e8ee; --ink-soft: #a3adc0;
+  --rule: rgba(229, 232, 238, 0.14); --seal: #d37183; --seal-wash: rgba(211, 113, 131, 0.12);
+  --ok: #86c2a6; --warn: #e0b46a; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font-family: var(--body); font-size: var(--step-0); line-height: 1.6;
+  font-optical-sizing: auto; text-rendering: optimizeLegibility;
+}
+a { color: inherit; text-decoration-color: var(--rule); text-underline-offset: 3px; }
+a:hover { text-decoration-color: var(--seal); }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--seal); outline-offset: 3px; border-radius: 2px; }
+h1, h2, h3 { text-wrap: balance; margin: 0; font-weight: 400; }
+p { margin: 0; }
+
+.wrap {
+  max-width: 68rem; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.label {
+  font-family: var(--utility); font-size: var(--step--1); font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft);
+}
+
+/* Masthead */
+.masthead { padding-block: 2.2rem 1.4rem; border-bottom: 1px solid var(--rule); }
+.mast-row { display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap; }
+.seal { width: 74px; height: 74px; flex: none; color: var(--seal); }
+.seal text { font-family: var(--utility); font-size: 7.4px; letter-spacing: 2.6px; fill: currentColor; font-weight: 600; }
+.seal .mono { font-family: var(--display); font-style: italic; font-size: 30px; letter-spacing: 0; font-weight: 500; }
+.wordmark { font-family: var(--display); font-size: var(--step-4); line-height: 0.95; letter-spacing: -0.01em; font-weight: 400; }
+.wordmark em { font-style: italic; color: var(--seal); }
+.mast-meta { margin-left: auto; display: grid; gap: 0.35rem; justify-items: end; text-align: right; }
+.mast-date { font-family: var(--display); font-style: italic; font-size: var(--step-1); }
+.edition-nav { display: flex; align-items: center; gap: 0.4rem; }
+.edition-nav button, .edition-nav select {
+  font-family: var(--utility); font-size: var(--step--1); letter-spacing: 0.08em;
+  background: transparent; border: 1px solid var(--rule); color: var(--ink);
+  padding: 0.35rem 0.6rem; border-radius: 999px; cursor: pointer;
+}
+.edition-nav select { padding-right: 1.6rem; max-width: 11rem; }
+.edition-nav button:disabled { opacity: 0.35; cursor: default; }
+@media (max-width: 640px) {
+  .mast-meta { margin-left: 0; justify-items: start; text-align: left; width: 100%; }
+  .seal { width: 58px; height: 58px; }
+}
+
+/* Lede */
+.lede { padding-block: 3rem 2.5rem; display: grid; gap: 1.4rem; max-width: 52rem; }
+.lede h1 { font-family: var(--display); font-size: var(--step-3); line-height: 1.08; letter-spacing: -0.005em; }
+.lede .dek { font-size: var(--step-1); line-height: 1.45; color: var(--ink-soft); font-style: italic; max-width: var(--measure); }
+.lede .body { display: grid; gap: 1rem; max-width: var(--measure); }
+.kicker { color: var(--seal); }
+
+.breath {
+  display: grid; gap: 0.6rem; margin-top: 0.6rem; padding: 1.1rem 1.25rem;
+  background: var(--leaf); border: 1px solid var(--rule); border-radius: 4px; max-width: var(--measure);
+}
+.breath p { font-family: var(--display); font-style: italic; font-size: var(--step-1); line-height: 1.4; }
+.breath-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+
+.copy {
+  font-family: var(--utility); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
+  background: none; border: 0; color: var(--seal); cursor: pointer; padding: 0.2rem 0;
+}
+
+/* Section headers */
+.section { padding-block: 2.6rem; border-top: 1px solid var(--rule); }
+.section-head { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 1.6rem; flex-wrap: wrap; }
+.section-head h2 { font-family: var(--display); font-size: var(--step-2); font-style: italic; }
+
+/* At a glance */
+.glance { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.9rem; max-width: var(--measure); counter-reset: g; }
+.glance li { display: grid; grid-template-columns: 2rem 1fr; gap: 0.5rem; counter-increment: g; }
+.glance li::before {
+  content: counter(g); font-family: var(--display); font-style: italic; color: var(--seal); font-size: var(--step-1); line-height: 1.2;
+}
+
+/* Desk filter */
+.desks { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-left: auto; }
+.desk-chip {
+  font-family: var(--utility); font-size: 0.74rem; letter-spacing: 0.08em; text-transform: uppercase;
+  background: transparent; border: 1px solid var(--rule); border-radius: 999px; padding: 0.3rem 0.75rem; cursor: pointer; color: var(--ink-soft);
+}
+.desk-chip[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+/* Dispatches */
+.dispatches { display: grid; gap: 0; }
+.dispatch {
+  display: grid; grid-template-columns: minmax(0, 1fr) 19rem; gap: 2.5rem;
+  padding-block: 2.2rem; border-top: 1px solid var(--rule);
+}
+.dispatch:first-child { border-top: 0; padding-top: 0.4rem; }
+.d-main { min-width: 0; display: grid; gap: 0.9rem; max-width: var(--measure); }
+.d-meta { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+.d-num { font-family: var(--display); font-style: italic; color: var(--seal); font-size: var(--step-1); line-height: 1; }
+.d-main h3 { font-family: var(--display); font-size: var(--step-2); line-height: 1.15; }
+.d-block { display: grid; gap: 0.25rem; }
+.d-block .label { font-size: 0.7rem; }
+.pill {
+  font-family: var(--utility); font-size: 0.68rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 0.15rem 0.55rem; border-radius: 999px; border: 1px solid currentColor;
+}
+.pill.developing { color: var(--warn); }
+.pill.confirmed { color: var(--ok); }
+.pill.disputed { color: var(--seal); }
+.pill.scheduled { color: var(--ink-soft); }
+.sources { font-family: var(--utility); font-size: 0.8rem; color: var(--ink-soft); line-height: 1.5; }
+.sources a { color: var(--ink-soft); }
+.d-actions { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
+.ask-link {
+  font-family: var(--utility); font-size: 0.78rem; letter-spacing: 0.06em;
+  background: none; border: 1px solid var(--rule); border-radius: 999px; padding: 0.35rem 0.85rem; cursor: pointer;
+}
+.ask-link:hover { border-color: var(--seal); color: var(--seal); }
+
+.margin {
+  min-width: 0; display: grid; gap: 1.1rem; align-content: start;
+  padding-left: 1.4rem; border-left: 1px solid var(--rule);
+}
+.margin .say p { font-family: var(--display); font-style: italic; font-size: 1.12rem; line-height: 1.4; }
+.margin .ask p { font-style: italic; color: var(--ink-soft); }
+.names { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.45rem; font-size: 0.95rem; }
+.names b { font-weight: 600; }
+.names span { color: var(--ink-soft); }
+@media (max-width: 860px) {
+  .dispatch { grid-template-columns: minmax(0, 1fr); gap: 1.4rem; }
+  .margin { padding-left: 0; border-left: 0; padding-top: 1.1rem; border-top: 1px dashed var(--rule); }
+}
+
+/* Week ahead */
+.ahead { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; max-width: 52rem; }
+.ahead li { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 1.25rem; padding-block: 0.9rem; border-top: 1px solid var(--rule); }
+.ahead li:first-child { border-top: 0; }
+.ahead time { font-family: var(--utility); font-size: 0.82rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--seal); font-variant-numeric: tabular-nums; padding-top: 0.2rem; }
+.ahead strong { font-weight: 600; display: block; }
+.ahead span { color: var(--ink-soft); }
+@media (max-width: 520px) { .ahead li { grid-template-columns: minmax(0, 1fr); gap: 0.2rem; } }
+
+/* Figures */
+.figures { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+.figure { background: var(--paper); padding: 1.3rem 1.25rem; display: grid; gap: 0.5rem; align-content: start; }
+.figure .v { font-family: var(--display); font-size: var(--step-2); line-height: 1.1; font-variant-numeric: tabular-nums; }
+.figure .l { font-size: 0.95rem; }
+.figure .s { font-family: var(--utility); font-size: 0.74rem; color: var(--ink-soft); }
+
+/* Lexicon & salon */
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2.5rem; }
+@media (max-width: 760px) { .two { grid-template-columns: minmax(0, 1fr); } }
+.lexicon { display: grid; gap: 1.3rem; margin: 0; }
+.lexicon dt { font-family: var(--display); font-size: var(--step-1); font-style: italic; }
+.lexicon dd { margin: 0.2rem 0 0; display: grid; gap: 0.3rem; }
+.lexicon .use { color: var(--ink-soft); font-style: italic; }
+.openers { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.8rem; }
+.openers li { padding-left: 1.1rem; position: relative; }
+.openers li::before { content: "“"; position: absolute; left: 0; top: -0.15rem; font-family: var(--display); color: var(--seal); font-size: 1.4rem; }
+.careful { display: grid; gap: 1rem; margin-top: 1.8rem; }
+.careful div { display: grid; gap: 0.2rem; }
+.careful b { font-weight: 600; }
+.careful span { color: var(--ink-soft); }
+
+/* Coda */
+.coda { max-width: var(--measure); display: grid; gap: 0.8rem; }
+.coda p { font-size: var(--step-1); line-height: 1.5; }
+
+footer { padding-block: 2.4rem 7rem; border-top: 1px solid var(--rule); color: var(--ink-soft); font-size: 0.9rem; }
+footer .wrap { display: grid; gap: 0.4rem; }
+
+/* States */
+.state { padding-block: 5rem; text-align: left; max-width: 34rem; display: grid; gap: 0.8rem; }
+.state h2 { font-family: var(--display); font-style: italic; font-size: var(--step-3); }
+.state p { color: var(--ink-soft); }
+.shimmer { height: 0.8rem; border-radius: 2px; background: linear-gradient(90deg, var(--rule), transparent, var(--rule)); background-size: 200% 100%; animation: sh 1.6s linear infinite; }
+@keyframes sh { to { background-position: -200% 0; } }
+
+/* Concierge */
+.ask-fab {
+  position: fixed; z-index: 30;
+  right: calc(1.25rem + env(safe-area-inset-right, 0px));
+  bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  background: var(--ink); color: var(--paper); border: 0; border-radius: 999px;
+  padding: 0.8rem 1.2rem 0.8rem 0.9rem; cursor: pointer;
+  font-family: var(--utility); font-size: 0.82rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600;
+  box-shadow: 0 10px 30px -12px rgba(13, 21, 36, 0.55);
+}
+.ask-fab .dot { width: 22px; height: 22px; border-radius: 50%; background: var(--seal); display: grid; place-items: center; font-family: var(--display); font-style: italic; text-transform: none; letter-spacing: 0; font-size: 0.95rem; color: #fff; }
+.drawer {
+  position: fixed; z-index: 40; top: 0; right: 0; bottom: 0;
+  width: min(30rem, 100%); background: var(--leaf); border-left: 1px solid var(--rule);
+  display: grid; grid-template-rows: auto minmax(0, 1fr) auto;
+  padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  transform: translateX(102%); transition: transform 0.35s cubic-bezier(.2,.7,.2,1);
+  box-shadow: -20px 0 50px -30px rgba(13, 21, 36, 0.6);
+}
+.drawer.open { transform: none; }
+.drawer-head { display: flex; align-items: center; gap: 0.8rem; padding: 1.1rem 1.25rem; border-bottom: 1px solid var(--rule); }
+.drawer-head h2 { font-family: var(--display); font-style: italic; font-size: var(--step-1); }
+.drawer-head .close { margin-left: auto; background: none; border: 0; cursor: pointer; font-size: 1.5rem; line-height: 1; color: var(--ink-soft); padding: 0.2rem 0.4rem; }
+.thread { overflow-y: auto; padding: 1.25rem; display: grid; gap: 1rem; align-content: start; }
+.msg { display: grid; gap: 0.5rem; }
+.msg.you { justify-items: end; }
+.msg.you .bubble { background: var(--ink); color: var(--paper); border-radius: 14px 14px 2px 14px; padding: 0.6rem 0.9rem; max-width: 88%; font-family: var(--utility); font-size: 0.92rem; line-height: 1.45; }
+.msg.att .bubble { display: grid; gap: 0.7rem; max-width: 100%; }
+.msg.att .who { color: var(--seal); }
+.msg.note { color: var(--ink-soft); font-size: 0.9rem; font-style: italic; }
+.prompts { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.prompt {
+  font-family: var(--utility); font-size: 0.8rem; text-align: left;
+  background: var(--paper); border: 1px solid var(--rule); border-radius: 999px; padding: 0.4rem 0.8rem; cursor: pointer;
+}
+.prompt:hover { border-color: var(--seal); }
+.composer { border-top: 1px solid var(--rule); padding: 0.9rem 1.25rem 1.1rem; display: grid; gap: 0.6rem; }
+.composer textarea {
+  width: 100%; resize: none; min-height: 3.2rem; max-height: 9rem; font: inherit; font-size: 1rem;
+  background: var(--paper); color: var(--ink); border: 1px solid var(--rule); border-radius: 6px; padding: 0.6rem 0.75rem;
+}
+.composer-row { display: flex; align-items: center; gap: 0.6rem; }
+.composer-row .hint { font-family: var(--utility); font-size: 0.72rem; color: var(--ink-soft); }
+.send {
+  margin-left: auto; background: var(--seal); color: #fff; border: 0; border-radius: 999px; padding: 0.5rem 1.1rem; cursor: pointer;
+  font-family: var(--utility); font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600;
+}
+.send.stop { background: var(--ink-soft); }
+.scrim { position: fixed; inset: 0; z-index: 35; background: rgba(13, 21, 36, 0.35); opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+.scrim.on { opacity: 1; pointer-events: auto; }
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer, .scrim { transition: none; }
+  .shimmer { animation: none; }
+}
+</style>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="mast-row">
+      <svg class="seal" viewBox="0 0 100 100" aria-hidden="true">
+        <defs><path id="ring" d="M50,50 m-38,0 a38,38 0 1,1 76,0 a38,38 0 1,1 -76,0"></path></defs>
+        <circle cx="50" cy="50" r="47" fill="none" stroke="currentColor" stroke-width="1"></circle>
+        <circle cx="50" cy="50" r="30" fill="none" stroke="currentColor" stroke-width="0.6"></circle>
+        <text><textPath href="#ring">PRIVATE BRIEFING · DUBAI · PRIVATE BRIEFING · DUBAI ·</textPath></text>
+        <text class="mono" x="50" y="61" text-anchor="middle">A</text>
+      </svg>
+      <div class="wordmark">Attach<em>é</em></div>
+      <div class="mast-meta">
+        <div class="mast-date" id="mastDate">Your morning briefing</div>
+        <div class="edition-nav" id="editionNav" hidden>
+          <button type="button" id="prevEd" aria-label="Earlier edition">‹ Earlier</button>
+          <select id="edSelect" aria-label="Choose an edition"></select>
+          <button type="button" id="nextEd" aria-label="Later edition">Later ›</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap">
+    <section class="state" id="loading">
+      <span class="label">Preparing</span>
+      <h2>Opening today's briefing…</h2>
+      <div class="shimmer" style="width: 90%"></div>
+      <div class="shimmer" style="width: 70%"></div>
+      <div class="shimmer" style="width: 80%"></div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span class="label">About this briefing</span>
+    <p>A new edition is compiled from public reporting each morning at 06:40, Dubai time. Figures are as reported in the linked sources, so check them before quoting.</p>
+  </div>
+</footer>
+
+<button class="ask-fab" id="askFab" type="button" hidden><span class="dot">A</span>Ask Attaché</button>
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-label="Ask Attaché" aria-hidden="true">
+  <div class="drawer-head">
+    <span class="label">Concierge</span>
+    <h2>Ask Attaché</h2>
+    <button class="close" id="closeDrawer" type="button" aria-label="Close">×</button>
+  </div>
+  <div class="thread" id="thread"></div>
+  <form class="composer" id="composer">
+    <textarea id="askInput" rows="2" placeholder="Prepare me for dinner with a banker tonight…"></textarea>
+    <div class="composer-row">
+      <span class="hint" id="askHint">Answers draw on today's edition.</span>
+      <button class="send" id="sendBtn" type="submit">Ask</button>
+    </div>
+  </form>
+</aside>
+
+<script>
+(() => {
+  "use strict";
+  const $ = (s) => document.querySelector(s);
+  const main = $("#main");
+
+  /* Small DOM builder: every piece of data goes in as text, never as HTML. */
+  function h(tag, attrs, ...kids) {
+    const el = document.createElement(tag);
+    if (attrs) for (const [k, v] of Object.entries(attrs)) {
+      if (v == null || v === false) continue;
+      if (k === "class") el.className = v;
+      else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+      else el.setAttribute(k, v === true ? "" : v);
+    }
+    for (const kid of kids.flat(Infinity)) {
+      if (kid == null || kid === false) continue;
+      el.append(kid instanceof Node ? kid : document.createTextNode(String(kid)));
+    }
+    return el;
+  }
+  const str = (v) => (typeof v === "string" ? v : v == null ? "" : String(v));
+  const arr = (v) => (Array.isArray(v) ? v : []);
+  const safeUrl = (u) => (/^https?:\/\//i.test(str(u)) ? str(u) : null);
+
+  function fmtLong(iso) {
+    const d = new Date(str(iso) + "T12:00:00");
+    if (isNaN(d)) return str(iso);
+    return d.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  }
+  function fmtShort(iso) {
+    const d = new Date(str(iso) + "T12:00:00");
+    if (isNaN(d)) return str(iso);
+    return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+  }
+
+  async function copyText(text, btn) {
+    const done = (msg) => { const o = btn.textContent; btn.textContent = msg; setTimeout(() => (btn.textContent = o), 1600); };
+    try { await navigator.clipboard.writeText(text); done("Copied"); }
+    catch {
+      const host = btn.closest("[data-copy-host]");
+      const target = host && host.querySelector("p");
+      if (target) { const r = document.createRange(); r.selectNodeContents(target); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }
+      done("Selected");
+    }
+  }
+
+  /* ---------- State ---------- */
+  const state = { briefs: [], current: null, desk: "All" };
+
+  function sortBriefs(list) {
+    return list.filter((b) => b && b.date).sort((a, b) => (a.date < b.date ? 1 : -1));
+  }
+
+  function setBriefs(list) {
+    state.briefs = sortBriefs(list);
+    if (!state.briefs.length) return renderEmpty();
+    const want = decodeURIComponent(location.hash.slice(1));
+    const pick = state.briefs.find((b) => b.date === want) || (state.current && state.briefs.find((b) => b.date === state.current.date)) || state.briefs[0];
+    show(pick, false);
+  }
+
+  function show(brief, push = true) {
+    const changed = !state.current || state.current.date !== brief.date;
+    state.current = brief;
+    if (push) { try { history.replaceState(null, "", "#" + brief.date); } catch {} }
+    renderNav();
+    renderBrief(brief);
+    $("#askFab").hidden = !concierge.available;
+    if (changed) concierge.reset();
+  }
+
+  /* ---------- Rendering ---------- */
+  function renderNav() {
+    const nav = $("#editionNav");
+    const sel = $("#edSelect");
+    const list = state.briefs;
+    const i = list.indexOf(state.current);
+    nav.hidden = list.length < 2;
+    sel.replaceChildren(...list.map((b) => h("option", { value: b.date, selected: b === state.current }, fmtShort(b.date) + (b.edition ? "  ·  No. " + b.edition : ""))));
+    $("#prevEd").disabled = i >= list.length - 1;
+    $("#nextEd").disabled = i <= 0;
+    $("#mastDate").textContent = fmtLong(state.current.date) + (state.current.edition ? "  ·  No. " + String(state.current.edition).padStart(3, "0") : "");
+  }
+  $("#prevEd").addEventListener("click", () => { const i = state.briefs.indexOf(state.current); if (i < state.briefs.length - 1) show(state.briefs[i + 1]); window.scrollTo({ top: 0 }); });
+  $("#nextEd").addEventListener("click", () => { const i = state.briefs.indexOf(state.current); if (i > 0) show(state.briefs[i - 1]); window.scrollTo({ top: 0 }); });
+  $("#edSelect").addEventListener("change", (e) => { const b = state.briefs.find((x) => x.date === e.target.value); if (b) show(b); });
+  window.addEventListener("hashchange", () => {
+    const b = state.briefs.find((x) => x.date === decodeURIComponent(location.hash.slice(1)));
+    if (b && b !== state.current) show(b, false);
+  });
+
+  function renderEmpty() {
+    main.replaceChildren(h("div", { class: "wrap" },
+      h("section", { class: "state" },
+        h("span", { class: "label" }, "No edition yet"),
+        h("h2", null, "Your first briefing is on its way."),
+        h("p", null, "A new edition arrives here every morning at 06:40, Dubai time. Each one has the day's essential stories with background, talking points and questions to ask, plus the week ahead."))));
+  }
+  function renderUnreachable() {
+    main.replaceChildren(h("div", { class: "wrap" },
+      h("section", { class: "state" },
+        h("span", { class: "label" }, "Offline"),
+        h("h2", null, "The briefing can't be reached yet."),
+        h("p", null, "Check your connection, then reopen this page. Earlier editions are kept and will show when it reconnects."))));
+  }
+
+  function sourcesLine(list) {
+    const items = arr(list).map((s) => {
+      const url = safeUrl(s.url);
+      const label = str(s.outlet) || "Source";
+      return url ? h("a", { href: url, target: "_blank", rel: "noopener", title: str(s.title) }, label) : label;
+    });
+    if (!items.length) return null;
+    const out = [];
+    items.forEach((it, i) => { if (i) out.push(" · "); out.push(it); });
+    return h("p", { class: "sources" }, "Sources: ", ...out);
+  }
+
+  const STATUS = { confirmed: "Confirmed", developing: "Developing", disputed: "Disputed", scheduled: "Scheduled" };
+
+  function renderBrief(b) {
+    const lede = b.lede || {};
+    const stories = arr(b.stories);
+    const desks = ["All", ...new Set(stories.map((s) => str(s.desk)).filter(Boolean))];
+    if (!desks.includes(state.desk)) state.desk = "All";
+
+    const ledeEl = h("section", { class: "lede", "aria-labelledby": "ledeHead" },
+      h("span", { class: "label kicker" }, str(lede.kicker) || "The one thing"),
+      h("h1", { id: "ledeHead" }, str(lede.headline)),
+      lede.dek ? h("p", { class: "dek" }, str(lede.dek)) : null,
+      h("div", { class: "body" }, arr(lede.body).map((p) => h("p", null, str(p)))),
+      lede.oneBreath ? (() => {
+        const box = h("div", { class: "breath", "data-copy-host": "" },
+          h("div", { class: "breath-head" },
+            h("span", { class: "label" }, "Say it in one breath"),
+            h("button", { class: "copy", type: "button", onclick: (e) => copyText(str(lede.oneBreath), e.currentTarget) }, "Copy")),
+          h("p", null, str(lede.oneBreath)));
+        return box;
+      })() : null);
+
+    const glance = arr(b.glance).length ? h("section", { class: "section" },
+      h("div", { class: "section-head" }, h("h2", null, "If you read nothing else")),
+      h("ol", { class: "glance" }, arr(b.glance).map((g) => h("li", null, h("span", null, str(g)))))) : null;
+
+    const list = h("div", { class: "dispatches" });
+    const chips = h("div", { class: "desks", role: "group", "aria-label": "Filter by desk" });
+    function drawStories() {
+      chips.replaceChildren(...desks.map((d) => h("button", {
+        class: "desk-chip", type: "button", "aria-pressed": String(d === state.desk),
+        onclick: () => { state.desk = d; drawStories(); },
+      }, d)));
+      const shown = stories.map((s, i) => [s, i]).filter(([s]) => state.desk === "All" || s.desk === state.desk);
+      list.replaceChildren(...shown.map(([s, i]) => dispatch(s, i)));
+    }
+    drawStories();
+
+    const dispatchSec = stories.length ? h("section", { class: "section" },
+      h("div", { class: "section-head" }, h("h2", null, "Dispatches"), h("span", { class: "label" }, "In order of importance"), chips),
+      list) : null;
+
+    const ahead = arr(b.ahead).length ? h("section", { class: "section" },
+      h("div", { class: "section-head" }, h("h2", null, "The days ahead")),
+      h("ul", { class: "ahead" }, arr(b.ahead).map((a) => h("li", null,
+        h("time", { datetime: str(a.date) }, fmtShort(a.date)),
+        h("div", null, h("strong", null, str(a.event)), a.note ? h("span", null, str(a.note)) : null))))) : null;
+
+    const figures = arr(b.figures).length ? h("section", { class: "section" },
+      h("div", { class: "section-head" }, h("h2", null, "Figures worth remembering")),
+      h("div", { class: "figures" }, arr(b.figures).map((f) => {
+        const url = safeUrl(f.source && f.source.url);
+        const outlet = str(f.source && f.source.outlet);
+        return h("div", { class: "figure" },
+          h("div", { class: "v" }, str(f.value)),
+          h("p", { class: "l" }, str(f.label)),
+          outlet ? h("p", { class: "s" }, "Source: ", url ? h("a", { href: url, target: "_blank", rel: "noopener" }, outlet) : outlet) : null);
+      }))) : null;
+
+    const salon = b.salon || {};
+    const lexSalon = (arr(b.lexicon).length || arr(salon.openers).length) ? h("section", { class: "section" },
+      h("div", { class: "two" },
+        h("div", null,
+          h("div", { class: "section-head" }, h("h2", null, "Lexicon")),
+          h("dl", { class: "lexicon" }, arr(b.lexicon).map((l) => [
+            h("dt", null, str(l.term)),
+            h("dd", null, h("span", null, str(l.meaning)), l.usage ? h("span", { class: "use" }, "“" + str(l.usage) + "”") : null),
+          ]))),
+        h("div", null,
+          h("div", { class: "section-head" }, h("h2", null, "At the table")),
+          h("span", { class: "label" }, "Openers"),
+          h("ul", { class: "openers", style: "margin-top:0.8rem" }, arr(salon.openers).map((o) => h("li", null, str(o)))),
+          arr(salon.careful).length ? h("div", { class: "careful" },
+            h("span", { class: "label" }, "Handle with care"),
+            arr(salon.careful).map((c) => h("div", null, h("b", null, str(c.topic)), h("span", null, str(c.advice))))) : null))) : null;
+
+    const coda = b.coda ? h("section", { class: "section" },
+      h("div", { class: "coda" },
+        h("span", { class: "label kicker" }, "Coda"),
+        h("h2", { style: "font-family:var(--display);font-style:italic;font-size:var(--step-2)" }, str(b.coda.headline)),
+        h("p", null, str(b.coda.body)),
+        sourcesLine(b.coda.sources))) : null;
+
+    main.replaceChildren(h("div", { class: "wrap" }, ledeEl, glance, dispatchSec, ahead, figures, lexSalon, coda));
+  }
+
+  function dispatch(s, i) {
+    const status = str(s.status).toLowerCase();
+    const names = arr(s.names);
+    return h("article", { class: "dispatch", id: "story-" + str(s.id) },
+      h("div", { class: "d-main" },
+        h("div", { class: "d-meta" },
+          h("span", { class: "d-num" }, String(i + 1).padStart(2, "0")),
+          h("span", { class: "label" }, [str(s.desk), str(s.region)].filter(Boolean).join("  ·  ")),
+          STATUS[status] ? h("span", { class: "pill " + status }, STATUS[status]) : null),
+        h("h3", null, str(s.headline)),
+        h("p", null, str(s.summary)),
+        s.background ? h("div", { class: "d-block" }, h("span", { class: "label" }, "Background"), h("p", null, str(s.background))) : null,
+        s.whyItMatters ? h("div", { class: "d-block" }, h("span", { class: "label" }, "Why it matters"), h("p", null, str(s.whyItMatters))) : null,
+        h("div", { class: "d-actions" },
+          concierge.available ? h("button", { class: "ask-link", type: "button", onclick: () => concierge.askAbout(s) }, "Go deeper with Attaché") : null),
+        sourcesLine(s.sources)),
+      h("aside", { class: "margin", "aria-label": "Talking points" },
+        s.talkingPoint ? h("div", { class: "say d-block", "data-copy-host": "" },
+          h("div", { class: "breath-head" }, h("span", { class: "label" }, "Say"),
+            h("button", { class: "copy", type: "button", onclick: (e) => copyText(str(s.talkingPoint), e.currentTarget) }, "Copy")),
+          h("p", null, str(s.talkingPoint))) : null,
+        s.askThem ? h("div", { class: "ask d-block" }, h("span", { class: "label" }, "Ask them"), h("p", null, str(s.askThem))) : null,
+        names.length ? h("div", { class: "d-block" }, h("span", { class: "label" }, "Names to know"),
+          h("ul", { class: "names" }, names.map((n) => h("li", null, h("b", null, str(n.name)), " ", h("span", null, "— " + str(n.who)))))) : null,
+        s.watch ? h("div", { class: "d-block" }, h("span", { class: "label" }, "Watch next"), h("p", null, str(s.watch))) : null));
+  }
+
+  /* ---------- Concierge (asks Claude on the viewer's account) ---------- */
+  const concierge = (() => {
+    let sample = null, turns = [], ctl = null, busy = false;
+    const thread = $("#thread"), input = $("#askInput"), send = $("#sendBtn"), hint = $("#askHint");
+    const api = { available: false };
+
+    function compactBrief(b) {
+      const s = JSON.stringify(b);
+      return s.length > 60000 ? s.slice(0, 60000) : s;
+    }
+    function rules() {
+      const b = state.current;
+      return [
+        "You are Attaché, a discreet and very well-read private briefer for one person who lives in Dubai.",
+        "Your job is to help them hold intelligent, gracious conversations about world affairs, geopolitics, markets and culture.",
+        "Ground every answer in today's edition below (dated " + str(b && b.date) + "). You may add general background from your own knowledge,",
+        "but you cannot browse, so say plainly when something may have moved on since the edition was written. Never invent figures, quotes or sources.",
+        "Style: warm, precise, unhurried. Plain text only, no markdown, no headings, no bullet symbols.",
+        "Keep answers under about 170 words unless asked for more. When useful, give one or two sentences they could say aloud, introduced naturally.",
+        "If asked about someone they will meet (a banker, a diplomat, an engineer), tailor which stories matter to that person and suggest a good question to ask them.",
+        "",
+        "TODAY'S EDITION (JSON):",
+        compactBrief(b),
+      ].join("\n");
+    }
+    function bubbleText(text) {
+      const clean = str(text).replace(/\*\*(.+?)\*\*/g, "$1").replace(/^#+\s*/gm, "");
+      return clean.split(/\n{2,}/).map((p) => h("p", null, p.trim())).filter((p) => p.textContent);
+    }
+    function addYou(text) { thread.append(h("div", { class: "msg you" }, h("div", { class: "bubble" }, text))); }
+    function addAtt() {
+      const body = h("div", { class: "bubble" }, h("p", { class: "msg note" }, "Thinking…"));
+      const el = h("div", { class: "msg att" }, h("span", { class: "label who" }, "Attaché"), body);
+      thread.append(el);
+      return body;
+    }
+    function scrollEnd() { thread.scrollTop = thread.scrollHeight; }
+
+    function suggestions() {
+      const b = state.current;
+      const first = arr(b && b.stories)[0];
+      const list = [
+        "Brief me in sixty seconds",
+        "Prepare me for dinner with a banker",
+        "What should I avoid saying this week?",
+        first ? "Explain the background to “" + str(first.headline) + "”" : null,
+      ].filter(Boolean);
+      return h("div", { class: "prompts" }, list.map((p) => h("button", { class: "prompt", type: "button", onclick: () => ask(p) }, p)));
+    }
+
+    api.reset = () => {
+      if (ctl) ctl.abort();
+      turns = [];
+      thread.replaceChildren(
+        h("div", { class: "msg att" }, h("span", { class: "label who" }, "Attaché"),
+          h("div", { class: "bubble" }, h("p", null, "Good day. Ask me about anything in this edition: the background, what to say, or how to read the room."))),
+        suggestions());
+    };
+
+    function setBusy(on) {
+      busy = on;
+      send.textContent = on ? "Stop" : "Ask";
+      send.classList.toggle("stop", on);
+      send.type = on ? "button" : "submit";
+    }
+
+    async function ask(text) {
+      text = str(text).trim();
+      if (!text || busy || !sample) return;
+      open();
+      input.value = "";
+      addYou(text);
+      turns.push({ role: "user", content: text });
+      while (turns.length > 16) turns.splice(0, 2);
+      const body = addAtt();
+      scrollEnd();
+      ctl = new AbortController();
+      setBusy(true);
+      try {
+        const { text: answer, truncated } = await sample([{ role: "user", content: rules() }, ...turns], {
+          cache: false, signal: ctl.signal,
+          onText: ({ text: t }) => { body.replaceChildren(...bubbleText(t)); scrollEnd(); },
+        });
+        turns.push({ role: "assistant", content: answer });
+        if (truncated) body.append(h("p", { class: "msg note" }, "Cut short. Ask for less at a time."));
+      } catch (e) {
+        turns.pop();
+        const partial = e && e.text;
+        body.replaceChildren(...(partial ? bubbleText(partial) : []));
+        const code = e && e.code;
+        if (code === "cancelled") { if (!partial) body.append(h("p", { class: "msg note" }, "Stopped.")); }
+        else if (code === "not_granted" || code === "sampling_disabled" || code === "not_declared" || code === "capability_disabled" || code === "capability_removed") {
+          body.append(h("p", { class: "msg note" }, "Attaché needs your permission to answer. Allow it from this page's permissions menu, then ask again."));
+          hint.textContent = "Permission needed to answer.";
+        } else if (code === "rate_limited") body.append(h("p", { class: "msg note" }, "Too many questions at once. Wait a minute, then ask again."));
+        else if (code === "session_expired") body.append(h("p", { class: "msg note" }, "Your session has expired. Sign in again, then ask."));
+        else if (code === "refused") body.append(h("p", { class: "msg note" }, "Attaché can't help with that one. Try asking it another way."));
+        else body.append(h("p", { class: "msg note" }, "The answer was interrupted. Ask again to retry."));
+      } finally {
+        setBusy(false);
+        ctl = null;
+        scrollEnd();
+      }
+    }
+
+    function open() {
+      $("#drawer").classList.add("open"); $("#drawer").setAttribute("aria-hidden", "false");
+      $("#scrim").classList.add("on");
+      setTimeout(() => input.focus({ preventScroll: true }), 50);
+    }
+    function close() {
+      $("#drawer").classList.remove("open"); $("#drawer").setAttribute("aria-hidden", "true");
+      $("#scrim").classList.remove("on");
+    }
+
+    api.askAbout = (s) => ask("Go deeper on “" + str(s.headline) + "”. What's the fuller story, what are the strongest arguments on each side, and how should I bring it up?");
+    api.init = async () => {
+      try { sample = window.claude && window.claude.use ? await window.claude.use("sample") : null; } catch { sample = null; }
+      api.available = !!sample;
+      if (api.available && state.current) { $("#askFab").hidden = false; renderBrief(state.current); }
+    };
+
+    $("#askFab").addEventListener("click", open);
+    $("#closeDrawer").addEventListener("click", close);
+    $("#scrim").addEventListener("click", close);
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
+    $("#composer").addEventListener("submit", (e) => { e.preventDefault(); ask(input.value); });
+    send.addEventListener("click", (e) => { if (busy) { e.preventDefault(); ctl && ctl.abort(); } });
+    input.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); ask(input.value); } });
+    return api;
+  })();
+
+  /* ---------- Data: the artifact's shared store, or static files when self-hosted ---------- */
+  async function loadStatic() {
+    try {
+      const idx = await (await fetch("briefs/index.json", { cache: "no-store" })).json();
+      const dates = arr(idx.editions).slice(0, 30);
+      const list = await Promise.all(dates.map((d) => fetch("briefs/" + d + ".json", { cache: "no-store" }).then((r) => r.json()).catch(() => null)));
+      setBriefs(list.filter(Boolean));
+    } catch { renderUnreachable(); }
+  }
+
+  async function boot() {
+    concierge.init();
+    if (!(window.claude && window.claude.use)) return loadStatic();
+    let db = null;
+    try { db = await window.claude.use("db"); } catch { db = null; }
+    if (!db) return loadStatic();
+
+    let settled = false;
+    const timer = setTimeout(() => { if (!settled && !state.current) renderUnreachable(); }, 10000);
+    db.collection("briefs").orderBy("date", "desc").limit(30).onSnapshot(
+      (snap) => {
+        if (!snap.metadata.fromCache) { settled = true; clearTimeout(timer); }
+        const list = snap.docs.filter((d) => d.exists).map((d) => d.data());
+        if (!list.length && !snap.metadata.fromCache) return renderEmpty();
+        if (list.length) setBriefs(list);
+      },
+      () => { settled = true; clearTimeout(timer); if (!state.current) loadStatic(); }
+    );
+  }
+  boot();
+})();
+</script>
