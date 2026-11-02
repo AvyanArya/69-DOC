@@ -92,14 +92,14 @@ p { margin: 0; }
 }
 
 /* Lede */
-.lede { padding-block: 3rem 2.5rem; display: grid; gap: 1.4rem; max-width: 52rem; }
+.lede { padding-block: 2rem 1.8rem; display: grid; gap: 1rem; }
 .lede h1 { font-family: var(--display); font-size: var(--step-3); line-height: 1.08; letter-spacing: -0.005em; }
 .lede .dek { font-size: var(--step-1); line-height: 1.45; color: var(--ink-soft); font-style: italic; max-width: var(--measure); }
-.lede .body { display: grid; gap: 1rem; max-width: var(--measure); }
+.lede .summary { font-size: 1.12rem; line-height: 1.55; }
 .kicker { color: var(--seal); }
 
 .breath {
-  display: grid; gap: 0.6rem; margin-top: 0.6rem; padding: 1.1rem 1.25rem;
+  display: grid; gap: 0.6rem; margin-top: 0.2rem; padding: 1.1rem 1.25rem;
   background: var(--leaf); border: 1px solid var(--rule); border-radius: 4px; max-width: var(--measure);
 }
 .breath p { font-family: var(--display); font-style: italic; font-size: var(--step-1); line-height: 1.4; }
@@ -110,42 +110,35 @@ p { margin: 0; }
   background: none; border: 0; color: var(--seal); cursor: pointer; padding: 0.2rem 0;
 }
 
-/* Section headers */
-.section { padding-block: 2.6rem; border-top: 1px solid var(--rule); }
-.section-head { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 1.6rem; flex-wrap: wrap; }
-.section-head h2 { font-family: var(--display); font-size: var(--step-2); font-style: italic; }
+/* Sections: one narrow column, sized for a phone held in one hand */
+.column { max-width: 40rem; }
+.section { padding-block: 1.8rem; border-top: 1px solid var(--rule); }
+.section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 0.9rem; flex-wrap: wrap; }
+.section-head h2 { font-family: var(--display); font-size: var(--step-1); font-style: italic; }
 
-/* At a glance */
-.glance { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.9rem; max-width: var(--measure); counter-reset: g; }
-.glance li { display: grid; grid-template-columns: 2rem 1fr; gap: 0.5rem; counter-increment: g; }
-.glance li::before {
-  content: counter(g); font-family: var(--display); font-style: italic; color: var(--seal); font-size: var(--step-1); line-height: 1.2;
+/* The essentials */
+.stories { list-style: none; margin: 0; padding: 0; display: grid; }
+.story { display: grid; grid-template-columns: 1.8rem minmax(0, 1fr); gap: 0 0.5rem; padding-block: 1.25rem; border-top: 1px solid var(--rule); }
+.story:first-child { border-top: 0; padding-top: 0.2rem; }
+.s-num { font-family: var(--display); font-style: italic; color: var(--seal); font-size: var(--step-1); line-height: 1.2; }
+.s-body { min-width: 0; display: grid; gap: 0.5rem; }
+.s-meta { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.s-body h3 { font-family: var(--display); font-size: 1.32rem; line-height: 1.2; }
+.say { display: flex; gap: 0.75rem; align-items: baseline; justify-content: space-between; border-left: 2px solid var(--seal); padding: 0.1rem 0 0.1rem 0.8rem; }
+.say p { font-family: var(--display); font-style: italic; font-size: 1.04rem; line-height: 1.4; }
+.more summary {
+  cursor: pointer; list-style: none; display: inline-flex; gap: 0.4rem; align-items: center; padding-block: 0.15rem;
+  font-family: var(--utility); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft);
 }
-
-/* Desk filter */
-.desks { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-left: auto; }
-.desk-chip {
-  font-family: var(--utility); font-size: 0.74rem; letter-spacing: 0.08em; text-transform: uppercase;
-  background: transparent; border: 1px solid var(--rule); border-radius: 999px; padding: 0.3rem 0.75rem; cursor: pointer; color: var(--ink-soft);
-}
-.desk-chip[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-
-/* Dispatches */
-.dispatches { display: grid; gap: 0; }
-.dispatch {
-  display: grid; grid-template-columns: minmax(0, 1fr) 19rem; gap: 2.5rem;
-  padding-block: 2.2rem; border-top: 1px solid var(--rule);
-}
-.dispatch:first-child { border-top: 0; padding-top: 0.4rem; }
-.d-main { min-width: 0; display: grid; gap: 0.9rem; max-width: var(--measure); }
-.d-meta { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
-.d-num { font-family: var(--display); font-style: italic; color: var(--seal); font-size: var(--step-1); line-height: 1; }
-.d-main h3 { font-family: var(--display); font-size: var(--step-2); line-height: 1.15; }
-.d-block { display: grid; gap: 0.25rem; }
-.d-block .label { font-size: 0.7rem; }
+.more summary::-webkit-details-marker { display: none; }
+.more summary::before { content: "+"; color: var(--seal); font-size: 1rem; line-height: 1; }
+.more[open] summary::before { content: "−"; }
+.more-body { display: grid; gap: 0.7rem; padding-top: 0.6rem; font-size: 0.97rem; }
+.d-block { display: grid; gap: 0.15rem; }
+.d-block .label { font-size: 0.68rem; }
 .pill {
-  font-family: var(--utility); font-size: 0.68rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
-  padding: 0.15rem 0.55rem; border-radius: 999px; border: 1px solid currentColor;
+  font-family: var(--utility); font-size: 0.64rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 0.1rem 0.5rem; border-radius: 999px; border: 1px solid currentColor;
 }
 .pill.developing { color: var(--warn); }
 .pill.confirmed { color: var(--ok); }
@@ -153,61 +146,28 @@ p { margin: 0; }
 .pill.scheduled { color: var(--ink-soft); }
 .sources { font-family: var(--utility); font-size: 0.8rem; color: var(--ink-soft); line-height: 1.5; }
 .sources a { color: var(--ink-soft); }
-.d-actions { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
 .ask-link {
-  font-family: var(--utility); font-size: 0.78rem; letter-spacing: 0.06em;
+  justify-self: start; font-family: var(--utility); font-size: 0.78rem; letter-spacing: 0.06em;
   background: none; border: 1px solid var(--rule); border-radius: 999px; padding: 0.35rem 0.85rem; cursor: pointer;
 }
 .ask-link:hover { border-color: var(--seal); color: var(--seal); }
 
-.margin {
-  min-width: 0; display: grid; gap: 1.1rem; align-content: start;
-  padding-left: 1.4rem; border-left: 1px solid var(--rule);
+/* This week */
+.ahead { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.55rem; }
+.ahead li { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); gap: 0.9rem; }
+.ahead time { font-family: var(--utility); font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--seal); font-variant-numeric: tabular-nums; padding-top: 0.2rem; }
+
+/* Before you go */
+.extras { display: grid; gap: 1rem; margin: 0; }
+.extras > div { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); gap: 0.9rem; }
+.extras dt { padding-top: 0.2rem; }
+.extras dd { margin: 0; display: grid; gap: 0.15rem; }
+.extras .v { font-family: var(--display); font-size: var(--step-1); line-height: 1.2; font-variant-numeric: tabular-nums; }
+.extras .term { font-family: var(--display); font-style: italic; }
+.extras .s { font-family: var(--utility); font-size: 0.74rem; color: var(--ink-soft); }
+@media (max-width: 520px) {
+  .ahead li, .extras > div { grid-template-columns: minmax(0, 1fr); gap: 0.1rem; }
 }
-.margin .say p { font-family: var(--display); font-style: italic; font-size: 1.12rem; line-height: 1.4; }
-.margin .ask p { font-style: italic; color: var(--ink-soft); }
-.names { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.45rem; font-size: 0.95rem; }
-.names b { font-weight: 600; }
-.names span { color: var(--ink-soft); }
-@media (max-width: 860px) {
-  .dispatch { grid-template-columns: minmax(0, 1fr); gap: 1.4rem; }
-  .margin { padding-left: 0; border-left: 0; padding-top: 1.1rem; border-top: 1px dashed var(--rule); }
-}
-
-/* Week ahead */
-.ahead { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; max-width: 52rem; }
-.ahead li { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 1.25rem; padding-block: 0.9rem; border-top: 1px solid var(--rule); }
-.ahead li:first-child { border-top: 0; }
-.ahead time { font-family: var(--utility); font-size: 0.82rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--seal); font-variant-numeric: tabular-nums; padding-top: 0.2rem; }
-.ahead strong { font-weight: 600; display: block; }
-.ahead span { color: var(--ink-soft); }
-@media (max-width: 520px) { .ahead li { grid-template-columns: minmax(0, 1fr); gap: 0.2rem; } }
-
-/* Figures */
-.figures { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
-.figure { background: var(--paper); padding: 1.3rem 1.25rem; display: grid; gap: 0.5rem; align-content: start; }
-.figure .v { font-family: var(--display); font-size: var(--step-2); line-height: 1.1; font-variant-numeric: tabular-nums; }
-.figure .l { font-size: 0.95rem; }
-.figure .s { font-family: var(--utility); font-size: 0.74rem; color: var(--ink-soft); }
-
-/* Lexicon & salon */
-.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2.5rem; }
-@media (max-width: 760px) { .two { grid-template-columns: minmax(0, 1fr); } }
-.lexicon { display: grid; gap: 1.3rem; margin: 0; }
-.lexicon dt { font-family: var(--display); font-size: var(--step-1); font-style: italic; }
-.lexicon dd { margin: 0.2rem 0 0; display: grid; gap: 0.3rem; }
-.lexicon .use { color: var(--ink-soft); font-style: italic; }
-.openers { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.8rem; }
-.openers li { padding-left: 1.1rem; position: relative; }
-.openers li::before { content: "“"; position: absolute; left: 0; top: -0.15rem; font-family: var(--display); color: var(--seal); font-size: 1.4rem; }
-.careful { display: grid; gap: 1rem; margin-top: 1.8rem; }
-.careful div { display: grid; gap: 0.2rem; }
-.careful b { font-weight: 600; }
-.careful span { color: var(--ink-soft); }
-
-/* Coda */
-.coda { max-width: var(--measure); display: grid; gap: 0.8rem; }
-.coda p { font-size: var(--step-1); line-height: 1.5; }
 
 footer { padding-block: 2.4rem 7rem; border-top: 1px solid var(--rule); color: var(--ink-soft); font-size: 0.9rem; }
 footer .wrap { display: grid; gap: 0.4rem; }
@@ -386,7 +346,7 @@ footer .wrap { display: grid; gap: 0.4rem; }
   }
 
   /* ---------- State ---------- */
-  const state = { briefs: [], current: null, desk: "All" };
+  const state = { briefs: [], current: null };
 
   function sortBriefs(list) {
     return list.filter((b) => b && b.date).sort((a, b) => (a.date < b.date ? 1 : -1));
@@ -420,7 +380,7 @@ footer .wrap { display: grid; gap: 0.4rem; }
     sel.replaceChildren(...list.map((b) => h("option", { value: b.date, selected: b === state.current }, fmtShort(b.date) + (b.edition ? "  ·  No. " + b.edition : ""))));
     $("#prevEd").disabled = i >= list.length - 1;
     $("#nextEd").disabled = i <= 0;
-    $("#mastDate").textContent = fmtLong(state.current.date) + (state.current.edition ? "  ·  No. " + String(state.current.edition).padStart(3, "0") : "");
+    $("#mastDate").textContent = fmtLong(state.current.date) + (state.current.edition ? "  ·  No. " + String(state.current.edition).padStart(3, "0") : "") + "  ·  " + readMinutes(state.current) + "-min read";
   }
   $("#prevEd").addEventListener("click", () => { const i = state.briefs.indexOf(state.current); if (i < state.briefs.length - 1) show(state.briefs[i + 1]); window.scrollTo({ top: 0 }); });
   $("#nextEd").addEventListener("click", () => { const i = state.briefs.indexOf(state.current); if (i > 0) show(state.briefs[i - 1]); window.scrollTo({ top: 0 }); });
@@ -459,115 +419,102 @@ footer .wrap { display: grid; gap: 0.4rem; }
 
   const STATUS = { confirmed: "Confirmed", developing: "Developing", disputed: "Disputed", scheduled: "Scheduled" };
 
-  function renderBrief(b) {
-    const lede = b.lede || {};
-    const stories = arr(b.stories);
-    const desks = ["All", ...new Set(stories.map((s) => str(s.desk)).filter(Boolean))];
-    if (!desks.includes(state.desk)) state.desk = "All";
-
-    const ledeEl = h("section", { class: "lede", "aria-labelledby": "ledeHead" },
-      h("span", { class: "label kicker" }, str(lede.kicker) || "The one thing"),
-      h("h1", { id: "ledeHead" }, str(lede.headline)),
-      lede.dek ? h("p", { class: "dek" }, str(lede.dek)) : null,
-      h("div", { class: "body" }, arr(lede.body).map((p) => h("p", null, str(p)))),
-      lede.oneBreath ? (() => {
-        const box = h("div", { class: "breath", "data-copy-host": "" },
-          h("div", { class: "breath-head" },
-            h("span", { class: "label" }, "Say it in one breath"),
-            h("button", { class: "copy", type: "button", onclick: (e) => copyText(str(lede.oneBreath), e.currentTarget) }, "Copy")),
-          h("p", null, str(lede.oneBreath)));
-        return box;
-      })() : null);
-
-    const glance = arr(b.glance).length ? h("section", { class: "section" },
-      h("div", { class: "section-head" }, h("h2", null, "If you read nothing else")),
-      h("ol", { class: "glance" }, arr(b.glance).map((g) => h("li", null, h("span", null, str(g)))))) : null;
-
-    const list = h("div", { class: "dispatches" });
-    const chips = h("div", { class: "desks", role: "group", "aria-label": "Filter by desk" });
-    function drawStories() {
-      chips.replaceChildren(...desks.map((d) => h("button", {
-        class: "desk-chip", type: "button", "aria-pressed": String(d === state.desk),
-        onclick: () => { state.desk = d; drawStories(); },
-      }, d)));
-      const shown = stories.map((s, i) => [s, i]).filter(([s]) => state.desk === "All" || s.desk === state.desk);
-      list.replaceChildren(...shown.map(([s, i]) => dispatch(s, i)));
-    }
-    drawStories();
-
-    const dispatchSec = stories.length ? h("section", { class: "section" },
-      h("div", { class: "section-head" }, h("h2", null, "Dispatches"), h("span", { class: "label" }, "In order of importance"), chips),
-      list) : null;
-
-    const ahead = arr(b.ahead).length ? h("section", { class: "section" },
-      h("div", { class: "section-head" }, h("h2", null, "The days ahead")),
-      h("ul", { class: "ahead" }, arr(b.ahead).map((a) => h("li", null,
-        h("time", { datetime: str(a.date) }, fmtShort(a.date)),
-        h("div", null, h("strong", null, str(a.event)), a.note ? h("span", null, str(a.note)) : null))))) : null;
-
-    const figures = arr(b.figures).length ? h("section", { class: "section" },
-      h("div", { class: "section-head" }, h("h2", null, "Figures worth remembering")),
-      h("div", { class: "figures" }, arr(b.figures).map((f) => {
-        const url = safeUrl(f.source && f.source.url);
-        const outlet = str(f.source && f.source.outlet);
-        return h("div", { class: "figure" },
-          h("div", { class: "v" }, str(f.value)),
-          h("p", { class: "l" }, str(f.label)),
-          outlet ? h("p", { class: "s" }, "Source: ", url ? h("a", { href: url, target: "_blank", rel: "noopener" }, outlet) : outlet) : null);
-      }))) : null;
-
-    const salon = b.salon || {};
-    const lexSalon = (arr(b.lexicon).length || arr(salon.openers).length) ? h("section", { class: "section" },
-      h("div", { class: "two" },
-        h("div", null,
-          h("div", { class: "section-head" }, h("h2", null, "Lexicon")),
-          h("dl", { class: "lexicon" }, arr(b.lexicon).map((l) => [
-            h("dt", null, str(l.term)),
-            h("dd", null, h("span", null, str(l.meaning)), l.usage ? h("span", { class: "use" }, "“" + str(l.usage) + "”") : null),
-          ]))),
-        h("div", null,
-          h("div", { class: "section-head" }, h("h2", null, "At the table")),
-          h("span", { class: "label" }, "Openers"),
-          h("ul", { class: "openers", style: "margin-top:0.8rem" }, arr(salon.openers).map((o) => h("li", null, str(o)))),
-          arr(salon.careful).length ? h("div", { class: "careful" },
-            h("span", { class: "label" }, "Handle with care"),
-            arr(salon.careful).map((c) => h("div", null, h("b", null, str(c.topic)), h("span", null, str(c.advice))))) : null))) : null;
-
-    const coda = b.coda ? h("section", { class: "section" },
-      h("div", { class: "coda" },
-        h("span", { class: "label kicker" }, "Coda"),
-        h("h2", { style: "font-family:var(--display);font-style:italic;font-size:var(--step-2)" }, str(b.coda.headline)),
-        h("p", null, str(b.coda.body)),
-        sourcesLine(b.coda.sources))) : null;
-
-    main.replaceChildren(h("div", { class: "wrap" }, ledeEl, glance, dispatchSec, ahead, figures, lexSalon, coda));
+  const words = (v) => str(v).split(/\s+/).filter(Boolean).length;
+  function readMinutes(b) {
+    const l = b.lede || {};
+    let n = words(l.headline) + words(l.summary || arr(l.body)[0]) + words(l.oneBreath);
+    for (const s of arr(b.stories)) n += words(s.headline) + words(s.brief || s.summary) + words(s.say || s.talkingPoint);
+    for (const a of arr(b.ahead)) n += words(a.event);
+    const w = b.word || {}, t = b.table || {}, num = b.number || {};
+    n += words(w.term) + words(w.meaning) + words(t.opener) + words(t.careful) + words(num.value) + words(num.label) + words(b.coda && b.coda.body);
+    return Math.max(1, Math.round(n / 200));
   }
 
-  function dispatch(s, i) {
+  function block(label, ...content) {
+    return h("div", { class: "d-block" }, h("span", { class: "label" }, label), h("p", null, ...content));
+  }
+
+  function renderBrief(b) {
+    const lede = b.lede || {};
+    const ledeSummary = str(lede.summary) || str(arr(lede.body)[0]);
+    const ledeEl = h("section", { class: "lede column", "aria-labelledby": "ledeHead" },
+      h("span", { class: "label kicker" }, str(lede.kicker) || "The one thing"),
+      h("h1", { id: "ledeHead" }, str(lede.headline)),
+      ledeSummary ? h("p", { class: "summary" }, ledeSummary) : null,
+      lede.oneBreath ? h("div", { class: "breath", "data-copy-host": "" },
+        h("div", { class: "breath-head" },
+          h("span", { class: "label" }, "Say it in one breath"),
+          h("button", { class: "copy", type: "button", onclick: (e) => copyText(str(lede.oneBreath), e.currentTarget) }, "Copy")),
+        h("p", null, str(lede.oneBreath))) : null);
+
+    const stories = arr(b.stories).slice(0, 6);
+    const storiesSec = stories.length ? h("section", { class: "section column" },
+      h("div", { class: "section-head" }, h("h2", null, "The essentials"), h("span", { class: "label" }, "Tap + for more")),
+      h("ol", { class: "stories" }, stories.map(story))) : null;
+
+    const ahead = arr(b.ahead).slice(0, 4);
+    const aheadSec = ahead.length ? h("section", { class: "section column" },
+      h("div", { class: "section-head" }, h("h2", null, "This week")),
+      h("ul", { class: "ahead" }, ahead.map((a) => h("li", null,
+        h("time", { datetime: str(a.date) }, fmtShort(a.date)),
+        h("span", null, str(a.event)))))) : null;
+
+    // Older long-form editions carry figures/lexicon/salon; read them as the short fields.
+    const num = b.number || arr(b.figures)[0];
+    const word = b.word || arr(b.lexicon)[0];
+    const salon = b.salon || {};
+    const care = arr(salon.careful)[0];
+    const table = b.table || { opener: arr(salon.openers)[0], careful: care ? str(care.topic) + ": " + str(care.advice) : "" };
+    const rows = [];
+    if (num && num.value) {
+      const url = safeUrl(num.source && num.source.url), outlet = str(num.source && num.source.outlet);
+      rows.push(["The number", [h("span", { class: "v" }, str(num.value)), h("span", null, str(num.label)),
+        outlet ? h("span", { class: "s" }, "Source: ", url ? h("a", { href: url, target: "_blank", rel: "noopener" }, outlet) : outlet) : null]]);
+    }
+    if (word && word.term) rows.push(["Word of the day", [h("span", null, h("span", { class: "term" }, str(word.term)), " — " + str(word.meaning))]]);
+    if (table.opener) rows.push(["An opener", [h("span", null, "“" + str(table.opener) + "”")]]);
+    if (table.careful) rows.push(["Tread carefully", [h("span", null, str(table.careful))]]);
+    const extrasSec = rows.length ? h("section", { class: "section column" },
+      h("div", { class: "section-head" }, h("h2", null, "Before you go")),
+      h("dl", { class: "extras" }, rows.map(([k, v]) => h("div", null, h("dt", { class: "label" }, k), h("dd", null, v))))) : null;
+
+    const coda = b.coda && b.coda.body ? h("section", { class: "section column" },
+      h("div", { class: "section-head" }, h("h2", null, "And finally")),
+      h("p", null, str(b.coda.body)),
+      sourcesLine(b.coda.sources)) : null;
+
+    main.replaceChildren(h("div", { class: "wrap" }, ledeEl, storiesSec, aheadSec, extrasSec, coda));
+  }
+
+  function story(s, i) {
     const status = str(s.status).toLowerCase();
-    const names = arr(s.names);
-    return h("article", { class: "dispatch", id: "story-" + str(s.id) },
-      h("div", { class: "d-main" },
-        h("div", { class: "d-meta" },
-          h("span", { class: "d-num" }, String(i + 1).padStart(2, "0")),
-          h("span", { class: "label" }, [str(s.desk), str(s.region)].filter(Boolean).join("  ·  ")),
+    const m = s.more || {};
+    const brief = str(s.brief) || str(s.summary);
+    const say = str(s.say) || str(s.talkingPoint);
+    const background = str(m.background) || str(s.background);
+    const ask = str(m.askThem) || str(s.askThem);
+    const watch = str(m.watch) || str(s.watch);
+    const names = arr(m.names || s.names).map((n) => str(n.name) + (n.who ? " (" + str(n.who) + ")" : "")).join("; ");
+    return h("li", { class: "story", id: "story-" + str(s.id) },
+      h("span", { class: "s-num", "aria-hidden": "true" }, String(i + 1)),
+      h("div", { class: "s-body" },
+        h("div", { class: "s-meta" },
+          h("span", { class: "label" }, str(s.desk)),
           STATUS[status] ? h("span", { class: "pill " + status }, STATUS[status]) : null),
         h("h3", null, str(s.headline)),
-        h("p", null, str(s.summary)),
-        s.background ? h("div", { class: "d-block" }, h("span", { class: "label" }, "Background"), h("p", null, str(s.background))) : null,
-        s.whyItMatters ? h("div", { class: "d-block" }, h("span", { class: "label" }, "Why it matters"), h("p", null, str(s.whyItMatters))) : null,
-        h("div", { class: "d-actions" },
-          concierge.available ? h("button", { class: "ask-link", type: "button", onclick: () => concierge.askAbout(s) }, "Go deeper with Attaché") : null),
-        sourcesLine(s.sources)),
-      h("aside", { class: "margin", "aria-label": "Talking points" },
-        s.talkingPoint ? h("div", { class: "say d-block", "data-copy-host": "" },
-          h("div", { class: "breath-head" }, h("span", { class: "label" }, "Say"),
-            h("button", { class: "copy", type: "button", onclick: (e) => copyText(str(s.talkingPoint), e.currentTarget) }, "Copy")),
-          h("p", null, str(s.talkingPoint))) : null,
-        s.askThem ? h("div", { class: "ask d-block" }, h("span", { class: "label" }, "Ask them"), h("p", null, str(s.askThem))) : null,
-        names.length ? h("div", { class: "d-block" }, h("span", { class: "label" }, "Names to know"),
-          h("ul", { class: "names" }, names.map((n) => h("li", null, h("b", null, str(n.name)), " ", h("span", null, "— " + str(n.who)))))) : null,
-        s.watch ? h("div", { class: "d-block" }, h("span", { class: "label" }, "Watch next"), h("p", null, str(s.watch))) : null));
+        brief ? h("p", null, brief) : null,
+        say ? h("div", { class: "say", "data-copy-host": "" },
+          h("p", null, say),
+          h("button", { class: "copy", type: "button", onclick: (e) => copyText(say, e.currentTarget) }, "Copy")) : null,
+        h("details", { class: "more" },
+          h("summary", null, "More"),
+          h("div", { class: "more-body" },
+            background ? block("Background", background) : null,
+            ask ? block("Ask them", ask) : null,
+            names ? block("Names", names) : null,
+            watch ? block("Watch next", watch) : null,
+            sourcesLine(s.sources),
+            concierge.available ? h("button", { class: "ask-link", type: "button", onclick: () => concierge.askAbout(s) }, "Go deeper with Attaché") : null))));
   }
 
   /* ---------- Concierge (asks Claude on the viewer's account) ---------- */
@@ -588,7 +535,7 @@ footer .wrap { display: grid; gap: 0.4rem; }
         "Ground every answer in today's edition below (dated " + str(b && b.date) + "). You may add general background from your own knowledge,",
         "but you cannot browse, so say plainly when something may have moved on since the edition was written. Never invent figures, quotes or sources.",
         "Style: warm, precise, unhurried. Plain text only, no markdown, no headings, no bullet symbols.",
-        "Keep answers under about 170 words unless asked for more. When useful, give one or two sentences they could say aloud, introduced naturally.",
+        "The reader is busy and often on the move: keep answers under about 90 words unless asked for more. When useful, give one sentence they could say aloud.",
         "If asked about someone they will meet (a banker, a diplomat, an engineer), tailor which stories matter to that person and suggest a good question to ask them.",
         "",
         "TODAY'S EDITION (JSON):",

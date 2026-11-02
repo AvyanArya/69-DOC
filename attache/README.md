@@ -6,16 +6,15 @@ A private daily briefing on geopolitics, world affairs, markets, technology and 
 
 ## What each edition contains
 
+Each edition is a two-minute read, written for a phone on the way out in the morning.
+
 | Section | Purpose |
 | --- | --- |
-| **The one thing** | The story everyone will be talking about, plus a one-sentence version you can say aloud. |
-| **If you read nothing else** | Five one-line essentials. |
-| **Dispatches** | 7–10 stories ranked by importance, each with background and why it matters. A margin column gives a line to *say*, a question to *ask them*, the *names to know*, and what to *watch next*. Every story links its sources and carries a status (confirmed, developing, disputed or scheduled). |
-| **The days ahead** | Scheduled events over the next fortnight. |
-| **Figures worth remembering** | A few numbers worth knowing, each with its source. |
-| **Lexicon** | Terms from the day's news, explained. |
-| **At the table** | Conversation openers, and how to handle sensitive topics gracefully. |
-| **Coda** | A lighter closing note, often local to the UAE. |
+| **The one thing** | The day's main story in two sentences, plus one line you can say aloud. |
+| **The essentials** | Five stories, ranked by importance. Each has a headline, a one- or two-sentence brief, and a line to *say*. Tap **More** for background, a question to ask, names, what to watch, and sources. |
+| **This week** | Three or four dates to know. |
+| **Before you go** | One number, one word of the day, one conversation opener, and one topic to handle with care. |
+| **And finally** | A lighter closing line, often local to the UAE. |
 
 **Ask Attaché** is a concierge that answers questions about the current edition, for example "prepare me for dinner with a banker" or "go deeper on Hormuz". It runs on the viewer's own Claude account.
 
