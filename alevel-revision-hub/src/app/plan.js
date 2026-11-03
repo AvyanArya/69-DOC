@@ -7,65 +7,90 @@
   const V = RH.views;
   const DAYNAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
-  // ---------- This week ----------
-  const PPM = 0.8; // pixels per minute on the week grid
+  // ---------- The planner: a day agenda by default, or the whole week as columns ----------
+  const BLOCK_IC = { school: 'book', activity: 'flame', meal: 'sun', travel: 'right', rest: 'pause', sleep: 'moon', exam: 'flag' };
+  function agenda(s, d) {
+    const tl = R.timeline(s, d), now = new Date(), nowM = now.getHours() * 60 + now.getMinutes(), isToday = d === U.today();
+    let html = '<ol class="ag">', marked = false;
+    tl.items.forEach(function (it) {
+      if (it.type === 'block' && (it.kind === 'morning' || it.kind === 'winddown' || it.kind === 'travel' || it.kind === 'rest')) return;
+      if (isToday && !marked && it.start > nowM) { html += '<li class="ag-now"><span class="num">' + U.hm(nowM) + '</span></li>'; marked = true; }
+      const past = isToday && it.end <= nowM;
+      if (it.type === 'session') {
+        const x = it.sess, sub = M.subject[x.s], t = x.t && M.topic[x.t];
+        html += '<li class="ag-card' + (x.done ? ' done' : '') + (past && !x.done ? ' late' : '') + '" style="--c:' + (sub ? C.scol(sub) : 'var(--primary)') + '"><span class="ag-t num"><b>' + U.hm(it.start) + '</b>' + U.hm(it.end) + '</span>' +
+          '<div class="ag-body"><button type="button" class="ag-title" data-action="sess-open" data-id="' + x.id + '">' + esc(V.sessTitle(x)) + '</button><span class="ag-meta"><i class="ag-dot"></i>' + esc(sub ? sub.name : '') + ' · ' + esc(RH.KIND[x.k].label) + ' · ' + U.mins(x.m) + (t ? '<span class="ag-ch"> · ' + esc(M.title(t.comp.name)) + '</span>' : '') + '</span></div>' +
+          '<div class="ag-act">' + (x.done ? '' : '<button type="button" class="icon-btn" data-action="timer-open" data-id="' + x.id + '" aria-label="Start a timer">' + C.icon('timer') + '</button>') + '<button type="button" class="check-b' + (x.done ? ' on' : '') + '" data-action="sess-done" data-id="' + x.id + '" aria-pressed="' + !!x.done + '" aria-label="' + (x.done ? 'Done' : 'Mark done') + '">' + C.icon('tick') + '</button></div></li>';
+      } else if (it.type === 'free') {
+        if (it.end - it.start >= 20) html += '<li class="ag-free' + (past ? ' past' : '') + '"><span class="ag-t num">' + U.hm(it.start) + '</span><span>Free time · ' + U.dur(it.end - it.start) + '</span></li>';
+      } else {
+        html += '<li class="ag-block kind-' + it.kind + (past ? ' past' : '') + '"><span class="ag-t num">' + U.hm(it.start) + '</span><span class="ag-bi">' + C.icon(BLOCK_IC[it.kind] || 'dot') + '</span><span><b>' + esc(it.label || '') + '</b> <span class="muted">until ' + U.hm(it.end) + '</span></span></li>';
+      }
+    });
+    if (isToday && !marked) html += '<li class="ag-now"><span class="num">' + U.hm(nowM) + '</span></li>';
+    html += '</ol>';
+    if (tl.unplaced.length) html += '<p class="note small">' + U.plural(tl.unplaced.length, 'session') + ' didn’t fit into this day: ' + tl.unplaced.map((x) => esc(V.sessTitle(x))).join(', ') + '. Rebuild the plan, or free up time in My schedule.</p>';
+    if (!tl.items.some((i) => i.type === 'session') && !tl.unplaced.length) html = '<div class="ag-empty">' + C.icon('sun') + '<div><b>No revision planned.</b><p class="muted">A day off. Rest counts too.</p></div></div>' + html;
+    return html;
+  }
+
   V.plan = function () {
     const s = st(), today = U.today();
     const ws = RH.ui.week || U.weekStart(today);
     const days = []; for (let i = 0; i < 7; i++) days.push(U.addDays(ws, i));
-    const tls = days.map((d) => R.timeline(s, d));
-    const h0 = Math.max(0, Math.floor(Math.min.apply(null, tls.map((t) => t.info.wake)) / 60));
-    const h1 = Math.min(24, Math.ceil(Math.max.apply(null, tls.map((t) => Math.min(1440, t.info.bed))) / 60));
-    const sess = s.plan.sessions.filter((x) => x.d >= ws && x.d <= days[6]);
-    const planned = sess.reduce((a, x) => a + x.m, 0), target = tls.reduce((a, t) => a + t.info.target, 0);
-    const free = tls.reduce((a, t) => a + t.items.filter((i) => i.type === 'free').reduce((b, i) => b + i.end - i.start, 0), 0);
-    const doneM = sess.filter((x) => x.done).reduce((a, x) => a + x.m, 0);
-    const exams = M.exams(s);
-    const sum = RH.planner.summary(s);
-    let html = C.subnav('plan', 'plan');
-    html += C.page({ title: (ws === U.weekStart(today) ? 'This week' : 'Week of ' + esc(U.fmtShort(ws))), lede: U.dur(planned) + ' of revision planned, ' + U.dur(doneM) + ' done · ' + U.dur(free) + ' of free time kept',
-      actions: '<a class="btn" href="#routine">' + C.icon('pen') + 'Edit my schedule</a><a class="btn alt" href="#exams">' + C.icon('flag') + 'Revise for a test</a><button type="button" class="btn alt" data-action="plan-build">' + C.icon('rebuild') + 'Rebuild</button>' });
-    html += '<div class="wk-nav"><button type="button" class="icon-btn" data-action="week-prev" aria-label="Previous week">' + C.icon('left') + '</button><b>' + esc(U.fmtShort(ws)) + ' – ' + esc(U.fmtShort(days[6])) + '</b><button type="button" class="icon-btn" data-action="week-next" aria-label="Next week">' + C.icon('right') + '</button>' + (ws === U.weekStart(today) ? '' : '<button type="button" class="btn ghost sm" data-action="week-today">Back to this week</button>') + '<span class="muted small">' + U.plural(sum.sessions, 'session') + ' left until your exams</span></div>';
-    html += V.staleBanner();
-    if (!s.routine.setupAt) html += '<div class="note row-note"><p><b>This plan uses a sample week.</b> Put in your school times, clubs and how much you want to revise so the times fit your real week.</p><a class="btn sm" href="#routine">Edit my schedule</a></div>';
-    if (!s.profile.fmOptions) html += '<div class="note row-note"><p><b>Further Maths options aren’t in the plan yet.</b></p><a class="btn alt sm" href="#preferences">Choose options</a></div>';
-    if (target > planned + 60) html += '<p class="muted small">Your targets add up to ' + U.dur(target) + ' this week; ' + U.dur(planned) + ' fits around school, activities and the free time you asked for. <a href="#routine">Edit my schedule</a></p>';
-
-    // Desktop grid
-    const hgt = (h1 - h0) * 60 * PPM;
-    const pos = (a, b) => 'top:' + Math.max(0, (a - h0 * 60) * PPM).toFixed(1) + 'px;height:' + Math.max(8, (Math.min(b, h1 * 60) - Math.max(a, h0 * 60)) * PPM - 2).toFixed(1) + 'px';
-    html += '<section class="card wk-card"><div class="wk" style="--wk-h:' + hgt + 'px"><div class="wk-head"><span></span>' + days.map(function (d, i) {
-      const t = tls[i];
-      return '<div class="wk-day' + (d === today ? ' today' : '') + '"><span class="label">' + U.DAYS[i] + '</span><b class="num">' + U.parse(d).getDate() + '</b><span class="muted small num">' + U.dur(s.plan.sessions.filter((x) => x.d === d).reduce((a, x) => a + x.m, 0)) + '</span>' + (t.info.hol ? '<span class="chip info">' + esc(t.info.hol.name.split(' ')[0]) + '</span>' : '') + '</div>';
-    }).join('') + '</div><div class="wk-body"><div class="wk-hours">';
-    for (let h = h0; h < h1; h++) html += '<span style="top:' + ((h - h0) * 60 * PPM) + 'px">' + String(h).padStart(2, '0') + ':00</span>';
-    html += '</div>' + days.map(function (d, i) {
-      const t = tls[i];
-      let col = '<div class="wk-col' + (d === today ? ' today' : '') + (d < today ? ' past' : '') + '">';
-      col += '<span class="wb kind-sleep" style="' + pos(h0 * 60, t.info.wake) + '"></span><span class="wb kind-sleep" style="' + pos(t.info.bed, h1 * 60 + 60) + '"></span>';
-      t.items.forEach(function (it) {
-        if (it.type === 'block' && (it.kind === 'morning' || it.kind === 'winddown')) return;
-        const tall = (it.end - it.start) * PPM >= 30;
-        if (it.type === 'session') {
-          const x = it.sess;
-          col += '<button type="button" class="wb kind-study' + (x.done ? ' done' : '') + '" data-subj="' + x.s + '" style="' + pos(it.start, it.end) + '" data-action="sess-open" data-id="' + x.id + '" title="' + esc(U.hm(it.start) + ' ' + V.sessTitle(x)) + '"><b>' + esc(V.sessTitle(x).replace(/^[\d.]+ /, '')) + '</b>' + (tall ? '<span class="num">' + U.hm(it.start) + ' · ' + esc(RH.KIND[x.k].label.split(' ')[0]) + '</span>' : '') + '</button>';
-        } else {
-          col += '<span class="wb kind-' + it.kind + '"' + (it.subj ? ' data-subj="' + it.subj + '"' : '') + ' style="' + pos(it.start, it.end) + '" title="' + esc(U.hm(it.start) + '–' + U.hm(it.end) + ' ' + (it.label || 'Free time')) + '">' + (tall && it.kind !== 'travel' && it.kind !== 'rest' ? '<b>' + esc(it.type === 'free' ? 'Free' : it.label) + '</b>' : '') + '</span>';
-        }
-      });
-      exams.filter((e) => e.date === d && !e.time).forEach((e) => { col += '<span class="wb kind-exam" style="top:0;height:20px" data-subj="' + e.subject + '"><b>' + esc(e.code) + '</b></span>'; });
-      return col + '</div>';
-    }).join('') + '</div></div>' +
-      '<div class="wk-legend small">' + [['study', 'Revision'], ['school', 'School'], ['activity', 'Activities'], ['meal', 'Meals'], ['exam', 'Exams'], ['free', 'Free time'], ['sleep', 'Asleep']].map((k) => '<span><i class="lgd kind-' + k[0] + '"></i>' + k[1] + '</span>').join('') + '</div></section>';
-
-    // Phone: one day at a time
+    const mode = RH.ui.planMode || 'day';
     const sel = RH.ui.day && RH.ui.day >= ws && RH.ui.day <= days[6] ? RH.ui.day : (today >= ws && today <= days[6] ? today : ws);
-    html += '<section class="card wk-phone"><div class="day-chips">' + days.map((d, i) => '<button type="button" class="day-chip' + (d === sel ? ' on' : '') + (d === today ? ' today' : '') + '" data-action="plan-day" data-v="' + d + '"><span>' + U.DAYS[i].slice(0, 1) + '</span><b class="num">' + U.parse(d).getDate() + '</b></button>').join('') + '</div>' +
-      '<h2>' + esc(U.fmt(sel, { weekday: 'long', day: 'numeric', month: 'long' })) + '</h2>' + V.timeline(sel) + '</section>';
+    const sess = s.plan.sessions.filter((x) => x.d >= ws && x.d <= days[6]);
+    const planned = sess.reduce((a, x) => a + x.m, 0), doneM = sess.filter((x) => x.done).reduce((a, x) => a + x.m, 0);
+    const exams = M.exams(s), tests = s.exams.custom || [];
+    const daySess = s.plan.sessions.filter((x) => x.d === sel), dayM = daySess.reduce((a, x) => a + x.m, 0), dayDone = daySess.filter((x) => x.done).reduce((a, x) => a + x.m, 0);
+    const title = mode === 'week' ? (ws === U.weekStart(today) ? 'This week' : 'Week of ' + U.fmtShort(ws)) : sel === today ? 'Today' : sel === U.addDays(today, 1) ? 'Tomorrow' : U.fmt(sel, { weekday: 'long', day: 'numeric', month: 'long' });
+    const meta = mode === 'week' ? U.dur(planned) + ' of revision · ' + U.dur(doneM) + ' done' : (dayM ? U.dur(dayM) + ' of revision' + (dayDone ? ' · ' + U.dur(dayDone) + ' done' : '') : 'Nothing planned') + (sel === today ? '' : ' · ' + U.fmt(sel, { weekday: 'long' }));
+    let html = C.subnav('plan', 'plan');
+    html += '<header class="pl-head"><div><p class="kicker">Planner</p><h1>' + esc(title) + '</h1><p class="meta">' + meta + '</p></div><div class="pl-tools">' +
+      C.seg([['day', 'Day'], ['week', 'Week']], mode, 'data-action="plan-mode"') +
+      '<a class="btn" href="#exams">' + C.icon('flag') + 'Revise for a test</a>' +
+      '<a class="icon-btn pl-ib" href="#routine" title="Edit my schedule" aria-label="Edit my schedule">' + C.icon('pen') + '</a>' +
+      '<button type="button" class="icon-btn pl-ib" data-action="plan-build" title="Rebuild the plan" aria-label="Rebuild the plan">' + C.icon('rebuild') + '</button></div></header>';
 
-    html += '<section class="card"><div class="card-head"><h2>Add to your calendar</h2></div><p class="muted small">Exports your exams and every revision session with its time.</p><div class="row-actions"><button type="button" class="btn alt sm" data-action="export-ics">' + C.icon('download') + '.ics for Apple or Outlook</button><button type="button" class="btn alt sm" data-action="export-csv">' + C.icon('download') + '.csv for Google Calendar</button></div></section>';
+    // The week strip: a pill per day with how full it is.
+    if (mode === 'week') html += '<nav class="pl-strip wk-only" aria-label="Weeks"><button type="button" class="icon-btn" data-action="week-prev" aria-label="Previous week">' + C.icon('left') + '</button><b>' + esc(U.fmtShort(ws)) + ' – ' + esc(U.fmtShort(days[6])) + '</b><button type="button" class="icon-btn" data-action="week-next" aria-label="Next week">' + C.icon('right') + '</button></nav>';
+    else html += '<nav class="pl-strip" aria-label="Days"><button type="button" class="icon-btn" data-action="week-prev" aria-label="Previous week">' + C.icon('left') + '</button><div class="pl-days">' + days.map(function (d, i) {
+      const ds = s.plan.sessions.filter((x) => x.d === d), m = ds.reduce((a, x) => a + x.m, 0), dn = ds.filter((x) => x.done).reduce((a, x) => a + x.m, 0);
+      const cap = Math.max(60, R.day(s, d).target || 120), ex = exams.some((e) => e.date === d) || tests.some((t) => t.date === d);
+      return '<button type="button" class="pl-day' + (d === sel && mode === 'day' ? ' on' : '') + (d === today ? ' today' : '') + (d < today ? ' past' : '') + '" data-action="plan-day" data-v="' + d + '" aria-pressed="' + (d === sel) + '"><span class="pd-w">' + U.DAYS[i].slice(0, 3) + '</span><b class="num">' + U.parse(d).getDate() + '</b>' +
+        '<span class="pd-load" title="' + U.dur(m) + '"><i style="width:' + Math.min(100, Math.round(100 * m / cap)) + '%"></i><i class="dn" style="width:' + Math.min(100, Math.round(100 * dn / cap)) + '%"></i></span>' + (ex ? '<span class="pd-ex" title="Exam or test">' + C.icon('flag') + '</span>' : '') + '</button>';
+    }).join('') + '</div><button type="button" class="icon-btn" data-action="week-next" aria-label="Next week">' + C.icon('right') + '</button></nav>';
+    if (ws !== U.weekStart(today)) html += '<p class="center"><button type="button" class="btn ghost sm" data-action="week-today">Back to this week</button></p>';
+
+    const notes = [];
+    if (!s.routine.setupAt) notes.push('<b>This plan uses a sample week.</b> <a href="#routine">Put in your real week</a> so the times fit.');
+    if (!s.profile.fmOptions && M.isMine(M.subject.further)) notes.push('Further Maths options aren’t in the plan yet. <a href="#preferences">Choose options</a>.');
+    html += V.staleBanner();
+    if (notes.length) html += '<p class="pl-note">' + C.icon('spark') + '<span>' + notes.join(' ') + '</span></p>';
+
+    if (mode === 'week') {
+      html += '<div class="pl-week">' + days.map(function (d, i) {
+        const ds = s.plan.sessions.filter((x) => x.d === d).sort((a, b) => (a.t0 == null ? 9999 : a.t0) - (b.t0 == null ? 9999 : b.t0));
+        const ex = exams.filter((e) => e.date === d).map((e) => '<span class="pw-ex">' + C.icon('flag') + esc(e.code || e.title) + '</span>').concat(tests.filter((t) => t.date === d).map((t) => '<a class="pw-ex" href="#prep-' + t.id + '">' + C.icon('flag') + esc(t.name) + '</a>')).join('');
+        return '<section class="pw-col' + (d === today ? ' today' : '') + (d < today ? ' past' : '') + '"><button type="button" class="pw-h" data-action="plan-day-open" data-v="' + d + '"><span>' + U.DAYS[i] + '</span><b class="num">' + U.parse(d).getDate() + '</b><span class="muted small">' + (ds.length ? U.dur(ds.reduce((a, x) => a + x.m, 0)) : 'Free') + '</span></button>' + ex +
+          ds.map(function (x) {
+            const sub = M.subject[x.s];
+            return '<button type="button" class="pw-s' + (x.done ? ' done' : '') + '" style="--c:' + (sub ? C.scol(sub) : 'var(--primary)') + '" data-action="sess-open" data-id="' + x.id + '"><span class="num">' + (x.t0 != null ? U.hm(x.t0) : '') + ' · ' + U.mins(x.m) + '</span><b>' + esc(V.sessTitle(x)) + '</b><span>' + esc(sub ? sub.name : '') + '</span></button>';
+          }).join('') + '</section>';
+      }).join('') + '</div>';
+    } else {
+      const nextEx = exams.filter((e) => e.date >= today).concat(tests.filter((t) => t.date >= today).map((t) => ({ date: t.date, title: t.name, test: t }))).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 3);
+      html += '<div class="pl-dayv"><section class="pl-agenda">' + agenda(s, sel) + '</section><aside class="pl-side">' +
+        '<section class="card pl-week-ring"><div class="pwr">' + C.ring(planned ? doneM / planned : 0, '<b>' + (planned ? Math.round(100 * doneM / planned) : 0) + '%</b>', 76) + '<div><b>This week</b><span class="muted small">' + U.dur(doneM) + ' of ' + U.dur(planned) + ' done</span></div></div></section>' +
+        '<section class="card"><div class="card-head"><h2>Coming up</h2><a href="#exams">All</a></div>' + (nextEx.length ? '<ul class="pl-up">' + nextEx.map((e) => '<li><span class="pu-n num"><b>' + C.daysTo(e.date) + '</b>days</span><span><b>' + esc(e.title) + '</b><span class="muted small">' + esc(U.fmt(e.date, { weekday: 'short', day: 'numeric', month: 'short' })) + '</span>' + (e.test ? '<a class="small" href="#prep-' + e.test.id + '">Revision plan</a>' : '') + '</span></li>').join('') + '</ul>' : '<p class="muted small">No exams or tests yet. <a href="#exams">Add a test</a> to get a plan for it.</p>') + '</section>' +
+        '<section class="card pl-cal"><h2>Calendar</h2><div class="row-actions"><button type="button" class="btn alt sm" data-action="export-ics">' + C.icon('download') + 'Apple / Outlook</button><button type="button" class="btn alt sm" data-action="export-csv">' + C.icon('download') + 'Google</button></div></section>' +
+        '</aside></div>';
+    }
     return html;
   };
+  RH.actions['plan-mode'] = (el) => { RH.ui.planMode = el.dataset.v; RH.render({ keepScroll: true }); };
+  RH.actions['plan-day-open'] = (el) => { RH.ui.day = el.dataset.v; RH.ui.planMode = 'day'; RH.render({ keepScroll: true }); };
 
   // ---------- Routine ----------
   const hrs = (m) => Math.round((Number(m) || 0) / 15) / 4;
@@ -247,5 +272,5 @@
   A['rev-add'] = () => store.update(function (s) { s.routine.events.push({ id: 'e' + U.uid(), name: 'Busy', date: U.today(), start: '18:00', end: '21:00' }); touch(s); });
   A['rev-del'] = (el) => store.update(function (s) { s.routine.events = s.routine.events.filter((x) => x.id !== el.dataset.id); touch(s); });
   A['routine-save'] = () => { store.update(function (s) { touch(s); }, { silent: true }); A['plan-build'](); location.hash = 'plan'; };
-  A['plan-day'] = (el) => { RH.ui.day = el.dataset.v; RH.render({ keepScroll: true }); };
+  A['plan-day'] = (el) => { RH.ui.day = el.dataset.v; RH.ui.planMode = 'day'; RH.render({ keepScroll: true }); };
 })(window.RH = window.RH || {});

@@ -50,6 +50,8 @@
     video: '<rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10.5l5-3v9l-5-3z"/>',
     notes: '<path d="M6 3h9l3 3v15H6z"/><path d="M9 9h6M9 13h6M9 17h4"/>',
     qs: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6"/><circle cx="12" cy="17" r=".6"/>',
+    user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+    info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>',
     list: '<path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/>',
     pen: '<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>',
     cards: '<rect x="3" y="6" width="13" height="14" rx="2"/><path d="M7 3h12a2 2 0 0 1 2 2v12"/>',
@@ -103,7 +105,7 @@
     home: { label: 'Home', icon: 'home', href: 'home', pages: [] },
     learn: { label: 'My Subjects', short: 'Subjects', icon: 'book', href: 'study', pages: [['study', 'Bookshelf'], ['subjects', 'Choose subjects'], ['guide', 'How to revise'], ['library', 'Resources']] },
     labs: { label: 'The Labs', short: 'Labs', icon: 'flask', href: 'labs', pages: [] },
-    plan: { label: 'Planner', icon: 'plan', href: 'plan', pages: [['plan', 'This week'], ['routine', 'My schedule'], ['deliverables', 'Weekly tasks'], ['exams', 'Exams'], ['strategy', 'Strategy']] },
+    plan: { label: 'Planner', icon: 'plan', href: 'plan', pages: [['plan', 'My plan'], ['routine', 'My schedule'], ['deliverables', 'Weekly tasks'], ['exams', 'Exams'], ['strategy', 'Strategy']] },
     practise: { label: 'Practise', icon: 'pen', href: 'papers', pages: [['papers', 'Exam centre'], ['cards', 'Flashcards'], ['check', 'Check an answer'], ['checks', 'Marked answers']] },
     focus: { label: 'Focus', icon: 'clock', href: 'focus', pages: [] }
   };
@@ -279,14 +281,15 @@
         catch (e) {
           if (e && e.code === 'declined') return;
           if (e && e.code === 'rate_limited') { C.toast('A save is already waiting for you to confirm.'); return; }
+          if (typeof text !== 'string') { C.toast('This view cannot save ' + name.split('.').pop().toUpperCase() + ' files. Open the hub in claude.ai or preview.html.'); return; }
           C.copyText(text, 'This viewer cannot save ' + name.split('.').pop() + ' files, so the contents were copied. Paste them into a file named ' + name + '.');
         }
         return;
       }
-      if (framed) { C.copyText(text, 'Copied. Paste into a file named ' + name + '.'); return; }
+      if (framed) { if (typeof text !== 'string') { C.toast('Saving files is not available in this view.'); return; } C.copyText(text, 'Copied. Paste into a file named ' + name + '.'); return; }
     }
     try {
-      const blob = new Blob([text], { type: mime });
+      const blob = text instanceof Blob ? text : new Blob([text], { type: mime });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url; a.download = name; a.rel = 'noopener';

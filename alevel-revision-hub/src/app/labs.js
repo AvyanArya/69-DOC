@@ -212,8 +212,9 @@
     } catch (e) { g.fillStyle = '#ddd'; g.fillRect(0, 0, W, H); }
     return (thumbs[id] = c.toDataURL('image/png'));
   }
+  LB.thumb = thumb;
   RH.afterRender.push(function (r) {
-    if (r !== 'labs') return;
+    if (r !== 'labs' && r !== 'home') return;
     const list = Array.prototype.slice.call(document.querySelectorAll('canvas[data-labthumb]'));
     let i = 0;
     (function next() {

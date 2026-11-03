@@ -1117,115 +1117,104 @@ body.in-exam .tabbar { display: none !important; }
 .check-b:hover { border-color: var(--ok); color: var(--ok); }
 .check-b.on { background: var(--ok); border-color: var(--ok); color: #fff; }
 
-/* ---------- My Subjects: the textbook shelf ---------- */
-body[data-route="study"] .view { max-width: none; padding: 20px 24px 20px; gap: 14px; }
-.shelf-hero { --H: min(46vh, 26vw); position: relative; height: calc(100vh - 104px); min-height: 540px; overflow: hidden; border-radius: 30px; background: var(--glass); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); border: 1px solid var(--card-line); box-shadow: var(--shadow); color: var(--ink); user-select: none; -webkit-user-select: none; outline: none; }
-.sh-tabs { position: absolute; left: 50%; transform: translateX(-50%); top: 26px; display: flex; gap: 4px; padding: 5px; max-width: calc(100% - 32px); overflow-x: auto; scrollbar-width: none; border-radius: 16px; background: var(--surface); box-shadow: var(--shadow-sm); border: 1px solid var(--line); z-index: 5; }
-.sh-tabs::-webkit-scrollbar { display: none; }
-.sh-tab { flex: none; height: 34px; padding: 0 15px; border: 0; border-radius: 12px; background: none; color: var(--ink-2); font: inherit; font-size: 14px; font-weight: 500; white-space: nowrap; cursor: pointer; transition: background 0.3s, color 0.3s; }
-.sh-tab:hover { color: var(--ink); background: var(--surface-2); }
-.sh-tab.on { background: var(--subj); color: #fff; font-weight: 600; box-shadow: 0 6px 16px color-mix(in srgb, var(--subj) 35%, transparent); }
-.sh-sum { position: absolute; left: 0; right: 0; top: 82px; text-align: center; color: var(--ink-3); font-size: 0.9rem; z-index: 5; }
-.sh-sum b { color: var(--ink-2); font-weight: 600; }
-.sh-shelf { position: absolute; left: 0; right: 0; top: calc(50% - var(--H) / 2 - 30px); height: calc(var(--H) + 60px); perspective: 2200px; perspective-origin: 50% 50%; touch-action: pan-y; }
-.sh-stage { position: absolute; left: 50%; top: 50%; width: 0; height: 0; transform-style: preserve-3d; }
-.sh-plank { position: absolute; left: 3%; right: 3%; top: calc(50% + var(--H) / 2 - 2px); height: 16px; border-radius: 10px; background: linear-gradient(180deg, var(--plank-a), var(--plank-b)); box-shadow: 0 18px 34px rgba(80, 60, 160, 0.14), inset 0 -3px 0 rgba(123, 97, 255, 0.1); }
-.bk { position: absolute; left: 0; top: 0; width: 0; height: 0; transform-style: preserve-3d; will-change: transform; cursor: pointer; }
-.bk.lifted { visibility: hidden !important; }
-.bk-f { position: absolute; height: var(--h); top: calc(var(--h) / -2); backface-visibility: hidden; -webkit-backface-visibility: hidden; overflow: hidden; }
-.bk-f svg { display: block; width: 100%; height: 100%; }
-.bk-f::after { content: ""; position: absolute; inset: 0; background: #000; pointer-events: none; }
-.spn { width: var(--ws); left: calc(var(--ws) / -2); transform: translateZ(calc(var(--d) / 2)); border-radius: 3px; }
-.spn::after { opacity: var(--ss, 0); }
-.cv { width: var(--d); left: calc(var(--d) / -2); transform: rotateY(90deg) translateZ(calc(var(--ws) / 2)); border-radius: 3px 10px 10px 3px; box-shadow: 0 30px 60px -26px rgba(34, 27, 69, 0.55); }
-.cv::after { opacity: var(--cs, 0.5); }
-.sh-play { position: absolute; left: 0; top: 0; width: 44px; height: 44px; border-radius: 50%; border: 0; color: #fff; background: var(--primary); box-shadow: 0 8px 20px rgba(123, 97, 255, 0.35); display: grid; place-items: center; cursor: pointer; z-index: 6; padding: 0; transform: scale(0); }
-.sh-play svg { width: 12px; height: 12px; margin-left: 2px; fill: currentColor; }
-.sh-cap { position: absolute; left: 0; right: 0; top: calc(50% + var(--H) / 2 + 40px); display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; z-index: 5; }
-.sh-m { position: relative; overflow: hidden; width: min(92%, 720px); text-align: center; }
-.sh-m > span { display: block; }
-.sh-m > span:not(:first-child) { position: absolute; left: 0; right: 0; top: 0; }
-.sh-mt { font-weight: 700; font-size: clamp(22px, 2.2vw, 30px); line-height: 1.15; letter-spacing: -0.03em; }
-.sh-ms { font-weight: 650; font-size: 12px; line-height: 1.2; letter-spacing: 0.1em; text-transform: uppercase; }
-.sh-mm { font-size: 14px; color: var(--ink-3); }
-.sh-arrow { position: absolute; top: 50%; margin-top: -24px; width: 48px; height: 48px; display: grid; place-items: center; border-radius: 50%; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-sm); color: var(--ink-2); cursor: pointer; z-index: 6; }
-.sh-arrow:hover { color: var(--primary); }
-.sh-arrow.prev { left: 22px; } .sh-arrow.next { right: 22px; }
-.sh-probe { position: absolute; left: -10px; top: 0; width: 1px; height: var(--H); visibility: hidden; }
-.sh-cur { position: fixed; left: 0; top: 0; width: 58px; height: 58px; margin: -29px 0 0 -29px; z-index: 100; pointer-events: none; display: none; }
-.sh-ring { position: absolute; inset: 0; border: 1.5px solid var(--ink-2); border-radius: 50%; transition: transform 0.5s var(--ease), background-color 0.4s var(--ease), border-color 0.4s var(--ease); }
-.sh-dot { position: absolute; left: 26px; top: 26px; width: 6px; height: 6px; border-radius: 50%; background: var(--ink); transition: transform 0.4s var(--ease); }
-.sh-open { position: absolute; inset: 0; display: grid; place-items: center; color: #fff; font-weight: 650; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; transform: scale(0); transition: transform 0.45s var(--ease); }
-.sh-cur.spine .sh-ring { transform: scale(0.72); }
-.sh-cur.btn .sh-ring { transform: scale(0.55); }
-.sh-cur.btn .sh-dot { transform: scale(0); }
-.sh-cur.open .sh-ring { transform: scale(1.7); background: var(--primary); border-color: var(--primary); }
-.sh-cur.open .sh-dot { transform: scale(0); }
-.sh-cur.open .sh-open { transform: scale(1); }
-@media (pointer: fine) {
-  .shelf-hero.cur-in .sh-cur { display: block; }
-  .shelf-hero.cur-in, .shelf-hero.cur-in * { cursor: none !important; }
-}
+/* ---------- My Subjects: a bookshelf, one book per subject ---------- */
+.lib { display: flex; flex-direction: column; gap: 22px; }
+.lib-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.lib-head h1 { font-size: clamp(1.9rem, 1.3rem + 2vw, 2.8rem); letter-spacing: -0.035em; line-height: 1.05; }
+.lib-head .meta { color: var(--ink-3); margin-top: 6px; }
+.lib-shelf { display: flex; flex-wrap: wrap; justify-content: center; padding: 26px 18px 8px; border-radius: 30px; background: var(--glass); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); border: 1px solid var(--card-line); box-shadow: var(--shadow); row-gap: 34px; }
+.slot { --bw: clamp(124px, 13vw, 176px); position: relative; display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 0 clamp(14px, 2vw, 26px) 4px; }
+/* Each slot carries its own piece of plank, so a row of books always stands on one continuous shelf. */
+.slot::before { content: ""; position: absolute; left: 0; right: 0; top: calc(var(--bw) * 900 / 474 - 4px); height: 16px; background: linear-gradient(180deg, var(--plank-a), var(--plank-b)); box-shadow: 0 16px 28px -10px rgba(80, 60, 160, 0.28), inset 0 -3px 0 rgba(123, 97, 255, 0.1); }
+.slot:first-child::before { border-radius: 10px 0 0 10px; } .slot:last-child::before { border-radius: 0 10px 10px 0; }
+.sbk { --rx: 0deg; --ry: 0deg; position: relative; z-index: 1; width: var(--bw); aspect-ratio: 474 / 900; padding: 0; border: 0; background: none; cursor: pointer; perspective: 900px; border-radius: 4px 12px 12px 4px; }
+.sbk-3d { position: absolute; inset: 0; transform-style: preserve-3d; transform: rotateY(calc(-14deg + var(--ry))) rotateX(var(--rx)); transform-origin: 50% 100%; transition: transform 0.45s var(--ease); }
+.sbk:hover .sbk-3d, .sbk:focus-visible .sbk-3d { transform: translateY(-12px) rotateY(calc(-4deg + var(--ry))) rotateX(var(--rx)); transition-duration: 0.25s; }
+.sbk-cover { position: absolute; inset: 0; overflow: hidden; border-radius: 3px 10px 10px 3px; box-shadow: 0 22px 34px -20px rgba(34, 27, 69, 0.6), inset 4px 0 6px -3px rgba(0, 0, 0, 0.35); transform: translateZ(9px); }
+.sbk-cover svg { display: block; width: 100%; height: 100%; }
+.sbk-gloss { position: absolute; inset: 0; background: radial-gradient(circle at var(--gx, 30%) var(--gy, 20%), rgba(255, 255, 255, 0.28), transparent 55%); opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+.sbk:hover .sbk-gloss { opacity: 1; }
+.sbk-spine { position: absolute; top: 0; bottom: 0; left: 0; width: 18px; transform-origin: left center; transform: rotateY(90deg) translateX(-9px); border-radius: 3px 0 0 3px; filter: brightness(0.8); }
+.sbk-pages { position: absolute; top: 4px; bottom: 4px; right: 0; width: 18px; transform-origin: right center; transform: rotateY(90deg) translateX(9px) translateZ(0); background: repeating-linear-gradient(90deg, #FFFDF6 0 1px, #DDD4BF 1px 2px); }
+.sbk.lifted { visibility: hidden; }
+.slot-cap { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; width: var(--bw); }
+.slot-cap b { font-weight: 650; letter-spacing: -0.01em; }
+.slot-bar { width: 72%; height: 5px; border-radius: 99px; background: var(--surface-3); overflow: hidden; }
+.slot-bar i { display: block; height: 100%; border-radius: inherit; }
 
-/* The open book */
-.book-stage { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; padding: 16px; cursor: auto; }
-.book-stage * { cursor: auto; }
-.book-stage a, .book-stage button { cursor: pointer; }
-.stage-bg { position: absolute; inset: 0; background: rgba(34, 27, 69, 0.42); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); animation: fade 0.45s ease both; }
-@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
-.ob { --P: min(440px, 43vw); --H: min(600px, calc(100vh - 90px)); position: relative; width: calc(var(--P) * 2); height: var(--H); perspective: 2600px; transform-style: preserve-3d; color: #2A2418; }
+/* The open book: fixed to the window, sized to fit it */
+.book-stage { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; padding: 16px; }
+.stage-bg { position: absolute; inset: 0; background: rgba(28, 20, 60, 0.42); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); animation: fade 0.4s ease both; }
+.ob { --H: min(640px, calc(100vh - 100px)); --P: min(calc(var(--H) * 0.74), 45vw); position: relative; width: calc(var(--P) * 2); height: var(--H); perspective: 4200px; transform-style: preserve-3d; color: #2A2418; }
 .ob-shadow { position: absolute; left: 3%; right: 3%; bottom: -34px; height: 46px; border-radius: 50%; background: radial-gradient(ellipse at center, rgba(20, 10, 60, 0.5), transparent 70%); filter: blur(8px); }
 .ob-edge { position: absolute; right: -7px; top: 7px; bottom: 7px; width: 8px; border-radius: 0 5px 5px 0; background: repeating-linear-gradient(90deg, #FFFDF6 0 1px, #DDD4BF 1px 2px); }
-.ob-page { position: absolute; top: 0; bottom: 0; width: var(--P); background: #FFFCF4; }
+.ob-page { position: absolute; top: 0; bottom: 0; width: var(--P); background: #FFFCF4; padding: clamp(24px, 4.5vh, 40px) clamp(20px, 2.6vw, 34px) 26px; overflow: hidden; display: flex; flex-direction: column; }
 .ob-left { left: 0; border-radius: 16px 3px 3px 16px; background: linear-gradient(90deg, #F3EDDF, #FFFCF4 14%, #FFFCF4 86%, #E8E0CE); }
-.ob-right { right: 0; border-radius: 3px 16px 16px 3px; background: linear-gradient(90deg, #E4DBC7, #FFFCF4 9%, #FFFCF4); padding: 40px 34px 30px; overflow: hidden; display: flex; flex-direction: column; }
-.ob-cover { position: absolute; top: -7px; bottom: -7px; right: -7px; width: calc(var(--P) + 7px); transform-origin: left center; transform-style: preserve-3d; transform: translateZ(6px); }
-.ob-leaf { position: absolute; top: 3px; bottom: 3px; right: 1px; width: calc(var(--P) - 4px); transform-origin: left center; transform-style: preserve-3d; }
-.ob-leaf.l0 { transform: translateZ(4.5px); } .ob-leaf.l1 { transform: translateZ(3px); } .ob-leaf.l2 { transform: translateZ(1.5px); }
+.ob-right { right: 0; border-radius: 3px 16px 16px 3px; background: linear-gradient(90deg, #E4DBC7, #FFFCF4 9%, #FFFCF4); }
+.ob-cover { position: absolute; top: -7px; bottom: -7px; right: -7px; width: calc(var(--P) + 7px); transform-origin: left center; transform-style: preserve-3d; transform: translateZ(8px); }
+.ob-leaf { position: absolute; top: 3px; bottom: 3px; right: 1px; width: calc(var(--P) - 4px); transform-origin: left center; transform-style: preserve-3d; transform: translateZ(calc(6.5px - var(--i) * 1.2px)); }
+.ob.opened .ob-cover, .ob.opened .ob-leaf { display: none; }
+.ob.static .ob-cover, .ob.static .ob-leaf { display: none; }
 .cf, .lf { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; overflow: hidden; }
 .cf.f { border-radius: 3px 12px 12px 3px; background: var(--cb); box-shadow: inset 6px 0 10px -4px rgba(0, 0, 0, 0.25); }
 .cf.f svg { display: block; width: 100%; height: 100%; }
 .cf.b { transform: rotateY(180deg); border-radius: 12px 3px 3px 12px; background: radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.2) 1.3px, transparent 1.6px) 0 0 / 16px 16px, var(--c); }
-.shade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.12)); opacity: 0; pointer-events: none; }
-.lf { background: #FFFCF4; }
+.shade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.1)); opacity: 0; pointer-events: none; }
+.lf { background: #FFFCF4; display: flex; flex-direction: column; }
 .lf.f { border-radius: 2px 12px 12px 2px; background: linear-gradient(90deg, #EAE2D0, #FFFCF4 10%); }
-.lf.b { transform: rotateY(180deg); border-radius: 12px 2px 2px 12px; background: linear-gradient(270deg, #EAE2D0, #FFFCF4 10%); padding: 40px 34px 30px; }
-.ob.static .ob-cover { transform: rotateY(-180deg) translateZ(-0.5px); }
-.ob.static .ob-leaf.l0 { transform: rotateY(-180deg) translateZ(-1.5px); } .ob.static .ob-leaf.l1 { transform: rotateY(-180deg) translateZ(-3px); } .ob.static .ob-leaf.l2 { transform: rotateY(-180deg) translateZ(-4.5px); }
+.lf.b { transform: rotateY(180deg); border-radius: 12px 2px 2px 12px; background: linear-gradient(270deg, #EAE2D0, #FFFCF4 10%); }
+.ob-leaf .lf.b, .ob-turn .lf { padding: clamp(24px, 4.5vh, 40px) clamp(20px, 2.6vw, 34px) 26px; }
+.ob-turn { position: absolute; top: 0; bottom: 0; width: var(--P); transform-style: preserve-3d; z-index: 5; }
+.ob-turn.fwd { right: 0; transform-origin: left center; }
+.ob-turn.bwd { left: 0; transform-origin: right center; }
+.ob-turn.bwd .lf.f { border-radius: 16px 3px 3px 16px; background: linear-gradient(90deg, #F3EDDF, #FFFCF4 14%, #FFFCF4 86%, #E8E0CE); }
+.ob-turn.bwd .lf.b { border-radius: 3px 16px 16px 3px; background: linear-gradient(90deg, #E4DBC7, #FFFCF4 9%, #FFFCF4); }
+.ob-turn.bwd .shade { background: linear-gradient(270deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.1)); }
 .ob-k { font-size: 11.5px; font-weight: 650; letter-spacing: 0.1em; text-transform: uppercase; color: var(--c); }
-.ob-in { display: flex; flex-direction: column; gap: 16px; height: 100%; }
-.ob-in h2 { color: #2A2418; font-size: clamp(1.6rem, 1.1rem + 1.4vw, 2.3rem); letter-spacing: -0.035em; line-height: 1.08; }
-.ob-ring { display: flex; align-items: center; gap: 14px; color: #6B6150; }
+.pg-in { display: flex; flex-direction: column; gap: 16px; height: 100%; min-height: 0; }
+.pg-in h2, .ob-mini h2 { color: #2A2418; font-size: clamp(1.6rem, 1.1rem + 1.4vw, 2.3rem); letter-spacing: -0.035em; line-height: 1.08; }
+.ob-ring { display: flex; align-items: center; gap: 14px; color: #6B6150; line-height: 1.4; }
 .ob-ring .ring { --subj: var(--c); }
 .ob-ring .ring-bg { stroke: #EDE6D6; }
+.ob-ring .ring-in { color: #2A2418; }
 .ob-acts { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
-.ob-acts .btn:not(.alt) { background: var(--c); box-shadow: 0 8px 20px color-mix(in srgb, var(--c) 35%, transparent); }
-.ob-acts .btn.alt { background: transparent; color: #2A2418; border-color: #DDD4BF; box-shadow: none; }
-.ob-toc { display: flex; flex-direction: column; gap: 12px; min-height: 0; flex: 1; }
+.ob .btn:not(.alt) { background: var(--c); border-color: var(--c); color: #fff; box-shadow: 0 8px 20px color-mix(in srgb, var(--c) 35%, transparent); }
+.ob .btn.alt { background: transparent; color: #2A2418; border-color: #DDD4BF; box-shadow: none; }
+.ob-acts .btn { justify-content: center; }
+.pg-back { align-self: flex-start; display: inline-flex; align-items: center; gap: 4px; height: 32px; padding: 0 12px 0 6px; border-radius: 99px; border: 1px solid #DDD4BF; background: transparent; color: #6B6150; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.pg-back:hover { color: var(--c); border-color: var(--c); }
+.pg-back .i { width: 16px; height: 16px; }
+.pg-back.only-one { display: none; }
+.pg-list { display: flex; flex-direction: column; gap: 6px; min-height: 0; flex: 1; }
+.pg-list h3 { font-size: 1.35rem; letter-spacing: -0.02em; color: #2A2418; margin-bottom: 6px; }
 .toc { list-style: none; margin: 0; padding: 0 4px 0 0; overflow-y: auto; min-height: 0; }
-.toc a { display: grid; grid-template-columns: 22px 46px minmax(0, 1fr); gap: 8px; align-items: center; padding: 12px 6px; border-bottom: 1px dashed #DDD4BF; color: #2A2418; text-decoration: none !important; border-radius: 8px; font-weight: 500; }
-.toc a:focus-visible { outline: none; }
-.toc a:hover, .toc a:focus-visible { background: color-mix(in srgb, var(--c) 9%, transparent); }
+.toc a, .ch-b { display: grid; grid-template-columns: 22px 46px minmax(0, 1fr); gap: 8px; align-items: center; padding: 11px 6px; border-bottom: 1px dashed #DDD4BF; color: #2A2418; text-decoration: none !important; border-radius: 8px; font-weight: 500; }
+.ch-b { width: 100%; grid-template-columns: 40px minmax(0, 1fr) 54px; border: 0; border-bottom: 1px dashed #DDD4BF; background: none; font: inherit; font-weight: 500; text-align: left; cursor: pointer; border-radius: 8px 8px 0 0; }
+.toc a:focus-visible, .ch-b:focus-visible { outline: 2px solid var(--c); outline-offset: -2px; }
+.toc a:hover, .ch-b:hover { background: color-mix(in srgb, var(--c) 9%, transparent); }
 .toc .ls-ic { width: 18px; height: 18px; border-width: 2px; }
 .toc-n { color: var(--c); font-weight: 650; font-size: 0.88rem; }
-.toc-t { overflow-wrap: anywhere; }
+.toc-t { overflow-wrap: anywhere; display: flex; flex-direction: column; }
+.ch-m { font-size: 12px; color: #8A806C; font-weight: 400; }
+.ch-bar { height: 5px; border-radius: 99px; background: #EDE6D6; overflow: hidden; }
+.ch-bar i { display: block; height: 100%; background: var(--c); border-radius: inherit; }
 .ob-mini { display: none; }
-.ob-x { position: fixed; top: max(18px, env(safe-area-inset-top, 0px)); right: max(18px, env(safe-area-inset-right, 0px)); z-index: 72; width: 46px; height: 46px; border-radius: 50%; background: var(--surface); box-shadow: var(--shadow); animation: fade 0.4s ease both; }
-.ob.one { --P: min(92vw, 440px); width: var(--P); }
-.ob.one .ob-left { display: none; }
+.ob-x { position: fixed; top: max(18px, env(safe-area-inset-top, 0px)); right: max(18px, env(safe-area-inset-right, 0px)); z-index: 92; width: 46px; height: 46px; border-radius: 50%; background: var(--surface); box-shadow: var(--shadow); animation: fade 0.4s ease both; }
+.ob.one { --P: min(92vw, 440px, calc(var(--H) * 0.74)); width: var(--P); }
+.ob.one .ob-left, .ob.one .ob-edge { display: none; }
 .ob.one .ob-right { left: 0; right: auto; border-radius: 16px; }
 .ob.one .ob-cover { right: auto; left: -4px; }
-.ob.one .ob-mini { display: block; padding-bottom: 14px; margin-bottom: 12px; border-bottom: 1px solid #E6DDC9; }
-.ob.one .ob-mini .ob-in { height: auto; gap: 10px; }
-.ob.one .ob-mini .ob-ring, .ob.one .ob-mini .btn.alt { display: none; }
+.ob.one .ob-leaf { right: auto; left: 2px; }
+.ob.one .ob-mini { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding-bottom: 14px; margin-bottom: 10px; border-bottom: 1px solid #E6DDC9; color: #6B6150; }
 .ob.one .ob-mini h2 { font-size: 1.5rem; }
+.ob.one .pg-back.only-one { display: inline-flex; margin-bottom: 6px; }
+body.book-open { overflow: hidden; }
 @media (max-width: 900px) {
-  body[data-route="study"] .view { padding: 12px 12px calc(96px + env(safe-area-inset-bottom, 0px)); }
-  .shelf-hero { --H: min(56vw, 40vh); height: calc(100vh - 190px); min-height: 480px; border-radius: 24px; }
-  .sh-tabs { top: 16px; }
-  .sh-sum { top: 68px; }
-  .sh-arrow { top: auto; bottom: 22px; margin: 0; width: 42px; height: 42px; }
+  .slot { --bw: clamp(110px, 34vw, 150px); padding: 0 10px 4px; }
+  .lib-shelf { padding: 22px 6px 6px; border-radius: 24px; }
 }
+@media (prefers-reduced-motion: reduce) { .sbk-3d, .sbk:hover .sbk-3d { transition: none; transform: none; } }
+
 /* ---------- A subject, a chapter, a lesson ---------- */
 .subj-h { display: flex; gap: 20px; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; padding: clamp(22px, 3vw, 32px); border-radius: var(--r-lg); background: linear-gradient(120deg, color-mix(in srgb, var(--subj) 17%, var(--surface)), color-mix(in srgb, var(--subj) 5%, var(--surface))); border: 1px solid color-mix(in srgb, var(--subj) 18%, transparent); box-shadow: var(--shadow-sm); }
 .subj-h-t { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
@@ -1638,6 +1627,278 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
 .ob .ls-ic { background: #FFFCF4; border-color: #D8CFBA; }
 :root[data-theme="dark"] .fx-track { fill: rgba(255, 255, 255, 0.05); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .fx-track { fill: rgba(255, 255, 255, 0.05); } }
+
+/* ---------- Answer space under each exam question ---------- */
+.answer-sheet { background: #fff; color: #1d1b2e; border-radius: 16px; box-shadow: var(--shadow-sm), 0 0 0 1px var(--line); padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 10px; margin-top: -6px; }
+.answer-sheet .as-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.answer-sheet .as-head b { font-size: 0.82rem; letter-spacing: 0.08em; text-transform: uppercase; color: #7c62e8; }
+.answer-sheet .seg { background: #f1eefb; }
+.answer-sheet .seg button { color: #4b4766; }
+.answer-sheet .seg button.on { background: #fff; color: #6d4fe0; }
+.answer-sheet textarea.lined { width: 100%; min-height: 190px; resize: vertical; border: 0; outline: 0; box-shadow: none; padding: 2px 4px 0 46px; font: 500 1rem/32px 'Onest', system-ui, sans-serif; color: #1d1b2e; background-color: #fff;
+  background-image: linear-gradient(90deg, transparent 34px, #f3b3c6 34px, #f3b3c6 35px, transparent 35px), repeating-linear-gradient(180deg, transparent 0 31px, #dcd8ee 31px 32px); background-attachment: local; border-radius: 0; }
+.answer-sheet textarea.lined:focus-visible { outline: 2px solid #b8a3f5; outline-offset: 4px; border-radius: 6px; }
+.answer-sheet textarea.lined::placeholder { color: #9a96b3; }
+.mc-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.mc-b { width: 64px; height: 64px; border-radius: 50%; border: 2px solid #d9d3f3; background: #fff; color: #3b3657; font: 700 1.4rem 'Onest', system-ui, sans-serif; cursor: pointer; transition: transform .15s, background .15s, border-color .15s; }
+.mc-b:hover { border-color: #b8a3f5; transform: translateY(-2px); }
+.mc-b.on { background: linear-gradient(135deg, #EE9DBE, #9C86F7); border-color: transparent; color: #fff; box-shadow: 0 8px 18px -8px #9C86F7; transform: scale(1.06); }
+.answer-sheet .help { color: #6e6a88; margin: 0; }
+.on-paper { display: flex; gap: 12px; align-items: flex-start; padding: 14px; border-radius: 12px; background: #f7f5fd; color: #4b4766; }
+.on-paper .i { flex: none; width: 22px; height: 22px; color: #7c62e8; }
+.on-paper p { margin: 0; }
+.typed-ans { border-radius: 12px; padding: 10px 14px 10px 46px; background-color: #fff; color: #1d1b2e; box-shadow: 0 0 0 1px var(--line);
+  background-image: linear-gradient(90deg, transparent 34px, #f3b3c6 34px, #f3b3c6 35px, transparent 35px), repeating-linear-gradient(180deg, transparent 0 27px, #e4e0f2 27px 28px); line-height: 28px; }
+.typed-ans p { margin: 0; }
+.ex-side .btn.block + .btn.block { margin-top: 0; }
+@media (prefers-reduced-motion: reduce) { .mc-b { transition: none; } .mc-b.on, .mc-b:hover { transform: none; } }
+.ai-dock.in-side { position: static; margin-top: 4px; }
+.ex-side > * { flex-shrink: 0; }
+.ai-dock.in-side .ai-panel { width: auto; height: max(320px, calc(100vh - 470px)); border-radius: 18px; box-shadow: none; }
+.ex-side:has(.ai-dock.in-side) .qnav { max-height: 92px; overflow-y: auto; padding: 2px; }
+.ex-side:has(.ai-dock.in-side) .ex-title, .ex-side:has(.ai-dock.in-side) .label { display: none; }
+
+/* ---------- Home ---------- */
+.home-hero { padding-bottom: clamp(20px, 2.6vw, 30px); }
+.home-hero .hero-hi span { opacity: 0.8; font-weight: 500; }
+.home-hero .hero-row { align-items: center; justify-content: space-between; }
+.home-hero .hero-txt { gap: 10px; }
+.home-hero .hero-txt .btn { align-self: flex-start; margin-top: 8px; }
+.home-hero h1 { font-size: clamp(1.8rem, 1.2rem + 2vw, 2.8rem); letter-spacing: -0.035em; line-height: 1.06; max-width: 18ch; text-wrap: balance; }
+.hero-steps { display: flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 600; }
+.hero-steps i { width: 26px; height: 6px; border-radius: 9px; background: rgba(255, 255, 255, 0.35); }
+.hero-steps i.on { background: #fff; }
+.hero-steps i.now { background: rgba(255, 255, 255, 0.7); animation: pulse 1.8s ease-in-out infinite; }
+.hero-steps span { margin-left: 8px; opacity: 0.92; }
+.hero-ring { text-decoration: none !important; color: #fff; border-radius: 50%; transition: transform 0.3s var(--ease); flex: none; }
+.hero-ring:hover { transform: scale(1.05) rotate(-3deg); }
+.hero-ring .ring-bg { stroke: rgba(255, 255, 255, 0.3); }
+.hero-ring .ring-fg { stroke: #fff; }
+.hero-ring .ring-in { display: flex; flex-direction: column; align-items: center; color: #fff; line-height: 1.05; }
+.hero-ring .ring-in b { font-size: 1.6rem; letter-spacing: -0.03em; }
+.hero-ring .ring-in span { font-size: 12px; opacity: 0.85; }
+.hero-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+.hchip { display: inline-flex; align-items: center; gap: 7px; height: 36px; padding: 0 14px 0 11px; border-radius: 99px; background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.35); color: #fff; font-size: 14px; text-decoration: none !important; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); transition: background 0.2s, transform 0.2s var(--ease); }
+.hchip:hover { background: rgba(255, 255, 255, 0.32); transform: translateY(-2px); }
+.hchip .i { width: 17px; height: 17px; }
+.hchip b { font-weight: 700; }
+.home-hero .o3 { width: 120px; height: 120px; left: 42%; bottom: -70px; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+
+.home-sec { display: flex; flex-direction: column; gap: 12px; }
+.sec-h { display: flex; align-items: baseline; gap: 12px; }
+.sec-h h2 { font-size: 1.25rem; letter-spacing: -0.02em; }
+.sec-h a { margin-left: auto; display: inline-flex; align-items: center; gap: 2px; font-weight: 600; font-size: 14px; color: var(--accent); text-decoration: none; }
+.ribbon { list-style: none; margin: 0; padding: 4px 2px 14px; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(230px, 1fr); gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; }
+.rcard { position: relative; scroll-snap-align: start; display: flex; align-items: flex-start; gap: 10px; padding: 16px 14px 16px 20px; border-radius: 20px; background: var(--card); border: 1px solid var(--card-line); box-shadow: var(--shadow-sm); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); overflow: hidden; transition: transform 0.25s var(--ease), box-shadow 0.25s; }
+.rcard::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: var(--c); }
+.rcard:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+.rc-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; text-align: left; font: inherit; color: var(--ink); background: none; border: 0; padding: 0; cursor: pointer; }
+.rc-main time { font-size: 12.5px; font-weight: 650; color: var(--c); letter-spacing: 0.02em; }
+.rc-main b { font-weight: 650; overflow-wrap: anywhere; line-height: 1.25; }
+.rc-main span { font-size: 13px; color: var(--ink-3); }
+.rcard.done { opacity: 0.62; }
+.rcard.done b { text-decoration: line-through; }
+.rc-tick.on { animation: pop 0.35s var(--ease); }
+@keyframes pop { 0% { transform: scale(0.7); } 60% { transform: scale(1.18); } 100% { transform: scale(1); } }
+.rb-empty { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 18px 20px; border-radius: 20px; background: var(--card); border: 1px solid var(--card-line); }
+.rb-empty > .i { width: 30px; height: 30px; color: #F6B9A0; }
+.rb-empty > div { flex: 1; min-width: 200px; }
+.rb-empty .btn { margin-left: auto; }
+.qtiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.qtile { position: relative; display: flex; flex-direction: column; gap: 4px; padding: 16px; border-radius: 22px; background: var(--card); border: 1px solid var(--card-line); box-shadow: var(--shadow-sm); color: var(--ink); text-decoration: none !important; font: inherit; text-align: left; cursor: pointer; -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); transition: transform 0.25s var(--ease), box-shadow 0.25s; }
+.qtile:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+.qtile b { font-weight: 650; font-size: 1.02rem; }
+.qtile > span:not(.qt-art) { font-size: 13.5px; color: var(--ink-3); }
+.qt-art { display: block; height: 118px; margin-bottom: 10px; border-radius: 14px; overflow: hidden; position: relative; }
+.qt-cards .qt-art { background: linear-gradient(135deg, #FDE3D6, #F9D3E4); }
+.qt-cards .qt-art i { position: absolute; left: 50%; top: 50%; width: 84px; height: 58px; margin: -29px 0 0 -42px; border-radius: 10px; background: #fff; box-shadow: 0 8px 18px -8px rgba(120, 60, 120, 0.4); transition: transform 0.35s var(--ease); }
+.qt-cards .qt-art i:nth-child(1) { transform: rotate(-12deg) translate(-18px, 4px); background: #F6B9A0; }
+.qt-cards .qt-art i:nth-child(2) { transform: rotate(8deg) translate(16px, 2px); background: #EE9DBE; }
+.qt-cards .qt-art i:nth-child(3) { transform: rotate(-2deg); }
+.qt-cards:hover .qt-art i:nth-child(1) { transform: rotate(-20deg) translate(-30px, 6px); }
+.qt-cards:hover .qt-art i:nth-child(2) { transform: rotate(16deg) translate(28px, 4px); }
+.qt-cards:hover .qt-art i:nth-child(3) { transform: rotate(0) translateY(-6px); }
+.qt-focus .qt-art { background: linear-gradient(135deg, #E4DCFF, #D6E6FF); display: grid; place-items: center; }
+.qt-focus svg { width: 76px; height: 76px; fill: none; stroke: #7B61FF; stroke-width: 3.5; stroke-linecap: round; }
+.qt-focus svg path:last-child { transform-origin: 30px 30px; transition: transform 0.8s var(--ease); }
+.qt-focus:hover svg path:last-child { transform: rotate(200deg); }
+.qt-lab .qt-art { background: var(--surface-2); }
+.qt-lab .qt-art img, .qt-lab .qt-art canvas { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s var(--ease); }
+.qt-lab:hover .qt-art img { transform: scale(1.06); }
+.mini-shelf { display: flex; gap: 22px; justify-content: safe center; overflow-x: auto; scrollbar-width: none; padding: 18px 20px 0; border-radius: 24px; background: var(--glass); border: 1px solid var(--card-line); position: relative; }
+.mini-shelf::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: 54px; height: 10px; border-radius: 8px; background: linear-gradient(180deg, var(--plank-a), var(--plank-b)); z-index: 0; }
+.mbk { flex: none; position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 0 0 12px; border: 0; background: none; font: inherit; color: var(--ink); cursor: pointer; perspective: 600px; }
+.mbk-c { display: block; width: 84px; aspect-ratio: 474 / 900; border-radius: 2px 7px 7px 2px; overflow: hidden; box-shadow: 0 14px 22px -14px rgba(34, 27, 69, 0.7); transform: rotateY(-12deg); transform-origin: 50% 100%; transition: transform 0.35s var(--ease); }
+.mbk-c svg { display: block; width: 100%; height: 100%; }
+.mbk:hover .mbk-c, .mbk:focus-visible .mbk-c { transform: translateY(-8px) rotateY(0); }
+.mbk-t { display: flex; flex-direction: column; align-items: center; font-size: 13px; line-height: 1.2; }
+.mbk-t b { font-weight: 600; }
+.mbk-t span { color: var(--ink-3); font-size: 12px; }
+@media (max-width: 900px) {
+  .qtiles { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .qt-lab { grid-column: 1 / -1; }
+  .home-hero .hero-ring { display: none; }
+  .mini-shelf { gap: 14px; padding: 14px 12px 0; justify-content: flex-start; }
+  .hchip { height: 32px; font-size: 13px; }
+  .hero-chips { gap: 6px; margin-top: 16px; }
+  .mbk-c { width: 68px; }
+}
+@media (prefers-reduced-motion: reduce) { .hero-steps i.now { animation: none; } .rc-tick.on { animation: none; } }
+
+/* ---------- Planner ---------- */
+.pl-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.pl-head h1 { font-size: clamp(1.9rem, 1.3rem + 2vw, 2.7rem); letter-spacing: -0.035em; line-height: 1.05; }
+.pl-head .meta { color: var(--ink-3); margin-top: 4px; }
+.pl-tools { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.pl-tools .seg { align-self: center; }
+.pl-ib { width: 42px; height: 42px; border-radius: 14px; background: var(--card); border: 1px solid var(--card-line); }
+.pl-strip { display: flex; align-items: center; gap: 8px; }
+.pl-strip.wk-only { justify-content: center; gap: 14px; }
+.pl-strip.wk-only > .icon-btn { display: inline-grid; }
+.pl-days { flex: 1; min-width: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+.pl-day { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 4px 12px; border-radius: 18px; border: 1px solid var(--card-line); background: var(--card); color: var(--ink-2); font: inherit; cursor: pointer; transition: transform 0.2s var(--ease), background 0.2s, box-shadow 0.2s; -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+.pl-day:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+.pd-w { font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-3); }
+.pl-day b { font-size: 1.35rem; font-weight: 700; color: var(--ink); letter-spacing: -0.02em; }
+.pd-load { position: relative; width: 70%; height: 5px; margin-top: 4px; border-radius: 9px; background: var(--surface-3); overflow: hidden; }
+.pd-load i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: inherit; background: color-mix(in srgb, var(--primary) 40%, transparent); }
+.pd-load i.dn { background: var(--primary); }
+.pd-ex { position: absolute; top: 6px; right: 8px; color: #E8618C; }
+.pd-ex .i { width: 13px; height: 13px; }
+.pl-day.today .pd-w { color: var(--primary); }
+.pl-day.past { opacity: 0.6; }
+.pl-day.on { background: var(--hero); border-color: transparent; color: #fff; box-shadow: 0 12px 26px -12px rgba(123, 97, 255, 0.6); opacity: 1; }
+.pl-day.on .pd-w, .pl-day.on b { color: #fff; }
+.pl-day.on .pd-load { background: rgba(255, 255, 255, 0.35); }
+.pl-day.on .pd-load i { background: rgba(255, 255, 255, 0.55); } .pl-day.on .pd-load i.dn { background: #fff; }
+.pl-day.on .pd-ex { color: #fff; }
+.pl-note { display: flex; gap: 10px; align-items: flex-start; padding: 12px 16px; border-radius: 16px; background: var(--card); border: 1px solid var(--card-line); font-size: 14px; }
+.pl-note > .i { color: var(--primary); flex: none; margin-top: 2px; }
+.pl-dayv { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 22px; align-items: start; }
+.pl-side { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 20px; }
+.pl-side .card { padding: 18px; }
+.pl-side h2 { font-size: 1.05rem; }
+.pwr { display: flex; align-items: center; gap: 14px; }
+.pwr > div { display: flex; flex-direction: column; }
+.pl-up { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.pl-up li { display: flex; gap: 12px; align-items: center; }
+.pl-up li > span:last-child { display: flex; flex-direction: column; min-width: 0; }
+.pu-n { flex: none; width: 52px; height: 52px; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--surface-2); font-size: 11px; color: var(--ink-3); line-height: 1.1; }
+.pu-n b { font-size: 1.2rem; color: var(--ink); }
+.pl-cal .row-actions { margin-top: 10px; }
+.ag { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.ag-card { display: grid; grid-template-columns: 62px minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 16px 16px 16px 0; border-radius: 22px; background: var(--card); border: 1px solid var(--card-line); box-shadow: var(--shadow-sm); position: relative; overflow: hidden; -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); transition: transform 0.2s var(--ease), box-shadow 0.2s; }
+.ag-card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: var(--c); }
+.ag-card:hover { transform: translateX(3px); box-shadow: var(--shadow); }
+.ag-t { display: flex; flex-direction: column; align-items: flex-end; font-size: 12.5px; color: var(--ink-3); line-height: 1.3; }
+.ag-t b { font-size: 15px; color: var(--ink); font-weight: 700; }
+.ag-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.ag-title { font: inherit; font-weight: 650; font-size: 1.05rem; color: var(--ink); background: none; border: 0; padding: 0; text-align: left; cursor: pointer; overflow-wrap: anywhere; }
+.ag-title:hover { color: var(--c); }
+.ag-meta { font-size: 13.5px; color: var(--ink-3); }
+.ag-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--c); margin-right: 6px; vertical-align: 1px; }
+.ag-act { display: flex; gap: 6px; align-items: center; }
+.ag-card.done { opacity: 0.6; }
+.ag-card.done .ag-title { text-decoration: line-through; }
+.ag-card.late::after { content: "Missed?"; position: absolute; top: 8px; right: 14px; font-size: 11px; font-weight: 650; color: #E8618C; }
+.ag-block, .ag-free { display: grid; grid-template-columns: 62px 24px minmax(0, 1fr); gap: 14px; align-items: center; padding: 6px 14px 6px 0; font-size: 14px; color: var(--ink-2); }
+.ag-block .ag-t, .ag-free .ag-t { font-size: 12.5px; }
+.ag-bi { width: 24px; height: 24px; border-radius: 8px; display: grid; place-items: center; background: var(--surface-2); color: var(--ink-3); }
+.ag-bi .i { width: 14px; height: 14px; }
+.ag-block b { font-weight: 600; }
+.ag-free { grid-template-columns: 62px minmax(0, 1fr); color: var(--ink-3); }
+.ag-free span:last-child { padding: 6px 12px; border: 1.5px dashed var(--line-2); border-radius: 12px; font-size: 13px; }
+.ag-block.past, .ag-free.past { opacity: 0.5; }
+.ag-now { position: relative; height: 2px; margin: 4px 0 4px 62px; background: #E8618C; border-radius: 2px; }
+.ag-now span { position: absolute; left: -60px; top: -9px; font-size: 11.5px; font-weight: 700; color: #E8618C; width: 52px; text-align: right; }
+.ag-now::before { content: ""; position: absolute; left: -4px; top: -4px; width: 10px; height: 10px; border-radius: 50%; background: #E8618C; }
+.ag-empty { display: flex; gap: 14px; align-items: center; padding: 20px; margin-bottom: 12px; border-radius: 22px; background: var(--card); border: 1px solid var(--card-line); }
+.ag-empty > .i { width: 30px; height: 30px; color: #F6B9A0; }
+.pl-week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; align-items: start; }
+.pw-col { display: flex; flex-direction: column; gap: 8px; padding: 10px; border-radius: 20px; background: var(--glass); border: 1px solid var(--card-line); min-height: 220px; }
+.pw-col.today { box-shadow: 0 0 0 2px var(--primary); }
+.pw-col.past { opacity: 0.65; }
+.pw-h { display: flex; flex-direction: column; align-items: center; padding: 4px 0 6px; border: 0; background: none; font: inherit; color: var(--ink-2); cursor: pointer; border-radius: 12px; }
+.pw-h:hover { background: var(--surface-2); }
+.pw-h > span:first-child { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); }
+.pw-h b { font-size: 1.3rem; color: var(--ink); }
+.pw-s { display: flex; flex-direction: column; gap: 2px; padding: 9px 10px 10px 12px; border-radius: 14px; border: 0; background: var(--card); box-shadow: var(--shadow-sm); text-align: left; font: inherit; color: var(--ink); cursor: pointer; position: relative; overflow: hidden; }
+.pw-s::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--c); }
+.pw-s span { font-size: 11.5px; color: var(--ink-3); }
+.pw-s b { font-size: 13px; font-weight: 600; line-height: 1.25; overflow-wrap: anywhere; }
+.pw-s.done { opacity: 0.55; } .pw-s.done b { text-decoration: line-through; }
+.pw-ex { display: flex; align-items: center; gap: 4px; padding: 5px 8px; border-radius: 10px; background: #FDE2EC; color: #B83A68; font-size: 12px; font-weight: 600; text-decoration: none; }
+.pw-ex .i { width: 12px; height: 12px; }
+@media (max-width: 1100px) { .pl-dayv { grid-template-columns: minmax(0, 1fr); } .pl-side { position: static; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); } }
+@media (max-width: 900px) {
+  .pl-week { grid-template-columns: minmax(0, 1fr); }
+  .pw-col { min-height: 0; }
+  .pw-h { flex-direction: row; gap: 8px; justify-content: flex-start; padding: 2px 4px; }
+  .pl-strip > .icon-btn { display: none; }
+  .pl-days { gap: 5px; }
+  .pl-day { padding: 8px 2px 10px; border-radius: 14px; }
+  .pl-day b { font-size: 1.1rem; }
+  .pd-w { font-size: 10.5px; }
+  .ag-card { grid-template-columns: 52px minmax(0, 1fr) auto; gap: 10px; padding-right: 10px; }
+  .ag-act { flex-direction: column-reverse; }
+  .ag-block, .ag-free { grid-template-columns: 52px 24px minmax(0, 1fr); }
+  .ag-free { grid-template-columns: 52px minmax(0, 1fr); }
+  .ag-now { margin-left: 52px; }
+  .ag-now span { left: -52px; width: 46px; }
+  .pl-tools .btn { flex: 1; }
+}
+
+/* ---------- Settings ---------- */
+.set-wrap { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 28px; align-items: start; }
+.set-nav { position: sticky; top: 20px; display: flex; flex-direction: column; gap: 4px; }
+.set-nav .kicker { margin: 4px 12px 10px; }
+.set-nav button { display: flex; align-items: center; gap: 10px; height: 42px; padding: 0 12px; border: 0; border-radius: 14px; background: none; font: inherit; font-weight: 500; color: var(--ink-2); cursor: pointer; text-align: left; }
+.set-nav button:hover { background: var(--card); color: var(--ink); }
+.set-nav .i { width: 18px; height: 18px; color: var(--ink-3); }
+.set-main { display: flex; flex-direction: column; gap: 26px; min-width: 0; max-width: 760px; }
+.set-hero { position: relative; overflow: hidden; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; padding: 26px 28px; border-radius: var(--r-lg); background: var(--hero); color: #fff; box-shadow: 0 18px 46px rgba(123, 97, 255, 0.18); }
+.set-hero > *:not(.orb) { position: relative; z-index: 1; }
+.set-hero .o1 { width: 200px; height: 200px; right: 60px; top: -120px; } .set-hero .o2 { width: 140px; height: 140px; right: -40px; bottom: -70px; }
+.av.xl { width: 72px; height: 72px; font-size: 28px; border: 3px solid rgba(255, 255, 255, 0.7); }
+.sh-t { flex: 1; min-width: 180px; }
+.sh-t h1 { color: #fff; font-size: clamp(1.6rem, 1.2rem + 1.2vw, 2.2rem); letter-spacing: -0.03em; }
+.sh-t p { opacity: 0.9; }
+.set-group { display: flex; flex-direction: column; gap: 10px; scroll-margin-top: 20px; }
+.set-group > h2 { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); padding-left: 6px; }
+.set-group > h2 .i { width: 16px; height: 16px; }
+.set-card, .set-group > .card { border-radius: 22px; background: var(--card); border: 1px solid var(--card-line); box-shadow: var(--shadow-sm); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); overflow: hidden; }
+.set-group > .card { padding: 20px; }
+.set-group > .card .card-head { display: none; }
+.set-row { display: flex; align-items: center; gap: 18px; padding: 16px 20px; border-top: 1px solid var(--line); }
+.set-card > .set-row:first-child, .set-form > .set-row:first-child { border-top: 0; }
+.set-card > .set-form:not(:first-child) > .set-row:first-child { border-top: 1px solid var(--line); }
+.sr-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.sr-t b { font-weight: 600; }
+.sr-t span { font-size: 13.5px; color: var(--ink-3); line-height: 1.45; }
+.sr-c { flex: none; display: flex; align-items: center; gap: 8px; max-width: 55%; }
+.sr-c input:not([type=checkbox]), .sr-c select { width: 240px; max-width: 100%; }
+.sr-c input.num-in { width: 96px; }
+.sr-end { justify-content: flex-end; }
+.sr-col { flex-direction: column; align-items: stretch; gap: 10px; }
+.sr-col .btn { align-self: flex-start; }
+.sr-note { gap: 10px; font-size: 14px; color: var(--ink-2); background: var(--surface-2); }
+.sr-note.ok { background: color-mix(in srgb, var(--ok) 10%, transparent); }
+.sr-note > .i { width: 18px; height: 18px; flex: none; color: var(--primary); }
+.sr-note.ok > .i { color: var(--ok); }
+.set-row.danger .sr-t b { color: var(--bad); }
+.set-form { display: block; }
+@media (max-width: 900px) {
+  .set-wrap { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .set-nav { position: static; flex-direction: row; overflow-x: auto; scrollbar-width: none; gap: 6px; }
+  .set-nav .kicker { display: none; }
+  .set-nav button { flex: none; height: 36px; background: var(--card); border: 1px solid var(--card-line); }
+  .set-row { flex-wrap: wrap; gap: 10px; padding: 14px 16px; }
+  .sr-c { max-width: 100%; width: 100%; }
+  .sr-c input:not([type=checkbox]), .sr-c select { width: 100%; }
+  .sr-c input.num-in { width: 110px; }
+  .set-hero { padding: 22px; }
+}
 </style>
 <!-- head:end -->
 </head>
@@ -4802,6 +5063,8 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
     video: '<rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10.5l5-3v9l-5-3z"/>',
     notes: '<path d="M6 3h9l3 3v15H6z"/><path d="M9 9h6M9 13h6M9 17h4"/>',
     qs: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6"/><circle cx="12" cy="17" r=".6"/>',
+    user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+    info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>',
     list: '<path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/>',
     pen: '<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>',
     cards: '<rect x="3" y="6" width="13" height="14" rx="2"/><path d="M7 3h12a2 2 0 0 1 2 2v12"/>',
@@ -4855,7 +5118,7 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
     home: { label: 'Home', icon: 'home', href: 'home', pages: [] },
     learn: { label: 'My Subjects', short: 'Subjects', icon: 'book', href: 'study', pages: [['study', 'Bookshelf'], ['subjects', 'Choose subjects'], ['guide', 'How to revise'], ['library', 'Resources']] },
     labs: { label: 'The Labs', short: 'Labs', icon: 'flask', href: 'labs', pages: [] },
-    plan: { label: 'Planner', icon: 'plan', href: 'plan', pages: [['plan', 'This week'], ['routine', 'My schedule'], ['deliverables', 'Weekly tasks'], ['exams', 'Exams'], ['strategy', 'Strategy']] },
+    plan: { label: 'Planner', icon: 'plan', href: 'plan', pages: [['plan', 'My plan'], ['routine', 'My schedule'], ['deliverables', 'Weekly tasks'], ['exams', 'Exams'], ['strategy', 'Strategy']] },
     practise: { label: 'Practise', icon: 'pen', href: 'papers', pages: [['papers', 'Exam centre'], ['cards', 'Flashcards'], ['check', 'Check an answer'], ['checks', 'Marked answers']] },
     focus: { label: 'Focus', icon: 'clock', href: 'focus', pages: [] }
   };
@@ -5031,14 +5294,15 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
         catch (e) {
           if (e && e.code === 'declined') return;
           if (e && e.code === 'rate_limited') { C.toast('A save is already waiting for you to confirm.'); return; }
+          if (typeof text !== 'string') { C.toast('This view cannot save ' + name.split('.').pop().toUpperCase() + ' files. Open the hub in claude.ai or preview.html.'); return; }
           C.copyText(text, 'This viewer cannot save ' + name.split('.').pop() + ' files, so the contents were copied. Paste them into a file named ' + name + '.');
         }
         return;
       }
-      if (framed) { C.copyText(text, 'Copied. Paste into a file named ' + name + '.'); return; }
+      if (framed) { if (typeof text !== 'string') { C.toast('Saving files is not available in this view.'); return; } C.copyText(text, 'Copied. Paste into a file named ' + name + '.'); return; }
     }
     try {
-      const blob = new Blob([text], { type: mime });
+      const blob = text instanceof Blob ? text : new Blob([text], { type: mime });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url; a.download = name; a.rel = 'noopener';
@@ -5617,7 +5881,8 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
 })(window.RH = window.RH || {});
 </script>
 <script>
-/* Home: a welcome banner with the lesson to carry on with, three counters, today's sessions and your subjects. */
+/* Home: one banner (the lesson to carry on with, today's progress ring and three counters as chips), today's
+   sessions as cards you tick off, three quick starts and your shelf of subject books. */
 (function (RH) {
   'use strict';
   const U = RH.util, M = RH.model, C = RH.c, esc = U.esc;
@@ -5646,14 +5911,26 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
   }
   V.resumeLesson = resumeLesson;
 
-  function hero(s, resume, greet) {
-    const top = '<p class="hero-hi">' + greet + ' · ' + esc(U.fmt(U.today(), { weekday: 'long', day: 'numeric', month: 'long' })) + '</p>';
-    if (!resume) return '<section class="hero">' + top + '<h1>Everything’s done.</h1><p class="hero-meta">Pick a subject to revise, or try a lab.</p><div class="hero-acts"><a class="btn white" href="#study">Open My Subjects</a></div><span class="orb o1"></span><span class="orb o2"></span></section>';
-    const t = resume.t, steps = M.lessonSteps(s, t.gid);
-    return '<section class="hero" data-subj="' + t.subject.id + '">' + top +
-      '<div class="hero-row"><div class="hero-txt"><p class="hero-tag">' + esc(resume.why) + ' · ' + esc(t.subject.name) + '</p><h1>' + esc(M.title(t.name)) + '</h1>' +
-      '<p class="hero-meta">Lesson ' + M.lessonNum(s, t) + ' · ' + (steps ? 'step ' + Math.min(5, steps + 1) + ' of 5' : 'not started') + '</p><span class="hero-bar"><i style="width:' + (steps * 20) + '%"></i></span></div>' +
-      '<a class="btn white lg" href="#t-' + t.gid + '">' + (steps ? 'Continue lesson' : 'Start lesson') + C.icon('right') + '</a></div><span class="orb o1"></span><span class="orb o2"></span></section>';
+  // The lab of the day: one from your subjects, changing each day.
+  function labOfDay() {
+    const mine = RH.labs.defs.filter((d) => (d.topics || []).some((g) => M.topic[g] && M.isMine(M.topic[g].subject)));
+    const list = mine.length ? mine : RH.labs.defs;
+    if (!list.length) return null;
+    const n = Math.floor(new Date(U.today() + 'T12:00:00').getTime() / 864e5);
+    return list[n % list.length];
+  }
+
+  function hero(s, resume, greet, chips, ring) {
+    const top = '<p class="hero-hi">' + greet + ' <span>· ' + esc(U.fmt(U.today(), { weekday: 'long', day: 'numeric', month: 'long' })) + '</span></p>';
+    let main;
+    if (!resume) main = '<div class="hero-txt"><p class="hero-tag">All caught up</p><h1>Everything’s done.</h1><p class="hero-meta">Pick a book from your shelf, or try a lab.</p></div><a class="btn white lg" href="#study">Open my shelf' + C.icon('right') + '</a>';
+    else {
+      const t = resume.t, steps = M.lessonSteps(s, t.gid);
+      main = '<div class="hero-txt"><p class="hero-tag">' + esc(resume.why) + ' · ' + esc(t.subject.name) + '</p><h1>' + esc(M.title(t.name)) + '</h1>' +
+        '<div class="hero-steps" aria-label="Step ' + Math.min(5, steps + 1) + ' of 5">' + [0, 1, 2, 3, 4].map((i) => '<i class="' + (i < steps ? 'on' : i === steps ? 'now' : '') + '"></i>').join('') + '<span>' + (steps ? 'Step ' + Math.min(5, steps + 1) + ' of 5' : 'Lesson ' + esc(M.lessonNum(s, t))) + '</span></div>' +
+        '<a class="btn white lg" href="#t-' + t.gid + '">' + (steps ? 'Continue' : 'Start lesson') + C.icon('right') + '</a></div>';
+    }
+    return '<section class="hero home-hero"' + (resume ? ' data-subj="' + resume.t.subject.id + '"' : '') + '>' + top + '<div class="hero-row">' + main + ring + '</div><div class="hero-chips">' + chips + '</div><span class="orb o1"></span><span class="orb o2"></span><span class="orb o3"></span></section>';
   }
 
   V.home = function () {
@@ -5670,47 +5947,57 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
       const w = s.deliv.weeks[review];
       const left = w.items.filter((it) => !D.isDone(D.statusOf(it, review)) && it.status !== 'missed' && it.status !== 'excused').length;
       return '<section class="card gate">' + C.icon('lock', 'gate-ic') + '<div><h2>Close last week first</h2><p>The deadline for the week of ' + esc(U.fmtShort(review)) + ' has passed and ' + U.plural(left, 'task is', 'tasks are') + ' still open. Hand them in late or mark them missed, then this week opens up.</p>' +
-        '<div class="row-actions"><a class="btn" href="#deliverables">Close the week</a><span class="muted small">Strict mode is on. You can turn it off in Weekly tasks.</span></div></div></section>' + todayCard(s, today);
+        '<div class="row-actions"><a class="btn" href="#deliverables">Close the week</a><span class="muted small">Strict mode is on. You can turn it off in Weekly tasks.</span></div></div></section>' + todayRibbon(s, today);
     }
-    html += hero(s, resume, greet);
-    if (!s.profile.setupDone) html += '<div class="nudge">' + C.icon('spark') + '<p><b>Finish setting up.</b> Choose your subjects and tell Preppr about your week, so the plan fits you.</p><a class="btn sm" href="#setup">Continue setup</a><button type="button" class="icon-btn" data-action="setup-hide" aria-label="Hide">' + C.icon('x') + '</button></div>';
-    html += V.staleBanner();
-
-    // Three counters
+    const todays = s.plan.sessions.filter((x) => x.d === today);
+    const doneM = todays.filter((x) => x.done).reduce((a, x) => a + x.m, 0), allM = todays.reduce((a, x) => a + x.m, 0);
+    const ring = '<a class="hero-ring" href="#plan" aria-label="Today: ' + U.dur(doneM) + ' of ' + U.dur(allM) + ' done">' + C.ring(allM ? doneM / allM : 0, allM ? '<b>' + Math.round(100 * doneM / allM) + '%</b><span>today</span>' : '<b>–</b><span>today</span>', 112) + '</a>';
     const sum = D.summary(), streak = streakDays();
-    html += '<div class="hstats">' +
-      '<a class="hstat" href="#focus"><span class="hs-ic s1">' + C.icon('flame') + '</span><b class="num">' + streak + '</b><span>day streak</span></a>' +
-      '<a class="hstat" href="#deliverables"><span class="hs-ic s2">' + C.icon('list') + '</span><b class="num">' + (sum ? sum.done + '/' + sum.total : '0') + '</b><span>this week’s tasks</span></a>' +
-      '<a class="hstat" href="#exams"><span class="hs-ic s3">' + C.icon('flag') + '</span><b class="num">' + (next ? C.daysTo(next.date) : '–') + '</b><span>' + (next ? 'days to ' + esc(next.title.split(' Paper')[0]) : 'no exams yet') + '</span></a></div>';
-
-    html += '<div class="home-grid">' + todayCard(s, today) + subjectsCard(s) + '</div>';
+    const chips = '<a class="hchip" href="#focus">' + C.icon('flame') + '<b class="num">' + streak + '</b> day streak</a>' +
+      '<a class="hchip" href="#deliverables">' + C.icon('list') + '<b class="num">' + (sum ? sum.done + '/' + sum.total : '0') + '</b> tasks this week</a>' +
+      (next ? '<a class="hchip" href="#exams">' + C.icon('flag') + '<b class="num">' + C.daysTo(next.date) + '</b> days to ' + esc(next.title.split(' Paper')[0]) + '</a>' : '');
+    html += hero(s, resume, greet, chips, ring);
+    if (!s.profile.setupDone) html += '<div class="nudge">' + C.icon('spark') + '<p><b>Finish setting up</b> so the plan fits your week.</p><a class="btn sm" href="#setup">Continue</a><button type="button" class="icon-btn" data-action="setup-hide" aria-label="Hide">' + C.icon('x') + '</button></div>';
+    html += V.staleBanner();
+    html += todayRibbon(s, today);
+    html += quickTiles(s);
+    html += shelfStrip(s);
     return html;
   };
 
-  function todayCard(s, today) {
+  // Today's sessions as a row of cards you can tick off.
+  function todayRibbon(s, today) {
     const todays = s.plan.sessions.filter((x) => x.d === today).sort((a, b) => (a.t0 == null ? 9999 : a.t0) - (b.t0 == null ? 9999 : b.t0));
-    const due = RH.cards.totalDue();
-    let rows = todays.map(function (x) {
-      const k = RH.KIND[x.k];
-      return '<li class="trow' + (x.done ? ' done' : '') + '" data-subj="' + x.s + '"><time class="num">' + (x.t0 != null ? U.hm(x.t0) : '—') + '</time><span class="tdot"></span>' +
-        '<button type="button" class="trow-main" data-action="sess-open" data-id="' + x.id + '"><b>' + esc(V.sessTitle(x)) + '</b><span>' + esc(M.subject[x.s] ? M.subject[x.s].name : '') + ' · ' + U.mins(x.m) + ' · ' + esc(k ? k.label : '') + '</span></button>' +
-        '<button type="button" class="check-b' + (x.done ? ' on' : '') + '" data-action="sess-done" data-id="' + x.id + '" aria-pressed="' + !!x.done + '" aria-label="' + (x.done ? 'Done' : 'Mark done') + '">' + C.icon('tick') + '</button></li>';
-    }).join('');
-    if (!rows) rows = '<li class="t-empty"><p><b>Nothing planned today.</b></p><p class="muted">Take the break, or open a lesson from My Subjects.</p></li>';
-    const doneM = todays.filter((x) => x.done).reduce((a, x) => a + x.m, 0), allM = todays.reduce((a, x) => a + x.m, 0);
-    return '<section class="card today"><div class="card-head"><h2>Today</h2><a href="#routine">Edit my schedule</a></div>' +
-      (allM ? '<p class="muted small">' + U.dur(doneM) + ' of ' + U.dur(allM) + ' done</p>' : '') + '<ul class="tlist">' + rows + '</ul>' +
-      '<div class="card-foot"><a href="#plan">See the whole week' + C.icon('right', 'i-sm') + '</a>' + (due ? '<button type="button" class="btn link" data-action="study" data-deck="all" data-mode="leitner">' + U.plural(due, 'flashcard') + ' due</button>' : '') + '</div></section>';
+    const left = todays.filter((x) => !x.done).length;
+    let body;
+    if (!todays.length) body = '<div class="rb-empty">' + C.icon('sun') + '<div><b>Nothing planned today.</b><p class="muted">Take the break, or pick a book from your shelf.</p></div><a class="btn alt sm" href="#plan">Open the planner</a></div>';
+    else body = '<ol class="ribbon">' + todays.map(function (x) {
+      const k = RH.KIND[x.k], sub = M.subject[x.s];
+      return '<li class="rcard' + (x.done ? ' done' : '') + '" style="--c:' + (sub ? C.scol(sub) : 'var(--primary)') + '"><button type="button" class="rc-main" data-action="sess-open" data-id="' + x.id + '"><time class="num">' + (x.t0 != null ? U.hm(x.t0) : 'Any time') + '</time><b>' + esc(V.sessTitle(x)) + '</b><span>' + esc(sub ? sub.name : '') + ' · ' + U.mins(x.m) + (k ? ' · ' + esc(k.label) : '') + '</span></button>' +
+        '<button type="button" class="rc-tick check-b' + (x.done ? ' on' : '') + '" data-action="sess-done" data-id="' + x.id + '" aria-pressed="' + !!x.done + '" aria-label="' + (x.done ? 'Done' : 'Mark done') + '">' + C.icon('tick') + '</button></li>';
+    }).join('') + '</ol>';
+    return '<section class="home-sec"><div class="sec-h"><h2>Today</h2><span class="muted small">' + (todays.length ? (left ? U.plural(left, 'session') + ' left' : 'All done. Nice work.') : '') + '</span><a href="#plan">Planner' + C.icon('right', 'i-sm') + '</a></div>' + body + '</section>';
   }
 
-  function subjectsCard(s) {
-    const list = M.subjects;
-    const show = list.slice(0, 6);
-    return '<section class="card subs"><div class="card-head"><h2>My Subjects</h2><a href="#subjects">Change</a></div><div class="stiles">' + show.map(function (sub) {
-      const p = M.courseProgress(s, M.subjectTopics(s, sub));
-      return '<a class="stile" href="#s-' + sub.id + '" data-subj="' + sub.id + '"><span class="st-top"><b>' + esc(sub.name) + '</b><em class="num">' + Math.round(100 * p.frac) + '%</em></span><span class="sbar"><i style="width:' + Math.round(100 * p.frac) + '%"></i></span></a>';
-    }).join('') + '</div>' + (list.length > show.length ? '<div class="card-foot"><a href="#study">All ' + list.length + ' subjects' + C.icon('right', 'i-sm') + '</a></div>' : '') + '</section>';
+  function quickTiles(s) {
+    const due = RH.cards.totalDue(), lab = labOfDay();
+    const labSub = lab && (lab.topics || []).map((g) => M.topic[g]).filter(Boolean)[0];
+    return '<section class="home-sec"><div class="sec-h"><h2>Quick start</h2></div><div class="qtiles">' +
+      '<button type="button" class="qtile qt-cards" data-action="' + (due ? 'study' : 'go') + '" data-deck="all" data-mode="leitner" data-href="cards"><span class="qt-art" aria-hidden="true"><i></i><i></i><i></i></span><b>' + (due ? U.plural(due, 'flashcard') + ' due' : 'Flashcards') + '</b><span>' + (due ? 'Clear them in a few minutes' : 'Make a deck or import one') + '</span></button>' +
+      '<a class="qtile qt-focus" href="#focus"><span class="qt-art" aria-hidden="true"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="24"/><path d="M30 30 L30 12"/><path d="M30 30 L42 36"/></svg></span><b>Focus session</b><span>25 minutes, phone away</span></a>' +
+      (lab ? '<a class="qtile qt-lab" href="#lab-' + lab.id + '"><span class="qt-art"><canvas data-labthumb="' + lab.id + '" width="4" height="3" aria-hidden="true"></canvas></span><b>' + esc(lab.name) + '</b><span>Lab of the day' + (labSub ? ' · ' + esc(labSub.subject.name) : '') + '</span></a>' : '') +
+      '</div></section>';
   }
+
+  // Your shelf: the subject books, which open right here.
+  function shelfStrip(s) {
+    if (!M.subjects.length) return '';
+    return '<section class="home-sec"><div class="sec-h"><h2>Your shelf</h2><a href="#study">Bookshelf' + C.icon('right', 'i-sm') + '</a></div><div class="mini-shelf">' + M.subjects.map(function (sub, i) {
+      const p = M.courseProgress(s, M.subjectTopics(s, sub));
+      return '<button type="button" class="mbk" data-action="shelf-open" data-sub="' + sub.id + '" aria-label="Open ' + esc(sub.name) + '"><span class="mbk-c">' + RH.shelf.cover(sub, i) + '</span><span class="mbk-t"><b>' + esc(sub.name) + '</b><span class="num">' + Math.round(100 * p.frac) + '%</span></span></button>';
+    }).join('') + '</div></section>';
+  }
+  RH.actions.go = (el) => { location.hash = el.dataset.href; };
 
   RH.actions['setup-hide'] = () => RH.store.update(function (s) { s.profile.setupDone = true; });
 })(window.RH = window.RH || {});
@@ -5938,17 +6225,16 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
 })(window.RH = window.RH || {});
 </script>
 <script>
-/* My Subjects: a shelf of textbooks, one subject at a time. Each chapter is a book standing spine-out on an
-   endless shelf; the book in the middle turns to show its cover. Drag, scroll, use the arrows or ← →. Click the
-   cover and the book comes off the shelf and opens: the cover swings over, a few pages turn and settle, and the
-   chapter's lessons are on the right-hand page. Covers and spines are drawn here as SVG, so there are no images. */
+/* My Subjects: a bookshelf with one textbook per subject. Click a book and it comes off the shelf, the cover
+   swings open and a cascade of pages turns over to the contents: that subject's chapters. Pick a chapter and the
+   page turns to its topics; the back button turns it back. Covers are drawn here as SVG, so there are no images.
+   The open book lives on document.body (outside the glassy page), so it is fixed to the window and sized to fit. */
 (function (RH) {
   'use strict';
   const U = RH.util, M = RH.model, C = RH.c, esc = U.esc;
   const st = () => RH.store.state;
   const V = RH.views;
 
-  const COL = { physics: '#2F5BD8', maths: '#0E8A6E', further: '#7A4FD0', economics: '#E0662F' };
   const ABBR = { physics: 'PHY', maths: 'MATHS', further: 'F.MATHS', economics: 'ECON' };
   const abbr = (sub) => ABBR[sub.id] || sub.tag || sub.name.slice(0, 4).toUpperCase();
   const INK = '#221B45', CREAM = '#FBF6EC', VERM = '#F08A5D';
@@ -5956,20 +6242,6 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
   const reduce = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const EASE = 'cubic-bezier(.2,.8,.2,1)';
 
-  // ---------- The books: the chapters of one subject ----------
-  function curSub(s) {
-    let id = RH.ui.shelfSub;
-    if (!id || !M.subject[id] || !M.isMine(M.subject[id])) {
-      const today = U.today(), sess = s.plan.sessions.find((x) => x.d >= today && !x.done && x.t && M.topic[x.t]);
-      id = sess && M.isMine(M.topic[sess.t].subject) ? M.topic[sess.t].subject.id : M.subjects[0].id;
-    }
-    RH.ui.shelfSub = id;
-    return M.subject[id];
-  }
-  function bookList(s) {
-    const sub = curSub(s);
-    return M.compsFor(s, sub, true).map((c, j) => ({ i: j, sub: sub, c: c, n: M.sectionNum(s, c), title: M.title(c.name), col: COL[sub.id] || sub.color || '#555', variant: j % 3 }));
-  }
   // Three print variants keep the shelf from looking uniform: colour cloth, cream board, ink board.
   function inks(b) {
     if (b.variant === 1) return { bg: CREAM, fg: INK, acc: b.col, alt: VERM };
@@ -6069,13 +6341,13 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
     let lines = wrap(b.title.toUpperCase(), 12), fs = 54, lh = 58;
     if (lines.length > 3) { lines = wrap(b.title.toUpperCase(), 16); fs = 40; lh = 44; }
     const ty = 186, iy = ty + lines.length * lh + 6, ih = 790 - iy;
-    const lessons = b.c.topics.length;
+    const lessons = b.lessons;
     return '<rect width="474" height="900" fill="' + k.bg + '"/><rect width="12" height="900" fill="#000" opacity=".12"/>' +
       '<text x="36" y="56" font-family="' + SANS + '" font-weight="600" font-size="13" letter-spacing="3" fill="' + k.fg + '">PREPPR · A LEVEL</text>' +
       '<text x="440" y="56" text-anchor="end" font-family="' + SANS + '" font-weight="600" font-size="13" letter-spacing="2" fill="' + k.fg + '">' + esc(b.sub.spec) + '</text>' +
       '<rect x="36" y="72" width="404" height="2" fill="' + k.fg + '"/>' +
-      '<text x="36" y="108" font-family="' + SANS + '" font-weight="700" font-size="15" letter-spacing="3" fill="' + (k.acc === INK ? CREAM : k.acc) + '">' + esc(b.sub.name.toUpperCase()) + '</text>' +
-      '<text x="440" y="108" text-anchor="end" font-family="' + SERIF + '" font-weight="600" font-size="16" fill="' + k.fg + '">Chapter ' + esc(b.n) + '</text>' +
+      '<text x="36" y="108" font-family="' + SANS + '" font-weight="700" font-size="15" letter-spacing="3" fill="' + (k.acc === INK ? CREAM : k.acc) + '">' + b.chapters + ' CHAPTERS</text>' +
+      '<text x="440" y="108" text-anchor="end" font-family="' + SERIF + '" font-weight="600" font-size="16" fill="' + k.fg + '">' + esc(b.sub.board.replace('Pearson ', '')) + '</text>' +
       lines.map((l, i) => '<text x="34" y="' + (ty + i * lh) + '" font-family="' + SERIF + '" font-weight="700" font-size="' + fs + '" letter-spacing="-1.5" fill="' + k.fg + '"' + (l.length * fs * 0.64 > 404 ? ' textLength="404" lengthAdjust="spacingAndGlyphs"' : '') + '>' + esc(l) + '</text>').join('') +
       '<svg x="36" y="' + iy + '" width="402" height="' + ih + '" viewBox="0 0 402 ' + ih + '">' + illustration(b, k, 402, ih) + '</svg>' +
       '<rect x="36" y="808" width="404" height="2" fill="' + k.fg + '"/>' +
@@ -6083,282 +6355,224 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
       '<rect x="356" y="830" width="84" height="32" fill="none" stroke="' + k.fg + '" stroke-width="2"/><text x="398" y="852" text-anchor="middle" font-family="' + SANS + '" font-weight="700" font-size="14" letter-spacing="2" fill="' + k.fg + '">A LVL</text>';
   }
 
-  // ---------- Page ----------
-  let books = [], N = 0;
-  let s = null, T = null, active = -1, shownSub = null;
-  function startIndex(s0) {
-    const today = U.today();
-    const sess = s0.plan.sessions.find((x) => x.d >= today && !x.done && x.t && M.topic[x.t] && M.topic[x.t].subject.id === RH.ui.shelfSub);
-    const comp = sess ? M.topic[sess.t].comp : null;
-    const i = comp ? books.findIndex((b) => b.c === comp) : -1;
-    return i < 0 ? 0 : i;
+
+  // ---------- The books: one per subject ----------
+  function bookFor(sub, i) {
+    const s0 = st(), comps = M.compsFor(s0, sub, true);
+    return { i: i, sub: sub, title: sub.name, n: '', col: C.scol(sub), variant: i % 3, lessons: M.subjectTopics(s0, sub).length, chapters: comps.length, comps: comps };
   }
-  function done(b) { return M.courseProgress(st(), b.c.topics); }
+  const books = () => M.subjects.map(bookFor);
+  const coverSVG = (b) => '<svg viewBox="0 0 474 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">' + coverInner(b) + '</svg>';
 
   V.study = function () {
-    const s0 = st();
-    books = bookList(s0); N = books.length;
-    const sub = M.subject[RH.ui.shelfSub];
-    if (shownSub !== sub.id || T == null || T >= N * 4 || T <= -N * 4) { T = s = startIndex(s0); shownSub = sub.id; }
-    const p = M.courseProgress(s0, M.subjectTopics(s0, sub));
-    let html = '<div class="shelf-hero" id="shelf" tabindex="-1" data-subj="' + sub.id + '">';
-    html += '<nav class="sh-tabs" aria-label="Subjects">' + M.subjects.map((x) => '<button type="button" class="sh-tab' + (x.id === sub.id ? ' on' : '') + '" data-tab="' + x.id + '" data-subj="' + x.id + '" aria-pressed="' + (x.id === sub.id) + '">' + esc(x.name) + '</button>').join('') + '</nav>';
-    html += '<p class="sh-sum"><b>' + esc(sub.name) + '</b> · ' + p.done + ' of ' + p.total + ' lessons done</p>';
-    html += '<section class="sh-shelf" aria-label="' + esc(sub.name) + ' textbooks"><div class="sh-stage">' + books.map((b) =>
-      '<div class="bk" data-v="' + b.i + '" role="button" tabindex="-1" aria-label="' + esc('Chapter ' + b.n + ': ' + b.title) + '"><div class="bk-f spn">' + spineSVG(b) + '</div><div class="bk-f cv">' + '<svg viewBox="0 0 474 900" aria-hidden="true">' + coverInner(b) + '</svg></div></div>').join('') + '</div><div class="sh-plank" aria-hidden="true"></div></section>';
-    html += '<button type="button" class="sh-play" aria-label="Open this book"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.5 L10.5 6 L3 10.5Z"/></svg></button>';
-    html += '<div class="sh-cap" aria-live="polite"><div class="sh-m sh-ms"></div><div class="sh-m sh-mt"></div><div class="sh-m sh-mm"></div></div>';
-    html += '<button type="button" class="sh-arrow prev" aria-label="Previous book">' + C.icon('left') + '</button><button type="button" class="sh-arrow next" aria-label="Next book">' + C.icon('right') + '</button>';
-    html += '<span class="sh-probe" aria-hidden="true"></span>';
-    html += '<div class="sh-cur" aria-hidden="true"><span class="sh-ring"></span><span class="sh-dot"></span><span class="sh-open">Open</span></div>';
-    html += '<div class="book-stage" id="bookStage" hidden></div>';
-    return html + '</div>';
+    const s0 = st(), list = books();
+    let html = '<section class="lib">';
+    html += '<header class="lib-head"><div><p class="kicker">My Subjects</p><h1>Your bookshelf</h1><p class="meta">One book for each subject. Open one to pick a chapter.</p></div><a class="btn alt" href="#subjects">' + C.icon('plus') + 'Change subjects</a></header>';
+    if (!list.length) return html + C.empty('No subjects yet.', 'Pick the subjects you take and they appear here as books.', '<a class="btn" href="#subjects">Choose subjects</a>') + '</section>';
+    html += '<div class="lib-shelf" role="list">' + list.map(function (b) {
+      const p = M.courseProgress(s0, M.subjectTopics(s0, b.sub));
+      return '<div class="slot" role="listitem"><button type="button" class="sbk" data-sub="' + b.sub.id + '" style="--c:' + b.col + '" aria-label="Open ' + esc(b.sub.name) + ': ' + p.done + ' of ' + p.total + ' lessons done">' +
+        '<span class="sbk-3d"><span class="sbk-spine" style="background:' + inks(b).bg + '"></span><span class="sbk-pages"></span><span class="sbk-cover">' + coverSVG(b) + '<i class="sbk-gloss"></i></span></span></button>' +
+        '<span class="slot-cap"><b>' + esc(b.sub.name) + '</b><span class="slot-bar"><i style="width:' + Math.round(p.frac * 100) + '%;background:' + b.col + '"></i></span><span class="muted small">' + p.done + ' / ' + p.total + ' lessons</span></span></div>';
+    }).join('') + '</div></section>';
+    return html;
   };
 
-  // ---------- Engine ----------
-  let root = null, stage = null, tapes = [], raf = 0, last = 0;
-  let H = 0, ws = 0, dd = 0, gap = 0, VW = 0;
-  let mx = -1e4, my = -1e4, cx = -1e4, cy = -1e4, tiltX = 0, tiltY = 0, onCover = false, isOpen = false;
-  let hover = -1, dragging = false, drag = null, suppress = false, wheelT = 0, curIn = false;
-  const lifts = [];
-  const sm = (x) => x * x * (3 - 2 * x);
-  const mod = (a, n) => ((a % n) + n) % n;
-  const Bf = (r) => Math.abs(r) < 1 ? (r + Math.sin(Math.PI * r) / Math.PI) / 2 : (r > 0 ? 0.5 : -0.5);
-  const Fx = (r) => r * (ws + gap) + (dd - ws + 1.6 * gap) * Bf(r);
-  const rel = (v) => mod(v - s + N / 2, N) - N / 2;
-
-  function measure() {
-    const probe = root.querySelector('.sh-probe');
-    H = probe.getBoundingClientRect().height;
-    VW = root.clientWidth;
-    ws = H * 142 / 840; dd = H * 474 / 900; gap = H * (VW < 700 ? 0.11 : 0.03);
-    stage.style.setProperty('--ws', ws + 'px');
-    stage.style.setProperty('--d', dd + 'px');
-    stage.style.setProperty('--h', H + 'px');
-    VW = root.clientWidth;
+  // ---------- Pages inside the book ----------
+  function introPage(b) {
+    const s0 = st(), p = M.courseProgress(s0, M.subjectTopics(s0, b.sub)), nx = M.nextLesson(s0, b.sub);
+    return '<div class="pg-in"><p class="ob-k">' + esc(b.sub.board) + ' · ' + esc(b.sub.spec) + '</p><h2>' + esc(b.sub.name) + '</h2>' +
+      '<div class="ob-ring">' + C.ring(p.frac, '<b>' + p.done + '</b>/' + p.total, 84) + '<span>' + U.plural(b.comps.length, 'chapter') + '<br>' + (p.done === p.total && p.total ? 'Every lesson done' : U.plural(p.total - p.done, 'lesson') + ' to go') + '</span></div>' +
+      '<div class="ob-acts">' + (nx ? '<a class="btn block" href="#t-' + nx.gid + '">' + (p.done ? 'Continue' : 'Start') + ': ' + esc(M.title(nx.name)) + C.icon('right') + '</a>' : '') + '<a class="btn alt block" href="#s-' + b.sub.id + '">Subject page</a></div></div>';
   }
-  function centre() { const r = root.querySelector('.sh-shelf').getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; }
-
-  // Caption: each line slides through its mask.
-  function swap(mask, html, dir) {
-    const span = document.createElement('span');
-    span.innerHTML = html;
-    const old = Array.prototype.filter.call(mask.children, (x) => !x.dataset.leaving);
-    mask.appendChild(span);
-    if (reduce() || !old.length) { old.forEach((x) => x.remove()); return; }
-    span.animate([{ transform: 'translateY(' + dir * 105 + '%)' }, { transform: 'translateY(0)' }], { duration: 650, easing: EASE, fill: 'both' });
-    old.forEach(function (x) {
-      x.dataset.leaving = '1';
-      const cur = getComputedStyle(x).transform;
-      x.animate([{ transform: cur === 'none' ? 'translateY(0)' : cur }, { transform: 'translateY(' + (-dir * 105) + '%)' }], { duration: 650, easing: EASE, fill: 'both' }).onfinish = () => x.remove();
-    });
+  function chaptersPage(b) {
+    const s0 = st();
+    return '<div class="pg-list"><p class="ob-k">Contents</p><h3>Chapters</h3><ol class="toc chs">' + b.comps.map(function (c, j) {
+      const p = M.courseProgress(s0, c.topics);
+      return '<li><button type="button" class="ch-b" data-ch="' + j + '"><span class="toc-n num">' + esc(M.sectionNum(s0, c)) + '</span><span class="toc-t">' + esc(M.title(c.name)) + '<span class="ch-m">' + U.plural(c.topics.length, 'topic') + (p.done ? ' · ' + p.done + ' done' : '') + '</span></span><span class="ch-bar"><i style="width:' + Math.round(p.frac * 100) + '%"></i></span></button></li>';
+    }).join('') + '</ol></div>';
   }
-  function setActive(i, dir) {
-    active = i;
-    const b = books[i], p = done(b);
-    swap(root.querySelector('.sh-mt'), esc(b.title), dir);
-    swap(root.querySelector('.sh-ms'), '<span style="color:' + b.col + '">Chapter ' + esc(b.n) + '</span>', dir);
-    swap(root.querySelector('.sh-mm'), U.plural(b.c.topics.length, 'lesson') + (p.done ? ' · ' + p.done + ' done' : ''), dir);
+  function chapterIntro(b, j) {
+    const s0 = st(), c = b.comps[j], p = M.courseProgress(s0, c.topics), nx = M.nextLesson(s0, b.sub, c.topics);
+    return '<div class="pg-in"><button type="button" class="pg-back" data-bk="back">' + C.icon('left') + 'Chapters</button><p class="ob-k">' + esc(b.sub.name) + ' · Chapter ' + esc(M.sectionNum(s0, c)) + '</p><h2>' + esc(M.title(c.name)) + '</h2>' +
+      '<div class="ob-ring">' + C.ring(p.frac, '<b>' + p.done + '</b>/' + p.total, 84) + '<span>' + (p.done === p.total ? 'Every topic done' : U.plural(p.total - p.done, 'topic') + ' to go') + '</span></div>' +
+      '<div class="ob-acts">' + (nx ? '<a class="btn block" href="#t-' + nx.gid + '">' + (p.done ? 'Continue' : 'Start') + ' topic ' + esc(M.lessonNum(s0, nx)) + C.icon('right') + '</a>' : '') + '<a class="btn alt block" href="#c-' + c.gid + '">Chapter page</a></div></div>';
+  }
+  function topicsPage(b, j) {
+    const s0 = st(), c = b.comps[j];
+    return '<div class="pg-list"><button type="button" class="pg-back only-one" data-bk="back">' + C.icon('left') + 'Chapters</button><p class="ob-k">Chapter ' + esc(M.sectionNum(s0, c)) + '</p><h3>' + esc(M.title(c.name)) + '</h3><ol class="toc">' + c.topics.map((t) => '<li><a href="#t-' + t.gid + '">' + V.statusIcon(s0, t) + '<span class="toc-n num">' + esc(M.lessonNum(s0, t)) + '</span><span class="toc-t">' + esc(M.title(t.name)) + '</span></a></li>').join('') + '</ol></div>';
+  }
+  // On a phone only the right-hand page shows, so it carries a short heading of its own.
+  function mini(b, j) {
+    if (j != null) return '';
+    const s0 = st(), p = M.courseProgress(s0, M.subjectTopics(s0, b.sub)), nx = M.nextLesson(s0, b.sub);
+    return '<div class="ob-mini"><p class="ob-k">' + esc(b.sub.board) + '</p><h2>' + esc(b.sub.name) + '</h2><p class="small">' + p.done + ' of ' + p.total + ' lessons done</p>' + (nx ? '<a class="btn sm" href="#t-' + nx.gid + '">' + (p.done ? 'Continue' : 'Start') + C.icon('right') + '</a>' : '') + '</div>';
   }
 
-  function frame(now) {
-    if (!root || !document.body.contains(root)) { unmount(); return; }
-    raf = requestAnimationFrame(frame);
-    const dt = Math.min(0.05, (now - (last || now)) / 1000);
-    last = now;
-    const rm = reduce();
-    const k = dragging ? 18 : 5.2;
-    s = rm ? T : s + (T - s) * (1 - Math.exp(-k * dt));
-    if (Math.abs(T - s) < 1e-4) s = T;
-    if (Math.abs(s) > N * 4) { const sh = Math.round(s / N) * N; s -= sh; T -= sh; }
-    const a = mod(Math.round(s), N);
-    if (a !== active) setActive(a, Math.sign(T - s) || 1);
-
-    const c = centre(), rr = root.getBoundingClientRect();
-    cx += (mx - cx) * (1 - Math.exp(-16 * dt)); cy += (my - cy) * (1 - Math.exp(-16 * dt));
-    onCover = !isOpen && !BK.busy() && Math.abs(mx - c.x) < 0.55 * dd && Math.abs(my - c.y) < 0.55 * H && Math.abs(T - s) < 0.3;
-    const tyT = onCover ? (mx - c.x) / (0.55 * dd) * 9 : (mx - c.x) / (VW || 1) * 5;
-    const txT = onCover ? -(my - c.y) / (H / 2) * 6 : 0;
-    tiltY += (Math.max(-12, Math.min(12, tyT)) - tiltY) * (1 - Math.exp(-7 * dt));
-    tiltX += (txT - tiltX) * (1 - Math.exp(-7 * dt));
-
-    const lim = VW / 2 + 1.5 * dd;
-    for (let j = 0; j < tapes.length; j++) {
-      const el = tapes[j], r = rel(j), x = Fx(r);
-      if (Math.abs(x) > lim) { if (el.style.visibility !== 'hidden') el.style.visibility = 'hidden'; continue; }
-      if (el.style.visibility) el.style.visibility = '';
-      const o = sm(Math.max(0, 1 - Math.abs(r)));
-      const want = hover === j && Math.abs(r) > 0.5 ? 1 : 0;
-      lifts[j] = rm ? want : (lifts[j] || 0) + (want - (lifts[j] || 0)) * (1 - Math.exp(-12 * dt));
-      const y = -o * 0.025 * H - lifts[j] * 0.045 * H;
-      el.style.transform = 'translate3d(' + x.toFixed(2) + 'px,' + y.toFixed(2) + 'px,' + (o * 0.2 * H).toFixed(2) + 'px) rotateZ(' + (-4.5 * o).toFixed(3) + 'deg) rotateX(' + (tiltX * o).toFixed(3) + 'deg) rotateY(' + (-90 * o + tiltY * o).toFixed(3) + 'deg)';
-      el.style.zIndex = Math.round(100 - Math.abs(r) * 4);
-      el.style.setProperty('--ss', (o * 0.55).toFixed(3));
-      el.style.setProperty('--cs', ((1 - o) * 0.5).toFixed(3));
+  // ---------- The open book ----------
+  const BK = { b: null, ch: null, anims: [], busy: false, open: false, stage: null, from: null };
+  function stage() {
+    if (!BK.stage) {
+      BK.stage = document.createElement('div');
+      BK.stage.className = 'book-stage'; BK.stage.id = 'bookStage'; BK.stage.hidden = true;
+      document.body.appendChild(BK.stage);
+      BK.stage.addEventListener('click', function (e) {
+        const back = e.target.closest('[data-bk="back"]'), ch = e.target.closest('[data-ch]');
+        if (e.target.closest('[data-bk="close"]')) { closeBook(); return; }
+        if (back) { showChapters(); return; }
+        if (ch) { showChapter(Number(ch.dataset.ch)); return; }
+        if (e.target.closest('a[href^="#"]')) { finishClose(); }
+      });
     }
-    const play = root.querySelector('.sh-play');
-    const ps = isOpen ? 0 : sm(Math.max(0, 1 - Math.abs(T - s) * 3));
-    play.style.transform = 'translate(' + (c.x - rr.left - 0.5 * dd - 6 - 21) + 'px,' + (c.y - rr.top + 0.36 * H - 21) + 'px) scale(' + ps.toFixed(3) + ')';
-
-    const cur = root.querySelector('.sh-cur');
-    cur.style.transform = 'translate3d(' + cx + 'px,' + cy + 'px,0)';
-    const overTape = !isOpen && hover >= 0 && Math.abs(rel(hover)) > 0.5;
-    cur.classList.toggle('open', onCover);
-    cur.classList.toggle('spine', !onCover && overTape);
+    return BK.stage;
   }
+  const narrow = () => window.innerWidth < 760;
 
-  function go(t) { T = t; }
-  function jumpTo(i) { const c = Math.round(T); go(c + mod(i - mod(c, N) + N / 2, N) - N / 2); }
-
-  // ---------- Opening a book ----------
-  // The open book is a scene of its own: two pages, a cover and three leaves. Each piece is animated with the
-  // Web Animations API, and the leaves settle in a stack on the left so nothing has to fade away.
-  function activeTape() { return tapes[mod(Math.round(T), N)]; }
-  function lessonsPage(b, s0) {
-    return '<div class="ob-toc"><p class="ob-k">Contents</p><ol class="toc">' + b.c.topics.map((t) => '<li><a href="#t-' + t.gid + '">' + V.statusIcon(s0, t) + '<span class="toc-n num">' + esc(M.lessonNum(s0, t)) + '</span><span class="toc-t">' + esc(M.title(t.name)) + '</span></a></li>').join('') + '</ol></div>';
-  }
-  function insidePage(b, s0) {
-    const p = done(b), nx = M.nextLesson(s0, b.sub, b.c.topics);
-    return '<div class="ob-in"><p class="ob-k">' + esc(b.sub.name) + ' · Chapter ' + esc(b.n) + '</p><h2>' + esc(b.title) + '</h2>' +
-      '<div class="ob-ring">' + C.ring(p.frac, '<b>' + p.done + '</b>/' + p.total, 84) + '<span>' + (p.done === p.total ? 'Every lesson done' : U.plural(p.total - p.done, 'lesson') + ' to go') + '</span></div>' +
-      '<div class="ob-acts">' + (nx ? '<a class="btn block" href="#t-' + nx.gid + '">' + (p.done ? 'Continue' : 'Start') + ' lesson ' + esc(M.lessonNum(s0, nx)) + C.icon('right') + '</a>' : '') + '<a class="btn alt block" href="#c-' + b.c.gid + '">Chapter page</a></div></div>';
-  }
-  const BK = { anims: [], open: false, busy: () => BK.open };
-  function openDetail() {
-    if (BK.open || !root) return;
-    T = Math.round(T);
-    const b = books[mod(T, N)], s0 = st(), stg = root.querySelector('#bookStage'), k = inks(b);
-    const cover = '<svg viewBox="0 0 474 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">' + coverInner(b) + '</svg>';
-    stg.innerHTML = '<div class="stage-bg" data-action="book-close"></div>' +
-      '<div class="ob" style="--c:' + b.col + ';--cb:' + k.bg + '" role="dialog" aria-modal="true" aria-label="' + esc(b.title) + '">' +
-      '<div class="ob-shadow"></div><span class="ob-edge"></span><div class="ob-page ob-left"></div><div class="ob-page ob-right"><div class="ob-mini">' + insidePage(b, s0) + '</div>' + lessonsPage(b, s0) + '</div>' +
-      '<div class="ob-leaf l0"><div class="lf f"></div><div class="lf b"></div></div><div class="ob-leaf l1"><div class="lf f"></div><div class="lf b"></div></div>' +
-      '<div class="ob-leaf l2"><div class="lf f"></div><div class="lf b">' + insidePage(b, s0) + '</div></div>' +
-      '<div class="ob-cover"><div class="cf f">' + cover + '<i class="shade"></i></div><div class="cf b"><i class="shade"></i></div></div></div>' +
-      '<button type="button" class="ob-x icon-btn" data-action="book-close" aria-label="Close the book">' + C.icon('x') + '</button>';
+  function openBook(subId, fromEl) {
+    const sub = M.subject[subId];
+    if (!sub || BK.busy) return;
+    const b = bookFor(sub, Math.max(0, M.subjects.indexOf(sub)));
+    BK.b = b; BK.ch = null; BK.open = true; BK.busy = true; BK.from = fromEl || null;
+    const k = inks(b), one = narrow();
+    const stg = stage();
+    const leaves = [0, 1, 2, 3, 4].map((i) => '<div class="ob-leaf" style="--i:' + i + '"><div class="lf f"></div><div class="lf b">' + (i === 4 ? introPage(b) : '') + '</div></div>').join('');
+    stg.innerHTML = '<div class="stage-bg" data-bk="close"></div>' +
+      '<div class="ob' + (one ? ' one' : '') + '" style="--c:' + b.col + ';--cb:' + k.bg + '" role="dialog" aria-modal="true" aria-label="' + esc(sub.name) + '">' +
+      '<div class="ob-shadow"></div><span class="ob-edge"></span><div class="ob-page ob-left">' + introPage(b) + '</div><div class="ob-page ob-right">' + mini(b) + chaptersPage(b) + '</div>' +
+      leaves + '<div class="ob-cover"><div class="cf f">' + coverSVG(b) + '<i class="shade"></i></div><div class="cf b"><i class="shade"></i></div></div></div>' +
+      '<button type="button" class="ob-x icon-btn" data-bk="close" aria-label="Close the book">' + C.icon('x') + '</button>';
     stg.hidden = false;
-    BK.open = true; isOpen = true;
     document.body.classList.add('book-open');
-    const ob = stg.querySelector('.ob'), narrow = window.innerWidth < 760;
-    ob.classList.toggle('one', narrow);
+    if (fromEl) fromEl.classList.add('lifted');
+    const ob = stg.querySelector('.ob');
+    BK.anims = [];
+    const done = () => { BK.busy = false; ob.classList.add('opened'); BK.anims.forEach((a) => { if (!(a.effect.getTiming().delay > 0)) a.cancel(); }); const f = ob.querySelector('.ob-right .ch-b'); if (f) f.focus({ preventScroll: true }); };
+    if (reduce() || !ob.animate) { ob.classList.add('static'); done(); return; }
     const P = ob.querySelector('.ob-right').getBoundingClientRect().width;
     const box = ob.getBoundingClientRect(), cx = box.left + box.width / 2, cy = box.top + box.height / 2;
-    const closedX = narrow ? 0 : -P / 2;
-    const rest = 'translate(' + closedX + 'px, 0px) scale(1)';
-    const r = activeTape().querySelector('.cv').getBoundingClientRect(), sc = r.width / P;
-    const from = 'translate(' + (r.left + r.width / 2 - cx - (narrow ? 0 : sc * P / 2)) + 'px, ' + (r.top + r.height / 2 - cy) + 'px) scale(' + sc + ') rotate(-4deg)';
-    activeTape().classList.add('lifted');
-    BK.anims = [];
-    if (reduce() || !ob.animate) { ob.classList.add('static'); return; }
-    const E = 'cubic-bezier(.6,0,.2,1)', D = 1700;
-    const anim = (el, frames, o) => { const a = el.animate(frames, Object.assign({ duration: D, easing: E, fill: 'both' }, o || {})); BK.anims.push(a); return a; };
-    // 1. Off the shelf and into the middle, closed. 2. Slide right as it opens so the spread is centred.
-    anim(ob, [{ transform: from }, { transform: rest, offset: 0.28 }, { transform: rest, offset: 0.36 }, { transform: 'translate(0px, 0px) scale(1)', offset: 0.8 }, { transform: 'translate(0px, 0px) scale(1)' }]);
-    // The left-hand page only exists once the cover has swung past upright.
-    anim(ob.querySelector('.ob-left'), [{ opacity: 0 }, { opacity: 0, offset: 0.55 }, { opacity: 1, offset: 0.58 }, { opacity: 1 }], { easing: 'linear' });
-    anim(ob.querySelector('.ob-shadow'), [{ opacity: 0 }, { opacity: 0.5, offset: 0.28 }, { opacity: 1, offset: 0.8 }, { opacity: 1 }]);
-    // The cover swings over first, then the three leaves, each a little later and settling slightly higher in the stack.
-    // Stacking: the cover starts on top on the right and ends at the bottom of the pile on the left, under the pages.
-    const swing = (z0, z1, a, b2) => [{ transform: 'rotateY(0deg) translateZ(' + z0 + 'px)' }, { transform: 'rotateY(0deg) translateZ(' + z0 + 'px)', offset: a }, { transform: 'rotateY(-92deg) translateZ(' + ((z0 - z1) / 2) + 'px) skewY(-2deg)', offset: (a + b2) / 2 }, { transform: 'rotateY(-180deg) translateZ(' + (-z1) + 'px)', offset: b2 }, { transform: 'rotateY(-180deg) translateZ(' + (-z1) + 'px)' }];
-    anim(ob.querySelector('.ob-cover'), narrow ? [{ transform: 'rotateY(0deg)', opacity: 1 }, { transform: 'rotateY(0deg)', opacity: 1, offset: 0.36 }, { transform: 'rotateY(-180deg)', opacity: 0, offset: 0.78 }, { transform: 'rotateY(-180deg)', opacity: 0 }] : swing(6, 0.5, 0.36, 0.76));
-    ob.querySelectorAll('.ob-cover .shade').forEach((sh, i) => anim(sh, [{ opacity: 0 }, { opacity: 0, offset: 0.4 }, { opacity: i ? 0 : 0.5, offset: 0.56 }, { opacity: i ? 0.45 : 0, offset: 0.6 }, { opacity: 0, offset: 0.78 }, { opacity: 0 }]));
-    ob.querySelectorAll('.ob-leaf').forEach(function (lf, i) {
-      const st0 = 0.46 + i * 0.07, end = Math.min(0.97, 0.8 + i * 0.07);
-      const fr = narrow
-        ? [{ transform: 'rotateY(0deg)', opacity: 1 }, { transform: 'rotateY(0deg)', opacity: 1, offset: st0 }, { transform: 'rotateY(-180deg)', opacity: 0, offset: end }, { transform: 'rotateY(-180deg)', opacity: 0 }]
-        : swing(4.5 - 1.5 * i, 1.5 + 1.5 * i, st0, end);
-      anim(lf, fr);
-    });
-    // The contents write themselves in, line by line.
-    ob.querySelectorAll('.ob-toc li, .ob-toc .ob-k').forEach((li, i) => anim(li, [{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 420, delay: D * 0.82 + i * 45, easing: EASE }));
-    ob.querySelectorAll('.ob-in > *').forEach((x, i) => anim(x, [{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 420, delay: D * 0.88 + i * 70, easing: EASE }));
-    const first = ob.querySelector('.toc a');
-    BK.anims[0].finished.then(() => { if (first && BK.open) first.focus({ preventScroll: true }); }).catch(() => {});
-  }
-  function closeDetail() {
-    if (!BK.open || !root) return;
-    const stg = root.querySelector('#bookStage');
-    const fin = () => { stg.hidden = true; stg.innerHTML = ''; document.body.classList.remove('book-open'); tapes.forEach((t) => t.classList.remove('lifted')); BK.open = false; isOpen = false; if (root) root.focus({ preventScroll: true }); };
-    BK.open = false;
-    const main = BK.anims.filter((a) => (a.effect.getTiming().delay || 0) === 0);
-    if (main.length && !reduce()) {
-      BK.anims.forEach((a) => { if ((a.effect.getTiming().delay || 0) > 0) a.cancel(); });
-      main.forEach((a) => { a.playbackRate = 1.7; a.reverse(); });
-      main[0].finished.then(fin).catch(fin);
-    } else fin();
-  }
-
-  // ---------- Mounting ----------
-  function onKey(e) {
-    if (!root || RH.c.modalOpen()) return;
-    if (e.key === 'Escape' && BK.open) { closeDetail(); return; }
-    if (isOpen || /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) return;
-    if (e.key === 'ArrowLeft') { go(Math.round(T) - 1); e.preventDefault(); }
-    else if (e.key === 'ArrowRight') { go(Math.round(T) + 1); e.preventDefault(); }
-    else if (e.key === 'Enter' && (document.activeElement === document.body || document.activeElement === root)) { openDetail(); e.preventDefault(); }
-  }
-  function onMove(e) {
-    mx = e.clientX; my = e.clientY;
-    if (drag && Math.abs(e.clientX - drag.x) > 5) dragging = true;
-    if (dragging) T = drag.T - (e.clientX - drag.x) / (ws + gap);
-  }
-  function onUp() { if (dragging) { suppress = true; setTimeout(() => { suppress = false; }, 0); T = Math.round(T); } drag = null; dragging = false; }
-  function onResize() { if (root) measure(); }
-
-  function mount() {
-    root = document.getElementById('shelf');
-    stage = root.querySelector('.sh-stage');
-    tapes = Array.prototype.slice.call(stage.querySelectorAll('.bk'));
-    measure();
-    active = -1; last = 0; isOpen = false;
-    if (curIn) root.classList.add('cur-in');
-    tapes.forEach(function (el, j) {
-      el.addEventListener('pointerenter', () => { hover = j; });
-      el.addEventListener('pointerleave', () => { if (hover === j) hover = -1; });
-      el.addEventListener('click', function () {
-        if (suppress) return;
-        const r = rel(j);
-        if (Math.abs(r) < 0.5) openDetail(); else go(Math.round(T + r));
-      });
-    });
-    const shelf = root.querySelector('.sh-shelf');
-    shelf.addEventListener('pointerdown', (e) => { if (e.button === 0 && !isOpen) drag = { x: e.clientX, T: T }; });
-    shelf.addEventListener('wheel', function (e) {
-      if (isOpen) return;
-      e.preventDefault();
-      const dlt = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-      T += dlt / (ws + gap) * 0.5;
-      clearTimeout(wheelT);
-      wheelT = setTimeout(() => { T = Math.round(T); }, 160);
-    }, { passive: false });
-    root.addEventListener('pointerenter', () => { curIn = true; root.classList.add('cur-in'); });
-    root.addEventListener('pointerleave', () => { curIn = false; root.classList.remove('cur-in'); });
-    root.addEventListener('pointerover', (e) => { root.querySelector('.sh-cur').classList.toggle('btn', !!e.target.closest('button, a') && !e.target.closest('.bk')); });
-    root.querySelector('.sh-arrow.prev').addEventListener('click', () => go(Math.round(T) - 1));
-    root.querySelector('.sh-arrow.next').addEventListener('click', () => go(Math.round(T) + 1));
-    root.querySelector('.sh-play').addEventListener('click', openDetail);
-    root.querySelectorAll('.sh-tab').forEach((t) => t.addEventListener('click', function () {
-      if (RH.ui.shelfSub === t.dataset.tab) return;
-      RH.ui.shelfSub = t.dataset.tab;
-      RH.render();
-    }));
-    if (!SH.wired) {
-      SH.wired = true;
-      window.addEventListener('keydown', onKey);
-      window.addEventListener('pointermove', onMove, { passive: true });
-      window.addEventListener('pointerup', onUp);
-      window.addEventListener('pointercancel', onUp);
-      window.addEventListener('resize', onResize);
+    const closedX = one ? 0 : -P / 2, rest = 'translate(' + closedX + 'px,0) scale(1)';
+    let from = 'translate(' + closedX + 'px,40px) scale(.6)';
+    if (fromEl) {
+      const r = fromEl.getBoundingClientRect(), sc = r.width / P;
+      from = 'translate(' + (r.left + r.width / 2 - cx - (one ? 0 : sc * P / 2)) + 'px,' + (r.top + r.height / 2 - cy) + 'px) scale(' + sc.toFixed(3) + ') rotate(-3deg)';
     }
-    cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(frame);
+    const D = 2000, E = 'cubic-bezier(.6,0,.2,1)';
+    const anim = (el, frames, o) => { const a = el.animate(frames, Object.assign({ duration: D, easing: E, fill: 'both' }, o || {})); BK.anims.push(a); return a; };
+    // 1. Off the shelf into the middle, closed. 2. It slides right as the cover opens so the spread ends up centred.
+    anim(ob, [{ transform: from }, { transform: rest, offset: 0.26 }, { transform: rest, offset: 0.32 }, { transform: 'translate(0,0) scale(1)', offset: 0.62 }, { transform: 'translate(0,0) scale(1)' }]);
+    anim(ob.querySelector('.ob-shadow'), [{ opacity: 0 }, { opacity: 0.5, offset: 0.26 }, { opacity: 1, offset: 0.62 }, { opacity: 1 }]);
+    anim(ob.querySelector('.ob-left'), [{ opacity: 0 }, { opacity: 0, offset: 0.4 }, { opacity: 1, offset: 0.42 }, { opacity: 1 }], { easing: 'linear' });
+    const swing = (z0, z1, a, b2) => [{ transform: 'rotateY(0deg) translateZ(' + z0 + 'px)' }, { transform: 'rotateY(0deg) translateZ(' + z0 + 'px)', offset: a }, { transform: 'rotateY(-90deg) translateZ(' + ((z0 - z1) / 2) + 'px) skewY(-1.5deg)', offset: (a + b2) / 2 }, { transform: 'rotateY(-180deg) translateZ(' + (-z1) + 'px)', offset: b2 }, { transform: 'rotateY(-180deg) translateZ(' + (-z1) + 'px)' }];
+    const fade = (a, b2) => [{ transform: 'rotateY(0deg)', opacity: 1 }, { transform: 'rotateY(0deg)', opacity: 1, offset: a }, { transform: 'rotateY(-180deg)', opacity: 0, offset: b2 }, { transform: 'rotateY(-180deg)', opacity: 0 }];
+    anim(ob.querySelector('.ob-cover'), one ? fade(0.3, 0.6) : swing(8, 0.5, 0.3, 0.6));
+    ob.querySelectorAll('.ob-cover .shade').forEach((sh, i) => anim(sh, [{ opacity: 0 }, { opacity: 0, offset: 0.34 }, { opacity: i ? 0 : 0.5, offset: 0.44 }, { opacity: i ? 0.45 : 0, offset: 0.47 }, { opacity: 0, offset: 0.6 }, { opacity: 0 }]));
+    // The cascade: five pages flick over one after another, each settling a little higher on the left.
+    ob.querySelectorAll('.ob-leaf').forEach(function (lf, i) {
+      const a = 0.4 + i * 0.07, e = Math.min(0.97, a + 0.24);
+      anim(lf, one ? fade(a, e) : swing(6.5 - 1.2 * i, 1.5 + 1.2 * i, a, e));
+    });
+    ob.querySelectorAll('.ob-right .pg-list > *, .ob-right .toc li').forEach((li, i) => anim(li, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 380, delay: D * 0.86 + Math.min(i, 14) * 40, easing: EASE }));
+    BK.anims[0].finished.then(() => { if (BK.open) done(); }).catch(() => {});
   }
-  function unmount() { cancelAnimationFrame(raf); raf = 0; root = null; stage = null; tapes = []; hover = -1; isOpen = false; BK.open = false; document.body.classList.remove('book-open'); }
-  const SH = RH.shelf = { mount: mount, open: () => openDetail(), close: () => closeDetail(), state: () => ({ s: s, T: T, active: active, isOpen: BK.open, N: N, sub: RH.ui.shelfSub }), go: (t) => go(t) };
-  RH.actions['book-close'] = () => closeDetail();
 
-  // Preload nothing: the art is SVG. Mount whenever the shelf page is drawn.
-  RH.afterRender.push(function (r) { if (typeof r !== 'string') return; if (r === 'study' && document.getElementById('shelf')) mount(); else if (root) unmount(); });
+  // Turn one page: forward (right page over to the left) or back (left page over to the right).
+  function turn(dir, newLeft, newRight) {
+    const ob = BK.stage && BK.stage.querySelector('.ob');
+    if (!ob || BK.busy) return;
+    const L = ob.querySelector('.ob-left'), R = ob.querySelector('.ob-right');
+    const focusFirst = () => { const f = R.querySelector('.ch-b, .toc a'); if (f) f.focus({ preventScroll: true }); };
+    if (reduce() || !ob.animate) { L.innerHTML = newLeft; R.innerHTML = newRight; focusFirst(); return; }
+    if (ob.classList.contains('one')) {
+      // A phone shows one page: slide the new one in.
+      BK.busy = true;
+      const out = R.animate([{ transform: 'none', opacity: 1 }, { transform: 'translateX(' + (dir > 0 ? -30 : 30) + 'px)', opacity: 0 }], { duration: 200, easing: 'ease-in', fill: 'both' });
+      out.finished.then(function () {
+        out.cancel(); L.innerHTML = newLeft; R.innerHTML = newRight; R.scrollTop = 0;
+        R.animate([{ transform: 'translateX(' + (dir > 0 ? 30 : -30) + 'px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 260, easing: EASE }).finished.then(() => { BK.busy = false; focusFirst(); });
+      });
+      return;
+    }
+    BK.busy = true;
+    const leaf = document.createElement('div');
+    leaf.className = 'ob-turn ' + (dir > 0 ? 'fwd' : 'bwd');
+    if (dir > 0) { leaf.innerHTML = '<div class="lf f">' + R.innerHTML + '</div><div class="lf b">' + newLeft + '</div>'; R.innerHTML = newRight; }
+    else { leaf.innerHTML = '<div class="lf f">' + L.innerHTML + '</div><div class="lf b">' + newRight + '</div>'; L.innerHTML = newLeft; }
+    ob.appendChild(leaf);
+    const shade = (side) => { const sh = document.createElement('i'); sh.className = 'shade'; leaf.querySelector('.lf.' + side).appendChild(sh); return sh; };
+    const s1 = shade('f'), s2 = shade('b');
+    const T = 900, E = 'cubic-bezier(.45,.05,.25,1)';
+    const end = dir > 0 ? -180 : 180;
+    const a = leaf.animate([{ transform: 'rotateY(0deg) translateZ(2px)' }, { transform: 'rotateY(' + end / 2 + 'deg) translateZ(30px) skewY(' + (dir > 0 ? -1.5 : 1.5) + 'deg)', offset: 0.5 }, { transform: 'rotateY(' + end + 'deg) translateZ(2px)' }], { duration: T, easing: E, fill: 'both' });
+    s1.animate([{ opacity: 0 }, { opacity: 0.45 }], { duration: T / 2, easing: 'ease-in', fill: 'both' });
+    s2.animate([{ opacity: 0.45 }, { opacity: 0.45, offset: 0.5 }, { opacity: 0 }], { duration: T, easing: 'ease-out', fill: 'both' });
+    a.finished.then(function () {
+      if (dir > 0) L.innerHTML = newLeft; else R.innerHTML = newRight;
+      leaf.remove(); BK.busy = false; focusFirst();
+    }).catch(() => { leaf.remove(); BK.busy = false; });
+    R.querySelectorAll('.toc li').forEach((li, i) => li.animate([{ opacity: 0 }, { opacity: 0, offset: 0.5 }, { opacity: 1 }], { duration: T + Math.min(i, 12) * 40, easing: 'linear' }));
+  }
+  function showChapter(j) {
+    const b = BK.b; if (!b || !b.comps[j]) return;
+    BK.ch = j;
+    turn(1, chapterIntro(b, j), mini(b, j) + topicsPage(b, j));
+  }
+  function showChapters() {
+    const b = BK.b; if (!b || BK.ch == null) return;
+    BK.ch = null;
+    turn(-1, introPage(b), mini(b) + chaptersPage(b));
+  }
+  function finishClose() {
+    const stg = BK.stage; if (!stg) return;
+    BK.anims.forEach((a) => a.cancel()); BK.anims = [];
+    stg.hidden = true; stg.innerHTML = '';
+    document.body.classList.remove('book-open');
+    document.querySelectorAll('.sbk.lifted').forEach((x) => x.classList.remove('lifted'));
+    BK.open = false; BK.busy = false;
+  }
+  function closeBook() {
+    if (!BK.open) return;
+    const stg = BK.stage, ob = stg && stg.querySelector('.ob'), from = BK.from;
+    BK.open = false;
+    if (!ob || reduce() || !ob.animate) { finishClose(); if (from) from.focus({ preventScroll: true }); return; }
+    BK.anims.forEach((a) => a.cancel()); BK.anims = [];
+    ob.classList.add('static');
+    const out = ob.animate([{ transform: 'none', opacity: 1 }, { transform: 'translateY(24px) scale(.92)', opacity: 0 }], { duration: 260, easing: 'ease-in', fill: 'both' });
+    stg.querySelector('.stage-bg').animate([{ opacity: 1 }, { opacity: 0 }], { duration: 260, fill: 'both' });
+    out.finished.then(() => { finishClose(); if (from && document.body.contains(from)) from.focus({ preventScroll: true }); });
+  }
+
+  window.addEventListener('keydown', function (e) {
+    if (!BK.open || RH.c.modalOpen()) return;
+    if (e.key === 'Escape') { e.preventDefault(); if (BK.ch != null) showChapters(); else closeBook(); }
+  });
+  window.addEventListener('hashchange', function () { if (BK.open) finishClose(); });
+
+  // ---------- Shelf wiring ----------
+  function mount() {
+    document.querySelectorAll('.sbk').forEach(function (el) {
+      el.addEventListener('click', () => openBook(el.dataset.sub, el));
+      el.addEventListener('pointermove', function (e) {
+        if (reduce() || e.pointerType !== 'mouse') return;
+        const r = el.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5;
+        el.style.setProperty('--ry', (x * 16).toFixed(1) + 'deg'); el.style.setProperty('--rx', (-y * 10).toFixed(1) + 'deg');
+        el.style.setProperty('--gx', ((x + 0.5) * 100).toFixed(0) + '%'); el.style.setProperty('--gy', ((y + 0.5) * 100).toFixed(0) + '%');
+      });
+      el.addEventListener('pointerleave', () => { el.style.removeProperty('--ry'); el.style.removeProperty('--rx'); });
+    });
+    const want = RH.ui.openBook; RH.ui.openBook = null;
+    if (want) { const el = document.querySelector('.sbk[data-sub="' + want + '"]'); setTimeout(() => openBook(want, el), 60); }
+  }
+  RH.shelf = {
+    mount: mount, openSubject: (id) => openBook(id, document.querySelector('.sbk[data-sub="' + id + '"]')), close: closeBook,
+    chapter: showChapter, chapters: showChapters, state: () => ({ open: BK.open, busy: BK.busy, sub: BK.b && BK.b.sub.id, ch: BK.ch })
+  };
+  RH.actions['shelf-open'] = function (el) {
+    if (location.hash === '#study') { RH.shelf.openSubject(el.dataset.sub); return; }
+    RH.ui.openBook = el.dataset.sub; location.hash = 'study';
+  };
+  RH.afterRender.push(function (r) { if (typeof r !== 'string') return; if (r === 'study') mount(); else if (BK.open) finishClose(); });
+  RH.shelf.cover = function (sub, i) { return coverSVG(bookFor(sub, i == null ? Math.max(0, M.subjects.indexOf(sub)) : i)); };
+  RH.shelf.inks = (sub) => inks(bookFor(sub, Math.max(0, M.subjects.indexOf(sub))));
 })(window.RH = window.RH || {});
 </script>
 <script>
@@ -6371,65 +6585,90 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
   const V = RH.views;
   const DAYNAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
-  // ---------- This week ----------
-  const PPM = 0.8; // pixels per minute on the week grid
+  // ---------- The planner: a day agenda by default, or the whole week as columns ----------
+  const BLOCK_IC = { school: 'book', activity: 'flame', meal: 'sun', travel: 'right', rest: 'pause', sleep: 'moon', exam: 'flag' };
+  function agenda(s, d) {
+    const tl = R.timeline(s, d), now = new Date(), nowM = now.getHours() * 60 + now.getMinutes(), isToday = d === U.today();
+    let html = '<ol class="ag">', marked = false;
+    tl.items.forEach(function (it) {
+      if (it.type === 'block' && (it.kind === 'morning' || it.kind === 'winddown' || it.kind === 'travel' || it.kind === 'rest')) return;
+      if (isToday && !marked && it.start > nowM) { html += '<li class="ag-now"><span class="num">' + U.hm(nowM) + '</span></li>'; marked = true; }
+      const past = isToday && it.end <= nowM;
+      if (it.type === 'session') {
+        const x = it.sess, sub = M.subject[x.s], t = x.t && M.topic[x.t];
+        html += '<li class="ag-card' + (x.done ? ' done' : '') + (past && !x.done ? ' late' : '') + '" style="--c:' + (sub ? C.scol(sub) : 'var(--primary)') + '"><span class="ag-t num"><b>' + U.hm(it.start) + '</b>' + U.hm(it.end) + '</span>' +
+          '<div class="ag-body"><button type="button" class="ag-title" data-action="sess-open" data-id="' + x.id + '">' + esc(V.sessTitle(x)) + '</button><span class="ag-meta"><i class="ag-dot"></i>' + esc(sub ? sub.name : '') + ' · ' + esc(RH.KIND[x.k].label) + ' · ' + U.mins(x.m) + (t ? '<span class="ag-ch"> · ' + esc(M.title(t.comp.name)) + '</span>' : '') + '</span></div>' +
+          '<div class="ag-act">' + (x.done ? '' : '<button type="button" class="icon-btn" data-action="timer-open" data-id="' + x.id + '" aria-label="Start a timer">' + C.icon('timer') + '</button>') + '<button type="button" class="check-b' + (x.done ? ' on' : '') + '" data-action="sess-done" data-id="' + x.id + '" aria-pressed="' + !!x.done + '" aria-label="' + (x.done ? 'Done' : 'Mark done') + '">' + C.icon('tick') + '</button></div></li>';
+      } else if (it.type === 'free') {
+        if (it.end - it.start >= 20) html += '<li class="ag-free' + (past ? ' past' : '') + '"><span class="ag-t num">' + U.hm(it.start) + '</span><span>Free time · ' + U.dur(it.end - it.start) + '</span></li>';
+      } else {
+        html += '<li class="ag-block kind-' + it.kind + (past ? ' past' : '') + '"><span class="ag-t num">' + U.hm(it.start) + '</span><span class="ag-bi">' + C.icon(BLOCK_IC[it.kind] || 'dot') + '</span><span><b>' + esc(it.label || '') + '</b> <span class="muted">until ' + U.hm(it.end) + '</span></span></li>';
+      }
+    });
+    if (isToday && !marked) html += '<li class="ag-now"><span class="num">' + U.hm(nowM) + '</span></li>';
+    html += '</ol>';
+    if (tl.unplaced.length) html += '<p class="note small">' + U.plural(tl.unplaced.length, 'session') + ' didn’t fit into this day: ' + tl.unplaced.map((x) => esc(V.sessTitle(x))).join(', ') + '. Rebuild the plan, or free up time in My schedule.</p>';
+    if (!tl.items.some((i) => i.type === 'session') && !tl.unplaced.length) html = '<div class="ag-empty">' + C.icon('sun') + '<div><b>No revision planned.</b><p class="muted">A day off. Rest counts too.</p></div></div>' + html;
+    return html;
+  }
+
   V.plan = function () {
     const s = st(), today = U.today();
     const ws = RH.ui.week || U.weekStart(today);
     const days = []; for (let i = 0; i < 7; i++) days.push(U.addDays(ws, i));
-    const tls = days.map((d) => R.timeline(s, d));
-    const h0 = Math.max(0, Math.floor(Math.min.apply(null, tls.map((t) => t.info.wake)) / 60));
-    const h1 = Math.min(24, Math.ceil(Math.max.apply(null, tls.map((t) => Math.min(1440, t.info.bed))) / 60));
-    const sess = s.plan.sessions.filter((x) => x.d >= ws && x.d <= days[6]);
-    const planned = sess.reduce((a, x) => a + x.m, 0), target = tls.reduce((a, t) => a + t.info.target, 0);
-    const free = tls.reduce((a, t) => a + t.items.filter((i) => i.type === 'free').reduce((b, i) => b + i.end - i.start, 0), 0);
-    const doneM = sess.filter((x) => x.done).reduce((a, x) => a + x.m, 0);
-    const exams = M.exams(s);
-    const sum = RH.planner.summary(s);
-    let html = C.subnav('plan', 'plan');
-    html += C.page({ title: (ws === U.weekStart(today) ? 'This week' : 'Week of ' + esc(U.fmtShort(ws))), lede: U.dur(planned) + ' of revision planned, ' + U.dur(doneM) + ' done · ' + U.dur(free) + ' of free time kept',
-      actions: '<a class="btn" href="#routine">' + C.icon('pen') + 'Edit my schedule</a><a class="btn alt" href="#exams">' + C.icon('flag') + 'Revise for a test</a><button type="button" class="btn alt" data-action="plan-build">' + C.icon('rebuild') + 'Rebuild</button>' });
-    html += '<div class="wk-nav"><button type="button" class="icon-btn" data-action="week-prev" aria-label="Previous week">' + C.icon('left') + '</button><b>' + esc(U.fmtShort(ws)) + ' – ' + esc(U.fmtShort(days[6])) + '</b><button type="button" class="icon-btn" data-action="week-next" aria-label="Next week">' + C.icon('right') + '</button>' + (ws === U.weekStart(today) ? '' : '<button type="button" class="btn ghost sm" data-action="week-today">Back to this week</button>') + '<span class="muted small">' + U.plural(sum.sessions, 'session') + ' left until your exams</span></div>';
-    html += V.staleBanner();
-    if (!s.routine.setupAt) html += '<div class="note row-note"><p><b>This plan uses a sample week.</b> Put in your school times, clubs and how much you want to revise so the times fit your real week.</p><a class="btn sm" href="#routine">Edit my schedule</a></div>';
-    if (!s.profile.fmOptions) html += '<div class="note row-note"><p><b>Further Maths options aren’t in the plan yet.</b></p><a class="btn alt sm" href="#preferences">Choose options</a></div>';
-    if (target > planned + 60) html += '<p class="muted small">Your targets add up to ' + U.dur(target) + ' this week; ' + U.dur(planned) + ' fits around school, activities and the free time you asked for. <a href="#routine">Edit my schedule</a></p>';
-
-    // Desktop grid
-    const hgt = (h1 - h0) * 60 * PPM;
-    const pos = (a, b) => 'top:' + Math.max(0, (a - h0 * 60) * PPM).toFixed(1) + 'px;height:' + Math.max(8, (Math.min(b, h1 * 60) - Math.max(a, h0 * 60)) * PPM - 2).toFixed(1) + 'px';
-    html += '<section class="card wk-card"><div class="wk" style="--wk-h:' + hgt + 'px"><div class="wk-head"><span></span>' + days.map(function (d, i) {
-      const t = tls[i];
-      return '<div class="wk-day' + (d === today ? ' today' : '') + '"><span class="label">' + U.DAYS[i] + '</span><b class="num">' + U.parse(d).getDate() + '</b><span class="muted small num">' + U.dur(s.plan.sessions.filter((x) => x.d === d).reduce((a, x) => a + x.m, 0)) + '</span>' + (t.info.hol ? '<span class="chip info">' + esc(t.info.hol.name.split(' ')[0]) + '</span>' : '') + '</div>';
-    }).join('') + '</div><div class="wk-body"><div class="wk-hours">';
-    for (let h = h0; h < h1; h++) html += '<span style="top:' + ((h - h0) * 60 * PPM) + 'px">' + String(h).padStart(2, '0') + ':00</span>';
-    html += '</div>' + days.map(function (d, i) {
-      const t = tls[i];
-      let col = '<div class="wk-col' + (d === today ? ' today' : '') + (d < today ? ' past' : '') + '">';
-      col += '<span class="wb kind-sleep" style="' + pos(h0 * 60, t.info.wake) + '"></span><span class="wb kind-sleep" style="' + pos(t.info.bed, h1 * 60 + 60) + '"></span>';
-      t.items.forEach(function (it) {
-        if (it.type === 'block' && (it.kind === 'morning' || it.kind === 'winddown')) return;
-        const tall = (it.end - it.start) * PPM >= 30;
-        if (it.type === 'session') {
-          const x = it.sess;
-          col += '<button type="button" class="wb kind-study' + (x.done ? ' done' : '') + '" data-subj="' + x.s + '" style="' + pos(it.start, it.end) + '" data-action="sess-open" data-id="' + x.id + '" title="' + esc(U.hm(it.start) + ' ' + V.sessTitle(x)) + '"><b>' + esc(V.sessTitle(x).replace(/^[\d.]+ /, '')) + '</b>' + (tall ? '<span class="num">' + U.hm(it.start) + ' · ' + esc(RH.KIND[x.k].label.split(' ')[0]) + '</span>' : '') + '</button>';
-        } else {
-          col += '<span class="wb kind-' + it.kind + '"' + (it.subj ? ' data-subj="' + it.subj + '"' : '') + ' style="' + pos(it.start, it.end) + '" title="' + esc(U.hm(it.start) + '–' + U.hm(it.end) + ' ' + (it.label || 'Free time')) + '">' + (tall && it.kind !== 'travel' && it.kind !== 'rest' ? '<b>' + esc(it.type === 'free' ? 'Free' : it.label) + '</b>' : '') + '</span>';
-        }
-      });
-      exams.filter((e) => e.date === d && !e.time).forEach((e) => { col += '<span class="wb kind-exam" style="top:0;height:20px" data-subj="' + e.subject + '"><b>' + esc(e.code) + '</b></span>'; });
-      return col + '</div>';
-    }).join('') + '</div></div>' +
-      '<div class="wk-legend small">' + [['study', 'Revision'], ['school', 'School'], ['activity', 'Activities'], ['meal', 'Meals'], ['exam', 'Exams'], ['free', 'Free time'], ['sleep', 'Asleep']].map((k) => '<span><i class="lgd kind-' + k[0] + '"></i>' + k[1] + '</span>').join('') + '</div></section>';
-
-    // Phone: one day at a time
+    const mode = RH.ui.planMode || 'day';
     const sel = RH.ui.day && RH.ui.day >= ws && RH.ui.day <= days[6] ? RH.ui.day : (today >= ws && today <= days[6] ? today : ws);
-    html += '<section class="card wk-phone"><div class="day-chips">' + days.map((d, i) => '<button type="button" class="day-chip' + (d === sel ? ' on' : '') + (d === today ? ' today' : '') + '" data-action="plan-day" data-v="' + d + '"><span>' + U.DAYS[i].slice(0, 1) + '</span><b class="num">' + U.parse(d).getDate() + '</b></button>').join('') + '</div>' +
-      '<h2>' + esc(U.fmt(sel, { weekday: 'long', day: 'numeric', month: 'long' })) + '</h2>' + V.timeline(sel) + '</section>';
+    const sess = s.plan.sessions.filter((x) => x.d >= ws && x.d <= days[6]);
+    const planned = sess.reduce((a, x) => a + x.m, 0), doneM = sess.filter((x) => x.done).reduce((a, x) => a + x.m, 0);
+    const exams = M.exams(s), tests = s.exams.custom || [];
+    const daySess = s.plan.sessions.filter((x) => x.d === sel), dayM = daySess.reduce((a, x) => a + x.m, 0), dayDone = daySess.filter((x) => x.done).reduce((a, x) => a + x.m, 0);
+    const title = mode === 'week' ? (ws === U.weekStart(today) ? 'This week' : 'Week of ' + U.fmtShort(ws)) : sel === today ? 'Today' : sel === U.addDays(today, 1) ? 'Tomorrow' : U.fmt(sel, { weekday: 'long', day: 'numeric', month: 'long' });
+    const meta = mode === 'week' ? U.dur(planned) + ' of revision · ' + U.dur(doneM) + ' done' : (dayM ? U.dur(dayM) + ' of revision' + (dayDone ? ' · ' + U.dur(dayDone) + ' done' : '') : 'Nothing planned') + (sel === today ? '' : ' · ' + U.fmt(sel, { weekday: 'long' }));
+    let html = C.subnav('plan', 'plan');
+    html += '<header class="pl-head"><div><p class="kicker">Planner</p><h1>' + esc(title) + '</h1><p class="meta">' + meta + '</p></div><div class="pl-tools">' +
+      C.seg([['day', 'Day'], ['week', 'Week']], mode, 'data-action="plan-mode"') +
+      '<a class="btn" href="#exams">' + C.icon('flag') + 'Revise for a test</a>' +
+      '<a class="icon-btn pl-ib" href="#routine" title="Edit my schedule" aria-label="Edit my schedule">' + C.icon('pen') + '</a>' +
+      '<button type="button" class="icon-btn pl-ib" data-action="plan-build" title="Rebuild the plan" aria-label="Rebuild the plan">' + C.icon('rebuild') + '</button></div></header>';
 
-    html += '<section class="card"><div class="card-head"><h2>Add to your calendar</h2></div><p class="muted small">Exports your exams and every revision session with its time.</p><div class="row-actions"><button type="button" class="btn alt sm" data-action="export-ics">' + C.icon('download') + '.ics for Apple or Outlook</button><button type="button" class="btn alt sm" data-action="export-csv">' + C.icon('download') + '.csv for Google Calendar</button></div></section>';
+    // The week strip: a pill per day with how full it is.
+    if (mode === 'week') html += '<nav class="pl-strip wk-only" aria-label="Weeks"><button type="button" class="icon-btn" data-action="week-prev" aria-label="Previous week">' + C.icon('left') + '</button><b>' + esc(U.fmtShort(ws)) + ' – ' + esc(U.fmtShort(days[6])) + '</b><button type="button" class="icon-btn" data-action="week-next" aria-label="Next week">' + C.icon('right') + '</button></nav>';
+    else html += '<nav class="pl-strip" aria-label="Days"><button type="button" class="icon-btn" data-action="week-prev" aria-label="Previous week">' + C.icon('left') + '</button><div class="pl-days">' + days.map(function (d, i) {
+      const ds = s.plan.sessions.filter((x) => x.d === d), m = ds.reduce((a, x) => a + x.m, 0), dn = ds.filter((x) => x.done).reduce((a, x) => a + x.m, 0);
+      const cap = Math.max(60, R.day(s, d).target || 120), ex = exams.some((e) => e.date === d) || tests.some((t) => t.date === d);
+      return '<button type="button" class="pl-day' + (d === sel && mode === 'day' ? ' on' : '') + (d === today ? ' today' : '') + (d < today ? ' past' : '') + '" data-action="plan-day" data-v="' + d + '" aria-pressed="' + (d === sel) + '"><span class="pd-w">' + U.DAYS[i].slice(0, 3) + '</span><b class="num">' + U.parse(d).getDate() + '</b>' +
+        '<span class="pd-load" title="' + U.dur(m) + '"><i style="width:' + Math.min(100, Math.round(100 * m / cap)) + '%"></i><i class="dn" style="width:' + Math.min(100, Math.round(100 * dn / cap)) + '%"></i></span>' + (ex ? '<span class="pd-ex" title="Exam or test">' + C.icon('flag') + '</span>' : '') + '</button>';
+    }).join('') + '</div><button type="button" class="icon-btn" data-action="week-next" aria-label="Next week">' + C.icon('right') + '</button></nav>';
+    if (ws !== U.weekStart(today)) html += '<p class="center"><button type="button" class="btn ghost sm" data-action="week-today">Back to this week</button></p>';
+
+    const notes = [];
+    if (!s.routine.setupAt) notes.push('<b>This plan uses a sample week.</b> <a href="#routine">Put in your real week</a> so the times fit.');
+    if (!s.profile.fmOptions && M.isMine(M.subject.further)) notes.push('Further Maths options aren’t in the plan yet. <a href="#preferences">Choose options</a>.');
+    html += V.staleBanner();
+    if (notes.length) html += '<p class="pl-note">' + C.icon('spark') + '<span>' + notes.join(' ') + '</span></p>';
+
+    if (mode === 'week') {
+      html += '<div class="pl-week">' + days.map(function (d, i) {
+        const ds = s.plan.sessions.filter((x) => x.d === d).sort((a, b) => (a.t0 == null ? 9999 : a.t0) - (b.t0 == null ? 9999 : b.t0));
+        const ex = exams.filter((e) => e.date === d).map((e) => '<span class="pw-ex">' + C.icon('flag') + esc(e.code || e.title) + '</span>').concat(tests.filter((t) => t.date === d).map((t) => '<a class="pw-ex" href="#prep-' + t.id + '">' + C.icon('flag') + esc(t.name) + '</a>')).join('');
+        return '<section class="pw-col' + (d === today ? ' today' : '') + (d < today ? ' past' : '') + '"><button type="button" class="pw-h" data-action="plan-day-open" data-v="' + d + '"><span>' + U.DAYS[i] + '</span><b class="num">' + U.parse(d).getDate() + '</b><span class="muted small">' + (ds.length ? U.dur(ds.reduce((a, x) => a + x.m, 0)) : 'Free') + '</span></button>' + ex +
+          ds.map(function (x) {
+            const sub = M.subject[x.s];
+            return '<button type="button" class="pw-s' + (x.done ? ' done' : '') + '" style="--c:' + (sub ? C.scol(sub) : 'var(--primary)') + '" data-action="sess-open" data-id="' + x.id + '"><span class="num">' + (x.t0 != null ? U.hm(x.t0) : '') + ' · ' + U.mins(x.m) + '</span><b>' + esc(V.sessTitle(x)) + '</b><span>' + esc(sub ? sub.name : '') + '</span></button>';
+          }).join('') + '</section>';
+      }).join('') + '</div>';
+    } else {
+      const nextEx = exams.filter((e) => e.date >= today).concat(tests.filter((t) => t.date >= today).map((t) => ({ date: t.date, title: t.name, test: t }))).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 3);
+      html += '<div class="pl-dayv"><section class="pl-agenda">' + agenda(s, sel) + '</section><aside class="pl-side">' +
+        '<section class="card pl-week-ring"><div class="pwr">' + C.ring(planned ? doneM / planned : 0, '<b>' + (planned ? Math.round(100 * doneM / planned) : 0) + '%</b>', 76) + '<div><b>This week</b><span class="muted small">' + U.dur(doneM) + ' of ' + U.dur(planned) + ' done</span></div></div></section>' +
+        '<section class="card"><div class="card-head"><h2>Coming up</h2><a href="#exams">All</a></div>' + (nextEx.length ? '<ul class="pl-up">' + nextEx.map((e) => '<li><span class="pu-n num"><b>' + C.daysTo(e.date) + '</b>days</span><span><b>' + esc(e.title) + '</b><span class="muted small">' + esc(U.fmt(e.date, { weekday: 'short', day: 'numeric', month: 'short' })) + '</span>' + (e.test ? '<a class="small" href="#prep-' + e.test.id + '">Revision plan</a>' : '') + '</span></li>').join('') + '</ul>' : '<p class="muted small">No exams or tests yet. <a href="#exams">Add a test</a> to get a plan for it.</p>') + '</section>' +
+        '<section class="card pl-cal"><h2>Calendar</h2><div class="row-actions"><button type="button" class="btn alt sm" data-action="export-ics">' + C.icon('download') + 'Apple / Outlook</button><button type="button" class="btn alt sm" data-action="export-csv">' + C.icon('download') + 'Google</button></div></section>' +
+        '</aside></div>';
+    }
     return html;
   };
+  RH.actions['plan-mode'] = (el) => { RH.ui.planMode = el.dataset.v; RH.render({ keepScroll: true }); };
+  RH.actions['plan-day-open'] = (el) => { RH.ui.day = el.dataset.v; RH.ui.planMode = 'day'; RH.render({ keepScroll: true }); };
 
   // ---------- Routine ----------
   const hrs = (m) => Math.round((Number(m) || 0) / 15) / 4;
@@ -6611,7 +6850,7 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
   A['rev-add'] = () => store.update(function (s) { s.routine.events.push({ id: 'e' + U.uid(), name: 'Busy', date: U.today(), start: '18:00', end: '21:00' }); touch(s); });
   A['rev-del'] = (el) => store.update(function (s) { s.routine.events = s.routine.events.filter((x) => x.id !== el.dataset.id); touch(s); });
   A['routine-save'] = () => { store.update(function (s) { touch(s); }, { silent: true }); A['plan-build'](); location.hash = 'plan'; };
-  A['plan-day'] = (el) => { RH.ui.day = el.dataset.v; RH.render({ keepScroll: true }); };
+  A['plan-day'] = (el) => { RH.ui.day = el.dataset.v; RH.ui.planMode = 'day'; RH.render({ keepScroll: true }); };
 })(window.RH = window.RH || {});
 </script>
 <script>
@@ -7760,24 +7999,53 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
   // and the mark scheme follows in the same file from a page headed "Mark Scheme". ----------
   const QSTART = /^Q(\d{1,3})\.?(\s|$)/, PEND = /\(\s*Total\s+for\s+question\s*=?\s*(\d+)\s*marks?\s*\)/i;
   const after = (a, b) => a.p > b.p || (a.p === b.p && a.y < b.y);
-  function packSplit(pages) {
-    const ms = pages.findIndex((pg, p) => p > 0 && pg.lines.slice(0, 8).some((l) => /^Mark\s*Scheme/i.test(l.text)));
-    const qpN = ms > 0 ? ms : pages.length, starts = [], ends = [];
-    for (let p = 0; p < qpN; p++) pages[p].lines.forEach(function (l) {
-      const m = QSTART.exec(l.text);
-      if (m && l.x < pages[p].w * 0.25) starts.push({ n: m[1], p: p, y: l.y + l.h + 4 });
-      const e = PEND.exec(l.text);
-      if (e) ends.push({ p: p, y: l.y, marks: Number(e[1]) });
+  // Where the mark scheme or solutions start, if they are in the same file.
+  function msStart(pages) {
+    for (let p = 1; p < pages.length; p++) {
+      const top = pages[p].lines.slice(0, 10);
+      if (top.some((l) => /^(mark\s*scheme|marking\s*scheme|solutions?|worked\s+solutions|answers?)\b(?!\s+(all|each|the|every)\b)/i.test(l.text) || /mark\s*scheme\s*[–-]/i.test(l.text))) return p;
+    }
+    return -1;
+  }
+  // Question numbering styles seen in packs and booklets. The style that gives the longest run of questions
+  // numbered 1, 2, 3… down the left margin wins.
+  const FAMS = [/^Q\s?(\d{1,3})\b/, /^Question\s+(\d{1,3})\b/i, /^(\d{1,2})\s*[.)](\s|$)/, /^(\d{1,2})(\s|$)/];
+  function genericSplit(pages, qpN) {
+    let best = null, bestFam = null;
+    FAMS.forEach(function (re) {
+      const starts = []; let want = 1;
+      for (let p = 0; p < qpN; p++) pages[p].lines.forEach(function (l) {
+        if (l.x > pages[p].w * 0.24) return;
+        const m = re.exec(l.text);
+        if (m && Number(m[1]) === want) { starts.push({ n: String(want), p: p, y: l.y + l.h + 4 }); want++; }
+      });
+      if (starts.length >= 2 && (!best || starts.length > best.length)) { best = starts; bestFam = re; }
     });
-    const qs = starts.map(function (st0, i) {
-      const nx = starts[i + 1];
+    if (!best) return null;
+    const ends = [];
+    for (let p = 0; p < qpN; p++) pages[p].lines.forEach(function (l) {
+      const e = PEND.exec(l.text) || END.exec(l.text);
+      if (e) ends.push({ p: p, y: l.y, marks: Number(e[e.length - 1]) });
+    });
+    const qs = best.map(function (st0, i) {
+      const nx = best[i + 1];
       const end = ends.find((e) => after(e, st0) && (!nx || after(nx, e)));
       const to = end ? { p: end.p, y: end.y - 6 } : nx ? { p: nx.p, y: nx.y + 14 } : { p: qpN - 1, y: bottom(pages[qpN - 1]) };
-      return { n: st0.n, marks: end ? end.marks : null, regions: regionsBetween(pages, { p: st0.p, y: st0.y }, to) };
+      const regions = regionsBetween(pages, { p: st0.p, y: st0.y }, to);
+      return { n: st0.n, marks: end ? end.marks : marksIn(pages, regions), regions: regions };
     }).filter((q) => q.regions.length);
+    return { qs: qs, fam: bestFam };
+  }
+  function packSplit(pages) {
+    const ms = msStart(pages), qpN = ms > 0 ? ms : pages.length;
+    const g = genericSplit(pages, qpN);
+    if (!g) return { qs: [], ms: ms, msMap: {} };
     const msMap = {};
-    if (ms > 0) for (let p = ms; p < pages.length; p++) pages[p].lines.forEach(function (l) { const m = QSTART.exec(l.text); if (m && msMap[m[1]] == null) msMap[m[1]] = p; });
-    return { qs: qs, ms: ms, msMap: msMap };
+    if (ms > 0) g.qs.forEach(function (q) {
+      const re = new RegExp('^(Q\\s?|Question\\s+)?' + q.n + '(\\b|[.)])', 'i');
+      for (let p = ms; p < pages.length; p++) if (pages[p].lines.some((l) => l.x < pages[p].w * 0.3 && re.test(l.text))) { msMap[q.n] = p; return; }
+    });
+    return { qs: g.qs, ms: ms, msMap: msMap };
   }
 
   // ---------- Upload ----------
@@ -7788,7 +8056,9 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
     const info = meta(qp.pages);
     let qs = detect(qp.pages), pack = null;
     // A topic pack with its own mark scheme at the back: split it into the questions and the scheme.
-    if (!msFile) { const pk = packSplit(qp.pages); if (pk.qs.length >= 2 && (pk.ms > 0 || pk.qs.length >= qs.length)) { pack = pk; qs = pk.qs; } }
+    // Past papers end each question with "Total for Question N"; anything else (packs, booklets) uses the general splitter.
+    const endMarkers = qp.pages.reduce((a, pg) => a + pg.lines.filter((l) => END.test(l.text)).length, 0);
+    if (!msFile && endMarkers < 2) { const pk = packSplit(qp.pages); if (pk.qs.length >= 2) { pack = pk; qs = pk.qs; } }
     markChoices(qs, info.marks);
     let ms = null, msMap = pack ? pack.msMap : {};
     if (pack && pack.ms > 0) await RH.files.put(id + ':ms', new Blob([qpBuf.slice(0)], { type: 'application/pdf' }));
@@ -7901,6 +8171,34 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
     }
     return out.slice(0, 3);
   };
+  // The words of a question, read from the PDF, so Claude knows the question even when images can't be sent.
+  const textCache = {};
+  P.questionText = async function (paperId, qi) {
+    const key = paperId + ':' + qi;
+    if (textCache[key] != null) return textCache[key];
+    const paper = st().portal.papers[paperId], q = paper && paper.questions[qi];
+    const doc = q && await getDoc(paper, 'qp');
+    if (!doc) return '';
+    const parts = [];
+    for (const r of q.r) {
+      const page = await doc.getPage(r[0] + 1), tc = await page.getTextContent();
+      const lo = Math.min(r[1], r[2]) - 2, hi = Math.max(r[1], r[2]) + 2;
+      const items = tc.items.filter((it) => it.str && it.str.trim() && it.transform[5] >= lo && it.transform[5] <= hi)
+        .map((it) => ({ s: it.str, x: it.transform[4], y: it.transform[5] }));
+      items.sort((a, b) => b.y - a.y || a.x - b.x);
+      const lines = [];
+      items.forEach(function (it) { const l = lines.find((x) => Math.abs(x.y - it.y) < 2.5); if (l) l.items.push(it); else lines.push({ y: it.y, items: [it] }); });
+      lines.sort((a, b) => b.y - a.y).forEach((l) => parts.push(l.items.sort((a, b) => a.x - b.x).map((i) => i.s).join(' ').replace(/\s+/g, ' ').trim()));
+    }
+    return (textCache[key] = parts.filter(Boolean).join('\n').slice(0, 6000));
+  };
+  P.msText = async function (paperId, page) {
+    const paper = st().portal.papers[paperId];
+    const doc = paper && await getDoc(paper, 'ms');
+    if (!doc) return '';
+    const pg = await doc.getPage(U.clamp(page, 0, doc.numPages - 1) + 1), tc = await pg.getTextContent();
+    return tc.items.map((it) => it.str).join(' ').replace(/\s+/g, ' ').trim().slice(0, 6000);
+  };
   P.msImage = async function (paperId, page) {
     const paper = st().portal.papers[paperId];
     const doc = await getDoc(paper, 'ms');
@@ -7976,7 +8274,7 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
     const mpm = p.marks ? p.dur / p.marks : null;
     const attempts = attemptsFor(id);
     let html = C.crumbs([['Exam centre', 'papers'], [p.title]]);
-    html += C.page({ title: esc(p.title), lede: U.plural(p.questions.length, 'question') + (p.marks ? ' · ' + p.marks + ' marks' : '') + ' · ' + U.mins(p.dur) + (p.msFile ? ' · mark scheme added' : ''), actions: '<a class="btn lg" href="#sit-' + p.id + '">' + C.icon('play') + 'Sit it</a>' });
+    html += C.page({ title: esc(p.title), lede: U.plural(p.questions.length, 'question') + (p.marks ? ' · ' + p.marks + ' marks' : '') + ' · ' + U.mins(p.dur) + (p.msFile ? ' · mark scheme added' : ''), actions: '<button type="button" class="btn alt" data-action="ans-export" data-v="blank" data-id="' + p.id + '" title="Every question with lined space under it, to print and write on">' + C.icon('download') + 'Printable with answer space</button><a class="btn lg" href="#sit-' + p.id + '">' + C.icon('play') + 'Sit it</a>' });
     if (attempts.length) html += '<section class="card"><h2>Your attempts</h2>' + attemptTable(attempts) + '</section>';
     html += '<section class="card"><div class="card-head"><h2>Questions</h2><span class="muted small">Tap one to preview or practise it alone</span></div><div class="qgrid">' +
       p.questions.map((q, i) => '<div class="qitem"><button type="button" class="qi-main" data-action="q-preview" data-id="' + id + '" data-i="' + i + '"><b>Q' + esc(q.n) + '</b><span class="num">' + (q.marks == null ? '?' : q.marks) + ' marks' + (mpm && q.marks ? ' · ' + U.mins(Math.round(q.marks * mpm)) : '') + '</span></button><a class="icon-btn" href="#sit-' + id + '" data-action="sit-one" data-id="' + id + '" data-i="' + i + '" aria-label="Practise question ' + esc(q.n) + '">' + C.icon('play') + '</a></div>').join('') + '</div></section>';
@@ -8025,7 +8323,7 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
       '<div class="seg-row"><span class="muted small">Extra time</span>' + C.seg([[0, 'None'], [10, '10%'], [25, '25%'], [50, '50%']], ui.extra, 'data-action="sit-set" data-k="extra"') + '</div></div>';
     html += '<div class="sit-go"><div><b>' + (idx.length === 1 ? 'Question ' + esc(p.questions[idx[0]].n) : 'Questions ' + esc(p.questions[idx[0]].n) + '–' + esc(p.questions[idx[idx.length - 1]].n)) + '</b><span class="muted">' + (marks ? marks + ' marks · ' : '') + U.mins(mins) + '</span></div>' +
       '<button type="button" class="btn lg" data-action="sit-go" data-id="' + p.id + '" data-qs="' + idx.join(',') + '" data-mins="' + mins + '">' + C.icon('play') + 'Start the clock</button></div>' +
-      '<p class="help center">Have paper, a pen and a calculator ready. At the end you can photograph your answers.</p></section>';
+      '<p class="help center">Answer on screen (type, or tap A–D) or on paper. At the end you can photograph what you wrote and export everything as a PDF.</p></section>';
     return html;
   };
   RH.actions['sit-set'] = function (el) {
@@ -8066,7 +8364,7 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
     const dur = Math.round((opts.mins || (qIdx.length === p.questions.length ? p.dur : Math.max(3, marks * mpm))) * 60 * (opts.mins ? 1 : 1 + (opts.extra || 0) / 100));
     store.update(function (s) {
       s.portal.live = { paper: paperId, single: qIdx.length === 1 ? p.questions[qIdx[0]].n : null, qs: qIdx, current: qIdx[0], since: Date.now(), endsAt: Date.now() + dur * 1000, dur: dur, paused: false, pausedLeft: 0,
-        strict: !!opts.strict, ai: !!opts.ai, timeOn: {}, flags: {}, visited: {}, done: {}, notes: {}, marks: marks, warned: {}, started: Date.now() };
+        strict: !!opts.strict, ai: !!opts.ai, timeOn: {}, flags: {}, visited: {}, done: {}, notes: {}, mc: {}, mode: {}, marks: marks, warned: {}, started: Date.now() };
       s.portal.live.visited[qIdx[0]] = 1;
     }, { silent: true });
     RH.ui.chat = [];
@@ -8082,6 +8380,129 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
     RH.render({ keepScroll: false });
   }
 
+  // ---------- Answering on the paper ----------
+  // Each question gets an answer space under it: type on lined paper, tap A–D for multiple choice,
+  // or write on real paper and photograph it at the end.
+  const LETTERS = ['A', 'B', 'C', 'D'];
+  function looksMcq(text) {
+    const seen = {};
+    String(text || '').split('\n').forEach(function (l) { const m = /^\s*([A-D])(\s|$|[.)])/.exec(l); if (m) seen[m[1]] = 1; });
+    return Object.keys(seen).length === 4;
+  }
+  function ansMode(L, p, i) { return (L.mode && L.mode[i]) || (p.questions[i].mcq ? 'mc' : 'write'); }
+  function typedAnswer(src, i) {
+    const mc = src.mc && src.mc[i], t = (src.notes && src.notes[i] || '').trim();
+    return (mc ? 'Multiple choice: chose ' + mc + (t ? '\n' : '') : '') + t;
+  }
+  P.typedAnswer = typedAnswer;
+  function answerSheet(L, p, q) {
+    const i = L.current, mode = ansMode(L, p, i), mc = L.mc && L.mc[i];
+    const tab = (v, label) => '<button type="button" class="' + (mode === v ? 'on' : '') + '" data-action="ans-mode" data-v="' + v + '" aria-pressed="' + (mode === v) + '">' + label + '</button>';
+    let body;
+    if (mode === 'mc') body = '<div class="mc-row" role="group" aria-label="Choose an answer">' + LETTERS.map((x) => '<button type="button" class="mc-b' + (mc === x ? ' on' : '') + '" data-action="ans-mc" data-v="' + x + '" aria-pressed="' + (mc === x) + '">' + x + '</button>').join('') + '</div><p class="help">' + (mc ? 'You chose <b>' + mc + '</b>. Tap it again to clear.' : 'Tap the letter of your answer.') + '</p>';
+    else if (mode === 'paper') body = '<div class="on-paper">' + C.icon('camera') + '<p><b>Write this one on paper.</b> At the end you can photograph your answers to mark them' + (L.ai ? ' or have Claude mark them' : '') + '.</p></div>';
+    else body = '<textarea id="ex-notes" class="lined" data-exnote="' + i + '" rows="7" placeholder="Type your answer and working here…" aria-label="Your answer to question ' + esc(q.n) + '">' + esc(L.notes[i] || '') + '</textarea>';
+    return '<section class="answer-sheet" aria-label="Answer space"><div class="as-head"><b>Answer</b><div class="seg">' + tab('write', 'Type') + tab('mc', 'A–D') + tab('paper', 'On paper') + '</div></div>' + body + '</section>';
+  }
+  RH.actions['ans-mode'] = function (el) {
+    store.update(function (s) { const L = s.portal.live; L.mode = L.mode || {}; L.mode[L.current] = el.dataset.v; }, { silent: true });
+    RH.render({ keepScroll: true });
+    if (el.dataset.v === 'write') { const t = document.getElementById('ex-notes'); if (t) t.focus(); }
+  };
+  RH.actions['ans-mc'] = function (el) {
+    store.update(function (s) { const L = s.portal.live; L.mc = L.mc || {}; if (L.mc[L.current] === el.dataset.v) delete L.mc[L.current]; else L.mc[L.current] = el.dataset.v; }, { silent: true });
+    RH.render({ keepScroll: true });
+  };
+  // Spot multiple-choice questions (four lines starting A, B, C, D) the first time each one is shown.
+  RH.afterRender.push(function (r) {
+    if (r !== 'exam') return;
+    const L = live(); if (!L) return;
+    const p = st().portal.papers[L.paper], i = L.current, q = p && p.questions[i];
+    if (!q || q.mcq != null) return;
+    P.questionText(p.id, i).then(function (t) {
+      const yes = looksMcq(t);
+      store.update(function (s) { s.portal.papers[p.id].questions[i].mcq = yes; }, { silent: true });
+      if (yes && !(L.mode && L.mode[i]) && live() && live().current === i && location.hash === '#exam') RH.render({ keepScroll: true });
+    }).catch(() => {});
+  });
+
+  // ---------- Export: each question, then its answer (or a blank answer space to print and write on) ----------
+  const JSPDF = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+  const pdfSafe = (t) => String(t || '').replace(/[\u2212\u2013\u2014]/g, '-').replace(/[\u2018\u2019]/g, "'").replace(/[\u201c\u201d]/g, '"').replace(/\u2026/g, '...')
+    .replace(/[θΘ]/g, 'theta').replace(/[λ]/g, 'lambda').replace(/[μ]/g, 'mu').replace(/[ωΩ]/g, 'omega').replace(/[π]/g, 'pi').replace(/[Δ]/g, 'Delta').replace(/[α]/g, 'alpha').replace(/[β]/g, 'beta').replace(/[ε]/g, 'epsilon').replace(/[ρ]/g, 'rho').replace(/[σΣ]/g, 'sigma').replace(/[φ]/g, 'phi')
+    .replace(/[√]/g, 'sqrt').replace(/[≈]/g, '~').replace(/[≤]/g, '<=').replace(/[≥]/g, '>=').replace(/[→]/g, '->').replace(/[^\x09\x0a\x0d\x20-\x7e\xa0-\xff]/g, '?');
+  async function blobImage(b) {
+    const bmp = await createImageBitmap(b);
+    const c = document.createElement('canvas'); const k = Math.min(1, 1400 / bmp.width);
+    c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+    const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(bmp, 0, 0, c.width, c.height);
+    return { url: c.toDataURL('image/jpeg', 0.85), w: c.width, h: c.height };
+  }
+  P.exportAnswers = async function (src, opts) {
+    opts = opts || {};
+    const p = st().portal.papers[src.paper];
+    C.toast('Making the PDF…');
+    await C.loadScript(JSPDF);
+    const doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
+    const W = 210, H = 297, M0 = 16, CW = W - 2 * M0;
+    let y = M0;
+    const room = (h) => { if (y + h > H - M0) { doc.addPage(); y = M0; } };
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(17); doc.text(pdfSafe(p.title), M0, y + 6); y += 12;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(110);
+    doc.text(pdfSafe((opts.blank ? 'Questions with answer space' : 'Questions and my answers') + ' · ' + U.fmt(U.today(), { day: 'numeric', month: 'long', year: 'numeric' }) + (src.used ? ' · ' + Math.round(src.used / 60) + ' min used' : '')), M0, y); y += 8;
+    doc.setTextColor(0);
+    for (const i of src.qs) {
+      const q = p.questions[i];
+      const imgs = [];
+      for (const b of await P.questionImages(p.id, i).catch(() => [])) imgs.push(await blobImage(b));
+      // Keep the heading with the start of the question.
+      const first = imgs[0] ? Math.min(imgs[0].h * CW / imgs[0].w, H - 2 * M0 - 10) : 10;
+      room(14 + Math.min(first, 120));
+      doc.setDrawColor(200); doc.line(M0, y, W - M0, y); y += 7;
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.text('Question ' + pdfSafe(q.n) + (q.marks ? '  (' + q.marks + ' mark' + (q.marks === 1 ? '' : 's') + ')' : ''), M0, y); y += 5;
+      for (const im of imgs) {
+        let w = CW, h = im.h * w / im.w;
+        if (h > H - 2 * M0 - 10) { h = H - 2 * M0 - 10; w = im.w * h / im.h; }
+        room(h + 2); doc.addImage(im.url, 'JPEG', M0, y, w, h); y += h + 3;
+      }
+      if (!imgs.length) { doc.setFont('helvetica', 'italic'); doc.setFontSize(10); doc.text('(The question PDF is not on this device.)', M0, y + 4); y += 8; }
+      room(16);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(120, 90, 220); doc.text('Answer', M0, y + 4); doc.setTextColor(0); y += 8;
+      const ans = opts.blank ? '' : typedAnswer(src, i);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(11);
+      if (ans) {
+        doc.splitTextToSize(pdfSafe(ans), CW).forEach(function (line) { room(6); doc.text(line, M0, y + 4); y += 5.6; });
+        y += 2;
+      }
+      const photos = !opts.blank && src.hw ? (await hwList(src, i)).concat(src.hw.all && i === src.qs[src.qs.length - 1] ? await hwList(src, 'all') : []) : [];
+      for (const b of photos) {
+        const im = await blobImage(b).catch(() => null); if (!im) continue;
+        let w = CW * 0.8, h = im.h * w / im.w;
+        if (h > 150) { h = 150; w = im.w * h / im.h; }
+        room(h + 2); doc.addImage(im.url, 'JPEG', M0, y, w, h); y += h + 3;
+      }
+      if (!ans && !photos.length) {
+        // Blank lined answer space, sized to the marks.
+        const lines = Math.max(4, Math.min(24, (q.marks || 3) * 2));
+        doc.setDrawColor(190);
+        for (let k = 0; k < lines; k++) { room(8); y += 8; doc.line(M0, y, W - M0, y); }
+        y += 4;
+      }
+      y += 4;
+    }
+    const name = (p.title || 'paper').replace(/[^\w\- ]+/g, '').trim().replace(/\s+/g, '-').toLowerCase().slice(0, 60) + (opts.blank ? '-answer-space' : '-my-answers') + '.pdf';
+    await C.saveFile(name, doc.output('blob'), 'application/pdf');
+  };
+  RH.actions['ans-export'] = function (el) {
+    const which = el.dataset.v, s = st();
+    let src;
+    if (which === 'live') src = s.portal.live;
+    else if (which === 'mark') src = s.portal.marking;
+    else { const p = s.portal.papers[el.dataset.id]; src = { paper: p.id, qs: p.questions.map((q, i) => i) }; }
+    if (!src) return;
+    P.exportAnswers(src, { blank: which === 'blank' }).catch((e) => C.toast('Could not make the PDF: ' + (e && e.message || 'unknown error')));
+  };
+
   RH.views.exam = function () {
     const L = live();
     if (!L) return C.empty('No exam in progress.', 'Start one from the exam centre.', '<a class="btn" href="#papers">Exam centre</a>');
@@ -8096,7 +8517,7 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
       '<div class="ex-q-head"><h1>Question ' + esc(q.n) + '</h1><span class="muted">' + (q.marks == null ? '' : U.plural(q.marks, 'mark')) + (sugg ? ' · aim for ' + U.mins(Math.round(sugg / 60)) : '') + '</span></div>' +
       (q.choice ? '<p class="note choice-note">' + C.icon('flag') + esc(choiceNote(p, q)) + '</p>' : '') +
       '<div class="qcrop paper-sheet" data-qdraw="' + L.current + '" data-paper="' + p.id + '"></div>' +
-      '<details class="fold-lite"' + (L.notes[L.current] ? ' open' : '') + '><summary>Type working or an answer</summary><textarea id="ex-notes" data-exnote="' + L.current + '" rows="4" placeholder="Optional. Most people write on paper and photograph it at the end.">' + esc(L.notes[L.current] || '') + '</textarea></details>' +
+      answerSheet(L, p, q) +
       '<div class="q-actions"><button type="button" class="btn alt" data-action="exam-go" data-i="' + (L.qs[pos - 1] != null ? L.qs[pos - 1] : '') + '"' + (pos > 0 ? '' : ' disabled') + '>' + C.icon('left') + 'Previous</button>' +
       (pos < L.qs.length - 1 ? '<button type="button" class="btn" data-action="exam-done">' + (L.done[L.current] ? 'Next' : 'Done, next') + C.icon('right') + '</button>' : '<button type="button" class="btn" data-action="exam-finish">Finish' + C.icon('tick') + '</button>') + '</div>') + '</section>';
     html += '<aside class="ex-side" aria-label="Exam controls"><p class="ex-title">' + esc(p.title) + '</p><div class="ex-clock"><span class="num" id="ex-left">' + RH.timer.fmt(leftSec(L)) + '</span><span class="small" id="ex-pace"></span></div><div class="meter exam-meter"><span id="ex-meter" style="width:0%"></span></div>' +
@@ -8108,6 +8529,7 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
       '<div class="ex-tools"><button type="button" class="btn alt sm' + (L.flags[L.current] ? ' on' : '') + '" data-action="exam-flag">' + C.icon('flag') + (L.flags[L.current] ? 'Flagged' : 'Flag') + '</button>' +
       (L.strict ? '' : '<button type="button" class="btn alt sm" data-action="exam-pause">' + C.icon(L.paused ? 'play' : 'pause') + (L.paused ? 'Resume' : 'Pause') + '</button>') +
       '<button type="button" class="btn alt sm" data-action="exam-full" aria-label="Full screen">' + C.icon('expand') + '</button></div>' +
+      '<button type="button" class="btn alt sm block" data-action="ans-export" data-v="live">' + C.icon('download') + 'Export questions + answers</button>' +
       '<button type="button" class="btn block" data-action="exam-finish">' + C.icon('tick') + 'Finish and hand in</button>' +
       (L.strict ? '<p class="help center">Exam conditions: no pausing.</p>' : '') + '</aside></div>';
     return html;
@@ -8149,7 +8571,7 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
       if (!L) return;
       if (!L.paused) L.timeOn[L.current] = (L.timeOn[L.current] || 0) + (Date.now() - L.since) / 1000;
       const left = L.paused ? L.pausedLeft : Math.max(0, (L.endsAt - Date.now()) / 1000);
-      s.portal.marking = { paper: L.paper, single: L.single, qs: L.qs, used: Math.round(L.dur - left), dur: Math.round(L.dur / 60), timeOn: L.timeOn, notes: L.notes, scores: {}, msPage: null, current: L.qs[0], logMistakes: true, hw: {}, ai: L.ai, fb: {} };
+      s.portal.marking = { paper: L.paper, single: L.single, qs: L.qs, used: Math.round(L.dur - left), dur: Math.round(L.dur / 60), timeOn: L.timeOn, notes: L.notes, mc: L.mc || {}, scores: {}, msPage: null, current: L.qs[0], logMistakes: true, hw: {}, ai: L.ai, fb: {} };
       s.portal.live = null;
     });
     location.hash = 'handin';
@@ -8186,7 +8608,7 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
       const q = p.questions[i];
       return '<li><span class="hl-q"><b>Q' + esc(q.n) + '</b><span class="muted small">' + (q.marks == null ? '' : U.plural(q.marks, 'mark')) + '</span></span>' + hwThumbs(i) + '<label class="btn alt sm file-btn">' + C.icon('camera') + (K.hw[i] ? U.plural(K.hw[i], 'photo') : 'Add photo') + '<input type="file" accept="image/*" capture="environment" multiple data-hwq="' + i + '"></label></li>';
     }).join('') + '</ul>';
-    html += '<div class="sit-go"><div><b>Ready to mark?</b><span class="muted">' + U.plural(Object.keys(K.hw).reduce((a, k) => a + K.hw[k], 0), 'photo') + ' handed in</span></div><a class="btn lg" href="#mark">Go to marking' + C.icon('right') + '</a></div></section>';
+    html += '<div class="sit-go"><div><b>Ready to mark?</b><span class="muted">' + U.plural(Object.keys(K.hw).reduce((a, k) => a + K.hw[k], 0), 'photo') + ' handed in</span></div><span class="row-actions"><button type="button" class="btn alt" data-action="ans-export" data-v="mark">' + C.icon('download') + 'Export PDF</button><a class="btn lg" href="#mark">Go to marking' + C.icon('right') + '</a></span></div></section>';
     return html;
   };
   RH.onChange.push(function (el) {
@@ -8212,9 +8634,9 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
     const tt = totals(p, K.qs, K.scores), total = tt.max, score = tt.score;
     const msPage = K.msPage != null ? K.msPage : (q.ms != null ? q.ms : 0);
     const mpm = p.marks ? p.dur / p.marks : 1.2;
-    const hasAns = (K.hw && (K.hw[K.current] || K.hw.all)) || K.notes[K.current];
+    const hasAns = (K.hw && (K.hw[K.current] || K.hw.all)) || typedAnswer(K, K.current);
     let html = C.crumbs([['Exam centre', 'papers'], [p.title, 'paper-' + p.id], ['Marking']]);
-    html += C.page({ title: 'Marking', lede: esc(p.title) + ' · <b class="num">' + score + ' / ' + total + '</b>' + (total ? ' so far' : ''), actions: '<a class="btn alt" href="#handin">' + C.icon('camera') + 'Photos</a><button type="button" class="btn" data-action="mark-save">' + C.icon('tick') + 'Save result</button>' });
+    html += C.page({ title: 'Marking', lede: esc(p.title) + ' · <b class="num">' + score + ' / ' + total + '</b>' + (total ? ' so far' : ''), actions: '<a class="btn alt" href="#handin">' + C.icon('camera') + 'Photos</a><button type="button" class="btn alt" data-action="ans-export" data-v="mark">' + C.icon('download') + 'Export PDF</button><button type="button" class="btn" data-action="mark-save">' + C.icon('tick') + 'Save result</button>' });
     html += '<nav class="mark-nav">' + K.qs.map((i) => {
       const qq = p.questions[i], has = K.scores[i] != null && K.scores[i] !== '';
       return '<button type="button" class="qchip wide' + (i === K.current ? ' on' : '') + (has ? ' done' : '') + '" data-action="mark-go" data-i="' + i + '"><b>Q' + esc(qq.n) + '</b><span class="num small">' + (has ? K.scores[i] : '–') + '/' + (qq.marks == null ? '?' : qq.marks) + '</span></button>';
@@ -8222,7 +8644,7 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
     const t = K.timeOn[K.current] || 0, sugg = q.marks ? q.marks * mpm * 60 : 0;
     html += '<div class="mark-cols"><section class="card"><div class="q-head"><h2>Question ' + esc(q.n) + '</h2><span class="muted small">' + RH.timer.fmt(t) + ' spent' + (sugg && t > sugg * 1.3 ? ' · <span class="pace-bad">longer than the ' + U.mins(Math.round(sugg / 60)) + ' it’s worth</span>' : '') + '</span></div>' +
       '<div class="qcrop paper-sheet" data-qdraw="' + K.current + '" data-paper="' + p.id + '"></div>' +
-      '<p class="label">Your answer</p>' + hwThumbs(K.current) + (K.hw && K.hw.all ? hwThumbs('all') : '') + (K.notes[K.current] ? '<div class="tip"><p>' + esc(K.notes[K.current]) + '</p></div>' : '') + (hasAns ? '' : '<p class="muted small">No photo for this question. <a href="#handin">Add one</a>, or mark from memory.</p>') +
+      '<p class="label">Your answer</p>' + hwThumbs(K.current) + (K.hw && K.hw.all ? hwThumbs('all') : '') + (typedAnswer(K, K.current) ? '<div class="typed-ans"><p>' + esc(typedAnswer(K, K.current)).replace(/\n/g, '<br>') + '</p></div>' : '') + (hasAns ? '' : '<p class="muted small">No photo for this question. <a href="#handin">Add one</a>, or mark from memory.</p>') +
       (K.fb && K.fb[K.current] ? '<div class="note ok-n ai-fb">' + C.icon('spark') + '<div>' + K.fb[K.current] + '</div></div>' : '') +
       '<div class="score-row"><label for="mk-score"><b>Marks</b></label><input id="mk-score" type="number" min="0" max="' + (q.marks || 200) + '" data-mscore="' + K.current + '" value="' + (K.scores[K.current] != null ? esc(K.scores[K.current]) : '') + '" inputmode="numeric"><span class="num">/ ' + (q.marks == null ? '?' : q.marks) + '</span>' +
       '<button type="button" class="btn alt sm" data-action="mark-full" data-i="' + K.current + '">Full</button><button type="button" class="btn alt sm" data-action="mark-zero" data-i="' + K.current + '">0</button>' +
@@ -8238,13 +8660,21 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
   // Claude marks one answer: the question, your photos or typed answer, and the mark scheme page.
   async function aiMark(i) {
     const K = st().portal.marking, p = st().portal.papers[K.paper], q = p.questions[i];
-    const imgs = (await P.questionImages(p.id, i)).slice(0, 2);
-    const ans = (await hwList(K, i)).concat(K.hw && K.hw.all ? await hwList(K, 'all') : []).slice(0, 3);
-    const ms = q.ms != null && p.msFile ? await P.msImage(p.id, q.ms) : null;
-    const all = imgs.concat(ans).concat(ms ? [ms] : []).slice(0, Math.max(1, RH.ai.maxImages()));
+    const max = RH.ai.maxImages();
+    const imgs = max ? (await P.questionImages(p.id, i).catch(() => [])).slice(0, 2) : [];
+    const ans = max ? (await hwList(K, i)).concat(K.hw && K.hw.all ? await hwList(K, 'all') : []).slice(0, 3) : [];
+    const ms = max && q.ms != null && p.msFile ? await P.msImage(p.id, q.ms) : null;
+    const all = imgs.concat(ans).concat(ms ? [ms] : []).slice(0, max);
+    const qText = await P.questionText(p.id, i).catch(() => '');
+    const msText = q.ms != null && p.msFile ? await P.msText(p.id, q.ms).catch(() => '') : '';
+    const typed = typedAnswer(K, i);
+    if (!typed && !(ans.length && all.length > imgs.length)) throw { code: 'no_answer', message: max ? 'Add a photo of your answer or type it first.' : 'Photos can’t be sent to Claude from here. Type your answer in the box on the paper, then mark again.' };
     const subj = p.subject && M.subject[p.subject] ? M.subject[p.subject].name : 'A-level';
-    const prompt = 'You are an experienced ' + subj + ' examiner. Mark one exam answer.\n\nImages, in order: ' + imgs.length + ' of the question (question ' + q.n + (q.marks ? ', ' + q.marks + ' marks' : '') + ')' + (ans.length ? ', then ' + ans.length + ' photo(s) of the student’s handwritten answer' + (K.hw && K.hw.all ? ' (one photo may cover several questions: mark only question ' + q.n + ')' : '') : '') + (ms ? ', then the mark scheme page' : '') + '.' +
-      (K.notes[i] ? '\n\nThe student also typed: """' + K.notes[i] + '"""' : '') +
+    const sentAns = all.filter((b) => ans.indexOf(b) !== -1).length, sentQ = all.filter((b) => imgs.indexOf(b) !== -1).length;
+    const prompt = 'You are an experienced ' + subj + ' examiner. Mark one exam answer.\n\nQuestion ' + q.n + (q.marks ? ' (' + q.marks + ' marks)' : '') + (qText ? ', as text read from the PDF (diagrams and some symbols may be missing):\n"""' + qText + '"""' : '') +
+      (all.length ? '\n\nImages, in order: ' + (sentQ ? sentQ + ' of the question' : '') + (sentAns ? (sentQ ? ', then ' : '') + sentAns + ' photo(s) of the student’s handwritten answer' + (K.hw && K.hw.all ? ' (one photo may cover several questions: mark only question ' + q.n + ')' : '') : '') + (ms && all.indexOf(ms) !== -1 ? ', then the mark scheme page' : '') + '.' : '') +
+      (typed ? '\n\nThe student’s answer:\n"""' + typed + '"""' : '') +
+      (msText && !(ms && all.indexOf(ms) !== -1) ? '\n\nMark scheme page text (it may cover other questions too; use only question ' + q.n + '):\n"""' + msText + '"""' : '') +
       '\n\nAward marks strictly by the mark scheme if you have it, otherwise by standard ' + subj + ' marking. Reply with JSON only: {"score": number, "max": number, "feedback": "two or three short sentences: what earned marks and the one thing that would have got the next mark"}';
     return RH.ai.ask(prompt, { json: true, images: all, effort: 'high' });
   }
@@ -8510,6 +8940,11 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
   function paintDock() {
     const L = live(), on = !!(L && L.ai && location.hash === '#exam' && !L.paused);
     dock.hidden = !on;
+    // On wide screens an open chat sits in the side column under the clock, so it never covers the controls.
+    const side = document.querySelector('.ex-side'), inSide = on && RH.ui.chatOpen && side && window.innerWidth > 1000;
+    if (inSide && dock.parentNode !== side) side.appendChild(dock);
+    else if (!inSide && dock.parentNode !== document.body) document.body.appendChild(dock);
+    dock.classList.toggle('in-side', !!inSide);
     if (!on) return;
     const p = st().portal.papers[L.paper], q = p && p.questions[L.current];
     if (!RH.ui.chatOpen) { dock.innerHTML = '<button type="button" class="ai-fab" data-action="chat-toggle">' + C.icon('spark') + '<span>Ask Claude</span></button>'; return; }
@@ -8528,12 +8963,19 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
     msgs.push({ role: 'user', content: text.trim() });
     const reply = { role: 'assistant', content: '' };
     msgs.push(reply); paintDock();
-    const intro = 'You are a friendly A-level ' + (p.subject && M.subject[p.subject] ? M.subject[p.subject].name : '') + ' tutor helping a student during a timed practice question (question ' + q.n + (q.marks ? ', ' + q.marks + ' marks' : '') + ', shown in the image). Give hints and explain ideas briefly. Do not write out the full answer unless the student asks for it. Keep replies under 120 words.\n\n';
+    const max = RH.ai.maxImages();
+    const imgs = max ? (await P.questionImages(p.id, L.current).catch(() => [])).slice(0, max) : [];
+    const qText = await P.questionText(p.id, L.current).catch(() => '');
+    const typed = typedAnswer(L, L.current);
+    const intro = 'You are a friendly A-level ' + (p.subject && M.subject[p.subject] ? M.subject[p.subject].name + ' ' : '') + 'tutor helping a student during a timed practice question: question ' + q.n + (q.marks ? ' (' + q.marks + ' marks)' : '') + ' of ' + p.title + '.' +
+      (imgs.length ? ' The question is in the attached image' + (imgs.length > 1 ? 's' : '') + '.' : '') +
+      (qText ? '\n\nThe question as text read from the PDF (diagrams and some symbols may be missing):\n"""' + qText + '"""' : (imgs.length ? '' : ' You can’t see the question, so ask the student to type the part they are stuck on.')) +
+      (typed ? '\n\nWhat the student has written so far:\n"""' + typed + '"""' : '') +
+      '\n\nGive hints and explain ideas briefly. Do not write out the full answer unless the student asks for it. Keep replies under 120 words.\n\n';
     const turns = msgs.slice(0, -1).map((m, k) => ({ role: m.role, content: (k === 0 ? intro : '') + m.content }));
     try {
-      const imgs = await P.questionImages(p.id, L.current).catch(() => []);
-      const out = await RH.ai.ask(turns, { images: imgs.slice(0, Math.max(0, RH.ai.maxImages())), effort: 'low', onText: (x) => { reply.content = x.text; const b = document.getElementById('aiMsgs'); if (b && b.lastElementChild) { b.lastElementChild.innerHTML = fmtMsg(x.text); b.scrollTop = b.scrollHeight; } } });
-      reply.content = out || reply.content;
+      const out = await RH.ai.ask(turns, { images: imgs, effort: 'low', onText: (x) => { reply.content = x.text; const b = document.getElementById('aiMsgs'); if (b && b.lastElementChild) { b.lastElementChild.innerHTML = fmtMsg(x.text); b.scrollTop = b.scrollHeight; } } });
+      reply.content = out || reply.content || 'No reply came back. Try again.';
     } catch (e) { reply.content = RH.ai.errorText(e); }
     paintDock();
   }
@@ -8550,7 +8992,7 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
     if (ev.key === 'f' || ev.key === 'F') { RH.actions['exam-flag'](); return true; }
     return false;
   };
-  P.detect = detect; P.meta = meta; P.readPdf = readPdf;
+  P.detect = detect; P.meta = meta; P.readPdf = readPdf; P.packSplit = packSplit;
 })(window.RH = window.RH || {});
 </script>
 <script>
@@ -9165,8 +9607,9 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
     } catch (e) { g.fillStyle = '#ddd'; g.fillRect(0, 0, W, H); }
     return (thumbs[id] = c.toDataURL('image/png'));
   }
+  LB.thumb = thumb;
   RH.afterRender.push(function (r) {
-    if (r !== 'labs') return;
+    if (r !== 'labs' && r !== 'home') return;
     const list = Array.prototype.slice.call(document.querySelectorAll('canvas[data-labthumb]'));
     let i = 0;
     (function next() {
@@ -12708,45 +13151,62 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
   const st = () => RH.store.state;
   const V = RH.views;
 
+  // One row: what it is on the left, the control on the right.
+  const row = (title, help, control, cls) => '<div class="set-row' + (cls ? ' ' + cls : '') + '"><div class="sr-t"><b>' + title + '</b>' + (help ? '<span>' + help + '</span>' : '') + '</div><div class="sr-c">' + control + '</div></div>';
+  const group = (id, icon, title, body) => '<section class="set-group" id="set-' + id + '"><h2>' + C.icon(icon) + title + '</h2><div class="set-card">' + body + '</div></section>';
+  const SECTIONS = [['profile', 'user', 'Profile'], ['look', 'sun', 'Appearance'], ['study', 'book', 'Studying'], ['claude', 'spark', 'Claude'], ['fm', 'list', 'Further Maths'], ['data', 'download', 'Your data'], ['about', 'info', 'About']];
+
   V.prefs = function () {
     const s = st(), sync = RH.store.sync, ai = RH.ai, cfg = ai.cfg();
-    const syncText = sync === 'cloud' ? 'Saved to your Claude account. Your progress follows you to any device where you open this page.'
-      : sync === 'cloud-full' ? 'Saved in this browser. Some data is too big to sync, so export a backup regularly.'
+    const syncText = sync === 'cloud' ? 'Saved to your Claude account and synced to any device where you open this page.'
+      : sync === 'cloud-full' ? 'Saved in this browser. Some data is too big to sync, so export a backup now and then.'
       : sync === 'cloud-error' ? 'Saved in this browser. Syncing failed this time and will retry on your next change.'
       : 'Saved in this browser on this device. Export a backup to move it to another device.';
-    let html = C.page({ title: 'Settings' });
     const AC = RH.account || {}, me = AC.me;
-    const pic = me && me.avatarUrl && me.name ? '<img src="' + esc(me.avatarUrl) + '" alt="">' : esc((s.profile.name || '?').charAt(0).toUpperCase());
-    html += '<section class="card acct-card"><div class="acct-row"><span class="av lg">' + pic + '</span><span class="acct-t"><b>' + esc(s.profile.name || (me && me.name) || 'Your account') + '</b><span>' +
-      (AC.inClaude ? (me && me.name ? 'Signed in to Claude as ' + esc(me.name) : 'Signed in with your Claude account') + (sync === 'cloud' ? ' · progress synced' : '') : 'Saved on this device only') + '</span></span>' +
-      '<div class="row-actions"><a class="btn alt sm" href="#subjects">Choose subjects</a><a class="btn alt sm" href="#setup">Run setup again</a><a class="btn ghost sm" href="#welcome">Sign-in page</a></div></div></section>';
-    html += '<div class="grid-2"><section class="card"><div class="card-head"><h2>You</h2></div><div class="form-grid">' +
-      '<label class="field"><span>First name</span><input id="pref-name" data-pref="name" value="' + esc(s.profile.name) + '" autocomplete="given-name"></label>' +
-      '<label class="field"><span>Most flashcards per review</span><input id="pref-cards" type="number" min="5" max="500" data-prefnum="cardsDaily" value="' + (s.prefs.cardsDaily || 50) + '"></label></div>' +
-      '<div class="field"><span>Theme</span>' + C.seg([['system', 'Match device'], ['light', 'Light'], ['dark', 'Dark']], s.profile.theme, 'data-action="theme"') + '</div></section>';
+    const pic = me && me.avatarUrl && me.name ? '<img src="' + esc(me.avatarUrl) + '" alt="">' : esc((s.profile.name || (me && me.name) || '?').charAt(0).toUpperCase());
+    const hasFM = RH.model.isMine(RH.model.subject.further);
+    const secs = SECTIONS.filter((x) => x[0] !== 'fm' || hasFM);
+    let html = '<div class="set-wrap"><nav class="set-nav" aria-label="Settings sections"><p class="kicker">Settings</p>' + secs.map((x) => '<button type="button" data-action="set-jump" data-v="' + x[0] + '">' + C.icon(x[1]) + x[2] + '</button>').join('') + '</nav><div class="set-main">';
+
+    // Profile header
+    html += '<section class="set-hero"><span class="av xl">' + pic + '</span><div class="sh-t"><h1>' + esc(s.profile.name || (me && me.name) || 'Your account') + '</h1><p>' +
+      (AC.inClaude ? (me && me.name ? 'Signed in to Claude as ' + esc(me.name) : 'Signed in with your Claude account') + (sync === 'cloud' ? ' · progress synced' : '') : 'Saved on this device only') + '</p></div>' +
+      '<div class="sh-acts"><a class="btn white sm" href="#setup">' + C.icon('rebuild') + 'Run setup again</a></div><span class="orb o1"></span><span class="orb o2"></span></section>';
+
+    html += group('profile', 'user', 'Profile',
+      row('First name', 'Used to greet you on Home.', '<input id="pref-name" data-pref="name" value="' + esc(s.profile.name) + '" autocomplete="given-name" aria-label="First name">') +
+      row('Subjects', U.plural(RH.model.subjects.length, 'subject') + ': ' + esc(RH.model.subjects.map((x) => x.name).join(', ')), '<a class="btn alt sm" href="#subjects">Change' + C.icon('right', 'i-sm') + '</a>') +
+      row('Sign-in page', 'See the welcome screen again.', '<a class="btn ghost sm" href="#welcome">Open</a>'));
+
+    html += group('look', 'sun', 'Appearance', row('Theme', 'Match your device, or pick one.', C.seg([['system', 'Device'], ['light', 'Light'], ['dark', 'Dark']], s.profile.theme, 'data-action="theme"')));
+
+    html += group('study', 'book', 'Studying',
+      row('Flashcards per review', 'The most cards in one review session.', '<input id="pref-cards" class="num-in" type="number" min="5" max="500" data-prefnum="cardsDaily" value="' + (s.prefs.cardsDaily || 50) + '" aria-label="Flashcards per review">') +
+      row('My schedule', 'School, clubs and how much you want to revise each day.', '<a class="btn alt sm" href="#routine">Edit' + C.icon('right', 'i-sm') + '</a>'));
 
     // Claude
-    html += '<section class="card"><div class="card-head"><h2>' + C.icon('spark') + 'Claude</h2>' + C.chip(ai.status() === 'claude' || ai.status() === 'api' ? 'Connected' : ai.status() === 'pending' ? 'Connecting' : 'Not connected', ai.status() === 'claude' || ai.status() === 'api' ? 'ok' : '') + '</div>';
-    if (ai.inClaude) {
-      html += '<p class="muted">Inside claude.ai the hub uses Claude from your own account to mark answers and verify hand-ins. Each check uses some of your Claude usage. The first time, claude.ai asks you to allow it.</p>' +
-        '<div class="row-actions"><button type="button" class="btn alt sm" data-action="perm-manage">Manage permissions</button></div>';
-    } else {
-      html += '<p class="muted">Outside claude.ai, the checker uses an Anthropic API key. Create one with a monthly spending limit at <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>. A typical marked answer costs a few pence.</p>' +
-        '<form id="aiForm" class="stack-form"><label class="field"><span>API key</span><input type="password" name="key" id="ai-key" autocomplete="off" placeholder="' + (cfg.key ? 'Saved: ••••' + esc(cfg.key.slice(-4)) : 'sk-ant-…') + '"></label>' +
-        '<label class="field"><span>Model</span><select name="model" id="ai-model">' + C.opts(ai.MODELS.map((m) => [m[0], m[1] + ' — ' + m[2]]), cfg.model || ai.MODELS[0][0]) + '</select></label>' +
-        '<div class="row-actions"><button type="submit" class="btn">Save</button>' + (cfg.key ? '<button type="button" class="btn alt" data-action="ai-test">Test connection</button><button type="button" class="btn ghost danger-t" data-action="ai-forget">Remove key</button>' : '') + '</div>' +
-        '<p class="help">The key is kept only in this browser. It is never synced, backed up or put in the page. Anyone using this browser profile could use it.</p></form>';
-    }
-    html += '</section></div>';
-    html += V.fmOptionsCard();
-    html += '<section class="card"><div class="card-head"><h2>Your data</h2></div><p class="note ' + (sync === 'cloud' ? 'ok-n' : '') + '">' + esc(syncText) + '</p><p class="muted small">Exam PDFs, photos of your work and the focus tracker video stay on this device. Ratings, notes, plans, routine, deliverables, flashcards, scores and checked answers are in backups.</p>' +
-      '<div class="row-actions"><button type="button" class="btn alt" data-action="export-json">' + C.icon('download') + 'Export backup</button>' +
-      '<label class="btn alt file-btn">' + C.icon('upload') + 'Import backup<input type="file" accept=".json,application/json" id="importFile"></label>' +
-      '<button type="button" class="btn ghost danger-t" data-action="reset-all">' + C.icon('trash') + 'Reset everything</button></div>' +
-      '<details class="fold-lite"><summary>Paste a backup instead</summary><textarea id="importText" rows="4" placeholder="Paste the contents of a backup file"></textarea><button type="button" class="btn sm" data-action="import-text">Import pasted backup</button></details></section>';
-    html += '<section class="card"><div class="card-head"><h2>About</h2></div><p class="small muted">Topics follow the Pearson Edexcel specifications: Physics 9PH0, Mathematics 9MA0, Further Mathematics 9FM0 and Economics A 9EC0. Videos and resources come from Mr Gale’s Resources, Physics & Maths Tutor, Mad Asmaths, Bicen Maths, 1st Class Maths, TLMaths, ExamSolutions, EconplusDal, Physics Online, Physics With Mr Gill, Cognito, Save My Exams, tutor2u and others.</p></section>';
-    return html;
+    const conn = ai.status() === 'claude' || ai.status() === 'api';
+    let cl = row('Status', conn ? ai.label() : ai.inClaude ? 'Claude starts the first time you ask it for a hint or a mark.' : 'Add an API key below, or open the hub in claude.ai.', C.chip(conn ? 'Connected' : ai.status() === 'pending' ? 'Connecting' : 'Not connected', conn ? 'ok' : ''));
+    if (ai.inClaude) cl += row('Permissions', 'The hub uses Claude from your own account for hints and marking. claude.ai asks the first time.', '<button type="button" class="btn alt sm" data-action="perm-manage">Manage</button>');
+    else cl += '<form id="aiForm" class="set-form">' + row('API key', 'Outside claude.ai the hub needs an Anthropic API key. Make one with a spending limit at <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>. It stays in this browser only.', '<input type="password" name="key" id="ai-key" autocomplete="off" placeholder="' + (cfg.key ? 'Saved: ••••' + esc(cfg.key.slice(-4)) : 'sk-ant-…') + '" aria-label="API key">') +
+      row('Model', 'Opus marks most carefully; Haiku is cheapest.', '<select name="model" id="ai-model" aria-label="Model">' + C.opts(ai.MODELS.map((m) => [m[0], m[1]]), cfg.model || ai.MODELS[0][0]) + '</select>') +
+      '<div class="set-row sr-end"><div class="row-actions">' + (cfg.key ? '<button type="button" class="btn ghost sm danger-t" data-action="ai-forget">Remove key</button><button type="button" class="btn alt sm" data-action="ai-test">Test</button>' : '') + '<button type="submit" class="btn sm">Save</button></div></div></form>';
+    html += group('claude', 'spark', 'Claude', cl);
+
+    if (hasFM) html += '<section class="set-group" id="set-fm"><h2>' + C.icon('list') + 'Further Maths options</h2>' + V.fmOptionsCard() + '</section>';
+
+    html += group('data', 'download', 'Your data',
+      '<div class="set-row sr-note' + (sync === 'cloud' ? ' ok' : '') + '">' + C.icon(sync === 'cloud' ? 'tick' : 'info') + '<span>' + esc(syncText) + '</span></div>' +
+      row('Back up', 'Ratings, notes, plans, flashcards and scores. Exam PDFs and photos stay on this device.', '<button type="button" class="btn alt sm" data-action="export-json">' + C.icon('download') + 'Export</button>') +
+      row('Restore', 'From a backup file, or <button type="button" class="btn link" data-action="set-paste">paste one</button>.', '<label class="btn alt sm file-btn">' + C.icon('upload') + 'Import<input type="file" accept=".json,application/json" id="importFile"></label>') +
+      (RH.ui.setPaste ? '<div class="set-row sr-col"><textarea id="importText" rows="4" placeholder="Paste the contents of a backup file" aria-label="Backup to import"></textarea><button type="button" class="btn sm" data-action="import-text">Import pasted backup</button></div>' : '') +
+      row('Reset everything', 'Deletes all your progress on this device. Export a backup first.', '<button type="button" class="btn ghost sm danger-t" data-action="reset-all">' + C.icon('trash') + 'Reset</button>', 'danger'));
+
+    html += group('about', 'info', 'About', '<div class="set-row sr-col"><p class="small muted">Topics follow the Pearson Edexcel and other boards’ specifications for the subjects you take. Videos and resources come from Mr Gale’s Resources, Physics & Maths Tutor, Mad Asmaths, Bicen Maths, 1st Class Maths, TLMaths, ExamSolutions, EconplusDal, Physics Online, Physics With Mr Gill, Cognito, Save My Exams, tutor2u and others.</p></div>');
+    return html + '</div></div>';
   };
+  RH.actions['set-jump'] = function (el) { const t = document.getElementById('set-' + el.dataset.v); if (t) t.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); };
+  RH.actions['set-paste'] = function () { RH.ui.setPaste = !RH.ui.setPaste; RH.render({ keepScroll: true }); };
 
   RH.onSubmit.aiForm = function (f) {
     const d = new FormData(f), cfg = RH.ai.cfg();
@@ -12821,7 +13281,7 @@ body.in-exam .view { max-width: 1280px; padding-top: 24px; }
     const t = r.indexOf('t-') === 0 && M.topic[r.slice(2)];
     const c = r.indexOf('c-') === 0 && M.comp[r.slice(2)];
     const s = r.indexOf('s-') === 0 && M.subject[r.slice(2)];
-    const names = { study: 'My Subjects', subjects: 'Choose subjects', plan: 'This week', deliverables: 'Weekly tasks', routine: 'My schedule', exams: 'Exams', strategy: 'Strategy', check: 'Check an answer', checks: 'Checked answers', focus: 'Focus', papers: 'Exam centre', exam: 'Exam in progress', mark: 'Marking', handin: 'Hand in', cards: 'Flashcards', review: 'Reviewing cards', library: 'Resources', guide: 'How to revise', preferences: 'Settings', labs: 'The Labs', welcome: 'Sign in', setup: 'Set up' };
+    const names = { study: 'My Subjects', subjects: 'Choose subjects', plan: 'Planner', deliverables: 'Weekly tasks', routine: 'My schedule', exams: 'Exams', strategy: 'Strategy', check: 'Check an answer', checks: 'Checked answers', focus: 'Focus', papers: 'Exam centre', exam: 'Exam in progress', mark: 'Marking', handin: 'Hand in', cards: 'Flashcards', review: 'Reviewing cards', library: 'Resources', guide: 'How to revise', preferences: 'Settings', labs: 'The Labs', welcome: 'Sign in', setup: 'Set up' };
     const lab = r.indexOf('lab-') === 0 && RH.labs.byId[r.slice(4)];
     const name = t ? t.name : c ? c.name : s ? s.name : lab ? lab.name : names[r];
     return (name ? name + ' · ' : '') + 'Preppr';

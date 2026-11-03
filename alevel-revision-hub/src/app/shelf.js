@@ -1,14 +1,13 @@
-/* My Subjects: a shelf of textbooks, one subject at a time. Each chapter is a book standing spine-out on an
-   endless shelf; the book in the middle turns to show its cover. Drag, scroll, use the arrows or ← →. Click the
-   cover and the book comes off the shelf and opens: the cover swings over, a few pages turn and settle, and the
-   chapter's lessons are on the right-hand page. Covers and spines are drawn here as SVG, so there are no images. */
+/* My Subjects: a bookshelf with one textbook per subject. Click a book and it comes off the shelf, the cover
+   swings open and a cascade of pages turns over to the contents: that subject's chapters. Pick a chapter and the
+   page turns to its topics; the back button turns it back. Covers are drawn here as SVG, so there are no images.
+   The open book lives on document.body (outside the glassy page), so it is fixed to the window and sized to fit. */
 (function (RH) {
   'use strict';
   const U = RH.util, M = RH.model, C = RH.c, esc = U.esc;
   const st = () => RH.store.state;
   const V = RH.views;
 
-  const COL = { physics: '#2F5BD8', maths: '#0E8A6E', further: '#7A4FD0', economics: '#E0662F' };
   const ABBR = { physics: 'PHY', maths: 'MATHS', further: 'F.MATHS', economics: 'ECON' };
   const abbr = (sub) => ABBR[sub.id] || sub.tag || sub.name.slice(0, 4).toUpperCase();
   const INK = '#221B45', CREAM = '#FBF6EC', VERM = '#F08A5D';
@@ -16,20 +15,6 @@
   const reduce = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const EASE = 'cubic-bezier(.2,.8,.2,1)';
 
-  // ---------- The books: the chapters of one subject ----------
-  function curSub(s) {
-    let id = RH.ui.shelfSub;
-    if (!id || !M.subject[id] || !M.isMine(M.subject[id])) {
-      const today = U.today(), sess = s.plan.sessions.find((x) => x.d >= today && !x.done && x.t && M.topic[x.t]);
-      id = sess && M.isMine(M.topic[sess.t].subject) ? M.topic[sess.t].subject.id : M.subjects[0].id;
-    }
-    RH.ui.shelfSub = id;
-    return M.subject[id];
-  }
-  function bookList(s) {
-    const sub = curSub(s);
-    return M.compsFor(s, sub, true).map((c, j) => ({ i: j, sub: sub, c: c, n: M.sectionNum(s, c), title: M.title(c.name), col: COL[sub.id] || sub.color || '#555', variant: j % 3 }));
-  }
   // Three print variants keep the shelf from looking uniform: colour cloth, cream board, ink board.
   function inks(b) {
     if (b.variant === 1) return { bg: CREAM, fg: INK, acc: b.col, alt: VERM };
@@ -129,13 +114,13 @@
     let lines = wrap(b.title.toUpperCase(), 12), fs = 54, lh = 58;
     if (lines.length > 3) { lines = wrap(b.title.toUpperCase(), 16); fs = 40; lh = 44; }
     const ty = 186, iy = ty + lines.length * lh + 6, ih = 790 - iy;
-    const lessons = b.c.topics.length;
+    const lessons = b.lessons;
     return '<rect width="474" height="900" fill="' + k.bg + '"/><rect width="12" height="900" fill="#000" opacity=".12"/>' +
       '<text x="36" y="56" font-family="' + SANS + '" font-weight="600" font-size="13" letter-spacing="3" fill="' + k.fg + '">PREPPR · A LEVEL</text>' +
       '<text x="440" y="56" text-anchor="end" font-family="' + SANS + '" font-weight="600" font-size="13" letter-spacing="2" fill="' + k.fg + '">' + esc(b.sub.spec) + '</text>' +
       '<rect x="36" y="72" width="404" height="2" fill="' + k.fg + '"/>' +
-      '<text x="36" y="108" font-family="' + SANS + '" font-weight="700" font-size="15" letter-spacing="3" fill="' + (k.acc === INK ? CREAM : k.acc) + '">' + esc(b.sub.name.toUpperCase()) + '</text>' +
-      '<text x="440" y="108" text-anchor="end" font-family="' + SERIF + '" font-weight="600" font-size="16" fill="' + k.fg + '">Chapter ' + esc(b.n) + '</text>' +
+      '<text x="36" y="108" font-family="' + SANS + '" font-weight="700" font-size="15" letter-spacing="3" fill="' + (k.acc === INK ? CREAM : k.acc) + '">' + b.chapters + ' CHAPTERS</text>' +
+      '<text x="440" y="108" text-anchor="end" font-family="' + SERIF + '" font-weight="600" font-size="16" fill="' + k.fg + '">' + esc(b.sub.board.replace('Pearson ', '')) + '</text>' +
       lines.map((l, i) => '<text x="34" y="' + (ty + i * lh) + '" font-family="' + SERIF + '" font-weight="700" font-size="' + fs + '" letter-spacing="-1.5" fill="' + k.fg + '"' + (l.length * fs * 0.64 > 404 ? ' textLength="404" lengthAdjust="spacingAndGlyphs"' : '') + '>' + esc(l) + '</text>').join('') +
       '<svg x="36" y="' + iy + '" width="402" height="' + ih + '" viewBox="0 0 402 ' + ih + '">' + illustration(b, k, 402, ih) + '</svg>' +
       '<rect x="36" y="808" width="404" height="2" fill="' + k.fg + '"/>' +
@@ -143,280 +128,222 @@
       '<rect x="356" y="830" width="84" height="32" fill="none" stroke="' + k.fg + '" stroke-width="2"/><text x="398" y="852" text-anchor="middle" font-family="' + SANS + '" font-weight="700" font-size="14" letter-spacing="2" fill="' + k.fg + '">A LVL</text>';
   }
 
-  // ---------- Page ----------
-  let books = [], N = 0;
-  let s = null, T = null, active = -1, shownSub = null;
-  function startIndex(s0) {
-    const today = U.today();
-    const sess = s0.plan.sessions.find((x) => x.d >= today && !x.done && x.t && M.topic[x.t] && M.topic[x.t].subject.id === RH.ui.shelfSub);
-    const comp = sess ? M.topic[sess.t].comp : null;
-    const i = comp ? books.findIndex((b) => b.c === comp) : -1;
-    return i < 0 ? 0 : i;
+
+  // ---------- The books: one per subject ----------
+  function bookFor(sub, i) {
+    const s0 = st(), comps = M.compsFor(s0, sub, true);
+    return { i: i, sub: sub, title: sub.name, n: '', col: C.scol(sub), variant: i % 3, lessons: M.subjectTopics(s0, sub).length, chapters: comps.length, comps: comps };
   }
-  function done(b) { return M.courseProgress(st(), b.c.topics); }
+  const books = () => M.subjects.map(bookFor);
+  const coverSVG = (b) => '<svg viewBox="0 0 474 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">' + coverInner(b) + '</svg>';
 
   V.study = function () {
-    const s0 = st();
-    books = bookList(s0); N = books.length;
-    const sub = M.subject[RH.ui.shelfSub];
-    if (shownSub !== sub.id || T == null || T >= N * 4 || T <= -N * 4) { T = s = startIndex(s0); shownSub = sub.id; }
-    const p = M.courseProgress(s0, M.subjectTopics(s0, sub));
-    let html = '<div class="shelf-hero" id="shelf" tabindex="-1" data-subj="' + sub.id + '">';
-    html += '<nav class="sh-tabs" aria-label="Subjects">' + M.subjects.map((x) => '<button type="button" class="sh-tab' + (x.id === sub.id ? ' on' : '') + '" data-tab="' + x.id + '" data-subj="' + x.id + '" aria-pressed="' + (x.id === sub.id) + '">' + esc(x.name) + '</button>').join('') + '</nav>';
-    html += '<p class="sh-sum"><b>' + esc(sub.name) + '</b> · ' + p.done + ' of ' + p.total + ' lessons done</p>';
-    html += '<section class="sh-shelf" aria-label="' + esc(sub.name) + ' textbooks"><div class="sh-stage">' + books.map((b) =>
-      '<div class="bk" data-v="' + b.i + '" role="button" tabindex="-1" aria-label="' + esc('Chapter ' + b.n + ': ' + b.title) + '"><div class="bk-f spn">' + spineSVG(b) + '</div><div class="bk-f cv">' + '<svg viewBox="0 0 474 900" aria-hidden="true">' + coverInner(b) + '</svg></div></div>').join('') + '</div><div class="sh-plank" aria-hidden="true"></div></section>';
-    html += '<button type="button" class="sh-play" aria-label="Open this book"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.5 L10.5 6 L3 10.5Z"/></svg></button>';
-    html += '<div class="sh-cap" aria-live="polite"><div class="sh-m sh-ms"></div><div class="sh-m sh-mt"></div><div class="sh-m sh-mm"></div></div>';
-    html += '<button type="button" class="sh-arrow prev" aria-label="Previous book">' + C.icon('left') + '</button><button type="button" class="sh-arrow next" aria-label="Next book">' + C.icon('right') + '</button>';
-    html += '<span class="sh-probe" aria-hidden="true"></span>';
-    html += '<div class="sh-cur" aria-hidden="true"><span class="sh-ring"></span><span class="sh-dot"></span><span class="sh-open">Open</span></div>';
-    html += '<div class="book-stage" id="bookStage" hidden></div>';
-    return html + '</div>';
+    const s0 = st(), list = books();
+    let html = '<section class="lib">';
+    html += '<header class="lib-head"><div><p class="kicker">My Subjects</p><h1>Your bookshelf</h1><p class="meta">One book for each subject. Open one to pick a chapter.</p></div><a class="btn alt" href="#subjects">' + C.icon('plus') + 'Change subjects</a></header>';
+    if (!list.length) return html + C.empty('No subjects yet.', 'Pick the subjects you take and they appear here as books.', '<a class="btn" href="#subjects">Choose subjects</a>') + '</section>';
+    html += '<div class="lib-shelf" role="list">' + list.map(function (b) {
+      const p = M.courseProgress(s0, M.subjectTopics(s0, b.sub));
+      return '<div class="slot" role="listitem"><button type="button" class="sbk" data-sub="' + b.sub.id + '" style="--c:' + b.col + '" aria-label="Open ' + esc(b.sub.name) + ': ' + p.done + ' of ' + p.total + ' lessons done">' +
+        '<span class="sbk-3d"><span class="sbk-spine" style="background:' + inks(b).bg + '"></span><span class="sbk-pages"></span><span class="sbk-cover">' + coverSVG(b) + '<i class="sbk-gloss"></i></span></span></button>' +
+        '<span class="slot-cap"><b>' + esc(b.sub.name) + '</b><span class="slot-bar"><i style="width:' + Math.round(p.frac * 100) + '%;background:' + b.col + '"></i></span><span class="muted small">' + p.done + ' / ' + p.total + ' lessons</span></span></div>';
+    }).join('') + '</div></section>';
+    return html;
   };
 
-  // ---------- Engine ----------
-  let root = null, stage = null, tapes = [], raf = 0, last = 0;
-  let H = 0, ws = 0, dd = 0, gap = 0, VW = 0;
-  let mx = -1e4, my = -1e4, cx = -1e4, cy = -1e4, tiltX = 0, tiltY = 0, onCover = false, isOpen = false;
-  let hover = -1, dragging = false, drag = null, suppress = false, wheelT = 0, curIn = false;
-  const lifts = [];
-  const sm = (x) => x * x * (3 - 2 * x);
-  const mod = (a, n) => ((a % n) + n) % n;
-  const Bf = (r) => Math.abs(r) < 1 ? (r + Math.sin(Math.PI * r) / Math.PI) / 2 : (r > 0 ? 0.5 : -0.5);
-  const Fx = (r) => r * (ws + gap) + (dd - ws + 1.6 * gap) * Bf(r);
-  const rel = (v) => mod(v - s + N / 2, N) - N / 2;
-
-  function measure() {
-    const probe = root.querySelector('.sh-probe');
-    H = probe.getBoundingClientRect().height;
-    VW = root.clientWidth;
-    ws = H * 142 / 840; dd = H * 474 / 900; gap = H * (VW < 700 ? 0.11 : 0.03);
-    stage.style.setProperty('--ws', ws + 'px');
-    stage.style.setProperty('--d', dd + 'px');
-    stage.style.setProperty('--h', H + 'px');
-    VW = root.clientWidth;
+  // ---------- Pages inside the book ----------
+  function introPage(b) {
+    const s0 = st(), p = M.courseProgress(s0, M.subjectTopics(s0, b.sub)), nx = M.nextLesson(s0, b.sub);
+    return '<div class="pg-in"><p class="ob-k">' + esc(b.sub.board) + ' · ' + esc(b.sub.spec) + '</p><h2>' + esc(b.sub.name) + '</h2>' +
+      '<div class="ob-ring">' + C.ring(p.frac, '<b>' + p.done + '</b>/' + p.total, 84) + '<span>' + U.plural(b.comps.length, 'chapter') + '<br>' + (p.done === p.total && p.total ? 'Every lesson done' : U.plural(p.total - p.done, 'lesson') + ' to go') + '</span></div>' +
+      '<div class="ob-acts">' + (nx ? '<a class="btn block" href="#t-' + nx.gid + '">' + (p.done ? 'Continue' : 'Start') + ': ' + esc(M.title(nx.name)) + C.icon('right') + '</a>' : '') + '<a class="btn alt block" href="#s-' + b.sub.id + '">Subject page</a></div></div>';
   }
-  function centre() { const r = root.querySelector('.sh-shelf').getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; }
-
-  // Caption: each line slides through its mask.
-  function swap(mask, html, dir) {
-    const span = document.createElement('span');
-    span.innerHTML = html;
-    const old = Array.prototype.filter.call(mask.children, (x) => !x.dataset.leaving);
-    mask.appendChild(span);
-    if (reduce() || !old.length) { old.forEach((x) => x.remove()); return; }
-    span.animate([{ transform: 'translateY(' + dir * 105 + '%)' }, { transform: 'translateY(0)' }], { duration: 650, easing: EASE, fill: 'both' });
-    old.forEach(function (x) {
-      x.dataset.leaving = '1';
-      const cur = getComputedStyle(x).transform;
-      x.animate([{ transform: cur === 'none' ? 'translateY(0)' : cur }, { transform: 'translateY(' + (-dir * 105) + '%)' }], { duration: 650, easing: EASE, fill: 'both' }).onfinish = () => x.remove();
-    });
+  function chaptersPage(b) {
+    const s0 = st();
+    return '<div class="pg-list"><p class="ob-k">Contents</p><h3>Chapters</h3><ol class="toc chs">' + b.comps.map(function (c, j) {
+      const p = M.courseProgress(s0, c.topics);
+      return '<li><button type="button" class="ch-b" data-ch="' + j + '"><span class="toc-n num">' + esc(M.sectionNum(s0, c)) + '</span><span class="toc-t">' + esc(M.title(c.name)) + '<span class="ch-m">' + U.plural(c.topics.length, 'topic') + (p.done ? ' · ' + p.done + ' done' : '') + '</span></span><span class="ch-bar"><i style="width:' + Math.round(p.frac * 100) + '%"></i></span></button></li>';
+    }).join('') + '</ol></div>';
   }
-  function setActive(i, dir) {
-    active = i;
-    const b = books[i], p = done(b);
-    swap(root.querySelector('.sh-mt'), esc(b.title), dir);
-    swap(root.querySelector('.sh-ms'), '<span style="color:' + b.col + '">Chapter ' + esc(b.n) + '</span>', dir);
-    swap(root.querySelector('.sh-mm'), U.plural(b.c.topics.length, 'lesson') + (p.done ? ' · ' + p.done + ' done' : ''), dir);
+  function chapterIntro(b, j) {
+    const s0 = st(), c = b.comps[j], p = M.courseProgress(s0, c.topics), nx = M.nextLesson(s0, b.sub, c.topics);
+    return '<div class="pg-in"><button type="button" class="pg-back" data-bk="back">' + C.icon('left') + 'Chapters</button><p class="ob-k">' + esc(b.sub.name) + ' · Chapter ' + esc(M.sectionNum(s0, c)) + '</p><h2>' + esc(M.title(c.name)) + '</h2>' +
+      '<div class="ob-ring">' + C.ring(p.frac, '<b>' + p.done + '</b>/' + p.total, 84) + '<span>' + (p.done === p.total ? 'Every topic done' : U.plural(p.total - p.done, 'topic') + ' to go') + '</span></div>' +
+      '<div class="ob-acts">' + (nx ? '<a class="btn block" href="#t-' + nx.gid + '">' + (p.done ? 'Continue' : 'Start') + ' topic ' + esc(M.lessonNum(s0, nx)) + C.icon('right') + '</a>' : '') + '<a class="btn alt block" href="#c-' + c.gid + '">Chapter page</a></div></div>';
+  }
+  function topicsPage(b, j) {
+    const s0 = st(), c = b.comps[j];
+    return '<div class="pg-list"><button type="button" class="pg-back only-one" data-bk="back">' + C.icon('left') + 'Chapters</button><p class="ob-k">Chapter ' + esc(M.sectionNum(s0, c)) + '</p><h3>' + esc(M.title(c.name)) + '</h3><ol class="toc">' + c.topics.map((t) => '<li><a href="#t-' + t.gid + '">' + V.statusIcon(s0, t) + '<span class="toc-n num">' + esc(M.lessonNum(s0, t)) + '</span><span class="toc-t">' + esc(M.title(t.name)) + '</span></a></li>').join('') + '</ol></div>';
+  }
+  // On a phone only the right-hand page shows, so it carries a short heading of its own.
+  function mini(b, j) {
+    if (j != null) return '';
+    const s0 = st(), p = M.courseProgress(s0, M.subjectTopics(s0, b.sub)), nx = M.nextLesson(s0, b.sub);
+    return '<div class="ob-mini"><p class="ob-k">' + esc(b.sub.board) + '</p><h2>' + esc(b.sub.name) + '</h2><p class="small">' + p.done + ' of ' + p.total + ' lessons done</p>' + (nx ? '<a class="btn sm" href="#t-' + nx.gid + '">' + (p.done ? 'Continue' : 'Start') + C.icon('right') + '</a>' : '') + '</div>';
   }
 
-  function frame(now) {
-    if (!root || !document.body.contains(root)) { unmount(); return; }
-    raf = requestAnimationFrame(frame);
-    const dt = Math.min(0.05, (now - (last || now)) / 1000);
-    last = now;
-    const rm = reduce();
-    const k = dragging ? 18 : 5.2;
-    s = rm ? T : s + (T - s) * (1 - Math.exp(-k * dt));
-    if (Math.abs(T - s) < 1e-4) s = T;
-    if (Math.abs(s) > N * 4) { const sh = Math.round(s / N) * N; s -= sh; T -= sh; }
-    const a = mod(Math.round(s), N);
-    if (a !== active) setActive(a, Math.sign(T - s) || 1);
-
-    const c = centre(), rr = root.getBoundingClientRect();
-    cx += (mx - cx) * (1 - Math.exp(-16 * dt)); cy += (my - cy) * (1 - Math.exp(-16 * dt));
-    onCover = !isOpen && !BK.busy() && Math.abs(mx - c.x) < 0.55 * dd && Math.abs(my - c.y) < 0.55 * H && Math.abs(T - s) < 0.3;
-    const tyT = onCover ? (mx - c.x) / (0.55 * dd) * 9 : (mx - c.x) / (VW || 1) * 5;
-    const txT = onCover ? -(my - c.y) / (H / 2) * 6 : 0;
-    tiltY += (Math.max(-12, Math.min(12, tyT)) - tiltY) * (1 - Math.exp(-7 * dt));
-    tiltX += (txT - tiltX) * (1 - Math.exp(-7 * dt));
-
-    const lim = VW / 2 + 1.5 * dd;
-    for (let j = 0; j < tapes.length; j++) {
-      const el = tapes[j], r = rel(j), x = Fx(r);
-      if (Math.abs(x) > lim) { if (el.style.visibility !== 'hidden') el.style.visibility = 'hidden'; continue; }
-      if (el.style.visibility) el.style.visibility = '';
-      const o = sm(Math.max(0, 1 - Math.abs(r)));
-      const want = hover === j && Math.abs(r) > 0.5 ? 1 : 0;
-      lifts[j] = rm ? want : (lifts[j] || 0) + (want - (lifts[j] || 0)) * (1 - Math.exp(-12 * dt));
-      const y = -o * 0.025 * H - lifts[j] * 0.045 * H;
-      el.style.transform = 'translate3d(' + x.toFixed(2) + 'px,' + y.toFixed(2) + 'px,' + (o * 0.2 * H).toFixed(2) + 'px) rotateZ(' + (-4.5 * o).toFixed(3) + 'deg) rotateX(' + (tiltX * o).toFixed(3) + 'deg) rotateY(' + (-90 * o + tiltY * o).toFixed(3) + 'deg)';
-      el.style.zIndex = Math.round(100 - Math.abs(r) * 4);
-      el.style.setProperty('--ss', (o * 0.55).toFixed(3));
-      el.style.setProperty('--cs', ((1 - o) * 0.5).toFixed(3));
+  // ---------- The open book ----------
+  const BK = { b: null, ch: null, anims: [], busy: false, open: false, stage: null, from: null };
+  function stage() {
+    if (!BK.stage) {
+      BK.stage = document.createElement('div');
+      BK.stage.className = 'book-stage'; BK.stage.id = 'bookStage'; BK.stage.hidden = true;
+      document.body.appendChild(BK.stage);
+      BK.stage.addEventListener('click', function (e) {
+        const back = e.target.closest('[data-bk="back"]'), ch = e.target.closest('[data-ch]');
+        if (e.target.closest('[data-bk="close"]')) { closeBook(); return; }
+        if (back) { showChapters(); return; }
+        if (ch) { showChapter(Number(ch.dataset.ch)); return; }
+        if (e.target.closest('a[href^="#"]')) { finishClose(); }
+      });
     }
-    const play = root.querySelector('.sh-play');
-    const ps = isOpen ? 0 : sm(Math.max(0, 1 - Math.abs(T - s) * 3));
-    play.style.transform = 'translate(' + (c.x - rr.left - 0.5 * dd - 6 - 21) + 'px,' + (c.y - rr.top + 0.36 * H - 21) + 'px) scale(' + ps.toFixed(3) + ')';
-
-    const cur = root.querySelector('.sh-cur');
-    cur.style.transform = 'translate3d(' + cx + 'px,' + cy + 'px,0)';
-    const overTape = !isOpen && hover >= 0 && Math.abs(rel(hover)) > 0.5;
-    cur.classList.toggle('open', onCover);
-    cur.classList.toggle('spine', !onCover && overTape);
+    return BK.stage;
   }
+  const narrow = () => window.innerWidth < 760;
 
-  function go(t) { T = t; }
-  function jumpTo(i) { const c = Math.round(T); go(c + mod(i - mod(c, N) + N / 2, N) - N / 2); }
-
-  // ---------- Opening a book ----------
-  // The open book is a scene of its own: two pages, a cover and three leaves. Each piece is animated with the
-  // Web Animations API, and the leaves settle in a stack on the left so nothing has to fade away.
-  function activeTape() { return tapes[mod(Math.round(T), N)]; }
-  function lessonsPage(b, s0) {
-    return '<div class="ob-toc"><p class="ob-k">Contents</p><ol class="toc">' + b.c.topics.map((t) => '<li><a href="#t-' + t.gid + '">' + V.statusIcon(s0, t) + '<span class="toc-n num">' + esc(M.lessonNum(s0, t)) + '</span><span class="toc-t">' + esc(M.title(t.name)) + '</span></a></li>').join('') + '</ol></div>';
-  }
-  function insidePage(b, s0) {
-    const p = done(b), nx = M.nextLesson(s0, b.sub, b.c.topics);
-    return '<div class="ob-in"><p class="ob-k">' + esc(b.sub.name) + ' · Chapter ' + esc(b.n) + '</p><h2>' + esc(b.title) + '</h2>' +
-      '<div class="ob-ring">' + C.ring(p.frac, '<b>' + p.done + '</b>/' + p.total, 84) + '<span>' + (p.done === p.total ? 'Every lesson done' : U.plural(p.total - p.done, 'lesson') + ' to go') + '</span></div>' +
-      '<div class="ob-acts">' + (nx ? '<a class="btn block" href="#t-' + nx.gid + '">' + (p.done ? 'Continue' : 'Start') + ' lesson ' + esc(M.lessonNum(s0, nx)) + C.icon('right') + '</a>' : '') + '<a class="btn alt block" href="#c-' + b.c.gid + '">Chapter page</a></div></div>';
-  }
-  const BK = { anims: [], open: false, busy: () => BK.open };
-  function openDetail() {
-    if (BK.open || !root) return;
-    T = Math.round(T);
-    const b = books[mod(T, N)], s0 = st(), stg = root.querySelector('#bookStage'), k = inks(b);
-    const cover = '<svg viewBox="0 0 474 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">' + coverInner(b) + '</svg>';
-    stg.innerHTML = '<div class="stage-bg" data-action="book-close"></div>' +
-      '<div class="ob" style="--c:' + b.col + ';--cb:' + k.bg + '" role="dialog" aria-modal="true" aria-label="' + esc(b.title) + '">' +
-      '<div class="ob-shadow"></div><span class="ob-edge"></span><div class="ob-page ob-left"></div><div class="ob-page ob-right"><div class="ob-mini">' + insidePage(b, s0) + '</div>' + lessonsPage(b, s0) + '</div>' +
-      '<div class="ob-leaf l0"><div class="lf f"></div><div class="lf b"></div></div><div class="ob-leaf l1"><div class="lf f"></div><div class="lf b"></div></div>' +
-      '<div class="ob-leaf l2"><div class="lf f"></div><div class="lf b">' + insidePage(b, s0) + '</div></div>' +
-      '<div class="ob-cover"><div class="cf f">' + cover + '<i class="shade"></i></div><div class="cf b"><i class="shade"></i></div></div></div>' +
-      '<button type="button" class="ob-x icon-btn" data-action="book-close" aria-label="Close the book">' + C.icon('x') + '</button>';
+  function openBook(subId, fromEl) {
+    const sub = M.subject[subId];
+    if (!sub || BK.busy) return;
+    const b = bookFor(sub, Math.max(0, M.subjects.indexOf(sub)));
+    BK.b = b; BK.ch = null; BK.open = true; BK.busy = true; BK.from = fromEl || null;
+    const k = inks(b), one = narrow();
+    const stg = stage();
+    const leaves = [0, 1, 2, 3, 4].map((i) => '<div class="ob-leaf" style="--i:' + i + '"><div class="lf f"></div><div class="lf b">' + (i === 4 ? introPage(b) : '') + '</div></div>').join('');
+    stg.innerHTML = '<div class="stage-bg" data-bk="close"></div>' +
+      '<div class="ob' + (one ? ' one' : '') + '" style="--c:' + b.col + ';--cb:' + k.bg + '" role="dialog" aria-modal="true" aria-label="' + esc(sub.name) + '">' +
+      '<div class="ob-shadow"></div><span class="ob-edge"></span><div class="ob-page ob-left">' + introPage(b) + '</div><div class="ob-page ob-right">' + mini(b) + chaptersPage(b) + '</div>' +
+      leaves + '<div class="ob-cover"><div class="cf f">' + coverSVG(b) + '<i class="shade"></i></div><div class="cf b"><i class="shade"></i></div></div></div>' +
+      '<button type="button" class="ob-x icon-btn" data-bk="close" aria-label="Close the book">' + C.icon('x') + '</button>';
     stg.hidden = false;
-    BK.open = true; isOpen = true;
     document.body.classList.add('book-open');
-    const ob = stg.querySelector('.ob'), narrow = window.innerWidth < 760;
-    ob.classList.toggle('one', narrow);
+    if (fromEl) fromEl.classList.add('lifted');
+    const ob = stg.querySelector('.ob');
+    BK.anims = [];
+    const done = () => { BK.busy = false; ob.classList.add('opened'); BK.anims.forEach((a) => { if (!(a.effect.getTiming().delay > 0)) a.cancel(); }); const f = ob.querySelector('.ob-right .ch-b'); if (f) f.focus({ preventScroll: true }); };
+    if (reduce() || !ob.animate) { ob.classList.add('static'); done(); return; }
     const P = ob.querySelector('.ob-right').getBoundingClientRect().width;
     const box = ob.getBoundingClientRect(), cx = box.left + box.width / 2, cy = box.top + box.height / 2;
-    const closedX = narrow ? 0 : -P / 2;
-    const rest = 'translate(' + closedX + 'px, 0px) scale(1)';
-    const r = activeTape().querySelector('.cv').getBoundingClientRect(), sc = r.width / P;
-    const from = 'translate(' + (r.left + r.width / 2 - cx - (narrow ? 0 : sc * P / 2)) + 'px, ' + (r.top + r.height / 2 - cy) + 'px) scale(' + sc + ') rotate(-4deg)';
-    activeTape().classList.add('lifted');
-    BK.anims = [];
-    if (reduce() || !ob.animate) { ob.classList.add('static'); return; }
-    const E = 'cubic-bezier(.6,0,.2,1)', D = 1700;
-    const anim = (el, frames, o) => { const a = el.animate(frames, Object.assign({ duration: D, easing: E, fill: 'both' }, o || {})); BK.anims.push(a); return a; };
-    // 1. Off the shelf and into the middle, closed. 2. Slide right as it opens so the spread is centred.
-    anim(ob, [{ transform: from }, { transform: rest, offset: 0.28 }, { transform: rest, offset: 0.36 }, { transform: 'translate(0px, 0px) scale(1)', offset: 0.8 }, { transform: 'translate(0px, 0px) scale(1)' }]);
-    // The left-hand page only exists once the cover has swung past upright.
-    anim(ob.querySelector('.ob-left'), [{ opacity: 0 }, { opacity: 0, offset: 0.55 }, { opacity: 1, offset: 0.58 }, { opacity: 1 }], { easing: 'linear' });
-    anim(ob.querySelector('.ob-shadow'), [{ opacity: 0 }, { opacity: 0.5, offset: 0.28 }, { opacity: 1, offset: 0.8 }, { opacity: 1 }]);
-    // The cover swings over first, then the three leaves, each a little later and settling slightly higher in the stack.
-    // Stacking: the cover starts on top on the right and ends at the bottom of the pile on the left, under the pages.
-    const swing = (z0, z1, a, b2) => [{ transform: 'rotateY(0deg) translateZ(' + z0 + 'px)' }, { transform: 'rotateY(0deg) translateZ(' + z0 + 'px)', offset: a }, { transform: 'rotateY(-92deg) translateZ(' + ((z0 - z1) / 2) + 'px) skewY(-2deg)', offset: (a + b2) / 2 }, { transform: 'rotateY(-180deg) translateZ(' + (-z1) + 'px)', offset: b2 }, { transform: 'rotateY(-180deg) translateZ(' + (-z1) + 'px)' }];
-    anim(ob.querySelector('.ob-cover'), narrow ? [{ transform: 'rotateY(0deg)', opacity: 1 }, { transform: 'rotateY(0deg)', opacity: 1, offset: 0.36 }, { transform: 'rotateY(-180deg)', opacity: 0, offset: 0.78 }, { transform: 'rotateY(-180deg)', opacity: 0 }] : swing(6, 0.5, 0.36, 0.76));
-    ob.querySelectorAll('.ob-cover .shade').forEach((sh, i) => anim(sh, [{ opacity: 0 }, { opacity: 0, offset: 0.4 }, { opacity: i ? 0 : 0.5, offset: 0.56 }, { opacity: i ? 0.45 : 0, offset: 0.6 }, { opacity: 0, offset: 0.78 }, { opacity: 0 }]));
-    ob.querySelectorAll('.ob-leaf').forEach(function (lf, i) {
-      const st0 = 0.46 + i * 0.07, end = Math.min(0.97, 0.8 + i * 0.07);
-      const fr = narrow
-        ? [{ transform: 'rotateY(0deg)', opacity: 1 }, { transform: 'rotateY(0deg)', opacity: 1, offset: st0 }, { transform: 'rotateY(-180deg)', opacity: 0, offset: end }, { transform: 'rotateY(-180deg)', opacity: 0 }]
-        : swing(4.5 - 1.5 * i, 1.5 + 1.5 * i, st0, end);
-      anim(lf, fr);
-    });
-    // The contents write themselves in, line by line.
-    ob.querySelectorAll('.ob-toc li, .ob-toc .ob-k').forEach((li, i) => anim(li, [{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 420, delay: D * 0.82 + i * 45, easing: EASE }));
-    ob.querySelectorAll('.ob-in > *').forEach((x, i) => anim(x, [{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 420, delay: D * 0.88 + i * 70, easing: EASE }));
-    const first = ob.querySelector('.toc a');
-    BK.anims[0].finished.then(() => { if (first && BK.open) first.focus({ preventScroll: true }); }).catch(() => {});
-  }
-  function closeDetail() {
-    if (!BK.open || !root) return;
-    const stg = root.querySelector('#bookStage');
-    const fin = () => { stg.hidden = true; stg.innerHTML = ''; document.body.classList.remove('book-open'); tapes.forEach((t) => t.classList.remove('lifted')); BK.open = false; isOpen = false; if (root) root.focus({ preventScroll: true }); };
-    BK.open = false;
-    const main = BK.anims.filter((a) => (a.effect.getTiming().delay || 0) === 0);
-    if (main.length && !reduce()) {
-      BK.anims.forEach((a) => { if ((a.effect.getTiming().delay || 0) > 0) a.cancel(); });
-      main.forEach((a) => { a.playbackRate = 1.7; a.reverse(); });
-      main[0].finished.then(fin).catch(fin);
-    } else fin();
-  }
-
-  // ---------- Mounting ----------
-  function onKey(e) {
-    if (!root || RH.c.modalOpen()) return;
-    if (e.key === 'Escape' && BK.open) { closeDetail(); return; }
-    if (isOpen || /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) return;
-    if (e.key === 'ArrowLeft') { go(Math.round(T) - 1); e.preventDefault(); }
-    else if (e.key === 'ArrowRight') { go(Math.round(T) + 1); e.preventDefault(); }
-    else if (e.key === 'Enter' && (document.activeElement === document.body || document.activeElement === root)) { openDetail(); e.preventDefault(); }
-  }
-  function onMove(e) {
-    mx = e.clientX; my = e.clientY;
-    if (drag && Math.abs(e.clientX - drag.x) > 5) dragging = true;
-    if (dragging) T = drag.T - (e.clientX - drag.x) / (ws + gap);
-  }
-  function onUp() { if (dragging) { suppress = true; setTimeout(() => { suppress = false; }, 0); T = Math.round(T); } drag = null; dragging = false; }
-  function onResize() { if (root) measure(); }
-
-  function mount() {
-    root = document.getElementById('shelf');
-    stage = root.querySelector('.sh-stage');
-    tapes = Array.prototype.slice.call(stage.querySelectorAll('.bk'));
-    measure();
-    active = -1; last = 0; isOpen = false;
-    if (curIn) root.classList.add('cur-in');
-    tapes.forEach(function (el, j) {
-      el.addEventListener('pointerenter', () => { hover = j; });
-      el.addEventListener('pointerleave', () => { if (hover === j) hover = -1; });
-      el.addEventListener('click', function () {
-        if (suppress) return;
-        const r = rel(j);
-        if (Math.abs(r) < 0.5) openDetail(); else go(Math.round(T + r));
-      });
-    });
-    const shelf = root.querySelector('.sh-shelf');
-    shelf.addEventListener('pointerdown', (e) => { if (e.button === 0 && !isOpen) drag = { x: e.clientX, T: T }; });
-    shelf.addEventListener('wheel', function (e) {
-      if (isOpen) return;
-      e.preventDefault();
-      const dlt = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-      T += dlt / (ws + gap) * 0.5;
-      clearTimeout(wheelT);
-      wheelT = setTimeout(() => { T = Math.round(T); }, 160);
-    }, { passive: false });
-    root.addEventListener('pointerenter', () => { curIn = true; root.classList.add('cur-in'); });
-    root.addEventListener('pointerleave', () => { curIn = false; root.classList.remove('cur-in'); });
-    root.addEventListener('pointerover', (e) => { root.querySelector('.sh-cur').classList.toggle('btn', !!e.target.closest('button, a') && !e.target.closest('.bk')); });
-    root.querySelector('.sh-arrow.prev').addEventListener('click', () => go(Math.round(T) - 1));
-    root.querySelector('.sh-arrow.next').addEventListener('click', () => go(Math.round(T) + 1));
-    root.querySelector('.sh-play').addEventListener('click', openDetail);
-    root.querySelectorAll('.sh-tab').forEach((t) => t.addEventListener('click', function () {
-      if (RH.ui.shelfSub === t.dataset.tab) return;
-      RH.ui.shelfSub = t.dataset.tab;
-      RH.render();
-    }));
-    if (!SH.wired) {
-      SH.wired = true;
-      window.addEventListener('keydown', onKey);
-      window.addEventListener('pointermove', onMove, { passive: true });
-      window.addEventListener('pointerup', onUp);
-      window.addEventListener('pointercancel', onUp);
-      window.addEventListener('resize', onResize);
+    const closedX = one ? 0 : -P / 2, rest = 'translate(' + closedX + 'px,0) scale(1)';
+    let from = 'translate(' + closedX + 'px,40px) scale(.6)';
+    if (fromEl) {
+      const r = fromEl.getBoundingClientRect(), sc = r.width / P;
+      from = 'translate(' + (r.left + r.width / 2 - cx - (one ? 0 : sc * P / 2)) + 'px,' + (r.top + r.height / 2 - cy) + 'px) scale(' + sc.toFixed(3) + ') rotate(-3deg)';
     }
-    cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(frame);
+    const D = 2000, E = 'cubic-bezier(.6,0,.2,1)';
+    const anim = (el, frames, o) => { const a = el.animate(frames, Object.assign({ duration: D, easing: E, fill: 'both' }, o || {})); BK.anims.push(a); return a; };
+    // 1. Off the shelf into the middle, closed. 2. It slides right as the cover opens so the spread ends up centred.
+    anim(ob, [{ transform: from }, { transform: rest, offset: 0.26 }, { transform: rest, offset: 0.32 }, { transform: 'translate(0,0) scale(1)', offset: 0.62 }, { transform: 'translate(0,0) scale(1)' }]);
+    anim(ob.querySelector('.ob-shadow'), [{ opacity: 0 }, { opacity: 0.5, offset: 0.26 }, { opacity: 1, offset: 0.62 }, { opacity: 1 }]);
+    anim(ob.querySelector('.ob-left'), [{ opacity: 0 }, { opacity: 0, offset: 0.4 }, { opacity: 1, offset: 0.42 }, { opacity: 1 }], { easing: 'linear' });
+    const swing = (z0, z1, a, b2) => [{ transform: 'rotateY(0deg) translateZ(' + z0 + 'px)' }, { transform: 'rotateY(0deg) translateZ(' + z0 + 'px)', offset: a }, { transform: 'rotateY(-90deg) translateZ(' + ((z0 - z1) / 2) + 'px) skewY(-1.5deg)', offset: (a + b2) / 2 }, { transform: 'rotateY(-180deg) translateZ(' + (-z1) + 'px)', offset: b2 }, { transform: 'rotateY(-180deg) translateZ(' + (-z1) + 'px)' }];
+    const fade = (a, b2) => [{ transform: 'rotateY(0deg)', opacity: 1 }, { transform: 'rotateY(0deg)', opacity: 1, offset: a }, { transform: 'rotateY(-180deg)', opacity: 0, offset: b2 }, { transform: 'rotateY(-180deg)', opacity: 0 }];
+    anim(ob.querySelector('.ob-cover'), one ? fade(0.3, 0.6) : swing(8, 0.5, 0.3, 0.6));
+    ob.querySelectorAll('.ob-cover .shade').forEach((sh, i) => anim(sh, [{ opacity: 0 }, { opacity: 0, offset: 0.34 }, { opacity: i ? 0 : 0.5, offset: 0.44 }, { opacity: i ? 0.45 : 0, offset: 0.47 }, { opacity: 0, offset: 0.6 }, { opacity: 0 }]));
+    // The cascade: five pages flick over one after another, each settling a little higher on the left.
+    ob.querySelectorAll('.ob-leaf').forEach(function (lf, i) {
+      const a = 0.4 + i * 0.07, e = Math.min(0.97, a + 0.24);
+      anim(lf, one ? fade(a, e) : swing(6.5 - 1.2 * i, 1.5 + 1.2 * i, a, e));
+    });
+    ob.querySelectorAll('.ob-right .pg-list > *, .ob-right .toc li').forEach((li, i) => anim(li, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 380, delay: D * 0.86 + Math.min(i, 14) * 40, easing: EASE }));
+    BK.anims[0].finished.then(() => { if (BK.open) done(); }).catch(() => {});
   }
-  function unmount() { cancelAnimationFrame(raf); raf = 0; root = null; stage = null; tapes = []; hover = -1; isOpen = false; BK.open = false; document.body.classList.remove('book-open'); }
-  const SH = RH.shelf = { mount: mount, open: () => openDetail(), close: () => closeDetail(), state: () => ({ s: s, T: T, active: active, isOpen: BK.open, N: N, sub: RH.ui.shelfSub }), go: (t) => go(t) };
-  RH.actions['book-close'] = () => closeDetail();
 
-  // Preload nothing: the art is SVG. Mount whenever the shelf page is drawn.
-  RH.afterRender.push(function (r) { if (typeof r !== 'string') return; if (r === 'study' && document.getElementById('shelf')) mount(); else if (root) unmount(); });
+  // Turn one page: forward (right page over to the left) or back (left page over to the right).
+  function turn(dir, newLeft, newRight) {
+    const ob = BK.stage && BK.stage.querySelector('.ob');
+    if (!ob || BK.busy) return;
+    const L = ob.querySelector('.ob-left'), R = ob.querySelector('.ob-right');
+    const focusFirst = () => { const f = R.querySelector('.ch-b, .toc a'); if (f) f.focus({ preventScroll: true }); };
+    if (reduce() || !ob.animate) { L.innerHTML = newLeft; R.innerHTML = newRight; focusFirst(); return; }
+    if (ob.classList.contains('one')) {
+      // A phone shows one page: slide the new one in.
+      BK.busy = true;
+      const out = R.animate([{ transform: 'none', opacity: 1 }, { transform: 'translateX(' + (dir > 0 ? -30 : 30) + 'px)', opacity: 0 }], { duration: 200, easing: 'ease-in', fill: 'both' });
+      out.finished.then(function () {
+        out.cancel(); L.innerHTML = newLeft; R.innerHTML = newRight; R.scrollTop = 0;
+        R.animate([{ transform: 'translateX(' + (dir > 0 ? 30 : -30) + 'px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 260, easing: EASE }).finished.then(() => { BK.busy = false; focusFirst(); });
+      });
+      return;
+    }
+    BK.busy = true;
+    const leaf = document.createElement('div');
+    leaf.className = 'ob-turn ' + (dir > 0 ? 'fwd' : 'bwd');
+    if (dir > 0) { leaf.innerHTML = '<div class="lf f">' + R.innerHTML + '</div><div class="lf b">' + newLeft + '</div>'; R.innerHTML = newRight; }
+    else { leaf.innerHTML = '<div class="lf f">' + L.innerHTML + '</div><div class="lf b">' + newRight + '</div>'; L.innerHTML = newLeft; }
+    ob.appendChild(leaf);
+    const shade = (side) => { const sh = document.createElement('i'); sh.className = 'shade'; leaf.querySelector('.lf.' + side).appendChild(sh); return sh; };
+    const s1 = shade('f'), s2 = shade('b');
+    const T = 900, E = 'cubic-bezier(.45,.05,.25,1)';
+    const end = dir > 0 ? -180 : 180;
+    const a = leaf.animate([{ transform: 'rotateY(0deg) translateZ(2px)' }, { transform: 'rotateY(' + end / 2 + 'deg) translateZ(30px) skewY(' + (dir > 0 ? -1.5 : 1.5) + 'deg)', offset: 0.5 }, { transform: 'rotateY(' + end + 'deg) translateZ(2px)' }], { duration: T, easing: E, fill: 'both' });
+    s1.animate([{ opacity: 0 }, { opacity: 0.45 }], { duration: T / 2, easing: 'ease-in', fill: 'both' });
+    s2.animate([{ opacity: 0.45 }, { opacity: 0.45, offset: 0.5 }, { opacity: 0 }], { duration: T, easing: 'ease-out', fill: 'both' });
+    a.finished.then(function () {
+      if (dir > 0) L.innerHTML = newLeft; else R.innerHTML = newRight;
+      leaf.remove(); BK.busy = false; focusFirst();
+    }).catch(() => { leaf.remove(); BK.busy = false; });
+    R.querySelectorAll('.toc li').forEach((li, i) => li.animate([{ opacity: 0 }, { opacity: 0, offset: 0.5 }, { opacity: 1 }], { duration: T + Math.min(i, 12) * 40, easing: 'linear' }));
+  }
+  function showChapter(j) {
+    const b = BK.b; if (!b || !b.comps[j]) return;
+    BK.ch = j;
+    turn(1, chapterIntro(b, j), mini(b, j) + topicsPage(b, j));
+  }
+  function showChapters() {
+    const b = BK.b; if (!b || BK.ch == null) return;
+    BK.ch = null;
+    turn(-1, introPage(b), mini(b) + chaptersPage(b));
+  }
+  function finishClose() {
+    const stg = BK.stage; if (!stg) return;
+    BK.anims.forEach((a) => a.cancel()); BK.anims = [];
+    stg.hidden = true; stg.innerHTML = '';
+    document.body.classList.remove('book-open');
+    document.querySelectorAll('.sbk.lifted').forEach((x) => x.classList.remove('lifted'));
+    BK.open = false; BK.busy = false;
+  }
+  function closeBook() {
+    if (!BK.open) return;
+    const stg = BK.stage, ob = stg && stg.querySelector('.ob'), from = BK.from;
+    BK.open = false;
+    if (!ob || reduce() || !ob.animate) { finishClose(); if (from) from.focus({ preventScroll: true }); return; }
+    BK.anims.forEach((a) => a.cancel()); BK.anims = [];
+    ob.classList.add('static');
+    const out = ob.animate([{ transform: 'none', opacity: 1 }, { transform: 'translateY(24px) scale(.92)', opacity: 0 }], { duration: 260, easing: 'ease-in', fill: 'both' });
+    stg.querySelector('.stage-bg').animate([{ opacity: 1 }, { opacity: 0 }], { duration: 260, fill: 'both' });
+    out.finished.then(() => { finishClose(); if (from && document.body.contains(from)) from.focus({ preventScroll: true }); });
+  }
+
+  window.addEventListener('keydown', function (e) {
+    if (!BK.open || RH.c.modalOpen()) return;
+    if (e.key === 'Escape') { e.preventDefault(); if (BK.ch != null) showChapters(); else closeBook(); }
+  });
+  window.addEventListener('hashchange', function () { if (BK.open) finishClose(); });
+
+  // ---------- Shelf wiring ----------
+  function mount() {
+    document.querySelectorAll('.sbk').forEach(function (el) {
+      el.addEventListener('click', () => openBook(el.dataset.sub, el));
+      el.addEventListener('pointermove', function (e) {
+        if (reduce() || e.pointerType !== 'mouse') return;
+        const r = el.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5;
+        el.style.setProperty('--ry', (x * 16).toFixed(1) + 'deg'); el.style.setProperty('--rx', (-y * 10).toFixed(1) + 'deg');
+        el.style.setProperty('--gx', ((x + 0.5) * 100).toFixed(0) + '%'); el.style.setProperty('--gy', ((y + 0.5) * 100).toFixed(0) + '%');
+      });
+      el.addEventListener('pointerleave', () => { el.style.removeProperty('--ry'); el.style.removeProperty('--rx'); });
+    });
+    const want = RH.ui.openBook; RH.ui.openBook = null;
+    if (want) { const el = document.querySelector('.sbk[data-sub="' + want + '"]'); setTimeout(() => openBook(want, el), 60); }
+  }
+  RH.shelf = {
+    mount: mount, openSubject: (id) => openBook(id, document.querySelector('.sbk[data-sub="' + id + '"]')), close: closeBook,
+    chapter: showChapter, chapters: showChapters, state: () => ({ open: BK.open, busy: BK.busy, sub: BK.b && BK.b.sub.id, ch: BK.ch })
+  };
+  RH.actions['shelf-open'] = function (el) {
+    if (location.hash === '#study') { RH.shelf.openSubject(el.dataset.sub); return; }
+    RH.ui.openBook = el.dataset.sub; location.hash = 'study';
+  };
+  RH.afterRender.push(function (r) { if (typeof r !== 'string') return; if (r === 'study') mount(); else if (BK.open) finishClose(); });
+  RH.shelf.cover = function (sub, i) { return coverSVG(bookFor(sub, i == null ? Math.max(0, M.subjects.indexOf(sub)) : i)); };
+  RH.shelf.inks = (sub) => inks(bookFor(sub, Math.max(0, M.subjects.indexOf(sub))));
 })(window.RH = window.RH || {});

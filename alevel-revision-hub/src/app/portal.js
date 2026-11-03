@@ -205,24 +205,53 @@
   // and the mark scheme follows in the same file from a page headed "Mark Scheme". ----------
   const QSTART = /^Q(\d{1,3})\.?(\s|$)/, PEND = /\(\s*Total\s+for\s+question\s*=?\s*(\d+)\s*marks?\s*\)/i;
   const after = (a, b) => a.p > b.p || (a.p === b.p && a.y < b.y);
-  function packSplit(pages) {
-    const ms = pages.findIndex((pg, p) => p > 0 && pg.lines.slice(0, 8).some((l) => /^Mark\s*Scheme/i.test(l.text)));
-    const qpN = ms > 0 ? ms : pages.length, starts = [], ends = [];
-    for (let p = 0; p < qpN; p++) pages[p].lines.forEach(function (l) {
-      const m = QSTART.exec(l.text);
-      if (m && l.x < pages[p].w * 0.25) starts.push({ n: m[1], p: p, y: l.y + l.h + 4 });
-      const e = PEND.exec(l.text);
-      if (e) ends.push({ p: p, y: l.y, marks: Number(e[1]) });
+  // Where the mark scheme or solutions start, if they are in the same file.
+  function msStart(pages) {
+    for (let p = 1; p < pages.length; p++) {
+      const top = pages[p].lines.slice(0, 10);
+      if (top.some((l) => /^(mark\s*scheme|marking\s*scheme|solutions?|worked\s+solutions|answers?)\b(?!\s+(all|each|the|every)\b)/i.test(l.text) || /mark\s*scheme\s*[–-]/i.test(l.text))) return p;
+    }
+    return -1;
+  }
+  // Question numbering styles seen in packs and booklets. The style that gives the longest run of questions
+  // numbered 1, 2, 3… down the left margin wins.
+  const FAMS = [/^Q\s?(\d{1,3})\b/, /^Question\s+(\d{1,3})\b/i, /^(\d{1,2})\s*[.)](\s|$)/, /^(\d{1,2})(\s|$)/];
+  function genericSplit(pages, qpN) {
+    let best = null, bestFam = null;
+    FAMS.forEach(function (re) {
+      const starts = []; let want = 1;
+      for (let p = 0; p < qpN; p++) pages[p].lines.forEach(function (l) {
+        if (l.x > pages[p].w * 0.24) return;
+        const m = re.exec(l.text);
+        if (m && Number(m[1]) === want) { starts.push({ n: String(want), p: p, y: l.y + l.h + 4 }); want++; }
+      });
+      if (starts.length >= 2 && (!best || starts.length > best.length)) { best = starts; bestFam = re; }
     });
-    const qs = starts.map(function (st0, i) {
-      const nx = starts[i + 1];
+    if (!best) return null;
+    const ends = [];
+    for (let p = 0; p < qpN; p++) pages[p].lines.forEach(function (l) {
+      const e = PEND.exec(l.text) || END.exec(l.text);
+      if (e) ends.push({ p: p, y: l.y, marks: Number(e[e.length - 1]) });
+    });
+    const qs = best.map(function (st0, i) {
+      const nx = best[i + 1];
       const end = ends.find((e) => after(e, st0) && (!nx || after(nx, e)));
       const to = end ? { p: end.p, y: end.y - 6 } : nx ? { p: nx.p, y: nx.y + 14 } : { p: qpN - 1, y: bottom(pages[qpN - 1]) };
-      return { n: st0.n, marks: end ? end.marks : null, regions: regionsBetween(pages, { p: st0.p, y: st0.y }, to) };
+      const regions = regionsBetween(pages, { p: st0.p, y: st0.y }, to);
+      return { n: st0.n, marks: end ? end.marks : marksIn(pages, regions), regions: regions };
     }).filter((q) => q.regions.length);
+    return { qs: qs, fam: bestFam };
+  }
+  function packSplit(pages) {
+    const ms = msStart(pages), qpN = ms > 0 ? ms : pages.length;
+    const g = genericSplit(pages, qpN);
+    if (!g) return { qs: [], ms: ms, msMap: {} };
     const msMap = {};
-    if (ms > 0) for (let p = ms; p < pages.length; p++) pages[p].lines.forEach(function (l) { const m = QSTART.exec(l.text); if (m && msMap[m[1]] == null) msMap[m[1]] = p; });
-    return { qs: qs, ms: ms, msMap: msMap };
+    if (ms > 0) g.qs.forEach(function (q) {
+      const re = new RegExp('^(Q\\s?|Question\\s+)?' + q.n + '(\\b|[.)])', 'i');
+      for (let p = ms; p < pages.length; p++) if (pages[p].lines.some((l) => l.x < pages[p].w * 0.3 && re.test(l.text))) { msMap[q.n] = p; return; }
+    });
+    return { qs: g.qs, ms: ms, msMap: msMap };
   }
 
   // ---------- Upload ----------
@@ -233,7 +262,9 @@
     const info = meta(qp.pages);
     let qs = detect(qp.pages), pack = null;
     // A topic pack with its own mark scheme at the back: split it into the questions and the scheme.
-    if (!msFile) { const pk = packSplit(qp.pages); if (pk.qs.length >= 2 && (pk.ms > 0 || pk.qs.length >= qs.length)) { pack = pk; qs = pk.qs; } }
+    // Past papers end each question with "Total for Question N"; anything else (packs, booklets) uses the general splitter.
+    const endMarkers = qp.pages.reduce((a, pg) => a + pg.lines.filter((l) => END.test(l.text)).length, 0);
+    if (!msFile && endMarkers < 2) { const pk = packSplit(qp.pages); if (pk.qs.length >= 2) { pack = pk; qs = pk.qs; } }
     markChoices(qs, info.marks);
     let ms = null, msMap = pack ? pack.msMap : {};
     if (pack && pack.ms > 0) await RH.files.put(id + ':ms', new Blob([qpBuf.slice(0)], { type: 'application/pdf' }));
@@ -346,6 +377,34 @@
     }
     return out.slice(0, 3);
   };
+  // The words of a question, read from the PDF, so Claude knows the question even when images can't be sent.
+  const textCache = {};
+  P.questionText = async function (paperId, qi) {
+    const key = paperId + ':' + qi;
+    if (textCache[key] != null) return textCache[key];
+    const paper = st().portal.papers[paperId], q = paper && paper.questions[qi];
+    const doc = q && await getDoc(paper, 'qp');
+    if (!doc) return '';
+    const parts = [];
+    for (const r of q.r) {
+      const page = await doc.getPage(r[0] + 1), tc = await page.getTextContent();
+      const lo = Math.min(r[1], r[2]) - 2, hi = Math.max(r[1], r[2]) + 2;
+      const items = tc.items.filter((it) => it.str && it.str.trim() && it.transform[5] >= lo && it.transform[5] <= hi)
+        .map((it) => ({ s: it.str, x: it.transform[4], y: it.transform[5] }));
+      items.sort((a, b) => b.y - a.y || a.x - b.x);
+      const lines = [];
+      items.forEach(function (it) { const l = lines.find((x) => Math.abs(x.y - it.y) < 2.5); if (l) l.items.push(it); else lines.push({ y: it.y, items: [it] }); });
+      lines.sort((a, b) => b.y - a.y).forEach((l) => parts.push(l.items.sort((a, b) => a.x - b.x).map((i) => i.s).join(' ').replace(/\s+/g, ' ').trim()));
+    }
+    return (textCache[key] = parts.filter(Boolean).join('\n').slice(0, 6000));
+  };
+  P.msText = async function (paperId, page) {
+    const paper = st().portal.papers[paperId];
+    const doc = paper && await getDoc(paper, 'ms');
+    if (!doc) return '';
+    const pg = await doc.getPage(U.clamp(page, 0, doc.numPages - 1) + 1), tc = await pg.getTextContent();
+    return tc.items.map((it) => it.str).join(' ').replace(/\s+/g, ' ').trim().slice(0, 6000);
+  };
   P.msImage = async function (paperId, page) {
     const paper = st().portal.papers[paperId];
     const doc = await getDoc(paper, 'ms');
@@ -421,7 +480,7 @@
     const mpm = p.marks ? p.dur / p.marks : null;
     const attempts = attemptsFor(id);
     let html = C.crumbs([['Exam centre', 'papers'], [p.title]]);
-    html += C.page({ title: esc(p.title), lede: U.plural(p.questions.length, 'question') + (p.marks ? ' · ' + p.marks + ' marks' : '') + ' · ' + U.mins(p.dur) + (p.msFile ? ' · mark scheme added' : ''), actions: '<a class="btn lg" href="#sit-' + p.id + '">' + C.icon('play') + 'Sit it</a>' });
+    html += C.page({ title: esc(p.title), lede: U.plural(p.questions.length, 'question') + (p.marks ? ' · ' + p.marks + ' marks' : '') + ' · ' + U.mins(p.dur) + (p.msFile ? ' · mark scheme added' : ''), actions: '<button type="button" class="btn alt" data-action="ans-export" data-v="blank" data-id="' + p.id + '" title="Every question with lined space under it, to print and write on">' + C.icon('download') + 'Printable with answer space</button><a class="btn lg" href="#sit-' + p.id + '">' + C.icon('play') + 'Sit it</a>' });
     if (attempts.length) html += '<section class="card"><h2>Your attempts</h2>' + attemptTable(attempts) + '</section>';
     html += '<section class="card"><div class="card-head"><h2>Questions</h2><span class="muted small">Tap one to preview or practise it alone</span></div><div class="qgrid">' +
       p.questions.map((q, i) => '<div class="qitem"><button type="button" class="qi-main" data-action="q-preview" data-id="' + id + '" data-i="' + i + '"><b>Q' + esc(q.n) + '</b><span class="num">' + (q.marks == null ? '?' : q.marks) + ' marks' + (mpm && q.marks ? ' · ' + U.mins(Math.round(q.marks * mpm)) : '') + '</span></button><a class="icon-btn" href="#sit-' + id + '" data-action="sit-one" data-id="' + id + '" data-i="' + i + '" aria-label="Practise question ' + esc(q.n) + '">' + C.icon('play') + '</a></div>').join('') + '</div></section>';
@@ -470,7 +529,7 @@
       '<div class="seg-row"><span class="muted small">Extra time</span>' + C.seg([[0, 'None'], [10, '10%'], [25, '25%'], [50, '50%']], ui.extra, 'data-action="sit-set" data-k="extra"') + '</div></div>';
     html += '<div class="sit-go"><div><b>' + (idx.length === 1 ? 'Question ' + esc(p.questions[idx[0]].n) : 'Questions ' + esc(p.questions[idx[0]].n) + '–' + esc(p.questions[idx[idx.length - 1]].n)) + '</b><span class="muted">' + (marks ? marks + ' marks · ' : '') + U.mins(mins) + '</span></div>' +
       '<button type="button" class="btn lg" data-action="sit-go" data-id="' + p.id + '" data-qs="' + idx.join(',') + '" data-mins="' + mins + '">' + C.icon('play') + 'Start the clock</button></div>' +
-      '<p class="help center">Have paper, a pen and a calculator ready. At the end you can photograph your answers.</p></section>';
+      '<p class="help center">Answer on screen (type, or tap A–D) or on paper. At the end you can photograph what you wrote and export everything as a PDF.</p></section>';
     return html;
   };
   RH.actions['sit-set'] = function (el) {
@@ -511,7 +570,7 @@
     const dur = Math.round((opts.mins || (qIdx.length === p.questions.length ? p.dur : Math.max(3, marks * mpm))) * 60 * (opts.mins ? 1 : 1 + (opts.extra || 0) / 100));
     store.update(function (s) {
       s.portal.live = { paper: paperId, single: qIdx.length === 1 ? p.questions[qIdx[0]].n : null, qs: qIdx, current: qIdx[0], since: Date.now(), endsAt: Date.now() + dur * 1000, dur: dur, paused: false, pausedLeft: 0,
-        strict: !!opts.strict, ai: !!opts.ai, timeOn: {}, flags: {}, visited: {}, done: {}, notes: {}, marks: marks, warned: {}, started: Date.now() };
+        strict: !!opts.strict, ai: !!opts.ai, timeOn: {}, flags: {}, visited: {}, done: {}, notes: {}, mc: {}, mode: {}, marks: marks, warned: {}, started: Date.now() };
       s.portal.live.visited[qIdx[0]] = 1;
     }, { silent: true });
     RH.ui.chat = [];
@@ -527,6 +586,129 @@
     RH.render({ keepScroll: false });
   }
 
+  // ---------- Answering on the paper ----------
+  // Each question gets an answer space under it: type on lined paper, tap A–D for multiple choice,
+  // or write on real paper and photograph it at the end.
+  const LETTERS = ['A', 'B', 'C', 'D'];
+  function looksMcq(text) {
+    const seen = {};
+    String(text || '').split('\n').forEach(function (l) { const m = /^\s*([A-D])(\s|$|[.)])/.exec(l); if (m) seen[m[1]] = 1; });
+    return Object.keys(seen).length === 4;
+  }
+  function ansMode(L, p, i) { return (L.mode && L.mode[i]) || (p.questions[i].mcq ? 'mc' : 'write'); }
+  function typedAnswer(src, i) {
+    const mc = src.mc && src.mc[i], t = (src.notes && src.notes[i] || '').trim();
+    return (mc ? 'Multiple choice: chose ' + mc + (t ? '\n' : '') : '') + t;
+  }
+  P.typedAnswer = typedAnswer;
+  function answerSheet(L, p, q) {
+    const i = L.current, mode = ansMode(L, p, i), mc = L.mc && L.mc[i];
+    const tab = (v, label) => '<button type="button" class="' + (mode === v ? 'on' : '') + '" data-action="ans-mode" data-v="' + v + '" aria-pressed="' + (mode === v) + '">' + label + '</button>';
+    let body;
+    if (mode === 'mc') body = '<div class="mc-row" role="group" aria-label="Choose an answer">' + LETTERS.map((x) => '<button type="button" class="mc-b' + (mc === x ? ' on' : '') + '" data-action="ans-mc" data-v="' + x + '" aria-pressed="' + (mc === x) + '">' + x + '</button>').join('') + '</div><p class="help">' + (mc ? 'You chose <b>' + mc + '</b>. Tap it again to clear.' : 'Tap the letter of your answer.') + '</p>';
+    else if (mode === 'paper') body = '<div class="on-paper">' + C.icon('camera') + '<p><b>Write this one on paper.</b> At the end you can photograph your answers to mark them' + (L.ai ? ' or have Claude mark them' : '') + '.</p></div>';
+    else body = '<textarea id="ex-notes" class="lined" data-exnote="' + i + '" rows="7" placeholder="Type your answer and working here…" aria-label="Your answer to question ' + esc(q.n) + '">' + esc(L.notes[i] || '') + '</textarea>';
+    return '<section class="answer-sheet" aria-label="Answer space"><div class="as-head"><b>Answer</b><div class="seg">' + tab('write', 'Type') + tab('mc', 'A–D') + tab('paper', 'On paper') + '</div></div>' + body + '</section>';
+  }
+  RH.actions['ans-mode'] = function (el) {
+    store.update(function (s) { const L = s.portal.live; L.mode = L.mode || {}; L.mode[L.current] = el.dataset.v; }, { silent: true });
+    RH.render({ keepScroll: true });
+    if (el.dataset.v === 'write') { const t = document.getElementById('ex-notes'); if (t) t.focus(); }
+  };
+  RH.actions['ans-mc'] = function (el) {
+    store.update(function (s) { const L = s.portal.live; L.mc = L.mc || {}; if (L.mc[L.current] === el.dataset.v) delete L.mc[L.current]; else L.mc[L.current] = el.dataset.v; }, { silent: true });
+    RH.render({ keepScroll: true });
+  };
+  // Spot multiple-choice questions (four lines starting A, B, C, D) the first time each one is shown.
+  RH.afterRender.push(function (r) {
+    if (r !== 'exam') return;
+    const L = live(); if (!L) return;
+    const p = st().portal.papers[L.paper], i = L.current, q = p && p.questions[i];
+    if (!q || q.mcq != null) return;
+    P.questionText(p.id, i).then(function (t) {
+      const yes = looksMcq(t);
+      store.update(function (s) { s.portal.papers[p.id].questions[i].mcq = yes; }, { silent: true });
+      if (yes && !(L.mode && L.mode[i]) && live() && live().current === i && location.hash === '#exam') RH.render({ keepScroll: true });
+    }).catch(() => {});
+  });
+
+  // ---------- Export: each question, then its answer (or a blank answer space to print and write on) ----------
+  const JSPDF = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+  const pdfSafe = (t) => String(t || '').replace(/[\u2212\u2013\u2014]/g, '-').replace(/[\u2018\u2019]/g, "'").replace(/[\u201c\u201d]/g, '"').replace(/\u2026/g, '...')
+    .replace(/[θΘ]/g, 'theta').replace(/[λ]/g, 'lambda').replace(/[μ]/g, 'mu').replace(/[ωΩ]/g, 'omega').replace(/[π]/g, 'pi').replace(/[Δ]/g, 'Delta').replace(/[α]/g, 'alpha').replace(/[β]/g, 'beta').replace(/[ε]/g, 'epsilon').replace(/[ρ]/g, 'rho').replace(/[σΣ]/g, 'sigma').replace(/[φ]/g, 'phi')
+    .replace(/[√]/g, 'sqrt').replace(/[≈]/g, '~').replace(/[≤]/g, '<=').replace(/[≥]/g, '>=').replace(/[→]/g, '->').replace(/[^\x09\x0a\x0d\x20-\x7e\xa0-\xff]/g, '?');
+  async function blobImage(b) {
+    const bmp = await createImageBitmap(b);
+    const c = document.createElement('canvas'); const k = Math.min(1, 1400 / bmp.width);
+    c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+    const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(bmp, 0, 0, c.width, c.height);
+    return { url: c.toDataURL('image/jpeg', 0.85), w: c.width, h: c.height };
+  }
+  P.exportAnswers = async function (src, opts) {
+    opts = opts || {};
+    const p = st().portal.papers[src.paper];
+    C.toast('Making the PDF…');
+    await C.loadScript(JSPDF);
+    const doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
+    const W = 210, H = 297, M0 = 16, CW = W - 2 * M0;
+    let y = M0;
+    const room = (h) => { if (y + h > H - M0) { doc.addPage(); y = M0; } };
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(17); doc.text(pdfSafe(p.title), M0, y + 6); y += 12;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(110);
+    doc.text(pdfSafe((opts.blank ? 'Questions with answer space' : 'Questions and my answers') + ' · ' + U.fmt(U.today(), { day: 'numeric', month: 'long', year: 'numeric' }) + (src.used ? ' · ' + Math.round(src.used / 60) + ' min used' : '')), M0, y); y += 8;
+    doc.setTextColor(0);
+    for (const i of src.qs) {
+      const q = p.questions[i];
+      const imgs = [];
+      for (const b of await P.questionImages(p.id, i).catch(() => [])) imgs.push(await blobImage(b));
+      // Keep the heading with the start of the question.
+      const first = imgs[0] ? Math.min(imgs[0].h * CW / imgs[0].w, H - 2 * M0 - 10) : 10;
+      room(14 + Math.min(first, 120));
+      doc.setDrawColor(200); doc.line(M0, y, W - M0, y); y += 7;
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.text('Question ' + pdfSafe(q.n) + (q.marks ? '  (' + q.marks + ' mark' + (q.marks === 1 ? '' : 's') + ')' : ''), M0, y); y += 5;
+      for (const im of imgs) {
+        let w = CW, h = im.h * w / im.w;
+        if (h > H - 2 * M0 - 10) { h = H - 2 * M0 - 10; w = im.w * h / im.h; }
+        room(h + 2); doc.addImage(im.url, 'JPEG', M0, y, w, h); y += h + 3;
+      }
+      if (!imgs.length) { doc.setFont('helvetica', 'italic'); doc.setFontSize(10); doc.text('(The question PDF is not on this device.)', M0, y + 4); y += 8; }
+      room(16);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(120, 90, 220); doc.text('Answer', M0, y + 4); doc.setTextColor(0); y += 8;
+      const ans = opts.blank ? '' : typedAnswer(src, i);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(11);
+      if (ans) {
+        doc.splitTextToSize(pdfSafe(ans), CW).forEach(function (line) { room(6); doc.text(line, M0, y + 4); y += 5.6; });
+        y += 2;
+      }
+      const photos = !opts.blank && src.hw ? (await hwList(src, i)).concat(src.hw.all && i === src.qs[src.qs.length - 1] ? await hwList(src, 'all') : []) : [];
+      for (const b of photos) {
+        const im = await blobImage(b).catch(() => null); if (!im) continue;
+        let w = CW * 0.8, h = im.h * w / im.w;
+        if (h > 150) { h = 150; w = im.w * h / im.h; }
+        room(h + 2); doc.addImage(im.url, 'JPEG', M0, y, w, h); y += h + 3;
+      }
+      if (!ans && !photos.length) {
+        // Blank lined answer space, sized to the marks.
+        const lines = Math.max(4, Math.min(24, (q.marks || 3) * 2));
+        doc.setDrawColor(190);
+        for (let k = 0; k < lines; k++) { room(8); y += 8; doc.line(M0, y, W - M0, y); }
+        y += 4;
+      }
+      y += 4;
+    }
+    const name = (p.title || 'paper').replace(/[^\w\- ]+/g, '').trim().replace(/\s+/g, '-').toLowerCase().slice(0, 60) + (opts.blank ? '-answer-space' : '-my-answers') + '.pdf';
+    await C.saveFile(name, doc.output('blob'), 'application/pdf');
+  };
+  RH.actions['ans-export'] = function (el) {
+    const which = el.dataset.v, s = st();
+    let src;
+    if (which === 'live') src = s.portal.live;
+    else if (which === 'mark') src = s.portal.marking;
+    else { const p = s.portal.papers[el.dataset.id]; src = { paper: p.id, qs: p.questions.map((q, i) => i) }; }
+    if (!src) return;
+    P.exportAnswers(src, { blank: which === 'blank' }).catch((e) => C.toast('Could not make the PDF: ' + (e && e.message || 'unknown error')));
+  };
+
   RH.views.exam = function () {
     const L = live();
     if (!L) return C.empty('No exam in progress.', 'Start one from the exam centre.', '<a class="btn" href="#papers">Exam centre</a>');
@@ -541,7 +723,7 @@
       '<div class="ex-q-head"><h1>Question ' + esc(q.n) + '</h1><span class="muted">' + (q.marks == null ? '' : U.plural(q.marks, 'mark')) + (sugg ? ' · aim for ' + U.mins(Math.round(sugg / 60)) : '') + '</span></div>' +
       (q.choice ? '<p class="note choice-note">' + C.icon('flag') + esc(choiceNote(p, q)) + '</p>' : '') +
       '<div class="qcrop paper-sheet" data-qdraw="' + L.current + '" data-paper="' + p.id + '"></div>' +
-      '<details class="fold-lite"' + (L.notes[L.current] ? ' open' : '') + '><summary>Type working or an answer</summary><textarea id="ex-notes" data-exnote="' + L.current + '" rows="4" placeholder="Optional. Most people write on paper and photograph it at the end.">' + esc(L.notes[L.current] || '') + '</textarea></details>' +
+      answerSheet(L, p, q) +
       '<div class="q-actions"><button type="button" class="btn alt" data-action="exam-go" data-i="' + (L.qs[pos - 1] != null ? L.qs[pos - 1] : '') + '"' + (pos > 0 ? '' : ' disabled') + '>' + C.icon('left') + 'Previous</button>' +
       (pos < L.qs.length - 1 ? '<button type="button" class="btn" data-action="exam-done">' + (L.done[L.current] ? 'Next' : 'Done, next') + C.icon('right') + '</button>' : '<button type="button" class="btn" data-action="exam-finish">Finish' + C.icon('tick') + '</button>') + '</div>') + '</section>';
     html += '<aside class="ex-side" aria-label="Exam controls"><p class="ex-title">' + esc(p.title) + '</p><div class="ex-clock"><span class="num" id="ex-left">' + RH.timer.fmt(leftSec(L)) + '</span><span class="small" id="ex-pace"></span></div><div class="meter exam-meter"><span id="ex-meter" style="width:0%"></span></div>' +
@@ -553,6 +735,7 @@
       '<div class="ex-tools"><button type="button" class="btn alt sm' + (L.flags[L.current] ? ' on' : '') + '" data-action="exam-flag">' + C.icon('flag') + (L.flags[L.current] ? 'Flagged' : 'Flag') + '</button>' +
       (L.strict ? '' : '<button type="button" class="btn alt sm" data-action="exam-pause">' + C.icon(L.paused ? 'play' : 'pause') + (L.paused ? 'Resume' : 'Pause') + '</button>') +
       '<button type="button" class="btn alt sm" data-action="exam-full" aria-label="Full screen">' + C.icon('expand') + '</button></div>' +
+      '<button type="button" class="btn alt sm block" data-action="ans-export" data-v="live">' + C.icon('download') + 'Export questions + answers</button>' +
       '<button type="button" class="btn block" data-action="exam-finish">' + C.icon('tick') + 'Finish and hand in</button>' +
       (L.strict ? '<p class="help center">Exam conditions: no pausing.</p>' : '') + '</aside></div>';
     return html;
@@ -594,7 +777,7 @@
       if (!L) return;
       if (!L.paused) L.timeOn[L.current] = (L.timeOn[L.current] || 0) + (Date.now() - L.since) / 1000;
       const left = L.paused ? L.pausedLeft : Math.max(0, (L.endsAt - Date.now()) / 1000);
-      s.portal.marking = { paper: L.paper, single: L.single, qs: L.qs, used: Math.round(L.dur - left), dur: Math.round(L.dur / 60), timeOn: L.timeOn, notes: L.notes, scores: {}, msPage: null, current: L.qs[0], logMistakes: true, hw: {}, ai: L.ai, fb: {} };
+      s.portal.marking = { paper: L.paper, single: L.single, qs: L.qs, used: Math.round(L.dur - left), dur: Math.round(L.dur / 60), timeOn: L.timeOn, notes: L.notes, mc: L.mc || {}, scores: {}, msPage: null, current: L.qs[0], logMistakes: true, hw: {}, ai: L.ai, fb: {} };
       s.portal.live = null;
     });
     location.hash = 'handin';
@@ -631,7 +814,7 @@
       const q = p.questions[i];
       return '<li><span class="hl-q"><b>Q' + esc(q.n) + '</b><span class="muted small">' + (q.marks == null ? '' : U.plural(q.marks, 'mark')) + '</span></span>' + hwThumbs(i) + '<label class="btn alt sm file-btn">' + C.icon('camera') + (K.hw[i] ? U.plural(K.hw[i], 'photo') : 'Add photo') + '<input type="file" accept="image/*" capture="environment" multiple data-hwq="' + i + '"></label></li>';
     }).join('') + '</ul>';
-    html += '<div class="sit-go"><div><b>Ready to mark?</b><span class="muted">' + U.plural(Object.keys(K.hw).reduce((a, k) => a + K.hw[k], 0), 'photo') + ' handed in</span></div><a class="btn lg" href="#mark">Go to marking' + C.icon('right') + '</a></div></section>';
+    html += '<div class="sit-go"><div><b>Ready to mark?</b><span class="muted">' + U.plural(Object.keys(K.hw).reduce((a, k) => a + K.hw[k], 0), 'photo') + ' handed in</span></div><span class="row-actions"><button type="button" class="btn alt" data-action="ans-export" data-v="mark">' + C.icon('download') + 'Export PDF</button><a class="btn lg" href="#mark">Go to marking' + C.icon('right') + '</a></span></div></section>';
     return html;
   };
   RH.onChange.push(function (el) {
@@ -657,9 +840,9 @@
     const tt = totals(p, K.qs, K.scores), total = tt.max, score = tt.score;
     const msPage = K.msPage != null ? K.msPage : (q.ms != null ? q.ms : 0);
     const mpm = p.marks ? p.dur / p.marks : 1.2;
-    const hasAns = (K.hw && (K.hw[K.current] || K.hw.all)) || K.notes[K.current];
+    const hasAns = (K.hw && (K.hw[K.current] || K.hw.all)) || typedAnswer(K, K.current);
     let html = C.crumbs([['Exam centre', 'papers'], [p.title, 'paper-' + p.id], ['Marking']]);
-    html += C.page({ title: 'Marking', lede: esc(p.title) + ' · <b class="num">' + score + ' / ' + total + '</b>' + (total ? ' so far' : ''), actions: '<a class="btn alt" href="#handin">' + C.icon('camera') + 'Photos</a><button type="button" class="btn" data-action="mark-save">' + C.icon('tick') + 'Save result</button>' });
+    html += C.page({ title: 'Marking', lede: esc(p.title) + ' · <b class="num">' + score + ' / ' + total + '</b>' + (total ? ' so far' : ''), actions: '<a class="btn alt" href="#handin">' + C.icon('camera') + 'Photos</a><button type="button" class="btn alt" data-action="ans-export" data-v="mark">' + C.icon('download') + 'Export PDF</button><button type="button" class="btn" data-action="mark-save">' + C.icon('tick') + 'Save result</button>' });
     html += '<nav class="mark-nav">' + K.qs.map((i) => {
       const qq = p.questions[i], has = K.scores[i] != null && K.scores[i] !== '';
       return '<button type="button" class="qchip wide' + (i === K.current ? ' on' : '') + (has ? ' done' : '') + '" data-action="mark-go" data-i="' + i + '"><b>Q' + esc(qq.n) + '</b><span class="num small">' + (has ? K.scores[i] : '–') + '/' + (qq.marks == null ? '?' : qq.marks) + '</span></button>';
@@ -667,7 +850,7 @@
     const t = K.timeOn[K.current] || 0, sugg = q.marks ? q.marks * mpm * 60 : 0;
     html += '<div class="mark-cols"><section class="card"><div class="q-head"><h2>Question ' + esc(q.n) + '</h2><span class="muted small">' + RH.timer.fmt(t) + ' spent' + (sugg && t > sugg * 1.3 ? ' · <span class="pace-bad">longer than the ' + U.mins(Math.round(sugg / 60)) + ' it’s worth</span>' : '') + '</span></div>' +
       '<div class="qcrop paper-sheet" data-qdraw="' + K.current + '" data-paper="' + p.id + '"></div>' +
-      '<p class="label">Your answer</p>' + hwThumbs(K.current) + (K.hw && K.hw.all ? hwThumbs('all') : '') + (K.notes[K.current] ? '<div class="tip"><p>' + esc(K.notes[K.current]) + '</p></div>' : '') + (hasAns ? '' : '<p class="muted small">No photo for this question. <a href="#handin">Add one</a>, or mark from memory.</p>') +
+      '<p class="label">Your answer</p>' + hwThumbs(K.current) + (K.hw && K.hw.all ? hwThumbs('all') : '') + (typedAnswer(K, K.current) ? '<div class="typed-ans"><p>' + esc(typedAnswer(K, K.current)).replace(/\n/g, '<br>') + '</p></div>' : '') + (hasAns ? '' : '<p class="muted small">No photo for this question. <a href="#handin">Add one</a>, or mark from memory.</p>') +
       (K.fb && K.fb[K.current] ? '<div class="note ok-n ai-fb">' + C.icon('spark') + '<div>' + K.fb[K.current] + '</div></div>' : '') +
       '<div class="score-row"><label for="mk-score"><b>Marks</b></label><input id="mk-score" type="number" min="0" max="' + (q.marks || 200) + '" data-mscore="' + K.current + '" value="' + (K.scores[K.current] != null ? esc(K.scores[K.current]) : '') + '" inputmode="numeric"><span class="num">/ ' + (q.marks == null ? '?' : q.marks) + '</span>' +
       '<button type="button" class="btn alt sm" data-action="mark-full" data-i="' + K.current + '">Full</button><button type="button" class="btn alt sm" data-action="mark-zero" data-i="' + K.current + '">0</button>' +
@@ -683,13 +866,21 @@
   // Claude marks one answer: the question, your photos or typed answer, and the mark scheme page.
   async function aiMark(i) {
     const K = st().portal.marking, p = st().portal.papers[K.paper], q = p.questions[i];
-    const imgs = (await P.questionImages(p.id, i)).slice(0, 2);
-    const ans = (await hwList(K, i)).concat(K.hw && K.hw.all ? await hwList(K, 'all') : []).slice(0, 3);
-    const ms = q.ms != null && p.msFile ? await P.msImage(p.id, q.ms) : null;
-    const all = imgs.concat(ans).concat(ms ? [ms] : []).slice(0, Math.max(1, RH.ai.maxImages()));
+    const max = RH.ai.maxImages();
+    const imgs = max ? (await P.questionImages(p.id, i).catch(() => [])).slice(0, 2) : [];
+    const ans = max ? (await hwList(K, i)).concat(K.hw && K.hw.all ? await hwList(K, 'all') : []).slice(0, 3) : [];
+    const ms = max && q.ms != null && p.msFile ? await P.msImage(p.id, q.ms) : null;
+    const all = imgs.concat(ans).concat(ms ? [ms] : []).slice(0, max);
+    const qText = await P.questionText(p.id, i).catch(() => '');
+    const msText = q.ms != null && p.msFile ? await P.msText(p.id, q.ms).catch(() => '') : '';
+    const typed = typedAnswer(K, i);
+    if (!typed && !(ans.length && all.length > imgs.length)) throw { code: 'no_answer', message: max ? 'Add a photo of your answer or type it first.' : 'Photos can’t be sent to Claude from here. Type your answer in the box on the paper, then mark again.' };
     const subj = p.subject && M.subject[p.subject] ? M.subject[p.subject].name : 'A-level';
-    const prompt = 'You are an experienced ' + subj + ' examiner. Mark one exam answer.\n\nImages, in order: ' + imgs.length + ' of the question (question ' + q.n + (q.marks ? ', ' + q.marks + ' marks' : '') + ')' + (ans.length ? ', then ' + ans.length + ' photo(s) of the student’s handwritten answer' + (K.hw && K.hw.all ? ' (one photo may cover several questions: mark only question ' + q.n + ')' : '') : '') + (ms ? ', then the mark scheme page' : '') + '.' +
-      (K.notes[i] ? '\n\nThe student also typed: """' + K.notes[i] + '"""' : '') +
+    const sentAns = all.filter((b) => ans.indexOf(b) !== -1).length, sentQ = all.filter((b) => imgs.indexOf(b) !== -1).length;
+    const prompt = 'You are an experienced ' + subj + ' examiner. Mark one exam answer.\n\nQuestion ' + q.n + (q.marks ? ' (' + q.marks + ' marks)' : '') + (qText ? ', as text read from the PDF (diagrams and some symbols may be missing):\n"""' + qText + '"""' : '') +
+      (all.length ? '\n\nImages, in order: ' + (sentQ ? sentQ + ' of the question' : '') + (sentAns ? (sentQ ? ', then ' : '') + sentAns + ' photo(s) of the student’s handwritten answer' + (K.hw && K.hw.all ? ' (one photo may cover several questions: mark only question ' + q.n + ')' : '') : '') + (ms && all.indexOf(ms) !== -1 ? ', then the mark scheme page' : '') + '.' : '') +
+      (typed ? '\n\nThe student’s answer:\n"""' + typed + '"""' : '') +
+      (msText && !(ms && all.indexOf(ms) !== -1) ? '\n\nMark scheme page text (it may cover other questions too; use only question ' + q.n + '):\n"""' + msText + '"""' : '') +
       '\n\nAward marks strictly by the mark scheme if you have it, otherwise by standard ' + subj + ' marking. Reply with JSON only: {"score": number, "max": number, "feedback": "two or three short sentences: what earned marks and the one thing that would have got the next mark"}';
     return RH.ai.ask(prompt, { json: true, images: all, effort: 'high' });
   }
@@ -955,6 +1146,11 @@
   function paintDock() {
     const L = live(), on = !!(L && L.ai && location.hash === '#exam' && !L.paused);
     dock.hidden = !on;
+    // On wide screens an open chat sits in the side column under the clock, so it never covers the controls.
+    const side = document.querySelector('.ex-side'), inSide = on && RH.ui.chatOpen && side && window.innerWidth > 1000;
+    if (inSide && dock.parentNode !== side) side.appendChild(dock);
+    else if (!inSide && dock.parentNode !== document.body) document.body.appendChild(dock);
+    dock.classList.toggle('in-side', !!inSide);
     if (!on) return;
     const p = st().portal.papers[L.paper], q = p && p.questions[L.current];
     if (!RH.ui.chatOpen) { dock.innerHTML = '<button type="button" class="ai-fab" data-action="chat-toggle">' + C.icon('spark') + '<span>Ask Claude</span></button>'; return; }
@@ -973,12 +1169,19 @@
     msgs.push({ role: 'user', content: text.trim() });
     const reply = { role: 'assistant', content: '' };
     msgs.push(reply); paintDock();
-    const intro = 'You are a friendly A-level ' + (p.subject && M.subject[p.subject] ? M.subject[p.subject].name : '') + ' tutor helping a student during a timed practice question (question ' + q.n + (q.marks ? ', ' + q.marks + ' marks' : '') + ', shown in the image). Give hints and explain ideas briefly. Do not write out the full answer unless the student asks for it. Keep replies under 120 words.\n\n';
+    const max = RH.ai.maxImages();
+    const imgs = max ? (await P.questionImages(p.id, L.current).catch(() => [])).slice(0, max) : [];
+    const qText = await P.questionText(p.id, L.current).catch(() => '');
+    const typed = typedAnswer(L, L.current);
+    const intro = 'You are a friendly A-level ' + (p.subject && M.subject[p.subject] ? M.subject[p.subject].name + ' ' : '') + 'tutor helping a student during a timed practice question: question ' + q.n + (q.marks ? ' (' + q.marks + ' marks)' : '') + ' of ' + p.title + '.' +
+      (imgs.length ? ' The question is in the attached image' + (imgs.length > 1 ? 's' : '') + '.' : '') +
+      (qText ? '\n\nThe question as text read from the PDF (diagrams and some symbols may be missing):\n"""' + qText + '"""' : (imgs.length ? '' : ' You can’t see the question, so ask the student to type the part they are stuck on.')) +
+      (typed ? '\n\nWhat the student has written so far:\n"""' + typed + '"""' : '') +
+      '\n\nGive hints and explain ideas briefly. Do not write out the full answer unless the student asks for it. Keep replies under 120 words.\n\n';
     const turns = msgs.slice(0, -1).map((m, k) => ({ role: m.role, content: (k === 0 ? intro : '') + m.content }));
     try {
-      const imgs = await P.questionImages(p.id, L.current).catch(() => []);
-      const out = await RH.ai.ask(turns, { images: imgs.slice(0, Math.max(0, RH.ai.maxImages())), effort: 'low', onText: (x) => { reply.content = x.text; const b = document.getElementById('aiMsgs'); if (b && b.lastElementChild) { b.lastElementChild.innerHTML = fmtMsg(x.text); b.scrollTop = b.scrollHeight; } } });
-      reply.content = out || reply.content;
+      const out = await RH.ai.ask(turns, { images: imgs, effort: 'low', onText: (x) => { reply.content = x.text; const b = document.getElementById('aiMsgs'); if (b && b.lastElementChild) { b.lastElementChild.innerHTML = fmtMsg(x.text); b.scrollTop = b.scrollHeight; } } });
+      reply.content = out || reply.content || 'No reply came back. Try again.';
     } catch (e) { reply.content = RH.ai.errorText(e); }
     paintDock();
   }
@@ -995,5 +1198,5 @@
     if (ev.key === 'f' || ev.key === 'F') { RH.actions['exam-flag'](); return true; }
     return false;
   };
-  P.detect = detect; P.meta = meta; P.readPdf = readPdf;
+  P.detect = detect; P.meta = meta; P.readPdf = readPdf; P.packSplit = packSplit;
 })(window.RH = window.RH || {});

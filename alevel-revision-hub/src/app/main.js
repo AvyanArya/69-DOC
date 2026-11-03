@@ -48,7 +48,7 @@
     const t = r.indexOf('t-') === 0 && M.topic[r.slice(2)];
     const c = r.indexOf('c-') === 0 && M.comp[r.slice(2)];
     const s = r.indexOf('s-') === 0 && M.subject[r.slice(2)];
-    const names = { study: 'My Subjects', subjects: 'Choose subjects', plan: 'This week', deliverables: 'Weekly tasks', routine: 'My schedule', exams: 'Exams', strategy: 'Strategy', check: 'Check an answer', checks: 'Checked answers', focus: 'Focus', papers: 'Exam centre', exam: 'Exam in progress', mark: 'Marking', handin: 'Hand in', cards: 'Flashcards', review: 'Reviewing cards', library: 'Resources', guide: 'How to revise', preferences: 'Settings', labs: 'The Labs', welcome: 'Sign in', setup: 'Set up' };
+    const names = { study: 'My Subjects', subjects: 'Choose subjects', plan: 'Planner', deliverables: 'Weekly tasks', routine: 'My schedule', exams: 'Exams', strategy: 'Strategy', check: 'Check an answer', checks: 'Checked answers', focus: 'Focus', papers: 'Exam centre', exam: 'Exam in progress', mark: 'Marking', handin: 'Hand in', cards: 'Flashcards', review: 'Reviewing cards', library: 'Resources', guide: 'How to revise', preferences: 'Settings', labs: 'The Labs', welcome: 'Sign in', setup: 'Set up' };
     const lab = r.indexOf('lab-') === 0 && RH.labs.byId[r.slice(4)];
     const name = t ? t.name : c ? c.name : s ? s.name : lab ? lab.name : names[r];
     return (name ? name + ' · ' : '') + 'Preppr';
