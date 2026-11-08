@@ -1,0 +1,2006 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Jarvis · Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Sora:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#03050a; --glass:rgba(15,21,33,.55); --glass-2:rgba(18,25,40,.78);
+  --stroke:rgba(255,255,255,.07); --stroke-2:rgba(255,255,255,.13);
+  --t1:#eef4fb; --t2:#a3b1c4; --t3:#627187;
+  --ice:#7cdcff; --ice-rgb:124,220,255; --violet:#a78bfa; --violet-rgb:167,139,250;
+  --mint:#6ef0b8; --amber:#ffbd7a; --rose:#ff7a90;
+  --r:22px; --ease:cubic-bezier(.22,1,.36,1); --spring:cubic-bezier(.34,1.56,.64,1);
+  --font:"Sora",ui-sans-serif,-apple-system,"SF Pro Display","Helvetica Neue",Arial,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--t1);font-family:var(--font);font-weight:300;-webkit-font-smoothing:antialiased;overflow:hidden}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0}
+[hidden]{display:none!important}
+svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+:focus-visible{outline:2px solid rgba(var(--ice-rgb),.6);outline-offset:3px;border-radius:12px}
+.sprite{position:absolute;width:0;height:0;overflow:hidden}
+
+/* ---------------------------------------------------------------- space */
+.space{position:fixed;inset:0;z-index:0;overflow:hidden;background:radial-gradient(1200px 800px at 50% 40%,#0b1526 0%,#060a12 48%,var(--bg) 82%)}
+.nebula{position:absolute;border-radius:50%;filter:blur(70px);will-change:transform}
+.n1{width:62vw;height:62vw;left:-14vw;top:-22vw;background:radial-gradient(circle,rgba(109,74,255,.34),transparent 64%);animation:d1 44s ease-in-out infinite alternate}
+.n2{width:58vw;height:58vw;right:-16vw;bottom:-24vw;background:radial-gradient(circle,rgba(31,170,255,.26),transparent 64%);animation:d2 52s ease-in-out infinite alternate}
+.n3{width:38vw;height:38vw;left:36vw;top:26vh;background:radial-gradient(circle,rgba(236,72,153,.09),transparent 64%);animation:d3 60s ease-in-out infinite alternate}
+@keyframes d1{to{transform:translate(9vw,7vh) scale(1.12)}}
+@keyframes d2{to{transform:translate(-8vw,-6vh) scale(1.08)}}
+@keyframes d3{to{transform:translate(-10vw,8vh) scale(1.2)}}
+.stars{position:absolute;left:0;top:0;width:1px;height:1px;border-radius:50%;animation:tw 7s ease-in-out infinite alternate}
+@keyframes tw{from{opacity:.55}to{opacity:1}}
+.grain{position:absolute;inset:0;opacity:.06;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.vignette{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 52%,rgba(0,0,0,.6) 100%)}
+
+/* ---------------------------------------------------------------- lock screen */
+.lock{position:fixed;inset:0;z-index:30;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;transition:opacity .8s var(--ease),filter .8s var(--ease),transform 1s var(--ease)}
+.lock.leaving{opacity:0;filter:blur(18px);transform:scale(1.08);pointer-events:none}
+.lock-time{font-size:clamp(88px,12vw,156px);font-weight:200;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums;background:linear-gradient(180deg,#fff 20%,rgba(190,220,255,.5));-webkit-background-clip:text;background-clip:text;color:transparent;animation:fadeUp 1.2s var(--ease) both}
+.lock-date{margin-top:16px;font-size:18px;color:var(--t2);animation:fadeUp 1.2s .1s var(--ease) both}
+.lock-hello{margin-top:9vh;font:500 11px var(--mono);letter-spacing:.32em;text-transform:uppercase;color:var(--t3);animation:fadeUp 1.2s .25s var(--ease) both}
+.unlock{position:relative;margin-top:22px;width:112px;height:112px;border-radius:50%;display:grid;place-items:center;touch-action:none;
+  background:radial-gradient(circle,rgba(var(--ice-rgb),.12),rgba(var(--ice-rgb),.03) 58%,transparent 70%);transition:transform .45s var(--spring);animation:fadeUp 1.2s .35s var(--ease) both}
+.unlock.holding{transform:scale(.94)}
+.unlock svg{width:112px;height:112px;overflow:visible}
+.unlock::after{content:"";position:absolute;inset:-12px;border-radius:50%;border:1px solid rgba(var(--ice-rgb),.2);animation:ping 2.8s var(--ease) infinite}
+@keyframes ping{0%{transform:scale(.9);opacity:.9}100%{transform:scale(1.4);opacity:0}}
+.u-track{fill:none;stroke:rgba(255,255,255,.08);stroke-width:1.5}
+.u-prog{fill:none;stroke:var(--ice);stroke-width:2.2;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;transform:rotate(-90deg);transform-origin:56px 56px;filter:drop-shadow(0 0 6px rgba(var(--ice-rgb),.9))}
+.u-scan circle{fill:none;stroke:rgba(var(--ice-rgb),.7);stroke-width:1.6;stroke-linecap:round;transform-origin:56px 56px}
+.u-scan circle:nth-child(1){stroke-dasharray:14 6;animation:spin 9s linear infinite}
+.u-scan circle:nth-child(2){stroke-dasharray:30 9 6 9;animation:spin 13s linear infinite reverse;opacity:.75}
+.u-scan circle:nth-child(3){stroke-dasharray:46 12 10 12;animation:spin 18s linear infinite;opacity:.5}
+.u-scan .dot{fill:#fff;stroke:none;filter:drop-shadow(0 0 6px #fff)}
+.unlock.holding .u-scan circle{animation-duration:1.2s}
+@keyframes spin{to{transform:rotate(360deg)}}
+.lock-hint{margin-top:18px;font:500 11px var(--mono);letter-spacing:.24em;text-transform:uppercase;color:var(--t3);transition:color .3s;animation:fadeUp 1.2s .45s var(--ease) both}
+.lock-hint.nudge{color:var(--ice)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);filter:blur(6px)}}
+
+/* ---------------------------------------------------------------- boot sequence */
+.boot{position:fixed;inset:0;z-index:25;transition:opacity .7s var(--ease),transform .8s var(--ease)}
+.boot canvas{position:absolute;inset:0;width:100%;height:100%}
+.boot.out{opacity:0;transform:scale(.9)}
+.boot-word{position:absolute;left:0;right:0;top:61%;text-align:center;font-weight:200;font-size:clamp(34px,4.4vw,60px);letter-spacing:.62em;padding-left:.62em;line-height:1}
+.boot-word span{display:inline-block;opacity:0;filter:blur(16px);transform:translateY(12px) scale(1.1);transition:opacity 1s var(--ease),filter 1s var(--ease),transform 1s var(--ease);transition-delay:calc(var(--i)*75ms)}
+.boot.word .boot-word span{opacity:1;filter:blur(0);transform:none}
+.boot-sub{position:absolute;left:0;right:0;top:calc(61% + clamp(54px,6vw,82px));text-align:center;font:500 11px var(--mono);letter-spacing:.44em;padding-left:.44em;text-transform:uppercase;color:var(--t3);opacity:0;transition:opacity .9s .55s}
+.boot.word .boot-sub{opacity:1}
+.boot-checks{position:absolute;left:50%;top:77%;transform:translateX(-50%);display:grid;grid-template-columns:repeat(2,minmax(230px,1fr));gap:9px 44px;list-style:none;font:400 11.5px var(--mono);color:var(--t2)}
+.boot-checks li{display:flex;gap:10px;align-items:baseline;opacity:0;transform:translateY(6px);transition:all .45s var(--ease)}
+.boot-checks li.in{opacity:1;transform:none}
+.boot-checks .lead{flex:1;border-bottom:1px dotted rgba(255,255,255,.14)}
+.boot-checks .st{letter-spacing:.16em;color:var(--t3)}
+.st.online{color:var(--mint)} .st.loading{color:var(--amber)} .st.offline{color:var(--rose)}
+.boot-welcome{position:absolute;left:0;right:0;top:90%;text-align:center;font-size:19px;opacity:0;transform:translateY(8px);transition:all .9s var(--ease)}
+.boot-welcome.in{opacity:1;transform:none}
+.boot-skip{position:absolute;right:28px;bottom:24px;font:500 10.5px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--t3);padding:8px 14px;border-radius:999px;border:1px solid var(--stroke);transition:color .3s,border-color .3s}
+.boot-skip:hover{color:var(--t1);border-color:var(--stroke-2)}
+
+/* ---------------------------------------------------------------- app shell */
+.app{position:fixed;inset:0;z-index:10;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:18px;padding:18px 24px 20px;visibility:hidden}
+body.ready .app{visibility:visible}
+.reveal{opacity:0;transform:translateY(20px) scale(.985);filter:blur(10px)}
+body.ready .reveal{animation:rise 1s var(--ease) forwards;animation-delay:calc(var(--d,0) * 95ms)}
+@keyframes rise{to{opacity:1;transform:none;filter:blur(0)}}
+
+.top{position:relative;display:flex;align-items:center;justify-content:space-between;height:52px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand svg{width:30px;height:30px;color:var(--ice);stroke-width:1.4}
+.brand b{display:block;font-weight:300;font-size:15px;letter-spacing:.52em}
+.brand span{display:block;margin-top:4px;font:500 9.5px var(--mono);letter-spacing:.2em;color:var(--t3);text-transform:uppercase}
+.pill{position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;padding:9px 16px 9px 14px;border-radius:999px;background:var(--glass);border:1px solid var(--stroke);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);font:500 10.5px var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--t2)}
+.pill i{width:7px;height:7px;border-radius:50%;background:var(--ice);box-shadow:0 0 10px var(--ice);transition:background .4s,box-shadow .4s}
+body[data-state=listening] .pill i{background:var(--mint);box-shadow:0 0 12px var(--mint);animation:blink 1s infinite}
+body[data-state=thinking] .pill i{background:var(--violet);box-shadow:0 0 12px var(--violet);animation:blink .6s infinite}
+body[data-state=error] .pill i{background:var(--rose);box-shadow:0 0 12px var(--rose)}
+@keyframes blink{50%{opacity:.3}}
+.top-right{display:flex;align-items:center;gap:20px}
+.top-wx{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--t2)}
+.top-wx svg{width:20px;height:20px;color:var(--ice)}
+.top-clock{text-align:right}
+.top-clock b{display:block;font-weight:300;font-size:23px;font-variant-numeric:tabular-nums;letter-spacing:.01em;line-height:1}
+.top-clock b i{font-style:normal;color:var(--t3);font-size:15px}
+.top-clock span{display:block;margin-top:5px;font:500 9.5px var(--mono);letter-spacing:.18em;color:var(--t3);text-transform:uppercase}
+.icon-btn{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:var(--glass);border:1px solid var(--stroke);color:var(--t2);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);transition:all .35s var(--ease)}
+.icon-btn:hover{color:var(--t1);border-color:var(--stroke-2);transform:translateY(-1px)}
+
+.main{display:grid;grid-template-columns:minmax(260px,300px) minmax(0,1fr) minmax(300px,372px);gap:20px;min-height:0}
+.col{display:flex;flex-direction:column;gap:16px;min-height:0}
+.col.left{overflow-y:auto;scrollbar-width:none;margin:-6px;padding:6px}
+.col.left::-webkit-scrollbar{display:none}
+.col.left.fades{-webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 44px),transparent);mask-image:linear-gradient(180deg,#000 calc(100% - 44px),transparent)}
+
+.card{position:relative;border-radius:var(--r);padding:18px 20px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.012)),var(--glass);
+  -webkit-backdrop-filter:blur(24px) saturate(150%);backdrop-filter:blur(24px) saturate(150%);box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 24px 60px -28px rgba(0,0,0,.85)}
+.card::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;
+  background:linear-gradient(150deg,rgba(255,255,255,.17),rgba(255,255,255,.03) 34%,rgba(255,255,255,.02) 66%,rgba(var(--ice-rgb),.16));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.card-h{display:flex;align-items:center;gap:8px;margin-bottom:14px;font:500 10px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--t3)}
+.card-h svg{width:14px;height:14px;color:var(--ice)}
+.card-h .grow{flex:1}
+.link-btn{font:500 10px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--t3);display:flex;align-items:center;gap:6px;transition:color .3s}
+.link-btn:hover{color:var(--ice)}
+.link-btn svg{width:13px;height:13px}
+
+/* hero */
+.hero-greet{font-size:14px;color:var(--t2)}
+.hero-name{margin-top:2px;font-size:34px;font-weight:300;letter-spacing:-.01em;line-height:1.15;background:linear-gradient(95deg,#fff 0%,#d2ecff 38%,var(--violet) 100%);-webkit-background-clip:text;background-clip:text;color:transparent;min-height:1.15em}
+.hero-sub{margin-top:10px;font-size:12.5px;line-height:1.6;color:var(--t2)}
+.hero-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+
+.chip{display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border-radius:999px;font-size:12.5px;font-weight:400;white-space:nowrap;color:var(--t1);background:rgba(255,255,255,.04);border:1px solid var(--stroke);transition:all .4s var(--ease)}
+.chip:hover{background:rgba(var(--ice-rgb),.09);border-color:rgba(var(--ice-rgb),.32);transform:translateY(-2px)}
+.chip svg{width:14px;height:14px;color:var(--ice)}
+.chip.primary{background:linear-gradient(135deg,rgba(var(--ice-rgb),.2),rgba(var(--violet-rgb),.18));border-color:rgba(var(--ice-rgb),.32)}
+
+/* weather */
+.wx-main{display:flex;align-items:flex-start;justify-content:space-between}
+.wx-temp{font-size:58px;font-weight:200;line-height:.95;letter-spacing:-.04em}
+.wx-temp sup{font-size:18px;color:var(--t2);vertical-align:top;position:relative;top:6px;margin-left:2px;letter-spacing:0}
+.wx-main svg.wx-ico{width:54px;height:54px;color:var(--ice);stroke-width:1.2;filter:drop-shadow(0 0 14px rgba(var(--ice-rgb),.45))}
+.wx-label{margin-top:8px;font-size:14px;text-transform:capitalize}
+.wx-place{font-size:12px;color:var(--t3);margin-top:2px}
+.wx-meta{display:flex;gap:14px;margin-top:12px;font:400 10.5px var(--mono);color:var(--t2)}
+.wx-meta span{display:flex;align-items:center;gap:5px}
+.wx-meta svg{width:13px;height:13px;color:var(--t3)}
+.wx-spark{display:block;width:100%;height:30px;margin-top:14px;overflow:visible}
+.wx-hours{display:grid;grid-template-columns:repeat(6,1fr);margin-top:2px}
+.wx-h{text-align:center;font:400 10px var(--mono);color:var(--t3)}
+.wx-h svg{display:block;width:16px;height:16px;margin:6px auto 5px;color:var(--t2)}
+.wx-h b{display:block;font:400 12.5px var(--font);color:var(--t1)}
+
+/* system */
+.gauges{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.gauge{position:relative;text-align:center}
+.gauge svg{width:62px;height:62px;transform:rotate(-90deg)}
+.g-track{fill:none;stroke:rgba(255,255,255,.06);stroke-width:4}
+.g-fill{fill:none;stroke:url(#gauge-grad);stroke-width:4;stroke-linecap:round;stroke-dasharray:100 100;stroke-dashoffset:100;transition:stroke-dashoffset 1.1s var(--ease)}
+.gauge b{position:absolute;top:21px;left:0;right:0;font-weight:400;font-size:13px;font-variant-numeric:tabular-nums}
+.gauge span{display:block;margin-top:3px;font:500 9px var(--mono);letter-spacing:.18em;color:var(--t3)}
+.svc{display:grid;gap:9px;margin-top:16px}
+.svc div{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--t2)}
+.svc i{width:6px;height:6px;border-radius:50%;background:var(--t3);flex:none}
+.svc .online i{background:var(--mint);box-shadow:0 0 8px var(--mint)}
+.svc .loading i,.svc .starting i{background:var(--amber);box-shadow:0 0 8px var(--amber);animation:blink 1s infinite}
+.svc .offline i{background:var(--rose);box-shadow:0 0 8px var(--rose)}
+.svc em{margin-left:auto;font:400 10px var(--mono);font-style:normal;color:var(--t3);max-width:52%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.notes{margin-top:12px;font-size:11.5px;line-height:1.55;color:var(--amber)}
+.notes p+p{margin-top:6px}
+
+/* timers */
+.timers{list-style:none;display:grid;gap:4px}
+.timer{display:flex;align-items:center;gap:12px;padding:6px 0;animation:msgIn .5s var(--ease)}
+.timer svg.ring{width:36px;height:36px;transform:rotate(-90deg)}
+.timer .t-track{fill:none;stroke:rgba(255,255,255,.07);stroke-width:3}
+.timer .t-fill{fill:none;stroke:var(--ice);stroke-width:3;stroke-linecap:round;stroke-dasharray:100 100;transition:stroke-dashoffset .5s linear}
+.timer .t-txt{flex:1;min-width:0}
+.timer .t-txt b{display:block;font-weight:400;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.timer .t-txt span{font:400 10px var(--mono);color:var(--t3)}
+.timer .t-left{font:400 16px var(--mono);font-variant-numeric:tabular-nums}
+.timer button{color:var(--t3);padding:4px;transition:color .3s}
+.timer button:hover{color:var(--rose)}
+
+/* stage */
+.stage{position:relative;display:flex;flex-direction:column;min-height:0}
+#orb{flex:1;width:100%;min-height:280px;cursor:pointer;outline:none}
+.stage-read{text-align:center}
+.state{font:500 10.5px var(--mono);letter-spacing:.36em;padding-left:.36em;text-transform:uppercase;color:var(--ice);transition:color .5s}
+body[data-state=listening] .state{color:var(--mint)}
+body[data-state=thinking] .state{color:var(--violet)}
+body[data-state=error] .state{color:var(--rose)}
+.caption{margin:12px auto 0;max-width:660px;min-height:2.7em;font-size:21px;font-weight:300;line-height:1.36;text-wrap:balance}
+.caption.in{animation:capIn .7s var(--ease)}
+@keyframes capIn{from{opacity:0;transform:translateY(8px);filter:blur(5px)}}
+.chips{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:18px auto 6px;max-width:740px;transition:opacity .5s var(--ease)}
+body:not([data-state=idle]) .chips{opacity:.3}
+
+/* news */
+.news-card{flex:1.25;display:flex;flex-direction:column;min-height:0}
+.tabs{display:flex;gap:3px;padding:3px;margin-bottom:10px;border-radius:13px;background:rgba(255,255,255,.03);border:1px solid var(--stroke);overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:1;padding:6px 9px;border-radius:10px;font-size:11.5px;color:var(--t3);white-space:nowrap;transition:all .35s var(--ease)}
+.tab:hover{color:var(--t1)}
+.tab.on{background:rgba(var(--ice-rgb),.13);color:var(--t1);box-shadow:inset 0 0 0 1px rgba(var(--ice-rgb),.26)}
+.stories{list-style:none;flex:1;min-height:0;overflow-y:auto;margin:0 -8px;padding:0 4px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.12) transparent}
+.story{display:flex;align-items:center;gap:12px;padding:8px;border-radius:14px;color:inherit;text-decoration:none;transition:background .35s var(--ease)}
+.story:hover,.story.reading{background:rgba(255,255,255,.045)}
+.story.reading{box-shadow:inset 0 0 0 1px rgba(var(--ice-rgb),.3)}
+.story img,.story .ph{width:58px;height:58px;border-radius:12px;object-fit:cover;flex:none;background:rgba(255,255,255,.05)}
+.story-t{flex:1;min-width:0}
+.story-t b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:400;font-size:13.2px;line-height:1.4}
+.story-t small{display:block;margin-top:4px;font:400 10px var(--mono);color:var(--t3);letter-spacing:.04em}
+.story .go{width:14px;height:14px;color:var(--t3);opacity:0;transition:all .35s var(--ease)}
+.story:hover .go{opacity:1;transform:translate(2px,-2px)}
+.skel{position:relative;overflow:hidden;background:rgba(255,255,255,.045);border-radius:8px}
+.skel::after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,rgba(255,255,255,.07),transparent);animation:shim 1.6s infinite}
+@keyframes shim{to{transform:translateX(100%)}}
+
+/* conversation */
+.convo{flex:1;display:flex;flex-direction:column;min-height:0}
+.log{list-style:none;flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding-right:4px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.12) transparent}
+.msg{max-width:94%;animation:msgIn .55s var(--ease)}
+@keyframes msgIn{from{opacity:0;transform:translateY(10px)}}
+.msg.you{align-self:flex-end;padding:9px 13px;border-radius:16px 16px 5px 16px;font-size:13.2px;line-height:1.45;background:rgba(var(--ice-rgb),.1);border:1px solid rgba(var(--ice-rgb),.18)}
+.msg.jarvis{display:flex;gap:10px;font-size:13.2px;line-height:1.58}
+.msg.jarvis .av{flex:none;width:20px;height:20px;margin-top:1px;border-radius:50%;background:radial-gradient(circle at 34% 32%,#fff,var(--ice) 36%,var(--violet) 78%);box-shadow:0 0 12px rgba(var(--ice-rgb),.5)}
+.msg.jarvis .bd{min-width:0}
+.msg.err .txt{color:var(--rose)}
+.msg.sys{align-self:center;max-width:100%;text-align:center;font:400 10.5px var(--mono);color:var(--t3);line-height:1.5}
+.attach{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.src{display:inline-flex;align-items:center;gap:6px;max-width:100%;padding:5px 10px;border-radius:999px;font:400 10.5px var(--mono);color:var(--t2);text-decoration:none;background:rgba(255,255,255,.04);border:1px solid var(--stroke);transition:all .3s}
+.src:hover{color:var(--t1);border-color:rgba(var(--ice-rgb),.35)}
+.src svg{width:12px;height:12px}
+.src span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.typing span{display:inline-block;width:5px;height:5px;margin-right:4px;border-radius:50%;background:var(--t2);animation:bounce 1.2s infinite}
+.typing span:nth-child(2){animation-delay:.15s}.typing span:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,60%,100%{transform:none;opacity:.4}30%{transform:translateY(-4px);opacity:1}}
+.empty{margin:auto;max-width:240px;text-align:center;color:var(--t3);font-size:12.5px;line-height:1.65}
+
+/* dock */
+.dock{display:flex;justify-content:center}
+.command{display:flex;align-items:center;gap:10px;width:min(780px,100%);padding:8px;border-radius:999px;background:var(--glass-2);-webkit-backdrop-filter:blur(26px) saturate(150%);backdrop-filter:blur(26px) saturate(150%);border:1px solid var(--stroke-2);box-shadow:0 24px 70px -24px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.06);transition:border-color .4s,box-shadow .4s}
+.command:focus-within{border-color:rgba(var(--ice-rgb),.4);box-shadow:0 0 0 5px rgba(var(--ice-rgb),.06),0 24px 70px -24px rgba(0,0,0,.9)}
+.mic{position:relative;width:50px;height:50px;border-radius:50%;flex:none;display:grid;place-items:center;color:#06111b;background:linear-gradient(135deg,var(--ice),var(--violet));box-shadow:0 10px 28px -8px rgba(var(--ice-rgb),.7);transition:transform .45s var(--spring),background .5s}
+.mic:hover{transform:scale(1.07)}
+.mic svg{width:20px;height:20px;stroke-width:2}
+.mic::after{content:"";position:absolute;inset:-7px;border-radius:50%;border:2px solid rgba(110,240,184,0);transition:border-color .3s;transform:scale(calc(1 + var(--lvl,0) * .45))}
+body[data-state=listening] .mic{background:linear-gradient(135deg,var(--mint),var(--ice))}
+body[data-state=listening] .mic::after{border-color:rgba(110,240,184,.65)}
+.command input{flex:1;min-width:0;padding:0 6px;background:none;border:0;outline:0;font-size:15px;font-weight:300}
+.command input::placeholder{color:var(--t3)}
+.kbd{font:500 10px var(--mono);letter-spacing:.1em;color:var(--t3);padding:6px 10px;border-radius:9px;border:1px solid var(--stroke);white-space:nowrap}
+.send{width:42px;height:42px;border-radius:50%;flex:none;display:grid;place-items:center;color:var(--t2);background:rgba(255,255,255,.05);transition:all .35s var(--ease)}
+.send:hover{color:var(--t1);background:rgba(var(--ice-rgb),.16)}
+
+/* news deck */
+.deck{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;padding:28px 36px 30px;background:rgba(3,6,12,.74);-webkit-backdrop-filter:blur(32px) saturate(140%);backdrop-filter:blur(32px) saturate(140%);opacity:0;transition:opacity .5s var(--ease)}
+.deck.open{opacity:1}
+.deck-head{display:flex;align-items:flex-end;gap:24px;margin-bottom:22px}
+.eyebrow{font:500 10.5px var(--mono);letter-spacing:.26em;text-transform:uppercase;color:var(--ice)}
+.deck h2{margin-top:6px;font-weight:200;font-size:42px;letter-spacing:-.015em;line-height:1}
+.deck-head .tabs{margin:0 0 4px auto;width:auto}
+.deck-head .tab{flex:none;padding:7px 14px;font-size:12px}
+.deck-grid{flex:1;min-height:0;overflow-y:auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:min-content;gap:18px;padding:4px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.12) transparent}
+.dcard{position:relative;display:flex;flex-direction:column;overflow:hidden;border-radius:20px;color:inherit;text-decoration:none;background:var(--glass);border:1px solid var(--stroke);opacity:0;transform:translateY(26px) scale(.97);transition:transform .5s var(--ease),border-color .4s,box-shadow .5s}
+.deck.open .dcard{animation:cardIn .85s var(--ease) forwards;animation-delay:calc(var(--i) * 55ms + 120ms)}
+@keyframes cardIn{to{opacity:1;transform:none}}
+.dcard img{display:block;flex:none;width:100%;aspect-ratio:16/9;object-fit:cover;background:rgba(255,255,255,.04)}
+.dbody{display:flex;flex-direction:column;gap:8px;flex:1 0 auto;padding:14px 16px 16px}
+.dcard b{font-weight:400;font-size:15px;line-height:1.4}
+.dcard p{font-size:12.5px;line-height:1.5;color:var(--t2);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.dcard small{margin-top:auto;font:400 10px var(--mono);color:var(--t3);letter-spacing:.04em}
+.dcard:hover{border-color:rgba(var(--ice-rgb),.35)}
+.dcard .num{position:absolute;top:12px;left:12px;z-index:2;padding:5px 9px;border-radius:999px;font:500 10px var(--mono);letter-spacing:.14em;background:rgba(3,6,12,.6);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.dcard.lead{grid-column:span 2;grid-row:span 2}
+.dcard.lead img{position:absolute;inset:0;height:100%;aspect-ratio:auto}
+.dcard.lead .dbody{position:relative;margin-top:auto;flex:none;padding:120px 26px 26px;background:linear-gradient(180deg,transparent,rgba(3,6,12,.94) 52%)}
+.dcard.lead b{font-size:27px;font-weight:300;line-height:1.24}
+.dcard.lead p{-webkit-line-clamp:2;font-size:13.5px}
+.dcard.reading{border-color:rgba(var(--ice-rgb),.75);box-shadow:0 0 0 1px rgba(var(--ice-rgb),.5),0 0 48px -6px rgba(var(--ice-rgb),.55);transform:translateY(-4px) scale(1.012)}
+.dcard.reading .num{background:rgba(var(--ice-rgb),.9);color:#05101a}
+.deck-foot{margin-top:14px;text-align:center;font:500 10.5px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--t3)}
+
+/* settings */
+.settings{position:fixed;top:80px;right:24px;z-index:45;width:344px;max-height:calc(100vh - 110px);overflow-y:auto;padding:20px;border-radius:22px;background:var(--glass-2);-webkit-backdrop-filter:blur(32px) saturate(150%);backdrop-filter:blur(32px) saturate(150%);border:1px solid var(--stroke-2);box-shadow:0 40px 90px -24px rgba(0,0,0,.9);transform-origin:top right;animation:pop .45s var(--ease)}
+@keyframes pop{from{opacity:0;transform:scale(.94) translateY(-8px)}}
+.settings h3{margin:4px 0 12px;font:500 10px var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--t3)}
+.settings h3+.field{margin-top:0}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.field>span{font-size:12px;color:var(--t2)}
+.field input{padding:10px 12px;border-radius:12px;font-size:14px;outline:0;background:rgba(255,255,255,.04);border:1px solid var(--stroke);transition:border-color .3s}
+.field input:focus{border-color:rgba(var(--ice-rgb),.45)}
+.seg{display:flex;padding:3px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid var(--stroke)}
+.seg button{flex:1;padding:7px;border-radius:9px;font-size:12.5px;color:var(--t3);transition:all .3s}
+.seg button.on{background:rgba(var(--ice-rgb),.15);color:var(--t1)}
+.sw{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;font-size:13px;border-top:1px solid rgba(255,255,255,.05);cursor:pointer}
+.sw small{display:block;margin-top:2px;font-size:11.5px;color:var(--t3)}
+.sw input{appearance:none;-webkit-appearance:none;position:relative;flex:none;width:40px;height:23px;border-radius:999px;background:rgba(255,255,255,.1);cursor:pointer;transition:background .35s}
+.sw input::after{content:"";position:absolute;top:3px;left:3px;width:17px;height:17px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.4);transition:transform .4s var(--spring)}
+.sw input:checked{background:linear-gradient(135deg,var(--ice),var(--violet))}
+.sw input:checked::after{transform:translateX(17px)}
+.set-foot{margin-top:12px;font:400 10px var(--mono);line-height:1.7;color:var(--t3)}
+
+/* toasts */
+.toasts{position:fixed;top:84px;left:50%;transform:translateX(-50%);z-index:50;display:flex;flex-direction:column;align-items:center;gap:10px;pointer-events:none}
+.toast{display:flex;align-items:center;gap:12px;padding:12px 18px 12px 14px;border-radius:16px;font-size:13px;background:var(--glass-2);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border:1px solid var(--stroke-2);box-shadow:0 24px 60px -20px rgba(0,0,0,.9);animation:toastIn .55s var(--ease)}
+.toast svg{width:18px;height:18px;color:var(--ice)}
+.toast b{font-weight:400}
+.toast small{display:block;margin-top:2px;font-size:11.5px;color:var(--t3)}
+.toast.out{animation:toastOut .4s var(--ease) forwards}
+@keyframes toastIn{from{opacity:0;transform:translateY(-12px) scale(.94)}}
+@keyframes toastOut{to{opacity:0;transform:translateY(-10px) scale(.96)}}
+
+@media (max-width:1280px){.main{grid-template-columns:262px minmax(0,1fr) 322px}.kbd{display:none}.deck-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-height:880px){.sys-card:not(.degraded) .svc{display:none}.wx-spark,.wx-hours,.hero-actions{display:none}.hero-name{font-size:30px}.caption{font-size:19px}}
+@media (max-width:1080px){
+  body{overflow:auto}
+  .app{position:relative;inset:auto;min-height:100%}
+  .main{grid-template-columns:1fr 1fr}
+  .stage{grid-column:1/-1;order:-1;min-height:60vh}
+  .col.right .news-card,.col.right .convo{min-height:420px}
+  .deck-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:720px){
+  .app{padding:14px 16px}
+  .main{grid-template-columns:1fr}
+  .pill,.top-wx,.brand span{display:none}
+  .deck{padding:20px 16px}
+  .deck-head{flex-wrap:wrap}
+  .deck-head .tabs{margin:0;width:100%}
+  .deck-grid{grid-template-columns:1fr}
+  .dcard.lead{grid-column:auto;grid-row:span 2}
+  .boot-checks{grid-template-columns:1fr;gap:6px}
+  .settings{left:16px;right:16px;width:auto}
+}
+@media (prefers-reduced-motion:reduce){.nebula,.stars,.unlock::after,.u-scan circle{animation:none}}
+</style>
+</head>
+<body data-state="locked">
+
+<svg class="sprite" aria-hidden="true">
+  <defs>
+    <linearGradient id="gauge-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7cdcff"/><stop offset="1" stop-color="#a78bfa"/></linearGradient>
+    <linearGradient id="spark-grad" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7cdcff"/><stop offset="1" stop-color="#a78bfa"/></linearGradient>
+    <linearGradient id="spark-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7cdcff" stop-opacity=".22"/><stop offset="1" stop-color="#7cdcff" stop-opacity="0"/></linearGradient>
+  </defs>
+  <symbol id="i-mark" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" opacity=".35"/><path d="M12 2.5a9.5 9.5 0 0 1 9.5 9.5"/><path d="M12 21.5A9.5 9.5 0 0 1 2.5 12" opacity=".6"/><circle cx="12" cy="12" r="3.6"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-news" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M7 9h6M7 12.5h10M7 16h7"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5.5h16v10.5H9.5L4 20z"/></symbol>
+  <symbol id="i-pulse" viewBox="0 0 24 24"><path d="M3 12h4l2-5 4 10 2-5h6"/></symbol>
+  <symbol id="i-timer" viewBox="0 0 24 24"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 10v3.5l2.5 2M10 2.5h4"/></symbol>
+  <symbol id="i-ext" viewBox="0 0 24 24"><path d="M14 5h5v5M19 5l-8 8M18 14v5H5V6h5"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM18.5 15.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 3 2.6 15 0 18M12 3c-2.6 3-2.6 15 0 18"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5l10.5 6.5L8 18.5z"/></symbol>
+  <symbol id="i-expand" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M2.5 12h2M19.5 12h2M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M19.5 14.5A7.8 7.8 0 1 1 9.5 4.5a6.3 6.3 0 0 0 10 10z"/></symbol>
+  <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18.5h10a4 4 0 0 0 .4-8 6 6 0 0 0-11.5 1.6A3.5 3.5 0 0 0 7 18.5z"/></symbol>
+  <symbol id="i-partly" viewBox="0 0 24 24"><path d="M8.5 2.5V4M3 8.5h1.5M4.6 4.6l1 1M12.4 4.6l-1 1M5.6 11.2a3.5 3.5 0 0 1 6.1-3.6"/><path d="M9.5 20.5h8.5a3.5 3.5 0 0 0 .4-7 5 5 0 0 0-9.6 1.3A2.9 2.9 0 0 0 9.5 20.5z"/></symbol>
+  <symbol id="i-partly-night" viewBox="0 0 24 24"><path d="M11.5 8.2A4.6 4.6 0 0 1 6 3a4.8 4.8 0 1 0 5.5 5.2z"/><path d="M9.5 20.5h8.5a3.5 3.5 0 0 0 .4-7 5 5 0 0 0-9.6 1.3A2.9 2.9 0 0 0 9.5 20.5z"/></symbol>
+  <symbol id="i-rain" viewBox="0 0 24 24"><path d="M7 15h10a4 4 0 0 0 .4-8 6 6 0 0 0-11.5 1.6A3.5 3.5 0 0 0 7 15z"/><path d="M8.5 18l-1 3M12.5 18l-1 3M16.5 18l-1 3"/></symbol>
+  <symbol id="i-drizzle" viewBox="0 0 24 24"><path d="M7 15h10a4 4 0 0 0 .4-8 6 6 0 0 0-11.5 1.6A3.5 3.5 0 0 0 7 15z"/><path d="M8.5 18.5v.5M12 20v.5M15.5 18.5v.5"/></symbol>
+  <symbol id="i-snow" viewBox="0 0 24 24"><path d="M7 14.5h10a4 4 0 0 0 .4-8 6 6 0 0 0-11.5 1.6A3.5 3.5 0 0 0 7 14.5z"/><path d="M8 18h.01M12 19.5h.01M16 18h.01M10 21h.01M14 21h.01"/></symbol>
+  <symbol id="i-storm" viewBox="0 0 24 24"><path d="M7 15h10a4 4 0 0 0 .4-8 6 6 0 0 0-11.5 1.6A3.5 3.5 0 0 0 7 15z"/><path d="M12.5 15.5l-2 3.5h3.5l-2 3.5"/></symbol>
+  <symbol id="i-fog" viewBox="0 0 24 24"><path d="M7 12h10a4 4 0 0 0 .4-8 6 6 0 0 0-11.5 1.6M4 15.5h16M6 19h12"/></symbol>
+  <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3.5s5.5 6 5.5 10a5.5 5.5 0 0 1-11 0c0-4 5.5-10 5.5-10z"/></symbol>
+  <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 9h11a3 3 0 1 0-3-3M3 15h14.5a3 3 0 1 1-3 3"/></symbol>
+  <symbol id="i-sunset" viewBox="0 0 24 24"><path d="M3 18h18M7 14.5a5 5 0 0 1 10 0M12 4v4M9.5 6.5 12 4l2.5 2.5"/></symbol>
+</svg>
+
+<div class="space" aria-hidden="true">
+  <div class="nebula n1"></div><div class="nebula n2"></div><div class="nebula n3"></div>
+  <div class="stars" id="stars"></div><div class="grain"></div><div class="vignette"></div>
+</div>
+
+<!-- Lock screen -->
+<section class="lock" id="lock" aria-label="Jarvis is locked">
+  <div class="lock-time" id="lock-time">--:--</div>
+  <div class="lock-date" id="lock-date">&nbsp;</div>
+  <div class="lock-hello" id="lock-hello">Welcome back</div>
+  <button class="unlock" id="unlock" type="button" aria-label="Press and hold to unlock Jarvis">
+    <svg viewBox="0 0 112 112" aria-hidden="true">
+      <circle class="u-track" cx="56" cy="56" r="54"/>
+      <circle class="u-prog" cx="56" cy="56" r="54" pathLength="100"/>
+      <g class="u-scan"><circle cx="56" cy="56" r="13"/><circle cx="56" cy="56" r="22"/><circle cx="56" cy="56" r="31"/><circle class="dot" cx="56" cy="56" r="2.6"/></g>
+    </svg>
+  </button>
+  <div class="lock-hint" id="lock-hint">Press and hold to unlock</div>
+</section>
+
+<!-- Opening sequence -->
+<section class="boot" id="boot" hidden aria-hidden="true">
+  <canvas id="boot-canvas"></canvas>
+  <div class="boot-word"><span style="--i:0">J</span><span style="--i:1">A</span><span style="--i:2">R</span><span style="--i:3">V</span><span style="--i:4">I</span><span style="--i:5">S</span></div>
+  <div class="boot-sub">Personal intelligence · on-device</div>
+  <ol class="boot-checks" id="boot-checks"></ol>
+  <div class="boot-welcome" id="boot-welcome"></div>
+  <button class="boot-skip" id="boot-skip" type="button">Skip intro</button>
+</section>
+
+<!-- Dashboard -->
+<div class="app" id="app" aria-hidden="true">
+  <header class="top reveal" style="--d:0">
+    <div class="brand"><svg class="i"><use href="#i-mark"/></svg><div><b>JARVIS</b><span>OpenJarvis · on-device</span></div></div>
+    <div class="pill" role="status"><i></i><span id="pill-text">Standby</span></div>
+    <div class="top-right">
+      <div class="top-wx" id="top-wx"></div>
+      <div class="top-clock"><b id="clock">--:--</b><span id="date">&nbsp;</span></div>
+      <button class="icon-btn" id="settings-btn" type="button" aria-label="Settings" aria-expanded="false"><svg class="i"><use href="#i-sliders"/></svg></button>
+    </div>
+  </header>
+
+  <main class="main">
+    <aside class="col left">
+      <section class="card reveal" style="--d:1">
+        <div class="hero-greet" id="hero-greet">Good evening,</div>
+        <div class="hero-name" id="hero-name"></div>
+        <p class="hero-sub" id="hero-sub"></p>
+        <div class="hero-actions">
+          <button class="chip primary" type="button" data-say="Brief me"><svg class="i"><use href="#i-spark"/></svg>Brief me</button>
+          <button class="chip" type="button" data-say="Pull up the news"><svg class="i"><use href="#i-news"/></svg>Headlines</button>
+        </div>
+      </section>
+
+      <section class="card" id="timers-card" hidden>
+        <div class="card-h"><svg class="i"><use href="#i-timer"/></svg>Timers<span class="grow"></span><button class="link-btn" type="button" data-say="Cancel all timers">Clear</button></div>
+        <ul class="timers" id="timers"></ul>
+      </section>
+      <section class="card reveal" style="--d:2" id="wx-card">
+        <div class="card-h"><svg class="i"><use href="#i-cloud"/></svg>Weather<span class="grow"></span><span id="wx-updated"></span></div>
+        <div id="wx-body">
+          <div class="skel" style="height:58px;width:60%"></div>
+          <div class="skel" style="height:12px;width:40%;margin-top:12px"></div>
+          <div class="skel" style="height:40px;margin-top:16px"></div>
+        </div>
+      </section>
+
+      <section class="card reveal sys-card" style="--d:3">
+        <div class="card-h"><svg class="i"><use href="#i-pulse"/></svg>Systems<span class="grow"></span><span id="uptime"></span></div>
+        <div class="gauges">
+          <div class="gauge"><svg viewBox="0 0 62 62"><circle class="g-track" cx="31" cy="31" r="26"/><circle class="g-fill" id="g-cpu" cx="31" cy="31" r="26" pathLength="100"/></svg><b id="v-cpu">--</b><span>CPU</span></div>
+          <div class="gauge"><svg viewBox="0 0 62 62"><circle class="g-track" cx="31" cy="31" r="26"/><circle class="g-fill" id="g-mem" cx="31" cy="31" r="26" pathLength="100"/></svg><b id="v-mem">--</b><span>MEMORY</span></div>
+          <div class="gauge"><svg viewBox="0 0 62 62"><circle class="g-track" cx="31" cy="31" r="26"/><circle class="g-fill" id="g-bat" cx="31" cy="31" r="26" pathLength="100"/></svg><b id="v-bat">--</b><span id="l-bat">POWER</span></div>
+        </div>
+        <div class="svc">
+          <div id="svc-brain" class="starting"><i></i>Core<em id="svc-brain-d">starting</em></div>
+          <div id="svc-ears" class="starting"><i></i>Ears<em>speech recognition</em></div>
+          <div id="svc-voice" class="starting"><i></i>Voice<em id="svc-voice-d">text to speech</em></div>
+        </div>
+        <div class="notes" id="notes"></div>
+      </section>
+
+    </aside>
+
+    <section class="stage reveal" style="--d:2">
+      <canvas id="orb" tabindex="0" aria-label="Jarvis. Click or press Space to talk."></canvas>
+      <div class="stage-read">
+        <div class="state" id="state">Standby</div>
+        <p class="caption" id="caption" aria-live="polite"></p>
+      </div>
+      <div class="chips">
+        <button class="chip" type="button" data-say="Brief me"><svg class="i"><use href="#i-spark"/></svg>Brief me</button>
+        <button class="chip" type="button" data-say="Pull up the news"><svg class="i"><use href="#i-news"/></svg>Pull up the news</button>
+        <button class="chip" type="button" data-say="What's the weather like?"><svg class="i"><use href="#i-cloud"/></svg>Weather</button>
+        <button class="chip" type="button" data-say="Set a timer for 10 minutes"><svg class="i"><use href="#i-timer"/></svg>10-minute timer</button>
+        <button class="chip" type="button" data-say="Play lo-fi beats on YouTube"><svg class="i"><use href="#i-play"/></svg>Play lo-fi</button>
+        <button class="chip" type="button" data-say="What can you do?"><svg class="i"><use href="#i-globe"/></svg>What can you do?</button>
+      </div>
+    </section>
+
+    <aside class="col right">
+      <section class="card news-card reveal" style="--d:3">
+        <div class="card-h"><svg class="i"><use href="#i-news"/></svg>Headlines<span class="grow"></span><button class="link-btn" type="button" id="news-expand"><svg class="i"><use href="#i-expand"/></svg>Expand</button></div>
+        <div class="tabs" id="news-tabs"></div>
+        <ul class="stories" id="stories"></ul>
+      </section>
+      <section class="card convo reveal" style="--d:4">
+        <div class="card-h"><svg class="i"><use href="#i-chat"/></svg>Conversation<span class="grow"></span><button class="link-btn" type="button" id="clear-log">Clear</button></div>
+        <ul class="log" id="log"><li class="empty" id="log-empty">Say “Brief me”, ask a question, or tap a suggestion.</li></ul>
+      </section>
+    </aside>
+  </main>
+
+  <footer class="dock reveal" style="--d:5">
+    <form class="command" id="command" autocomplete="off">
+      <button class="mic" id="mic" type="button" aria-label="Talk to Jarvis"><svg class="i"><use href="#i-mic"/></svg></button>
+      <input id="input" placeholder="Ask Jarvis anything…" aria-label="Message Jarvis" enterkeyhint="send">
+      <span class="kbd">SPACE TO TALK</span>
+      <button class="send" type="submit" aria-label="Send"><svg class="i"><use href="#i-send"/></svg></button>
+    </form>
+  </footer>
+</div>
+
+<!-- News deck -->
+<section class="deck" id="deck" hidden aria-label="Headlines">
+  <div class="deck-head">
+    <div><div class="eyebrow">Headlines · BBC News</div><h2 id="deck-title">Top stories</h2></div>
+    <div class="tabs" id="deck-tabs"></div>
+    <button class="icon-btn" id="deck-close" type="button" aria-label="Close headlines"><svg class="i"><use href="#i-x"/></svg></button>
+  </div>
+  <div class="deck-grid" id="deck-grid"></div>
+  <div class="deck-foot">Say “open the second one” · Esc to close</div>
+</section>
+
+<!-- Settings -->
+<div class="settings" id="settings" hidden role="dialog" aria-label="Settings">
+  <h3>Profile</h3>
+  <label class="field"><span>Your name</span><input id="set-name" maxlength="40" placeholder="What should Jarvis call you?"></label>
+  <label class="field"><span>City for weather</span><input id="set-city" maxlength="60" placeholder="Detect automatically"></label>
+  <div class="field"><span>Temperature</span><div class="seg" id="set-units"><button type="button" data-u="auto">Auto</button><button type="button" data-u="celsius">°C</button><button type="button" data-u="fahrenheit">°F</button></div></div>
+  <h3 style="margin-top:18px">Behaviour</h3>
+  <label class="sw"><div>Conversation mode<small>Keep listening after each reply</small></div><input type="checkbox" data-pref="convo"></label>
+  <label class="sw"><div>Clap twice to wake<small>Two claps start listening</small></div><input type="checkbox" data-pref="clap"></label>
+  <label class="sw"><div>Spoken replies<small>Read answers out loud</small></div><input type="checkbox" data-pref="voice"></label>
+  <label class="sw"><div>Sound effects<small>Chimes and the start-up sound</small></div><input type="checkbox" data-pref="sfx"></label>
+  <label class="sw"><div>Opening animation<small>Play the start-up sequence on unlock</small></div><input type="checkbox" data-pref="intro"></label>
+  <div class="set-foot" id="set-foot"></div>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script>
+/* Jarvis HUD preview: answers the page's /api calls in the browser, so no server is needed. */
+window.JARVIS_PREVIEW = true;
+const PREVIEW_DATA = {"news": {"top": [{"title": "Watch: Royals and veterans reflect at Remembrance ceremony", "summary": "King Charles has led the annual Remembrance Sunday commemorations, laying a wreath at the solemn ceremony held at the Cenotaph.", "link": "https://www.bbc.co.uk/news/videos/cw1l307v4edlo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/b640/live/de2df220-db6c-11f1-b441-2b33b063138f.jpg", "time": 1794140170.0, "source": "BBC News"}, {"title": "Abuse in media industry probably still happening, minister warns in wake of Brand case", "summary": "Lisa Nandy told Laura Kuenssberg that 'many people' in the media industry had opened up to her.", "link": "https://www.bbc.co.uk/news/articles/ckn9r0zd0ynwo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/ebe7/live/50d96d50-db71-11f1-9379-091c174aa659.jpg", "time": 1794141899.0, "source": "BBC News"}, {"title": "Government 'looking seriously' at banning under-16s from Vinted and eBay", "summary": "The culture secretary confirms reports they could be in the list of platforms set to be banned next March.", "link": "https://www.bbc.co.uk/news/articles/cmzxjvpqrjxro?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/1427/live/5d17fd80-db61-11f1-adda-c54f54e3ce6a.jpg", "time": 1794137132.0, "source": "BBC News"}, {"title": "Trump asks UFC boss to be White House press secretary: 'Dana, please take the job!'", "summary": "It was unclear how genuine the president's offer was, although White later said he would travel to Washington for them to meet.", "link": "https://www.bbc.co.uk/news/articles/cvze47p9jeexo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/8536/live/2fdfe760-dafd-11f1-b441-2b33b063138f.jpg", "time": 1794097913.0, "source": "BBC News"}, {"title": "My parents chose to die together and I was left to grieve alone", "summary": "Els and Jan sought medical intervention to end their lives after 50 happy years of marriage, leaving behind their only child.", "link": "https://www.bbc.co.uk/news/articles/c81dwllzv113o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/0bdf/live/66ee1fc0-d90d-11f1-b441-2b33b063138f.jpg", "time": 1794100221.0, "source": "BBC News"}, {"title": "The Trump coalition is shattered - what will Republicans do now?", "summary": "Republicans can stick with Trumpism or chart a new path, writes BBC Washington correspondent Daniel Bush.", "link": "https://www.bbc.co.uk/news/articles/cm3r5gnxqz3jo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/fa4b/live/74e0bf70-dae8-11f1-93e1-3b657b665bcf.jpg", "time": 1794099159.0, "source": "BBC News"}, {"title": "Labubu hype seemed unstoppable, now the fluffy monster mania is fading", "summary": "Parent company Pop Mart's revenue has fallen as appetite for the quirky collectible monsters wanes.", "link": "https://www.bbc.co.uk/news/articles/cmvg652l927lo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/79bc/live/19d4a530-d90b-11f1-93e1-3b657b665bcf.jpg", "time": 1794092555.0, "source": "BBC News"}, {"title": "Ambika Mod wants to change how South Asian women are seen on-screen", "summary": "The actress joins the cast of Black Doves for the second season of Netflix's spy thriller.", "link": "https://www.bbc.co.uk/news/articles/c6rmy9jvgwleo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/5088/live/40d82940-db54-11f1-a701-fddedf244c16.jpg", "time": 1794098940.0, "source": "BBC News"}, {"title": "Can the Zelda remake capture the magic of the original?", "summary": "Nintendo has released its remake of what is considered one of the best games ever made - the BBC's Tom Gerken gives his verdict.", "link": "https://www.bbc.co.uk/news/articles/cm8xznl0n1q4o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/7e2f/live/adc5ae70-d699-11f1-8052-913cc7942a17.jpg", "time": 1794098265.0, "source": "BBC News"}, {"title": "'Soap operas on steroids': Microdramas are going mainstream", "summary": "The snappy, high-octane episodes - viewed on your phone - are huge in China and on the up in the UK.", "link": "https://www.bbc.co.uk/news/articles/cm87zv70jg9no?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/7b15/live/9cf3fa20-d9e1-11f1-a701-fddedf244c16.png", "time": 1794098745.0, "source": "BBC News"}, {"title": "Veterans shouldn't sleep rough this Christmas, Burnham says", "summary": "Downing Street says the prime minister will personally write to councils on Armistice Day to urge them to draw up plans.", "link": "https://www.bbc.co.uk/news/articles/c6pwg4ddwkzeo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/aa5e/live/9a627e50-dae8-11f1-93e1-3b657b665bcf.jpg", "time": 1794108862.0, "source": "BBC News"}, {"title": "Germans wrestle with what to do with Hitler's destroyed Eagle's Nest retreat", "summary": "While some believe the site should be partially or completely rebuilt, others want it abandoned and all memory of its Nazi past forgotten.", "link": "https://www.bbc.co.uk/news/articles/cm74pk1g51nko?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/5d01/live/81eb37e0-d877-11f1-a701-fddedf244c16.jpg", "time": 1794098939.0, "source": "BBC News"}], "world": [{"title": "What we know so far after Krakow gun attack", "summary": "Six people were killed in a random shooting in Krakow's main square, and three bodies were later found at the home of the attacker.", "link": "https://www.bbc.co.uk/news/articles/cmd7q15drwgeo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/f6c3/live/95455f00-dac5-11f1-bda8-29fb69dbc026.jpg", "time": 1794136937.0, "source": "BBC World"}, {"title": "Houthis say at least 33 killed in Saudi air strike", "summary": "Saudi Arabia, which leads a coalition fighting the Houthis in Yemen, has not commented.", "link": "https://www.bbc.co.uk/news/articles/c65yn1v99ypmo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/2670/live/bfaac760-dacc-11f1-bda8-29fb69dbc026.jpg", "time": 1794110592.0, "source": "BBC World"}, {"title": "'Flat', 'tired', 'cynical': Unusually gloomy Kiwis deliver New Zealand's tightest election in years", "summary": "The national mood is low, and faith in politics even lower - with voters deserting the major parties at the polls.", "link": "https://www.bbc.co.uk/news/articles/cxr5yyg2nj9eo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/d485/live/0685e840-dab9-11f1-b441-2b33b063138f.jpg", "time": 1794087376.0, "source": "BBC World"}, {"title": "Israel's president tasks opposition leader Eisenkot with forming government", "summary": "Neither PM Benjamin Netanyahu's bloc nor that of his rival secured a majority in last week's election.", "link": "https://www.bbc.co.uk/news/articles/cmy8367lj5xlo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/1ff8/live/d9aea170-daf1-11f1-a701-fddedf244c16.jpg", "time": 1794089999.0, "source": "BBC World"}, {"title": "US offers $20m reward for information about Iran's nuclear programme", "summary": "Donald Trump has repeatedly raised the prospect of renewing strikes against Iran's nuclear facilities.", "link": "https://www.bbc.co.uk/news/articles/c6d091ev3p0jo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/0b84/live/0f887590-dad0-11f1-93e1-3b657b665bcf.jpg", "time": 1794075278.0, "source": "BBC World"}, {"title": "UK cannot 'cherry pick' EU single market deal, Barnier tells BBC", "summary": "The former Brexit negotiator says EU countries would reject any British attempts to follow economic rules \"a la carte\".", "link": "https://www.bbc.co.uk/news/articles/c9kgjj206nzpo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/44f1/live/699ff730-daab-11f1-93e1-3b657b665bcf.jpg", "time": 1794064775.0, "source": "BBC World"}, {"title": "Paraguay's former president charged after bank collapse", "summary": "Santiago Peña was ousted due to a banking crisis which left millions of people unable to access their money.", "link": "https://www.bbc.co.uk/news/articles/c68jzzvjgdy9o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/a65d/live/3fe15d20-da57-11f1-af22-a97b84c9ca63.jpg", "time": 1794079042.0, "source": "BBC World"}, {"title": "Pope in 'pretty good health' as he starts Latin America tour", "summary": "Pope Leo travels to Uruguay just three weeks after having surgery for lung cancer.", "link": "https://www.bbc.co.uk/news/articles/c60e0001ve9wo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/15d3/live/886b05a0-da75-11f1-85ad-fd31eff31154.jpg", "time": 1794034788.0, "source": "BBC World"}, {"title": "Italian foreign minister says hackers leaked his personal data", "summary": "Prime Minister Giorgia Meloni has blamed pro-Russian hackers for publishing the details online.", "link": "https://www.bbc.co.uk/news/articles/cr20wvge32j3o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/34a9/live/e340cb90-dabb-11f1-93e1-3b657b665bcf.jpg", "time": 1794070206.0, "source": "BBC World"}, {"title": "Russian strikes wound nine and damage Ukraine's power network ahead of talks", "summary": "The attacks come before Ukrainian and Russian delegations are due to take part in trilateral talks in Abu Dhabi next week.", "link": "https://www.bbc.co.uk/news/articles/cm4g1nq8158po?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/0554/live/2786bc40-daa0-11f1-a523-f508a3e924cb.jpg", "time": 1794055776.0, "source": "BBC World"}, {"title": "Meghan's father Thomas Markle under house arrest after child sex abuse material charge", "summary": "The 82-year-old appeared in court in Florida after the FBI searched two Los Angeles-area storage units he rented.", "link": "https://www.bbc.co.uk/news/articles/cqgkvv8m8pgyo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/97ed/live/4b09f660-da7c-11f1-a975-15a4138f9d40.jpg", "time": 1794036464.0, "source": "BBC World"}, {"title": "Texas mayor instructs police to limit co-operation with ICE", "summary": "There has been months of public outcry in Houston after an Immigration and Customs Enforcement (ICE) officer fatally shot a man who was driving to work.", "link": "https://www.bbc.co.uk/news/articles/c8dx33d22zkro?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/4095/live/09b20f70-da4c-11f1-ad69-611c5b2ed04a.jpg", "time": 1794039355.0, "source": "BBC World"}], "tech": [{"title": "Government 'looking seriously' at banning under-16s from Vinted and eBay", "summary": "The culture secretary confirms reports they could be in the list of platforms set to be banned next March.", "link": "https://www.bbc.co.uk/news/articles/cmzxjvpqrjxro?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/1427/live/5d17fd80-db61-11f1-adda-c54f54e3ce6a.jpg", "time": 1794137132.0, "source": "BBC Technology"}, {"title": "Can the Zelda remake capture the magic of the original?", "summary": "Nintendo has released its remake of what is considered one of the best games ever made - the BBC's Tom Gerken gives his verdict.", "link": "https://www.bbc.co.uk/news/articles/cm8xznl0n1q4o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/7e2f/live/adc5ae70-d699-11f1-8052-913cc7942a17.jpg", "time": 1794098265.0, "source": "BBC Technology"}, {"title": "Elon Musk appears to signal the end of the road for Cybertruck", "summary": "Musk said it was to make room for production of its Cybercabs - autonomous taxis without a driver.", "link": "https://www.bbc.co.uk/news/articles/cq1j33w7d232o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/d7ce/live/3fc37350-d9f3-11f1-a701-fddedf244c16.jpg", "time": 1794001790.0, "source": "BBC Technology"}, {"title": "AI stocks climb after trillions wiped from market values", "summary": "Investors had been selling off tech shares in part due to concerns the Democrat election victory would mean slower AI development.", "link": "https://www.bbc.co.uk/news/articles/c35ynnpzdq51o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/fdde/live/9036f7e0-da01-11f1-93e1-3b657b665bcf.jpg", "time": 1793999185.0, "source": "BBC Technology"}, {"title": "Why the US midterms sparked an AI stock selloff", "summary": "Fears of more AI regulation appear to have sparked fear among investors, but  concerns about the industry have been growing for some time.", "link": "https://www.bbc.co.uk/news/articles/crlykkzwwpydo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/f055/live/19529fe0-d9fb-11f1-93e1-3b657b665bcf.jpg", "time": 1793989936.0, "source": "BBC Technology"}, {"title": "Global stocks plunge as fears over US AI slowdown spread to Asia and Europe", "summary": "Investors have reacted to possible tougher scrutiny of data centre construction and the AI industry.", "link": "https://www.bbc.co.uk/news/articles/cmn04705rd8jo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/b0d1/live/49c24750-d9d0-11f1-9e5a-c30c5e3d8c85.jpg", "time": 1793971550.0, "source": "BBC Technology"}, {"title": "The engine parts that 'fight the laws of the universe'", "summary": "Investment has surged into the making of jet turbine blades - an extremely difficult component to make.", "link": "https://www.bbc.co.uk/news/articles/cwe9lmp1pyyxo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/6023/live/c7b8cb20-d9e9-11f1-93e1-3b657b665bcf.jpg", "time": 1793923566.0, "source": "BBC Technology"}, {"title": "Elon Musk's millions failed to deliver Republican wins in fierce midterms", "summary": "Musk spent nearly $500m in the 2026 US midterm elections, an individual election spending record.", "link": "https://www.bbc.co.uk/news/articles/cv8ez3p3ge5ko?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/7ae2/live/ce22be10-d851-11f1-b710-b15e87d8ef65.jpg", "time": 1793828475.0, "source": "BBC Technology"}, {"title": "French blood storage impacted by freezer hacks as theories swirl about culprits", "summary": "The French Blood Establishment (EFS) said cold rooms storing blood were impacted by hackers.", "link": "https://www.bbc.co.uk/news/articles/c8vgxyvz6y9ro?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/3538/live/e551bd50-d862-11f1-85ab-b3cc3b5498c6.jpg", "time": 1793809575.0, "source": "BBC Technology"}, {"title": "Graduates are managing AI - but are they learning much else?", "summary": "Graduates are spending more time managing AI, but are they missing out on other work experience?", "link": "https://www.bbc.co.uk/news/articles/c820vz6wyp65o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/5bf4/live/9fa4f600-d844-11f1-a701-fddedf244c16.jpg", "time": 1793750675.0, "source": "BBC Technology"}, {"title": "Binance says fake job interviews used as part of $6.3bn crypto hack", "summary": "An engineer was contacted through a legitimate job-hunting platform and invited to bogus job interviews with fake company representatives, Binance says.", "link": "https://www.bbc.co.uk/news/articles/ck5ynwz9gy67o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/b517/live/8d68c970-d7a0-11f1-84dd-e55f4bec0ecd.jpg", "time": 1793722769.0, "source": "BBC Technology"}, {"title": "UK meat industry hit by cyber-attack which targeted European supermarket freezers", "summary": "Supermarkets in countries including Ireland, Sweden  and Belgium reported fridges being hiked in temperature on Monday.", "link": "https://www.bbc.co.uk/news/articles/ckq6ndq8l6v0o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/d3db/live/57d6aa20-d769-11f1-a956-ff083523ef77.jpg", "time": 1793711220.0, "source": "BBC Technology"}], "business": [{"title": "Government 'looking seriously' at banning under-16s from Vinted and eBay", "summary": "The culture secretary confirms reports they could be in the list of platforms set to be banned next March.", "link": "https://www.bbc.co.uk/news/articles/cmzxjvpqrjxro?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/1427/live/5d17fd80-db61-11f1-adda-c54f54e3ce6a.jpg", "time": 1794137132.0, "source": "BBC Business"}, {"title": "'My mortgage is going up £200 a month': How rising interest rates are hitting people's pockets", "summary": "With UK interest rates set to rise, mortgages, credit cards and loans could get more expensive for millions.", "link": "https://www.bbc.co.uk/news/articles/c617kjqjvk12o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/1e6b/live/b1102500-d9fb-11f1-b441-2b33b063138f.png", "time": 1794015696.0, "source": "BBC Business"}, {"title": "Labubu hype seemed unstoppable, now the fluffy monster mania is dying", "summary": "Parent company Pop Mart's revenue has fallen as appetite for the quirky collectible monsters wanes.", "link": "https://www.bbc.co.uk/news/articles/cmvg652l927lo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/79bc/live/19d4a530-d90b-11f1-93e1-3b657b665bcf.jpg", "time": 1794092555.0, "source": "BBC Business"}, {"title": "AI stocks climb after trillions wiped from market values", "summary": "Investors had been selling off tech shares in part due to concerns the Democrat election victory would mean slower AI development.", "link": "https://www.bbc.co.uk/news/articles/c35ynnpzdq51o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/fdde/live/9036f7e0-da01-11f1-93e1-3b657b665bcf.jpg", "time": 1793999185.0, "source": "BBC Business"}, {"title": "Why the US midterms sparked an AI stock selloff", "summary": "Fears of more AI regulation appear to have sparked fear among investors, but  concerns about the industry have been growing for some time.", "link": "https://www.bbc.co.uk/news/articles/crlykkzwwpydo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/f055/live/19529fe0-d9fb-11f1-93e1-3b657b665bcf.jpg", "time": 1793989936.0, "source": "BBC Business"}, {"title": "How does it affect me if share prices fall?", "summary": "Changes in the FTSE 100 and other indexes are not just for financial experts, they can affect our lives.", "link": "https://www.bbc.co.uk/news/articles/c33zdz2m1e2o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/c320/live/25775960-3fc2-11f1-b61b-1d0ccf7b6022.jpg", "time": 1793956910.0, "source": "BBC Business"}, {"title": "Why smoky bacon crisps threaten to reignite rows over EU rules", "summary": "A post-Brexit deal on food standards has raised questions over the future naming of the classic British snack.", "link": "https://www.bbc.co.uk/news/articles/cm1dwwqrr1kvo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/67af/live/52b739e0-da04-11f1-84c1-dbcae60402d7.jpg", "time": 1793985578.0, "source": "BBC Business"}, {"title": "Elon Musk appears to signal the end of the road for Cybertruck", "summary": "Musk said it was to make room for production of its Cybercabs - autonomous taxis without a driver.", "link": "https://www.bbc.co.uk/news/articles/cq1j33w7d232o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/d7ce/live/3fc37350-d9f3-11f1-a701-fddedf244c16.jpg", "time": 1794001790.0, "source": "BBC Business"}, {"title": "PM tells firms to publish salaries in job adverts ahead of new law", "summary": "The government argues the change will help jobseekers and could help to prevent pay discrimination.", "link": "https://www.bbc.co.uk/news/articles/cmd9343z3zw2o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/04d2/live/40c46130-d9f6-11f1-a701-fddedf244c16.jpg", "time": 1793978743.0, "source": "BBC Business"}, {"title": "'I was asked if I was a crier': Your worst job interviews revealed", "summary": "Bad job interviews can be horrible to experience in the moment, but there is a lot they can teach us about the world of work", "link": "https://www.bbc.co.uk/news/articles/c3j4751pqnj8o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/a4ec/live/3550b220-d845-11f1-93e1-3b657b665bcf.png", "time": 1793923372.0, "source": "BBC Business"}, {"title": "Interest rates hiked to 4% in first increase in over three years", "summary": "Most analysts expected the increase from 3.75% to 4%.", "link": "https://www.bbc.co.uk/news/articles/ck5ynw45jrgqo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/5e8c/live/91074120-d849-11f1-b870-55415e6a9944.jpg", "time": 1793898595.0, "source": "BBC Business"}, {"title": "Faisal Islam: How high will interest rates go?", "summary": "The BBC's economics editor views one more interest rate as likely, but thinks that will be all.", "link": "https://www.bbc.co.uk/news/articles/ckr5y0y37gv3o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/5ee7/live/856f7c60-d916-11f1-93e1-3b657b665bcf.jpg", "time": 1793884630.0, "source": "BBC Business"}], "science": [{"title": "One of the year's most prolific meteor showers to light up the night sky this weekend", "summary": "The Leonid meteor shower, known for its bright and fast meteors, will kick off this weekend and continue until the end of November.", "link": "https://www.bbc.co.uk/weather/articles/cmlykqq7zg9zo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/797d/live/89b36240-d903-11f1-9c68-d767468fa269.jpg", "time": 1794017008.0, "source": "BBC Science"}, {"title": "How climate change worsens heatwaves, droughts, wildfires and floods", "summary": "Rising global temperatures mean extreme weather events are becoming more common and more intense.", "link": "https://www.bbc.co.uk/news/articles/cy4dgp1p3p1o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/a7d4/live/77b64d80-d78e-11f1-9440-953b82c8f55a.jpg", "time": 1793983410.0, "source": "BBC Science"}, {"title": "A really simple guide to climate change", "summary": "Human activities are causing the world to heat up, posing serious threats to people and nature.", "link": "https://www.bbc.co.uk/news/articles/c9w15nggj58o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/f74b/live/4c6e7a90-d9db-11f1-b4ca-fd31344b71b9.jpg", "time": 1793983251.0, "source": "BBC Science"}, {"title": "What is the Paris Agreement and why does 1.5C matter?", "summary": "The 2015 pact is at the heart of the international commitment to tackle rising global temperatures.", "link": "https://www.bbc.co.uk/news/articles/c93d59d4zy1o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/17e4/live/12a747d0-d9ca-11f1-bb8e-efaa31738708.jpg", "time": 1793983147.0, "source": "BBC Science"}, {"title": "What is net zero and is the UK on track to achieve it?", "summary": "Reaching net zero carbon emissions worldwide is essential to limit global warming, UN scientists say.", "link": "https://www.bbc.co.uk/news/articles/cx238yyr40qo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/6bc1/live/2716e410-ba35-11f0-9bc3-15f9891aeafa.jpg", "time": 1793982171.0, "source": "BBC Science"}, {"title": "Could the earliest weakening of the polar vortex on record bring UK snow?", "summary": "An unprecedented early weakening of the polar vortex is causing uncertainty amongst experts over the impact it will have on UK weather as Simon King explains.", "link": "https://www.bbc.co.uk/weather/articles/cwyvrz09mnd6o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/107a/live/0dde0950-d9b1-11f1-b441-2b33b063138f.jpg", "time": 1793928159.0, "source": "BBC Science"}, {"title": "Delhi's toxic winter air is back - is the Indian capital prepared for pollution?", "summary": "The Delhi government has announced a four-month winter action plan, but experts say that won't be enough.", "link": "https://www.bbc.co.uk/news/articles/cm78p0n09q3xo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/f26c/live/86fa1990-d94e-11f1-a701-fddedf244c16.jpg", "time": 1793920613.0, "source": "BBC Science"}, {"title": "Investigation into 'major fish kill' after pollution incident", "summary": "The pollution caused the death of brown and migratory sea trout in the Inler river.", "link": "https://www.bbc.co.uk/news/articles/cx1l36y2d941o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/b0d4/live/0f9efad0-d90f-11f1-94c6-3f8050561bf5.jpg", "time": 1793890305.0, "source": "BBC Science"}, {"title": "Typhoons batter East Asia as El Niño makes Pacific 'burn with fever'", "summary": "Even for countries where typhoons are a way of life, the last few months have brought unusually wild weather.", "link": "https://www.bbc.co.uk/news/articles/cw33kgj7nkemo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/30ea/live/eaa602a0-d75b-11f1-8f6b-d71817972456.jpg", "time": 1793833967.0, "source": "BBC Science"}, {"title": "William meets firefighters who tackled summer blazes", "summary": "The prince says 2026 was the first summer he felt \"worried about the scale of the wildfires\".", "link": "https://www.bbc.co.uk/news/videos/c94g1m232pgyo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/1086/live/00a5b650-d841-11f1-93e1-3b657b665bcf.jpg", "time": 1793792108.0, "source": "BBC Science"}, {"title": "Delhi air quality worsens ahead of Diwali as firework restrictions enter force", "summary": "On Wednesday morning, Delhi's air quality index reading stood at 377, in the \"very poor\" category.", "link": "https://www.bbc.co.uk/news/articles/c699z8792n7ro?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/f657/live/383e2830-d810-11f1-bc0e-b5a9e0785e4b.jpg", "time": 1793777978.0, "source": "BBC Science"}, {"title": "Prince William says UK faces terrifying risk of more wildfires due to climate change", "summary": "The prince says 2026 was the first summer he felt \"worried about the scale of the wildfires\".", "link": "https://www.bbc.co.uk/news/articles/cr62yv02zwxwo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/50c7/live/a1474180-d7da-11f1-8cb0-d304936875f3.png", "time": 1793772703.0, "source": "BBC Science"}], "sport": [{"title": "Walsh-inspired Australia crush irate Samoa to reach World Cup final", "summary": "Reece Walsh scores a hat-trick as Australia reach the Men's Rugby League World Cup final by overwhelming a Samoa side left fuming by a series of refereeing calls against them.", "link": "https://www.bbc.co.uk/sport/rugby-league/articles/cqd0914z959do?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/f033/live/d703ada0-db5d-11f1-adda-c54f54e3ce6a.jpg", "time": 1794138342.0, "source": "BBC Sport"}, {"title": "I haven't thrown anyone under the bus - Khawaja", "summary": "Usman Khawaja says he has \"not thrown anyone under the bus\" with revelations about the sandpaper scandal that engulfed the Australia team in 2018.", "link": "https://www.bbc.co.uk/sport/cricket/articles/c65yn1j4lrgno?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/ed69/live/4a193640-db57-11f1-ad76-19cbf76aebb9.jpg", "time": 1794132241.0, "source": "BBC Sport"}, {"title": "'I can't believe he is one of us' - inside Salah's life in Trabzon", "summary": "BBC Sport travels to Turkey to watch Mohamed Salah play for Trabzonspor and discover how the 'Egyptian King' is settling into life by the Black Sea.", "link": "https://www.bbc.co.uk/sport/football/articles/cmwyqzy934lxo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/054e/live/566a97f0-da93-11f1-8206-e519d24a9ca2.jpg", "time": 1794123001.0, "source": "BBC Sport"}, {"title": "The oldest club in London making FA Cup history", "summary": "Cray Wanderers host Stockport County in the FA Cup first round, with 112 league places separating the two sides.", "link": "https://www.bbc.co.uk/sport/football/articles/cv8ez3pe5x41o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/f765/live/7f024030-d860-11f1-85ab-b3cc3b5498c6.jpg", "time": 1794119336.0, "source": "BBC Sport"}, {"title": "'The worst conditions in my 35-year career' - commentating in the FA Cup fog", "summary": "BBC Sport commentator Steve Bower gives an insight into trying to commentate when thick fog engulfs a stadium and you can barely see the action.", "link": "https://www.bbc.co.uk/sport/football/articles/cqev3rdvyvm1o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/4e50/live/d7267220-db00-11f1-969c-27c4482e95aa.jpg", "time": 1794097076.0, "source": "BBC Sport"}, {"title": "Qualifying conditions borderline - but Norris and Russell hoping for more rain", "summary": "Polesitter Lando Norris says qualifying for the Sao Paulo Grand Prix brought \"some of the wettest conditions\" in which he had ever driven.", "link": "https://www.bbc.co.uk/sport/formula1/articles/cmde81d9nkxko?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/85f6/live/ade06d60-db02-11f1-969c-27c4482e95aa.jpg", "time": 1794095610.0, "source": "BBC Sport"}, {"title": "Australia reach World Cup final after Fiji scare", "summary": "Australia have reached their fifth successive Women's Rugby League World Cup final as they seek a fourth consecutive title - but they were made to work harder than anyone expected.", "link": "https://www.bbc.co.uk/sport/rugby-league/articles/c6vg02klk084o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/732a/live/a00e5500-db4b-11f1-ad6a-794c57c0c23e.jpg", "time": 1794141541.0, "source": "BBC Sport"}, {"title": "Maresca's dream start turns into nightmare as title hopes hit", "summary": "Enzo Maresca left the City Ground with chants of \"can we play you every week?\" ringing in his ears, as Manchester City's dream start turns into a nightmare.", "link": "https://www.bbc.co.uk/sport/football/articles/cm93z0l03n8vo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/4f6a/live/bd923d40-daf0-11f1-827e-c7e7ee102257.jpg", "time": 1794084852.0, "source": "BBC Sport"}, {"title": "Last season difficult with injury and miscarriage - Muniz", "summary": "Fulham striker Rodrigo Muniz, who scored for his side in a 1-1 draw against Newcastle United, speaks of the struggles he endured last season.", "link": "https://www.bbc.co.uk/sport/football/articles/cmq8nl4w3e8eo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/182c/live/e39102a0-db64-11f1-adda-c54f54e3ce6a.jpg", "time": 1794138961.0, "source": "BBC Sport"}, {"title": "Delap double inspires Forest to stunning win over Man City", "summary": "Liam Delap scores a superb double as Nottingham Forest stun Manchester City 3-1 for their first Premier League win at the City Ground this season.", "link": "https://www.bbc.co.uk/sport/football/videos/crp3gewxj77eo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/3af7/live/d780fef0-dae4-11f1-a701-fddedf244c16.jpg", "time": 1794081745.0, "source": "BBC Sport"}, {"title": "Arsenal beat Hull to extend lead at top of the table", "summary": "Arsenal captain Martin Odegaard scores the winner as his side beat Hull City to extend their lead at the top of the Premier League table.", "link": "https://www.bbc.co.uk/sport/football/videos/crx230ke2gzxo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/000f/live/2a5829f0-dadb-11f1-a701-fddedf244c16.jpg", "time": 1794081571.0, "source": "BBC Sport"}, {"title": "Leeds beat Spurs to end five-game winless run", "summary": "Noah Okafor scores the only goal of the game to give Leeds United their first win since the 14th of September, as Tottenham are beaten 1-0 at Elland Road in the Premier League.", "link": "https://www.bbc.co.uk/sport/football/videos/ckz7x4jlypq3o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/c54a/live/5ed07bd0-dac5-11f1-b441-2b33b063138f.jpg", "time": 1794081574.0, "source": "BBC Sport"}]}, "weather": {"city": "London", "country": "United Kingdom", "temp": 10, "feels": 8, "label": "overcast", "icon": "cloud", "is_day": true, "humidity": 82, "wind": 7, "wind_unit": "km/h", "unit": "°C", "sunrise": "07:06", "sunset": "16:21", "today": {"high": 11, "low": 7, "label": "light drizzle", "icon": "drizzle", "rain": 40}, "tomorrow": {"high": 12, "low": 6, "label": "partly cloudy", "icon": "partly", "rain": 10}, "hours": [{"time": "13:00", "temp": 10, "icon": "cloud", "rain": 10}, {"time": "14:00", "temp": 10, "icon": "cloud", "rain": 10}, {"time": "15:00", "temp": 11, "icon": "partly", "rain": 10}, {"time": "16:00", "temp": 11, "icon": "cloud", "rain": 10}, {"time": "17:00", "temp": 10, "icon": "cloud", "rain": 10}, {"time": "18:00", "temp": 9, "icon": "cloud", "rain": 10}, {"time": "19:00", "temp": 9, "icon": "cloud", "rain": 10}, {"time": "20:00", "temp": 8, "icon": "cloud", "rain": 10}]}, "lookups": {"burj khalifa": {"text": "The Burj Khalifa is a megatall skyscraper in Dubai, United Arab Emirates. Designed by Skidmore, Owings & Merrill, it is the world's tallest structure, with a total height of 829.8 m and a roof height of 828 m (2,717 ft).", "title": "Burj Khalifa", "url": "https://en.wikipedia.org/wiki/Burj_Khalifa"}, "eiffel tower": {"text": "The Eiffel Tower is a lattice tower on the Champ de Mars in Paris, France. It is named after the engineer Gustave Eiffel, whose company designed and built the tower from 1887 to 1889.", "title": "Eiffel Tower", "url": "https://en.wikipedia.org/wiki/Eiffel_Tower"}}, "name": "Avyan"};
+try { if (!localStorage.getItem("jarvis.prefs")) localStorage.setItem("jarvis.prefs", JSON.stringify({ convo: false, clap: false })); } catch {}
+if (window.speechSynthesis) { speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices(); }
+
+(() => {
+  const realFetch = window.fetch.bind(window);
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const started = Date.now();
+  let cpu = 18, mem = 46;
+  const pause = (ms) => new Promise((r) => setTimeout(r, ms));
+  const json = (obj, status = 200) => new Response(JSON.stringify(obj), { status, headers: { "Content-Type": "application/json" } });
+  const walk = (v, step, lo, hi) => Math.max(lo, Math.min(hi, v + (Math.random() * 2 - 1) * step));
+  const openTab = (url) => { try { window.open(url, "_blank", "noopener"); } catch {} };
+
+  async function getJSON(url, ms = 4500) {
+    const c = new AbortController(), t = setTimeout(() => c.abort(), ms);
+    try { const r = await realFetch(url, { signal: c.signal }); if (!r.ok) throw new Error(String(r.status)); return await r.json(); }
+    finally { clearTimeout(t); }
+  }
+
+  /* ---------------- weather: live when online, snapshot otherwise */
+  const WMO = { 0: ["clear", "clear"], 1: ["mostly clear", "clear"], 2: ["partly cloudy", "partly"], 3: ["overcast", "cloud"], 45: ["foggy", "fog"], 48: ["foggy", "fog"],
+    51: ["light drizzle", "drizzle"], 53: ["drizzle", "drizzle"], 55: ["heavy drizzle", "drizzle"], 61: ["light rain", "rain"], 63: ["rain", "rain"], 65: ["heavy rain", "rain"],
+    71: ["light snow", "snow"], 73: ["snow", "snow"], 75: ["heavy snow", "snow"], 80: ["showers", "rain"], 81: ["heavy showers", "rain"], 82: ["violent showers", "rain"],
+    95: ["thunderstorms", "storm"], 96: ["thunderstorms with hail", "storm"], 99: ["thunderstorms with hail", "storm"] };
+  const wmo = (c) => WMO[c] || ["cloudy", "cloud"];
+  const weatherCache = {};
+  async function liveWeather(city, units) {
+    try {
+      let place;
+      if (city) {
+        const g = await getJSON("https://geocoding-api.open-meteo.com/v1/search?count=1&language=en&name=" + encodeURIComponent(city));
+        const f = (g.results || [])[0];
+        if (!f) return null;
+        place = { city: f.name, country: f.country || "", lat: f.latitude, lon: f.longitude };
+      } else {
+        const h = await getJSON("https://ipwho.is/");
+        if (!h.success) return null;
+        place = { city: h.city, country: h.country, lat: h.latitude, lon: h.longitude };
+      }
+      const F = units === "fahrenheit" || (units !== "celsius" && /^United States/.test(place.country));
+      const q = new URLSearchParams({ latitude: place.lat, longitude: place.lon, timezone: "auto", forecast_days: 2,
+        current: "temperature_2m,apparent_temperature,weather_code,wind_speed_10m,relative_humidity_2m,is_day",
+        hourly: "temperature_2m,weather_code,precipitation_probability",
+        daily: "temperature_2m_max,temperature_2m_min,weather_code,sunrise,sunset,precipitation_probability_max",
+        temperature_unit: F ? "fahrenheit" : "celsius", wind_speed_unit: F ? "mph" : "kmh" });
+      const d = await getJSON("https://api.open-meteo.com/v1/forecast?" + q);
+      const now = d.current, H = d.hourly, D = d.daily;
+      const start = Math.max(0, H.time.findIndex((t) => t.slice(0, 13) >= now.time.slice(0, 13)));
+      const hours = H.time.slice(start, start + 12).map((t, k) => ({ time: t.slice(11, 16), temp: Math.round(H.temperature_2m[start + k]), icon: wmo(H.weather_code[start + k])[1], rain: H.precipitation_probability[start + k] || 0 }));
+      const day = (i) => ({ high: Math.round(D.temperature_2m_max[i]), low: Math.round(D.temperature_2m_min[i]), label: wmo(D.weather_code[i])[0], icon: wmo(D.weather_code[i])[1], rain: D.precipitation_probability_max[i] || 0 });
+      return { city: place.city, country: place.country, temp: Math.round(now.temperature_2m), feels: Math.round(now.apparent_temperature),
+        label: wmo(now.weather_code)[0], icon: wmo(now.weather_code)[1], is_day: !!now.is_day, humidity: now.relative_humidity_2m,
+        wind: Math.round(now.wind_speed_10m), wind_unit: F ? "mph" : "km/h", unit: F ? "°F" : "°C",
+        sunrise: D.sunrise[0].slice(11, 16), sunset: D.sunset[0].slice(11, 16), today: day(0), tomorrow: day(1), hours };
+    } catch { return null; }
+  }
+  async function weather(city = "", units = "auto") {
+    const key = city.toLowerCase() + "|" + units, hit = weatherCache[key];
+    if (hit && Date.now() - hit.at < 15 * 60 * 1000) return hit.data;
+    const data = (await liveWeather(city, units)) || PREVIEW_DATA.weather;
+    weatherCache[key] = { at: Date.now(), data };
+    return data;
+  }
+
+  /* ---------------- web look-ups through Wikipedia */
+  const topicKey = (t) => t.toLowerCase().replace(/^(the|a|an)\s+/, "").replace(/[^a-z0-9 ]+/g, "").trim();
+  const summarise = (sum) => {
+    const text = (sum.extract || "").split(/(?<=[.!?])\s+/).slice(0, 2).join(" ");
+    return text && sum.type !== "disambiguation" ? { text, title: sum.title, url: (sum.content_urls && sum.content_urls.desktop && sum.content_urls.desktop.page) || "" } : null;
+  };
+  async function lookup(topic) {
+    const key = topicKey(topic);
+    if (PREVIEW_DATA.lookups[key]) return PREVIEW_DATA.lookups[key];
+    const title = key.replace(/\b\w/g, (c) => c.toUpperCase());
+    try { const r = summarise(await getJSON("https://en.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(title))); if (r) return r; } catch {}
+    try {
+      const s = await getJSON("https://en.wikipedia.org/w/rest.php/v1/search/page?limit=1&q=" + encodeURIComponent(topic));
+      const page = (s.pages || [])[0];
+      return page ? summarise(await getJSON("https://en.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(page.key))) : null;
+    } catch { return null; }
+  }
+
+  /* ---------------- the command router, mirrored from jarvis_hud.py */
+  const NUM = { a: 1, an: 1, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12,
+    thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17, eighteen: 18, nineteen: 19, twenty: 20, thirty: 30, forty: 40,
+    fifty: 50, sixty: 60, ninety: 90, couple: 2, few: 3 };
+  function parseDuration(text) {
+    let t = text.toLowerCase().replace(/-/g, " ");
+    t = t.replace(/\b(twenty|thirty|forty|fifty) (one|two|three|four|five|six|seven|eight|nine)\b/g, (_, a, b) => String(NUM[a] + NUM[b]));
+    let total = 0, found = false;
+    if (/\bhalf an hour\b/.test(t)) { total = 1800; found = true; t = t.replace(/\bhalf an hour\b/g, " "); }
+    for (const m of t.matchAll(/(\d+(?:\.\d+)?|[a-z]+)\s+(?:and a half\s+)?(hours?|hrs?|minutes?|mins?|seconds?|secs?)\b/g)) {
+      let n = /^\d/.test(m[1]) ? parseFloat(m[1]) : NUM[m[1]];
+      if (n == null) continue;
+      if (m[0].includes("and a half")) n += 0.5;
+      total += n * { h: 3600, m: 60, s: 1 }[m[2][0]];
+      found = true;
+    }
+    for (const m of t.matchAll(/(hours?|minutes?) and a half/g)) total += m[1][0] === "h" ? 1800 : 30;
+    return found && total > 0 ? Math.round(total) : null;
+  }
+  function sayDuration(s) {
+    const parts = [];
+    for (const [size, unit] of [[3600, "hour"], [60, "minute"], [1, "second"]]) { const n = Math.floor(s / size); s %= size; if (n) parts.push(`${n} ${unit}${n === 1 ? "" : "s"}`); }
+    return parts.join(" and ") || "0 seconds";
+  }
+  const timerName = (s) => (s % 3600 === 0 ? `${s / 3600}-hour` : s % 60 === 0 ? `${s / 60}-minute` : s < 120 ? `${s}-second` : sayDuration(s).replace(" and ", " "));
+  const ordinal = (n) => n + (n % 100 >= 10 && n % 100 <= 20 ? "th" : { 1: "st", 2: "nd", 3: "rd" }[n % 10] || "th");
+  const clock = (d) => d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+  const sentence = (t) => (/[.!?]$/.test(t.trim()) ? t.trim() : t.trim() + ".");
+  const part = () => { const h = new Date().getHours(); return h >= 5 && h < 12 ? "morning" : h >= 12 && h < 18 ? "afternoon" : "evening"; };
+  const SITES = { youtube: ["YouTube", "https://www.youtube.com"], google: ["Google", "https://www.google.com"], gmail: ["Gmail", "https://mail.google.com"],
+    github: ["GitHub", "https://github.com"], netflix: ["Netflix", "https://www.netflix.com"], instagram: ["Instagram", "https://www.instagram.com"],
+    twitter: ["X", "https://x.com"], x: ["X", "https://x.com"], linkedin: ["LinkedIn", "https://www.linkedin.com"], reddit: ["Reddit", "https://www.reddit.com"],
+    whatsapp: ["WhatsApp", "https://web.whatsapp.com"], chatgpt: ["ChatGPT", "https://chatgpt.com"], claude: ["Claude", "https://claude.ai"],
+    notion: ["Notion", "https://www.notion.so"], amazon: ["Amazon", "https://www.amazon.com"], spotify: ["Spotify", "https://open.spotify.com"],
+    bbc: ["BBC News", "https://www.bbc.com/news"], wikipedia: ["Wikipedia", "https://www.wikipedia.org"], maps: ["Google Maps", "https://maps.google.com"] };
+  const TOPICS = [[/\b(tech|technology|ai|gadgets?|apple|google)\b/, "tech"], [/\b(business|markets?|economy|finance|stocks?)\b/, "business"],
+    [/\b(world|international|global)\b/, "world"], [/\b(science|space|climate|environment)\b/, "science"], [/\b(sports?|football|cricket|tennis|f1)\b/, "sport"]];
+  const LABEL = { top: "top", world: "world", tech: "technology", business: "business", science: "science", sport: "sport" };
+  const HELP = "Here's what I can do. Say brief me for a rundown of your day. Ask me to pull up the news, or tech, business, world, science or sport news. " +
+    "Ask about the weather anywhere. Set timers and reminders. Open websites, like open YouTube. Play songs or videos on YouTube. " +
+    "Look things up, like tell me about the Burj Khalifa. On your Mac I can also open apps and talk about anything.";
+  const JOKES = ["I told my computer I needed a break. It said, no problem, I'll go to sleep.",
+    "Why did the AI go to therapy? Too many unresolved dependencies.",
+    "I'd tell you a UDP joke, but you might not get it."];
+  function clean(text) {
+    let t = text.trim().toLowerCase();
+    t = t.replace(/^(hey|ok|okay|hi|yo)\b[,!.]?\s*/, "").replace(/^jarvis\b[,!.]?\s*/, "");
+    t = t.replace(/^(please|can you|could you|would you|will you|i want you to|i'd like you to)\s+/, "").replace(/^please\s+/, "");
+    t = t.replace(/[\s,]*(please|for me|thanks|thank you)[.!?]*$/, "");
+    return t.replace(/^[\s.!?]+|[\s.!?]+$/g, "");
+  }
+  async function briefing(prefs) {
+    const now = new Date(), name = prefs.name || "";
+    const lines = [`Good ${part()}${name ? ", " + name : ""}. It's ${clock(now)} on ${now.toLocaleDateString("en-GB", { weekday: "long" })}, the ${ordinal(now.getDate())} of ${now.toLocaleDateString("en-GB", { month: "long" })}.`];
+    const ui = [];
+    const w = await weather(prefs.city, prefs.units);
+    lines.push(`In ${w.city} it's ${w.temp} degrees and ${w.label}, heading for a high of ${w.today.high}.`);
+    ui.push({ type: "weather", data: w });
+    const items = PREVIEW_DATA.news.top || [];
+    if (items.length) {
+      lines.push("In the news: " + items.slice(0, 3).map((i) => sentence(i.title)).join(" Also, "));
+      ui.push({ type: "news", category: "top", items, deck: false });
+    }
+    lines.push("What would you like to do first?");
+    return { say: lines.join(" "), ui, memory: "Headlines in the briefing:\n" + items.slice(0, 3).map((i, n) => `${n + 1}. ${i.title}: ${i.summary}`).join("\n") };
+  }
+  async function route(text, prefs) {
+    const t = clean(text), now = new Date(), name = prefs.name || "";
+    if (!t) return { say: "Sorry, I didn't catch that." };
+    if (/^(stop|cancel|never ?mind|that'?s all|nothing|quiet|be quiet)$/.test(t)) return { say: "Of course." };
+    if (/\b(what can you do|what do you do|help me out|list (your )?commands)\b/.test(t) || t === "help") return { say: HELP };
+    if (/\b(cancel|stop|clear|delete|remove)\b.*\b(timers?|reminders?|alarms?)\b/.test(t)) return { say: "All timers cleared.", ui: [{ type: "timer_cancel" }] };
+    if (/\b(timer|remind me|reminder|countdown|alarm in|wake me in)\b/.test(t)) {
+      const sec = parseDuration(t);
+      if (!sec) return { say: "How long should I set it for? Try, set a timer for 10 minutes." };
+      const heard = sayDuration(sec);
+      const task = t.match(/remind me (?:to|about) (.+?)(?:\s+in\s+.+)?$/) || t.match(/\bin .+? to (.+)$/);
+      if (task) return { say: `Reminder set. I'll remind you to ${task[1]} in ${heard}.`, ui: [{ type: "timer", seconds: sec, label: task[1], remind: true }] };
+      const named = t.match(/\b(?:timer|countdown)\b.*\bfor (?:the |my )?([a-z][a-z ]+?)$/);
+      if (named && !parseDuration(named[1] + " ")) {
+        const l = named[1][0].toUpperCase() + named[1].slice(1);
+        return { say: `${l} timer set for ${heard}.`, ui: [{ type: "timer", seconds: sec, label: `${l} timer` }] };
+      }
+      return { say: `Timer set for ${heard}.`, ui: [{ type: "timer", seconds: sec, label: `${timerName(sec)} timer` }] };
+    }
+    if (/\b(what('?s| is) the time|what time is it|time is it|current time|tell me the time)\b/.test(t)) return { say: `It's ${clock(now)}.` };
+    if (/\b(what('?s| is) (the |today'?s )?date|what day is (it|today)|today'?s date)\b/.test(t))
+      return { say: `It's ${now.toLocaleDateString("en-GB", { weekday: "long" })}, the ${ordinal(now.getDate())} of ${now.toLocaleDateString("en-GB", { month: "long" })}.` };
+    if (/\b(brief me|briefing|morning report|catch me up|daily (summary|update)|what did i miss|start my day)\b/.test(t) || /^good (morning|afternoon|evening)( jarvis)?$/.test(t)) return briefing(prefs);
+    if (/\b(news|headlines|top stories|what'?s happening|current events)\b/.test(t)) {
+      const cat = (TOPICS.find(([re]) => re.test(t)) || [0, "top"])[1], items = PREVIEW_DATA.news[cat] || [], read = items.slice(0, 4);
+      if (!items.length) return { say: "I couldn't load the headlines just now." };
+      const lines = [cat === "top" ? "Here are today's top headlines from the BBC." : `Here are the latest ${LABEL[cat]} headlines from the BBC.`];
+      read.forEach((it, i) => lines.push((i === 0 ? "First, " : i < read.length - 1 ? "Next, " : "And finally, ") + sentence(it.title)));
+      lines.push("Tap any story to open it.");
+      return { say: lines.join(" "), memory: "I read these headlines:\n" + read.map((it, i) => `${i + 1}. ${it.title}: ${it.summary}`).join("\n"),
+        ui: [{ type: "news", category: cat, items, deck: true }] };
+    }
+    if (/\b(weather|temperature|forecast|rain|raining|rainy|snow|snowing|umbrella|sunny|windy|humid|how (hot|cold|warm) is it|degrees outside)\b/.test(t)) {
+      const m = t.match(/\b(?:in|for|at) ([a-z][a-z .'-]+?)(?: today| tomorrow| right now| this week)?$/);
+      const skip = ["today", "tomorrow", "tonight", "the week", "the morning", "the afternoon", "the evening", "the weekend", "here", "my area", "my city"];
+      const city = m && !skip.includes(m[1].trim()) ? m[1].trim() : prefs.city || "";
+      const w = await weather(city, prefs.units);
+      const d = /tomorrow/.test(t) ? w.tomorrow : w.today;
+      const say = /tomorrow/.test(t)
+        ? `Tomorrow in ${w.city}, expect ${d.label}, with a high of ${d.high} and a low of ${d.low} degrees.` + (d.rain >= 30 ? ` There's a ${d.rain} percent chance of rain.` : "")
+        : `It's ${w.temp} degrees and ${w.label} in ${w.city}, with a high of ${d.high} and a low of ${d.low}.` + (d.rain >= 30 ? ` There's a ${d.rain} percent chance of rain today.` : "");
+      return { say, ui: [{ type: "weather", data: w }] };
+    }
+    let m = t.match(/^play (.+?)(?: on (youtube|spotify))?$/);
+    if (m) { const url = "https://www.youtube.com/results?search_query=" + encodeURIComponent(m[1]); openTab(url); return { say: `Here's ${m[1]} on YouTube.`, ui: [{ type: "opened", label: "YouTube", detail: m[1], url }] }; }
+    m = t.match(/^(?:google|search google for|search on google for) (.+)$/);
+    if (m) { const url = "https://www.google.com/search?q=" + encodeURIComponent(m[1]); openTab(url); return { say: `Searching Google for ${m[1]}.`, ui: [{ type: "opened", label: "Google", detail: m[1], url }] }; }
+    m = t.match(/^(?:open|launch|start|go to|pull up|bring up|load)\s+(?:the |my |up )?(.+?)(?: app| website| site| page)?$/);
+    if (m) {
+      const target = m[1].trim();
+      if (SITES[target]) { const [label, url] = SITES[target]; openTab(url); return { say: `Opening ${label}.`, ui: [{ type: "opened", label, url }] }; }
+      if (/^[\w-]+(\.[\w-]+)+(\/\S*)?$/.test(target)) { const url = /^http/.test(target) ? target : "https://" + target; openTab(url); return { say: `Opening ${target}.`, ui: [{ type: "opened", label: target, url }] }; }
+      return { say: `In this preview I can open websites like YouTube. On your Mac I can open apps like ${target} too.` };
+    }
+    m = t.match(/^(?:look up|search for|search the web for|search the internet for|search|tell me about|who is|who was|what is (?:a |an |the )?|what are)\s*(.+)$/);
+    if (m && m[1].length > 2) {
+      const r = await lookup(m[1]);
+      if (r) return { say: r.text, ui: [{ type: "sources", items: [{ title: r.title, url: r.url, domain: "wikipedia.org" }] }] };
+      return { say: "I couldn't reach the web from this preview. On your Mac I search the web and answer with sources." };
+    }
+    if (/^(hi|hello|hey|yo|hiya)\b/.test(text.trim().toLowerCase()) || /^(hello|hi|hey)$/.test(t)) return { say: `Hello${name ? ", " + name : ""}. What can I do for you?` };
+    if (/\b(who are you|what are you|your name)\b/.test(t)) return { say: "I'm Jarvis, your personal assistant, built on OpenJarvis. In the full version my brain runs privately on your Mac." };
+    if (/\bhow are you\b/.test(t)) return { say: "All systems nominal, thank you. Rather pleasant, actually." };
+    if (/\bjoke\b/.test(t)) return { say: JOKES[Math.floor(Math.random() * JOKES.length)] };
+    if (/^(thanks|thank you|cheers|nice|great|awesome|perfect)\b/.test(text.trim().toLowerCase())) return { say: "Always a pleasure." };
+    return { say: "This preview doesn't have my language model, so open conversation is switched off. Try brief me, pull up the tech news, what's the weather, set a timer, or tell me about something. On your Mac I can talk about anything." };
+  }
+
+  function streamReply(body, signal) {
+    const msgs = body.messages || [], last = (msgs[msgs.length - 1] || {}).content || "", enc = new TextEncoder();
+    const stream = new ReadableStream({
+      async start(c) {
+        try {
+          await pause(380);
+          const r = await route(last, body.prefs || {});
+          const lines = [...(r.ui || []).map((ui) => ({ ui })), ...(r.say.match(/\S+\s*/g) || []).map((delta) => ({ delta }))];
+          if (r.memory) lines.push({ memory: r.memory });
+          lines.push({ done: true });
+          for (const line of lines) {
+            if (signal && signal.aborted) return c.error(new DOMException("Aborted", "AbortError"));
+            c.enqueue(enc.encode(JSON.stringify(line) + "\n"));
+            if (line.delta) await pause(26);
+          }
+          c.close();
+        } catch (err) { c.error(err); }
+      },
+    });
+    return new Response(stream, { headers: { "Content-Type": "application/x-ndjson" } });
+  }
+
+  window.fetch = async (input, init = {}) => {
+    if (typeof input !== "string" || !input.startsWith("/api/")) return realFetch(input, init);
+    const [path, query] = input.split("?"), q = new URLSearchParams(query || "");
+    if (path === "/api/status") {
+      cpu = walk(cpu, 7, 6, 62); mem = walk(mem, 1.2, 38, 62);
+      return json({ brain: "online", ears: SR ? "online" : "offline", voice: "online", model: "preview mode", voice_id: "system voice",
+        notes: SR ? [] : ["Talking needs Chrome or Safari in this preview. You can still type."], host: "preview", name: PREVIEW_DATA.name,
+        mac: true, cpu, mem, battery: 87, plugged: false, uptime: Math.round((Date.now() - started) / 1000) });
+    }
+    if (path === "/api/news") return json({ items: PREVIEW_DATA.news[q.get("cat")] || PREVIEW_DATA.news.top });
+    if (path === "/api/weather") return json(await weather(q.get("city") || "", q.get("units") || "auto"));
+    if (path === "/api/chat") return streamReply(JSON.parse(init.body || "{}"), init.signal);
+    if (path === "/api/open") { openTab(JSON.parse(init.body || "{}").url); return json({ ok: true }); }
+    return json({ error: "not available in the preview" }, 503);
+  };
+})();
+</script>
+<script>
+"use strict";
+/* ============================================================== basics */
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const safeUrl = (u) => (/^https?:\/\//i.test(u || "") ? u : "");
+const store = {
+  get(k, d) { try { const v = localStorage.getItem("jarvis." + k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem("jarvis." + k, JSON.stringify(v)); } catch {} },
+};
+const prefs = Object.assign(
+  { name: "", city: "", units: "auto", convo: true, clap: true, voice: true, sfx: true, intro: true },
+  store.get("prefs", {})
+);
+const savePrefs = () => store.set("prefs", prefs);
+const S = { state: "locked", history: [], status: null, micOk: false, micError: "", chatCtrl: null, speaker: null,
+  news: { cat: "top", items: [] }, newsError: false, lastNews: [], weather: null, weatherError: false, deckOpen: false, greeted: false };
+const userName = () => (prefs.name || (S.status && S.status.name) || "").trim();
+const partOfDay = () => { const h = new Date().getHours(); return h < 5 ? "evening" : h < 12 ? "morning" : h < 18 ? "afternoon" : "evening"; };
+
+const STATE_TEXT = { locked: "Locked", booting: "Starting", idle: "Standby", listening: "Listening", thinking: "Thinking", speaking: "Speaking", error: "Attention" };
+function setState(s, caption) {
+  S.state = s;
+  document.body.dataset.state = s;
+  $("#pill-text").textContent = STATE_TEXT[s] || s;
+  $("#state").textContent = STATE_TEXT[s] || s;
+  if (caption !== undefined) setCaption(caption);
+}
+function setCaption(t) {
+  const c = $("#caption");
+  if (c.textContent === t) return;
+  c.classList.remove("in");
+  void c.offsetWidth;
+  c.textContent = t;
+  c.classList.add("in");
+}
+
+/* ============================================================== audio */
+let ctx = null, sfxGain = null, voiceGain = null, outAnalyser = null, micAnalyser = null, micLevel = 0;
+let rec = null, noiseFloor = 0.006;
+
+function ensureAudio() {
+  if (ctx) return ctx;
+  const AC = window.AudioContext || window.webkitAudioContext;
+  ctx = new AC();
+  outAnalyser = ctx.createAnalyser();
+  outAnalyser.fftSize = 256;
+  outAnalyser.smoothingTimeConstant = 0.78;
+  voiceGain = ctx.createGain();
+  voiceGain.connect(outAnalyser);
+  outAnalyser.connect(ctx.destination);
+  sfxGain = ctx.createGain();
+  sfxGain.gain.value = prefs.sfx ? 0.7 : 0;
+  sfxGain.connect(ctx.destination);
+  return ctx;
+}
+
+const SFX = {
+  tone(freq, at, dur, { type = "sine", gain = 0.12, attack = 0.012, to = null } = {}) {
+    if (!ctx || !prefs.sfx) return;
+    const t = ctx.currentTime + at, o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = type;
+    o.frequency.setValueAtTime(freq, t);
+    if (to) o.frequency.exponentialRampToValueAtTime(to, t + dur * 0.8);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(gain, t + attack);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(sfxGain);
+    o.start(t); o.stop(t + dur + 0.05);
+  },
+  noise(at, dur, { gain = 0.06, from = 400, to = 4000 } = {}) {
+    if (!ctx || !prefs.sfx) return;
+    const t = ctx.currentTime + at, len = Math.ceil(ctx.sampleRate * dur);
+    const buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    const src = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+    src.buffer = buf;
+    f.type = "bandpass"; f.Q.value = 1.2;
+    f.frequency.setValueAtTime(from, t); f.frequency.exponentialRampToValueAtTime(to, t + dur);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(gain, t + dur * 0.4); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    src.connect(f); f.connect(g); g.connect(sfxGain);
+    src.start(t); src.stop(t + dur);
+  },
+  unlock() {
+    this.noise(0, 0.7, { gain: 0.05, from: 300, to: 3500 });
+    [523.25, 783.99, 1046.5].forEach((f, i) => this.tone(f, i * 0.08, 0.7 + i * 0.1, { gain: 0.07 - i * 0.012 }));
+  },
+  boot() {
+    if (!ctx || !prefs.sfx) return;
+    const t = ctx.currentTime, f = ctx.createBiquadFilter(), g = ctx.createGain();
+    f.type = "lowpass"; f.Q.value = 7;
+    f.frequency.setValueAtTime(110, t); f.frequency.exponentialRampToValueAtTime(2600, t + 2.0);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.14, t + 1.7); g.gain.exponentialRampToValueAtTime(0.0001, t + 3.4);
+    f.connect(g); g.connect(sfxGain);
+    for (const fr of [55, 55.35, 110.2, 164.8]) {
+      const o = ctx.createOscillator();
+      o.type = "sawtooth"; o.frequency.value = fr;
+      o.connect(f); o.start(t); o.stop(t + 3.5);
+    }
+    this.noise(1.55, 0.9, { gain: 0.05, from: 1800, to: 9000 });
+    [1318.5, 1975.5, 2637].forEach((fr, i) => this.tone(fr, 1.95 + i * 0.08, 1.4, { gain: 0.045 }));
+  },
+  listen() { this.tone(660, 0, 0.16, { type: "triangle", gain: 0.07, to: 990 }); },
+  stop() { this.tone(880, 0, 0.16, { type: "triangle", gain: 0.06, to: 587 }); },
+  chime() { [880, 1108.7, 1318.5, 1760].forEach((f, i) => this.tone(f, i * 0.16, 1.1, { gain: 0.08 })); },
+};
+
+async function initMic() {
+  try {
+    if (!navigator.mediaDevices) throw new Error("open Jarvis at http://localhost to use the microphone");
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true, autoGainControl: false } });
+    const src = ctx.createMediaStreamSource(stream);
+    micAnalyser = ctx.createAnalyser();
+    micAnalyser.fftSize = 256;
+    src.connect(micAnalyser);
+    const proc = ctx.createScriptProcessor(1024, 1, 1), mute = ctx.createGain();
+    mute.gain.value = 0;
+    src.connect(proc); proc.connect(mute); mute.connect(ctx.destination);
+    proc.onaudioprocess = (e) => onMic(e.inputBuffer.getChannelData(0));
+    S.micOk = true;
+  } catch (err) {
+    S.micOk = false;
+    S.micError = err.message || err.name || "blocked";
+  }
+}
+
+function onMic(samples) {
+  let sum = 0, peak = 0;
+  for (let i = 0; i < samples.length; i++) { const v = samples[i]; sum += v * v; const a = v < 0 ? -v : v; if (a > peak) peak = a; }
+  const rms = Math.sqrt(sum / samples.length), dt = samples.length / ctx.sampleRate;
+  micLevel = rms;
+  if (S.state === "listening" && rec) {
+    rec.chunks.push(new Float32Array(samples));
+    rec.total += dt;
+    if (!rec.speech) { const keep = Math.ceil(0.4 / dt); if (rec.chunks.length > keep) rec.chunks.splice(0, rec.chunks.length - keep); }
+    if (rec.total < 0.22) return;
+    const threshold = Math.max(0.01, noiseFloor * 3.5);
+    if (rms > threshold) { rec.speech = true; rec.silent = 0; rec.voiced += dt; }
+    else if (rec.speech) rec.silent += dt;
+    else rec.waited += dt;
+    if (rec.speech && rec.silent > 1.1) { if (rec.voiced >= 0.25) finishListening(); else { rec.speech = false; rec.silent = 0; rec.voiced = 0; } }
+    else if (!rec.speech && rec.waited > 6) cancelListening("I didn't hear anything. Press Space when you're ready.");
+    else if (rec.total > 30) finishListening();
+    return;
+  }
+  if (S.state === "idle") {
+    noiseFloor = noiseFloor * 0.985 + Math.min(rms, 0.04) * 0.015;
+    if (prefs.clap && S.micOk) detectClap(rms, peak);
+  }
+}
+
+// Double-clap wake: a sharp, loud onset that dies away within ~60 ms, twice.
+const clap = { pending: 0, pendingRms: 0, frames: 0, last: 0, prev: 0, cool: 0 };
+function detectClap(rms, peak) {
+  const now = performance.now();
+  if (clap.pending) {
+    clap.frames++;
+    if (rms < clap.pendingRms * 0.4) {
+      const at = clap.pending, gap = at - clap.last;
+      clap.pending = 0;
+      if (gap > 150 && gap < 900 && now > clap.cool) { clap.last = 0; clap.cool = now + 2000; if (S.state === "idle") startListening(); }
+      else clap.last = at;
+    } else if (clap.frames > 3) clap.pending = 0;
+  } else if (peak > 0.3 && rms > Math.max(0.04, noiseFloor * 10) && rms > clap.prev * 3) {
+    clap.pending = now; clap.pendingRms = rms; clap.frames = 0;
+  }
+  clap.prev = rms;
+}
+
+function encodeWav(chunks, inRate, outRate = 16000) {
+  let len = 0;
+  for (const c of chunks) len += c.length;
+  const all = new Float32Array(len);
+  let off = 0;
+  for (const c of chunks) { all.set(c, off); off += c.length; }
+  const ratio = inRate / outRate, outLen = Math.floor(len / ratio);
+  const buf = new ArrayBuffer(44 + outLen * 2), dv = new DataView(buf);
+  const tag = (p, s) => { for (let i = 0; i < s.length; i++) dv.setUint8(p + i, s.charCodeAt(i)); };
+  tag(0, "RIFF"); dv.setUint32(4, 36 + outLen * 2, true); tag(8, "WAVE"); tag(12, "fmt ");
+  dv.setUint32(16, 16, true); dv.setUint16(20, 1, true); dv.setUint16(22, 1, true);
+  dv.setUint32(24, outRate, true); dv.setUint32(28, outRate * 2, true); dv.setUint16(32, 2, true); dv.setUint16(34, 16, true);
+  tag(36, "data"); dv.setUint32(40, outLen * 2, true);
+  for (let i = 0; i < outLen; i++) {
+    const s = Math.floor(i * ratio), e = Math.min(len, Math.floor((i + 1) * ratio));
+    let acc = 0;
+    for (let j = s; j < e; j++) acc += all[j];
+    const v = Math.max(-1, Math.min(1, acc / Math.max(1, e - s)));
+    dv.setInt16(44 + i * 2, v < 0 ? v * 0x8000 : v * 0x7fff, true);
+  }
+  return new Blob([buf], { type: "audio/wav" });
+}
+
+/* ============================================================== listening */
+function startListening() {
+  if (!S.micOk) { setCaption("The microphone is off. Allow it in your browser's address bar, then reload."); return; }
+  if (S.status && S.status.ears !== "online") {
+    setCaption(S.status.ears === "offline" ? "Speech recognition isn't working. See the Systems panel." : "My ears are still warming up. One moment.");
+    return;
+  }
+  interrupt();
+  rec = { chunks: [], speech: false, silent: 0, waited: 0, total: 0, voiced: 0 };
+  setState("listening", "Listening…");
+  SFX.listen();
+}
+function cancelListening(msg) { rec = null; setState("idle", msg); }
+async function finishListening() {
+  const r = rec;
+  rec = null;
+  if (!r) return;
+  SFX.stop();
+  setState("thinking", "Transcribing…");
+  try {
+    const res = await fetch("/api/stt", { method: "POST", headers: { "Content-Type": "audio/wav" }, body: encodeWav(r.chunks, ctx.sampleRate) });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    if (!data.text) { afterTurn("I didn't catch that. Press Space to try again.", false); return; }
+    send(data.text);
+  } catch (err) { fault(err); }
+}
+function talk() {
+  if (S.state === "locked" || S.state === "booting") return;
+  if (S.state === "listening") { if (rec && rec.speech) finishListening(); else cancelListening("Standing by."); return; }
+  startListening();
+}
+
+/* ============================================================== speaking */
+function browserSay(text) {
+  return new Promise((done) => {
+    if (!window.speechSynthesis) return done();
+    const u = new SpeechSynthesisUtterance(text), voices = speechSynthesis.getVoices();
+    const v = voices.find((x) => /^Daniel/i.test(x.name)) || voices.find((x) => /en[-_]GB/i.test(x.lang)) || voices.find((x) => /^en/i.test(x.lang));
+    if (v) u.voice = v;
+    // Some browsers never fire onend (no voices installed), so don't wait forever.
+    const guard = setTimeout(done, 1500 + text.split(/\s+/).length * 420);
+    u.onend = u.onerror = () => { clearTimeout(guard); done(); };
+    speechSynthesis.speak(u);
+  });
+}
+
+class Speaker {
+  constructor({ onDone = null, onSentence = null } = {}) { this.items = []; this.busy = false; this.ended = false; this.cancelled = false; this.src = null; this.onDone = onDone; this.onSentence = onSentence; }
+  say(text) {
+    text = text.replace(/\s+/g, " ").trim();
+    if (!text || this.cancelled) return;
+    const local = S.status && S.status.voice === "online";
+    const audio = local
+      ? fetch("/api/tts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text }) })
+          .then((r) => { if (r.status === 204) return null; if (!r.ok) throw new Error("tts " + r.status); return r.arrayBuffer(); })
+          .then((b) => (b ? ctx.decodeAudioData(b) : null))
+      : Promise.reject(new Error("local voice offline"));
+    audio.catch(() => {});
+    this.items.push({ text, audio });
+    this.next();
+  }
+  end() { this.ended = true; this.next(); }
+  async next() {
+    if (this.busy || this.cancelled) return;
+    const item = this.items.shift();
+    if (!item) { if (this.ended && this.onDone) this.onDone(); return; }
+    this.busy = true;
+    setState("speaking", item.text);
+    if (this.onSentence) this.onSentence(item.text);
+    try { const buf = await item.audio; if (buf && !this.cancelled) await this.play(buf); }
+    catch { if (!this.cancelled) await browserSay(item.text); }
+    this.busy = false;
+    this.next();
+  }
+  play(buf) {
+    return new Promise((done) => {
+      const s = ctx.createBufferSource();
+      s.buffer = buf; s.connect(voiceGain); s.onended = done; this.src = s; s.start();
+    });
+  }
+  cancel() {
+    this.cancelled = true; this.items = [];
+    try { if (this.src) this.src.stop(); } catch {}
+    if (window.speechSynthesis) speechSynthesis.cancel();
+  }
+}
+
+function speak(text, after) {
+  if (!prefs.voice || !ctx) { if (after) after(); return; }
+  const sp = new Speaker({ onDone: () => { if (S.speaker === sp) { S.speaker = null; if (after) after(); } } });
+  S.speaker = sp;
+  sp.say(text);
+  sp.end();
+}
+function interrupt() {
+  if (S.chatCtrl) { S.chatCtrl.abort(); S.chatCtrl = null; }
+  if (S.speaker) { S.speaker.cancel(); S.speaker = null; }
+  rec = null;
+  $$(".reading").forEach((el) => el.classList.remove("reading"));
+}
+function afterTurn(caption = "Standing by.", relisten = true) {
+  $$(".reading").forEach((el) => el.classList.remove("reading"));
+  setState("idle", caption);
+  if (relisten && prefs.convo && S.micOk) setTimeout(() => { if (S.state === "idle") startListening(); }, 500);
+}
+function fault(err) {
+  const m = addMsg("jarvis", String((err && err.message) || err));
+  m.el.classList.add("err");
+  setState("error", "Something went wrong. Details are in the conversation.");
+  setTimeout(() => { if (S.state === "error") setState("idle", "Standing by."); }, 4000);
+}
+async function announce(text) {
+  for (let i = 0; i < 120 && S.state !== "idle"; i++) await sleep(500);
+  addMsg("jarvis", text);
+  if (S.state === "idle") speak(text, () => setState("idle", "Standing by."));
+}
+
+/* ============================================================== conversation */
+function addMsg(kind, text) {
+  $("#log-empty")?.remove();
+  const li = document.createElement("li");
+  li.className = "msg " + kind;
+  if (kind === "jarvis") li.innerHTML = '<span class="av"></span><div class="bd"><div class="txt"></div><div class="attach"></div></div>';
+  else li.innerHTML = '<div class="txt"></div>';
+  const txt = $(".txt", li);
+  txt.textContent = text;
+  $("#log").append(li);
+  scrollLog();
+  return { el: li, txt, attach: $(".attach", li) };
+}
+function scrollLog() { const l = $("#log"); l.scrollTop = l.scrollHeight; }
+function attachSources(msg, items) {
+  if (!msg || !msg.attach) return;
+  for (const s of items) {
+    const href = safeUrl(s.url);
+    if (!href) continue;
+    const a = document.createElement("a");
+    a.className = "src"; a.href = href; a.target = "_blank"; a.rel = "noopener";
+    a.innerHTML = `<svg class="i"><use href="#i-globe"/></svg><span>${esc(s.domain || s.title)}</span>`;
+    a.title = s.title;
+    msg.attach.append(a);
+  }
+}
+function attachReceipt(msg, ev) {
+  if (!msg || !msg.attach) return;
+  const href = safeUrl(ev.url);
+  const el = document.createElement(href ? "a" : "span");
+  el.className = "src";
+  if (href) { el.href = href; el.target = "_blank"; el.rel = "noopener"; }
+  el.innerHTML = `<svg class="i"><use href="#i-ext"/></svg><span>Opened ${esc(ev.label)}${ev.detail ? " · " + esc(ev.detail) : ""}</span>`;
+  msg.attach.append(el);
+}
+
+const visible = (t) => t.replace(/<think>[\s\S]*?(?:<\/think>|$)/g, "");
+const ORD = { first: 0, "1st": 0, one: 0, top: 0, second: 1, "2nd": 1, two: 1, third: 2, "3rd": 2, three: 2, fourth: 3, "4th": 3, four: 3, fifth: 4, "5th": 4, five: 4, last: -1 };
+
+function localCommand(text) {
+  const t = text.toLowerCase().replace(/[.!?,]/g, "").replace(/^(hey |ok |okay )?jarvis /, "").replace(/^please /, "").trim();
+  if (/^(close|hide|dismiss|exit|go back|back)( the)?( news| headlines| deck| stories| that| this| it)?$/.test(t) && S.deckOpen) {
+    closeDeck(); reply("Done."); return true;
+  }
+  const m = t.match(/^(?:open|read|show|pull up)(?: me)?(?: the)? (first|second|third|fourth|fifth|1st|2nd|3rd|4th|5th|top|last) (?:one|story|article|headline|link)$/);
+  if (m && S.lastNews.length) {
+    const i = ORD[m[1]] < 0 ? S.lastNews.length - 1 : ORD[m[1]];
+    const item = S.lastNews[i];
+    if (item && safeUrl(item.link)) {
+      fetch("/api/open", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: item.link }) });
+      toast("Opened story", item.title, "i-ext");
+      reply("Opening it now.");
+      return true;
+    }
+  }
+  return false;
+}
+function reply(text) {
+  addMsg("jarvis", text);
+  S.history.push({ role: "assistant", content: text });
+  if (prefs.voice) speak(text, () => afterTurn("Standing by."));
+  else afterTurn(text);
+}
+
+async function send(text) {
+  text = String(text || "").trim();
+  if (!text || S.state === "locked" || S.state === "booting") return;
+  interrupt();
+  addMsg("you", text);
+  if (localCommand(text)) return;
+  S.history.push({ role: "user", content: text });
+  S.history = S.history.slice(-20);
+  setState("thinking", "Thinking…");
+  const ctrl = new AbortController();
+  S.chatCtrl = ctrl;
+  const speaker = prefs.voice ? new Speaker({ onSentence: highlightStory, onDone: () => { if (S.speaker === speaker) { S.speaker = null; afterTurn(); } } }) : null;
+  S.speaker = speaker;
+  const msg = addMsg("jarvis", "");
+  msg.txt.innerHTML = '<span class="typing"><span></span><span></span><span></span></span>';
+  let full = "", spoken = 0, memory = "", first = 0;
+  const pump = (final) => {
+    const vis = visible(full);
+    if (vis.trim()) msg.txt.textContent = vis.trim();
+    scrollLog();
+    if (!speaker) return;
+    const rest = vis.slice(spoken), boundary = /[.!?…]+["'”’)\]]*\s+|\n+/g;
+    let m, cut = 0;
+    while ((m = boundary.exec(rest))) { speaker.say(rest.slice(cut, m.index + m[0].length)); cut = m.index + m[0].length; }
+    if (final && rest.slice(cut).trim()) { speaker.say(rest.slice(cut)); cut = rest.length; }
+    spoken += cut;
+  };
+  try {
+    const res = await fetch("/api/chat", {
+      method: "POST", headers: { "Content-Type": "application/json" }, signal: ctrl.signal,
+      body: JSON.stringify({ messages: S.history, prefs: { name: userName(), city: prefs.city, units: prefs.units } }),
+    });
+    if (!res.ok || !res.body) throw new Error("The Jarvis server returned " + res.status + ".");
+    const reader = res.body.getReader(), dec = new TextDecoder();
+    let buf = "";
+    for (;;) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      let nl;
+      while ((nl = buf.indexOf("\n")) >= 0) {
+        const line = buf.slice(0, nl).trim();
+        buf = buf.slice(nl + 1);
+        if (!line) continue;
+        const ev = JSON.parse(line);
+        if (ev.error) throw new Error(ev.error);
+        if (ev.ui) handleUi(ev.ui, msg);
+        if (ev.memory) memory = ev.memory;
+        if (ev.delta) { if (!first) first = performance.now(); full += ev.delta; pump(false); }
+      }
+    }
+    pump(true);
+    const answer = visible(full).trim();
+    if (!answer) throw new Error("The model sent back an empty reply.");
+    S.history.push({ role: "assistant", content: memory || answer });
+    if (speaker) speaker.end();
+    else afterTurn(answer);
+  } catch (err) {
+    if (err.name === "AbortError") return;
+    msg.el.remove();
+    if (speaker) speaker.cancel();
+    if (S.speaker === speaker) S.speaker = null;
+    fault(err);
+  } finally {
+    if (S.chatCtrl === ctrl) S.chatCtrl = null;
+  }
+}
+
+function handleUi(ev, msg) {
+  switch (ev.type) {
+    case "news":
+      S.lastNews = ev.items.slice(0, 8);
+      setNews(ev.category, ev.items);
+      if (ev.deck) openDeck(ev.category, ev.items);
+      break;
+    case "weather": S.weather = ev.data; S.weatherError = false; renderWeather(); break;
+    case "timer": Timers.add(ev); toast(ev.remind ? "Reminder set" : "Timer set", `${ev.label} · ${fmtDur(ev.seconds)}`, "i-timer"); break;
+    case "timer_cancel": Timers.clear(); break;
+    case "opened": toast("Opened " + ev.label, ev.detail || "", "i-ext"); attachReceipt(msg, ev); break;
+    case "sources": attachSources(msg, ev.items); break;
+  }
+}
+
+/* ============================================================== toasts & formatting */
+function toast(title, detail = "", icon = "i-spark") {
+  const el = document.createElement("div");
+  el.className = "toast";
+  el.innerHTML = `<svg class="i"><use href="#${icon}"/></svg><div><b>${esc(title)}</b>${detail ? `<small>${esc(detail)}</small>` : ""}</div>`;
+  $("#toasts").append(el);
+  setTimeout(() => { el.classList.add("out"); setTimeout(() => el.remove(), 420); }, 4200);
+}
+function fmtDur(sec) {
+  const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
+  return [h && h + " h", m && m + " min", s && s + " s"].filter(Boolean).join(" ") || "0 s";
+}
+function fmtClock(ms) {
+  const t = Math.ceil(ms / 1000), h = Math.floor(t / 3600), m = Math.floor((t % 3600) / 60), s = t % 60;
+  return (h ? h + ":" + String(m).padStart(2, "0") : m) + ":" + String(s).padStart(2, "0");
+}
+function ago(ts) {
+  if (!ts) return "";
+  const d = Date.now() / 1000 - ts;
+  return d < 90 ? "just now" : d < 3600 ? Math.round(d / 60) + "m ago" : d < 86400 ? Math.round(d / 3600) + "h ago" : Math.round(d / 86400) + "d ago";
+}
+
+/* ============================================================== timers */
+const Timers = {
+  list: (store.get("timers", []) || []).filter((t) => t.end > Date.now()),
+  add(ev) { this.list.push({ id: Math.random().toString(36).slice(2), label: ev.label, total: ev.seconds, end: Date.now() + ev.seconds * 1000, remind: !!ev.remind }); this.save(); this.render(); },
+  clear() { this.list = []; this.save(); this.render(); },
+  remove(id) { this.list = this.list.filter((t) => t.id !== id); this.save(); this.render(); },
+  save() { store.set("timers", this.list); },
+  render() {
+    $("#timers-card").hidden = !this.list.length;
+    $("#timers").innerHTML = this.list.map((t) => `
+      <li class="timer" data-tid="${t.id}">
+        <svg class="ring" viewBox="0 0 36 36"><circle class="t-track" cx="18" cy="18" r="15"/><circle class="t-fill" cx="18" cy="18" r="15" pathLength="100"/></svg>
+        <div class="t-txt"><b>${esc(t.label.charAt(0).toUpperCase() + t.label.slice(1))}</b><span>${t.remind ? "Reminder" : "Timer"} · ${fmtDur(t.total)}</span></div>
+        <div class="t-left">--:--</div>
+        <button type="button" aria-label="Cancel" data-cancel="${t.id}"><svg class="i"><use href="#i-x"/></svg></button>
+      </li>`).join("");
+    this.tick();
+    heroSub();
+  },
+  tick() {
+    const now = Date.now();
+    for (const t of [...this.list]) {
+      const left = Math.max(0, t.end - now), li = $(`[data-tid="${t.id}"]`);
+      if (li) { $(".t-left", li).textContent = fmtClock(left); $(".t-fill", li).style.strokeDashoffset = 100 - (100 * left) / (t.total * 1000); }
+      if (left <= 0) { this.remove(t.id); this.fire(t); }
+    }
+  },
+  fire(t) {
+    SFX.chime();
+    toast(t.remind ? "Reminder" : "Time's up", t.label, "i-timer");
+    const label = t.label.charAt(0).toLowerCase() + t.label.slice(1);
+    announce(t.remind ? `Reminder: ${t.label}.` : `Time's up. Your ${label} is done.`);
+  },
+};
+$("#timers").addEventListener("click", (e) => { const b = e.target.closest("[data-cancel]"); if (b) Timers.remove(b.dataset.cancel); });
+setInterval(() => Timers.tick(), 500);
+
+/* ============================================================== news */
+const CATS = [["top", "Top"], ["world", "World"], ["tech", "Tech"], ["business", "Business"], ["science", "Science"], ["sport", "Sport"]];
+const CAT_TITLE = { top: "Top stories", world: "World", tech: "Technology", business: "Business", science: "Science", sport: "Sport" };
+function tabsHtml(active) { return CATS.map(([k, l]) => `<button type="button" class="tab${k === active ? " on" : ""}" data-cat="${k}">${l}</button>`).join(""); }
+
+async function loadNews(cat = "top") {
+  S.news.cat = cat;
+  $("#news-tabs").innerHTML = tabsHtml(cat);
+  try {
+    const r = await fetch("/api/news?cat=" + encodeURIComponent(cat));
+    const d = await r.json();
+    if (!d.items) throw new Error(d.error || "no items");
+    S.newsError = false;
+    setNews(cat, d.items);
+    return d.items;
+  } catch {
+    S.newsError = true;
+    $("#stories").innerHTML = '<li class="empty">Headlines are unavailable right now.</li>';
+    return [];
+  }
+}
+function setNews(cat, items) {
+  S.news = { cat, items };
+  $("#news-tabs").innerHTML = tabsHtml(cat);
+  $("#stories").innerHTML = items.slice(0, 10).map((it) => {
+    const img = safeUrl(it.image);
+    return `<li><a class="story" href="${esc(safeUrl(it.link) || "#")}" target="_blank" rel="noopener" data-title="${esc(it.title)}">
+      ${img ? `<img src="${esc(img)}" alt="" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'ph'}))">` : '<span class="ph"></span>'}
+      <span class="story-t"><b>${esc(it.title)}</b><small>${esc(it.source)}${it.time ? " · " + ago(it.time) : ""}</small></span>
+      <svg class="i go"><use href="#i-ext"/></svg></a></li>`;
+  }).join("");
+  heroSub();
+}
+function skeletonNews() {
+  $("#news-tabs").innerHTML = tabsHtml("top");
+  $("#stories").innerHTML = Array.from({ length: 5 }, () => '<li style="display:flex;gap:12px;padding:8px"><div class="skel" style="width:58px;height:58px;border-radius:12px;flex:none"></div><div style="flex:1"><div class="skel" style="height:11px;margin-top:6px"></div><div class="skel" style="height:11px;width:70%;margin-top:8px"></div><div class="skel" style="height:8px;width:30%;margin-top:10px"></div></div></li>').join("");
+}
+
+function openDeck(cat, items) {
+  const deck = $("#deck");
+  $("#deck-title").textContent = CAT_TITLE[cat] || "Headlines";
+  $("#deck-tabs").innerHTML = tabsHtml(cat);
+  $("#deck-grid").innerHTML = items.slice(0, 11).map((it, i) => {
+    const img = safeUrl(it.image);
+    return `<a class="dcard${i === 0 ? " lead" : ""}" style="--i:${i}" href="${esc(safeUrl(it.link) || "#")}" target="_blank" rel="noopener" data-title="${esc(it.title)}">
+      <span class="num">${String(i + 1).padStart(2, "0")}</span>
+      ${img ? `<img src="${esc(img)}" alt="" loading="lazy" onerror="this.remove()">` : ""}
+      <div class="dbody"><b>${esc(it.title)}</b>${it.summary ? `<p>${esc(it.summary)}</p>` : ""}<small>${esc(it.source)}${it.time ? " · " + ago(it.time) : ""}</small></div></a>`;
+  }).join("");
+  deck.hidden = false;
+  S.deckOpen = true;
+  requestAnimationFrame(() => requestAnimationFrame(() => deck.classList.add("open")));
+}
+function closeDeck() {
+  const deck = $("#deck");
+  if (!S.deckOpen) return;
+  S.deckOpen = false;
+  deck.classList.remove("open");
+  setTimeout(() => { if (!S.deckOpen) deck.hidden = true; }, 500);
+}
+const norm = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, "");
+function highlightStory(sentence) {
+  const s = norm(sentence);
+  let hit = null;
+  for (const el of $$(".dcard, .story")) {
+    const key = norm(el.dataset.title || "").slice(0, 36);
+    const on = key.length > 8 && s.includes(key);
+    el.classList.toggle("reading", on);
+    if (on && el.classList.contains("dcard")) hit = el;
+  }
+  if (hit) hit.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+/* ============================================================== weather */
+function wxIcon(icon, day = true) {
+  return { clear: day ? "i-sun" : "i-moon", partly: day ? "i-partly" : "i-partly-night", cloud: "i-cloud", fog: "i-fog", drizzle: "i-drizzle", rain: "i-rain", snow: "i-snow", storm: "i-storm" }[icon] || "i-cloud";
+}
+async function loadWeather() {
+  try {
+    const q = new URLSearchParams({ city: prefs.city || "", units: prefs.units });
+    const r = await fetch("/api/weather?" + q);
+    const d = await r.json();
+    if (d.error) throw new Error(d.error);
+    S.weather = d; S.weatherError = false;
+  } catch (err) {
+    S.weatherError = true;
+    S.weatherMsg = err.message;
+    clearTimeout(S.weatherRetry);
+    S.weatherRetry = setTimeout(loadWeather, 60000);
+  }
+  renderWeather();
+}
+function sparkPath(vals, w, h) {
+  const min = Math.min(...vals), max = Math.max(...vals), span = Math.max(1, max - min);
+  const pts = vals.map((v, i) => [((i + 0.5) / vals.length) * w, h - 5 - ((v - min) / span) * (h - 12)]);
+  let d = `M${pts[0][0]},${pts[0][1]}`;
+  for (let i = 1; i < pts.length; i++) {
+    const [x0, y0] = pts[i - 1], [x1, y1] = pts[i], mx = (x0 + x1) / 2;
+    d += ` C${mx},${y0} ${mx},${y1} ${x1},${y1}`;
+  }
+  return { d, pts };
+}
+function renderWeather() {
+  const w = S.weather, body = $("#wx-body");
+  if (!w) {
+    if (S.weatherError) body.innerHTML = `<p class="hero-sub" style="margin:0">${esc(S.weatherMsg || "Weather is unavailable right now.")} Set your city in Settings.</p>`;
+    $("#top-wx").innerHTML = "";
+    return;
+  }
+  const hrs = w.hours.slice(0, 6), dayAt = (hh) => hh >= w.sunrise && hh < w.sunset;
+  const sp = hrs.length > 1 ? sparkPath(hrs.map((h) => h.temp), 600, 30) : null;
+  body.innerHTML = `
+    <div class="wx-main">
+      <div><div class="wx-temp">${w.temp}<sup>${esc(w.unit)}</sup></div><div class="wx-label">${esc(w.label)}</div><div class="wx-place">${esc(w.city)}${w.country ? ", " + esc(w.country) : ""}</div></div>
+      <svg class="i wx-ico"><use href="#${wxIcon(w.icon, w.is_day)}"/></svg>
+    </div>
+    <div class="wx-meta">
+      <span>H ${w.today.high}° · L ${w.today.low}°</span>
+      <span><svg class="i"><use href="#i-drop"/></svg>${w.humidity}%</span>
+      <span><svg class="i"><use href="#i-wind"/></svg>${w.wind} ${esc(w.wind_unit)}</span>
+    </div>
+    ${sp ? `<svg class="wx-spark" viewBox="0 0 600 30" preserveAspectRatio="none"><path d="${sp.d} L600,30 L0,30 Z" fill="url(#spark-fill)" stroke="none"/><path d="${sp.d}" fill="none" stroke="url(#spark-grad)" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>` : ""}
+    <div class="wx-hours">${hrs.map((h, i) => `<div class="wx-h">${i === 0 ? "Now" : esc(h.time)}<svg class="i"><use href="#${wxIcon(h.icon, dayAt(h.time))}"/></svg><b>${h.temp}°</b></div>`).join("")}</div>`;
+  $("#wx-updated").textContent = w.city ? w.city.toUpperCase() : "";
+  $("#top-wx").innerHTML = `<svg class="i"><use href="#${wxIcon(w.icon, w.is_day)}"/></svg>${w.temp}° <span style="color:var(--t3)">${esc(w.city)}</span>`;
+  heroSub();
+}
+
+/* ============================================================== hero, status, clock */
+function heroSub() {
+  const d = new Date();
+  $("#hero-greet").textContent = `Good ${partOfDay()},`;
+  $("#hero-name").textContent = userName() || "there";
+  const bits = [d.toLocaleDateString([], { weekday: "long", day: "numeric", month: "long" })];
+  if (S.weather) bits.push(`${S.weather.temp}° and ${S.weather.label} in ${S.weather.city}`);
+  if (Timers.list.length) bits.push(`${Timers.list.length} timer${Timers.list.length > 1 ? "s" : ""} running`);
+  if (S.news.items.length) bits.push(`${Math.min(10, S.news.items.length)} fresh headlines`);
+  $("#hero-sub").textContent = bits.join(" · ");
+}
+function gauge(id, pct, label) {
+  $("#g-" + id).style.strokeDashoffset = 100 - Math.max(0, Math.min(100, pct ?? 0));
+  $("#v-" + id).textContent = label;
+}
+function fmtUptime(s) { const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60); return h ? `${h}h ${m}m` : `${m}m ${s % 60}s`; }
+function renderStatus(st) {
+  gauge("cpu", st.cpu, st.cpu == null ? "--" : Math.round(st.cpu) + "%");
+  gauge("mem", st.mem, st.mem == null ? "--" : Math.round(st.mem) + "%");
+  if (st.battery == null) { gauge("bat", 100, "AC"); $("#l-bat").textContent = "POWER"; }
+  else { gauge("bat", st.battery, st.battery + "%"); $("#l-bat").textContent = st.plugged ? "CHARGING" : "BATTERY"; }
+  for (const k of ["brain", "ears", "voice"]) $("#svc-" + k).className = st[k];
+  $(".sys-card").classList.toggle("degraded", ["brain", "ears", "voice"].some((k) => st[k] !== "online") || st.notes.length > 0);
+  $("#svc-brain-d").textContent = st.model;
+  $("#svc-voice-d").textContent = st.voice_id ? st.voice_id.replace("_", " ") : "text to speech";
+  $("#uptime").textContent = "UP " + fmtUptime(st.uptime).toUpperCase();
+  $("#notes").innerHTML = st.notes.map((n) => `<p>${esc(n)}</p>`).join("");
+  $("#set-foot").innerHTML = `Model ${esc(st.model)} · Voice ${esc(st.voice_id || "browser")}<br>Host ${esc(st.host)} · OpenJarvis HUD 2.0`;
+  if (S.state === "locked") $("#lock-hello").textContent = userName() ? `Welcome back, ${userName()}` : "Welcome back";
+}
+async function poll() {
+  try {
+    const r = await fetch("/api/status", { cache: "no-store" });
+    S.status = await r.json();
+    renderStatus(S.status);
+  } catch {
+    S.status = null;
+    for (const k of ["brain", "ears", "voice"]) $("#svc-" + k).className = "offline";
+    $("#notes").innerHTML = "<p>Lost contact with the Jarvis server. Is jarvis_hud.py still running?</p>";
+  }
+  const left = $(".col.left");
+  left.classList.toggle("fades", left.scrollHeight - left.scrollTop > left.clientHeight + 4);
+  setTimeout(poll, 2000);
+}
+function tick() {
+  const d = new Date(), hm = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  $("#lock-time").textContent = hm.replace(/\s?[AP]M$/i, "");
+  $("#lock-date").textContent = d.toLocaleDateString([], { weekday: "long", day: "numeric", month: "long" });
+  $("#clock").innerHTML = `${esc(hm.replace(/\s?[AP]M$/i, ""))}<i>:${String(d.getSeconds()).padStart(2, "0")}</i>`;
+  $("#date").textContent = d.toLocaleDateString([], { weekday: "short", day: "numeric", month: "short" });
+}
+
+/* ============================================================== orb */
+const Orb = (() => {
+  const cv = $("#orb"), g = cv.getContext("2d");
+  let W = 0, H = 0;
+  new ResizeObserver(() => {
+    const r = cv.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    W = r.width; H = r.height;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }).observe(cv);
+  const freq = new Uint8Array(128);
+  const PAL = {
+    idle: [[124, 220, 255], [150, 120, 255], [40, 170, 255]],
+    listening: [[110, 240, 184], [124, 220, 255], [40, 200, 190]],
+    thinking: [[170, 130, 255], [255, 180, 120], [110, 160, 255]],
+    speaking: [[175, 236, 255], [124, 200, 255], [160, 130, 255]],
+    error: [[255, 110, 140], [255, 160, 120], [160, 120, 255]],
+  };
+  const cols = PAL.idle.map((c) => c.slice());
+  const waves = [0, 1, 2].map(() => Array.from({ length: 5 }, (_, k) => ({ k: k + 2, ph: Math.random() * 6.28, sp: (Math.random() * 0.6 + 0.3) * (Math.random() < 0.5 ? -1 : 1), w: 1 / (k + 1.5) })));
+  let level = 0, spin = 0, last = performance.now(), introAt = 0, running = false;
+  const rgba = (c, a) => `rgba(${c[0] | 0},${c[1] | 0},${c[2] | 0},${a})`;
+
+  function frame(now) {
+    requestAnimationFrame(frame);
+    const st = S.state, calm = st === "idle" || st === "locked" || st === "booting";
+    if (calm && now - last < 32) return;
+    const dt = Math.min(0.05, (now - last) / 1000);
+    last = now;
+    let target = 0.05 + 0.03 * Math.sin(now / 900), an = null;
+    if (st === "listening" && micAnalyser) { an = micAnalyser; target = Math.min(1, micLevel * 14); }
+    else if (st === "speaking" && outAnalyser) an = outAnalyser;
+    else if (st === "thinking") target = 0.22 + 0.08 * Math.sin(now / 140);
+    if (an) {
+      an.getByteFrequencyData(freq);
+      if (st === "speaking") { let s = 0; for (let i = 2; i < 48; i++) s += freq[i]; target = Math.min(1, (s / (46 * 255)) * 2.2); }
+    } else freq.fill(0);
+    if (st === "speaking" && target < 0.03) {
+      // The browser's own voice can't be measured, so animate a plausible voice instead.
+      target = 0.3 + 0.18 * Math.sin(now / 95) * Math.sin(now / 240);
+      for (let i = 0; i < 64; i++) freq[i] = 120 + 90 * Math.sin(now / 80 + i * 0.7) * Math.sin(now / 210 + i);
+    }
+    level += (target - level) * Math.min(1, dt * 9);
+    document.documentElement.style.setProperty("--lvl", level.toFixed(3));
+    const pal = PAL[st] || PAL.idle;
+    for (let L = 0; L < 3; L++) for (let i = 0; i < 3; i++) cols[L][i] += (pal[L][i] - cols[L][i]) * Math.min(1, dt * 3);
+    spin += dt * (st === "thinking" ? 1.8 : st === "listening" ? 0.7 : st === "speaking" ? 0.5 : 0.25) * (REDUCED ? 0.3 : 1);
+    draw(now / 1000, st);
+  }
+  function comet(r, ang, c, a) {
+    const len = 1.1, segs = 22;
+    g.lineWidth = 2; g.lineCap = "round";
+    for (let i = 0; i < segs; i++) {
+      g.strokeStyle = rgba(c, a * (i / segs) * 0.9);
+      g.beginPath(); g.arc(0, 0, r, ang - len * (1 - i / segs), ang - len * (1 - (i + 1) / segs)); g.stroke();
+    }
+    g.fillStyle = rgba(c, a);
+    g.beginPath(); g.arc(Math.cos(ang) * r, Math.sin(ang) * r, 2.6, 0, 6.283); g.fill();
+  }
+  function draw(t, st) {
+    g.clearRect(0, 0, W, H);
+    if (!W || !H) return;
+    const R = Math.min(W, H) * 0.25;
+    let k = 1;
+    if (introAt) { const p = Math.min(1, (performance.now() - introAt) / 1400); k = 1 - Math.pow(1 - p, 3); if (p >= 1) introAt = 0; }
+    g.save();
+    g.translate(W / 2, H * 0.5);
+    const sc = 1.4 - 0.4 * k;
+    g.scale(sc, sc);
+    g.globalAlpha = k;
+    g.globalCompositeOperation = "lighter";
+    let gr = g.createRadialGradient(0, 0, R * 0.2, 0, 0, R * 2.4);
+    gr.addColorStop(0, rgba(cols[0], 0.2 + level * 0.25)); gr.addColorStop(0.5, rgba(cols[1], 0.05 + level * 0.06)); gr.addColorStop(1, rgba(cols[1], 0));
+    g.fillStyle = gr; g.beginPath(); g.arc(0, 0, R * 2.4, 0, 6.283); g.fill();
+    g.lineWidth = 1;
+    for (const [rr, a] of [[1.42, 0.1], [1.78, 0.06], [2.05, 0.035]]) { g.strokeStyle = rgba(cols[0], a); g.beginPath(); g.arc(0, 0, R * rr, 0, 6.283); g.stroke(); }
+    g.save(); g.rotate(spin * 0.15); g.strokeStyle = rgba(cols[0], 0.22); g.beginPath();
+    for (let i = 0; i < 144; i++) {
+      const a = (i / 144) * 6.283, r1 = R * 1.62, r2 = r1 + (i % 12 === 0 ? R * 0.07 : R * 0.03);
+      g.moveTo(Math.cos(a) * r1, Math.sin(a) * r1); g.lineTo(Math.cos(a) * r2, Math.sin(a) * r2);
+    }
+    g.stroke(); g.restore();
+    g.save(); g.rotate(-spin * 0.4); g.setLineDash([2, 10]); g.strokeStyle = rgba(cols[1], 0.35); g.lineWidth = 1.5;
+    g.beginPath(); g.arc(0, 0, R * 1.28, 0, 6.283); g.stroke(); g.restore();
+    comet(R * 1.42, spin * 1.3, cols[0], 1);
+    comet(R * 1.78, -spin * 0.8 + 2.1, cols[1], 0.7);
+    if (st === "thinking") comet(R * 1.28, spin * 2.6 + 1, cols[1], 0.9);
+    if (level > 0.04 && (st === "listening" || st === "speaking")) {
+      g.save(); g.rotate(-Math.PI / 2); g.lineCap = "round"; g.lineWidth = 2;
+      const n = 72;
+      for (let i = 0; i < n; i++) {
+        const v = freq[2 + (i < n / 2 ? i : n - 1 - i)] / 255;
+        if (v < 0.05) continue;
+        const a = (i / n) * 6.283, r1 = R * 1.08, r2 = r1 + R * 0.32 * v;
+        g.strokeStyle = rgba(cols[0], 0.15 + 0.6 * v);
+        g.beginPath(); g.moveTo(Math.cos(a) * r1, Math.sin(a) * r1); g.lineTo(Math.cos(a) * r2, Math.sin(a) * r2); g.stroke();
+      }
+      g.restore();
+    }
+    const amp = 0.025 + level * 0.14 + (st === "thinking" ? 0.03 : 0);
+    for (let L = 2; L >= 0; L--) {
+      const base = R * (0.92 - L * 0.06), N = 96;
+      g.beginPath();
+      for (let i = 0; i <= N; i++) {
+        const th = (i / N) * 6.283;
+        let d = 0;
+        for (const h of waves[L]) d += h.w * Math.sin(h.k * th + h.ph + t * h.sp * (1 + level * 2));
+        const r = base * (1 + amp * d);
+        i ? g.lineTo(Math.cos(th) * r, Math.sin(th) * r) : g.moveTo(Math.cos(th) * r, Math.sin(th) * r);
+      }
+      g.closePath();
+      const fg = g.createRadialGradient(-base * 0.2, -base * 0.25, base * 0.05, 0, 0, base * 1.05);
+      fg.addColorStop(0, rgba(cols[L], 0.55)); fg.addColorStop(0.65, rgba(cols[L], 0.22)); fg.addColorStop(1, rgba(cols[L], 0.02));
+      g.fillStyle = fg; g.fill();
+      g.strokeStyle = rgba(cols[L], 0.35); g.lineWidth = 1; g.stroke();
+    }
+    const cr = R * (0.34 + level * 0.12);
+    gr = g.createRadialGradient(0, 0, 0, 0, 0, cr);
+    gr.addColorStop(0, "rgba(255,255,255,.9)"); gr.addColorStop(0.35, rgba(cols[0], 0.55)); gr.addColorStop(1, rgba(cols[0], 0));
+    g.fillStyle = gr; g.beginPath(); g.arc(0, 0, cr, 0, 6.283); g.fill();
+    g.globalCompositeOperation = "source-over";
+    gr = g.createRadialGradient(-R * 0.32, -R * 0.42, 0, -R * 0.32, -R * 0.42, R * 0.55);
+    gr.addColorStop(0, "rgba(255,255,255,.16)"); gr.addColorStop(1, "rgba(255,255,255,0)");
+    g.fillStyle = gr; g.beginPath(); g.arc(0, 0, R * 0.9, 0, 6.283); g.fill();
+    g.restore();
+  }
+  return {
+    start() { if (!running) { running = true; requestAnimationFrame(frame); } },
+    intro() { introAt = performance.now(); },
+  };
+})();
+
+/* ============================================================== opening sequence */
+const BootFX = (() => {
+  let cv, g, W = 0, H = 0, raf = 0, t0 = 0, parts = [];
+  const clamp = (x) => Math.max(0, Math.min(1, x)), seg = (t, a, b) => clamp((t - a) / (b - a));
+  const easeOut = (x) => 1 - Math.pow(1 - x, 3), easeInOut = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+  function resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    W = innerWidth; H = innerHeight;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  function circle(r) { g.beginPath(); g.arc(0, 0, r, 0, 6.283); g.fill(); }
+  function comet(r, ang, alpha) {
+    g.lineWidth = 2; g.lineCap = "round";
+    for (let i = 0; i < 20; i++) {
+      g.strokeStyle = `rgba(160,230,255,${alpha * (i / 20)})`;
+      g.beginPath(); g.arc(0, 0, r, ang - 1.1 * (1 - i / 20), ang - 1.1 * (1 - (i + 1) / 20)); g.stroke();
+    }
+  }
+  function draw(t) {
+    g.clearRect(0, 0, W, H);
+    const R = Math.min(W, H) * 0.12;
+    g.save();
+    g.translate(W / 2, H * 0.36);
+    g.globalCompositeOperation = "lighter";
+    const zoom = 1 + 0.05 * easeOut(seg(t, 2.1, 5));
+    g.scale(zoom, zoom);
+    const lineIn = easeOut(seg(t, 0.05, 0.6)), lineOut = easeInOut(seg(t, 0.55, 1.25));
+    if (lineOut < 1) {
+      const half = W * 0.33 * lineIn * (1 - lineOut), a = 1 - lineOut;
+      const lg = g.createLinearGradient(-half, 0, half, 0);
+      lg.addColorStop(0, "rgba(124,220,255,0)"); lg.addColorStop(0.5, `rgba(230,248,255,${a})`); lg.addColorStop(1, "rgba(124,220,255,0)");
+      g.strokeStyle = lg;
+      for (const [w, al] of [[8, 0.2], [1.5, 1]]) { g.lineWidth = w; g.globalAlpha = al; g.beginPath(); g.moveTo(-half, 0); g.lineTo(half, 0); g.stroke(); }
+      g.globalAlpha = 1;
+    }
+    for (const [r, st, al, dir] of [[R, 0.75, 0.6, 1], [R * 1.32, 0.95, 0.32, -1], [R * 1.66, 1.12, 0.2, 1], [R * 0.72, 1.25, 0.28, -1]]) {
+      const p = easeInOut(seg(t, st, st + 0.85));
+      if (p <= 0) continue;
+      const rot = t * 0.18 * dir;
+      g.strokeStyle = `rgba(124,220,255,${al})`; g.lineWidth = 1.2;
+      g.beginPath(); g.arc(0, 0, r, -Math.PI / 2 + rot, -Math.PI / 2 + rot + Math.PI * 2 * p); g.stroke();
+    }
+    const tk = seg(t, 1.35, 2.1);
+    if (tk > 0) {
+      g.strokeStyle = `rgba(124,220,255,${0.35 * tk})`; g.lineWidth = 1; g.beginPath();
+      for (let i = 0; i < 120; i++) {
+        const a = (i / 120) * 6.283 + t * 0.05, r1 = R * 1.48, r2 = r1 + (i % 10 === 0 ? R * 0.08 : R * 0.035);
+        g.moveTo(Math.cos(a) * r1, Math.sin(a) * r1); g.lineTo(Math.cos(a) * r2, Math.sin(a) * r2);
+      }
+      g.stroke();
+    }
+    const cm = seg(t, 1.5, 2.3);
+    if (cm > 0) { comet(R * 1.32, t * 1.5, cm); comet(R * 1.66, -t * 0.9 + 2, cm * 0.7); }
+    for (const p of parts) {
+      const k = seg(t, 0.8 + p.delay, 1.95 + p.delay * 0.2);
+      if (k <= 0 || k >= 1) continue;
+      const e = Math.pow(k, 2.2), d = p.d * (1 - e) + R * 0.1 * e, a = p.a + e * 1.2 * p.s;
+      g.fillStyle = `rgba(200,238,255,${0.2 + 0.8 * k})`;
+      g.fillRect(Math.cos(a) * d, Math.sin(a) * d, p.size, p.size);
+    }
+    const core = seg(t, 1.95, 2.7);
+    if (core > 0) {
+      const cr = R * 0.62 * easeOut(core) * (1 + 0.05 * Math.sin(t * 3));
+      const cg = g.createRadialGradient(0, 0, 0, 0, 0, cr * 1.8);
+      cg.addColorStop(0, "rgba(255,255,255,.95)"); cg.addColorStop(0.25, "rgba(170,230,255,.8)"); cg.addColorStop(0.6, "rgba(130,130,255,.25)"); cg.addColorStop(1, "rgba(124,220,255,0)");
+      g.fillStyle = cg; circle(cr * 1.8);
+      const hg = g.createRadialGradient(0, 0, R * 0.5, 0, 0, R * 3.4);
+      hg.addColorStop(0, `rgba(124,220,255,${0.14 * core})`); hg.addColorStop(1, "rgba(124,220,255,0)");
+      g.fillStyle = hg; circle(R * 3.4);
+    }
+    const ig = seg(t, 1.95, 2.35);
+    if (ig > 0 && ig < 1) {
+      const fr = R * (1 + ig * 8), fa = (1 - ig) * 0.6;
+      const fg = g.createRadialGradient(0, 0, 0, 0, 0, fr);
+      fg.addColorStop(0, `rgba(255,255,255,${fa})`); fg.addColorStop(0.4, `rgba(124,220,255,${fa * 0.4})`); fg.addColorStop(1, "rgba(124,220,255,0)");
+      g.fillStyle = fg; circle(fr);
+    }
+    g.restore();
+  }
+  function frame(now) { raf = requestAnimationFrame(frame); draw((now - t0) / 1000); }
+  return {
+    start() {
+      cv = $("#boot-canvas"); g = cv.getContext("2d");
+      resize(); addEventListener("resize", resize);
+      parts = Array.from({ length: 240 }, () => ({ a: Math.random() * 6.283, d: Math.max(innerWidth, innerHeight) * (0.4 + Math.random() * 0.55), s: 0.6 + Math.random() * 0.8, size: Math.random() * 1.6 + 0.5, delay: Math.random() * 0.5 }));
+      t0 = performance.now();
+      raf = requestAnimationFrame(frame);
+    },
+    stop() { cancelAnimationFrame(raf); removeEventListener("resize", resize); },
+  };
+})();
+
+let skipBoot = () => {};
+const CHECKS = [
+  ["Neural core", () => [S.status ? S.status.brain : "loading", S.status ? S.status.model : ""]],
+  ["Speech recognition", () => [S.status ? S.status.ears : "loading", "whisper"]],
+  ["Voice synthesis", () => [S.status ? S.status.voice : "loading", S.status && S.status.voice_id ? S.status.voice_id : ""]],
+  ["News uplink", () => [S.news.items.length ? "online" : S.newsError ? "offline" : "loading", S.news.items.length ? S.news.items.length + " stories" : ""]],
+  ["Atmospherics", () => [S.weather ? "online" : S.weatherError ? "offline" : "loading", S.weather ? `${S.weather.temp}${S.weather.unit} ${S.weather.city}` : ""]],
+  ["Microphone", () => [S.micOk ? "online" : S.micError ? "offline" : "loading", S.micOk ? "ready" : ""]],
+];
+const STATUS_WORD = { online: "ONLINE", offline: "OFFLINE", loading: "WARMING UP", starting: "WARMING UP" };
+
+async function bootSequence() {
+  const boot = $("#boot");
+  let skipped = false, resolveSkip;
+  const skipP = new Promise((r) => (resolveSkip = r));
+  skipBoot = () => { skipped = true; resolveSkip(); };
+  const wait = (ms) => Promise.race([sleep(ms), skipP]);
+  boot.hidden = false;
+  BootFX.start();
+  SFX.boot();
+  await wait(1850);
+  if (!skipped) boot.classList.add("word");
+  await wait(750);
+  const list = $("#boot-checks");
+  list.innerHTML = "";
+  for (const [label, get] of CHECKS) {
+    if (skipped) break;
+    const li = document.createElement("li");
+    li.innerHTML = `<span>${esc(label)}</span><span class="lead"></span><span class="st">· · ·</span>`;
+    list.append(li);
+    requestAnimationFrame(() => li.classList.add("in"));
+    await wait(190);
+    const [st, detail] = get(), el = $(".st", li);
+    el.className = "st " + (st === "starting" ? "loading" : st);
+    el.textContent = (detail ? detail.toUpperCase() + "  " : "") + (STATUS_WORD[st] || st.toUpperCase());
+  }
+  if (!skipped) {
+    await wait(380);
+    const n = userName();
+    $("#boot-welcome").textContent = `Welcome back${n ? ", " + n : ""}.`;
+    $("#boot-welcome").classList.add("in");
+    await wait(1350);
+  }
+  boot.classList.add("out");
+  await sleep(700);
+  BootFX.stop();
+  boot.hidden = true;
+  boot.classList.remove("out", "word");
+  $("#boot-welcome").classList.remove("in");
+  skipBoot = () => {};
+}
+
+let unlocking = false;
+async function unlock() {
+  if (S.state !== "locked" || unlocking) return;
+  unlocking = true;
+  ensureAudio();
+  try { await ctx.resume(); } catch {}
+  S.state = "booting";
+  document.body.dataset.state = "booting";
+  SFX.unlock();
+  const mic = initMic();
+  $("#lock").classList.add("leaving");
+  if (prefs.intro && !REDUCED) await bootSequence();
+  else await sleep(500);
+  $("#lock").hidden = true;
+  $("#app").removeAttribute("aria-hidden");
+  document.body.classList.add("ready");
+  Orb.start();
+  Orb.intro();
+  setState("idle", "");
+  await Promise.race([mic, sleep(200)]);
+  if (!S.micOk && S.micError) toast("Microphone unavailable", "Allow it in the address bar, then reload", "i-mic");
+  greet();
+}
+
+async function greet() {
+  // Wait for the brain only; until the local voice is ready, replies use the browser's voice.
+  for (let i = 0; i < 60; i++) {
+    const st = S.status;
+    if (st && !["loading", "starting"].includes(st.brain)) break;
+    if (i === 4) setCaption("Warming up. The first launch downloads the speech models, so this can take a few minutes.");
+    await sleep(500);
+  }
+  if (S.greeted || S.state !== "idle") return;
+  S.greeted = true;
+  const n = userName();
+  let line = `Good ${partOfDay()}${n ? ", " + n : ""}.`;
+  if (!S.status || S.status.brain !== "online") line += " I can't reach my language model right now. Check the Systems panel.";
+  else {
+    if (S.weather) line += ` It's ${S.weather.temp} degrees and ${S.weather.label} in ${S.weather.city}.`;
+    line += " How can I help?";
+  }
+  addMsg("jarvis", line);
+  const hint = S.micOk ? "Press Space, tap the orb, or clap twice to talk." : "Type a message below to get started.";
+  if (prefs.voice) speak(line, () => setState("idle", hint));
+  else setState("idle", hint);
+}
+
+/* ============================================================== settings */
+function openSettings() {
+  $("#settings").hidden = false;
+  $("#settings-btn").setAttribute("aria-expanded", "true");
+  $("#set-name").value = prefs.name;
+  $("#set-name").placeholder = (S.status && S.status.name) || "What should Jarvis call you?";
+  $("#set-city").value = prefs.city;
+  $$("#set-units button").forEach((b) => b.classList.toggle("on", b.dataset.u === prefs.units));
+  $$("[data-pref]").forEach((i) => (i.checked = !!prefs[i.dataset.pref]));
+}
+function closeSettings() { $("#settings").hidden = true; $("#settings-btn").setAttribute("aria-expanded", "false"); }
+$("#settings-btn").addEventListener("click", (e) => { e.stopPropagation(); $("#settings").hidden ? openSettings() : closeSettings(); });
+document.addEventListener("click", (e) => { if (!$("#settings").hidden && !e.target.closest("#settings")) closeSettings(); });
+$("#set-name").addEventListener("input", (e) => { prefs.name = e.target.value.trim(); savePrefs(); heroSub(); });
+$("#set-city").addEventListener("change", (e) => { prefs.city = e.target.value.trim(); savePrefs(); S.weather = null; loadWeather(); });
+$("#set-units").addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  prefs.units = b.dataset.u; savePrefs();
+  $$("#set-units button").forEach((x) => x.classList.toggle("on", x === b));
+  loadWeather();
+});
+$$("[data-pref]").forEach((i) => i.addEventListener("change", () => {
+  prefs[i.dataset.pref] = i.checked; savePrefs();
+  if (i.dataset.pref === "sfx" && sfxGain) sfxGain.gain.value = i.checked ? 0.7 : 0;
+  if (i.dataset.pref === "voice" && !i.checked && S.speaker) { S.speaker.cancel(); S.speaker = null; setState("idle", "Spoken replies are off."); }
+}));
+
+/* ============================================================== wiring */
+const unlockBtn = $("#unlock");
+let holdRaf = 0, holdStart = 0;
+unlockBtn.addEventListener("pointerdown", (e) => {
+  e.preventDefault();
+  ensureAudio();
+  holdStart = performance.now();
+  unlockBtn.classList.add("holding");
+  const step = (now) => {
+    const p = Math.min(1, (now - holdStart) / 700);
+    $(".u-prog").style.strokeDashoffset = 100 - 100 * p;
+    if (p >= 1) { unlock(); return; }
+    holdRaf = requestAnimationFrame(step);
+  };
+  holdRaf = requestAnimationFrame(step);
+});
+const cancelHold = () => {
+  if (S.state !== "locked" || unlocking) return;
+  cancelAnimationFrame(holdRaf);
+  unlockBtn.classList.remove("holding");
+  if (performance.now() - holdStart < 650) { const h = $("#lock-hint"); h.textContent = "Keep holding…"; h.classList.add("nudge"); setTimeout(() => { h.textContent = "Press and hold to unlock"; h.classList.remove("nudge"); }, 1600); }
+  $(".u-prog").style.strokeDashoffset = 100;
+};
+unlockBtn.addEventListener("pointerup", cancelHold);
+unlockBtn.addEventListener("pointerleave", cancelHold);
+$("#boot-skip").addEventListener("click", () => skipBoot());
+
+$("#orb").addEventListener("click", talk);
+$("#mic").addEventListener("click", talk);
+$("#command").addEventListener("submit", (e) => { e.preventDefault(); const t = $("#input").value; $("#input").value = ""; send(t); });
+document.addEventListener("click", (e) => { const b = e.target.closest("[data-say]"); if (b) { b.blur(); send(b.dataset.say); } });
+$("#news-tabs").addEventListener("click", (e) => { const b = e.target.closest("[data-cat]"); if (b) loadNews(b.dataset.cat); });
+$("#deck-tabs").addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-cat]"); if (!b) return;
+  const items = await loadNews(b.dataset.cat);
+  if (items.length) { S.lastNews = items.slice(0, 8); openDeck(b.dataset.cat, items); }
+});
+$("#news-expand").addEventListener("click", () => { if (S.news.items.length) { S.lastNews = S.news.items.slice(0, 8); openDeck(S.news.cat, S.news.items); } });
+$("#deck-close").addEventListener("click", closeDeck);
+$("#clear-log").addEventListener("click", () => { S.history = []; $("#log").innerHTML = '<li class="empty" id="log-empty">Conversation cleared. Ask me anything.</li>'; });
+
+addEventListener("keydown", (e) => {
+  if (e.repeat) return;
+  const typing = /^(INPUT|TEXTAREA)$/.test((document.activeElement || {}).tagName || "");
+  if (S.state === "locked") { if (e.key === "Enter" || e.code === "Space") { e.preventDefault(); unlock(); } return; }
+  if (S.state === "booting") { if (["Escape", "Enter", " "].includes(e.key)) { e.preventDefault(); skipBoot(); } return; }
+  if (e.key === "Escape") {
+    if (!$("#settings").hidden) return closeSettings();
+    if (S.deckOpen) closeDeck();
+    interrupt();
+    setState("idle", "Standing by.");
+    if (document.activeElement) document.activeElement.blur();
+    return;
+  }
+  if (typing) return;
+  if (e.code === "Space") { e.preventDefault(); talk(); }
+  else if (e.key === "/") { e.preventDefault(); $("#input").focus(); }
+});
+
+(function stars() {
+  const n = 170, w = innerWidth, h = innerHeight, sh = [];
+  for (let i = 0; i < n; i++) sh.push(`${(Math.random() * w) | 0}px ${(Math.random() * h) | 0}px 0 ${Math.random() < 0.12 ? 1 : 0}px rgba(205,228,255,${(Math.random() * 0.55 + 0.12).toFixed(2)})`);
+  $("#stars").style.boxShadow = sh.join(",");
+})();
+
+tick(); setInterval(tick, 1000);
+poll();
+skeletonNews();
+loadNews("top");
+loadWeather();
+Timers.render();
+heroSub();
+setInterval(() => loadNews(S.news.cat), 10 * 60 * 1000);
+setInterval(loadWeather, 15 * 60 * 1000);
+</script>
+<script>
+/* Jarvis HUD preview: browser speech recognition, a demo tour, and preview labels. */
+(() => {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const css = document.createElement("style");
+  css.textContent = `
+    .demo-btn{margin-top:28px;display:inline-flex;align-items:center;gap:10px;padding:12px 22px;border-radius:999px;font:500 11px var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--t1);background:rgba(255,255,255,.05);border:1px solid var(--stroke-2);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);transition:all .45s var(--ease);animation:fadeUp 1.2s .6s var(--ease) both}
+    .demo-btn:hover{border-color:rgba(var(--ice-rgb),.55);box-shadow:0 0 28px -4px rgba(var(--ice-rgb),.55);transform:translateY(-2px)}
+    .demo-btn svg{width:14px;height:14px;color:var(--ice)}`;
+  document.head.append(css);
+  $(".brand span").textContent = "OpenJarvis · Preview";
+
+  /* Listen with the browser's speech recognition instead of the Mac's Whisper. */
+  let recog = null;
+  const stopRecog = () => { if (recog) { recog.onend = null; recog.onresult = null; try { recog.abort(); } catch {} recog = null; } };
+  initMic = async () => { S.micOk = !!SR; if (!SR) S.micError = "talking needs Chrome or Safari"; };
+  const baseInterrupt = interrupt;
+  interrupt = () => { stopRecog(); baseInterrupt(); };
+  cancelListening = (msg) => { stopRecog(); rec = null; setState("idle", msg); };
+  startListening = () => {
+    if (!SR) { setCaption("Talking needs Chrome or Safari in this preview. Type below, or watch the demo."); return; }
+    interrupt();
+    setState("listening", "Listening…");
+    SFX.listen();
+    const r = new SR();
+    recog = r;
+    r.lang = "en-GB"; r.interimResults = true; r.maxAlternatives = 1;
+    let heard = "";
+    r.onresult = (e) => { heard = [...e.results].map((x) => x[0].transcript).join(""); setCaption(heard); };
+    r.onerror = (e) => { if (recog === r) { recog = null; setState("idle", e.error === "not-allowed" ? "The microphone is blocked. Allow it in the address bar, or type below." : "I didn't catch that. Press Space to try again."); } };
+    r.onend = () => { if (recog !== r) return; recog = null; SFX.stop(); if (heard.trim()) send(heard); else setState("idle", "I didn't catch that. Press Space to try again."); };
+    r.start();
+  };
+  const baseTalk = talk;
+  talk = () => {
+    if (S.state === "locked" || S.state === "booting") return;
+    if (S.state === "listening") { if (recog) recog.stop(); else cancelListening("Standing by."); return; }
+    startListening();
+  };
+  for (const id of ["#orb", "#mic"]) { $(id).removeEventListener("click", baseTalk); $(id).addEventListener("click", () => talk()); }
+
+  /* "Watch the demo": unlock, then drive the dashboard by itself. */
+  let touring = false;
+  const waitFor = async (fn, ms = 60000) => { const t = Date.now(); while (!fn() && Date.now() - t < ms) await sleep(150); };
+  const quiet = () => S.state === "idle" && !S.speaker && !S.chatCtrl;
+  async function typeAndSend(text) {
+    const input = $("#input");
+    input.value = "";
+    for (const ch of text) { if (!touring) return; input.value += ch; await sleep(40 + Math.random() * 45); }
+    await sleep(380);
+    if (touring) $("#command").requestSubmit();
+  }
+  async function tour() {
+    if (touring || S.state !== "locked") return;
+    touring = true;
+    const keepConvo = prefs.convo;
+    prefs.convo = false;
+    await unlock();
+    toast("Demo running", "Press Esc any time to take over", "i-play");
+    await waitFor(() => S.greeted, 30000);
+    await waitFor(quiet);
+    await sleep(900);
+    for (const step of ["Brief me", "Pull up the tech news", "#close", "Set a timer for 10 minutes", "Tell me about the Burj Khalifa", "What can you do?"]) {
+      if (!touring) break;
+      if (step === "#close") { await sleep(500); closeDeck(); await sleep(900); continue; }
+      await typeAndSend(step);
+      await sleep(500);
+      await waitFor(quiet, 120000);
+      await sleep(1100);
+    }
+    prefs.convo = keepConvo;
+    if (touring) setState("idle", "Your turn. Press Space to talk, or type below.");
+    touring = false;
+  }
+  addEventListener("keydown", (e) => { if (e.key === "Escape" && touring) touring = false; }, true);
+  const demo = document.createElement("button");
+  demo.type = "button";
+  demo.className = "demo-btn";
+  demo.innerHTML = '<svg class="i"><use href="#i-play"/></svg>Watch the demo';
+  demo.addEventListener("click", tour);
+  $("#lock").append(demo);
+})();
+</script>
+</body>
+</html>

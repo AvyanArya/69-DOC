@@ -118,6 +118,9 @@ body[data-state=error] .pill i{background:var(--rose);box-shadow:0 0 12px var(--
 
 .main{display:grid;grid-template-columns:minmax(260px,300px) minmax(0,1fr) minmax(300px,372px);gap:20px;min-height:0}
 .col{display:flex;flex-direction:column;gap:16px;min-height:0}
+.col.left{overflow-y:auto;scrollbar-width:none;margin:-6px;padding:6px}
+.col.left::-webkit-scrollbar{display:none}
+.col.left.fades{-webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 44px),transparent);mask-image:linear-gradient(180deg,#000 calc(100% - 44px),transparent)}
 
 .card{position:relative;border-radius:var(--r);padding:18px 20px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.012)),var(--glass);
   -webkit-backdrop-filter:blur(24px) saturate(150%);backdrop-filter:blur(24px) saturate(150%);box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 24px 60px -28px rgba(0,0,0,.85)}
@@ -320,7 +323,7 @@ body[data-state=listening] .mic::after{border-color:rgba(110,240,184,.65)}
 @keyframes toastOut{to{opacity:0;transform:translateY(-10px) scale(.96)}}
 
 @media (max-width:1280px){.main{grid-template-columns:262px minmax(0,1fr) 322px}.kbd{display:none}.deck-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media (max-height:780px){.wx-spark,.wx-hours{display:none}.caption{font-size:18px}}
+@media (max-height:880px){.sys-card:not(.degraded) .svc{display:none}.wx-spark,.wx-hours,.hero-actions{display:none}.hero-name{font-size:30px}.caption{font-size:19px}}
 @media (max-width:1080px){
   body{overflow:auto}
   .app{position:relative;inset:auto;min-height:100%}
@@ -435,6 +438,10 @@ body[data-state=listening] .mic::after{border-color:rgba(110,240,184,.65)}
         </div>
       </section>
 
+      <section class="card" id="timers-card" hidden>
+        <div class="card-h"><svg class="i"><use href="#i-timer"/></svg>Timers<span class="grow"></span><button class="link-btn" type="button" data-say="Cancel all timers">Clear</button></div>
+        <ul class="timers" id="timers"></ul>
+      </section>
       <section class="card reveal" style="--d:2" id="wx-card">
         <div class="card-h"><svg class="i"><use href="#i-cloud"/></svg>Weather<span class="grow"></span><span id="wx-updated"></span></div>
         <div id="wx-body">
@@ -444,7 +451,7 @@ body[data-state=listening] .mic::after{border-color:rgba(110,240,184,.65)}
         </div>
       </section>
 
-      <section class="card reveal" style="--d:3">
+      <section class="card reveal sys-card" style="--d:3">
         <div class="card-h"><svg class="i"><use href="#i-pulse"/></svg>Systems<span class="grow"></span><span id="uptime"></span></div>
         <div class="gauges">
           <div class="gauge"><svg viewBox="0 0 62 62"><circle class="g-track" cx="31" cy="31" r="26"/><circle class="g-fill" id="g-cpu" cx="31" cy="31" r="26" pathLength="100"/></svg><b id="v-cpu">--</b><span>CPU</span></div>
@@ -459,10 +466,6 @@ body[data-state=listening] .mic::after{border-color:rgba(110,240,184,.65)}
         <div class="notes" id="notes"></div>
       </section>
 
-      <section class="card" id="timers-card" hidden>
-        <div class="card-h"><svg class="i"><use href="#i-timer"/></svg>Timers<span class="grow"></span><button class="link-btn" type="button" data-say="Cancel all timers">Clear</button></div>
-        <ul class="timers" id="timers"></ul>
-      </section>
     </aside>
 
     <section class="stage reveal" style="--d:2">
@@ -765,9 +768,11 @@ function browserSay(text) {
   return new Promise((done) => {
     if (!window.speechSynthesis) return done();
     const u = new SpeechSynthesisUtterance(text), voices = speechSynthesis.getVoices();
-    const v = voices.find((x) => /en[-_]GB/i.test(x.lang)) || voices.find((x) => /^en/i.test(x.lang));
+    const v = voices.find((x) => /^Daniel/i.test(x.name)) || voices.find((x) => /en[-_]GB/i.test(x.lang)) || voices.find((x) => /^en/i.test(x.lang));
     if (v) u.voice = v;
-    u.onend = u.onerror = () => done();
+    // Some browsers never fire onend (no voices installed), so don't wait forever.
+    const guard = setTimeout(done, 1500 + text.split(/\s+/).length * 420);
+    u.onend = u.onerror = () => { clearTimeout(guard); done(); };
     speechSynthesis.speak(u);
   });
 }
@@ -1095,7 +1100,7 @@ function openDeck(cat, items) {
     const img = safeUrl(it.image);
     return `<a class="dcard${i === 0 ? " lead" : ""}" style="--i:${i}" href="${esc(safeUrl(it.link) || "#")}" target="_blank" rel="noopener" data-title="${esc(it.title)}">
       <span class="num">${String(i + 1).padStart(2, "0")}</span>
-      ${img ? `<img src="${esc(img)}" alt="" loading="lazy">` : ""}
+      ${img ? `<img src="${esc(img)}" alt="" loading="lazy" onerror="this.remove()">` : ""}
       <div class="dbody"><b>${esc(it.title)}</b>${it.summary ? `<p>${esc(it.summary)}</p>` : ""}<small>${esc(it.source)}${it.time ? " · " + ago(it.time) : ""}</small></div></a>`;
   }).join("");
   deck.hidden = false;
@@ -1199,6 +1204,7 @@ function renderStatus(st) {
   if (st.battery == null) { gauge("bat", 100, "AC"); $("#l-bat").textContent = "POWER"; }
   else { gauge("bat", st.battery, st.battery + "%"); $("#l-bat").textContent = st.plugged ? "CHARGING" : "BATTERY"; }
   for (const k of ["brain", "ears", "voice"]) $("#svc-" + k).className = st[k];
+  $(".sys-card").classList.toggle("degraded", ["brain", "ears", "voice"].some((k) => st[k] !== "online") || st.notes.length > 0);
   $("#svc-brain-d").textContent = st.model;
   $("#svc-voice-d").textContent = st.voice_id ? st.voice_id.replace("_", " ") : "text to speech";
   $("#uptime").textContent = "UP " + fmtUptime(st.uptime).toUpperCase();
@@ -1216,6 +1222,8 @@ async function poll() {
     for (const k of ["brain", "ears", "voice"]) $("#svc-" + k).className = "offline";
     $("#notes").innerHTML = "<p>Lost contact with the Jarvis server. Is jarvis_hud.py still running?</p>";
   }
+  const left = $(".col.left");
+  left.classList.toggle("fades", left.scrollHeight - left.scrollTop > left.clientHeight + 4);
   setTimeout(poll, 2000);
 }
 function tick() {
@@ -1263,6 +1271,11 @@ const Orb = (() => {
       an.getByteFrequencyData(freq);
       if (st === "speaking") { let s = 0; for (let i = 2; i < 48; i++) s += freq[i]; target = Math.min(1, (s / (46 * 255)) * 2.2); }
     } else freq.fill(0);
+    if (st === "speaking" && target < 0.03) {
+      // The browser's own voice can't be measured, so animate a plausible voice instead.
+      target = 0.3 + 0.18 * Math.sin(now / 95) * Math.sin(now / 240);
+      for (let i = 0; i < 64; i++) freq[i] = 120 + 90 * Math.sin(now / 80 + i * 0.7) * Math.sin(now / 210 + i);
+    }
     level += (target - level) * Math.min(1, dt * 9);
     document.documentElement.style.setProperty("--lvl", level.toFixed(3));
     const pal = PAL[st] || PAL.idle;
@@ -1523,9 +1536,10 @@ async function unlock() {
 }
 
 async function greet() {
-  for (let i = 0; i < 360; i++) {
+  // Wait for the brain only; until the local voice is ready, replies use the browser's voice.
+  for (let i = 0; i < 60; i++) {
     const st = S.status;
-    if (st && !["loading", "starting"].includes(st.brain) && !["loading", "starting"].includes(st.voice)) break;
+    if (st && !["loading", "starting"].includes(st.brain)) break;
     if (i === 4) setCaption("Warming up. The first launch downloads the speech models, so this can take a few minutes.");
     await sleep(500);
   }

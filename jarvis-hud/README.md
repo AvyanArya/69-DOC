@@ -24,6 +24,15 @@ A premium, voice-first dashboard for [OpenJarvis](https://github.com/open-jarvis
 
 Press **Space**, tap the orb, or **clap twice** to talk. Press **Esc** to stop or close the deck. **Conversation mode** keeps listening after each reply.
 
+## Preview without installing
+
+Open `preview.html` in Chrome or Safari. It's a single file that runs with no server: press **Watch the demo** for a guided tour, or hold to unlock and try it yourself.
+
+- **What's real:** a snapshot of the latest BBC headlines and photos, live weather when you're online, look-ups from Wikipedia, and all the commands above.
+- **What's different from the Mac version:** Jarvis speaks in your browser's built-in voice. Talking to it needs Chrome or Safari, and asks for the microphone. There's no language model, so open conversation is replaced by a short note.
+
+To refresh the headlines in it, rebuild it with `~/.openjarvis/.venv/bin/python build_preview.py`.
+
 ## Install on a Mac
 
 You need OpenJarvis with its voice extras installed:
