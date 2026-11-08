@@ -1152,7 +1152,8 @@ addEventListener("pointerdown", primeSpeech, true);
 addEventListener("keydown", primeSpeech, true);
 
 function rankVoices(voices) {
-  const score = (v) => (/premium/i.test(v.name) ? 40 : /enhanced/i.test(v.name) ? 30 : /^google/i.test(v.name) ? 25 : 0)
+  // Voices installed on the Mac first: Chrome's online "Google" voices can fail without a sound.
+  const score = (v) => (/premium/i.test(v.name) ? 40 : /enhanced/i.test(v.name) ? 30 : 0) + (v.localService ? 20 : 0)
     + (/en[-_]GB/i.test(v.lang) ? 6 : 0) + (/^(daniel|arthur|oliver|jamie|serena|kate)\b/i.test(v.name) ? 5 : 0);
   return voices.filter((v) => /^en/i.test(v.lang)).sort((a, b) => score(b) - score(a));
 }
@@ -1259,7 +1260,10 @@ class Speaker {
         text, speed: prefs.speed, engine: S.voiceEngine, previous: this.previous, quality: prefs.voiceQuality,
         voice: eleven ? prefs.elevenVoice || (S.engines && S.engines.eleven.default) || "" : prefs.voiceId,
       }) });
-      if (!r.ok) return null;
+      if (!r.ok) {
+        if (!S.warnedVoice) { S.warnedVoice = true; let why = ""; try { why = (await r.json()).error || ""; } catch {} toast("Jarvis's voice isn't working", (why || "The voice engine failed") + " Using the browser's voice.", "i-mic"); }
+        return null;
+      }
       const fellBack = r.headers.get("X-Voice-Fallback");
       if (fellBack && !S.warnedFallback) { S.warnedFallback = true; toast("ElevenLabs unavailable", cap(fellBack) + ". Using the on-device voice for now.", "i-mic"); }
       this.previous = text;

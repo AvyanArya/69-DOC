@@ -1359,7 +1359,45 @@ def setup_elevenlabs() -> None:
     print("Start Jarvis and pick a voice in Settings → Voice.")
 
 
+def check_voice() -> None:
+    """`jarvis_hud.py --check-voice`: make each voice speak through the speakers, outside the browser."""
+    import tempfile
+
+    def play(audio: bytes, suffix: str) -> None:
+        path = Path(tempfile.gettempdir()) / f"jarvis_voice_test{suffix}"
+        path.write_bytes(audio)
+        player = "afplay" if IS_MAC else shutil.which("aplay") or shutil.which("ffplay")
+        if player:
+            subprocess.run([player, str(path)], check=False)
+        print(f"  saved to {path}")
+
+    print(f"OpenJarvis HUD {HUD_VERSION} voice check")
+    key, source = eleven_key_info()
+    if key:
+        print(f"1. ElevenLabs (key from {source}):")
+        try:
+            play(eleven_tts("Hello. This is Jarvis, speaking with ElevenLabs."), ".mp3")
+            print("  ✓ worked. Did you hear it?")
+        except ElevenLabsError as exc:
+            print("  ✗ " + describe_eleven_error(str(exc)))
+    else:
+        print("1. ElevenLabs: no key found (run with --elevenlabs to add one).")
+    print("2. On-device voice (Kokoro), loading… this can take a minute the first time.")
+    warm_voice()
+    if _voice is None:
+        print("  ✗ " + STATUS["notes"].get("voice", "unavailable"))
+    else:
+        try:
+            result = _synthesize(_voice, "Hello. This is Jarvis, speaking with the on-device voice.")
+            play(result.audio, "." + (getattr(result, "format", "") or "wav"))
+            print("  ✓ worked. Did you hear it?")
+        except Exception as exc:
+            print(f"  ✗ failed: {type(exc).__name__}: {str(exc)[:200]}")
+
+
 def main() -> None:
+    if "--check-voice" in sys.argv:
+        return check_voice()
     if "--elevenlabs" in sys.argv:
         return setup_elevenlabs()
     if "--forget-elevenlabs" in sys.argv:
