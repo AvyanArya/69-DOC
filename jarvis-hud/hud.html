@@ -934,7 +934,8 @@ class Speaker {
     this.queue = []; this.ended = false; this.cancelled = false; this.running = false;
     this.sources = []; this.timers = []; this.playEnd = 0; this.spoke = false; this.wake = null; this.rate = 0;
     this.onDone = onDone; this.onSentence = onSentence;
-    this.local = !!(ctx && (S.voiceEngine === "elevenlabs" || (S.voiceEngine === "kokoro" && S.status && S.status.voice === "online")));
+    // Use the server's voice whenever it has one, without waiting on any other check.
+    this.local = !!(ctx && S.status && (S.status.voice === "online" || (S.status.eleven && prefs.voiceEngine !== "kokoro")));
     this.previous = "";
     this.rate = S.voiceRate || 0;
   }
@@ -992,9 +993,9 @@ class Speaker {
   async synth(text) {
     try {
       const t0 = performance.now();
-      const eleven = S.voiceEngine === "elevenlabs";
+      const eleven = S.status && S.status.eleven && prefs.voiceEngine !== "kokoro";
       const r = await fetch("/api/tts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({
-        text, speed: prefs.speed, engine: S.voiceEngine, previous: this.previous, quality: prefs.voiceQuality,
+        text, speed: prefs.speed, engine: eleven ? "elevenlabs" : "kokoro", previous: this.previous, quality: prefs.voiceQuality,
         voice: eleven ? prefs.elevenVoice || (S.engines && S.engines.eleven.default) || "" : prefs.voiceId,
       }) });
       if (!r.ok) {
@@ -1539,7 +1540,7 @@ function renderStatus(st) {
   for (const k of ["brain", "ears", "voice"]) $("#svc-" + k).className = st[k];
   $(".sys-card").classList.toggle("degraded", ["brain", "ears", "voice"].some((k) => st[k] !== "online") || st.notes.length > 0);
   $("#svc-brain-d").textContent = st.model;
-  $("#svc-voice-d").textContent = st.voice_id ? st.voice_id.replace("_", " ") : "text to speech";
+  $("#svc-voice-d").textContent = st.eleven && prefs.voiceEngine !== "kokoro" ? "ElevenLabs" : st.voice === "online" ? "on-device · " + (st.voice_id || "").replace("_", " ") : "browser voice";
   $("#uptime").textContent = "UP " + fmtUptime(st.uptime).toUpperCase();
   $("#notes").innerHTML = st.notes.map((n) => `<p>${esc(n)}</p>`).join("");
   $("#set-foot").innerHTML = `Model ${esc(st.model)} · Voice ${esc(st.voice_id || "browser")}<br>Host ${esc(st.host)} · OpenJarvis HUD 2.0`;
