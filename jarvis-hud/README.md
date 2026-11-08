@@ -24,7 +24,9 @@ Choose a voice from the list. George, a warm British voice, is the default. Then
 
 | Say | What happens |
 |---|---|
-| "Brief me" / "Good morning" | Time, weather and the top three headlines |
+| "Hey Jarvis…" | Wakes it up and it starts listening, no button needed |
+| "Brief me" / "Catch me up" | Time, weather and the top three headlines |
+| "Good morning" / "Thank you" / "How are you?" | Answered instantly, without waiting for the model |
 | "Pull up the news" / "tech news" / "business news" | Opens the news deck and reads the headlines (top, world, tech, business, science, sport) |
 | "Open the second one" | Opens that story in your browser |
 | "Pull up the weather" / "Will it rain tomorrow in London?" | Opens the full weather view for your city or any city |
@@ -37,7 +39,9 @@ Choose a voice from the list. George, a warm British voice, is the default. Then
 | "What can you do?" | Lists all of this |
 | Anything else | Normal conversation with your local model |
 
-Press **Space**, tap the orb, or **clap twice** to talk. Press **Esc** to stop or close the deck. **Conversation mode** keeps listening after each reply.
+Say **"Hey Jarvis"**, press **Space**, tap the orb, or **clap twice** to talk. To **interrupt**, just start talking while Jarvis is speaking (or press Space). It stops and listens. Headphones make interrupting most reliable, because then Jarvis can't hear itself. Press **Esc** to stop or close the deck. **Conversation mode** keeps listening after each reply.
+
+The "Hey Jarvis" detector (openWakeWord) runs on your Mac and installs itself the first time you start the new version.
 
 ## Preview without installing
 
@@ -75,7 +79,7 @@ Your browser opens http://localhost:8765. The first launch downloads the speech 
 The sliders button in the top-right corner holds:
 - **Profile:** your name, your weather city (leave it blank to detect automatically), and °C, °F or automatic units.
 - **Voice:** the voice (tap one to hear a sample) and speaking speed.
-- **Behaviour:** switches for conversation mode, clap to wake, spoken replies, sound effects and the opening animation.
+- **Behaviour:** switches for conversation mode, "Hey Jarvis", interrupt by talking, clap to wake, spoken replies, sound effects and the opening animation.
 
 If Safari or another browser blocks sound, Jarvis says so with a notice. Click anywhere on the page once and it can speak.
 

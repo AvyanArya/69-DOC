@@ -619,6 +619,8 @@ body.focused .fx-caption.on{opacity:1;transform:translate(-50%,0)}
   <div class="field" style="margin-top:12px"><span>Speaking speed</span><div class="seg" id="set-speed"><button type="button" data-s="0.92">Relaxed</button><button type="button" data-s="1">Natural</button><button type="button" data-s="1.1">Brisk</button></div></div>
   <h3 style="margin-top:18px">Behaviour</h3>
   <label class="sw"><div>Conversation mode<small>Keep listening after each reply</small></div><input type="checkbox" data-pref="convo"></label>
+  <label class="sw"><div>"Hey Jarvis"<small>Say it any time to start talking</small></div><input type="checkbox" data-pref="wake"></label>
+  <label class="sw"><div>Interrupt by talking<small>Start speaking to cut Jarvis off (best with headphones)</small></div><input type="checkbox" data-pref="bargeIn"></label>
   <label class="sw"><div>Clap twice to wake<small>Two claps start listening</small></div><input type="checkbox" data-pref="clap"></label>
   <label class="sw"><div>Spoken replies<small>Read answers out loud</small></div><input type="checkbox" data-pref="voice"></label>
   <label class="sw"><div>Sound effects<small>Chimes and the start-up sound</small></div><input type="checkbox" data-pref="sfx"></label>
@@ -642,7 +644,7 @@ const store = {
   set(k, v) { try { localStorage.setItem("jarvis." + k, JSON.stringify(v)); } catch {} },
 };
 const prefs = Object.assign(
-  { name: "", city: "", units: "auto", convo: true, clap: true, voice: true, sfx: true, intro: true, voiceId: "", browserVoice: "", speed: 1, voiceEngine: "auto", elevenVoice: "", voiceQuality: "fast" },
+  { name: "", city: "", units: "auto", convo: true, clap: true, voice: true, sfx: true, intro: true, voiceId: "", browserVoice: "", speed: 1, voiceEngine: "auto", elevenVoice: "", voiceQuality: "fast", wake: true, bargeIn: true },
   store.get("prefs", {})
 );
 const savePrefs = () => store.set("prefs", prefs);
@@ -765,6 +767,11 @@ function onMic(samples) {
   for (let i = 0; i < samples.length; i++) { const v = samples[i]; sum += v * v; const a = v < 0 ? -v : v; if (a > peak) peak = a; }
   const rms = Math.sqrt(sum / samples.length), dt = samples.length / ctx.sampleRate;
   micLevel = rms;
+  recent.push(new Float32Array(samples));
+  if (recent.length > Math.ceil(0.8 / dt)) recent.shift();
+  if (S.state === "speaking" && prefs.bargeIn) { checkBargeIn(rms, dt); }
+  else { barge.time = 0; barge.env = 0; barge.out = 0; }
+  if (S.state === "idle" && prefs.wake && S.status && S.status.wake === "online") feedWake(samples);
   if (S.state === "listening" && rec) {
     rec.chunks.push(new Float32Array(samples));
     rec.total += dt;
@@ -783,6 +790,38 @@ function onMic(samples) {
     noiseFloor = noiseFloor * 0.985 + Math.min(rms, 0.04) * 0.015;
     if (prefs.clap && S.micOk) detectClap(rms, peak);
   }
+}
+
+// ---- talking over Jarvis: sustained speech louder than its own voice leaking back in stops it and listens
+const recent = [];
+// Speech comes in syllables, so follow a smoothed loudness (fast rise, slow fall) instead of single frames.
+const barge = { time: 0, env: 0, out: 0, buf: new Float32Array(256) };
+function checkBargeIn(rms, dt) {
+  let out = 0;
+  if (outAnalyser) { outAnalyser.getFloatTimeDomainData(barge.buf); for (const v of barge.buf) out += v * v; out = Math.sqrt(out / barge.buf.length); }
+  const fall = Math.exp(-dt / 0.25);
+  barge.env = Math.max(rms, barge.env * fall);
+  barge.out = Math.max(out, barge.out * fall);
+  // the browser's echo cancellation removes most of Jarvis's own voice; what leaks back is far quieter than the output
+  const needed = Math.max(0.03, Math.min(noiseFloor, 0.015) * 5, barge.out * 0.5);
+  barge.time = barge.env > needed ? barge.time + dt : Math.max(0, barge.time - dt);
+  if (barge.time > 0.35) { barge.time = 0; barge.env = 0; startListening(recent.slice()); }
+}
+
+// ---- "Hey Jarvis": stream 16 kHz audio to the on-device wake word detector while idle
+const wake = { pcm: [], pos: 0, busy: false, cool: 0 };
+function feedWake(samples) {
+  const ratio = ctx.sampleRate / 16000;
+  for (; wake.pos < samples.length; wake.pos += ratio) wake.pcm.push(Math.max(-1, Math.min(1, samples[wake.pos | 0])) * 32767);
+  wake.pos -= samples.length;
+  if (wake.pcm.length < 6400 || wake.busy || performance.now() < wake.cool) return;
+  const chunk = Int16Array.from(wake.pcm.splice(0, wake.pcm.length));
+  wake.busy = true;
+  fetch("/api/wake", { method: "POST", body: chunk.buffer })
+    .then((r) => r.json())
+    .then((d) => { if (d.wake && S.state === "idle") { wake.cool = performance.now() + 2500; startListening(); } })
+    .catch(() => {})
+    .finally(() => { wake.busy = false; });
 }
 
 // Double-clap wake: a sharp, loud onset that dies away within ~60 ms, twice.
@@ -827,16 +866,18 @@ function encodeWav(chunks, inRate, outRate = 16000) {
 }
 
 /* ============================================================== listening */
-function startListening() {
+function startListening(preroll) {
   if (!S.micOk) { setCaption("The microphone is off. Allow it in your browser's address bar, then reload."); return; }
   if (S.status && S.status.ears !== "online") {
     setCaption(S.status.ears === "offline" ? "Speech recognition isn't working. See the Systems panel." : "My ears are still warming up. One moment.");
     return;
   }
   interrupt();
-  rec = { chunks: [], speech: false, silent: 0, waited: 0, total: 0, voiced: 0 };
+  rec = { chunks: preroll ? preroll : [], speech: !!preroll, silent: 0, waited: 0, total: preroll ? 0.3 : 0, voiced: preroll ? 0.3 : 0 };
   setState("listening", "Listening…");
   SFX.listen();
+  wake.pcm = [];
+  fetch("/api/warm", { method: "POST" }).catch(() => {}); // load the model while you're still talking
 }
 function cancelListening(msg) { rec = null; setState("idle", msg); }
 async function finishListening() {

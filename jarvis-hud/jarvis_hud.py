@@ -103,7 +103,7 @@ def _ollama_url() -> str:
 
 OLLAMA = _ollama_url()
 STARTED = time.time()
-STATUS: dict = {"brain": "starting", "ears": "starting", "voice": "starting", "notes": {}}
+STATUS: dict = {"brain": "starting", "ears": "starting", "voice": "starting", "wake": "starting", "notes": {}}
 
 _ears = None
 _ears_lock = threading.Lock()
@@ -482,13 +482,42 @@ def _clean(text: str) -> str:
     return t.strip(" .!?")
 
 
+def small_talk(text: str, prefs: dict) -> dict | None:
+    """Greetings, thanks and goodbyes get an instant answer, with no model involved."""
+    t = re.sub(r"[^a-z' ]+", " ", text.lower())
+    t = re.sub(r"\b(jarvis|please)\b", " ", t)
+    t = re.sub(r"\s+", " ", t).strip()
+    name = prefs.get("name") or ""
+    you = f", {name}" if name else ""
+    hour = datetime.now().hour
+    part = "morning" if 5 <= hour < 12 else "afternoon" if 12 <= hour < 17 else "evening"
+    pick = lambda options: options[int(time.time()) % len(options)]
+    if re.fullmatch(r"(hey|hi|hello|hiya|yo|sup|what's up|good (morning|afternoon|evening|day)|morning|evening)( there)?", t):
+        said = re.search(r"(morning|afternoon|evening|day)", t)
+        greeting = f"Good {said[1]}" if said else "Hello"
+        return {"say": f"{greeting}{you}. " + pick(["What can I do for you?", "How can I help?", "What's on your mind?"]), "ui": []}
+    if re.fullmatch(r"(thanks|thank you|thank you (very|so) much|thanks (a lot|so much)|cheers|ta|much appreciated|nice one|perfect|great|awesome|cool|brilliant|nice|ok|okay|alright|got it)", t):
+        return {"say": pick(["You're welcome.", "Anytime.", "My pleasure.", "Happy to help."]), "ui": []}
+    if re.fullmatch(r"how are you( doing| today| doing today)?|how's it going|you ok|are you ok", t):
+        return {"say": pick(["All systems running smoothly, thanks. How about you?", "Very well, thank you. How are you doing?"]), "ui": []}
+    if re.fullmatch(r"(bye|goodbye|good night|night|see you|see you later|see ya|later|that's all|that will be all)", t):
+        return {"say": ("Good night" if "night" in t or hour >= 21 else "Goodbye") + f"{you}.", "ui": []}
+    if re.fullmatch(r"(who are you|what are you|what's your name|what is your name)", t):
+        return {"say": "I'm Jarvis, your personal assistant, running right here on your Mac.", "ui": []}
+    return None
+
+
 def route(text: str, prefs: dict) -> dict | None:
     """Handle requests the dashboard can carry out itself.
 
     Returns {"say": ..., "ui": [...], "memory": ...} for a finished answer, {"context": ..., "ui": [...]}
     to let the model answer with extra information, or None for ordinary conversation.
     """
+    quick = small_talk(text, prefs)
+    if quick:
+        return quick
     t = _clean(text)
+    t = re.sub(r"^(hey\s+)?(jarvis|jarvas|travis)\b[,.!]?\s*", "", t)  # the tail of a wake phrase
     if not t:
         return None
     now = datetime.now()
@@ -525,8 +554,7 @@ def route(text: str, prefs: dict) -> dict | None:
     if re.search(r"\b(what('?s| is) (the |today'?s )?date|what day is (it|today)|today'?s date|what'?s today)\b", t):
         return {"say": f"It's {now:%A}, the {_ordinal(now.day)} of {now:%B}.", "ui": []}
 
-    if re.search(r"\b(brief me|briefing|morning report|catch me up|daily (summary|update)|what did i miss|start my day)\b", t) \
-            or re.fullmatch(r"good (morning|afternoon|evening)( jarvis)?", t):
+    if re.search(r"\b(brief me|briefing|morning report|catch me up|daily (summary|update)|what did i miss|start my day)\b", t):
         return briefing(prefs)
 
     if re.search(r"\b(news|headlines|top stories|what'?s happening|current events)\b", t):
@@ -716,7 +744,7 @@ def warm_brain() -> None:
     try:
         request = urllib.request.Request(
             OLLAMA + "/api/generate",
-            data=json.dumps({"model": MODEL, "prompt": "", "keep_alive": "30m"}).encode(),
+            data=json.dumps({"model": MODEL, "prompt": "", "keep_alive": "10m", "options": {"num_ctx": 4096}}).encode(),
             headers={"Content-Type": "application/json"},
         )
         with urllib.request.urlopen(request, timeout=300) as resp:
@@ -842,6 +870,71 @@ def _kokoro(device: str):
     except Exception as exc:
         print(f"  Kokoro voice unavailable on {device}: {exc}")
         return None
+
+
+_wake = None
+_wake_lock = threading.Lock()
+WAKE_THRESHOLD = float(os.environ.get("JARVIS_HUD_WAKE_THRESHOLD", "0.6"))
+
+
+def warm_wake() -> None:
+    """Load the "hey jarvis" detector, installing openWakeWord into this Python if it's missing."""
+    global _wake
+    STATUS["wake"] = "loading"
+    try:
+        try:
+            import openwakeword  # noqa: F401
+        except ImportError:
+            uv = shutil.which("uv") or os.path.expanduser("~/.local/bin/uv")
+            if not os.path.exists(uv):
+                raise RuntimeError("openWakeWord isn't installed")
+            print("  Installing the \"Hey Jarvis\" wake word detector (one time)…")
+            subprocess.run([uv, "pip", "install", "--python", sys.executable, "openwakeword==0.4.0"],
+                           check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            import openwakeword  # noqa: F401
+        from openwakeword.model import Model
+
+        _wake = Model(wakeword_model_paths=[openwakeword.models["hey_jarvis"]["model_path"]])
+        STATUS["wake"] = "online"
+    except Exception as exc:
+        STATUS["wake"] = "offline"
+        STATUS["notes"]["wake"] = f"\"Hey Jarvis\" is unavailable ({type(exc).__name__}). Press Space or tap the orb to talk."
+
+
+def wake_score(pcm: bytes) -> float:
+    """Feed 16 kHz 16-bit mono audio to the detector; return the best score in it."""
+    import numpy as np
+
+    samples = np.frombuffer(pcm[: len(pcm) // 2 * 2], dtype=np.int16)
+    best = 0.0
+    with _wake_lock:
+        for i in range(0, len(samples) - 1279, 1280):
+            best = max(best, max(_wake.predict(samples[i:i + 1280]).values()))
+        if best >= WAKE_THRESHOLD:
+            _wake.reset()
+    return float(best)
+
+
+_last_warm = 0.0
+
+
+def warm_model_soon() -> None:
+    """Make sure the language model is loaded while the user is still talking."""
+    global _last_warm
+    if time.time() - _last_warm < 30 or STATUS["brain"] != "online":
+        return
+    _last_warm = time.time()
+
+    def go() -> None:
+        try:
+            request = urllib.request.Request(OLLAMA + "/api/generate", headers={"Content-Type": "application/json"},
+                                             data=json.dumps({"model": MODEL, "prompt": "", "keep_alive": "10m",
+                                                              "options": {"num_ctx": 4096}}).encode())
+            urllib.request.urlopen(request, timeout=120).read()
+        except Exception:
+            pass
+
+    threading.Thread(target=go, daemon=True).start()
 
 
 def warm_feeds() -> None:
@@ -1114,7 +1207,7 @@ def status_payload() -> dict:
     except Exception:
         pass
     return {
-        "brain": STATUS["brain"], "ears": STATUS["ears"], "voice": STATUS["voice"],
+        "brain": STATUS["brain"], "ears": STATUS["ears"], "voice": STATUS["voice"], "wake": STATUS["wake"],
         "notes": list(STATUS["notes"].values()), "model": MODEL, "voice_id": _voice_id,
         "host": socket.gethostname().split(".")[0], "name": DEFAULT_NAME, "mac": IS_MAC,
         "cpu": cpu, "mem": mem, "battery": battery, "plugged": plugged,
@@ -1213,6 +1306,14 @@ class Handler(BaseHTTPRequestHandler):
                 return self._stt(body)
             if self.path == "/api/tts":
                 return self._tts(json.loads(body or b"{}"))
+            if self.path == "/api/wake":
+                if _wake is None:
+                    return self._json(503, {"error": "wake word unavailable"})
+                score = wake_score(body)
+                return self._json(200, {"score": round(score, 3), "wake": score >= WAKE_THRESHOLD})
+            if self.path == "/api/warm":
+                warm_model_soon()
+                return self._json(200, {"ok": True})
             if self.path == "/api/eleven":
                 return self._eleven_settings(json.loads(body or b"{}"))
             if self.path == "/api/open":
@@ -1450,7 +1551,7 @@ def main() -> None:
         return
     server.daemon_threads = True
     start_brain()
-    for job in (warm_ears, warm_voice, warm_feeds):
+    for job in (warm_ears, warm_voice, warm_feeds, warm_wake):
         threading.Thread(target=job, daemon=True).start()
     print(f"OpenJarvis HUD {HUD_VERSION} running at {url}")
     print(f"  model: {MODEL} via {OLLAMA}")
