@@ -1,42 +1,62 @@
-# OpenJarvis HUD
+# Jarvis HUD for OpenJarvis
 
-A voice-first dashboard for [OpenJarvis](https://github.com/open-jarvis/OpenJarvis), styled as a holographic Iron Man–style HUD. You talk, it listens, thinks and answers out loud, all on your own computer.
+A premium, voice-first dashboard for [OpenJarvis](https://github.com/open-jarvis/OpenJarvis). Unlock it, watch it boot, then talk to it. It answers out loud and carries out what you ask.
 
-- **Ears:** faster-whisper speech recognition, locked to English
-- **Brain:** the Ollama model from your OpenJarvis config (`qwen3.5:2b` by default)
-- **Voice:** Kokoro text-to-speech with the British `bm_george` voice
+- **Lock screen and opening sequence.** Press and hold to unlock. A light line draws into rings, the core ignites with a power-up sound, and live system checks tick off. Then it greets you by name, with the weather.
+- **Dashboard.** Frosted-glass cards on a drifting nebula: greeting, live weather with an hourly curve, system gauges, timers, headlines with photos, and the conversation. A fluid orb in the middle reacts to your voice and to Jarvis's.
+- **News deck.** "Pull up the news" opens a full-screen deck of stories with photos. Each card lights up as Jarvis reads it out.
 
-## Run it
+## What you can say
 
-This needs OpenJarvis with its voice extras installed (`uv pip install --python ~/.openjarvis/.venv/bin/python -e "$HOME/.openjarvis/src[desktop,voice]"`).
+| Say | What happens |
+|---|---|
+| "Brief me" / "Good morning" | Time, weather and the top three headlines |
+| "Pull up the news" / "tech news" / "business news" | Opens the news deck and reads the headlines (top, world, tech, business, science, sport) |
+| "Open the second one" | Opens that story in your browser |
+| "What's the weather?" / "Will it rain tomorrow in London?" | Weather for your city or any city |
+| "Set a timer for 10 minutes" / "Remind me to check the oven in 15 minutes" | Countdown card, chime and a spoken alert |
+| "Open YouTube" / "Open Spotify" / "Go to apple.com" | Opens Mac apps and websites |
+| "Play lo-fi beats" | Opens it on YouTube |
+| "Google best pizza near me" | Opens a Google search |
+| "Look up the tallest building in the world" | Searches the web and answers, with source links |
+| "What can you do?" | Lists all of this |
+| Anything else | Normal conversation with your local model |
+
+Press **Space**, tap the orb, or **clap twice** to talk. Press **Esc** to stop or close the deck. **Conversation mode** keeps listening after each reply.
+
+## Install on a Mac
+
+You need OpenJarvis with its voice extras installed:
 
 ```bash
-curl -fsSL -o ~/.openjarvis/jarvis_hud.py https://raw.githubusercontent.com/AvyanArya/69-DOC/claude/loving-ride-txfkm0/jarvis-hud/jarvis_hud.py
+uv pip install --python ~/.openjarvis/.venv/bin/python -e "$HOME/.openjarvis/src[desktop,voice]"
 ```
+
+Download the two files:
 
 ```bash
-~/.openjarvis/.venv/bin/python ~/.openjarvis/jarvis_hud.py
+mkdir -p ~/.openjarvis/hud && cd ~/.openjarvis/hud && for f in jarvis_hud.py hud.html; do curl -fsSLO "https://raw.githubusercontent.com/AvyanArya/69-DOC/claude/loving-ride-txfkm0/jarvis-hud/$f"; done
 ```
 
-Your browser opens at http://localhost:8765. Click **INITIALISE** and allow the microphone. The first launch downloads the speech models, so wait until all three systems read **ONLINE**.
+Start it:
 
-## Talking to it
+```bash
+~/.openjarvis/.venv/bin/python ~/.openjarvis/hud/jarvis_hud.py
+```
 
-| Action | How |
+Your browser opens http://localhost:8765. The first launch downloads the speech models, so give it a few minutes. Run the download command again any time to update.
+
+## Settings
+
+The sliders button in the top-right corner sets your name, your weather city (blank means detect automatically), °C, °F or automatic units, and switches for conversation mode, clap to wake, spoken replies, sound effects and the opening animation.
+
+| Environment variable | Effect |
 |---|---|
-| Talk | Press **Space**, tap the glowing core, or **clap twice** |
-| Stop talking | Just pause. It sends after about a second of silence |
-| Interrupt a reply | Press **Space** to cut in, or **Esc** to stop |
-| Type instead | Use the message box at the bottom |
-
-The **CONVERSATION** toggle makes it listen again after every reply, so you can keep talking without touching anything. **CLAP ×2 TO WAKE** and **VOICE** switch those features on and off.
-
-## Options
-
-| Variable | Effect |
-|---|---|
-| `JARVIS_HUD_MODEL=qwen3.5:4b` | Use a different (smarter) Ollama model. Check `ollama list` for what you have |
+| `JARVIS_HUD_MODEL=qwen3.5:4b` | Use a different (smarter) Ollama model. `ollama list` shows what you have |
+| `JARVIS_HUD_NAME=Avyan` | What Jarvis calls you by default |
 | `JARVIS_HUD_PORT=8766` | Serve on another port |
 | `JARVIS_HUD_NO_BROWSER=1` | Don't open the browser automatically |
 
-The server only listens on `127.0.0.1` and refuses requests from other websites.
+## Privacy
+
+Speech recognition, the language model and the voice all run on your computer. Only three things go online, and none needs an account or key: BBC News headlines, Open-Meteo weather (with ipwho.is to find your city if you haven't set one), and web search when you say "look up". The server only listens on `127.0.0.1` and refuses requests from other websites.
