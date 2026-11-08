@@ -1395,6 +1395,24 @@ def check_voice() -> None:
             print(f"  ✗ failed: {type(exc).__name__}: {str(exc)[:200]}")
 
 
+def stop_old_copies() -> bool:
+    """Stop other running copies of this dashboard (an older version left open keeps the port)."""
+    try:
+        import psutil
+    except ImportError:
+        return False
+    stopped = False
+    for proc in psutil.process_iter(["pid", "cmdline"]):
+        try:
+            cmd = " ".join(proc.info["cmdline"] or [])
+            if proc.info["pid"] != os.getpid() and "jarvis_hud.py" in cmd and "--" not in cmd.split("jarvis_hud.py", 1)[1]:
+                proc.terminate()
+                stopped = True
+        except (psutil.Error, IndexError):
+            continue
+    return stopped
+
+
 def main() -> None:
     if "--check-voice" in sys.argv:
         return check_voice()
@@ -1410,6 +1428,17 @@ def main() -> None:
     try:
         server = ThreadingHTTPServer(("127.0.0.1", PORT), Handler)
     except OSError:
+        server = None
+        if stop_old_copies():
+            for _ in range(20):
+                time.sleep(0.5)
+                try:
+                    server = ThreadingHTTPServer(("127.0.0.1", PORT), Handler)
+                    print("Stopped an older copy of Jarvis that was still running.")
+                    break
+                except OSError:
+                    continue
+    if server is None:
         print(f"Port {PORT} is busy. The HUD may already be running at {url}")
         print("To use another port: JARVIS_HUD_PORT=8766 ~/.openjarvis/.venv/bin/python jarvis_hud.py")
         if not os.environ.get("JARVIS_HUD_NO_BROWSER"):
