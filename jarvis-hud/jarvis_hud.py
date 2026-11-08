@@ -537,7 +537,7 @@ def route(text: str, prefs: dict) -> dict | None:
             d = w["today"]
             say = (f"It's {w['temp']} {deg} and {w['label']} in {w['city']}, with a high of {d['high']} and a low of {d['low']}."
                    + (f" There's a {d['rain']} percent chance of rain today." if d["rain"] >= 30 else ""))
-        return {"say": say, "ui": [{"type": "weather", "data": w}]}
+        return {"say": say, "ui": [{"type": "weather", "data": w, "focus": True}]}
 
     m = re.fullmatch(r"play (.+?)(?: on (youtube|spotify))?", t)
     if m:
@@ -596,7 +596,7 @@ def route(text: str, prefs: dict) -> dict | None:
 def briefing(prefs: dict) -> dict:
     now = datetime.now()
     name = prefs.get("name") or ""
-    part = "morning" if 5 <= now.hour < 12 else "afternoon" if 12 <= now.hour < 18 else "evening"
+    part = "morning" if 5 <= now.hour < 12 else "afternoon" if 12 <= now.hour < 17 else "evening"
     lines = [f"Good {part}{', ' + name if name else ''}. It's {_clock(now)} on {now:%A}, the {_ordinal(now.day)} of {now:%B}."]
     ui = []
     try:
@@ -775,10 +775,28 @@ def warm_feeds() -> None:
             pass
 
 
-def _synthesize(backend, text: str):
-    kwargs = {"speed": VOICE_SPEED}
-    if _voice_id:
-        kwargs["voice_id"] = _voice_id
+# Voices offered in Settings: (id, name, description). Kokoro's makers rate Heart and Bella highest.
+KOKORO_VOICES = [
+    ("bm_george", "George", "British male"),
+    ("bm_fable", "Fable", "British male"),
+    ("bm_lewis", "Lewis", "British male, deeper"),
+    ("am_michael", "Michael", "American male"),
+    ("am_fenrir", "Fenrir", "American male"),
+    ("am_puck", "Puck", "American male, brighter"),
+    ("am_onyx", "Onyx", "American male, low"),
+    ("af_heart", "Heart", "American female, most natural"),
+    ("af_bella", "Bella", "American female, expressive"),
+    ("bf_emma", "Emma", "British female"),
+    ("bf_isabella", "Isabella", "British female"),
+]
+_KOKORO_IDS = {v[0] for v in KOKORO_VOICES}
+
+
+def _synthesize(backend, text: str, voice: str = "", speed: float | None = None):
+    kwargs = {"speed": speed or VOICE_SPEED}
+    chosen = voice if voice in _KOKORO_IDS and getattr(backend, "backend_id", "kokoro") == "kokoro" else _voice_id
+    if chosen:
+        kwargs["voice_id"] = chosen
     return backend.synthesize(text, **kwargs)
 
 
@@ -887,6 +905,12 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json(200, {"items": fetch_news(query.get("cat", "top"), 12)})
             if url.path == "/api/weather":
                 return self._json(200, fetch_weather(query.get("city", "")[:60], query.get("units", "auto")))
+            if url.path == "/api/voices":
+                kokoro = _voice is not None and getattr(_voice, "backend_id", "kokoro") == "kokoro"
+                return self._json(200, {
+                    "engine": "kokoro" if kokoro else "browser", "default": _voice_id,
+                    "voices": [{"id": i, "name": n, "desc": d} for i, n, d in KOKORO_VOICES] if kokoro else [],
+                })
             self._json(404, {"error": "not found"})
         except (BrokenPipeError, ConnectionResetError):
             pass
@@ -979,7 +1003,11 @@ class Handler(BaseHTTPRequestHandler):
         if _voice is None:
             note = STATUS["notes"].get("voice") or "My voice is still warming up."
             return self._json(503, {"error": note})
-        result = _synthesize(_voice, text)
+        try:
+            speed = min(1.4, max(0.7, float(body.get("speed") or VOICE_SPEED)))
+        except (TypeError, ValueError):
+            speed = VOICE_SPEED
+        result = _synthesize(_voice, text, str(body.get("voice") or ""), speed)
         fmt = (getattr(result, "format", "") or "wav").lower()
         mime = {"wav": "audio/wav", "mp3": "audio/mpeg", "ogg": "audio/ogg", "opus": "audio/ogg"}
         self._send(200, result.audio, mime.get(fmt, "application/octet-stream"))

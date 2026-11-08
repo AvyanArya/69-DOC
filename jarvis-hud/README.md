@@ -4,7 +4,8 @@ A premium, voice-first dashboard for [OpenJarvis](https://github.com/open-jarvis
 
 - **Lock screen and opening sequence.** Press and hold to unlock. A light line draws into rings, the core ignites with a power-up sound, and live system checks tick off. Then it greets you by name, with the weather.
 - **Dashboard.** Frosted-glass cards on a drifting nebula: greeting, live weather with an hourly curve, system gauges, timers, headlines with photos, and the conversation. A fluid orb in the middle reacts to your voice and to Jarvis's.
-- **News deck.** "Pull up the news" opens a full-screen deck of stories with photos. Each card lights up as Jarvis reads it out.
+- **Full-page views that morph.** "Pull up the news" makes the headlines card expand into a full page while the orb flies up into its corner and keeps talking from there, with subtitles. Each story lights up as Jarvis reads it. "Pull up the weather" does the same with a full forecast view. Esc or "close" morphs everything back.
+- **Choose the voice.** Settings lists 11 voices, each with a sample. Heart and Bella are the most natural.
 
 ## What you can say
 
@@ -13,7 +14,8 @@ A premium, voice-first dashboard for [OpenJarvis](https://github.com/open-jarvis
 | "Brief me" / "Good morning" | Time, weather and the top three headlines |
 | "Pull up the news" / "tech news" / "business news" | Opens the news deck and reads the headlines (top, world, tech, business, science, sport) |
 | "Open the second one" | Opens that story in your browser |
-| "What's the weather?" / "Will it rain tomorrow in London?" | Weather for your city or any city |
+| "Pull up the weather" / "Will it rain tomorrow in London?" | Opens the full weather view for your city or any city |
+| "Close" | Closes the news or weather view |
 | "Set a timer for 10 minutes" / "Remind me to check the oven in 15 minutes" | Countdown card, chime and a spoken alert |
 | "Open YouTube" / "Open Spotify" / "Go to apple.com" | Opens Mac apps and websites |
 | "Play lo-fi beats" | Opens it on YouTube |
@@ -57,7 +59,12 @@ Your browser opens http://localhost:8765. The first launch downloads the speech 
 
 ## Settings
 
-The sliders button in the top-right corner sets your name, your weather city (blank means detect automatically), °C, °F or automatic units, and switches for conversation mode, clap to wake, spoken replies, sound effects and the opening animation.
+The sliders button in the top-right corner holds:
+- **Profile:** your name, your weather city (leave it blank to detect automatically), and °C, °F or automatic units.
+- **Voice:** the voice (tap one to hear a sample) and speaking speed.
+- **Behaviour:** switches for conversation mode, clap to wake, spoken replies, sound effects and the opening animation.
+
+If Safari or another browser blocks sound, Jarvis says so with a notice. Click anywhere on the page once and it can speak.
 
 | Environment variable | Effect |
 |---|---|

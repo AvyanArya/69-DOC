@@ -52,7 +52,7 @@ if (window.speechSynthesis) { speechSynthesis.getVoices(); speechSynthesis.onvoi
   const walk = (v, step, lo, hi) => Math.max(lo, Math.min(hi, v + (Math.random() * 2 - 1) * step));
   const openTab = (url) => { try { window.open(url, "_blank", "noopener"); } catch {} };
 
-  async function getJSON(url, ms = 4500) {
+  async function getJSON(url, ms = 3000) {
     const c = new AbortController(), t = setTimeout(() => c.abort(), ms);
     try { const r = await realFetch(url, { signal: c.signal }); if (!r.ok) throw new Error(String(r.status)); return await r.json(); }
     finally { clearTimeout(t); }
@@ -149,7 +149,7 @@ if (window.speechSynthesis) { speechSynthesis.getVoices(); speechSynthesis.onvoi
   const ordinal = (n) => n + (n % 100 >= 10 && n % 100 <= 20 ? "th" : { 1: "st", 2: "nd", 3: "rd" }[n % 10] || "th");
   const clock = (d) => d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
   const sentence = (t) => (/[.!?]$/.test(t.trim()) ? t.trim() : t.trim() + ".");
-  const part = () => { const h = new Date().getHours(); return h >= 5 && h < 12 ? "morning" : h >= 12 && h < 18 ? "afternoon" : "evening"; };
+  const part = () => { const h = new Date().getHours(); return h >= 5 && h < 12 ? "morning" : h >= 12 && h < 17 ? "afternoon" : "evening"; };
   const SITES = { youtube: ["YouTube", "https://www.youtube.com"], google: ["Google", "https://www.google.com"], gmail: ["Gmail", "https://mail.google.com"],
     github: ["GitHub", "https://github.com"], netflix: ["Netflix", "https://www.netflix.com"], instagram: ["Instagram", "https://www.instagram.com"],
     twitter: ["X", "https://x.com"], x: ["X", "https://x.com"], linkedin: ["LinkedIn", "https://www.linkedin.com"], reddit: ["Reddit", "https://www.reddit.com"],
@@ -177,8 +177,10 @@ if (window.speechSynthesis) { speechSynthesis.getVoices(); speechSynthesis.onvoi
     const lines = [`Good ${part()}${name ? ", " + name : ""}. It's ${clock(now)} on ${now.toLocaleDateString("en-GB", { weekday: "long" })}, the ${ordinal(now.getDate())} of ${now.toLocaleDateString("en-GB", { month: "long" })}.`];
     const ui = [];
     const w = await weather(prefs.city, prefs.units);
-    lines.push(`In ${w.city} it's ${w.temp} degrees and ${w.label}, heading for a high of ${w.today.high}.`);
-    ui.push({ type: "weather", data: w });
+    if (!w.sample) {
+      lines.push(`In ${w.city} it's ${w.temp} degrees and ${w.label}, heading for a high of ${w.today.high}.`);
+      ui.push({ type: "weather", data: w });
+    }
     const items = PREVIEW_DATA.news.top || [];
     if (items.length) {
       lines.push("In the news: " + items.slice(0, 3).map((i) => sentence(i.title)).join(" Also, "));
@@ -225,10 +227,11 @@ if (window.speechSynthesis) { speechSynthesis.getVoices(); speechSynthesis.onvoi
       const city = m && !skip.includes(m[1].trim()) ? m[1].trim() : prefs.city || "";
       const w = await weather(city, prefs.units);
       const d = /tomorrow/.test(t) ? w.tomorrow : w.today;
+      const note = w.sample ? "I can't reach the weather service from this preview, so this is sample weather. " : "";
       const say = /tomorrow/.test(t)
         ? `Tomorrow in ${w.city}, expect ${d.label}, with a high of ${d.high} and a low of ${d.low} degrees.` + (d.rain >= 30 ? ` There's a ${d.rain} percent chance of rain.` : "")
         : `It's ${w.temp} degrees and ${w.label} in ${w.city}, with a high of ${d.high} and a low of ${d.low}.` + (d.rain >= 30 ? ` There's a ${d.rain} percent chance of rain today.` : "");
-      return { say, ui: [{ type: "weather", data: w }] };
+      return { say: note + say, ui: [{ type: "weather", data: w, focus: true }] };
     }
     let m = t.match(/^play (.+?)(?: on (youtube|spotify))?$/);
     if (m) { const url = "https://www.youtube.com/results?search_query=" + encodeURIComponent(m[1]); openTab(url); return { say: `Here's ${m[1]} on YouTube.`, ui: [{ type: "opened", label: "YouTube", detail: m[1], url }] }; }
@@ -260,7 +263,7 @@ if (window.speechSynthesis) { speechSynthesis.getVoices(); speechSynthesis.onvoi
     const stream = new ReadableStream({
       async start(c) {
         try {
-          await pause(380);
+          await pause(140);
           const r = await route(last, body.prefs || {});
           const lines = [...(r.ui || []).map((ui) => ({ ui })), ...(r.say.match(/\S+\s*/g) || []).map((delta) => ({ delta }))];
           if (r.memory) lines.push({ memory: r.memory });
@@ -268,7 +271,7 @@ if (window.speechSynthesis) { speechSynthesis.getVoices(); speechSynthesis.onvoi
           for (const line of lines) {
             if (signal && signal.aborted) return c.error(new DOMException("Aborted", "AbortError"));
             c.enqueue(enc.encode(JSON.stringify(line) + "\n"));
-            if (line.delta) await pause(26);
+            if (line.delta) await pause(9);
           }
           c.close();
         } catch (err) { c.error(err); }
@@ -289,6 +292,7 @@ if (window.speechSynthesis) { speechSynthesis.getVoices(); speechSynthesis.onvoi
     if (path === "/api/news") return json({ items: PREVIEW_DATA.news[q.get("cat")] || PREVIEW_DATA.news.top });
     if (path === "/api/weather") return json(await weather(q.get("city") || "", q.get("units") || "auto"));
     if (path === "/api/chat") return streamReply(JSON.parse(init.body || "{}"), init.signal);
+    if (path === "/api/voices") return json({ engine: "browser", voices: [] });
     if (path === "/api/open") { openTab(JSON.parse(init.body || "{}").url); return json({ ok: true }); }
     return json({ error: "not available in the preview" }, 503);
   };
@@ -357,9 +361,9 @@ TAIL = r"""
     await waitFor(() => S.greeted, 30000);
     await waitFor(quiet);
     await sleep(900);
-    for (const step of ["Brief me", "Pull up the tech news", "#close", "Set a timer for 10 minutes", "Tell me about the Burj Khalifa", "What can you do?"]) {
+    for (const step of ["Brief me", "Pull up the tech news", "#close", "Pull up the weather", "#close", "Set a timer for 10 minutes", "Tell me about the Burj Khalifa", "What can you do?"]) {
       if (!touring) break;
-      if (step === "#close") { await sleep(500); closeDeck(); await sleep(900); continue; }
+      if (step === "#close") { await sleep(900); closeFocus(); await sleep(1300); continue; }
       await typeAndSend(step);
       await sleep(500);
       await waitFor(quiet, 120000);
@@ -403,6 +407,7 @@ def snapshot() -> dict:
                             "url": summary.get("content_urls", {}).get("desktop", {}).get("page", "")}
         except Exception as exc:
             print(f"  look-up snapshot for {key} unavailable ({exc})")
+    weather = dict(weather, sample=True)  # used only when live weather can't load, and labelled as a sample
     return {"news": news, "weather": weather, "lookups": lookups, "name": hud.DEFAULT_NAME or "Avyan"}
 
 
