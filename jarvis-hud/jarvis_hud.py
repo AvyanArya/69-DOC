@@ -686,7 +686,8 @@ def pick_model(installed: set[str]) -> None:
         ram_gb = psutil.virtual_memory().total / 2**30
     except Exception:
         ram_gb = 8
-    for name, needs_gb in (("qwen3.5:9b", 15), ("qwen3.5:4b", 7)):
+    # 4B at most: 9B needs ~7 GB and slows a laptop down; choose it explicitly with JARVIS_HUD_MODEL.
+    for name, needs_gb in (("qwen3.5:4b", 15),):
         if name in installed and ram_gb >= needs_gb:
             print(f"  Using {name} instead of {MODEL} for better conversation.")
             MODEL = name
@@ -834,7 +835,7 @@ def _kokoro(device: str):
         if device == "cpu":
             import torch
 
-            torch.set_num_threads(max(2, (os.cpu_count() or 4) // 2))  # leave cores for listening and thinking
+            torch.set_num_threads(2)  # the voice only needs a couple of cores; leave the rest for everything else
         backend = TTSRegistry.get("kokoro")(device=device)
         backend.synthesize("Ready.", voice_id="bm_george")
         return backend
@@ -1255,7 +1256,7 @@ class Handler(BaseHTTPRequestHandler):
         if routed and routed.get("context"):
             system += "\n\n" + routed["context"]
         payload = {
-            "model": MODEL, "stream": True, "think": False, "keep_alive": "30m",
+            "model": MODEL, "stream": True, "think": False, "keep_alive": "10m",
             "options": {"num_ctx": 4096, "num_predict": 220, "temperature": 0.5},
             "messages": [{"role": "system", "content": system}, *turns],
         }
