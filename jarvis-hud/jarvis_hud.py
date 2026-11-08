@@ -1402,10 +1402,13 @@ def stop_old_copies() -> bool:
     except ImportError:
         return False
     stopped = False
-    for proc in psutil.process_iter(["pid", "cmdline"]):
+    for proc in psutil.process_iter(["pid", "name", "cmdline"]):
         try:
-            cmd = " ".join(proc.info["cmdline"] or [])
-            if proc.info["pid"] != os.getpid() and "jarvis_hud.py" in cmd and "--" not in cmd.split("jarvis_hud.py", 1)[1]:
+            args = proc.info["cmdline"] or []
+            cmd = " ".join(args)
+            is_python = "python" in (proc.info["name"] or "").lower() or (args and "python" in os.path.basename(args[0]).lower())
+            if (proc.info["pid"] not in (os.getpid(), os.getppid()) and is_python and "jarvis_hud.py" in cmd
+                    and "--" not in cmd.split("jarvis_hud.py", 1)[1]):
                 proc.terminate()
                 stopped = True
         except (psutil.Error, IndexError):
