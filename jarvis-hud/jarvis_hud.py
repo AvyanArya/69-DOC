@@ -33,6 +33,7 @@ import os
 import re
 import shutil
 import socket
+import ssl
 import subprocess
 import sys
 import threading
@@ -70,7 +71,8 @@ if LANGUAGE.startswith("en") and CONFIG.speech.model in ("tiny", "base", "small"
 VOICE_SPEED = float(CONFIG.speech.voice_speed or 1.0)
 HISTORY_TURNS = 20
 MAX_BODY_BYTES = 25 * 1024 * 1024
-USER_AGENT = "OpenJarvisHUD/2.0 (+https://github.com/open-jarvis/OpenJarvis)"
+HUD_VERSION = "2.4"
+USER_AGENT = f"OpenJarvisHUD/{HUD_VERSION} (+https://github.com/open-jarvis/OpenJarvis)"
 IS_MAC = sys.platform == "darwin"
 # The voice runs on the CPU by default: fast enough on Apple Silicon, and it leaves the GPU to the language model.
 TTS_DEVICE = os.environ.get("JARVIS_HUD_TTS_DEVICE", "cpu")
@@ -114,11 +116,30 @@ _last_brain_check = 0.0
 # --------------------------------------------------------------------------- web helpers
 
 
+def _ssl_context() -> ssl.SSLContext:
+    """Use the operating system's certificate store, so HTTPS works with Python builds that lack one."""
+    try:
+        import truststore
+
+        return truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+    except Exception:
+        pass
+    try:
+        import certifi
+
+        return ssl.create_default_context(cafile=certifi.where())
+    except Exception:
+        return ssl.create_default_context()
+
+
+SSL_CONTEXT = _ssl_context()
+
+
 def http_get(url: str, timeout: float = 8) -> bytes:
     request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
     for attempt in range(3):
         try:
-            with urllib.request.urlopen(request, timeout=timeout) as resp:
+            with urllib.request.urlopen(request, timeout=timeout, context=SSL_CONTEXT) as resp:
                 return resp.read()
         except urllib.error.HTTPError as exc:
             if exc.code not in (429, 502, 503) or attempt == 2:
@@ -885,8 +906,54 @@ def _save_settings() -> None:
     os.chmod(SETTINGS_PATH, 0o600)
 
 
+_KEY_NAMES = ("ELEVENLABS_API_KEY", "ELEVEN_API_KEY", "XI_API_KEY", "ELEVENLABS_KEY")
+
+
+def clean_key(raw: str) -> str:
+    """Tidy a pasted key: drop quotes, spaces, line breaks and a leading 'export NAME=' or 'xi-api-key:'."""
+    key = str(raw or "").strip().strip("\"'")
+    key = re.sub(r"^(export\s+)?[A-Z_]*API_KEY\s*=\s*", "", key, flags=re.I)
+    key = re.sub(r"^xi-api-key\s*:\s*", "", key, flags=re.I)
+    return re.sub(r"\s+", "", key).strip("\"'")
+
+
+def _openjarvis_key() -> tuple[str, str]:
+    """An ElevenLabs key saved through OpenJarvis itself: credentials.toml or `jarvis vault`."""
+    try:
+        from openjarvis.core.credentials import load_credentials
+
+        for section in load_credentials().values():
+            for name, value in section.items():
+                if name.upper() in _KEY_NAMES and value:
+                    return clean_key(value), "OpenJarvis credentials.toml"
+    except Exception:
+        pass
+    try:
+        from openjarvis.cli.vault_cmd import _load_vault
+
+        for name, value in _load_vault().items():
+            if "eleven" in name.lower() and isinstance(value, str) and value:
+                return clean_key(value), "jarvis vault"
+    except Exception:
+        pass
+    return "", ""
+
+
+_OJ_KEY = _openjarvis_key()
+
+
+def eleven_key_info() -> tuple[str, str]:
+    """(key, where it came from). The Settings box wins, then the environment, then OpenJarvis's stores."""
+    if SETTINGS.get("elevenlabs_api_key"):
+        return clean_key(SETTINGS["elevenlabs_api_key"]), "Settings"
+    for name in _KEY_NAMES:
+        if os.environ.get(name):
+            return clean_key(os.environ[name]), f"the {name} environment variable"
+    return _OJ_KEY
+
+
 def eleven_key() -> str:
-    return (os.environ.get("ELEVENLABS_API_KEY") or SETTINGS.get("elevenlabs_api_key") or "").strip()
+    return eleven_key_info()[0]
 
 
 class ElevenLabsError(RuntimeError):
@@ -906,7 +973,8 @@ def _eleven(path: str, payload: dict | None = None, key: str = "", timeout: floa
         data = json.dumps(payload).encode()
         headers["Content-Type"] = "application/json"
     try:
-        with urllib.request.urlopen(urllib.request.Request(ELEVEN_API + path, data=data, headers=headers), timeout=timeout) as resp:
+        with urllib.request.urlopen(urllib.request.Request(ELEVEN_API + path, data=data, headers=headers),
+                                    timeout=timeout, context=SSL_CONTEXT) as resp:
             return resp.read()
     except urllib.error.HTTPError as exc:
         try:
@@ -922,7 +990,10 @@ def _eleven(path: str, payload: dict | None = None, key: str = "", timeout: floa
             reason = "missing_permissions"
         raise ElevenLabsError(reason) from None
     except Exception as exc:
-        raise ElevenLabsError(f"couldn't reach ElevenLabs ({type(exc).__name__})") from None
+        reason = getattr(exc, "reason", None)
+        if isinstance(reason, ssl.SSLError) or isinstance(exc, ssl.SSLError):
+            raise ElevenLabsError("this Mac couldn't verify ElevenLabs' security certificate") from None
+        raise ElevenLabsError(f"couldn't reach ElevenLabs ({type(reason or exc).__name__}). Check the internet connection") from None
 
 
 def eleven_voices(key: str = "") -> list[dict]:
@@ -958,6 +1029,38 @@ def eleven_tts(text: str, voice: str = "", speed: float = 1.0, quality: str = "f
         payload["previous_text"] = previous[-400:]  # keeps intonation flowing from the last chunk
     voice = voice if re.fullmatch(r"[A-Za-z0-9]{8,40}", voice or "") else ELEVEN_DEFAULT_VOICE
     return _eleven(f"/v1/text-to-speech/{voice}?output_format=mp3_44100_128", payload, timeout=25)
+
+
+def describe_eleven_error(reason: str) -> str:
+    if "rejected" in reason:
+        return ("ElevenLabs rejected that key. Copy it again from elevenlabs.io → Developers → API Keys "
+                "(keys start with sk_), or create a new one.")
+    if reason == "missing_permissions":
+        return ("That key isn't allowed to use Text to Speech. On elevenlabs.io → Developers → API Keys, "
+                "edit the key and give it Text to Speech access, or create a key without restrictions.")
+    return cap_first(reason) + "."
+
+
+def cap_first(text: str) -> str:
+    return text[:1].upper() + text[1:]
+
+
+def check_eleven_key(key: str) -> tuple[bool, str, int]:
+    """Try the key for real: list voices, then speak one short word. Returns (ok, message, voice count)."""
+    if not key.startswith("sk_") and len(key) < 20:
+        return False, "That doesn't look like an ElevenLabs API key. Keys are long and start with sk_.", 0
+    try:
+        voices = eleven_voices(key)
+    except ElevenLabsError as exc:
+        return False, describe_eleven_error(str(exc)), 0
+    try:
+        _eleven(f"/v1/text-to-speech/{ELEVEN_DEFAULT_VOICE}?output_format=mp3_44100_128",
+                {"text": "Hi.", "model_id": ELEVEN_MODELS["fast"]}, key=key, timeout=20)
+    except ElevenLabsError as exc:
+        if "credits" in str(exc):
+            return True, "Connected, but this ElevenLabs plan is out of credits, so the on-device voice will be used until it renews.", len(voices)
+        return False, describe_eleven_error(str(exc)), 0
+    return True, "", len(voices)
 
 
 def _synthesize(backend, text: str, voice: str = "", speed: float | None = None):
@@ -1079,14 +1182,15 @@ class Handler(BaseHTTPRequestHandler):
                 result = {
                     "engine": "kokoro" if kokoro else "browser", "default": _voice_id,
                     "voices": [{"id": i, "name": n, "desc": d} for i, n, d in KOKORO_VOICES] if kokoro else [],
-                    "eleven": {"connected": bool(eleven_key()), "fromEnv": bool(os.environ.get("ELEVENLABS_API_KEY")),
+                    "eleven": {"connected": bool(eleven_key()), "source": eleven_key_info()[1],
+                               "fromEnv": eleven_key_info()[1] != "Settings",
                                "default": ELEVEN_DEFAULT_VOICE, "voices": [], "error": ""},
                 }
                 if eleven_key():
                     try:
                         result["eleven"]["voices"] = eleven_voices()
                     except ElevenLabsError as exc:
-                        result["eleven"]["error"] = str(exc)
+                        result["eleven"]["error"] = describe_eleven_error(str(exc))
                 return self._json(200, result)
             self._json(404, {"error": "not found"})
         except (BrokenPipeError, ConnectionResetError):
@@ -1179,18 +1283,17 @@ class Handler(BaseHTTPRequestHandler):
             SETTINGS.pop("elevenlabs_api_key", None)
             _save_settings()
             return self._json(200, {"connected": bool(eleven_key())})
-        key = str(body.get("key") or "").strip()
+        key = clean_key(body.get("key"))
         if not key:
             return self._json(400, {"error": "Paste your ElevenLabs API key first."})
-        try:
-            voices = eleven_voices(key)
-        except ElevenLabsError as exc:
-            return self._json(400, {"error": f"That key didn't work: {exc}."})
+        ok, message, voices = check_eleven_key(key)
+        if not ok:
+            return self._json(400, {"error": message})
         SETTINGS["elevenlabs_api_key"] = key
         _save_settings()
         with _cache_lock:
             _cache.pop(("eleven_voices", key[-6:]), None)
-        return self._json(200, {"connected": True, "voices": len(voices)})
+        return self._json(200, {"connected": True, "voices": voices, "note": message})
 
     def _tts(self, body: dict) -> None:
         text = speakable(str(body.get("text", "")))[:800]
@@ -1230,7 +1333,39 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(result.audio)
 
 
+def setup_elevenlabs() -> None:
+    """`jarvis_hud.py --elevenlabs`: find or ask for the key, test it, and say exactly what's wrong."""
+    import getpass
+
+    key, source = eleven_key_info()
+    if key:
+        print(f"Found an ElevenLabs key ({key[:3]}…{key[-4:]}) in {source}. Testing it…")
+    else:
+        print("No ElevenLabs key found (checked Settings, environment variables, OpenJarvis credentials and jarvis vault).")
+        key = clean_key(getpass.getpass("Paste your ElevenLabs API key and press Enter (it won't be shown): "))
+        source = ""
+        if not key:
+            print("Nothing pasted. Get a key at elevenlabs.io → Developers → API Keys.")
+            return
+    ok, message, voices = check_eleven_key(key)
+    if not ok:
+        print("✗ " + message)
+        sys.exit(1)
+    if not source:
+        SETTINGS["elevenlabs_api_key"] = key
+        _save_settings()
+        print(f"Saved to {SETTINGS_PATH} (readable only by you).")
+    print(f"✓ ElevenLabs works: {voices} voices available." + (f" {message}" if message else ""))
+    print("Start Jarvis and pick a voice in Settings → Voice.")
+
+
 def main() -> None:
+    if "--elevenlabs" in sys.argv:
+        return setup_elevenlabs()
+    if "--forget-elevenlabs" in sys.argv:
+        SETTINGS.pop("elevenlabs_api_key", None)
+        _save_settings()
+        return print("Removed the ElevenLabs key saved by Jarvis.")
     url = f"http://localhost:{PORT}"
     if not PAGE_PATH.exists():
         print(f"Warning: {PAGE_PATH} is missing. Download hud.html into the same folder as this script.")
@@ -1246,8 +1381,10 @@ def main() -> None:
     start_brain()
     for job in (warm_ears, warm_voice, warm_feeds):
         threading.Thread(target=job, daemon=True).start()
-    print(f"OpenJarvis HUD running at {url}")
+    print(f"OpenJarvis HUD {HUD_VERSION} running at {url}")
     print(f"  model: {MODEL} via {OLLAMA}")
+    key, source = eleven_key_info()
+    print(f"  ElevenLabs: {'key found in ' + source if key else 'not connected (add a key in Settings → Voice)'}")
     print("  The first launch downloads the speech models, so give it a few minutes.")
     print("  Press Ctrl+C to stop.")
     if not os.environ.get("JARVIS_HUD_NO_BROWSER"):

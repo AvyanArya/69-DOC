@@ -349,6 +349,9 @@ body.focused .fx-caption.on{opacity:1;transform:translate(-50%,0)}
 .voice-ctl .field{margin-bottom:10px}
 .voice-ctl .link-btn{margin:2px 0 10px}
 
+.sound-btn{position:fixed;top:84px;left:50%;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:10px;padding:12px 20px;border-radius:999px;font-size:14px;color:#06111b;background:linear-gradient(135deg,var(--ice),var(--violet));box-shadow:0 12px 40px -8px rgba(var(--ice-rgb),.7);animation:toastIn .5s var(--ease)}
+.sound-btn svg.i{width:16px;height:16px}
+
 /* voice picker */
 .voices{display:grid;gap:4px;max-height:236px;overflow-y:auto;margin:0 -6px;padding:0 6px;scrollbar-width:thin}
 .vrow{display:flex;align-items:center;gap:12px;width:100%;padding:9px 10px;border-radius:12px;text-align:left;border:1px solid transparent;transition:background .3s,border-color .3s}
@@ -859,12 +862,29 @@ function talk() {
 /* ============================================================== speaking */
 // Safari only lets a page speak if speech was started by a click or key press, so switch it on then.
 let speechPrimed = false;
-function primeSpeech() {
-  if (S.voiceBlocked) { S.voiceBlocked = false; speechPrimed = false; }
+function primeSpeech(e) {
+  if (e && e.target && e.target.closest && e.target.closest("#sound-btn")) return; // the button handles its own click
+  if (ctx && ctx.state !== "running") ctx.resume().catch(() => {});
+  if (S.voiceBlocked) { S.voiceBlocked = false; speechPrimed = false; hideSoundButton(); }
   if (speechPrimed || !window.speechSynthesis) return;
   speechPrimed = true;
-  try { const u = new SpeechSynthesisUtterance(" "); u.volume = 0; speechSynthesis.speak(u); } catch {}
+  try { speechSynthesis.cancel(); speechSynthesis.resume(); const u = new SpeechSynthesisUtterance("."); u.volume = 0; speechSynthesis.speak(u); } catch {}
 }
+function showSoundButton() {
+  if ($("#sound-btn")) return;
+  const b = document.createElement("button");
+  b.id = "sound-btn"; b.type = "button"; b.className = "sound-btn";
+  b.innerHTML = '<svg class="i"><use href="#i-mic"/></svg>Sound is blocked. Click to turn it on';
+  b.addEventListener("click", async () => {
+    ensureAudio();
+    try { await ctx.resume(); } catch {}
+    S.voiceBlocked = false; speechPrimed = false; primeSpeech();
+    hideSoundButton();
+    speak("Sound is on.", () => setState("idle", "Standing by."));
+  });
+  document.body.append(b);
+}
+function hideSoundButton() { const b = $("#sound-btn"); if (b) b.remove(); }
 addEventListener("pointerdown", primeSpeech, true);
 addEventListener("keydown", primeSpeech, true);
 
@@ -877,19 +897,22 @@ function pickBrowserVoice() {
   const voices = window.speechSynthesis ? speechSynthesis.getVoices() : [];
   return (prefs.browserVoice && voices.find((v) => v.name === prefs.browserVoice)) || rankVoices(voices)[0] || null;
 }
-function browserSay(text, onBoundary) {
+function browserSay(text, onBoundary, retried = false) {
   return new Promise((done) => {
     if (!window.speechSynthesis || S.voiceBlocked) return done();
+    try { if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel(); speechSynthesis.resume(); } catch {}
     const u = new SpeechSynthesisUtterance(text), v = pickBrowserVoice();
     if (v) { u.voice = v; u.lang = v.lang; }
     u.rate = prefs.speed || 1;
     let started = false;
     const finish = () => { clearTimeout(guard); clearTimeout(startGuard); done(); };
     const blocked = () => {
-      if (!S.voiceBlocked) toast("Sound is blocked", "Click anywhere on the page so Jarvis can speak", "i-mic");
-      S.voiceBlocked = true;
       try { speechSynthesis.cancel(); } catch {}
-      finish();
+      clearTimeout(guard); clearTimeout(startGuard);
+      if (!retried) { browserSay(text, onBoundary, true).then(done); return; } // the browser's voice can stall once; try again
+      S.voiceBlocked = true;
+      showSoundButton();
+      done();
     };
     // Never wait long on speech that isn't playing.
     const guard = setTimeout(finish, 3000 + text.split(/\s+/).length * 450);
@@ -985,6 +1008,7 @@ class Speaker {
     } catch { return null; }
   }
   schedule(buf, sentences) {
+    if (ctx.state !== "running") { ctx.resume().catch(() => {}); setTimeout(() => { if (ctx.state !== "running") showSoundButton(); }, 800); }
     const now = ctx.currentTime, when = Math.max(now + 0.04, this.playEnd);
     const src = ctx.createBufferSource();
     src.buffer = buf; src.connect(voiceGain); src.start(when);
