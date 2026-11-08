@@ -48,6 +48,9 @@ from email.utils import parsedate_to_datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
+# Kokoro needs PyTorch's CPU fallback for a few operations Apple's GPU backend lacks.
+os.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")
+
 try:
     from openjarvis.core.config import load_config
 except ImportError:
@@ -62,11 +65,15 @@ PORT = int(os.environ.get("JARVIS_HUD_PORT", "8765"))
 CONFIG = load_config()
 MODEL = os.environ.get("JARVIS_HUD_MODEL") or CONFIG.intelligence.default_model or "qwen3.5:2b"
 LANGUAGE = (CONFIG.speech.language or "en").strip()
+if LANGUAGE.startswith("en") and CONFIG.speech.model in ("tiny", "base", "small", "medium"):
+    CONFIG.speech.model += ".en"  # English-only Whisper models are more accurate for English at the same size
 VOICE_SPEED = float(CONFIG.speech.voice_speed or 1.0)
 HISTORY_TURNS = 20
 MAX_BODY_BYTES = 25 * 1024 * 1024
 USER_AGENT = "OpenJarvisHUD/2.0 (+https://github.com/open-jarvis/OpenJarvis)"
 IS_MAC = sys.platform == "darwin"
+# The voice runs on the CPU by default: fast enough on Apple Silicon, and it leaves the GPU to the language model.
+TTS_DEVICE = os.environ.get("JARVIS_HUD_TTS_DEVICE", "cpu")
 
 
 def _default_name() -> str:
@@ -620,18 +627,14 @@ def briefing(prefs: dict) -> dict:
 
 def persona(prefs: dict) -> str:
     name = prefs.get("name") or ""
-    who = f"The user's name is {name}; use it now and then, not in every reply. " if name else ""
+    who = f"You're talking with {name}; use their name only now and then. " if name else ""
     return (
-        "You are JARVIS, a personal AI assistant running privately on the user's own computer through "
-        "OpenJarvis. You have the calm, dry wit of a polished British assistant. " + who +
-        "Always reply in English, whatever language the user uses. Everything you say is read aloud, so keep "
-        "replies brief and conversational, usually one to three sentences, and never use markdown, lists, "
-        "emoji, code blocks or stage directions unless asked. You know nothing about the user except what they "
-        "tell you, so never invent details about their life and never use pet names. This dashboard itself "
-        "handles the news, weather, timers, opening apps and websites, playing things on YouTube and web "
-        "searches, so if the user asks for one of those, suggest a phrasing such as 'pull up the news', "
-        "'set a timer for 5 minutes', 'open YouTube' or 'look up' followed by the topic, rather than "
-        "pretending to do it or making up facts."
+        "You are Jarvis, a personal assistant having a spoken conversation. " + who +
+        "Talk the way a warm, quick-witted person talks out loud: natural and relaxed, with contractions, "
+        "a light dry wit, and straight to the point. Answer the actual question first. Keep replies to one to "
+        "three short sentences unless asked for more. Everything you say is spoken, so never use lists, "
+        "markdown, emoji, or stage directions. Always reply in English. Don't make up facts about the user or "
+        "the world; if something needs live information you don't have, say so in a sentence."
     )
 
 
@@ -651,6 +654,24 @@ def _ollama_models() -> set[str]:
         return {m.get("name", "") for m in json.loads(resp.read()).get("models", [])}
 
 
+def pick_model(installed: set[str]) -> None:
+    """Prefer a bigger installed model over the 2B starter when the computer has the memory for it."""
+    global MODEL
+    if os.environ.get("JARVIS_HUD_MODEL") or MODEL not in ("qwen3.5:2b", "qwen3.5:0.8b"):
+        return
+    try:
+        import psutil
+
+        ram_gb = psutil.virtual_memory().total / 2**30
+    except Exception:
+        ram_gb = 8
+    for name, needs_gb in (("qwen3.5:9b", 15), ("qwen3.5:4b", 7)):
+        if name in installed and ram_gb >= needs_gb:
+            print(f"  Using {name} instead of {MODEL} for better conversation.")
+            MODEL = name
+            return
+
+
 def warm_brain() -> None:
     STATUS["brain"] = "loading"
     if not _ollama_up() and shutil.which("ollama"):
@@ -665,6 +686,7 @@ def warm_brain() -> None:
         STATUS["notes"]["brain"] = "Ollama isn't running. Open the Ollama app, or run: ollama serve"
         return
     models = _ollama_models()
+    pick_model(models)
     if MODEL not in models and f"{MODEL}:latest" not in models:
         STATUS["brain"] = "offline"
         STATUS["notes"]["brain"] = f"The model {MODEL} isn't downloaded yet. Run: ollama pull {MODEL}"
@@ -730,6 +752,16 @@ def _silent_wav(seconds: float = 0.5, rate: int = 16000) -> bytes:
     return buf.getvalue()
 
 
+def transcribe(audio: bytes) -> str:
+    """Single-pass Whisper with silence trimmed: quicker than the backend's default five-way beam search."""
+    model = getattr(_ears, "_ensure_model", None)
+    if model is None:
+        return _ears.transcribe(audio, format="wav", language=LANGUAGE).text or ""
+    segments, _info = model().transcribe(io.BytesIO(audio), language=LANGUAGE or None, beam_size=1,
+                                         vad_filter=True, condition_on_previous_text=False)
+    return "".join(seg.text for seg in segments).strip()
+
+
 def warm_ears() -> None:
     global _ears
     STATUS["ears"] = "loading"
@@ -739,10 +771,11 @@ def warm_ears() -> None:
         backend = get_speech_backend(CONFIG)
         if backend is None:
             raise RuntimeError("speech recognition isn't installed")
-        backend.transcribe(_silent_wav(), format="wav", language=LANGUAGE)
         _ears = backend
+        transcribe(_silent_wav())
         STATUS["ears"] = "online"
     except Exception as exc:
+        _ears = None
         STATUS["ears"] = "offline"
         STATUS["notes"]["ears"] = f"Speech recognition unavailable ({exc}). Install OpenJarvis's voice extras."
 
@@ -754,7 +787,11 @@ def warm_voice() -> None:
         from openjarvis.speech._tts_discovery import default_voice_for, get_tts_backend, voice_preferences
 
         preferred, voice_id, _speed = voice_preferences(CONFIG)
-        backend = get_tts_backend(preferred)
+        backend = None
+        if preferred == "kokoro":
+            backend = _kokoro(TTS_DEVICE) or (_kokoro("cpu") if TTS_DEVICE != "cpu" else None)
+        if backend is None:
+            backend = get_tts_backend(preferred)
         if backend is None:
             raise RuntimeError("text-to-speech isn't installed")
         active = getattr(backend, "backend_id", "") or preferred
@@ -765,6 +802,24 @@ def warm_voice() -> None:
     except Exception as exc:
         STATUS["voice"] = "offline"
         STATUS["notes"]["voice"] = f"Local voice unavailable ({exc}); using your browser's voice instead."
+
+
+def _kokoro(device: str):
+    """A Kokoro voice on the given device, or None if it can't speak there."""
+    try:
+        import openjarvis.speech  # noqa: F401  (registers the backends)
+        from openjarvis.core.registry import TTSRegistry
+
+        if device == "cpu":
+            import torch
+
+            torch.set_num_threads(max(2, (os.cpu_count() or 4) // 2))  # leave cores for listening and thinking
+        backend = TTSRegistry.get("kokoro")(device=device)
+        backend.synthesize("Ready.", voice_id="bm_george")
+        return backend
+    except Exception as exc:
+        print(f"  Kokoro voice unavailable on {device}: {exc}")
+        return None
 
 
 def warm_feeds() -> None:
@@ -973,7 +1028,7 @@ class Handler(BaseHTTPRequestHandler):
             system += "\n\n" + routed["context"]
         payload = {
             "model": MODEL, "stream": True, "think": False, "keep_alive": "30m",
-            "options": {"num_ctx": 8192, "temperature": 0.5},
+            "options": {"num_ctx": 4096, "num_predict": 220, "temperature": 0.5},
             "messages": [{"role": "system", "content": system}, *turns],
         }
         try:
@@ -990,8 +1045,7 @@ class Handler(BaseHTTPRequestHandler):
             note = STATUS["notes"].get("ears") or "My ears are still warming up. One moment."
             return self._json(503, {"error": note})
         with _ears_lock:
-            result = _ears.transcribe(audio, format="wav", language=LANGUAGE)
-        text = (result.text or "").strip()
+            text = transcribe(audio)
         if _NOT_SPEECH.fullmatch(text):
             text = ""
         self._json(200, {"text": text})

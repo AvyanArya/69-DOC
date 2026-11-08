@@ -10,7 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Sora:wght@200;300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#03050a; --glass:rgba(15,21,33,.55); --glass-2:rgba(18,25,40,.78);
+  --bg:#03050a; --glass:rgba(13,19,31,.82); --glass-2:rgba(16,23,37,.9);
   --stroke:rgba(255,255,255,.07); --stroke-2:rgba(255,255,255,.13);
   --t1:#eef4fb; --t2:#a3b1c4; --t3:#627187;
   --ice:#7cdcff; --ice-rgb:124,220,255; --violet:#a78bfa; --violet-rgb:167,139,250;
@@ -31,16 +31,16 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stro
 
 /* ---------------------------------------------------------------- space */
 .space{position:fixed;inset:0;z-index:0;overflow:hidden;background:radial-gradient(1200px 800px at 50% 40%,#0b1526 0%,#060a12 48%,var(--bg) 82%)}
-.nebula{position:absolute;border-radius:50%;filter:blur(70px);will-change:transform}
-.n1{width:62vw;height:62vw;left:-14vw;top:-22vw;background:radial-gradient(circle,rgba(109,74,255,.34),transparent 64%);animation:d1 44s ease-in-out infinite alternate}
-.n2{width:58vw;height:58vw;right:-16vw;bottom:-24vw;background:radial-gradient(circle,rgba(31,170,255,.26),transparent 64%);animation:d2 52s ease-in-out infinite alternate}
-.n3{width:38vw;height:38vw;left:36vw;top:26vh;background:radial-gradient(circle,rgba(236,72,153,.09),transparent 64%);animation:d3 60s ease-in-out infinite alternate}
+.nebula{position:absolute;border-radius:50%}
+.n1{width:62vw;height:62vw;left:-14vw;top:-22vw;background:radial-gradient(circle,rgba(109,74,255,.34),transparent 64%);}
+.n2{width:58vw;height:58vw;right:-16vw;bottom:-24vw;background:radial-gradient(circle,rgba(31,170,255,.26),transparent 64%);}
+.n3{width:38vw;height:38vw;left:36vw;top:26vh;background:radial-gradient(circle,rgba(236,72,153,.09),transparent 64%);}
 @keyframes d1{to{transform:translate(9vw,7vh) scale(1.12)}}
 @keyframes d2{to{transform:translate(-8vw,-6vh) scale(1.08)}}
 @keyframes d3{to{transform:translate(-10vw,8vh) scale(1.2)}}
-.stars{position:absolute;left:0;top:0;width:1px;height:1px;border-radius:50%;animation:tw 7s ease-in-out infinite alternate}
+.stars{position:absolute;left:0;top:0;width:1px;height:1px;border-radius:50%;opacity:.85}
 @keyframes tw{from{opacity:.55}to{opacity:1}}
-.grain{position:absolute;inset:0;opacity:.06;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.grain{position:absolute;inset:0;opacity:.035;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 .vignette{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 52%,rgba(0,0,0,.6) 100%)}
 
 /* ---------------------------------------------------------------- lock screen */
@@ -91,9 +91,9 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stro
 /* ---------------------------------------------------------------- app shell */
 .app{position:fixed;inset:0;z-index:10;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:18px;padding:18px 24px 20px;visibility:hidden}
 body.ready .app{visibility:visible}
-.reveal{opacity:0;transform:translateY(20px) scale(.985);filter:blur(10px)}
+.reveal{opacity:0;transform:translateY(18px)}
 body.ready .reveal{animation:rise 1s var(--ease) forwards;animation-delay:calc(var(--d,0) * 95ms)}
-@keyframes rise{to{opacity:1;transform:none;filter:blur(0)}}
+@keyframes rise{to{opacity:1;transform:none}}
 
 .top{position:relative;display:flex;align-items:center;justify-content:space-between;height:52px}
 .brand{display:flex;align-items:center;gap:12px}
@@ -123,7 +123,7 @@ body[data-state=error] .pill i{background:var(--rose);box-shadow:0 0 12px var(--
 .col.left.fades{-webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 44px),transparent);mask-image:linear-gradient(180deg,#000 calc(100% - 44px),transparent)}
 
 .card{position:relative;border-radius:var(--r);padding:18px 20px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.012)),var(--glass);
-  -webkit-backdrop-filter:blur(24px) saturate(150%);backdrop-filter:blur(24px) saturate(150%);box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 24px 60px -28px rgba(0,0,0,.85)}
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 24px 60px -28px rgba(0,0,0,.85)}
 .card::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;
   background:linear-gradient(150deg,rgba(255,255,255,.17),rgba(255,255,255,.03) 34%,rgba(255,255,255,.02) 66%,rgba(var(--ice-rgb),.16));
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
@@ -266,8 +266,7 @@ body[data-state=listening] .mic::after{border-color:rgba(110,240,184,.65)}
 
 /* focus views: a dashboard card morphs into a full page while the orb docks in its corner */
 .focus{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;padding:24px 36px 28px;
-  background:radial-gradient(1100px 650px at 25% 0%,rgba(46,64,140,.26),transparent 62%),rgba(3,6,12,.84);
-  -webkit-backdrop-filter:blur(32px) saturate(140%);backdrop-filter:blur(32px) saturate(140%);
+  background:radial-gradient(1100px 650px at 25% 0%,rgba(46,64,140,.26),transparent 62%),rgba(4,7,14,.97);
   clip-path:inset(var(--ft,0px) var(--fr,0px) var(--fb,0px) var(--fl,0px) round var(--frad,0px));
   transition:clip-path .85s var(--ease)}
 .focus.instant{transition:none}
@@ -280,8 +279,8 @@ body[data-state=listening] .mic::after{border-color:rgba(110,240,184,.65)}
 .focus h2{margin-top:6px;font-weight:200;font-size:42px;letter-spacing:-.015em;line-height:1}
 .fx-head .tabs{margin:0;width:auto}
 .fx-head .tab{flex:none;padding:7px 14px;font-size:12px}
-.app{transition:transform .9s var(--ease),filter .9s var(--ease)}
-body.focused .app{transform:scale(.965);filter:blur(6px) brightness(.55)}
+.app{transition:transform .9s var(--ease),opacity .9s var(--ease)}
+body.focused .app{transform:scale(.97);opacity:.35}
 .orb-fly{position:fixed;inset:0;width:100%;height:100%;z-index:42;pointer-events:none}
 .fx-caption{position:fixed;left:50%;bottom:56px;z-index:43;max-width:min(780px,calc(100% - 48px));padding:12px 24px;border-radius:999px;font-size:16px;line-height:1.4;text-align:center;
   background:rgba(10,16,28,.8);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border:1px solid var(--stroke-2);box-shadow:0 20px 60px -20px rgba(0,0,0,.9);
@@ -289,7 +288,7 @@ body.focused .app{transform:scale(.965);filter:blur(6px) brightness(.55)}
 body.focused .fx-caption.on{opacity:1;transform:translate(-50%,0)}
 #wx-card{cursor:pointer}
 .eyebrow{font:500 10.5px var(--mono);letter-spacing:.26em;text-transform:uppercase;color:var(--ice)}
-.deck-grid{flex:1;min-height:0;overflow-y:auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:min-content;gap:18px;padding:4px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.12) transparent}
+.deck-grid{flex:1;min-height:0;contain:paint;overflow-y:auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:min-content;gap:18px;padding:4px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.12) transparent}
 .dcard{position:relative;display:flex;flex-direction:column;overflow:hidden;border-radius:20px;color:inherit;text-decoration:none;background:var(--glass);border:1px solid var(--stroke);opacity:0;transform:translateY(26px) scale(.97);transition:transform .5s var(--ease),border-color .4s,box-shadow .5s}
 .focus.open .dcard{animation:cardIn .85s var(--ease) forwards;animation-delay:calc(var(--i) * 55ms + 380ms)}
 @keyframes cardIn{to{opacity:1;transform:none}}
@@ -758,7 +757,7 @@ function onMic(samples) {
     if (rms > threshold) { rec.speech = true; rec.silent = 0; rec.voiced += dt; }
     else if (rec.speech) rec.silent += dt;
     else rec.waited += dt;
-    if (rec.speech && rec.silent > 1.1) { if (rec.voiced >= 0.25) finishListening(); else { rec.speech = false; rec.silent = 0; rec.voiced = 0; } }
+    if (rec.speech && rec.silent > 0.8) { if (rec.voiced >= 0.25) finishListening(); else { rec.speech = false; rec.silent = 0; rec.voiced = 0; } }
     else if (!rec.speech && rec.waited > 6) cancelListening("I didn't hear anything. Press Space when you're ready.");
     else if (rec.total > 30) finishListening();
     return;
@@ -864,7 +863,7 @@ function pickBrowserVoice() {
   const voices = window.speechSynthesis ? speechSynthesis.getVoices() : [];
   return (prefs.browserVoice && voices.find((v) => v.name === prefs.browserVoice)) || rankVoices(voices)[0] || null;
 }
-function browserSay(text) {
+function browserSay(text, onBoundary) {
   return new Promise((done) => {
     if (!window.speechSynthesis || S.voiceBlocked) return done();
     const u = new SpeechSynthesisUtterance(text), v = pickBrowserVoice();
@@ -879,53 +878,126 @@ function browserSay(text) {
       finish();
     };
     // Never wait long on speech that isn't playing.
-    const guard = setTimeout(finish, 2500 + text.split(/\s+/).length * 450);
+    const guard = setTimeout(finish, 3000 + text.split(/\s+/).length * 450);
     const startGuard = setTimeout(() => { if (!started) blocked(); }, 3000);
     u.onstart = () => { started = true; clearTimeout(startGuard); };
+    if (onBoundary) u.onboundary = (e) => onBoundary(e.charIndex || 0);
     u.onend = finish;
     u.onerror = (e) => (e && e.error === "not-allowed" ? blocked() : finish());
     speechSynthesis.speak(u);
   });
 }
 
+/* Speaks a reply as it streams in. Sentences are grouped into chunks; the next chunk is generated
+   while the current one plays and is scheduled to start the instant it ends, so there are no gaps
+   and the voice keeps its rhythm across sentences. */
 class Speaker {
-  constructor({ onDone = null, onSentence = null } = {}) { this.items = []; this.busy = false; this.ended = false; this.cancelled = false; this.src = null; this.onDone = onDone; this.onSentence = onSentence; }
+  constructor({ onDone = null, onSentence = null } = {}) {
+    this.queue = []; this.ended = false; this.cancelled = false; this.running = false;
+    this.sources = []; this.timers = []; this.playEnd = 0; this.spoke = false; this.wake = null; this.rate = 0;
+    this.onDone = onDone; this.onSentence = onSentence;
+    this.local = !!(S.status && S.status.voice === "online" && S.voiceEngine === "kokoro" && ctx);
+    this.rate = S.voiceRate || 0;
+  }
   say(text) {
     text = text.replace(/\s+/g, " ").trim();
     if (!text || this.cancelled) return;
-    const local = S.status && S.status.voice === "online";
-    const audio = local
-      ? fetch("/api/tts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text, voice: prefs.voiceId, speed: prefs.speed }) })
-          .then((r) => { if (r.status === 204) return null; if (!r.ok) throw new Error("tts " + r.status); return r.arrayBuffer(); })
-          .then((b) => (b ? ctx.decodeAudioData(b) : null))
-      : Promise.reject(new Error("local voice offline"));
-    audio.catch(() => {});
-    this.items.push({ text, audio });
-    this.next();
+    this.queue.push(text);
+    this.poke();
+    this.run();
   }
-  end() { this.ended = true; this.next(); }
-  async next() {
-    if (this.busy || this.cancelled) return;
-    const item = this.items.shift();
-    if (!item) { if (this.ended && this.onDone) this.onDone(); return; }
-    this.busy = true;
-    setState("speaking", item.text);
-    if (this.onSentence) this.onSentence(item.text);
-    try { const buf = await item.audio; if (buf && !this.cancelled) await this.play(buf); }
-    catch { if (!this.cancelled) await browserSay(item.text); }
-    this.busy = false;
-    this.next();
+  end() { this.ended = true; this.poke(); this.run(); }
+  poke() { if (this.wake) { const w = this.wake; this.wake = null; w(); } }
+  remaining() { return ctx ? Math.max(0, this.playEnd - ctx.currentTime) : 0; }
+  take() {
+    // First chunk: one sentence (two if it's short) so the voice starts quickly. Later chunks are sized so they
+    // finish generating before the audio already queued runs out: bigger on fast machines, smaller on slow ones.
+    const first = !this.spoke, out = [];
+    const budget = this.local && this.rate ? Math.max(70, Math.min(320, this.remaining() * 0.75 * this.rate * 15)) : 300;
+    let len = 0;
+    while (this.queue.length) {
+      const next = this.queue[0];
+      if (out.length && (first ? len > 60 || out.length >= 2 : len + next.length > budget)) break;
+      out.push(this.queue.shift());
+      len += next.length + 1;
+    }
+    return out;
   }
-  play(buf) {
-    return new Promise((done) => {
-      const s = ctx.createBufferSource();
-      s.buffer = buf; s.connect(voiceGain); s.onended = done; this.src = s; s.start();
-    });
+  async run() {
+    if (this.running || this.cancelled) return;
+    this.running = true;
+    while (!this.cancelled) {
+      if (!this.queue.length) {
+        if (this.ended) break;
+        await new Promise((r) => (this.wake = r));
+        continue;
+      }
+      // While plenty is still playing, let more text arrive so the next chunk is bigger and smoother.
+      if (this.local && this.remaining() > 2.2 && !this.ended) { await sleep(Math.min(400, (this.remaining() - 2) * 1000)); continue; }
+      const sentences = this.take(), text = sentences.join(" ");
+      this.spoke = true;
+      if (this.local) {
+        const buf = await this.synth(text);
+        if (this.cancelled) break;
+        if (buf) { this.schedule(buf, sentences); continue; }
+        this.local = false; // local voice failed: fall back to the browser's voice
+      }
+      await this.drain();
+      if (this.cancelled) break;
+      await this.speakBrowser(sentences);
+    }
+    await this.drain();
+    this.running = false;
+    if (!this.cancelled && this.onDone) this.onDone();
+  }
+  async synth(text) {
+    try {
+      const t0 = performance.now();
+      const r = await fetch("/api/tts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text, voice: prefs.voiceId, speed: prefs.speed }) });
+      if (!r.ok) return null;
+      const buf = await ctx.decodeAudioData(await r.arrayBuffer());
+      const rate = buf.duration / Math.max(0.05, (performance.now() - t0) / 1000); // seconds of speech per second of work
+      this.rate = this.rate ? this.rate * 0.5 + rate * 0.5 : rate;
+      S.voiceRate = this.rate;
+      return buf;
+    } catch { return null; }
+  }
+  schedule(buf, sentences) {
+    const now = ctx.currentTime, when = Math.max(now + 0.04, this.playEnd);
+    const src = ctx.createBufferSource();
+    src.buffer = buf; src.connect(voiceGain); src.start(when);
+    this.sources.push(src);
+    this.playEnd = when + buf.duration;
+    // Move the caption and news highlight along with the audio, sentence by sentence.
+    const total = sentences.join(" ").length || 1;
+    let offset = 0;
+    for (const sentence of sentences) {
+      const at = (when - now + (offset / total) * buf.duration) * 1000;
+      this.timers.push(setTimeout(() => this.show(sentence), at));
+      offset += sentence.length + 1;
+    }
+  }
+  show(sentence) {
+    if (this.cancelled) return;
+    setState("speaking", sentence);
+    if (this.onSentence) this.onSentence(sentence);
+  }
+  async drain() { while (!this.cancelled && this.remaining() > 0.03) await sleep(Math.min(200, this.remaining() * 1000)); }
+  speakBrowser(sentences) {
+    const text = sentences.join(" "), starts = [];
+    let pos = 0;
+    for (const sentence of sentences) { starts.push(pos); pos += sentence.length + 1; }
+    let shown = -1;
+    const at = (i) => { if (i !== shown) { shown = i; this.show(sentences[i]); } };
+    at(0);
+    return browserSay(text, (ci) => { let i = 0; while (i + 1 < starts.length && starts[i + 1] <= ci) i++; at(i); });
   }
   cancel() {
-    this.cancelled = true; this.items = [];
-    try { if (this.src) this.src.stop(); } catch {}
+    this.cancelled = true; this.queue = [];
+    for (const src of this.sources) { try { src.stop(); } catch {} }
+    for (const t of this.timers) clearTimeout(t);
     if (window.speechSynthesis) speechSynthesis.cancel();
+    this.poke();
   }
 }
 
@@ -1391,7 +1463,11 @@ function gauge(id, pct, label) {
   $("#v-" + id).textContent = label;
 }
 function fmtUptime(s) { const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60); return h ? `${h}h ${m}m` : `${m}m ${s % 60}s`; }
+async function refreshVoiceEngine() {
+  try { const d = await (await fetch("/api/voices")).json(); S.voiceEngine = d.engine; S.defaultVoice = d.default; } catch {}
+}
 function renderStatus(st) {
+  if (st.voice !== S.lastVoiceState) { S.lastVoiceState = st.voice; refreshVoiceEngine(); }
   gauge("cpu", st.cpu, st.cpu == null ? "--" : Math.round(st.cpu) + "%");
   gauge("mem", st.mem, st.mem == null ? "--" : Math.round(st.mem) + "%");
   if (st.battery == null) { gauge("bat", 100, "AC"); $("#l-bat").textContent = "POWER"; }
@@ -1433,7 +1509,7 @@ const Orb = (() => {
   function surface(cv) {
     const t = { cv, g: cv.getContext("2d"), W: 0, H: 0 };
     new ResizeObserver(() => {
-      const r = cv.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      const r = cv.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 1.25);
       t.W = r.width; t.H = r.height;
       cv.width = Math.round(t.W * dpr); cv.height = Math.round(t.H * dpr);
       t.g.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -1454,7 +1530,8 @@ const Orb = (() => {
   const cols = PAL.idle.map((c) => c.slice());
   const waves = [0, 1, 2].map(() => Array.from({ length: 5 }, (_, k) => ({ k: k + 2, ph: Math.random() * 6.28, sp: (Math.random() * 0.6 + 0.3) * (Math.random() < 0.5 ? -1 : 1), w: 1 / (k + 1.5) })));
   let level = 0, spin = 0, last = performance.now(), introAt = 0, running = false;
-  let mode = "main", flight = null, geo = null, mainCleared = false;
+  let mode = "main", flight = null, geo = null, mainCleared = false, lvlShown = false;
+  const micBtn = $("#mic");
   const rgba = (c, a) => `rgba(${c[0] | 0},${c[1] | 0},${c[2] | 0},${a})`;
   const easeIO = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
   const mainGeo = () => { const r = main.cv.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2, R: Math.min(r.width, r.height) * 0.25 }; };
@@ -1467,8 +1544,8 @@ const Orb = (() => {
 
   function frame(now) {
     requestAnimationFrame(frame);
-    const st = S.state, calm = st === "idle" || st === "locked" || st === "booting";
-    if (calm && !flight && now - last < 32) return;
+    const st = S.state;
+    if (!flight && now - last < 32) return;
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
     let target = 0.05 + 0.03 * Math.sin(now / 900), an = null;
@@ -1485,7 +1562,7 @@ const Orb = (() => {
       for (let i = 0; i < 64; i++) freq[i] = 120 + 90 * Math.sin(now / 80 + i * 0.7) * Math.sin(now / 210 + i);
     }
     level += (target - level) * Math.min(1, dt * 9);
-    document.documentElement.style.setProperty("--lvl", level.toFixed(3));
+    if (st === "listening" || lvlShown) { micBtn.style.setProperty("--lvl", level.toFixed(2)); lvlShown = st === "listening"; }
     const pal = PAL[st] || PAL.idle;
     for (let L = 0; L < 3; L++) for (let i = 0; i < 3; i++) cols[L][i] += (pal[L][i] - cols[L][i]) * Math.min(1, dt * 3);
     spin += dt * (st === "thinking" ? 1.8 : st === "listening" ? 0.7 : st === "speaking" ? 0.5 : 0.25) * (REDUCED ? 0.3 : 1);
