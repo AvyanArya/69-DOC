@@ -847,6 +847,119 @@ KOKORO_VOICES = [
 _KOKORO_IDS = {v[0] for v in KOKORO_VOICES}
 
 
+# --------------------------------------------------------------------------- ElevenLabs voice
+
+SETTINGS_PATH = Path(os.environ.get("JARVIS_HUD_SETTINGS", str(HERE / "settings.json")))
+ELEVEN_API = os.environ.get("JARVIS_HUD_ELEVENLABS_URL", "https://api.elevenlabs.io").rstrip("/")
+ELEVEN_DEFAULT_VOICE = "JBFqnCBsd6RMkjVDRZzb"  # "George": warm British male
+ELEVEN_MODELS = {"fast": "eleven_flash_v2_5", "best": "eleven_multilingual_v2"}
+# Used only when the key isn't allowed to list voices: ElevenLabs' own premade voices.
+ELEVEN_FALLBACK_VOICES = [
+    ("JBFqnCBsd6RMkjVDRZzb", "George", "British, warm, mature"),
+    ("onwK4e9ZLuTAKqWW03F9", "Daniel", "British, authoritative"),
+    ("nPczCjzI2devNBz1zQrb", "Brian", "American, deep"),
+    ("cjVigY5qzO86Huf0OWal", "Eric", "American, smooth"),
+    ("IKne3meq5aSn9XLyUdCD", "Charlie", "Australian, casual"),
+    ("Xb7hH8MSUJpSbSDYk0k2", "Alice", "British, confident"),
+    ("pFZP5JQG7iQjIQuC4Bku", "Lily", "British, warm"),
+    ("EXAVITQu4vr4xnSDxMaL", "Sarah", "American, soft"),
+]
+
+
+def _load_settings() -> dict:
+    try:
+        return json.loads(SETTINGS_PATH.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+
+
+SETTINGS = _load_settings()
+
+
+def _save_settings() -> None:
+    """Write settings readable only by this user (they hold the ElevenLabs key)."""
+    SETTINGS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    fd = os.open(str(SETTINGS_PATH), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    with os.fdopen(fd, "w", encoding="utf-8") as fh:
+        json.dump(SETTINGS, fh)
+    os.chmod(SETTINGS_PATH, 0o600)
+
+
+def eleven_key() -> str:
+    return (os.environ.get("ELEVENLABS_API_KEY") or SETTINGS.get("elevenlabs_api_key") or "").strip()
+
+
+class ElevenLabsError(RuntimeError):
+    pass
+
+
+def _eleven(path: str, payload: dict | None = None, key: str = "", timeout: float = 20) -> bytes:
+    """Call ElevenLabs. Errors never include the key, headers or URL."""
+    key = key or eleven_key()
+    if not key:
+        raise ElevenLabsError("ElevenLabs isn't connected")
+    if any(not 33 <= ord(ch) <= 126 for ch in key):
+        raise ElevenLabsError("That doesn't look like an ElevenLabs API key")
+    headers = {"xi-api-key": key, "User-Agent": USER_AGENT}
+    data = None
+    if payload is not None:
+        data = json.dumps(payload).encode()
+        headers["Content-Type"] = "application/json"
+    try:
+        with urllib.request.urlopen(urllib.request.Request(ELEVEN_API + path, data=data, headers=headers), timeout=timeout) as resp:
+            return resp.read()
+    except urllib.error.HTTPError as exc:
+        try:
+            detail = json.loads(exc.read() or b"{}").get("detail", {})
+        except ValueError:
+            detail = {}
+        status = detail.get("status", "") if isinstance(detail, dict) else ""
+        reason = {401: "the API key was rejected", 402: "the ElevenLabs plan has run out of credits",
+                  429: "ElevenLabs is rate-limiting requests"}.get(exc.code, f"HTTP {exc.code}")
+        if status == "quota_exceeded":
+            reason = "the ElevenLabs plan has run out of credits"
+        elif status == "missing_permissions":
+            reason = "missing_permissions"
+        raise ElevenLabsError(reason) from None
+    except Exception as exc:
+        raise ElevenLabsError(f"couldn't reach ElevenLabs ({type(exc).__name__})") from None
+
+
+def eleven_voices(key: str = "") -> list[dict]:
+    def load() -> list[dict]:
+        try:
+            voices = json.loads(_eleven("/v1/voices", key=key)).get("voices", [])
+        except ElevenLabsError as exc:
+            if str(exc) != "missing_permissions":
+                raise
+            return [{"id": i, "name": n, "desc": d, "preview": ""} for i, n, d in ELEVEN_FALLBACK_VOICES]
+        out = []
+        for v in voices:
+            labels = v.get("labels") or {}
+            desc = ", ".join(str(labels[k]).replace("_", " ") for k in ("accent", "gender", "age", "descriptive", "description") if labels.get(k))
+            out.append({"id": v.get("voice_id", ""), "name": (v.get("name") or "Voice").split(" - ")[0],
+                        "desc": (desc or v.get("category") or "").capitalize(), "preview": v.get("preview_url") or ""})
+        # Premade British male voices first: the most Jarvis-like.
+        out.sort(key=lambda v: (v["id"] != ELEVEN_DEFAULT_VOICE, "british" not in v["desc"].lower(), v["name"]))
+        return [v for v in out if v["id"]]
+
+    return load() if key else cached(("eleven_voices", eleven_key()[-6:]), 3600, load)
+
+
+def eleven_tts(text: str, voice: str = "", speed: float = 1.0, quality: str = "fast", previous: str = "") -> bytes:
+    payload = {
+        "text": text,
+        "model_id": ELEVEN_MODELS.get(quality, ELEVEN_MODELS["fast"]),
+        # "style" and speaker boost add latency, so the fast setting leaves them off.
+        "voice_settings": {"stability": 0.45, "similarity_boost": 0.8, "style": 0.15 if quality == "best" else 0,
+                           "use_speaker_boost": quality == "best", "speed": min(1.2, max(0.7, speed))},
+    }
+    if previous:
+        payload["previous_text"] = previous[-400:]  # keeps intonation flowing from the last chunk
+    voice = voice if re.fullmatch(r"[A-Za-z0-9]{8,40}", voice or "") else ELEVEN_DEFAULT_VOICE
+    return _eleven(f"/v1/text-to-speech/{voice}?output_format=mp3_44100_128", payload, timeout=25)
+
+
 def _synthesize(backend, text: str, voice: str = "", speed: float | None = None):
     kwargs = {"speed": speed or VOICE_SPEED}
     chosen = voice if voice in _KOKORO_IDS and getattr(backend, "backend_id", "kokoro") == "kokoro" else _voice_id
@@ -902,6 +1015,7 @@ def status_payload() -> dict:
         "host": socket.gethostname().split(".")[0], "name": DEFAULT_NAME, "mac": IS_MAC,
         "cpu": cpu, "mem": mem, "battery": battery, "plugged": plugged,
         "uptime": round(time.time() - STARTED),
+        "eleven": bool(eleven_key()),
     }
 
 
@@ -962,10 +1076,18 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json(200, fetch_weather(query.get("city", "")[:60], query.get("units", "auto")))
             if url.path == "/api/voices":
                 kokoro = _voice is not None and getattr(_voice, "backend_id", "kokoro") == "kokoro"
-                return self._json(200, {
+                result = {
                     "engine": "kokoro" if kokoro else "browser", "default": _voice_id,
                     "voices": [{"id": i, "name": n, "desc": d} for i, n, d in KOKORO_VOICES] if kokoro else [],
-                })
+                    "eleven": {"connected": bool(eleven_key()), "fromEnv": bool(os.environ.get("ELEVENLABS_API_KEY")),
+                               "default": ELEVEN_DEFAULT_VOICE, "voices": [], "error": ""},
+                }
+                if eleven_key():
+                    try:
+                        result["eleven"]["voices"] = eleven_voices()
+                    except ElevenLabsError as exc:
+                        result["eleven"]["error"] = str(exc)
+                return self._json(200, result)
             self._json(404, {"error": "not found"})
         except (BrokenPipeError, ConnectionResetError):
             pass
@@ -986,6 +1108,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self._stt(body)
             if self.path == "/api/tts":
                 return self._tts(json.loads(body or b"{}"))
+            if self.path == "/api/eleven":
+                return self._eleven_settings(json.loads(body or b"{}"))
             if self.path == "/api/open":
                 target = str(json.loads(body or b"{}").get("url", ""))
                 if not re.match(r"https?://[^\s]+$", target):
@@ -1050,21 +1174,60 @@ class Handler(BaseHTTPRequestHandler):
             text = ""
         self._json(200, {"text": text})
 
+    def _eleven_settings(self, body: dict) -> None:
+        if body.get("disconnect"):
+            SETTINGS.pop("elevenlabs_api_key", None)
+            _save_settings()
+            return self._json(200, {"connected": bool(eleven_key())})
+        key = str(body.get("key") or "").strip()
+        if not key:
+            return self._json(400, {"error": "Paste your ElevenLabs API key first."})
+        try:
+            voices = eleven_voices(key)
+        except ElevenLabsError as exc:
+            return self._json(400, {"error": f"That key didn't work: {exc}."})
+        SETTINGS["elevenlabs_api_key"] = key
+        _save_settings()
+        with _cache_lock:
+            _cache.pop(("eleven_voices", key[-6:]), None)
+        return self._json(200, {"connected": True, "voices": len(voices)})
+
     def _tts(self, body: dict) -> None:
         text = speakable(str(body.get("text", "")))[:800]
         if not text:
             return self._send(204, b"", "text/plain")
-        if _voice is None:
-            note = STATUS["notes"].get("voice") or "My voice is still warming up."
-            return self._json(503, {"error": note})
         try:
             speed = min(1.4, max(0.7, float(body.get("speed") or VOICE_SPEED)))
         except (TypeError, ValueError):
             speed = VOICE_SPEED
-        result = _synthesize(_voice, text, str(body.get("voice") or ""), speed)
+        fallback = ""
+        if body.get("engine") == "elevenlabs" and eleven_key():
+            try:
+                audio = eleven_tts(text, str(body.get("voice") or ""), speed, str(body.get("quality") or "fast"),
+                                   speakable(str(body.get("previous") or "")))
+                self.send_response(200)
+                self.send_header("Content-Type", "audio/mpeg")
+                self.send_header("Content-Length", str(len(audio)))
+                self.send_header("X-Voice-Engine", "elevenlabs")
+                self.end_headers()
+                self.wfile.write(audio)
+                return
+            except ElevenLabsError as exc:
+                fallback = str(exc)  # fall through to the on-device voice
+        if _voice is None:
+            note = STATUS["notes"].get("voice") or "My voice is still warming up."
+            return self._json(503, {"error": fallback or note})
+        result = _synthesize(_voice, text, "" if fallback else str(body.get("voice") or ""), speed)
         fmt = (getattr(result, "format", "") or "wav").lower()
         mime = {"wav": "audio/wav", "mp3": "audio/mpeg", "ogg": "audio/ogg", "opus": "audio/ogg"}
-        self._send(200, result.audio, mime.get(fmt, "application/octet-stream"))
+        self.send_response(200)
+        self.send_header("Content-Type", mime.get(fmt, "application/octet-stream"))
+        self.send_header("Content-Length", str(len(result.audio)))
+        self.send_header("X-Voice-Engine", "kokoro")
+        if fallback:
+            self.send_header("X-Voice-Fallback", fallback[:200])
+        self.end_headers()
+        self.wfile.write(result.audio)
 
 
 def main() -> None:

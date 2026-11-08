@@ -5,7 +5,20 @@ A premium, voice-first dashboard for [OpenJarvis](https://github.com/open-jarvis
 - **Lock screen and opening sequence.** Press and hold to unlock. A light line draws into rings, the core ignites with a power-up sound, and live system checks tick off. Then it greets you by name, with the weather.
 - **Dashboard.** Frosted-glass cards on a drifting nebula: greeting, live weather with an hourly curve, system gauges, timers, headlines with photos, and the conversation. A fluid orb in the middle reacts to your voice and to Jarvis's.
 - **Full-page views that morph.** "Pull up the news" makes the headlines card expand into a full page while the orb flies up into its corner and keeps talking from there, with subtitles. Each story lights up as Jarvis reads it. "Pull up the weather" does the same with a full forecast view. Esc or "close" morphs everything back.
-- **Choose the voice.** Settings lists 11 voices, each with a sample. Heart and Bella are the most natural.
+- **Choose the voice.** Connect ElevenLabs for natural, human-sounding voices, or use the 11 free on-device voices. Each voice plays a sample when you tap it.
+
+## Natural voice with ElevenLabs
+
+1. Create an account at [elevenlabs.io](https://elevenlabs.io). There's a free plan with a monthly allowance.
+2. Go to **Developers → API Keys**, create a key, and copy it.
+3. In Jarvis, open **Settings** (the sliders button, top right). Paste the key under **Voice** and press **Connect**.
+
+Choose a voice from the list. George, a warm British voice, is the default. Then pick a quality: **Fastest replies** or **Most natural**.
+
+- **Where the key is stored:** only on your computer, in `settings.json` next to the script, readable only by your account.
+- **What's sent to ElevenLabs:** only the text Jarvis is about to say. Listening and thinking stay on your Mac.
+- **If ElevenLabs can't be used** (offline or out of credits), Jarvis says so and switches to the on-device voice.
+- **Setting the key another way:** you can set `ELEVENLABS_API_KEY` in the environment instead.
 
 ## What you can say
 

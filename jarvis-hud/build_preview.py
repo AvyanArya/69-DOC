@@ -292,7 +292,7 @@ if (window.speechSynthesis) { speechSynthesis.getVoices(); speechSynthesis.onvoi
     if (path === "/api/news") return json({ items: PREVIEW_DATA.news[q.get("cat")] || PREVIEW_DATA.news.top });
     if (path === "/api/weather") return json(await weather(q.get("city") || "", q.get("units") || "auto"));
     if (path === "/api/chat") return streamReply(JSON.parse(init.body || "{}"), init.signal);
-    if (path === "/api/voices") return json({ engine: "browser", voices: [] });
+    if (path === "/api/voices") return json({ engine: "browser", voices: [], eleven: { connected: false, unavailable: true, voices: [] } });
     if (path === "/api/open") { openTab(JSON.parse(init.body || "{}").url); return json({ ok: true }); }
     return json({ error: "not available in the preview" }, 503);
   };

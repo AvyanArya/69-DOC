@@ -336,6 +336,19 @@ body.focused .fx-caption.on{opacity:1;transform:translate(-50%,0)}
 .fxw-stat span svg.i{width:14px;height:14px;color:var(--ice)}
 .fxw-stat b{display:block;margin-top:10px;font-weight:300;font-size:25px}
 
+/* ElevenLabs connection */
+.eleven{margin-bottom:12px;padding:14px;border-radius:14px;background:linear-gradient(135deg,rgba(var(--ice-rgb),.08),rgba(var(--violet-rgb),.08));border:1px solid rgba(var(--ice-rgb),.18)}
+.eleven b{display:block;font-weight:400;font-size:13.5px}
+.eleven small{display:block;margin-top:4px;font-size:11.5px;line-height:1.5;color:var(--t2)}
+.eleven-row{display:flex;gap:8px;margin-top:10px}
+.eleven-row input{flex:1;min-width:0;padding:9px 11px;border-radius:10px;font-size:13px;outline:0;background:rgba(0,0,0,.25);border:1px solid var(--stroke)}
+.eleven-row input:focus{border-color:rgba(var(--ice-rgb),.45)}
+.eleven-row button{padding:0 14px;border-radius:10px;font-size:12.5px;font-weight:500;color:#06111b;background:linear-gradient(135deg,var(--ice),var(--violet))}
+.eleven-row button[disabled]{opacity:.5}
+.eleven-err{margin-top:8px;font-size:11.5px;color:var(--rose)}
+.voice-ctl .field{margin-bottom:10px}
+.voice-ctl .link-btn{margin:2px 0 10px}
+
 /* voice picker */
 .voices{display:grid;gap:4px;max-height:236px;overflow-y:auto;margin:0 -6px;padding:0 6px;scrollbar-width:thin}
 .vrow{display:flex;align-items:center;gap:12px;width:100%;padding:9px 10px;border-radius:12px;text-align:left;border:1px solid transparent;transition:background .3s,border-color .3s}
@@ -598,6 +611,7 @@ body.focused .fx-caption.on{opacity:1;transform:translate(-50%,0)}
   <label class="field"><span>City for weather</span><input id="set-city" maxlength="60" placeholder="Detect automatically"></label>
   <div class="field"><span>Temperature</span><div class="seg" id="set-units"><button type="button" data-u="auto">Auto</button><button type="button" data-u="celsius">°C</button><button type="button" data-u="fahrenheit">°F</button></div></div>
   <h3 style="margin-top:18px">Voice</h3>
+  <div id="eleven-box"></div>
   <div class="voices" id="voices"></div>
   <div class="field" style="margin-top:12px"><span>Speaking speed</span><div class="seg" id="set-speed"><button type="button" data-s="0.92">Relaxed</button><button type="button" data-s="1">Natural</button><button type="button" data-s="1.1">Brisk</button></div></div>
   <h3 style="margin-top:18px">Behaviour</h3>
@@ -625,7 +639,7 @@ const store = {
   set(k, v) { try { localStorage.setItem("jarvis." + k, JSON.stringify(v)); } catch {} },
 };
 const prefs = Object.assign(
-  { name: "", city: "", units: "auto", convo: true, clap: true, voice: true, sfx: true, intro: true, voiceId: "", browserVoice: "", speed: 1 },
+  { name: "", city: "", units: "auto", convo: true, clap: true, voice: true, sfx: true, intro: true, voiceId: "", browserVoice: "", speed: 1, voiceEngine: "auto", elevenVoice: "", voiceQuality: "fast" },
   store.get("prefs", {})
 );
 const savePrefs = () => store.set("prefs", prefs);
@@ -896,7 +910,8 @@ class Speaker {
     this.queue = []; this.ended = false; this.cancelled = false; this.running = false;
     this.sources = []; this.timers = []; this.playEnd = 0; this.spoke = false; this.wake = null; this.rate = 0;
     this.onDone = onDone; this.onSentence = onSentence;
-    this.local = !!(S.status && S.status.voice === "online" && S.voiceEngine === "kokoro" && ctx);
+    this.local = !!(ctx && (S.voiceEngine === "elevenlabs" || (S.voiceEngine === "kokoro" && S.status && S.status.voice === "online")));
+    this.previous = "";
     this.rate = S.voiceRate || 0;
   }
   say(text) {
@@ -953,8 +968,15 @@ class Speaker {
   async synth(text) {
     try {
       const t0 = performance.now();
-      const r = await fetch("/api/tts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text, voice: prefs.voiceId, speed: prefs.speed }) });
+      const eleven = S.voiceEngine === "elevenlabs";
+      const r = await fetch("/api/tts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({
+        text, speed: prefs.speed, engine: S.voiceEngine, previous: this.previous, quality: prefs.voiceQuality,
+        voice: eleven ? prefs.elevenVoice || (S.engines && S.engines.eleven.default) || "" : prefs.voiceId,
+      }) });
       if (!r.ok) return null;
+      const fellBack = r.headers.get("X-Voice-Fallback");
+      if (fellBack && !S.warnedFallback) { S.warnedFallback = true; toast("ElevenLabs unavailable", cap(fellBack) + ". Using the on-device voice for now.", "i-mic"); }
+      this.previous = text;
       const buf = await ctx.decodeAudioData(await r.arrayBuffer());
       const rate = buf.duration / Math.max(0.05, (performance.now() - t0) / 1000); // seconds of speech per second of work
       this.rate = this.rate ? this.rate * 0.5 + rate * 0.5 : rate;
@@ -1463,8 +1485,22 @@ function gauge(id, pct, label) {
   $("#v-" + id).textContent = label;
 }
 function fmtUptime(s) { const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60); return h ? `${h}h ${m}m` : `${m}m ${s % 60}s`; }
+function effectiveEngine() {
+  const e = S.engines;
+  if (!e) return "browser";
+  const eleven = e.eleven && e.eleven.connected && !e.eleven.unavailable, kokoro = e.kokoro;
+  if (eleven && prefs.voiceEngine !== "kokoro") return "elevenlabs";
+  if (kokoro) return "kokoro";
+  return eleven ? "elevenlabs" : "browser";
+}
 async function refreshVoiceEngine() {
-  try { const d = await (await fetch("/api/voices")).json(); S.voiceEngine = d.engine; S.defaultVoice = d.default; } catch {}
+  try {
+    const d = await (await fetch("/api/voices")).json();
+    S.engines = { kokoro: d.engine === "kokoro", kokoroVoices: d.voices || [], eleven: d.eleven || { connected: false, voices: [] } };
+    S.defaultVoice = d.default;
+  } catch {}
+  S.voiceEngine = effectiveEngine();
+  return S.engines;
 }
 function renderStatus(st) {
   if (st.voice !== S.lastVoiceState) { S.lastVoiceState = st.voice; refreshVoiceEngine(); }
@@ -1872,14 +1908,37 @@ function openSettings() {
   loadVoices();
 }
 const vrow = (id, name, desc, on) => `<button type="button" class="vrow${on ? " on" : ""}" data-v="${esc(id)}"><i><svg class="i"><use href="#i-play"/></svg></i><span><b>${esc(name)}</b><small>${esc(desc)}</small></span></button>`;
+function renderElevenBox() {
+  const box = $("#eleven-box"), el = (S.engines && S.engines.eleven) || {};
+  if (el.unavailable) { box.innerHTML = '<div class="eleven"><b>Natural voices with ElevenLabs</b><small>Available in the full version on your Mac. This preview uses your browser\'s voices.</small></div>'; return; }
+  if (!el.connected) {
+    box.innerHTML = `<div class="eleven"><b>Natural voices with ElevenLabs</b>
+      <small>Paste an API key from elevenlabs.io (Developers → API Keys). It's saved only on this computer and used only to talk to ElevenLabs.</small>
+      <div class="eleven-row"><input type="password" id="eleven-key" placeholder="ElevenLabs API key" autocomplete="off" spellcheck="false"><button type="button" id="eleven-connect">Connect</button></div>
+      <p class="eleven-err" id="eleven-err"></p></div>`;
+    return;
+  }
+  box.innerHTML = `<div class="voice-ctl">
+    <div class="field"><span>Voice engine</span><div class="seg" id="set-engine"><button type="button" data-e="elevenlabs">ElevenLabs</button><button type="button" data-e="kokoro">On this Mac</button></div></div>
+    ${S.voiceEngine === "elevenlabs" ? `<div class="field"><span>ElevenLabs quality</span><div class="seg" id="set-quality"><button type="button" data-q="fast">Fastest replies</button><button type="button" data-q="best">Most natural</button></div></div>` : ""}
+    ${el.error ? `<p class="eleven-err">ElevenLabs: ${esc(cap(el.error))}.</p>` : ""}
+    ${el.fromEnv ? "" : '<button type="button" class="link-btn" id="eleven-off">Disconnect ElevenLabs</button>'}
+  </div>`;
+  $$("#set-engine button").forEach((b) => b.classList.toggle("on", b.dataset.e === S.voiceEngine));
+  $$("#set-quality button").forEach((b) => b.classList.toggle("on", b.dataset.q === prefs.voiceQuality));
+}
 async function loadVoices() {
-  let engine = "browser", list = [];
-  try { const d = await (await fetch("/api/voices")).json(); engine = d.engine; list = d.voices || []; S.defaultVoice = d.default; } catch {}
-  S.voiceEngine = engine;
-  const box = $("#voices");
+  await refreshVoiceEngine();
+  renderElevenBox();
+  const box = $("#voices"), engine = S.voiceEngine;
+  if (engine === "elevenlabs") {
+    const list = S.engines.eleven.voices || [], cur = prefs.elevenVoice || S.engines.eleven.default;
+    box.innerHTML = list.length ? list.slice(0, 40).map((v) => vrow(v.id, v.name, v.desc, v.id === cur)).join("") : '<p class="set-foot">No ElevenLabs voices to show.</p>';
+    return;
+  }
   if (engine === "kokoro") {
     const cur = prefs.voiceId || S.defaultVoice;
-    box.innerHTML = list.map((v) => vrow(v.id, v.name, v.desc, v.id === cur)).join("");
+    box.innerHTML = S.engines.kokoroVoices.map((v) => vrow(v.id, v.name, v.desc, v.id === cur)).join("");
     return;
   }
   const voices = rankVoices(window.speechSynthesis ? speechSynthesis.getVoices() : []).slice(0, 16), cur = (pickBrowserVoice() || {}).name;
@@ -1887,11 +1946,43 @@ async function loadVoices() {
     ? voices.map((v) => vrow(v.name, v.name.replace(/\s*\(.*\)$/, ""), v.lang + (/premium|enhanced/i.test(v.name) ? " · high quality" : v.localService ? " · on this device" : " · online voice"), v.name === cur)).join("")
     : '<p class="set-foot">This browser has no voices to choose from.</p>';
 }
-if (window.speechSynthesis && speechSynthesis.addEventListener) speechSynthesis.addEventListener("voiceschanged", () => { if (!$("#settings").hidden && S.voiceEngine !== "kokoro") loadVoices(); });
+$("#eleven-box").addEventListener("click", async (e) => {
+  const t = e.target;
+  if (t.closest("#eleven-connect")) {
+    const input = $("#eleven-key"), btn = t.closest("#eleven-connect"), key = input.value.trim();
+    if (!key) { $("#eleven-err").textContent = "Paste your API key first."; return; }
+    btn.disabled = true; btn.textContent = "Checking…"; $("#eleven-err").textContent = "";
+    try {
+      const r = await fetch("/api/eleven", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ key }) });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || "That key didn't work.");
+      prefs.voiceEngine = "elevenlabs"; savePrefs();
+      toast("ElevenLabs connected", `${d.voices} voices available`, "i-spark");
+      await loadVoices();
+    } catch (err) {
+      $("#eleven-err").textContent = err.message;
+      btn.disabled = false; btn.textContent = "Connect";
+    }
+  } else if (t.closest("#eleven-off")) {
+    await fetch("/api/eleven", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ disconnect: true }) });
+    prefs.voiceEngine = "auto"; savePrefs();
+    await loadVoices();
+  } else if (t.closest("#set-engine button")) {
+    prefs.voiceEngine = t.closest("button").dataset.e; savePrefs();
+    await loadVoices();
+  } else if (t.closest("#set-quality button")) {
+    prefs.voiceQuality = t.closest("button").dataset.q; savePrefs();
+    $$("#set-quality button").forEach((b) => b.classList.toggle("on", b.dataset.q === prefs.voiceQuality));
+  }
+});
+$("#eleven-box").addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target.id === "eleven-key") { e.preventDefault(); $("#eleven-connect").click(); } });
+if (window.speechSynthesis && speechSynthesis.addEventListener) speechSynthesis.addEventListener("voiceschanged", () => { if (!$("#settings").hidden && S.voiceEngine === "browser") loadVoices(); });
 $("#voices").addEventListener("click", (e) => {
   const b = e.target.closest(".vrow");
   if (!b) return;
-  if (S.voiceEngine === "kokoro") prefs.voiceId = b.dataset.v; else prefs.browserVoice = b.dataset.v;
+  if (S.voiceEngine === "elevenlabs") prefs.elevenVoice = b.dataset.v;
+  else if (S.voiceEngine === "kokoro") prefs.voiceId = b.dataset.v;
+  else prefs.browserVoice = b.dataset.v;
   savePrefs();
   $$("#voices .vrow").forEach((x) => x.classList.toggle("on", x === b));
   ensureAudio();
