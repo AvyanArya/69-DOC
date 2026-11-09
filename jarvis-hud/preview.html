@@ -341,6 +341,42 @@ body.focused .fx-caption.on{opacity:1;transform:translate(-50%,0)}
 .doc-err{color:var(--rose);font-size:14px}
 @media (max-width:900px){.doc{grid-template-columns:minmax(0,1fr)}.doc-side{position:static}}
 
+/* past-paper questions with the mark scheme alongside */
+.pap{flex:1;min-height:0;display:grid;grid-template-columns:250px minmax(0,1fr) minmax(0,1fr);gap:16px}
+.pap.no-ms{grid-template-columns:250px minmax(0,1fr)}
+.pap.no-ms .pap-ms{display:none}
+.pap-list{min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding-right:4px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.12) transparent}
+.pap-list button{display:flex;flex-direction:column;gap:3px;padding:11px 13px;border-radius:14px;text-align:left;color:var(--t2);background:var(--glass);border:1px solid var(--stroke);transition:all .3s}
+.pap-list button b{font-weight:400;font-size:13px;line-height:1.35;color:var(--t1)}
+.pap-list button span{font:400 10px var(--mono);letter-spacing:.06em;color:var(--t3)}
+.pap-list button.on{border-color:rgba(var(--ice-rgb),.6);box-shadow:0 0 0 1px rgba(var(--ice-rgb),.35),0 0 30px -10px rgba(var(--ice-rgb),.6)}
+.pap-pane{min-height:0;display:flex;flex-direction:column;border-radius:20px;overflow:hidden;background:var(--glass);border:1px solid var(--stroke)}
+.pap-pane h4{display:flex;align-items:center;gap:10px;padding:11px 16px;font:500 10.5px var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--ice);border-bottom:1px solid var(--stroke)}
+.pap-pane h4 .grow{flex:1}
+.pap-pane h4 a{font:400 10.5px var(--mono);letter-spacing:.08em;text-transform:none;color:var(--t2);text-decoration:none}
+.pap-pane h4 a:hover{color:var(--t1)}
+.pap-pane iframe{flex:1;width:100%;border:0;background:#fff}
+.fx-btn{padding:8px 14px;border-radius:999px;font-size:12px;color:var(--t1);background:rgba(255,255,255,.06);border:1px solid var(--stroke-2);transition:all .3s}
+.fx-btn:hover{background:rgba(var(--ice-rgb),.14)}
+@media (max-width:900px){.pap,.pap.no-ms{grid-template-columns:minmax(0,1fr)}.pap-list{max-height:150px}}
+
+/* floating widgets: the timer and the music can sit in any corner, over full-screen views too */
+.corner-tl{top:96px;left:24px;right:auto;bottom:auto}
+.corner-tr{top:96px;right:24px;left:auto;bottom:auto}
+.corner-bl{bottom:24px;left:24px;right:auto;top:auto}
+.corner-br{bottom:24px;right:24px;left:auto;top:auto}
+.pip{position:fixed;z-index:47;display:flex;align-items:center;gap:12px;padding:12px 16px 12px 12px;border-radius:18px;cursor:grab;touch-action:none;user-select:none;
+  background:var(--glass-2);border:1px solid var(--stroke-2);box-shadow:0 24px 70px -24px rgba(0,0,0,.95);animation:plIn .5s var(--ease) backwards}
+.pip[hidden]{display:none}
+.pip svg{width:46px;height:46px;transform:rotate(-90deg)}
+.pip circle{fill:none;stroke-width:3}
+.pip .t-track{stroke:rgba(255,255,255,.08)}
+.pip .t-fill{stroke:var(--ice);stroke-linecap:round;stroke-dasharray:100;transition:stroke-dashoffset .5s linear}
+.pip b{display:block;font-weight:300;font-size:26px;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1}
+.pip span{display:block;margin-top:4px;max-width:180px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:12px;color:var(--t2);text-transform:capitalize}
+.dragging{cursor:grabbing;transition:none!important;animation:none!important}
+.pl-meta{cursor:grab;touch-action:none}
+
 /* full-screen timer */
 .fxt{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px}
 .fxt-ring{position:relative;width:min(62vh,78vw);aspect-ratio:1}
@@ -357,7 +393,7 @@ body.focused .fx-caption.on{opacity:1;transform:translate(-50%,0)}
 .fxt-empty{font-size:18px;color:var(--t2)}
 
 /* music player: a small card in the corner that can grow to fill the screen */
-.player{position:fixed;right:24px;bottom:24px;z-index:45;width:316px;border-radius:20px;overflow:hidden;background:var(--glass-2);border:1px solid var(--stroke-2);box-shadow:0 30px 80px -30px rgba(0,0,0,.95);
+.player{position:fixed;z-index:45;width:316px;border-radius:20px;overflow:hidden;background:var(--glass-2);border:1px solid var(--stroke-2);box-shadow:0 30px 80px -30px rgba(0,0,0,.95);
   animation:plIn .6s var(--ease) backwards}
 @keyframes plIn{from{opacity:0;transform:translateY(24px) scale(.96)}}
 .player[hidden]{display:none}
@@ -371,7 +407,7 @@ body.focused .fx-caption.on{opacity:1;transform:translate(-50%,0)}
 .pl-bar button:hover{color:var(--t1);background:rgba(255,255,255,.07)}
 .pl-bar svg{width:16px;height:16px;fill:currentColor;stroke:none}
 .pl-bar svg.line{fill:none;stroke:currentColor;stroke-width:1.8}
-.player.big{right:50%;bottom:50%;width:min(1180px,calc(100vw - 72px),calc((100vh - 150px) * 16 / 9));transform:translate(50%,50%);border-radius:26px;z-index:46}
+.player.big{top:auto;left:auto;right:50%;bottom:50%;width:min(1180px,calc(100vw - 72px),calc((100vh - 150px) * 16 / 9));transform:translate(50%,50%);border-radius:26px;z-index:46}
 body.music-big .app{transform:scale(.97);opacity:.25}
 body.music-big::after{content:"";position:fixed;inset:0;z-index:44;background:rgba(3,5,10,.75)}
 
@@ -607,6 +643,7 @@ body.music-big::after{content:"";position:fixed;inset:0;z-index:44;background:rg
         </div>
         <div class="notes" id="notes"></div>
         <div class="timing" id="timing"></div>
+        <div class="timing" id="barge-note"></div>
       </section>
 
     </aside>
@@ -684,6 +721,18 @@ body.music-big::after{content:"";position:fixed;inset:0;z-index:44;background:rg
   <div class="fx-body"><div class="doc" id="doc"></div><div class="deck-foot" id="doc-foot">Say “next step” or “read the ingredients” · Esc to close</div></div>
 </section>
 
+<!-- Past papers -->
+<section class="focus" id="fx-papers" hidden aria-label="Questions and mark scheme">
+  <div class="fx-head">
+    <div class="fx-orb" data-talk title="Talk to Jarvis"></div>
+    <div class="fx-title"><div class="eyebrow" id="pap-eyebrow">Physics &amp; Maths Tutor</div><h2 id="pap-title">Questions</h2></div>
+    <span class="grow"></span>
+    <button class="fx-btn fx-title" type="button" id="pap-toggle">Hide mark scheme</button>
+    <button class="icon-btn fx-close" type="button" aria-label="Close questions"><svg class="i"><use href="#i-x"/></svg></button>
+  </div>
+  <div class="fx-body"><div class="pap" id="pap"></div><div class="deck-foot">Say “next set”, “hide the mark scheme” or “quiz me on this topic” · Esc to close</div></div>
+</section>
+
 <!-- Timer view -->
 <section class="focus" id="fx-timer" hidden aria-label="Timers">
   <div class="fx-head">
@@ -695,8 +744,14 @@ body.music-big::after{content:"";position:fixed;inset:0;z-index:44;background:rg
   <div class="fx-body"><div class="fxt" id="fxt"></div></div>
 </section>
 
+<!-- Floating timer -->
+<div class="pip corner-tr" id="timer-pip" hidden title="Drag to move · click to expand">
+  <svg viewBox="0 0 36 36"><circle class="t-track" cx="18" cy="18" r="15"/><circle class="t-fill" id="pip-fill" cx="18" cy="18" r="15" pathLength="100"/></svg>
+  <div><b id="pip-time">--:--</b><span id="pip-label">Timer</span></div>
+</div>
+
 <!-- Music -->
-<div class="player" id="player" hidden aria-label="Music player">
+<div class="player corner-br" id="player" hidden aria-label="Music player">
   <div class="pl-video"><div id="yt"></div></div>
   <div class="pl-bar">
     <div class="pl-meta"><b id="pl-title">Loading…</b><span id="pl-channel">YouTube</span></div>
@@ -724,6 +779,7 @@ body.music-big::after{content:"";position:fixed;inset:0;z-index:44;background:rg
   <h3 style="margin-top:18px">Behaviour</h3>
   <label class="sw"><div>Conversation mode<small>Keep listening after each reply</small></div><input type="checkbox" data-pref="convo"></label>
   <label class="sw"><div>"Hey Jarvis"<small id="wake-hint">Say it any time to start talking</small></div><input type="checkbox" data-pref="wake"></label>
+  <div class="field"><span>Wait for me to finish</span><div class="seg" id="set-patience"><button type="button" data-p="quick">Quick</button><button type="button" data-p="normal">Normal</button><button type="button" data-p="patient">Patient</button></div></div>
   <label class="sw"><div>Interrupt by talking<small>Start speaking to cut Jarvis off (best with headphones)</small></div><input type="checkbox" data-pref="bargeIn"></label>
   <label class="sw"><div>Clap twice to wake<small>Two claps start listening</small></div><input type="checkbox" data-pref="clap"></label>
   <label class="sw"><div>Spoken replies<small>Read answers out loud</small></div><input type="checkbox" data-pref="voice"></label>
@@ -737,7 +793,7 @@ body.music-big::after{content:"";position:fixed;inset:0;z-index:44;background:rg
 <script>
 /* Jarvis HUD preview: answers the page's /api calls in the browser, so no server is needed. */
 window.JARVIS_PREVIEW = true;
-const PREVIEW_DATA = {"news": {"top": [{"title": "Will Jensen Huang’s rockstar reputation survive after scandal?", "summary": "Adoration for the US tech giant’s CEO Jensen Huang has been labelled “Jensanity”, but can his reputation survive the news of his affair?", "link": "https://www.bbc.co.uk/news/videos/cq3989nkzn3ko?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/0343/live/157fc790-dc0c-11f1-b441-2b33b063138f.jpg", "time": 1794208211.0, "source": "BBC News"}, {"title": "Inside the French drug gangs recruiting children to kill", "summary": "The BBC enters Marseille's dangerous underworld, where young people are trapped, brutalised and exploited.", "link": "https://www.bbc.co.uk/news/articles/cq62y01r2313o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/5447/live/ec9efd90-d9fa-11f1-93e1-3b657b665bcf.jpg", "time": 1794204026.0, "source": "BBC News"}, {"title": "Krakow shooting suspect has died in hospital, police say", "summary": "At least six people were killed in the shooting, and three bodies of the suspect's family members were found at their home.", "link": "https://www.bbc.co.uk/news/articles/c6y434dw8319o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/b131/live/b7c6ce50-dc06-11f1-b6f4-7b86d13131ad.jpg", "time": 1794209169.0, "source": "BBC News"}, {"title": "Scientists predict 2026 hottest year on record as climate talks begin", "summary": "Scientists are predictng this could be the hottest year on record as the COP31 climate summit opens.", "link": "https://www.bbc.co.uk/news/articles/c6pvgg7mdvdvo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/d3d7/live/1adcf6d0-db63-11f1-adda-c54f54e3ce6a.jpg", "time": 1794209412.0, "source": "BBC News"}, {"title": "Woman says Al Fayed's brother drugged and sexually abused her at Highland estate", "summary": "The woman says she was flown to the Fayed family's Balnagown estate, where she was repeatedly assaulted.", "link": "https://www.bbc.co.uk/news/articles/cm2d6kk0wzw4o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/4c24/live/f91b8bd0-d863-11f1-85ab-b3cc3b5498c6.jpg", "time": 1794185825.0, "source": "BBC News"}, {"title": "Dense fog threatens Monday morning rush-hour disruption", "summary": "Fog disrupts Monday morning’s commute with Met Office yellow warning in force for many across England, Wales and Northern Ireland", "link": "https://www.bbc.co.uk/weather/articles/cj75p29nz6e6o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/9653/live/b4771f60-dc0c-11f1-93e1-3b657b665bcf.jpg", "time": 1794205054.0, "source": "BBC News"}, {"title": "Government's EV targets expected to be reduced this week", "summary": "New petrol or diesel cars are due to be phased out by 2030 and by 2035 all new cars must be zero emission.", "link": "https://www.bbc.co.uk/news/articles/cqkg5g2970epo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/b401/live/fd7836e0-dbdf-11f1-b348-cb75a5659779.jpg", "time": 1794208817.0, "source": "BBC News"}, {"title": "Cruise ship pianist rescued from sea after nine hours in Pacific Ocean", "summary": "Two US fishermen say they spotted the man treading water around 20 miles (32km) off the Californian coast.", "link": "https://www.bbc.co.uk/news/articles/ck1wvrrgln13o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/bc95/live/fa87f0c0-dc0b-11f1-b441-2b33b063138f.jpg", "time": 1794192613.0, "source": "BBC News"}, {"title": "Maya Jama steps down as host of reality TV show Love Island", "summary": "The presenter tells fans it is \"time to throw myself into something new\" after recent Celebrity Traitors success.", "link": "https://www.bbc.co.uk/news/articles/cwzrd5jj47ndo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/2f2c/live/327b8220-dbb3-11f1-b35d-8ff000e4934a.jpg", "time": 1794172788.0, "source": "BBC News"}, {"title": "'Time is up': Minister warns media industry to take abuse seriously in wake of Brand case", "summary": "Lisa Nandy tells the BBC \"many people\" in the media industry have come forward to her.", "link": "https://www.bbc.co.uk/news/articles/ckn9r0zd0ynwo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/faca/live/23423a10-db77-11f1-b1f1-3be4e895d0fe.jpg", "time": 1794191649.0, "source": "BBC News"}, {"title": "Society needs to act to help white working-class pupils, inquiry says", "summary": "The education secretary says she is backing the inquiry to \"get to the heart of the barriers holding children back\".", "link": "https://www.bbc.co.uk/news/articles/cmwyqql26xe8o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/4e30/live/1657c480-d9fd-11f1-84c1-dbcae60402d7.jpg", "time": 1794189152.0, "source": "BBC News"}, {"title": "What's your love language - and does it actually mean anything?", "summary": "The theory of ‘Love Languages’ has no scientific origin but it's often still mentioned in modern dating.", "link": "https://www.bbc.co.uk/news/articles/c6lykl01nzp9o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/6efb/live/24613860-d9e7-11f1-bbe5-797ee05bee69.jpg", "time": 1794185735.0, "source": "BBC News"}], "world": [{"title": "Krakow shooting suspect has died in hospital, police say", "summary": "At least six people were killed in the shooting, and three bodies of the suspect's family members were found at their home.", "link": "https://www.bbc.co.uk/news/articles/c6y434dw8319o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/b131/live/b7c6ce50-dc06-11f1-b6f4-7b86d13131ad.jpg", "time": 1794209169.0, "source": "BBC World"}, {"title": "Inside the French drug gangs recruiting children to kill", "summary": "The BBC enters Marseille's dangerous underworld, where young people are trapped, brutalised and exploited.", "link": "https://www.bbc.co.uk/news/articles/cq62y01r2313o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/5447/live/ec9efd90-d9fa-11f1-93e1-3b657b665bcf.jpg", "time": 1794204026.0, "source": "BBC World"}, {"title": "Surgeon having lunch near Krakow shooting undoubtedly saved officer's life, colleague says", "summary": "Further details have emerged about two police officers hailed for preventing a Polish gunman from killing more.", "link": "https://www.bbc.co.uk/news/articles/c5x2vw4e1gx1o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/e5f9/live/5b43f440-db76-11f1-b1f1-3be4e895d0fe.jpg", "time": 1794180858.0, "source": "BBC World"}, {"title": "Seven dead and more than 100 injured after trains collide in Egypt", "summary": "Several carriages derailed after two trains travelling in the same direction crashed outside the city of Giza.", "link": "https://www.bbc.co.uk/news/articles/cwvgr20mmmevo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/3886/live/ab03aa70-db8a-11f1-b441-2b33b063138f.jpg", "time": 1794167882.0, "source": "BBC World"}, {"title": "Pope delivers veiled rebuke of Milei's austerity measures", "summary": "Pope Leo made the comments as he arrived in Argentina on the second leg of his Latin America tour.", "link": "https://www.bbc.co.uk/news/articles/ckj0l082jqzvo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/3d83/live/ef505e30-dbf8-11f1-93e1-3b657b665bcf.jpg", "time": 1794202237.0, "source": "BBC World"}, {"title": "Cruise ship pianist rescued from sea after nine hours in Pacific Ocean", "summary": "Two US fishermen say they spotted the man treading water around 20 miles (32km) off the Californian coast.", "link": "https://www.bbc.co.uk/news/articles/ck1wvrrgln13o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/bc95/live/fa87f0c0-dc0b-11f1-b441-2b33b063138f.jpg", "time": 1794192613.0, "source": "BBC World"}, {"title": "Homes and temples glow across India to mark Diwali", "summary": "Millions of Indians are marking the festival of lights with glowing lamps, fireworks and traditional sweets.", "link": "https://www.bbc.co.uk/news/articles/cm70pdwz122ro?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/d1cd/live/cc05a720-d9d5-11f1-b441-2b33b063138f.jpg", "time": 1794148929.0, "source": "BBC World"}, {"title": "Aramco Tower hit in heart of Saudi capital as Houthis launch fresh strikes", "summary": "Footage authenticated by BBC Verify shows damage to the building in the capital's central financial district.", "link": "https://www.bbc.co.uk/news/articles/c6ly3mjx958eo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/ea80/live/2b11cc30-dbbb-11f1-93e1-3b657b665bcf.png", "time": 1794173856.0, "source": "BBC World"}, {"title": "'Flat', 'tired', 'cynical': Unusually gloomy Kiwis deliver New Zealand's tightest election in years", "summary": "The national mood is low, and faith in politics even lower - with voters deserting the major parties at the polls.", "link": "https://www.bbc.co.uk/news/articles/cxr5yyg2nj9eo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/d485/live/0685e840-dab9-11f1-b441-2b33b063138f.jpg", "time": 1794087376.0, "source": "BBC World"}, {"title": "Iran executes three men for 'armed unrest' after January protests", "summary": "It is claimed Hassan Dioband, Hamid Kazemi and Reza Zanganeh were part of anti-government protests earlier this year.", "link": "https://www.bbc.co.uk/news/articles/ckly0ex633ydo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/d304/live/bfc281c0-db53-11f1-98f5-8d1276fd5e57.jpg", "time": 1794145070.0, "source": "BBC World"}, {"title": "Paraguay's former president charged after bank collapse", "summary": "Santiago Peña was ousted due to a banking crisis which left millions of people unable to access their money.", "link": "https://www.bbc.co.uk/news/articles/c68jzzvjgdy9o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/a65d/live/3fe15d20-da57-11f1-af22-a97b84c9ca63.jpg", "time": 1794079042.0, "source": "BBC World"}, {"title": "Italian foreign minister says hackers leaked his personal data", "summary": "Prime Minister Giorgia Meloni has blamed pro-Russian hackers for publishing the details online.", "link": "https://www.bbc.co.uk/news/articles/cr20wvge32j3o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/34a9/live/e340cb90-dabb-11f1-93e1-3b657b665bcf.jpg", "time": 1794070206.0, "source": "BBC World"}], "tech": [{"title": "Jensen Huang: Why a personal scandal for the face of the AI boom has provoked a national security scare", "summary": "Once lauded as the \"Taylor Swift of tech\", Huang is mired in scandal after an affair with a suspected Chinese spy.", "link": "https://www.bbc.co.uk/news/articles/ckgel338xql3o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/2521/live/6ba67640-dc03-11f1-b441-2b33b063138f.jpg", "time": 1794204112.0, "source": "BBC Technology"}, {"title": "Government 'looking seriously' at banning under-16s from Vinted and eBay", "summary": "The culture secretary confirms reports they could be in the list of platforms set to be banned next March.", "link": "https://www.bbc.co.uk/news/articles/cmzxjvpqrjxro?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/1427/live/5d17fd80-db61-11f1-adda-c54f54e3ce6a.jpg", "time": 1794152245.0, "source": "BBC Technology"}, {"title": "Can the Zelda remake capture the magic of the original?", "summary": "Nintendo has released its remake of what is considered one of the best games ever made - the BBC's Tom Gerken gives his verdict.", "link": "https://www.bbc.co.uk/news/articles/cm8xznl0n1q4o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/7e2f/live/adc5ae70-d699-11f1-8052-913cc7942a17.jpg", "time": 1794098265.0, "source": "BBC Technology"}, {"title": "Elon Musk appears to signal the end of the road for Cybertruck", "summary": "Musk said it was to make room for production of its Cybercabs - autonomous taxis without a driver.", "link": "https://www.bbc.co.uk/news/articles/cq1j33w7d232o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/d7ce/live/3fc37350-d9f3-11f1-a701-fddedf244c16.jpg", "time": 1794001790.0, "source": "BBC Technology"}, {"title": "AI stocks climb after trillions wiped from market values", "summary": "Investors had been selling off tech shares in part due to concerns the Democrat election victory would mean slower AI development.", "link": "https://www.bbc.co.uk/news/articles/c35ynnpzdq51o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/fdde/live/9036f7e0-da01-11f1-93e1-3b657b665bcf.jpg", "time": 1793999185.0, "source": "BBC Technology"}, {"title": "Why the US midterms sparked an AI stock selloff", "summary": "Fears of more AI regulation appear to have sparked fear among investors, but  concerns about the industry have been growing for some time.", "link": "https://www.bbc.co.uk/news/articles/crlykkzwwpydo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/f055/live/19529fe0-d9fb-11f1-93e1-3b657b665bcf.jpg", "time": 1793989936.0, "source": "BBC Technology"}, {"title": "Global stocks plunge as fears over US AI slowdown spread to Asia and Europe", "summary": "Investors have reacted to possible tougher scrutiny of data centre construction and the AI industry.", "link": "https://www.bbc.co.uk/news/articles/cmn04705rd8jo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/b0d1/live/49c24750-d9d0-11f1-9e5a-c30c5e3d8c85.jpg", "time": 1793971550.0, "source": "BBC Technology"}, {"title": "The engine parts that 'fight the laws of the universe'", "summary": "Investment has surged into the making of jet turbine blades - an extremely difficult component to make.", "link": "https://www.bbc.co.uk/news/articles/cwe9lmp1pyyxo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/6023/live/c7b8cb20-d9e9-11f1-93e1-3b657b665bcf.jpg", "time": 1793923566.0, "source": "BBC Technology"}, {"title": "Elon Musk's millions failed to deliver Republican wins in fierce midterms", "summary": "Musk spent nearly $500m in the 2026 US midterm elections, an individual election spending record.", "link": "https://www.bbc.co.uk/news/articles/cv8ez3p3ge5ko?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/7ae2/live/ce22be10-d851-11f1-b710-b15e87d8ef65.jpg", "time": 1793828475.0, "source": "BBC Technology"}, {"title": "French blood storage impacted by freezer hacks as theories swirl about culprits", "summary": "The French Blood Establishment (EFS) said cold rooms storing blood were impacted by hackers.", "link": "https://www.bbc.co.uk/news/articles/c8vgxyvz6y9ro?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/3538/live/e551bd50-d862-11f1-85ab-b3cc3b5498c6.jpg", "time": 1793809575.0, "source": "BBC Technology"}, {"title": "Graduates are managing AI - but are they learning much else?", "summary": "Graduates are spending more time managing AI, but are they missing out on other work experience?", "link": "https://www.bbc.co.uk/news/articles/c820vz6wyp65o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/5bf4/live/9fa4f600-d844-11f1-a701-fddedf244c16.jpg", "time": 1793750675.0, "source": "BBC Technology"}, {"title": "Binance says fake job interviews used as part of $6.3bn crypto hack", "summary": "An engineer was contacted through a legitimate job-hunting platform and invited to bogus job interviews with fake company representatives, Binance says.", "link": "https://www.bbc.co.uk/news/articles/ck5ynwz9gy67o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/b517/live/8d68c970-d7a0-11f1-84dd-e55f4bec0ecd.jpg", "time": 1793722769.0, "source": "BBC Technology"}], "business": [{"title": "Jensen Huang: Why a personal scandal for the face of the AI boom has provoked a national security scare", "summary": "Once lauded as the \"Taylor Swift of tech\", Huang is mired in scandal after an affair with a suspected Chinese spy.", "link": "https://www.bbc.co.uk/news/articles/ckgel338xql3o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/2521/live/6ba67640-dc03-11f1-b441-2b33b063138f.jpg", "time": 1794204112.0, "source": "BBC Business"}, {"title": "What do we know about Nvidia CEO’s affair with a suspected Chinese spy?", "summary": "Adoration for the US tech giant’s CEO Jensen Huang has been labelled “Jensanity”, but can his reputation survive the news of his affair?", "link": "https://www.bbc.co.uk/news/videos/cq3989nkzn3ko?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/0343/live/157fc790-dc0c-11f1-b441-2b33b063138f.jpg", "time": 1794208211.0, "source": "BBC Business"}, {"title": "Doing these things now will help you save money at Christmas", "summary": "Small decisions made now can make a big difference to your festive finances, charities say, so here are some tips.", "link": "https://www.bbc.co.uk/news/articles/ck7vppll151mo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/903c/live/8d645510-d9ef-11f1-bb10-cdca6001fbcf.jpg", "time": 1794182954.0, "source": "BBC Business"}, {"title": "Government's EV targets expected to be reduced this week", "summary": "New petrol or diesel cars are due to be phased out by 2030 and by 2035 all new cars must be zero emission.", "link": "https://www.bbc.co.uk/news/articles/cqkg5g2970epo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/b401/live/fd7836e0-dbdf-11f1-b348-cb75a5659779.jpg", "time": 1794208817.0, "source": "BBC Business"}, {"title": "'My mortgage is going up £200 a month': How rising interest rates are hitting people's pockets", "summary": "With UK interest rates set to rise, mortgages, credit cards and loans could get more expensive for millions.", "link": "https://www.bbc.co.uk/news/articles/c617kjqjvk12o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/1e6b/live/b1102500-d9fb-11f1-b441-2b33b063138f.png", "time": 1794015696.0, "source": "BBC Business"}, {"title": "Nvidia launches investigation into CEO's affair with suspected Chinese spy", "summary": "Jensen Huang also admitted to having been \"unfaithful\" to his wife and says he will cooperate with a security investigation.", "link": "https://www.bbc.co.uk/news/articles/c3dxw10rjn9no?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/4981/live/81f74f50-dbb8-11f1-86cb-c1d83392da32.jpg", "time": 1794185406.0, "source": "BBC Business"}, {"title": "Government 'looking seriously' at banning under-16s from Vinted and eBay", "summary": "The culture secretary confirms reports they could be in the list of platforms set to be banned next March.", "link": "https://www.bbc.co.uk/news/articles/cmzxjvpqrjxro?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/1427/live/5d17fd80-db61-11f1-adda-c54f54e3ce6a.jpg", "time": 1794152245.0, "source": "BBC Business"}, {"title": "He spent $50,000 on Labubus but now the craze is dying", "summary": "Parent company Pop Mart's revenue has fallen as appetite for the quirky collectible monsters wanes.", "link": "https://www.bbc.co.uk/news/articles/cmvg652l927lo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/79bc/live/19d4a530-d90b-11f1-93e1-3b657b665bcf.jpg", "time": 1794092555.0, "source": "BBC Business"}, {"title": "Why the US midterms sparked an AI stock selloff", "summary": "Fears of more AI regulation appear to have sparked fear among investors, but  concerns about the industry have been growing for some time.", "link": "https://www.bbc.co.uk/news/articles/crlykkzwwpydo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/f055/live/19529fe0-d9fb-11f1-93e1-3b657b665bcf.jpg", "time": 1793989936.0, "source": "BBC Business"}, {"title": "How does it affect me if share prices fall?", "summary": "Changes in the FTSE 100 and other indexes are not just for financial experts, they can affect our lives.", "link": "https://www.bbc.co.uk/news/articles/c33zdz2m1e2o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/c320/live/25775960-3fc2-11f1-b61b-1d0ccf7b6022.jpg", "time": 1793956910.0, "source": "BBC Business"}, {"title": "Why smoky bacon crisps threaten to reignite rows over EU rules", "summary": "A post-Brexit deal on food standards has raised questions over the future naming of the classic British snack.", "link": "https://www.bbc.co.uk/news/articles/cm1dwwqrr1kvo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/67af/live/52b739e0-da04-11f1-84c1-dbcae60402d7.jpg", "time": 1793985578.0, "source": "BBC Business"}, {"title": "Elon Musk appears to signal the end of the road for Cybertruck", "summary": "Musk said it was to make room for production of its Cybercabs - autonomous taxis without a driver.", "link": "https://www.bbc.co.uk/news/articles/cq1j33w7d232o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/d7ce/live/3fc37350-d9f3-11f1-a701-fddedf244c16.jpg", "time": 1794001790.0, "source": "BBC Business"}], "science": [{"title": "Scientists predict 2026 hottest year on record as climate talks begin", "summary": "Scientists are predictng this could be the hottest year on record as the COP31 climate summit opens.", "link": "https://www.bbc.co.uk/news/articles/c6pvgg7mdvdvo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/d3d7/live/1adcf6d0-db63-11f1-adda-c54f54e3ce6a.jpg", "time": 1794209412.0, "source": "BBC Science"}, {"title": "A glimmer of good news for Britain's sleepy dormouse", "summary": "New figures suggest hazel dormice may be recovering after decades of decline, with warmer summers boosting survival.", "link": "https://www.bbc.co.uk/news/articles/c85ynn0p5k71o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/2715/live/c8a0e160-da0e-11f1-bbd1-cf41b7fd4e9b.jpg", "time": 1794185803.0, "source": "BBC Science"}, {"title": "One of the year's most prolific meteor showers to light up the night sky this weekend", "summary": "The Leonid meteor shower, known for its bright and fast meteors, will kick off this weekend and continue until the end of November.", "link": "https://www.bbc.co.uk/weather/articles/cmlykqq7zg9zo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/797d/live/89b36240-d903-11f1-9c68-d767468fa269.jpg", "time": 1794017008.0, "source": "BBC Science"}, {"title": "How climate change worsens heatwaves, droughts, wildfires and floods", "summary": "Rising global temperatures mean extreme weather events are becoming more common and more intense.", "link": "https://www.bbc.co.uk/news/articles/cy4dgp1p3p1o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/a7d4/live/77b64d80-d78e-11f1-9440-953b82c8f55a.jpg", "time": 1793983410.0, "source": "BBC Science"}, {"title": "A really simple guide to climate change", "summary": "Human activities are causing the world to heat up, posing serious threats to people and nature.", "link": "https://www.bbc.co.uk/news/articles/c9w15nggj58o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/f74b/live/4c6e7a90-d9db-11f1-b4ca-fd31344b71b9.jpg", "time": 1793983251.0, "source": "BBC Science"}, {"title": "What is the Paris Agreement and why does 1.5C matter?", "summary": "The 2015 pact is at the heart of the international commitment to tackle rising global temperatures.", "link": "https://www.bbc.co.uk/news/articles/c93d59d4zy1o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/17e4/live/12a747d0-d9ca-11f1-bb8e-efaa31738708.jpg", "time": 1793983147.0, "source": "BBC Science"}, {"title": "What is net zero and is the UK on track to achieve it?", "summary": "Reaching net zero carbon emissions worldwide is essential to limit global warming, UN scientists say.", "link": "https://www.bbc.co.uk/news/articles/cx238yyr40qo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/6bc1/live/2716e410-ba35-11f0-9bc3-15f9891aeafa.jpg", "time": 1793982171.0, "source": "BBC Science"}, {"title": "Could the earliest weakening of the polar vortex on record bring UK snow?", "summary": "An unprecedented early weakening of the polar vortex is causing uncertainty amongst experts over the impact it will have on UK weather as Simon King explains.", "link": "https://www.bbc.co.uk/weather/articles/cwyvrz09mnd6o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/107a/live/0dde0950-d9b1-11f1-b441-2b33b063138f.jpg", "time": 1793928159.0, "source": "BBC Science"}, {"title": "Delhi's toxic winter air is back - is the Indian capital prepared for pollution?", "summary": "The Delhi government has announced a four-month winter action plan, but experts say that won't be enough.", "link": "https://www.bbc.co.uk/news/articles/cm78p0n09q3xo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/f26c/live/86fa1990-d94e-11f1-a701-fddedf244c16.jpg", "time": 1793920613.0, "source": "BBC Science"}, {"title": "Investigation into 'major fish kill' after pollution incident", "summary": "The pollution caused the death of brown and migratory sea trout in the Inler river.", "link": "https://www.bbc.co.uk/news/articles/cx1l36y2d941o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/b0d4/live/0f9efad0-d90f-11f1-94c6-3f8050561bf5.jpg", "time": 1793890305.0, "source": "BBC Science"}, {"title": "Typhoons batter East Asia as El Niño makes Pacific 'burn with fever'", "summary": "Even for countries where typhoons are a way of life, the last few months have brought unusually wild weather.", "link": "https://www.bbc.co.uk/news/articles/cw33kgj7nkemo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/30ea/live/eaa602a0-d75b-11f1-8f6b-d71817972456.jpg", "time": 1793833967.0, "source": "BBC Science"}, {"title": "William meets firefighters who tackled summer blazes", "summary": "The prince says 2026 was the first summer he felt \"worried about the scale of the wildfires\".", "link": "https://www.bbc.co.uk/news/videos/c94g1m232pgyo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/1086/live/00a5b650-d841-11f1-93e1-3b657b665bcf.jpg", "time": 1793792108.0, "source": "BBC Science"}], "sport": [{"title": "Bizarre and thrilling theatre with Carrick's Man Utd future still in limbo", "summary": "It was a Premier League classic at Old Trafford but what has Manchester United's 4-4 draw with Aston Villa done to Michael Carrick's future?", "link": "https://www.bbc.co.uk/sport/football/articles/cked3qjw1q4xo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/dbf2/live/f5d8ac10-dbb4-11f1-b35d-8ff000e4934a.jpg", "time": 1794174605.0, "source": "BBC Sport"}, {"title": "England make massive step up in Australia victory", "summary": "In his latest column, England World Cup winner Matt Dawson reflects on an impressive win for Steve Borthwick's side against Australia in the Nations Championship.", "link": "https://www.bbc.co.uk/sport/rugby-union/articles/cqev33zn20vdo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/ec8a/live/e4531aa0-f1de-11ef-9e61-71ee71f26eb1.png", "time": 1794206962.0, "source": "BBC Sport"}, {"title": "Sports Personality of the Year returns - with five awards decided by public", "summary": "BBC Sports Personality of the Year will be held on 13 December - and audiences will have more influence than ever over the awards.", "link": "https://www.bbc.co.uk/sport/articles/cqj9kd00y0wko?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/fdbf/live/8a123c50-d9cd-11f1-bb8e-efaa31738708.jpg", "time": 1794209405.0, "source": "BBC Sport"}, {"title": "Norris sparkles in Sao Paulo despite firework mishap", "summary": "Apart from getting too close to a firework, Lando Norris was virtually impeccable during a Sao Paulo Grand Prix that challenged the drivers to their very limits.", "link": "https://www.bbc.co.uk/sport/formula1/articles/c6gr8e822kzqo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/fd44/live/561b1180-dbc9-11f1-a639-8fd896d95a18.jpg", "time": 1794181493.0, "source": "BBC Sport"}, {"title": "Packers & Bengals win in style - NFL week nine", "summary": "The Chicago Bears and Denver Broncos grind out wins while the Cincinnati Bengals and Green Bay Packers put on a show as the NFL season reaches the halfway point.", "link": "https://www.bbc.co.uk/sport/american-football/articles/cmdxwxry2pr8o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/225c/live/71321f90-dc0a-11f1-a701-fddedf244c16.png", "time": 1794208884.0, "source": "BBC Sport"}, {"title": "Gauff opens WTA Finals with gritty win over Pegula", "summary": "Former champion Coco Gauff beats fellow American Jessica Pegula in her opening match of the WTA Finals at Indian Wells.", "link": "https://www.bbc.co.uk/sport/tennis/articles/c3x2w9w078kko?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/fcc0/live/dc06f760-dc04-11f1-9292-932e681b2914.jpg", "time": 1794208806.0, "source": "BBC Sport"}, {"title": "Are 'outstanding' Brighton now Arsenal's main title challengers?", "summary": "After moving up to second in the Premier League, could Brighton really be Arsenal's main title challengers?", "link": "https://www.bbc.co.uk/sport/football/articles/cjx23rwxdn64o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/8de0/live/2f31e2f0-db93-11f1-9029-d35c55297624.jpg", "time": 1794165876.0, "source": "BBC Sport"}, {"title": "What can you read into Premier League table after 10 games?", "summary": "With 10 games gone in the Premier League season, BBC Sport looks at what history tells us we can read into the table at this stage.", "link": "https://www.bbc.co.uk/sport/football/articles/c91463n3mlzlo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/e2dd/live/fb15a380-db97-11f1-a42b-dbe60e973664.jpg", "time": 1794166834.0, "source": "BBC Sport"}, {"title": "Dutch match postponed after fans block team bus", "summary": "A Dutch second-tier match between Vitesse Arnhem and De Graafschap was called off after away team supporters blocked their own team's bus from departing for the game.", "link": "https://www.bbc.co.uk/sport/football/articles/cqy0r0lw4l5ro?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/e8eb/live/b045b540-dc0d-11f1-9f85-c35529b8c4b9.jpg", "time": 1794211207.0, "source": "BBC Sport"}, {"title": "Who am I? Plus today's other quizzes", "summary": "Test your ball knowledge against today's Who Am I?, Five in Five and Brainteaser.", "link": "https://www.bbc.co.uk/sport/football/articles/c6ly0w4n7d91o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/1fbf/live/38bd3c70-bda7-11f1-bc2e-018d645d8d21.png", "time": 1794205516.0, "source": "BBC Sport"}, {"title": "Norris brilliant in wet & Verstappen recovery extraordinary - driver ratings", "summary": "BBC Radio 5 Live F1 commentator Harry Benjamin rates how the drivers performed during the Sao Paulo Grand Prix.", "link": "https://www.bbc.co.uk/sport/formula1/articles/c5y43jzvrnz0o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/3356/live/e6fd4000-dbbb-11f1-93e1-3b657b665bcf.png", "time": 1794174993.0, "source": "BBC Sport"}, {"title": "Man Utd score twice in stoppage time to share points in eight-goal thriller", "summary": "Manchester United twice come back from two goals down to earn a point against Aston Villa in an eight-goal thriller at Old Trafford, although they will go into the international break in the Premier League relegation zone.", "link": "https://www.bbc.co.uk/sport/football/videos/cqj6jldpl2gyo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/4f78/live/514a5d20-dba9-11f1-93e1-3b657b665bcf.jpg", "time": 1794168076.0, "source": "BBC Sport"}]}, "weather": {"city": "London", "country": "United Kingdom", "temp": 5, "feels": 3, "label": "overcast", "icon": "cloud", "is_day": true, "humidity": 99, "wind": 6, "wind_unit": "km/h", "unit": "°C", "sunrise": "07:08", "sunset": "16:20", "today": {"high": 10, "low": 5, "label": "foggy", "icon": "fog", "rain": 0}, "tomorrow": {"high": 11, "low": 6, "label": "drizzle", "icon": "drizzle", "rain": 82}, "hours": [{"time": "08:00", "temp": 5, "icon": "cloud", "rain": 0}, {"time": "09:00", "temp": 6, "icon": "cloud", "rain": 0}, {"time": "10:00", "temp": 7, "icon": "cloud", "rain": 0}, {"time": "11:00", "temp": 8, "icon": "cloud", "rain": 0}, {"time": "12:00", "temp": 9, "icon": "partly", "rain": 0}, {"time": "13:00", "temp": 10, "icon": "partly", "rain": 0}, {"time": "14:00", "temp": 10, "icon": "clear", "rain": 0}, {"time": "15:00", "temp": 10, "icon": "clear", "rain": 0}, {"time": "16:00", "temp": 10, "icon": "partly", "rain": 0}, {"time": "17:00", "temp": 9, "icon": "partly", "rain": 0}, {"time": "18:00", "temp": 9, "icon": "partly", "rain": 0}, {"time": "19:00", "temp": 9, "icon": "cloud", "rain": 0}], "sample": true}, "lookups": {"burj khalifa": {"text": "The Burj Khalifa is a megatall skyscraper in Dubai, United Arab Emirates. Designed by Skidmore, Owings & Merrill, it is the world's tallest structure, with a total height of 829.8 m and a roof height of 828 m (2,717 ft).", "title": "Burj Khalifa", "url": "https://en.wikipedia.org/wiki/Burj_Khalifa"}, "eiffel tower": {"text": "The Eiffel Tower is a lattice tower on the Champ de Mars in Paris, France. It is named after the engineer Gustave Eiffel, whose company designed and built the tower from 1887 to 1889.", "title": "Eiffel Tower", "url": "https://en.wikipedia.org/wiki/Eiffel_Tower"}}, "name": "Avyan"};
+const PREVIEW_DATA = {"news": {"top": [{"title": "Will Jensen Huang’s reputation survive after scandal?", "summary": "Adoration for the US tech giant’s CEO Jensen Huang has been labelled “Jensanity”, but can his reputation survive the news of his affair?", "link": "https://www.bbc.co.uk/news/videos/cq3989nkzn3ko?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/0343/live/157fc790-dc0c-11f1-b441-2b33b063138f.jpg", "time": 1794208211.0, "source": "BBC News"}, {"title": "Inside the French drug gangs recruiting children to kill", "summary": "The BBC enters Marseille's dangerous underworld, where young people are trapped, brutalised and exploited.", "link": "https://www.bbc.co.uk/news/articles/cq62y01r2313o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/5447/live/ec9efd90-d9fa-11f1-93e1-3b657b665bcf.jpg", "time": 1794204026.0, "source": "BBC News"}, {"title": "Krakow shooting suspect has died in hospital, police say", "summary": "At least six people were killed in the shooting, and three bodies of the suspect's family members were found at their home.", "link": "https://www.bbc.co.uk/news/articles/c6y434dw8319o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/b131/live/b7c6ce50-dc06-11f1-b6f4-7b86d13131ad.jpg", "time": 1794209169.0, "source": "BBC News"}, {"title": "Cruise ship pianist rescued from sea after nine hours in Pacific Ocean", "summary": "Two US fishermen say they spotted the man treading water around 20 miles (32km) off the Californian coast.", "link": "https://www.bbc.co.uk/news/articles/ck1wvrrgln13o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/bc95/live/fa87f0c0-dc0b-11f1-b441-2b33b063138f.jpg", "time": 1794192613.0, "source": "BBC News"}, {"title": "Woman says Al Fayed's brother drugged and sexually abused her at Highland estate", "summary": "The woman says she was flown to the Fayed family's Balnagown estate, where she was repeatedly assaulted.", "link": "https://www.bbc.co.uk/news/articles/cm2d6kk0wzw4o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/4c24/live/f91b8bd0-d863-11f1-85ab-b3cc3b5498c6.jpg", "time": 1794185825.0, "source": "BBC News"}, {"title": "Dense fog threatens Monday morning rush-hour disruption", "summary": "Fog is causing disruption on Monday morning amid Met Office yellow weather warnings for many across England, Wales and Northern Ireland.", "link": "https://www.bbc.co.uk/weather/articles/cj75p29nz6e6o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/9653/live/b4771f60-dc0c-11f1-93e1-3b657b665bcf.jpg", "time": 1794212610.0, "source": "BBC News"}, {"title": "Scientists predict 2026 hottest year on record as climate talks begin", "summary": "Scientists are predictng this could be the hottest year on record as the COP31 climate summit opens.", "link": "https://www.bbc.co.uk/news/articles/c6pvgg7mdvdvo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/d3d7/live/1adcf6d0-db63-11f1-adda-c54f54e3ce6a.jpg", "time": 1794209412.0, "source": "BBC News"}, {"title": "Government's EV targets expected to be reduced this week", "summary": "New petrol or diesel cars are due to be phased out by 2030 and by 2035 all new cars must be zero emission.", "link": "https://www.bbc.co.uk/news/articles/cqkg5g2970epo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/b401/live/fd7836e0-dbdf-11f1-b348-cb75a5659779.jpg", "time": 1794212250.0, "source": "BBC News"}, {"title": "Maya Jama steps down as host of reality TV show Love Island", "summary": "The presenter tells fans it is \"time to throw myself into something new\" after recent Celebrity Traitors success.", "link": "https://www.bbc.co.uk/news/articles/cwzrd5jj47ndo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/2f2c/live/327b8220-dbb3-11f1-b35d-8ff000e4934a.jpg", "time": 1794172788.0, "source": "BBC News"}, {"title": "'Time is up': Minister warns media industry to take abuse seriously in wake of Brand case", "summary": "Lisa Nandy tells the BBC \"many people\" in the media industry have come forward to her.", "link": "https://www.bbc.co.uk/news/articles/ckn9r0zd0ynwo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/faca/live/23423a10-db77-11f1-b1f1-3be4e895d0fe.jpg", "time": 1794191649.0, "source": "BBC News"}, {"title": "Society needs to act to help white working-class pupils, inquiry says", "summary": "The education secretary says she is backing the inquiry to \"get to the heart of the barriers holding children back\".", "link": "https://www.bbc.co.uk/news/articles/cmwyqql26xe8o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/4e30/live/1657c480-d9fd-11f1-84c1-dbcae60402d7.jpg", "time": 1794189152.0, "source": "BBC News"}, {"title": "What's your love language - and does it actually mean anything?", "summary": "The theory of ‘Love Languages’ has no scientific origin but it's often still mentioned in modern dating.", "link": "https://www.bbc.co.uk/news/articles/c6lykl01nzp9o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/6efb/live/24613860-d9e7-11f1-bbe5-797ee05bee69.jpg", "time": 1794185735.0, "source": "BBC News"}], "world": [{"title": "Krakow shooting suspect has died in hospital, police say", "summary": "At least six people were killed in the shooting, and three bodies of the suspect's family members were found at their home.", "link": "https://www.bbc.co.uk/news/articles/c6y434dw8319o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/b131/live/b7c6ce50-dc06-11f1-b6f4-7b86d13131ad.jpg", "time": 1794209169.0, "source": "BBC World"}, {"title": "Inside the French drug gangs recruiting children to kill", "summary": "The BBC enters Marseille's dangerous underworld, where young people are trapped, brutalised and exploited.", "link": "https://www.bbc.co.uk/news/articles/cq62y01r2313o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/5447/live/ec9efd90-d9fa-11f1-93e1-3b657b665bcf.jpg", "time": 1794204026.0, "source": "BBC World"}, {"title": "Surgeon having lunch near Krakow shooting undoubtedly saved officer's life, colleague says", "summary": "Further details have emerged about two police officers hailed for preventing a Polish gunman from killing more.", "link": "https://www.bbc.co.uk/news/articles/c5x2vw4e1gx1o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/e5f9/live/5b43f440-db76-11f1-b1f1-3be4e895d0fe.jpg", "time": 1794180858.0, "source": "BBC World"}, {"title": "Seven dead and more than 100 injured after trains collide in Egypt", "summary": "Several carriages derailed after two trains travelling in the same direction crashed outside the city of Giza.", "link": "https://www.bbc.co.uk/news/articles/cwvgr20mmmevo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/3886/live/ab03aa70-db8a-11f1-b441-2b33b063138f.jpg", "time": 1794167882.0, "source": "BBC World"}, {"title": "Pope delivers veiled rebuke of Milei's austerity measures", "summary": "Pope Leo made the comments as he arrived in Argentina on the second leg of his Latin America tour.", "link": "https://www.bbc.co.uk/news/articles/ckj0l082jqzvo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/3d83/live/ef505e30-dbf8-11f1-93e1-3b657b665bcf.jpg", "time": 1794202237.0, "source": "BBC World"}, {"title": "Cruise ship pianist rescued from sea after nine hours in Pacific Ocean", "summary": "Two US fishermen say they spotted the man treading water around 20 miles (32km) off the Californian coast.", "link": "https://www.bbc.co.uk/news/articles/ck1wvrrgln13o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/bc95/live/fa87f0c0-dc0b-11f1-b441-2b33b063138f.jpg", "time": 1794192613.0, "source": "BBC World"}, {"title": "'Devastating message' as ANC records worst-ever result in South Africa election", "summary": "President Cyril Ramaphosa says the verdict must be respected, while the party's secretary-general calls the outcome \"catastrophic\".", "link": "https://www.bbc.co.uk/news/articles/cwrkygrxp11mo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/2630/live/78c708a0-db5c-11f1-adda-c54f54e3ce6a.jpg", "time": 1794160263.0, "source": "BBC World"}, {"title": "Homes and temples glow across India to mark Diwali", "summary": "Millions of Indians are marking the festival of lights with glowing lamps, fireworks and traditional sweets.", "link": "https://www.bbc.co.uk/news/articles/cm70pdwz122ro?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/d1cd/live/cc05a720-d9d5-11f1-b441-2b33b063138f.jpg", "time": 1794148929.0, "source": "BBC World"}, {"title": "Aramco Tower hit in heart of Saudi capital as Houthis launch fresh strikes", "summary": "Footage authenticated by BBC Verify shows damage to the building in the capital's central financial district.", "link": "https://www.bbc.co.uk/news/articles/c6ly3mjx958eo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/ea80/live/2b11cc30-dbbb-11f1-93e1-3b657b665bcf.png", "time": 1794173856.0, "source": "BBC World"}, {"title": "'Flat', 'tired', 'cynical': Unusually gloomy Kiwis deliver New Zealand's tightest election in years", "summary": "The national mood is low, and faith in politics even lower - with voters deserting the major parties at the polls.", "link": "https://www.bbc.co.uk/news/articles/cxr5yyg2nj9eo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/d485/live/0685e840-dab9-11f1-b441-2b33b063138f.jpg", "time": 1794087376.0, "source": "BBC World"}, {"title": "Iran executes three men for 'armed unrest' after January protests", "summary": "It is claimed Hassan Dioband, Hamid Kazemi and Reza Zanganeh were part of anti-government protests earlier this year.", "link": "https://www.bbc.co.uk/news/articles/ckly0ex633ydo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/d304/live/bfc281c0-db53-11f1-98f5-8d1276fd5e57.jpg", "time": 1794145070.0, "source": "BBC World"}, {"title": "Paraguay's former president charged after bank collapse", "summary": "Santiago Peña was ousted due to a banking crisis which left millions of people unable to access their money.", "link": "https://www.bbc.co.uk/news/articles/c68jzzvjgdy9o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/a65d/live/3fe15d20-da57-11f1-af22-a97b84c9ca63.jpg", "time": 1794079042.0, "source": "BBC World"}], "tech": [{"title": "Jensen Huang: Why a personal scandal for the face of the AI boom has provoked a national security scare", "summary": "Once lauded as the \"Taylor Swift of tech\", Huang is mired in scandal after an affair with a suspected Chinese spy.", "link": "https://www.bbc.co.uk/news/articles/ckgel338xql3o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/2521/live/6ba67640-dc03-11f1-b441-2b33b063138f.jpg", "time": 1794204112.0, "source": "BBC Technology"}, {"title": "Government 'looking seriously' at banning under-16s from Vinted and eBay", "summary": "The culture secretary confirms reports they could be in the list of platforms set to be banned next March.", "link": "https://www.bbc.co.uk/news/articles/cmzxjvpqrjxro?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/1427/live/5d17fd80-db61-11f1-adda-c54f54e3ce6a.jpg", "time": 1794152245.0, "source": "BBC Technology"}, {"title": "Can the Zelda remake capture the magic of the original?", "summary": "Nintendo has released its remake of what is considered one of the best games ever made - the BBC's Tom Gerken gives his verdict.", "link": "https://www.bbc.co.uk/news/articles/cm8xznl0n1q4o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/7e2f/live/adc5ae70-d699-11f1-8052-913cc7942a17.jpg", "time": 1794098265.0, "source": "BBC Technology"}, {"title": "Elon Musk appears to signal the end of the road for Cybertruck", "summary": "Musk said it was to make room for production of its Cybercabs - autonomous taxis without a driver.", "link": "https://www.bbc.co.uk/news/articles/cq1j33w7d232o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/d7ce/live/3fc37350-d9f3-11f1-a701-fddedf244c16.jpg", "time": 1794001790.0, "source": "BBC Technology"}, {"title": "AI stocks climb after trillions wiped from market values", "summary": "Investors had been selling off tech shares in part due to concerns the Democrat election victory would mean slower AI development.", "link": "https://www.bbc.co.uk/news/articles/c35ynnpzdq51o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/fdde/live/9036f7e0-da01-11f1-93e1-3b657b665bcf.jpg", "time": 1793999185.0, "source": "BBC Technology"}, {"title": "Why the US midterms sparked an AI stock selloff", "summary": "Fears of more AI regulation appear to have sparked fear among investors, but  concerns about the industry have been growing for some time.", "link": "https://www.bbc.co.uk/news/articles/crlykkzwwpydo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/f055/live/19529fe0-d9fb-11f1-93e1-3b657b665bcf.jpg", "time": 1793989936.0, "source": "BBC Technology"}, {"title": "Global stocks plunge as fears over US AI slowdown spread to Asia and Europe", "summary": "Investors have reacted to possible tougher scrutiny of data centre construction and the AI industry.", "link": "https://www.bbc.co.uk/news/articles/cmn04705rd8jo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/b0d1/live/49c24750-d9d0-11f1-9e5a-c30c5e3d8c85.jpg", "time": 1793971550.0, "source": "BBC Technology"}, {"title": "The engine parts that 'fight the laws of the universe'", "summary": "Investment has surged into the making of jet turbine blades - an extremely difficult component to make.", "link": "https://www.bbc.co.uk/news/articles/cwe9lmp1pyyxo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/6023/live/c7b8cb20-d9e9-11f1-93e1-3b657b665bcf.jpg", "time": 1793923566.0, "source": "BBC Technology"}, {"title": "Elon Musk's millions failed to deliver Republican wins in fierce midterms", "summary": "Musk spent nearly $500m in the 2026 US midterm elections, an individual election spending record.", "link": "https://www.bbc.co.uk/news/articles/cv8ez3p3ge5ko?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/7ae2/live/ce22be10-d851-11f1-b710-b15e87d8ef65.jpg", "time": 1793828475.0, "source": "BBC Technology"}, {"title": "French blood storage impacted by freezer hacks as theories swirl about culprits", "summary": "The French Blood Establishment (EFS) said cold rooms storing blood were impacted by hackers.", "link": "https://www.bbc.co.uk/news/articles/c8vgxyvz6y9ro?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/3538/live/e551bd50-d862-11f1-85ab-b3cc3b5498c6.jpg", "time": 1793809575.0, "source": "BBC Technology"}, {"title": "Graduates are managing AI - but are they learning much else?", "summary": "Graduates are spending more time managing AI, but are they missing out on other work experience?", "link": "https://www.bbc.co.uk/news/articles/c820vz6wyp65o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/5bf4/live/9fa4f600-d844-11f1-a701-fddedf244c16.jpg", "time": 1793750675.0, "source": "BBC Technology"}, {"title": "Binance says fake job interviews used as part of $6.3bn crypto hack", "summary": "An engineer was contacted through a legitimate job-hunting platform and invited to bogus job interviews with fake company representatives, Binance says.", "link": "https://www.bbc.co.uk/news/articles/ck5ynwz9gy67o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/b517/live/8d68c970-d7a0-11f1-84dd-e55f4bec0ecd.jpg", "time": 1793722769.0, "source": "BBC Technology"}], "business": [{"title": "Jensen Huang: Why a personal scandal for the face of the AI boom has provoked a national security scare", "summary": "Once lauded as the \"Taylor Swift of tech\", Huang is mired in scandal after an affair with a suspected Chinese spy.", "link": "https://www.bbc.co.uk/news/articles/ckgel338xql3o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/2521/live/6ba67640-dc03-11f1-b441-2b33b063138f.jpg", "time": 1794204112.0, "source": "BBC Business"}, {"title": "What do we know about Nvidia CEO’s affair with a suspected Chinese spy?", "summary": "Adoration for the US tech giant’s CEO Jensen Huang has been labelled “Jensanity”, but can his reputation survive the news of his affair?", "link": "https://www.bbc.co.uk/news/videos/cq3989nkzn3ko?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/0343/live/157fc790-dc0c-11f1-b441-2b33b063138f.jpg", "time": 1794208211.0, "source": "BBC Business"}, {"title": "Doing these things now will help you save money at Christmas", "summary": "Small decisions made now can make a big difference to your festive finances, charities say, so here are some tips.", "link": "https://www.bbc.co.uk/news/articles/ck7vppll151mo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/903c/live/8d645510-d9ef-11f1-bb10-cdca6001fbcf.jpg", "time": 1794182954.0, "source": "BBC Business"}, {"title": "Government's EV targets expected to be reduced this week", "summary": "New petrol or diesel cars are due to be phased out by 2030 and by 2035 all new cars must be zero emission.", "link": "https://www.bbc.co.uk/news/articles/cqkg5g2970epo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/b401/live/fd7836e0-dbdf-11f1-b348-cb75a5659779.jpg", "time": 1794212250.0, "source": "BBC Business"}, {"title": "'My mortgage is going up £200 a month': How rising interest rates are hitting people's pockets", "summary": "With UK interest rates set to rise, mortgages, credit cards and loans could get more expensive for millions.", "link": "https://www.bbc.co.uk/news/articles/c617kjqjvk12o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/1e6b/live/b1102500-d9fb-11f1-b441-2b33b063138f.png", "time": 1794015696.0, "source": "BBC Business"}, {"title": "Nvidia launches investigation into CEO's affair with suspected Chinese spy", "summary": "Jensen Huang also admitted to having been \"unfaithful\" to his wife and says he will cooperate with a security investigation.", "link": "https://www.bbc.co.uk/news/articles/c3dxw10rjn9no?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/4981/live/81f74f50-dbb8-11f1-86cb-c1d83392da32.jpg", "time": 1794211825.0, "source": "BBC Business"}, {"title": "Government 'looking seriously' at banning under-16s from Vinted and eBay", "summary": "The culture secretary confirms reports they could be in the list of platforms set to be banned next March.", "link": "https://www.bbc.co.uk/news/articles/cmzxjvpqrjxro?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/1427/live/5d17fd80-db61-11f1-adda-c54f54e3ce6a.jpg", "time": 1794152245.0, "source": "BBC Business"}, {"title": "He spent $50,000 on Labubus but now the craze is dying", "summary": "Parent company Pop Mart's revenue has fallen as appetite for the quirky collectible monsters wanes.", "link": "https://www.bbc.co.uk/news/articles/cmvg652l927lo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/79bc/live/19d4a530-d90b-11f1-93e1-3b657b665bcf.jpg", "time": 1794092555.0, "source": "BBC Business"}, {"title": "Why the US midterms sparked an AI stock selloff", "summary": "Fears of more AI regulation appear to have sparked fear among investors, but  concerns about the industry have been growing for some time.", "link": "https://www.bbc.co.uk/news/articles/crlykkzwwpydo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/f055/live/19529fe0-d9fb-11f1-93e1-3b657b665bcf.jpg", "time": 1793989936.0, "source": "BBC Business"}, {"title": "How does it affect me if share prices fall?", "summary": "Changes in the FTSE 100 and other indexes are not just for financial experts, they can affect our lives.", "link": "https://www.bbc.co.uk/news/articles/c33zdz2m1e2o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/c320/live/25775960-3fc2-11f1-b61b-1d0ccf7b6022.jpg", "time": 1793956910.0, "source": "BBC Business"}, {"title": "Why smoky bacon crisps threaten to reignite rows over EU rules", "summary": "A post-Brexit deal on food standards has raised questions over the future naming of the classic British snack.", "link": "https://www.bbc.co.uk/news/articles/cm1dwwqrr1kvo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/67af/live/52b739e0-da04-11f1-84c1-dbcae60402d7.jpg", "time": 1793985578.0, "source": "BBC Business"}, {"title": "Elon Musk appears to signal the end of the road for Cybertruck", "summary": "Musk said it was to make room for production of its Cybercabs - autonomous taxis without a driver.", "link": "https://www.bbc.co.uk/news/articles/cq1j33w7d232o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/d7ce/live/3fc37350-d9f3-11f1-a701-fddedf244c16.jpg", "time": 1794001790.0, "source": "BBC Business"}], "science": [{"title": "Scientists predict 2026 hottest year on record as climate talks begin", "summary": "Scientists are predictng this could be the hottest year on record as the COP31 climate summit opens.", "link": "https://www.bbc.co.uk/news/articles/c6pvgg7mdvdvo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/d3d7/live/1adcf6d0-db63-11f1-adda-c54f54e3ce6a.jpg", "time": 1794209412.0, "source": "BBC Science"}, {"title": "A glimmer of good news for Britain's sleepy dormouse", "summary": "New figures suggest hazel dormice may be recovering after decades of decline, with warmer summers boosting survival.", "link": "https://www.bbc.co.uk/news/articles/c85ynn0p5k71o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/2715/live/c8a0e160-da0e-11f1-bbd1-cf41b7fd4e9b.jpg", "time": 1794185803.0, "source": "BBC Science"}, {"title": "One of the year's most prolific meteor showers to light up the night sky this weekend", "summary": "The Leonid meteor shower, known for its bright and fast meteors, will kick off this weekend and continue until the end of November.", "link": "https://www.bbc.co.uk/weather/articles/cmlykqq7zg9zo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/797d/live/89b36240-d903-11f1-9c68-d767468fa269.jpg", "time": 1794017008.0, "source": "BBC Science"}, {"title": "How climate change worsens heatwaves, droughts, wildfires and floods", "summary": "Rising global temperatures mean extreme weather events are becoming more common and more intense.", "link": "https://www.bbc.co.uk/news/articles/cy4dgp1p3p1o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/a7d4/live/77b64d80-d78e-11f1-9440-953b82c8f55a.jpg", "time": 1793983410.0, "source": "BBC Science"}, {"title": "A really simple guide to climate change", "summary": "Human activities are causing the world to heat up, posing serious threats to people and nature.", "link": "https://www.bbc.co.uk/news/articles/c9w15nggj58o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/f74b/live/4c6e7a90-d9db-11f1-b4ca-fd31344b71b9.jpg", "time": 1793983251.0, "source": "BBC Science"}, {"title": "What is the Paris Agreement and why does 1.5C matter?", "summary": "The 2015 pact is at the heart of the international commitment to tackle rising global temperatures.", "link": "https://www.bbc.co.uk/news/articles/c93d59d4zy1o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/17e4/live/12a747d0-d9ca-11f1-bb8e-efaa31738708.jpg", "time": 1793983147.0, "source": "BBC Science"}, {"title": "What is net zero and is the UK on track to achieve it?", "summary": "Reaching net zero carbon emissions worldwide is essential to limit global warming, UN scientists say.", "link": "https://www.bbc.co.uk/news/articles/cx238yyr40qo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/6bc1/live/2716e410-ba35-11f0-9bc3-15f9891aeafa.jpg", "time": 1793982171.0, "source": "BBC Science"}, {"title": "Could the earliest weakening of the polar vortex on record bring UK snow?", "summary": "An unprecedented early weakening of the polar vortex is causing uncertainty amongst experts over the impact it will have on UK weather as Simon King explains.", "link": "https://www.bbc.co.uk/weather/articles/cwyvrz09mnd6o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/107a/live/0dde0950-d9b1-11f1-b441-2b33b063138f.jpg", "time": 1793928159.0, "source": "BBC Science"}, {"title": "Delhi's toxic winter air is back - is the Indian capital prepared for pollution?", "summary": "The Delhi government has announced a four-month winter action plan, but experts say that won't be enough.", "link": "https://www.bbc.co.uk/news/articles/cm78p0n09q3xo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/f26c/live/86fa1990-d94e-11f1-a701-fddedf244c16.jpg", "time": 1793920613.0, "source": "BBC Science"}, {"title": "Investigation into 'major fish kill' after pollution incident", "summary": "The pollution caused the death of brown and migratory sea trout in the Inler river.", "link": "https://www.bbc.co.uk/news/articles/cx1l36y2d941o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/b0d4/live/0f9efad0-d90f-11f1-94c6-3f8050561bf5.jpg", "time": 1793890305.0, "source": "BBC Science"}, {"title": "Typhoons batter East Asia as El Niño makes Pacific 'burn with fever'", "summary": "Even for countries where typhoons are a way of life, the last few months have brought unusually wild weather.", "link": "https://www.bbc.co.uk/news/articles/cw33kgj7nkemo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/30ea/live/eaa602a0-d75b-11f1-8f6b-d71817972456.jpg", "time": 1793833967.0, "source": "BBC Science"}, {"title": "William meets firefighters who tackled summer blazes", "summary": "The prince says 2026 was the first summer he felt \"worried about the scale of the wildfires\".", "link": "https://www.bbc.co.uk/news/videos/c94g1m232pgyo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/1086/live/00a5b650-d841-11f1-93e1-3b657b665bcf.jpg", "time": 1793792108.0, "source": "BBC Science"}], "sport": [{"title": "Bizarre and thrilling theatre with Carrick's Man Utd future still in limbo", "summary": "It was a Premier League classic at Old Trafford but what has Manchester United's 4-4 draw with Aston Villa done to Michael Carrick's future?", "link": "https://www.bbc.co.uk/sport/football/articles/cked3qjw1q4xo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/dbf2/live/f5d8ac10-dbb4-11f1-b35d-8ff000e4934a.jpg", "time": 1794174605.0, "source": "BBC Sport"}, {"title": "Khawaja 100% accurate on ball-tampering - Warner", "summary": "Former Australia opener David Warner says that Usman Khawaja is \"100% accurate\" in his recounting of the national side's ball tampering in the 2018 series with South Africa.", "link": "https://www.bbc.co.uk/sport/cricket/articles/c5wyry9gmz4ko?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/50c9/live/d36d8f80-dc16-11f1-a631-078d47c5aafb.jpg", "time": 1794212616.0, "source": "BBC Sport"}, {"title": "England make massive step up in Australia victory", "summary": "In his latest column, England World Cup winner Matt Dawson reflects on an impressive win for Steve Borthwick's side against Australia in the Nations Championship.", "link": "https://www.bbc.co.uk/sport/rugby-union/articles/cqev33zn20vdo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/ec8a/live/e4531aa0-f1de-11ef-9e61-71ee71f26eb1.png", "time": 1794206962.0, "source": "BBC Sport"}, {"title": "Sports Personality of the Year returns - with five awards decided by public", "summary": "BBC Sports Personality of the Year will be held on 13 December - and audiences will have more influence than ever over the awards.", "link": "https://www.bbc.co.uk/sport/articles/cqj9kd00y0wko?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/fdbf/live/8a123c50-d9cd-11f1-bb8e-efaa31738708.jpg", "time": 1794209405.0, "source": "BBC Sport"}, {"title": "Norris sparkles in Sao Paulo despite firework mishap", "summary": "Apart from getting too close to a firework, Lando Norris was virtually impeccable during a Sao Paulo Grand Prix that challenged the drivers to their very limits.", "link": "https://www.bbc.co.uk/sport/formula1/articles/c6gr8e822kzqo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/fd44/live/561b1180-dbc9-11f1-a639-8fd896d95a18.jpg", "time": 1794181493.0, "source": "BBC Sport"}, {"title": "Packers & Bengals win in style - NFL week nine", "summary": "The Chicago Bears and Denver Broncos grind out wins while the Cincinnati Bengals and Green Bay Packers put on a show as the NFL season reaches the halfway point.", "link": "https://www.bbc.co.uk/sport/american-football/articles/cmdxwxry2pr8o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/225c/live/71321f90-dc0a-11f1-a701-fddedf244c16.png", "time": 1794208884.0, "source": "BBC Sport"}, {"title": "Gauff opens WTA Finals with gritty win over Pegula", "summary": "Former champion Coco Gauff beats fellow American Jessica Pegula in her opening match of the WTA Finals at Indian Wells.", "link": "https://www.bbc.co.uk/sport/tennis/articles/c3x2w9w078kko?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/fcc0/live/dc06f760-dc04-11f1-9292-932e681b2914.jpg", "time": 1794208806.0, "source": "BBC Sport"}, {"title": "Are 'outstanding' Brighton now Arsenal's main title challengers?", "summary": "After moving up to second in the Premier League, could Brighton really be Arsenal's main title challengers?", "link": "https://www.bbc.co.uk/sport/football/articles/cjx23rwxdn64o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/8de0/live/2f31e2f0-db93-11f1-9029-d35c55297624.jpg", "time": 1794165876.0, "source": "BBC Sport"}, {"title": "What can you read into Premier League table after 10 games?", "summary": "With 10 games gone in the Premier League season, BBC Sport looks at what history tells us we can read into the table at this stage.", "link": "https://www.bbc.co.uk/sport/football/articles/c91463n3mlzlo?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/e2dd/live/fb15a380-db97-11f1-a42b-dbe60e973664.jpg", "time": 1794166834.0, "source": "BBC Sport"}, {"title": "Dutch match postponed after fans block team bus", "summary": "A Dutch second-tier match between Vitesse Arnhem and De Graafschap was called off after away team supporters blocked their own team's bus from departing for the game.", "link": "https://www.bbc.co.uk/sport/football/articles/cqy0r0lw4l5ro?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/e8eb/live/b045b540-dc0d-11f1-9f85-c35529b8c4b9.jpg", "time": 1794211207.0, "source": "BBC Sport"}, {"title": "USA & Pacific Islands to host 2030 Rugby League World Cup", "summary": "The 2030 Rugby League World Cup tournament will be hosted by the USA and the Pacific Islands, but the five host cities are yet to be confirmed.", "link": "https://www.bbc.co.uk/sport/rugby-league/articles/c620r0n4yxw8o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/dd63/live/ab201c90-dc0d-11f1-9f85-c35529b8c4b9.jpg", "time": 1794211592.0, "source": "BBC Sport"}, {"title": "Who am I? Plus today's other quizzes", "summary": "Test your ball knowledge against today's Who Am I?, Five in Five and Brainteaser.", "link": "https://www.bbc.co.uk/sport/football/articles/c6ly0w4n7d91o?at_medium=RSS&at_campaign=rss", "image": "https://ichef.bbci.co.uk/ace/standard/480/cpsprodpb/1fbf/live/38bd3c70-bda7-11f1-bc2e-018d645d8d21.png", "time": 1794205516.0, "source": "BBC Sport"}]}, "weather": {"city": "London", "country": "United Kingdom", "temp": 5, "feels": 3, "label": "foggy", "icon": "fog", "is_day": true, "humidity": 99, "wind": 6, "wind_unit": "km/h", "unit": "°C", "sunrise": "07:08", "sunset": "16:20", "today": {"high": 11, "low": 5, "label": "foggy", "icon": "fog", "rain": 0}, "tomorrow": {"high": 11, "low": 6, "label": "light rain", "icon": "rain", "rain": 82}, "hours": [{"time": "08:00", "temp": 5, "icon": "fog", "rain": 0}, {"time": "09:00", "temp": 5, "icon": "fog", "rain": 0}, {"time": "10:00", "temp": 6, "icon": "cloud", "rain": 0}, {"time": "11:00", "temp": 7, "icon": "cloud", "rain": 0}, {"time": "12:00", "temp": 8, "icon": "cloud", "rain": 0}, {"time": "13:00", "temp": 9, "icon": "partly", "rain": 0}, {"time": "14:00", "temp": 10, "icon": "partly", "rain": 0}, {"time": "15:00", "temp": 10, "icon": "clear", "rain": 0}, {"time": "16:00", "temp": 10, "icon": "clear", "rain": 0}, {"time": "17:00", "temp": 9, "icon": "partly", "rain": 0}, {"time": "18:00", "temp": 9, "icon": "clear", "rain": 0}, {"time": "19:00", "temp": 9, "icon": "cloud", "rain": 0}], "sample": true}, "lookups": {"burj khalifa": {"text": "The Burj Khalifa is a megatall skyscraper in Dubai, United Arab Emirates. Designed by Skidmore, Owings & Merrill, it is the world's tallest structure, with a total height of 829.8 m and a roof height of 828 m (2,717 ft).", "title": "Burj Khalifa", "url": "https://en.wikipedia.org/wiki/Burj_Khalifa"}, "eiffel tower": {"text": "The Eiffel Tower is a lattice tower on the Champ de Mars in Paris, France. It is named after the engineer Gustave Eiffel, whose company designed and built the tower from 1887 to 1889.", "title": "Eiffel Tower", "url": "https://en.wikipedia.org/wiki/Eiffel_Tower"}}, "name": "Avyan"};
 try { if (!localStorage.getItem("jarvis.prefs")) localStorage.setItem("jarvis.prefs", JSON.stringify({ convo: false, clap: false })); } catch {}
 if (window.speechSynthesis) { speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices(); }
 
@@ -1011,7 +1067,7 @@ const store = {
   set(k, v) { try { localStorage.setItem("jarvis." + k, JSON.stringify(v)); } catch {} },
 };
 const prefs = Object.assign(
-  { name: "", city: "", units: "auto", convo: true, clap: true, voice: true, sfx: true, intro: true, voiceId: "", browserVoice: "", speed: 1, voiceEngine: "auto", elevenVoice: "", voiceQuality: "fast", wake: true, bargeIn: true },
+  { name: "", city: "", units: "auto", convo: true, clap: true, voice: true, sfx: true, intro: true, voiceId: "", browserVoice: "", speed: 1, voiceEngine: "auto", elevenVoice: "", voiceQuality: "fast", wake: true, bargeIn: true, patience: "normal", listenOnLogin: true },
   store.get("prefs", {})
 );
 const savePrefs = () => store.set("prefs", prefs);
@@ -1043,7 +1099,7 @@ function setCaption(t) {
 
 /* ============================================================== audio */
 let ctx = null, sfxGain = null, voiceGain = null, outAnalyser = null, micAnalyser = null, micLevel = 0;
-let rec = null, noiseFloor = 0.006;
+let rec = null, noiseFloor = 0.003;
 
 function ensureAudio() {
   if (ctx) return ctx;
@@ -1137,8 +1193,10 @@ function onMic(samples) {
   micLevel = rms;
   recent.push(new Float32Array(samples));
   if (recent.length > Math.ceil(2.5 / dt)) recent.shift();
-  if (S.state === "speaking" && prefs.bargeIn) { checkBargeIn(rms, dt); }
-  else { barge.time = 0; barge.env = 0; }
+  if (S.state === "speaking" && prefs.bargeIn) {
+    checkBargeIn(rms, dt);
+    if (wakeReady() && S.status.wake === "online") feedWake(samples, 0, dt, true); // "Jarvis" always cuts in
+  } else { barge.time = 0; barge.env = 0; }
   if (S.state === "idle" && prefs.wake && wakeReady()) feedWake(samples, rms, dt);
   else if (wake.burst) wake.burst = null;
   if (S.state === "listening" && rec) {
@@ -1146,17 +1204,33 @@ function onMic(samples) {
     rec.total += dt;
     if (!rec.speech) { const keep = Math.ceil(0.4 / dt); if (rec.chunks.length > keep) rec.chunks.splice(0, rec.chunks.length - keep); }
     if (rec.total < 0.22) return;
-    const threshold = Math.max(0.01, noiseFloor * 3.5);
-    if (rms > threshold) { rec.speech = true; rec.silent = 0; rec.voiced += dt; }
-    else if (rec.speech) rec.silent += dt;
+    // follow a smoothed loudness so soft word endings and short gaps between words don't count as you having stopped
+    rec.env = Math.max(rms, (rec.env || 0) * Math.exp(-dt / 0.2));
+    const threshold = Math.max(0.005, noiseFloor * 2.5);
+    if (rec.env > threshold) {
+      if (rec.silent > 0.15) { rec.early = null; rec.earlyText = ""; rec.earlyDone = false; } // you carried on: the early transcript is out of date
+      rec.speech = true; rec.silent = 0; rec.voiced += dt;
+    } else if (rec.speech) rec.silent += dt;
     else rec.waited += dt;
-    if (rec.speech && rec.silent > 0.6) { if (rec.voiced >= 0.25) finishListening(); else { rec.speech = false; rec.silent = 0; rec.voiced = 0; } }
-    else if (!rec.speech && rec.waited > 6) cancelListening(rec.fromWake ? "Standing by." : "I didn't hear anything. Press Space when you're ready.");
-    else if (rec.total > 30) finishListening();
+    // how long a pause means you've finished: set in Settings, and a little longer if you've only just started
+    // ...and much longer if what you've said so far sounds unfinished ("set a timer for…")
+    const wait = ({ quick: 0.8, normal: 1.3, patient: 2 }[prefs.patience] || 1.3) + (rec.voiced < 1.2 ? 0.4 : 0)
+      + (rec.earlyText && unfinished(rec.earlyText) ? 1.6 : 0);
+    // start transcribing during the pause, so the words are ready the moment it's clearly over
+    if (rec.speech && !rec.early && rec.silent > 0.4 && rec.voiced >= 0.25) {
+      const r0 = rec, pr = transcribeClip(rec.chunks.slice());
+      r0.early = pr;
+      pr.then((d) => { if (r0.early === pr) { r0.earlyText = (d && d.text) || ""; r0.earlyDone = true; } });
+    }
+    // (finishing has to wait for that transcript anyway, so hold until it's in and says you're done)
+    if (rec.speech && rec.silent > wait && (!rec.early || rec.earlyDone || rec.silent > wait + 3)) { if (rec.voiced >= 0.25) finishListening(); else { rec.speech = false; rec.silent = 0; rec.voiced = 0; } }
+    else if (!rec.speech && rec.waited > (rec.fromWake ? 8 : 7)) cancelListening(rec.fromWake ? "Standing by." : "I didn't hear anything. Press Space when you're ready.");
+    else if (rec.total > 40) finishListening();
     return;
   }
   if (S.state === "idle") {
-    noiseFloor = noiseFloor * 0.985 + Math.min(rms, 0.04) * 0.015;
+    // background noise: drops quickly in quiet moments, rises only slowly, so your own voice doesn't count as noise
+    noiseFloor = rms < noiseFloor ? noiseFloor * 0.9 + rms * 0.1 : Math.min(0.03, noiseFloor * 1.002 + 0.000005);
     if (prefs.clap && S.micOk) detectClap(rms, peak);
   }
 }
@@ -1172,9 +1246,9 @@ function checkBargeIn(rms, dt) {
   const fall = Math.exp(-dt / 0.25);
   barge.env = Math.max(rms, barge.env * fall);
   barge.out = Math.max(out, barge.out * fall);
-  const needed = Math.max(0.006, Math.min(noiseFloor, 0.015) * 2.5);
+  const needed = Math.max(0.006, noiseFloor * 3);
   barge.time = barge.env > needed ? barge.time + dt : Math.max(0, barge.time - dt);
-  if (barge.time < 0.45 || barge.busy || performance.now() < barge.next || !(S.status && S.status.ears === "online")) return;
+  if (barge.time < 0.35 || barge.busy || performance.now() < barge.next || !(S.status && S.status.ears === "online")) return;
   barge.busy = true; barge.time = 0;
   const speaker = S.speaker, clip = recent.slice(-Math.ceil(1.4 / dt));
   fetch("/api/wake/confirm", { method: "POST", body: toPcm16(clip).buffer })
@@ -1182,13 +1256,17 @@ function checkBargeIn(rms, dt) {
     .then((d) => {
       if (S.speaker !== speaker || S.state !== "speaking" || !speaker) return;
       const text = (d.text || "").trim();
-      if (!text || isEcho(text, speaker.said)) return;
+      if (!text) return;
+      if (isEcho(text, speaker.said)) { bargeNote(`heard "${text.slice(0, 50)}", but it was my own voice, so I kept going.`); return; }
+      bargeNote(`heard "${text.slice(0, 50)}", so I stopped.`);
       if (STOP_RE.test(text) && text.split(/\s+/).length <= 4) { interrupt(); setState("idle", "Okay."); return; }
       startListening(recent.slice(-Math.ceil(2.2 / dt)));
     })
     .catch(() => {})
-    .finally(() => { barge.busy = false; barge.next = performance.now() + 300; });
+    .finally(() => { barge.busy = false; barge.next = performance.now() + 900; }); // keep speech recognition from running non-stop
 }
+// what the interrupt check last decided, shown under the Systems panel
+function bargeNote(text) { const el = $("#barge-note"); if (el) el.textContent = "Interrupt: " + text; }
 // Is this transcript just Jarvis's own words, picked up from the speakers?
 function isEcho(text, said) {
   const words = (t) => t.toLowerCase().replace(/[^a-z0-9' ]+/g, " ").split(/\s+/).filter((w) => w.length > 1);
@@ -1224,7 +1302,7 @@ function lastWakeAudio(seconds) {
   for (let i = 0; i < n; i++) out[i] = wake.ring[(wake.at - n + i + wake.ring.length) % wake.ring.length];
   return out;
 }
-function feedWake(samples, rms, dt) {
+function feedWake(samples, rms, dt, detectorOnly = false) {
   // average down to 16 kHz (plain decimation folds hiss into the speech band and confuses the detector)
   const ratio = ctx.sampleRate / WAKE_RATE;
   for (let i = 0; i < samples.length; i++) {
@@ -1237,29 +1315,39 @@ function feedWake(samples, rms, dt) {
       if (S.status.wake === "online") wake.pcm.push(v);
     }
   }
+  if (detectorOnly) return sendWake();
   // a burst of speech: remember it from just before it started, and double-check its first couple of seconds
-  const loud = rms > Math.max(0.012, Math.min(noiseFloor, 0.02) * 3.5);
+  const loud = rms > Math.max(0.006, noiseFloor * 3);
   if (loud && !wake.burst) wake.burst = { len: 0, quiet: 0, voiced: 0, checked: false, chunks: recent.slice(-Math.ceil(0.3 / dt)) };
   const b = wake.burst;
   if (b) {
     b.len += dt; b.chunks.push(new Float32Array(samples));
     if (loud) { b.quiet = 0; b.voiced += dt; } else b.quiet += dt;
     const ended = b.quiet > 0.7;
-    if (!b.checked && b.voiced >= 0.25 && (ended || b.len >= 1.8)) { b.checked = true; confirmWake(b, ended); }
+    // (skipped while music plays: the song would keep speech recognition busy and slow everything down)
+    if (!b.checked && b.voiced >= 0.25 && (ended || b.len >= 1.8) && !Music.playing) { b.checked = true; confirmWake(b, ended); }
     if (ended || b.len > 10) wake.burst = null;
   }
+  sendWake();
+}
+function sendWake() {
   if (S.status.wake !== "online" || wake.pcm.length < 6400 || wake.busy) return;
   const chunk = Int16Array.from(wake.pcm.splice(0, wake.pcm.length));
   wake.busy = true;
   fetch("/api/wake", { method: "POST", body: chunk.buffer })
     .then((r) => r.json())
-    .then((d) => { if (d.wake) wakeUp("", wake.burst, false); })
+    .then((d) => {
+      if (!d.wake) return;
+      if (S.state === "speaking") { bargeNote('Heard "Jarvis", so I stopped.'); startListening(null, true); setCaption("Yes?"); return; }
+      wakeUp("", wake.burst, false);
+    })
     .catch(() => {})
     .finally(() => { wake.busy = false; });
 }
 function confirmWake(burst, complete) {
-  if (wake.checking || performance.now() < wake.cool) return;
+  if (wake.checking || performance.now() < wake.cool || performance.now() < wake.nextCheck) return;
   wake.checking = true;
+  wake.nextCheck = performance.now() + 1500; // at most one double-check every 1.5 s
   fetch("/api/wake/confirm", { method: "POST", body: lastWakeAudio(Math.min(burst.len + 0.3, 2.6)).buffer })
     .then((r) => r.json())
     .then((d) => {
@@ -1347,7 +1435,7 @@ function mark(step) {
   T[step] = performance.now();
   if (step !== "voice" && !(step === "first" && !prefs.voice)) return;
   const sec = (a, b) => b && a ? ((b - a) / 1000).toFixed(1) + "s" : "–";
-  const line = `Last reply: transcribe ${sec(T.start, T.heard)} · think ${sec(T.heard || T.start, T.first)} · voice ${sec(T.first, T.voice)} · total ${sec(T.start, T.voice || T.first)}`;
+  const line = `Last reply: heard you ${sec(T.start, T.heard)} · think ${sec(T.heard || T.start, T.first)} · voice ${sec(T.first, T.voice)} · total ${sec(T.start, T.voice || T.first)}`;
   const el = $("#timing"); if (el) el.textContent = line;
   console.log("[jarvis]", line);
 }
@@ -1358,16 +1446,24 @@ async function finishListening() {
   if (!r) return;
   startTiming(performance.now() - (r.silent || 0) * 1000); // from when you stopped talking
   SFX.stop();
-  setState("thinking", "Transcribing…");
+  setState("thinking", "Thinking…");
   try {
-    const res = await fetch("/api/stt", { method: "POST", headers: { "Content-Type": "audio/wav" }, body: encodeWav(r.chunks, ctx.sampleRate) });
-    const data = await res.json();
+    const data = await (r.early || transcribeClip(r.chunks));
     if (data.error) throw new Error(data.error);
     mark("heard");
     if (!data.text) { afterTurn(r.fromWake ? "Standing by." : "I didn't catch that. Press Space to try again.", false); return; }
     if (WAKE_RE.test(data.text) && !afterWakeWord(data.text).replace(/\W/g, "")) { startListening(null, true); setCaption("Yes?"); return; } // just the name
     send(data.text);
   } catch (err) { fault(err); }
+}
+// does this sound like the middle of a sentence?
+function unfinished(text) {
+  const t = text.trim().toLowerCase();
+  return /(\.\.\.|…|,|-)$/.test(t) || /\b(a|an|the|to|for|of|and|or|but|with|about|from|in|on|at|by|my|your|is|are|was|if|so|because|that|like|what|how|um|uh|can|could|would|should|please)$/.test(t.replace(/[.?!]+$/, ""));
+}
+function transcribeClip(chunks) {
+  return fetch("/api/stt", { method: "POST", headers: { "Content-Type": "audio/wav" }, body: encodeWav(chunks, ctx.sampleRate) })
+    .then((res) => res.json()).catch((err) => ({ error: err.message }));
 }
 function talk() {
   if (S.state === "locked" || S.state === "booting") return;
@@ -1677,15 +1773,43 @@ function localCommand(text) {
     if (S.focus) closeFocus();
     reply("Done."); return true;
   }
+  // moving things: "put the timer in the top right", "move the music to the bottom left"
+  const place = /\b(put|move|place|stick|pin|drag|show|keep|bring)\b/.test(t) && /\b(top|bottom|upper|lower|left|right|corner|over|on top)\b/.test(t);
+  const what = /\b(timers?|countdown|clock)\b/.test(t) ? "timer" : /\b(music|player|video|song|youtube)\b/.test(t) ? "music" : "";
+  if (place && what && !/\b(set|start|make|create) (a |an |another )?(timer|countdown)\b/.test(t)) {
+    if (what === "timer" && !Timers.list.length) { reply("There's no timer running. Say, set a timer for ten minutes."); return true; }
+    if (what === "music" && !Music.active()) { reply("Nothing's playing right now."); return true; }
+    if (what === "timer") prefs.pinTimer = true;
+    if (what === "music" && Music.big) Music.setBig(false);
+    setCorner(what, cornerFrom(t, prefs.pos[what]));
+    reply("Done."); return true;
+  }
+  if (/\b(set|start) (a |an |another )?(timer|countdown)\b/.test(t) && /\b(top|bottom|left|right|corner)\b/.test(t)) {
+    prefs.pinTimer = true; setCorner("timer", cornerFrom(t, prefs.pos.timer)); // the server sets the timer itself
+  }
+  if (/^(hide|unpin|remove|get rid of)( the)? (timer|countdown)( from the (screen|corner))?$/.test(t) && Timers.list.length) {
+    prefs.pinTimer = false; savePrefs(); updatePip(); reply("Hidden. It's still running."); return true;
+  }
+  // past papers
+  if (S.focus === "papers" || S.lastThing === "papers") {
+    let m3;
+    if (/^(next|next set|next one|next paper|another one|another set)$/.test(t)) { Papers.go(Papers.i + 1); reply(Papers.sets[Papers.i].name + "."); return true; }
+    if (/^(previous|previous set|last set|go back|back)$/.test(t) && S.focus === "papers") { Papers.go(Papers.i - 1); reply(Papers.sets[Papers.i].name + "."); return true; }
+    if (/\b(hide|close|remove|cover)( the)? (mark ?scheme|answers?|ms)\b/.test(t)) { Papers.toggleMs(false); reply("Mark scheme hidden. Good luck."); return true; }
+    if (/\b(show|open|reveal|bring back)( me)?( the)? (mark ?scheme|answers?|ms)\b/.test(t)) { Papers.toggleMs(true); reply("Here's the mark scheme."); return true; }
+    if ((m3 = t.match(/^(?:open |go to |show )?(?:set|paper|number) (\d+|one|two|three|four|five|six|seven|eight|nine|ten)$/))) { Papers.go((+m3[1] || NUMWORD[m3[1]]) - 1); reply(Papers.sets[Papers.i].name + "."); return true; }
+  }
   // "focus on the timer", "make the news full screen", "make it take up the whole page"
   const wantsFocus = /\b(focus|zoom|concentrate|full ?screen|big screen|whole (page|screen)|entire (page|screen)|expand|enlarge|maximi[sz]e|bigger|blow (it|that) up)\b/.test(t)
     || /^(show|pull up|bring up|open)( me)?( the| my)? (timer|timers|countdown)$/.test(t);
   if (wantsFocus) {
     const target = /\b(timers?|countdown|reminders?)\b/.test(t) ? "timer" : /\b(news|headlines?|stories)\b/.test(t) ? "news"
-      : /\b(weather|forecast)\b/.test(t) ? "weather" : /\b(recipe|page|steps|guide|document|doc|plan|list|draft|instructions)\b/.test(t) ? "doc"
+      : /\b(weather|forecast)\b/.test(t) ? "weather" : /\b(questions?|papers?|mark ?scheme|worksheet)\b/.test(t) ? "papers"
+      : /\b(recipe|page|steps|guide|document|doc|plan|list|draft|instructions|lesson)\b/.test(t) ? "doc"
       : /\b(music|video|song|player|youtube)\b/.test(t) ? "music" : S.lastThing || (Music.active() ? "music" : Timers.list.length ? "timer" : "");
     if (target === "music") { if (!Music.active()) { reply("Nothing's playing right now. Say play, then a song or artist."); return true; } Music.setBig(true); reply("Here you go."); return true; }
     if (target === "doc" && !Doc.kind) { reply("There's no page open yet. Ask me for a recipe or a guide."); return true; }
+    if (target === "papers" && !Papers.sets.length) { reply("Ask me for some questions first, like chapter 6 from Physics and Maths Tutor."); return true; }
     if (target === "news") { const n = S.news && S.news.items; if (!n || !n.length) return false; openDeck(S.news.cat, n); reply("Here are the headlines."); return true; }
     if (target === "weather") { if (!S.weather) return false; openWeather(); reply("Here's the weather."); return true; }
     if (target) { openFocus(target); reply(target === "timer" ? (Timers.list.length ? "Focusing on your timer." : "There's no timer running yet.") : "Here you go."); return true; }
@@ -1819,10 +1943,11 @@ function handleUi(ev, msg) {
       setNews(ev.category, ev.items);
       if (ev.deck) openDeck(ev.category, ev.items, ev.title, ev.source);
       break;
+    case "papers": Papers.open(ev); break;
     case "doc": Doc.open(ev); break;
     case "music": Music.play(ev.items, ev.query); break;
     case "weather": S.weather = ev.data; S.weatherError = false; renderWeather(); if (ev.focus) { S.lastThing = "weather"; openWeather(); } break;
-    case "timer": S.lastThing = "timer"; Timers.add(ev); toast(ev.remind ? "Reminder set" : "Timer set", `${ev.label} · ${fmtDur(ev.seconds)}`, "i-timer"); break;
+    case "timer": S.lastThing = "timer"; Timers.add(ev); updatePip(); toast(ev.remind ? "Reminder set" : "Timer set", `${ev.label} · ${fmtDur(ev.seconds)}`, "i-timer"); break;
     case "timer_cancel": Timers.clear(); break;
     case "opened": toast("Opened " + ev.label, ev.detail || "", "i-ext"); attachReceipt(msg, ev); break;
     case "sources": attachSources(msg, ev.items); break;
@@ -1878,6 +2003,7 @@ const Timers = {
       if (left <= 0) { this.remove(t.id); this.fire(t); }
     }
     if (S.focus === "timer") tickTimerFocus();
+    updatePip();
   },
   fire(t) {
     SFX.chime();
@@ -1969,7 +2095,7 @@ const Doc = {
   md: "", kind: "", title: "", image: "", shown: 0, step: -1, timer: 0, done: false,
   open(ev) {
     Object.assign(this, { md: "", kind: ev.kind, title: ev.title || "Page", image: ev.image || "", shown: 0, step: -1, done: false });
-    $("#doc-eyebrow").textContent = { recipe: "Recipe", guide: "Step by step", plan: "Plan", writing: "Draft" }[ev.kind] || "Page";
+    $("#doc-eyebrow").textContent = { recipe: "Recipe", guide: "Step by step", plan: "Plan", writing: "Draft", lesson: "Lesson" }[ev.kind] || "Page";
     $("#doc-title").textContent = this.title;
     $("#doc-foot").textContent = ev.kind === "recipe" ? "Say “next step” or “read the ingredients” · Esc to close" : ev.kind === "writing" ? "Esc to close" : "Say “next step” · Esc to close";
     S.lastThing = "doc";
@@ -2030,7 +2156,10 @@ const Doc = {
     if (error) main.push(`<p class="doc-err">${esc(error)}</p>`);
     else if (!this.done) main.push('<div class="doc-wait"><i></i><i></i><i></i></div>');
     const ticked = new Set($$("#doc .doc-card li.done").map((li) => li.textContent));
+    const oldHero = $("#doc .doc-hero");
     el.innerHTML = (side.length ? `<div class="doc-side">${side.join("")}</div>` : "") + `<div class="doc-main">${main.join("")}</div>`;
+    const newHero = $("#doc .doc-hero");
+    if (oldHero && newHero && oldHero.getAttribute("src") === newHero.getAttribute("src")) newHero.replaceWith(oldHero);
     $$("#doc .doc-card li").forEach((li) => { if (ticked.has(li.textContent)) li.classList.add("done"); });
     this.shown = n;
   },
@@ -2051,6 +2180,96 @@ $("#doc").addEventListener("click", (e) => {
   const st = e.target.closest(".doc-step");
   if (st) { Doc.step = +st.dataset.step; $$("#doc .doc-step").forEach((el) => el.classList.toggle("reading", el === st)); }
 });
+
+/* ============================================================== past papers: questions and mark scheme side by side */
+const Papers = {
+  sets: [], i: 0, ms: true, page: "",
+  open(ev) {
+    this.sets = ev.sets || []; this.i = 0; this.page = ev.page || "";
+    $("#pap-eyebrow").textContent = "Physics & Maths Tutor · " + (ev.course || "");
+    $("#pap-title").textContent = ev.title || "Questions";
+    S.lastThing = "papers";
+    this.render();
+    openFocus("papers");
+  },
+  render() {
+    const set = this.sets[this.i];
+    if (!set) return;
+    const src = (u) => esc(encodeURI(decodeURI(u)));
+    $("#pap").classList.toggle("no-ms", !this.ms || !set.ms);
+    $("#pap").innerHTML = `
+      <div class="pap-list">${this.sets.map((x, k) => `<button type="button" data-set="${k}" class="${k === this.i ? "on" : ""}"><b>${esc(x.name)}</b>${x.group ? `<span>${esc(x.group)}</span>` : ""}</button>`).join("")}</div>
+      <div class="pap-pane"><h4>Questions<span class="grow"></span><a href="${src(set.qp)}" target="_blank" rel="noopener">Open ↗</a></h4><iframe src="${src(set.qp)}" title="Questions"></iframe></div>
+      <div class="pap-pane pap-ms"><h4>Mark scheme<span class="grow"></span>${set.ms ? `<a href="${src(set.ms)}" target="_blank" rel="noopener">Open ↗</a>` : ""}</h4>${set.ms ? `<iframe src="${src(set.ms)}" title="Mark scheme"></iframe>` : ""}</div>`;
+    $("#pap-toggle").textContent = this.ms ? "Hide mark scheme" : "Show mark scheme";
+    const on = $("#pap .pap-list .on");
+    if (on) on.scrollIntoView({ block: "nearest" });
+  },
+  go(k) { if (this.sets.length) { this.i = (k + this.sets.length) % this.sets.length; this.render(); } },
+  toggleMs(on = !this.ms) { this.ms = on; this.render(); },
+};
+$("#pap").addEventListener("click", (e) => { const b = e.target.closest("[data-set]"); if (b) Papers.go(+b.dataset.set); });
+$("#pap-toggle").addEventListener("click", () => Papers.toggleMs());
+
+/* ============================================================== floating widgets you can move */
+const CORNERS = ["tl", "tr", "bl", "br"];
+prefs.pos = Object.assign({ timer: "tr", music: "br" }, prefs.pos || {});
+function placeWidget(el, corner) {
+  for (const c of CORNERS) el.classList.remove("corner-" + c);
+  el.classList.add("corner-" + corner);
+  el.style.transform = "";
+}
+function setCorner(which, corner) {
+  prefs.pos[which] = corner;
+  savePrefs();
+  placeWidget(which === "timer" ? $("#timer-pip") : $("#player"), corner);
+  updatePip();
+}
+// drag a widget anywhere, and it settles into the nearest corner
+function draggable(el, handle, which) {
+  let sx = 0, sy = 0, on = false;
+  handle.addEventListener("pointerdown", (e) => {
+    if (e.button !== 0 || e.target.closest("button") || (which === "music" && Music.big)) return;
+    on = true; sx = e.clientX; sy = e.clientY; el.dataset.moved = "";
+    el.classList.add("dragging"); handle.setPointerCapture(e.pointerId);
+  });
+  handle.addEventListener("pointermove", (e) => {
+    if (!on) return;
+    const dx = e.clientX - sx, dy = e.clientY - sy;
+    if (Math.abs(dx) + Math.abs(dy) > 4) el.dataset.moved = "1";
+    el.style.transform = `translate(${dx}px, ${dy}px)`;
+  });
+  const end = () => {
+    if (!on) return;
+    on = false; el.classList.remove("dragging");
+    const r = el.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    if (el.dataset.moved) setCorner(which, (cy < innerHeight / 2 ? "t" : "b") + (cx < innerWidth / 2 ? "l" : "r"));
+    else el.style.transform = "";
+  };
+  handle.addEventListener("pointerup", end);
+  handle.addEventListener("pointercancel", end);
+}
+// The small timer shows over full-screen views (a recipe, the news…), or anywhere once you've placed it.
+function updatePip() {
+  const pip = $("#timer-pip"), list = Timers.list;
+  const show = list.length && S.focus !== "timer" && (S.focus || Music.big || prefs.pinTimer);
+  pip.hidden = !show;
+  if (!show) return;
+  const t = list[0], left = Math.max(0, t.end - Date.now());
+  $("#pip-time").textContent = fmtClock(left);
+  $("#pip-label").textContent = t.label + (list.length > 1 ? ` +${list.length - 1}` : "");
+  $("#pip-fill").style.strokeDashoffset = 100 - (100 * left) / (t.total * 1000);
+  // sharing a corner with the music player: sit just beside it
+  const same = prefs.pos.timer === prefs.pos.music && !$("#player").hidden && !Music.big;
+  const v = prefs.pos.timer[0] === "t" ? "top" : "bottom";
+  pip.style[v] = same ? (v === "top" ? 96 : 24) + $("#player").offsetHeight + 12 + "px" : "";
+  pip.style[v === "top" ? "bottom" : "top"] = "";
+}
+function cornerFrom(t, current) {
+  const v = /\b(top|upper|up)\b/.test(t) ? "t" : /\b(bottom|lower|down)\b/.test(t) ? "b" : current[0];
+  const h = /\bleft\b/.test(t) ? "l" : /\bright\b/.test(t) ? "r" : current[1];
+  return v + h;
+}
 
 /* ============================================================== music: YouTube, played inside the page */
 const Music = {
@@ -2114,6 +2333,7 @@ const Music = {
     if (on && S.focus) closeFocus();
     $("#player").classList.toggle("big", on);
     document.body.classList.toggle("music-big", on);
+    updatePip();
   },
   close() {
     this.setBig(false);
@@ -2121,6 +2341,7 @@ const Music = {
     this.yt = null;
     $("#player").hidden = true;
     $(".pl-video").innerHTML = '<div id="yt"></div>';
+    updatePip();
     this.playing = false;
   },
 };
@@ -2129,6 +2350,11 @@ $("#pl-next").addEventListener("click", () => Music.next());
 $("#pl-prev").addEventListener("click", () => Music.prev());
 $("#pl-big").addEventListener("click", () => Music.setBig(!Music.big));
 $("#pl-close").addEventListener("click", () => Music.close());
+placeWidget($("#timer-pip"), prefs.pos.timer);
+placeWidget($("#player"), prefs.pos.music);
+draggable($("#timer-pip"), $("#timer-pip"), "timer");
+draggable($("#player"), $(".pl-meta"), "music");
+$("#timer-pip").addEventListener("click", () => { if (!$("#timer-pip").dataset.moved) openFocus("timer"); });
 
 /* ============================================================== focus views */
 function setClip(view, rect, radius) {
@@ -2143,12 +2369,14 @@ function setClip(view, rect, radius) {
 const FOCUS = {
   news: () => [$("#deck"), $(".news-card")], weather: () => [$("#fx-weather"), $("#wx-card")],
   doc: () => [$("#fx-doc"), $(".convo")], timer: () => [$("#fx-timer"), $("#timers-card")],
+  papers: () => [$("#fx-papers"), $(".convo")],
 };
 // where a view grows from and shrinks back to: its dashboard card, or the conversation if that card is hidden
 function sourceRect(el) { return (el && el.offsetParent ? el : $(".convo")).getBoundingClientRect(); }
 function openFocus(kind) {
   if (S.focus === kind) return;
   if (kind === "timer") renderTimerFocus();
+  setTimeout(updatePip, 0);
   if (Music.big) Music.setBig(false);
   if (S.focus) { const [old] = FOCUS[S.focus](); old.classList.remove("open"); old.hidden = true; }
   const [view, source] = FOCUS[kind]();
@@ -2166,6 +2394,7 @@ function openFocus(kind) {
 }
 function closeFocus() {
   if (!S.focus) return;
+  setTimeout(updatePip, 0);
   const kind = S.focus, [view, source] = FOCUS[kind]();
   S.focus = null;
   S.deckOpen = false;
@@ -2719,8 +2948,10 @@ async function greet() {
   }
   addMsg("jarvis", line);
   const hint = S.micOk ? "Press Space, tap the orb, or clap twice to talk." : "Type a message below to get started.";
-  if (prefs.voice) speak(line, () => setState("idle", hint));
-  else setState("idle", hint);
+  // then start listening straight away, so you can just talk
+  const listen = () => { setState("idle", hint); if (prefs.listenOnLogin && S.micOk && S.state === "idle") startListening(null, true); };
+  if (prefs.voice) speak(line, listen);
+  else listen();
 }
 
 /* ============================================================== settings */
@@ -2731,6 +2962,7 @@ function openSettings() {
   $("#set-name").placeholder = (S.status && S.status.name) || "What should Jarvis call you?";
   $("#set-city").value = prefs.city;
   $$("#set-units button").forEach((b) => b.classList.toggle("on", b.dataset.u === prefs.units));
+  $$("#set-patience button").forEach((b) => b.classList.toggle("on", b.dataset.p === (prefs.patience || "normal")));
   $$("[data-pref]").forEach((i) => (i.checked = !!prefs[i.dataset.pref]));
   $$("#set-speed button").forEach((b) => b.classList.toggle("on", parseFloat(b.dataset.s) === (prefs.speed || 1)));
   loadVoices();
@@ -2834,6 +3066,13 @@ $("#settings-btn").addEventListener("click", (e) => { e.stopPropagation(); $("#s
 document.addEventListener("click", (e) => { if (!$("#settings").hidden && !e.target.closest("#settings")) closeSettings(); });
 $("#set-name").addEventListener("input", (e) => { prefs.name = e.target.value.trim(); savePrefs(); heroSub(); });
 $("#set-city").addEventListener("change", (e) => { prefs.city = e.target.value.trim(); savePrefs(); S.weather = null; loadWeather(); });
+$("#set-patience").addEventListener("click", (e) => {
+  const b = e.target.closest("button");
+  if (!b) return;
+  prefs.patience = b.dataset.p;
+  savePrefs();
+  $$("#set-patience button").forEach((x) => x.classList.toggle("on", x === b));
+});
 $("#set-units").addEventListener("click", (e) => {
   const b = e.target.closest("button"); if (!b) return;
   prefs.units = b.dataset.u; savePrefs();

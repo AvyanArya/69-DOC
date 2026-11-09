@@ -33,6 +33,11 @@ Choose a voice from the list. George, a warm British voice, is the default. Then
 | "How do I tie a tie?" / "Make me a workout plan" / "Write an email to…" | A step-by-step guide, plan or draft on its own page |
 | "Next step" / "Step 3" / "Read the ingredients" | Reads the page aloud, one step at a time |
 | "Focus on the timer" / "Make the news full screen" / "Make it bigger" | Expands the timer, news, weather, page or music to fill the screen |
+| "Put the timer in the top right" / "Move the music to the bottom left" | Moves the floating timer or music player. You can also drag them. The timer floats over full-screen views |
+| "Open the questions from chapter 6 from Physics and Maths Tutor" | Opens that topic's questions with the mark scheme alongside. It asks your course once (say "GCSE AQA physics") and remembers it |
+| "Next set" / "Hide the mark scheme" / "Show the mark scheme" | Moves through the question sets, or hides the answers while you work |
+| "Give me study tips for physics" / "Teach me electromagnetic induction" | A study plan or a lesson page with key ideas, a worked example and questions to try |
+| "Quiz me on waves" | Jarvis asks one question at a time and tells you how you did |
 | "Open the second one" | Opens that story in your browser |
 | "Pull up the weather" / "Will it rain tomorrow in London?" | Opens the full weather view for your city or any city |
 | "Close" | Closes the news or weather view |
@@ -79,6 +84,8 @@ Start it:
 ```
 
 Your browser opens http://localhost:8765. The first launch downloads the speech models, so give it a few minutes. Run the download command again any time to update.
+
+After you log in, Jarvis starts listening straight away. It waits for you to finish: a pause after something unfinished ("set a timer for…") doesn't count as the end, and **Settings → Wait for me to finish** makes it quicker or more patient.
 
 Replies are written out word by word as Jarvis says them. Under the Systems panel, **Last reply** shows how long each step took (transcribing, thinking, voice), so you can see what's slow.
 

@@ -71,7 +71,7 @@ if LANGUAGE.startswith("en") and CONFIG.speech.model in ("tiny", "base", "small"
 VOICE_SPEED = float(CONFIG.speech.voice_speed or 1.0)
 HISTORY_TURNS = 20
 MAX_BODY_BYTES = 25 * 1024 * 1024
-HUD_VERSION = "2.6"
+HUD_VERSION = "2.7"
 USER_AGENT = f"OpenJarvisHUD/{HUD_VERSION} (+https://github.com/open-jarvis/OpenJarvis)"
 IS_MAC = sys.platform == "darwin"
 # The voice runs on the CPU by default: fast enough on Apple Silicon, and it leaves the GPU to the language model.
@@ -327,6 +327,11 @@ DOC_PROMPTS = {
     "plan": ("Make this for the user: {q}. Use exactly this format, in English, with no other text:\n"
              "# <short title>\n<one sentence summary>\n"
              "Then use '## ' section headings, '- ' bullet points and '1. ' numbered steps as fits. Be specific and practical."),
+    "lesson": ("Teach this to a student, clearly and accurately: {q}. Use exactly this format, in English, with no other text:\n"
+               "# <topic>\n<one sentence with the big idea>\n"
+               "META: <level, e.g. GCSE or A-level> | <minutes to learn>\n"
+               "## Key ideas\n- <idea>\n...\n## Step by step\n1. <step>\n...\n## Worked example\n<a short worked example>\n"
+               "## Common mistakes\n- <mistake and how to avoid it>\n...\n## Check yourself\n- <question to try>\n..."),
     "writing": ("Write this for the user: {q}. Use exactly this format, in English:\n# <short title>\n"
                 "Then the text itself, in plain paragraphs (headings only if they genuinely help)."),
 }
@@ -340,6 +345,15 @@ def doc_request(t: str) -> tuple[str, str] | None:
         subject = re.sub(r"^(give me|show me|find me|get me|i want|i need|can you|could you|tell me|pull up|a|an|the|some|good|nice|easy|simple|quick|how to make|on how to make)\s+", "", m[1].strip())
         subject = re.sub(r"^(how to make|making)\s+", "", subject)
         return "recipe", subject.strip(" ?.!")
+    m = re.search(r"\b((?:study|revision|revising|exam|homework|focus|memory|memorising|note[- ]taking|concentration|productivity)"
+                  r"\s+(?:tips|advice|techniques|strategies|plan|schedule|timetable|hacks|methods))\b(.*)", t) \
+        or re.search(r"\b(how (?:should|do|can) i (?:revise|study|prepare for (?:my |an |the )?exams?|focus|remember)\b.*)", t)
+    if m:
+        return "plan", (m[1] + (m[2] if m.lastindex and m.lastindex >= 2 else "")).strip(" ?.!")
+    m = re.search(r"\bexplain (?:to me )?(.+?)\s+(?:to me\s+)?(?:step by step|in detail|properly|simply|like i'?m \w+|for my exams?)\b", t) \
+        or re.search(r"\b(?:teach me(?: about| how to| how)?|help me understand|give me a lesson on|lesson on|walk me through)\s+(.+)", t)
+    if m and m[1].strip(" ?.!"):
+        return "lesson", m[1].strip(" ?.!")
     m = re.search(r"\b(?:give me|show me|make me|write me|create|put together|draw up|plan) (?:a |an |the |some )?"
                   r"((?:step[- ]by[- ]step )?(?:guide|plan|workout|itinerary|checklist|schedule|routine|list|timetable|"
                   r"study plan|meal plan|packing list|shopping list|outline|cheat sheet)\b.*)", t)
@@ -353,6 +367,173 @@ def doc_request(t: str) -> tuple[str, str] | None:
     if m and not re.search(r"\b(you|jarvis|timer|weather|news)\b", m[1]):
         return "guide", "how to " + m[1].strip(" ?.!")
     return None
+
+
+# --------------------------------------------------------------------------- Physics & Maths Tutor
+
+PMT = "https://www.physicsandmathstutor.com"
+PMT_SUBJECTS = [
+    (r"\bphysics\b", "physics"), (r"\b(maths|math|mathematics|further maths|pure|mechanics|statistics)\b", "maths"),
+    (r"\bchem(istry)?\b", "chemistry"), (r"\bbio(logy)?\b", "biology"), (r"\bcomputer science|comp sci|computing\b", "computer-science"),
+    (r"\beconomics\b", "economics"), (r"\bgeography\b", "geography"), (r"\bpsychology\b", "psychology"),
+]
+PMT_LEVELS = [(r"\bigcse\b", "igcse"), (r"\bgcse\b", "gcse"), (r"\b(a[- ]?levels?|as[- ]levels?|year (12|13)|alevel)\b", "a-level")]
+PMT_BOARDS = [(r"\baqa\b", "aqa"), (r"\bedexcel ial\b|\bial\b", "edexcel-ial"), (r"\bedexcel\b|\bpearson\b", "edexcel"),
+              (r"\bocr[- ]?a\b", "ocr-a"), (r"\bocr[- ]?b\b", "ocr-b"), (r"\bmei\b", "ocr-mei"), (r"\bocr\b", "ocr"),
+              (r"\b(cie|caie|cambridge)\b", "cie"), (r"\beduqas\b", "eduqas"), (r"\bwjec\b", "wjec")]
+NUMBERS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10,
+           "eleven": 11, "twelve": 12, "first": 1, "second": 2, "third": 3, "fourth": 4, "fifth": 5, "sixth": 6,
+           "seventh": 7, "eighth": 8, "ninth": 9, "tenth": 10}
+_pmt_pending: dict = {}
+
+
+def pmt_links(url: str) -> list[tuple[str, str]]:
+    """(href, link text) for every link on a Physics & Maths Tutor page, cached for a day."""
+    def load() -> list[tuple[str, str]]:
+        page = http_get(url, timeout=12).decode("utf-8", "replace")
+        out = []
+        for m in re.finditer(r'<a[^>]+href="([^"]+)"[^>]*>(.*?)</a>', page, re.S):
+            out.append((html.unescape(m[1]), " ".join(html.unescape(re.sub(r"<[^>]+>", " ", m[2])).split())))
+        return out
+
+    return cached(("pmt", url), 86400, load)
+
+
+def _first(patterns, text: str) -> str:
+    return next((value for pattern, value in patterns if re.search(pattern, text)), "")
+
+
+def pmt_request(t: str) -> dict | None:
+    """'questions for chapter 6 from physics and maths tutor' → what to look for."""
+    if not re.search(r"\b(physics ?(and|&|n) ?maths ?tutors?|pmt|physics maths tutors?)\b", t) \
+            and not (re.search(r"\b(questions?|past papers?|topic questions|exam questions|mark schemes?|worksheet)\b", t)
+                     and re.search(r"\b(chapter|topic|section|unit|ch)\b", t)):
+        return None
+    m = re.search(r"\b(chapter|topic|section|unit|ch)\.?\s*(\d+|" + "|".join(NUMBERS) + r")\b", t)
+    number = (int(m[2]) if m[2].isdigit() else NUMBERS[m[2]]) if m else None
+    name = ""
+    if not number:
+        n = re.search(r"\b(?:on|about|for)\s+(?!physics|maths|pmt|gcse|a level|igcse)([a-z][a-z ,'-]{2,40}?)(?:\s+(?:questions?|from|on|in|for)\b|$)", t)
+        name = n[1].strip() if n else ""
+    bare = re.sub(r"\b(physics ?(and|&|n) ?maths ?tutors?|physics maths tutors?|pmt)\b", " ", t)
+    return {"subject": _first(PMT_SUBJECTS, bare), "level": _first(PMT_LEVELS, t), "board": _first(PMT_BOARDS, t),
+            "number": number, "name": name}
+
+
+def _course_for(subject: str, level: str, board: str) -> tuple[str, str]:
+    """The course page (url, title) on PMT that best fits the level and exam board."""
+    best, best_score = ("", ""), 0
+    for href, text in pmt_links(f"{PMT}/{subject}-revision/"):
+        m = re.fullmatch(re.escape(PMT) + rf"/{subject}-revision/([a-z0-9-]+)/", href)
+        if not m or m[1] in ("feed", "solutionbanks"):
+            continue
+        slug = m[1]
+        score = (4 if level and (slug.startswith(level + "-") or slug == level) else 0) \
+            + (4 if board and board in slug.split("-", 1 + (level == "a-level"))[-1] else 0)
+        if level == "gcse" and slug.startswith("igcse"):
+            score -= 4
+        if score > best_score:
+            best, best_score = (href, text or slug), score
+    return best if best_score >= 8 or (best_score >= 4 and not (level and board)) else ("", "")
+
+
+def _pairs(links: list[tuple[str, str]]) -> list[dict]:
+    """Question papers matched with their mark schemes."""
+    pdfs = [href for href, _ in links if href.lower().endswith(".pdf")]
+    have = set(pdfs)
+    sets = []
+    for href in pdfs:
+        if not re.search(r"(Topic-Qs|/QP/|Questions)", href) or not re.search(r"\bQP\.pdf$|/QP/", href):
+            continue
+        ms = re.sub(r"QP\.pdf$", "MS.pdf", href).replace("/QP/", "/MS/")
+        name = re.sub(r"\s*QP$", "", urllib.parse.unquote(href.rsplit("/", 1)[-1])[:-4]).strip()
+        group = urllib.parse.unquote(href.split("/")[-2])
+        sets.append({"name": name, "group": "" if group in ("QP",) else group.replace("-", " "),
+                     "qp": href, "ms": ms if ms in have else ""})
+    return sets
+
+
+def pmt_find(req: dict) -> dict:
+    """Find topic questions and mark schemes on Physics & Maths Tutor."""
+    subject = req["subject"] or SETTINGS.get("pmt_last_subject", "")
+    saved = SETTINGS.get("pmt_courses", {})
+    if not subject:
+        return {"ask": "Which subject is that for? For example, GCSE AQA physics, or A-level Edexcel maths."}
+    level, board = req["level"], req["board"]
+    if not (level and board) and subject in saved:
+        level, board = level or saved[subject]["level"], board or saved[subject]["board"]
+    if not (level and board):
+        return {"ask": f"Which {subject} course is that? For example, GCSE AQA or A-level Edexcel."}
+    course_url, course = _course_for(subject, level, board)
+    if not course_url:
+        return {"error": f"I couldn't find {level.upper()} {board.upper()} {subject} on Physics and Maths Tutor."}
+    SETTINGS.setdefault("pmt_courses", {})[subject] = {"level": level, "board": board}
+    SETTINGS["pmt_last_subject"] = subject
+    _save_settings()
+
+    topics = []
+    for href, text in pmt_links(course_url):
+        if href.startswith(course_url) and href != course_url and href.count("/") == course_url.count("/") + 1 and text:
+            if (href, text) not in topics:
+                topics.append((href, text))
+    chosen = []
+    number, name = req["number"], req["name"].lower()
+    if number:
+        chosen = [(h, t) for h, t in topics if re.match(rf"(topic|section|chapter|unit|paper)\s*{number}\b[:.]?", t.lower())]
+        if not chosen:
+            # A-level maths topics are named; the textbook chapter number appears in their cheat sheets ("Ch.6 Circles")
+            from concurrent.futures import ThreadPoolExecutor
+
+            with ThreadPoolExecutor(8) as pool:
+                pages = list(pool.map(lambda ht: (ht, pmt_links(ht[0])), topics[:40]))
+            chosen = [ht for ht, links in pages if any(re.search(rf"/Ch\.{number}\s", h) for h, _ in links)]
+    elif name:
+        words = set(re.findall(r"[a-z]{3,}", name))
+        scored = sorted(((len(words & set(re.findall(r"[a-z]{3,}", t.lower()))), h, t) for h, t in topics), reverse=True)
+        chosen = [(h, t) for score, h, t in scored[:1] if score]
+    if not chosen:
+        what = f"chapter {number}" if number else (name or "that topic")
+        return {"error": f"I couldn't find {what} in {course} on Physics and Maths Tutor."}
+
+    sets, titles = [], []
+    for href, text in chosen[:2]:
+        links = pmt_links(href)
+        found = _pairs(links)
+        if not found:  # some sections list sub-topics on their own pages
+            subs = [h for h, t in links if h.startswith(href) and h != href and h.count("/") == href.count("/") + 1]
+            for sub in subs[:8]:
+                found += _pairs(pmt_links(sub))
+        sets += found
+        titles.append(text)
+    if not sets:
+        return {"error": f"{titles[0]} doesn't have topic questions on Physics and Maths Tutor."}
+    return {"title": " / ".join(titles), "course": course, "page": chosen[0][0], "sets": sets[:40]}
+
+
+def pmt_route(t: str) -> dict | None:
+    req = pmt_request(t)
+    pending = _pmt_pending.get("req")
+    if not req and pending and time.time() - _pmt_pending.get("at", 0) < 180 and len(t.split()) <= 8 \
+            and (_first(PMT_LEVELS, t) or _first(PMT_BOARDS, t) or _first(PMT_SUBJECTS, t)):
+        req = {**pending, "subject": _first(PMT_SUBJECTS, t) or pending["subject"],
+               "level": _first(PMT_LEVELS, t) or pending["level"], "board": _first(PMT_BOARDS, t) or pending["board"]}
+    if not req:
+        return None
+    _pmt_pending.clear()
+    try:
+        found = pmt_find(req)
+    except Exception:
+        return {"say": "I couldn't reach Physics and Maths Tutor just now.", "ui": []}
+    if "ask" in found:
+        _pmt_pending.update(req=req, at=time.time())
+        return {"say": found["ask"], "ui": []}
+    if "error" in found:
+        return {"say": found["error"], "ui": []}
+    first = found["sets"][0]
+    say = (f"Here are the {found['title']} questions from Physics and Maths Tutor, with the mark scheme alongside."
+           + (f" There are {len(found['sets'])} sets; say next set to move on." if len(found["sets"]) > 1 else ""))
+    return {"say": say, "memory": say + f" The first set is {first['name']}.",
+            "ui": [{"type": "papers", **found}]}
 
 
 # --------------------------------------------------------------------------- weather
@@ -658,6 +839,9 @@ def route(text: str, prefs: dict) -> dict | None:
     t = re.sub(r"^(hey\s+)?(jarvis|jarvas|travis)\b[,.!]?\s*", "", t)  # the tail of a wake phrase
     if not t:
         return None
+    papers = pmt_route(t)
+    if papers:
+        return papers
     now = datetime.now()
 
     if re.fullmatch(r"(stop|cancel|never ?mind|that'?s all|nothing|shush|be quiet|quiet)", t):
@@ -796,6 +980,7 @@ def route(text: str, prefs: dict) -> dict | None:
     if page:
         kind, subject = page
         intro = {"recipe": f"Here's a recipe for {subject}. I've put it on screen.",
+                 "lesson": f"Let's go through {subject}. I've put the lesson on screen; ask me anything about it, or say quiz me.",
                  "guide": "Here's a step-by-step guide. I've put it on screen.",
                  "plan": "Here you go. I've put it on screen.",
                  "writing": "Here's a draft. I've put it on screen."}[kind]
@@ -860,7 +1045,10 @@ def persona(prefs: dict) -> str:
         "a light dry wit, and straight to the point. Answer the actual question first. Keep replies to one to "
         "three short sentences unless asked for more. Everything you say is spoken, so never use lists, "
         "markdown, emoji, or stage directions. Always reply in English. Don't make up facts about the user or "
-        "the world; if something needs live information you don't have, say so in a sentence."
+        "the world; if something needs live information you don't have, say so in a sentence. "
+        "You're also a patient tutor. When asked to quiz or test the user, ask one question at a time, wait for "
+        "their answer, say whether it's right and why in a sentence or two, then ask the next. If they're stuck, "
+        "give a hint before the answer. Explain ideas simply, with an everyday example."
     )
 
 
