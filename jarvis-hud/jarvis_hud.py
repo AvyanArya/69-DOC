@@ -71,7 +71,7 @@ if LANGUAGE.startswith("en") and CONFIG.speech.model in ("tiny", "base", "small"
 VOICE_SPEED = float(CONFIG.speech.voice_speed or 1.0)
 HISTORY_TURNS = 20
 MAX_BODY_BYTES = 25 * 1024 * 1024
-HUD_VERSION = "2.5"
+HUD_VERSION = "2.6"
 USER_AGENT = f"OpenJarvisHUD/{HUD_VERSION} (+https://github.com/open-jarvis/OpenJarvis)"
 IS_MAC = sys.platform == "darwin"
 # The voice runs on the CPU by default: fast enough on Apple Silicon, and it leaves the GPU to the language model.
@@ -215,6 +215,144 @@ def fetch_news(category: str = "top", limit: int = 12) -> list[dict]:
         return items
 
     return cached(("news", category), 600, load)[:limit]
+
+
+def search_news(topic: str, limit: int = 12) -> list[dict]:
+    """Live headlines about any topic, from Google News."""
+    url = "https://news.google.com/rss/search?" + urllib.parse.urlencode({"q": topic, "hl": "en-GB", "gl": "GB", "ceid": "GB:en"})
+
+    def load() -> list[dict]:
+        root = ET.fromstring(http_get(url))
+        items, seen = [], set()
+        for node in root.iter("item"):
+            title = html.unescape((node.findtext("title") or "").strip())
+            source = (node.findtext("source") or "").strip()
+            if source and title.endswith(" - " + source):
+                title = title[: -len(source) - 3]
+            if not title or title in seen:
+                continue
+            seen.add(title)
+            try:
+                stamp = parsedate_to_datetime(node.findtext("pubDate") or "").timestamp()
+            except (TypeError, ValueError):
+                stamp = None
+            items.append({"title": title, "summary": "", "link": (node.findtext("link") or "").strip(),
+                          "image": "", "time": stamp, "source": source or "Google News"})
+        items.sort(key=lambda it: -(it["time"] or 0))
+        return items[:24]
+
+    return cached(("topic-news", topic.lower()), 600, load)[:limit]
+
+
+# --------------------------------------------------------------------------- music (YouTube, played inside the page)
+
+
+def youtube_search(query: str, limit: int = 6) -> list[dict]:
+    """Search YouTube without an API key, keeping only videos that are allowed to play inside other pages."""
+    def load() -> list[dict]:
+        page = http_get("https://www.youtube.com/results?" + urllib.parse.urlencode({"search_query": query, "hl": "en"}),
+                        timeout=10).decode("utf-8", "replace")
+        m = re.search(r"var ytInitialData\s*=\s*(\{.+?\});</script>", page) or re.search(r"ytInitialData\"?\]?\s*=\s*(\{.+?\});", page)
+        if not m:
+            return []
+        found: list[dict] = []
+
+        def walk(node) -> None:
+            if len(found) >= 12:
+                return
+            if isinstance(node, dict):
+                v = node.get("videoRenderer")
+                if isinstance(v, dict) and v.get("videoId"):
+                    runs = (v.get("title") or {}).get("runs") or [{}]
+                    owner = ((v.get("ownerText") or {}).get("runs") or [{}])[0].get("text", "")
+                    length = (v.get("lengthText") or {}).get("simpleText", "")
+                    if length:  # skip live streams with no length? keep them, but prefer real videos
+                        found.append({"id": v["videoId"], "title": runs[0].get("text", ""), "channel": owner, "length": length})
+                    return
+                for value in node.values():
+                    walk(value)
+            elif isinstance(node, list):
+                for value in node:
+                    walk(value)
+
+        walk(json.loads(m[1]))
+
+        def embeddable(item: dict) -> bool:
+            try:
+                http_get("https://www.youtube.com/oembed?" + urllib.parse.urlencode(
+                    {"url": "https://www.youtube.com/watch?v=" + item["id"], "format": "json"}), timeout=5)
+                return True
+            except Exception:
+                return False
+
+        from concurrent.futures import ThreadPoolExecutor
+
+        with ThreadPoolExecutor(6) as pool:
+            ok = list(pool.map(embeddable, found[:10]))
+        return [it for it, good in zip(found, ok) if good]
+
+    return cached(("yt", query.lower()), 3600, load)[:limit]
+
+
+# --------------------------------------------------------------------------- pages (recipes, guides, plans)
+
+
+def wiki_image(query: str) -> str:
+    """A photo for a page, from Wikipedia."""
+    def load() -> str:
+        data = http_json("https://en.wikipedia.org/w/api.php?" + urllib.parse.urlencode({
+            "action": "query", "generator": "search", "gsrsearch": query, "gsrlimit": 1, "prop": "pageimages",
+            "piprop": "thumbnail", "pithumbsize": 1200, "format": "json"}), timeout=6)
+        for page in (data.get("query") or {}).get("pages", {}).values():
+            return (page.get("thumbnail") or {}).get("source", "")
+        return ""
+
+    try:
+        return cached(("wikiimg", query.lower()), 86400, load)
+    except Exception:
+        return ""
+
+
+DOC_PROMPTS = {
+    "recipe": ("Write a reliable home recipe for: {q}. Use exactly this format, in English, with no other text:\n"
+               "# <dish name>\n<one appetising sentence about it>\n"
+               "META: Serves <n> | Prep <time> | Cook <time>\n"
+               "## Ingredients\n- <quantity and ingredient>\n...\n## Steps\n1. <one clear step>\n...\n"
+               "## Tips\n- <short tip>\n...\nUse metric and cup measures where useful. 6 to 10 steps."),
+    "guide": ("Write a clear, practical step-by-step guide for: {q}. Use exactly this format, in English, with no other text:\n"
+              "# <short title>\n<one sentence on what this covers>\n"
+              "META: <time it takes> | <difficulty>\n"
+              "## You'll need\n- <item>\n...\n## Steps\n1. <one clear step>\n...\n## Tips\n- <short tip>\n...\n"
+              "Leave out the 'You'll need' section if nothing is needed. 4 to 10 steps."),
+    "plan": ("Make this for the user: {q}. Use exactly this format, in English, with no other text:\n"
+             "# <short title>\n<one sentence summary>\n"
+             "Then use '## ' section headings, '- ' bullet points and '1. ' numbered steps as fits. Be specific and practical."),
+    "writing": ("Write this for the user: {q}. Use exactly this format, in English:\n# <short title>\n"
+                "Then the text itself, in plain paragraphs (headings only if they genuinely help)."),
+}
+
+
+def doc_request(t: str) -> tuple[str, str] | None:
+    """Is this a request for something to read on screen? Returns (kind, subject)."""
+    m = re.search(r"\b(?:a |the |me a |me the )?recipe (?:for|of|on) (.+)", t) or re.search(r"\b(.+?) recipe\b", t) \
+        or re.search(r"\bhow (?:do (?:i|you)|to|can i|should i) (?:make|cook|bake|prepare) (.+)", t)
+    if m:
+        subject = re.sub(r"^(give me|show me|find me|get me|i want|i need|can you|could you|tell me|pull up|a|an|the|some|good|nice|easy|simple|quick|how to make|on how to make)\s+", "", m[1].strip())
+        subject = re.sub(r"^(how to make|making)\s+", "", subject)
+        return "recipe", subject.strip(" ?.!")
+    m = re.search(r"\b(?:give me|show me|make me|write me|create|put together|draw up|plan) (?:a |an |the |some )?"
+                  r"((?:step[- ]by[- ]step )?(?:guide|plan|workout|itinerary|checklist|schedule|routine|list|timetable|"
+                  r"study plan|meal plan|packing list|shopping list|outline|cheat sheet)\b.*)", t)
+    if m:
+        return ("guide" if "guide" in m[1] else "plan"), m[1].strip(" ?.!")
+    m = re.search(r"\bwrite (?:me )?(?:a |an )?((?:short |quick |formal |friendly )?(?:essay|email|letter|poem|story|speech|"
+                  r"summary|cover letter|blog post|message|toast|bio|paragraph)\b.*)", t)
+    if m:
+        return "writing", m[1].strip(" ?.!")
+    m = re.search(r"\b(?:how (?:do i|to|can i|should i)|steps to|instructions (?:for|to)|teach me (?:how )?to|show me how to) (.+)", t)
+    if m and not re.search(r"\b(you|jarvis|timer|weather|news)\b", m[1]):
+        return "guide", "how to " + m[1].strip(" ?.!")
+    return None
 
 
 # --------------------------------------------------------------------------- weather
@@ -557,6 +695,23 @@ def route(text: str, prefs: dict) -> dict | None:
     if re.search(r"\b(brief me|briefing|morning report|catch me up|daily (summary|update)|what did i miss|start my day)\b", t):
         return briefing(prefs)
 
+    m = re.search(r"\b(?:news|headlines|stories|latest|updates?)\s+(?:about|on|for|regarding|from)\s+(?:the\s+)?(.+)", t) \
+        or re.search(r"\bwhat'?s (?:happening|going on|new) (?:with|in|at) (?:the\s+)?(.+)", t) \
+        or re.search(r"\b(?:latest|recent) (?:on|with) (.+)", t)
+    if m and not re.fullmatch(r"(today|the world|the news|now|right now)", m[1].strip()):
+        topic = re.sub(r"\s+(today|right now|this week|please)$", "", m[1].strip(" ?.!"))
+        items = search_news(topic, 12)
+        if not items:
+            return {"say": f"I couldn't find any recent news about {topic}.", "ui": []}
+        read = items[:3]
+        lines = [f"Here's the latest on {topic}."]
+        lines += [("First, " if i == 0 else "Then, " if i < len(read) - 1 else "And, ") + _sentence(it["title"])
+                  for i, it in enumerate(read)]
+        memory = f"I read the latest news on {topic}:\n" + "\n".join(f"{i + 1}. {it['title']} ({it['source']})" for i, it in enumerate(read))
+        return {"say": " ".join(lines), "memory": memory,
+                "ui": [{"type": "news", "category": "topic", "title": topic[:1].upper() + topic[1:], "source": "Google News",
+                        "items": items, "deck": True}]}
+
     if re.search(r"\b(news|headlines|top stories|what'?s happening|current events)\b", t):
         category = next((cat for pattern, cat in NEWS_TOPICS if re.search(pattern, t)), "top")
         items = fetch_news(category, 12)
@@ -595,15 +750,23 @@ def route(text: str, prefs: dict) -> dict | None:
                    + (f" There's a {d['rain']} percent chance of rain today." if d["rain"] >= 30 else ""))
         return {"say": say, "ui": [{"type": "weather", "data": w, "focus": True}]}
 
-    m = re.fullmatch(r"play (.+?)(?: on (youtube|spotify))?", t)
+    m = re.fullmatch(r"(?:play|put on|listen to|i want to (?:hear|listen to)|can you play|could you play) (?:me )?(?:some )?(.+?)(?: on (youtube|spotify))?", t)
     if m:
         what, where = m[1], m[2] or "youtube"
         if where == "spotify" and find_app("spotify"):
             open_url("spotify:search:" + urllib.parse.quote(what))
             return {"say": f"Here's {what} on Spotify.", "ui": [{"type": "opened", "label": "Spotify", "detail": what}]}
+        try:
+            videos = youtube_search(what)
+        except Exception:
+            videos = []
+        if videos:
+            return {"say": f"Playing {videos[0]['title'].split('|')[0].split(' (')[0].strip()}.",
+                    "memory": f"I started playing {videos[0]['title']} by {videos[0]['channel']} in the music player.",
+                    "ui": [{"type": "music", "query": what, "items": videos}]}
         url = "https://www.youtube.com/results?" + urllib.parse.urlencode({"search_query": what})
         open_url(url)
-        return {"say": f"Here's {what} on YouTube.", "ui": [{"type": "opened", "label": "YouTube", "detail": what, "url": url}]}
+        return {"say": f"I couldn't load that here, so I've opened {what} on YouTube.", "ui": [{"type": "opened", "label": "YouTube", "detail": what, "url": url}]}
 
     m = re.fullmatch(r"(?:google|search google for|search on google for|bing) (.+)", t)
     if m:
@@ -629,8 +792,22 @@ def route(text: str, prefs: dict) -> dict | None:
             return {"say": f"Opening {target}.", "ui": [{"type": "opened", "label": target, "url": url}]}
         return {"say": f"I couldn't find an app or website called {target}.", "ui": []}
 
+    page = doc_request(t)
+    if page:
+        kind, subject = page
+        intro = {"recipe": f"Here's a recipe for {subject}. I've put it on screen.",
+                 "guide": "Here's a step-by-step guide. I've put it on screen.",
+                 "plan": "Here you go. I've put it on screen.",
+                 "writing": "Here's a draft. I've put it on screen."}[kind]
+        return {"say": intro, "doc": {"kind": kind, "subject": subject, "request": text.strip()},
+                "ui": [{"type": "doc", "kind": kind, "title": subject[:1].upper() + subject[1:],
+                        "image": wiki_image(subject) if kind == "recipe" else ""}]}
+
     m = re.fullmatch(r"(?:look up|search for|search the web for|search the internet for|search|find out|find information on|find info on)\s+(.+)", t)
-    recency = re.search(r"\b(latest|current|currently|today|tonight|this week|right now|recent|recently|score|price of|stock price|who won|newest|just announced|update on)\b", t)
+    recency = re.search(r"\b(latest|current|currently|today|tonight|this week|this year|right now|recent|recently|score|scores|price|prices|"
+                        r"stock|who won|winner|newest|just announced|update on|president|prime minister|ceo of|election|"
+                        r"release date|come out|coming out|how much (is|does|are)|net worth|population of|exchange rate|"
+                        r"is .+ open|when (is|does|did) the next|match|fixture|playing tonight|bitcoin|crypto)\b", t)
     if m or (recency and re.match(r"(who|what|when|where|how|is|are|did|does|which|tell me)\b", t)):
         query = m[1] if m else text.strip()
         results = web_lookup(query)
@@ -1379,6 +1556,8 @@ class Handler(BaseHTTPRequestHandler):
             routed = {"say": "Sorry, that didn't work: " + str(exc), "ui": []}
         for event in (routed or {}).get("ui", []):
             self._line({"ui": event})
+        if routed and routed.get("doc"):
+            return self._doc(routed)
         if routed and "say" in routed:
             for piece in re.findall(r"\S+\s*", routed["say"]):
                 self._line({"delta": piece})
@@ -1402,6 +1581,30 @@ class Handler(BaseHTTPRequestHandler):
             raise
         except Exception as exc:
             self._line({"error": str(exc)})
+
+    def _doc(self, routed: dict) -> None:
+        """Say a short line straight away, then stream the page itself into the on-screen document."""
+        doc = routed["doc"]
+        for piece in re.findall(r"\S+\s*", routed["say"]):
+            self._line({"delta": piece})
+        payload = {
+            "model": MODEL, "stream": True, "think": False, "keep_alive": "10m",
+            "options": {"num_ctx": 4096, "num_predict": 1100, "temperature": 0.4},
+            "messages": [{"role": "system", "content": "You write clear, well organised pages for a screen. Follow the "
+                                                       "requested format exactly. No preamble, no closing remarks."},
+                         {"role": "user", "content": DOC_PROMPTS[doc["kind"]].format(q=doc["request"])}],
+        }
+        page = ""
+        try:
+            for delta in stream_chat(payload):
+                page += delta
+                self._line({"doc": delta})
+        except (BrokenPipeError, ConnectionResetError):
+            raise
+        except Exception as exc:
+            self._line({"doc_error": str(exc)})
+        self._line({"memory": routed["say"] + " The page on screen says:\n" + page[:2500]})
+        self._line({"done": True})
 
     def _stt(self, audio: bytes) -> None:
         if _ears is None:

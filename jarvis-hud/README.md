@@ -28,18 +28,24 @@ Choose a voice from the list. George, a warm British voice, is the default. Then
 | "Brief me" / "Catch me up" | Time, weather and the top three headlines |
 | "Good morning" / "Thank you" / "How are you?" | Answered instantly, without waiting for the model |
 | "Pull up the news" / "tech news" / "business news" | Opens the news deck and reads the headlines (top, world, tech, business, science, sport) |
+| "What's the latest news about Tesla?" | Live headlines on any topic, from Google News |
+| "Give me a recipe for chocolate chip cookies" | Opens a page with a photo, ingredients you can tick off, and numbered steps |
+| "How do I tie a tie?" / "Make me a workout plan" / "Write an email to…" | A step-by-step guide, plan or draft on its own page |
+| "Next step" / "Step 3" / "Read the ingredients" | Reads the page aloud, one step at a time |
+| "Focus on the timer" / "Make the news full screen" / "Make it bigger" | Expands the timer, news, weather, page or music to fill the screen |
 | "Open the second one" | Opens that story in your browser |
 | "Pull up the weather" / "Will it rain tomorrow in London?" | Opens the full weather view for your city or any city |
 | "Close" | Closes the news or weather view |
 | "Set a timer for 10 minutes" / "Remind me to check the oven in 15 minutes" | Countdown card, chime and a spoken alert |
 | "Open YouTube" / "Open Spotify" / "Go to apple.com" | Opens Mac apps and websites |
-| "Play lo-fi beats" | Opens it on YouTube |
+| "Play lo-fi beats" | Plays it from YouTube in a small player in the corner |
+| "Pause" / "Next song" / "Turn it up" / "Stop the music" | Controls the player. Music quietens while you and Jarvis talk |
 | "Google best pizza near me" | Opens a Google search |
 | "Look up the tallest building in the world" | Searches the web and answers, with source links |
 | "What can you do?" | Lists all of this |
 | Anything else | Normal conversation with your local model |
 
-Say **"Hey Jarvis"**, press **Space**, tap the orb, or **clap twice** to talk. To **interrupt**, just start talking while Jarvis is speaking (or press Space). It stops and listens. Headphones make interrupting most reliable, because then Jarvis can't hear itself. Press **Esc** to stop or close the deck. **Conversation mode** keeps listening after each reply.
+Say **"Hey Jarvis"**, press **Space**, tap the orb, or **clap twice** to talk. To **interrupt**, just start talking while Jarvis is speaking (or press Space). It stops and listens. Headphones make interrupting most reliable, because then Jarvis can't hear itself. Press **Esc** to stop or close a full-screen view. **Conversation mode** keeps listening after each reply.
 
 "Hey Jarvis" is heard on your Mac in two ways: the openWakeWord detector, which installs itself on first start, plus a quick double-check with speech recognition for anything short that might be the name. So it works even when the detector misses your voice. The **Wake** row in the Systems panel shows whether it's listening, and Settings → Behaviour shows what it last heard.
 
@@ -73,6 +79,8 @@ Start it:
 ```
 
 Your browser opens http://localhost:8765. The first launch downloads the speech models, so give it a few minutes. Run the download command again any time to update.
+
+Replies are written out word by word as Jarvis says them. Under the Systems panel, **Last reply** shows how long each step took (transcribing, thinking, voice), so you can see what's slow.
 
 ## Settings
 

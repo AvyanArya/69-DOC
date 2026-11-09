@@ -178,6 +178,7 @@ body[data-state=error] .pill i{background:var(--rose);box-shadow:0 0 12px var(--
 .svc em{margin-left:auto;font:400 10px var(--mono);font-style:normal;color:var(--t3);max-width:52%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .notes{margin-top:12px;font-size:11.5px;line-height:1.55;color:var(--amber)}
 .notes p+p{margin-top:6px}
+.timing{margin-top:10px;font-size:10.5px;letter-spacing:.02em;color:var(--t3);font-variant-numeric:tabular-nums}
 
 /* timers */
 .timers{list-style:none;display:grid;gap:4px}
@@ -266,7 +267,7 @@ body[data-state=listening] .mic::after{border-color:rgba(110,240,184,.65)}
 
 /* focus views: a dashboard card morphs into a full page while the orb docks in its corner */
 .focus{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;padding:24px 36px 28px;
-  background:radial-gradient(1100px 650px at 25% 0%,rgba(46,64,140,.26),transparent 62%),rgba(4,7,14,.97);
+  background:radial-gradient(1100px 650px at 25% 0%,rgba(46,64,140,.26),transparent 62%),#04070e;
   clip-path:inset(var(--ft,0px) var(--fr,0px) var(--fb,0px) var(--fl,0px) round var(--frad,0px));
   transition:clip-path .85s var(--ease)}
 .focus.instant{transition:none}
@@ -307,6 +308,72 @@ body.focused .fx-caption.on{opacity:1;transform:translate(-50%,0)}
 .dcard.reading{border-color:rgba(var(--ice-rgb),.75);box-shadow:0 0 0 1px rgba(var(--ice-rgb),.5),0 0 48px -6px rgba(var(--ice-rgb),.55);transform:translateY(-4px) scale(1.012)}
 .dcard.reading .num{background:rgba(var(--ice-rgb),.9);color:#05101a}
 .deck-foot{margin-top:14px;text-align:center;font:500 10.5px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--t3)}
+
+/* page view: recipes, guides, plans, writing */
+.doc{flex:1;min-height:0;overflow-y:auto;display:grid;grid-template-columns:minmax(280px,380px) minmax(0,1fr);gap:22px;align-items:start;padding:4px 4px 30px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.12) transparent}
+.doc.prose{grid-template-columns:minmax(0,760px);justify-content:center}
+.doc-side{position:sticky;top:0;display:flex;flex-direction:column;gap:16px}
+.doc-hero{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:20px;border:1px solid var(--stroke);background:rgba(255,255,255,.04)}
+.doc-desc{font-size:15px;line-height:1.6;color:var(--t2)}
+.doc-meta{display:flex;flex-wrap:wrap;gap:8px}
+.doc-meta span{padding:7px 12px;border-radius:999px;font:500 11px var(--mono);letter-spacing:.06em;color:var(--t1);background:rgba(var(--ice-rgb),.09);border:1px solid rgba(var(--ice-rgb),.22)}
+.doc-card{padding:18px 20px;border-radius:20px;background:var(--glass);border:1px solid var(--stroke)}
+.doc-card h4{margin-bottom:12px;font:500 10.5px var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--ice)}
+.doc-card ul{list-style:none;display:flex;flex-direction:column;gap:2px}
+.doc-card li{display:flex;gap:11px;align-items:flex-start;padding:7px 4px;font-size:14px;line-height:1.5;border-radius:10px;cursor:pointer}
+.doc-card li::before{content:"";flex:none;width:15px;height:15px;margin-top:3px;border-radius:5px;border:1.5px solid rgba(var(--ice-rgb),.5);transition:all .25s}
+.doc-card li.done{color:var(--t3);text-decoration:line-through}
+.doc-card li.done::before{background:var(--mint);border-color:var(--mint)}
+.doc-card.plain li{cursor:default}.doc-card.plain li::before{width:6px;height:6px;margin:8px 4px 0;border-radius:50%;border:0;background:var(--violet)}
+.doc-main{display:flex;flex-direction:column;gap:14px}
+.doc-main h3{margin:10px 0 2px;font:500 10.5px var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--ice)}
+.doc-step{display:flex;gap:18px;padding:18px 22px;border-radius:20px;background:var(--glass);border:1px solid var(--stroke);transition:border-color .4s,box-shadow .5s,transform .5s var(--ease)}
+.doc-step b{flex:none;width:38px;height:38px;display:grid;place-items:center;border-radius:50%;font:400 15px var(--mono);color:var(--ice);background:rgba(var(--ice-rgb),.08);border:1px solid rgba(var(--ice-rgb),.3)}
+.doc-step p{align-self:center;font-size:16px;line-height:1.6}
+.doc-step.reading{border-color:rgba(var(--ice-rgb),.75);box-shadow:0 0 0 1px rgba(var(--ice-rgb),.5),0 0 48px -6px rgba(var(--ice-rgb),.5);transform:translateX(4px)}
+.doc-step.reading b{background:rgba(var(--ice-rgb),.9);color:#05101a}
+.doc-p{font-size:16.5px;line-height:1.75;color:var(--t1)}
+.doc.prose .doc-p{font-size:18px}
+.doc-bul{display:flex;gap:12px;font-size:15.5px;line-height:1.6}.doc-bul::before{content:"";flex:none;width:6px;height:6px;margin-top:10px;border-radius:50%;background:var(--violet)}
+.doc .in{animation:docIn .6s var(--ease) both}
+@keyframes docIn{from{opacity:0;transform:translateY(10px)}}
+.doc-wait{display:flex;gap:6px;padding:20px 4px}.doc-wait i{width:8px;height:8px;border-radius:50%;background:var(--ice);opacity:.3;animation:blink 1.1s infinite}.doc-wait i:nth-child(2){animation-delay:.2s}.doc-wait i:nth-child(3){animation-delay:.4s}
+.doc-err{color:var(--rose);font-size:14px}
+@media (max-width:900px){.doc{grid-template-columns:minmax(0,1fr)}.doc-side{position:static}}
+
+/* full-screen timer */
+.fxt{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px}
+.fxt-ring{position:relative;width:min(62vh,78vw);aspect-ratio:1}
+.fxt-ring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.fxt-ring circle{fill:none;stroke-width:2.2}
+.fxt-track{stroke:rgba(255,255,255,.07)}
+.fxt-fill{stroke:var(--ice);stroke-linecap:round;stroke-dasharray:100;filter:drop-shadow(0 0 14px rgba(var(--ice-rgb),.6));transition:stroke-dashoffset .5s linear}
+.fxt-mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+.fxt-time{font-size:clamp(64px,13vh,150px);font-weight:200;letter-spacing:-.04em;font-variant-numeric:tabular-nums;line-height:1}
+.fxt-label{font-size:20px;color:var(--t2);text-transform:capitalize}
+.fxt-more{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+.fxt-more span{padding:9px 16px;border-radius:999px;font-size:14px;background:var(--glass);border:1px solid var(--stroke)}
+.fxt-more span b{margin-left:8px;font-weight:400;font-variant-numeric:tabular-nums;color:var(--ice)}
+.fxt-empty{font-size:18px;color:var(--t2)}
+
+/* music player: a small card in the corner that can grow to fill the screen */
+.player{position:fixed;right:24px;bottom:24px;z-index:45;width:316px;border-radius:20px;overflow:hidden;background:var(--glass-2);border:1px solid var(--stroke-2);box-shadow:0 30px 80px -30px rgba(0,0,0,.95);
+  animation:plIn .6s var(--ease) backwards}
+@keyframes plIn{from{opacity:0;transform:translateY(24px) scale(.96)}}
+.player[hidden]{display:none}
+.pl-video{position:relative;aspect-ratio:16/9;background:#000}
+.pl-video iframe,.pl-video>div{position:absolute;inset:0;width:100%;height:100%;border:0}
+.pl-bar{display:flex;align-items:center;gap:6px;padding:10px 10px 10px 14px}
+.pl-meta{flex:1;min-width:0}
+.pl-meta b{display:block;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-weight:400;font-size:13px}
+.pl-meta span{display:block;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font:400 10.5px var(--mono);color:var(--t3);letter-spacing:.04em}
+.pl-bar button{flex:none;width:32px;height:32px;display:grid;place-items:center;border-radius:50%;color:var(--t2);transition:all .25s}
+.pl-bar button:hover{color:var(--t1);background:rgba(255,255,255,.07)}
+.pl-bar svg{width:16px;height:16px;fill:currentColor;stroke:none}
+.pl-bar svg.line{fill:none;stroke:currentColor;stroke-width:1.8}
+.player.big{right:50%;bottom:50%;width:min(1180px,calc(100vw - 72px),calc((100vh - 150px) * 16 / 9));transform:translate(50%,50%);border-radius:26px;z-index:46}
+body.music-big .app{transform:scale(.97);opacity:.25}
+body.music-big::after{content:"";position:fixed;inset:0;z-index:44;background:rgba(3,5,10,.75)}
 
 /* weather view */
 .fxw{flex:1;min-height:0;display:grid;grid-template-columns:minmax(320px,.85fr) 1.5fr;grid-template-rows:1fr auto;grid-template-areas:"now chart" "now stats";gap:18px}
@@ -539,6 +606,7 @@ body.focused .fx-caption.on{opacity:1;transform:translate(-50%,0)}
           <div id="svc-wake" class="starting"><i></i>Wake<em id="svc-wake-d">"Hey Jarvis"</em></div>
         </div>
         <div class="notes" id="notes"></div>
+        <div class="timing" id="timing"></div>
       </section>
 
     </aside>
@@ -586,7 +654,7 @@ body.focused .fx-caption.on{opacity:1;transform:translate(-50%,0)}
 <section class="focus deck" id="deck" hidden aria-label="Headlines">
   <div class="fx-head">
     <div class="fx-orb" data-talk title="Talk to Jarvis"></div>
-    <div class="fx-title"><div class="eyebrow">Headlines · BBC News</div><h2 id="deck-title">Top stories</h2></div>
+    <div class="fx-title"><div class="eyebrow" id="deck-eyebrow">Headlines · BBC News</div><h2 id="deck-title">Top stories</h2></div>
     <span class="grow"></span>
     <div class="tabs fx-title" id="deck-tabs"></div>
     <button class="icon-btn fx-close" type="button" aria-label="Close headlines"><svg class="i"><use href="#i-x"/></svg></button>
@@ -604,6 +672,41 @@ body.focused .fx-caption.on{opacity:1;transform:translate(-50%,0)}
   </div>
   <div class="fx-body"><div class="fxw" id="fxw"></div></div>
 </section>
+
+<!-- Page view (recipes, guides, plans, writing) -->
+<section class="focus" id="fx-doc" hidden aria-label="Page">
+  <div class="fx-head">
+    <div class="fx-orb" data-talk title="Talk to Jarvis"></div>
+    <div class="fx-title"><div class="eyebrow" id="doc-eyebrow">Recipe</div><h2 id="doc-title">Page</h2></div>
+    <span class="grow"></span>
+    <button class="icon-btn fx-close" type="button" aria-label="Close page"><svg class="i"><use href="#i-x"/></svg></button>
+  </div>
+  <div class="fx-body"><div class="doc" id="doc"></div><div class="deck-foot" id="doc-foot">Say “next step” or “read the ingredients” · Esc to close</div></div>
+</section>
+
+<!-- Timer view -->
+<section class="focus" id="fx-timer" hidden aria-label="Timers">
+  <div class="fx-head">
+    <div class="fx-orb" data-talk title="Talk to Jarvis"></div>
+    <div class="fx-title"><div class="eyebrow">Focus</div><h2>Timer</h2></div>
+    <span class="grow"></span>
+    <button class="icon-btn fx-close" type="button" aria-label="Close timer"><svg class="i"><use href="#i-x"/></svg></button>
+  </div>
+  <div class="fx-body"><div class="fxt" id="fxt"></div></div>
+</section>
+
+<!-- Music -->
+<div class="player" id="player" hidden aria-label="Music player">
+  <div class="pl-video"><div id="yt"></div></div>
+  <div class="pl-bar">
+    <div class="pl-meta"><b id="pl-title">Loading…</b><span id="pl-channel">YouTube</span></div>
+    <button type="button" id="pl-prev" aria-label="Previous"><svg viewBox="0 0 24 24"><path d="M7 6h2v12H7zM19 6v12l-9-6z"/></svg></button>
+    <button type="button" id="pl-play" aria-label="Pause"><svg viewBox="0 0 24 24"><path id="pl-play-ico" d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg></button>
+    <button type="button" id="pl-next" aria-label="Next"><svg viewBox="0 0 24 24"><path d="M15 6h2v12h-2zM5 6v12l9-6z"/></svg></button>
+    <button type="button" id="pl-big" aria-label="Full screen"><svg class="line" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+    <button type="button" id="pl-close" aria-label="Close player"><svg class="line" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+</div>
 
 <canvas class="orb-fly" id="orb-fly" aria-hidden="true"></canvas>
 <div class="fx-caption" id="fx-caption" aria-hidden="true"></div>
@@ -658,6 +761,7 @@ const STATE_TEXT = { locked: "Locked", booting: "Starting", idle: "Standby", lis
 function setState(s, caption) {
   S.state = s;
   document.body.dataset.state = s;
+  if (typeof Music !== "undefined" && Music.yt) Music.applyVolume();
   $("#pill-text").textContent = STATE_TEXT[s] || s;
   $("#state").textContent = STATE_TEXT[s] || s;
   if (caption !== undefined) setCaption(caption);
@@ -769,9 +873,9 @@ function onMic(samples) {
   const rms = Math.sqrt(sum / samples.length), dt = samples.length / ctx.sampleRate;
   micLevel = rms;
   recent.push(new Float32Array(samples));
-  if (recent.length > Math.ceil(0.8 / dt)) recent.shift();
+  if (recent.length > Math.ceil(2.5 / dt)) recent.shift();
   if (S.state === "speaking" && prefs.bargeIn) { checkBargeIn(rms, dt); }
-  else { barge.time = 0; barge.env = 0; barge.out = 0; }
+  else { barge.time = 0; barge.env = 0; }
   if (S.state === "idle" && prefs.wake && wakeReady()) feedWake(samples, rms, dt);
   else if (wake.burst) wake.burst = null;
   if (S.state === "listening" && rec) {
@@ -783,7 +887,7 @@ function onMic(samples) {
     if (rms > threshold) { rec.speech = true; rec.silent = 0; rec.voiced += dt; }
     else if (rec.speech) rec.silent += dt;
     else rec.waited += dt;
-    if (rec.speech && rec.silent > 0.8) { if (rec.voiced >= 0.25) finishListening(); else { rec.speech = false; rec.silent = 0; rec.voiced = 0; } }
+    if (rec.speech && rec.silent > 0.6) { if (rec.voiced >= 0.25) finishListening(); else { rec.speech = false; rec.silent = 0; rec.voiced = 0; } }
     else if (!rec.speech && rec.waited > 6) cancelListening(rec.fromWake ? "Standing by." : "I didn't hear anything. Press Space when you're ready.");
     else if (rec.total > 30) finishListening();
     return;
@@ -794,20 +898,54 @@ function onMic(samples) {
   }
 }
 
-// ---- talking over Jarvis: sustained speech louder than its own voice leaking back in stops it and listens
-const recent = [];
-// Speech comes in syllables, so follow a smoothed loudness (fast rise, slow fall) instead of single frames.
-const barge = { time: 0, env: 0, out: 0, buf: new Float32Array(256) };
+// ---- talking over Jarvis: any speech while it talks is transcribed; if it isn't Jarvis's own voice
+// leaking back from the speakers, Jarvis stops and listens. "Stop" or "be quiet" just stops it.
+const recent = []; // the last few seconds of microphone audio
+const STOP_RE = /\b(stop|wait|hold on|hang on|shut up|be quiet|quiet|pause|enough|cancel|never ?mind|okay okay)\b/i;
+const barge = { time: 0, env: 0, out: 0, busy: false, next: 0, buf: new Float32Array(256) };
 function checkBargeIn(rms, dt) {
   let out = 0;
   if (outAnalyser) { outAnalyser.getFloatTimeDomainData(barge.buf); for (const v of barge.buf) out += v * v; out = Math.sqrt(out / barge.buf.length); }
   const fall = Math.exp(-dt / 0.25);
   barge.env = Math.max(rms, barge.env * fall);
   barge.out = Math.max(out, barge.out * fall);
-  // the browser's echo cancellation removes most of Jarvis's own voice; what leaks back is far quieter than the output
-  const needed = Math.max(0.03, Math.min(noiseFloor, 0.015) * 5, barge.out * 0.5);
+  const needed = Math.max(0.006, Math.min(noiseFloor, 0.015) * 2.5);
   barge.time = barge.env > needed ? barge.time + dt : Math.max(0, barge.time - dt);
-  if (barge.time > 0.35) { barge.time = 0; barge.env = 0; startListening(recent.slice()); }
+  if (barge.time < 0.45 || barge.busy || performance.now() < barge.next || !(S.status && S.status.ears === "online")) return;
+  barge.busy = true; barge.time = 0;
+  const speaker = S.speaker, clip = recent.slice(-Math.ceil(1.4 / dt));
+  fetch("/api/wake/confirm", { method: "POST", body: toPcm16(clip).buffer })
+    .then((r) => r.json())
+    .then((d) => {
+      if (S.speaker !== speaker || S.state !== "speaking" || !speaker) return;
+      const text = (d.text || "").trim();
+      if (!text || isEcho(text, speaker.said)) return;
+      if (STOP_RE.test(text) && text.split(/\s+/).length <= 4) { interrupt(); setState("idle", "Okay."); return; }
+      startListening(recent.slice(-Math.ceil(2.2 / dt)));
+    })
+    .catch(() => {})
+    .finally(() => { barge.busy = false; barge.next = performance.now() + 300; });
+}
+// Is this transcript just Jarvis's own words, picked up from the speakers?
+function isEcho(text, said) {
+  const words = (t) => t.toLowerCase().replace(/[^a-z0-9' ]+/g, " ").split(/\s+/).filter((w) => w.length > 1);
+  const heard = words(text);
+  if (!heard.length) return true;
+  if (WAKE_RE.test(text) || (STOP_RE.test(text) && heard.length <= 4)) return false;
+  if (heard.length < 2) return true; // a single stray word is too little to go on
+  const pool = new Set(words(said || ""));
+  return heard.filter((w) => pool.has(w)).length / heard.length >= 0.5;
+}
+function toPcm16(chunks) {
+  let len = 0;
+  for (const c of chunks) len += c.length;
+  const ratio = ctx.sampleRate / WAKE_RATE, out = new Int16Array(Math.floor(len / ratio));
+  let acc = 0, n = 0, pos = 0, k = 0;
+  for (const c of chunks) for (let i = 0; i < c.length; i++) {
+    acc += c[i]; n++;
+    if (++pos >= ratio && k < out.length) { pos -= ratio; out[k++] = Math.round(Math.max(-1, Math.min(1, acc / n)) * 32767); acc = 0; n = 0; }
+  }
+  return out;
 }
 
 // ---- "Hey Jarvis": an on-device detector listens all the time, and speech recognition double-checks
@@ -939,16 +1077,30 @@ function startListening(preroll, fromWake = false) {
   fetch("/api/warm", { method: "POST" }).catch(() => {}); // load the model while you're still talking
 }
 function cancelListening(msg) { rec = null; setState("idle", msg); }
+// How long each step of a reply takes, shown under the Systems panel so slow steps are easy to spot.
+const T = { start: 0, heard: 0, first: 0, voice: 0 };
+function mark(step) {
+  if (!T.start || T[step]) return;
+  T[step] = performance.now();
+  if (step !== "voice" && !(step === "first" && !prefs.voice)) return;
+  const sec = (a, b) => b && a ? ((b - a) / 1000).toFixed(1) + "s" : "–";
+  const line = `Last reply: transcribe ${sec(T.start, T.heard)} · think ${sec(T.heard || T.start, T.first)} · voice ${sec(T.first, T.voice)} · total ${sec(T.start, T.voice || T.first)}`;
+  const el = $("#timing"); if (el) el.textContent = line;
+  console.log("[jarvis]", line);
+}
+function startTiming(at) { T.start = at || performance.now(); T.heard = T.first = T.voice = 0; }
 async function finishListening() {
   const r = rec;
   rec = null;
   if (!r) return;
+  startTiming(performance.now() - (r.silent || 0) * 1000); // from when you stopped talking
   SFX.stop();
   setState("thinking", "Transcribing…");
   try {
     const res = await fetch("/api/stt", { method: "POST", headers: { "Content-Type": "audio/wav" }, body: encodeWav(r.chunks, ctx.sampleRate) });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
+    mark("heard");
     if (!data.text) { afterTurn(r.fromWake ? "Standing by." : "I didn't catch that. Press Space to try again.", false); return; }
     if (WAKE_RE.test(data.text) && !afterWakeWord(data.text).replace(/\W/g, "")) { startListening(null, true); setCaption("Yes?"); return; } // just the name
     send(data.text);
@@ -1031,18 +1183,21 @@ function browserSay(text, onBoundary, retried = false) {
    while the current one plays and is scheduled to start the instant it ends, so there are no gaps
    and the voice keeps its rhythm across sentences. */
 class Speaker {
-  constructor({ onDone = null, onSentence = null } = {}) {
+  constructor({ onDone = null, onSentence = null, onReveal = null } = {}) {
     this.queue = []; this.ended = false; this.cancelled = false; this.running = false;
     this.sources = []; this.timers = []; this.playEnd = 0; this.spoke = false; this.wake = null; this.rate = 0;
-    this.onDone = onDone; this.onSentence = onSentence;
+    this.onDone = onDone; this.onSentence = onSentence; this.onReveal = onReveal;
+    this.revealed = ""; this.seq = 0; this.cur = -1; this.curText = "";
     // Use the server's voice whenever it has one, without waiting on any other check.
     this.local = !!(ctx && S.status && (S.status.voice === "online" || (S.status.eleven && prefs.voiceEngine !== "kokoro")));
     this.previous = "";
+    this.said = "";
     this.rate = S.voiceRate || 0;
   }
   say(text) {
     text = text.replace(/\s+/g, " ").trim();
     if (!text || this.cancelled) return;
+    this.said += " " + text;
     this.queue.push(text);
     this.poke();
     this.run();
@@ -1056,9 +1211,18 @@ class Speaker {
     const first = !this.spoke, out = [];
     const budget = this.local && this.rate ? Math.max(70, Math.min(320, this.remaining() * 0.75 * this.rate * 15)) : 300;
     let len = 0;
+    let split = false;
+    if (first && this.queue[0].length > 70) {
+      // a long opening sentence: voice its first phrase on its own so speech starts sooner
+      const head = this.queue[0], m = /[,;:\u2014\u2013]\s/g;
+      let hit;
+      while ((hit = m.exec(head))) {
+        if (hit.index >= 24 && hit.index < head.length - 15) { this.queue.splice(0, 1, head.slice(0, hit.index + 1), head.slice(hit.index + 2)); split = true; break; }
+      }
+    }
     while (this.queue.length) {
       const next = this.queue[0];
-      if (out.length && (first ? len > 60 || out.length >= 2 : len + next.length > budget)) break;
+      if (out.length && (first ? split || len > 60 || out.length >= 2 : len + next.length > budget)) break;
       out.push(this.queue.shift());
       len += next.length + 1;
     }
@@ -1118,6 +1282,7 @@ class Speaker {
     const now = ctx.currentTime, when = Math.max(now + 0.04, this.playEnd);
     const src = ctx.createBufferSource();
     src.buffer = buf; src.connect(voiceGain); src.start(when);
+    if (S.speaker === this) setTimeout(() => mark("voice"), Math.max(0, (when - now) * 1000));
     this.sources.push(src);
     this.playEnd = when + buf.duration;
     // Move the caption and news highlight along with the audio, sentence by sentence.
@@ -1126,8 +1291,23 @@ class Speaker {
     for (const sentence of sentences) {
       const at = (when - now + (offset / total) * buf.duration) * 1000;
       this.timers.push(setTimeout(() => this.show(sentence), at));
+      if (this.onReveal) {
+        // write each word on screen as it's spoken
+        const id = this.seq++, words = /\S+\s*/g;
+        let w;
+        while ((w = words.exec(sentence))) {
+          const upto = sentence.slice(0, w.index + w[0].length);
+          this.timers.push(setTimeout(() => this.reveal(id, sentence, upto), (when - now + ((offset + w.index) / total) * buf.duration) * 1000));
+        }
+      }
       offset += sentence.length + 1;
     }
+  }
+  reveal(id, sentence, upto) {
+    if (this.cancelled || !this.onReveal) return;
+    if (id !== this.cur) { if (this.cur >= 0) this.revealed += this.curText + " "; this.cur = id; this.curText = sentence; }
+    this.lastShown = this.revealed + upto;
+    this.onReveal(this.lastShown);
   }
   show(sentence) {
     if (this.cancelled) return;
@@ -1141,10 +1321,15 @@ class Speaker {
     for (const sentence of sentences) { starts.push(pos); pos += sentence.length + 1; }
     let shown = -1;
     const at = (i) => { if (i !== shown) { shown = i; this.show(sentences[i]); } };
-    at(0);
-    return browserSay(text, (ci) => { let i = 0; while (i + 1 < starts.length && starts[i + 1] <= ci) i++; at(i); });
+    const id = this.seq++;
+    const upto = (ci) => { if (this.onReveal) { const end = text.indexOf(" ", ci + 1); this.reveal(id, text, end < 0 ? text : text.slice(0, end)); } };
+    at(0); upto(0);
+    if (S.speaker === this) mark("voice");
+    return browserSay(text, (ci) => { let i = 0; while (i + 1 < starts.length && starts[i + 1] <= ci) i++; at(i); upto(ci); })
+      .then(() => this.reveal(id, text, text)); // browsers without word timing: show the rest when it's said
   }
   cancel() {
+    if (!this.cancelled && this.onReveal) this.onReveal(((this.lastShown || "").trim() + " …").trim()); // cut off: show what was said
     this.cancelled = true; this.queue = [];
     for (const src of this.sources) { try { src.stop(); } catch {} }
     for (const t of this.timers) clearTimeout(t);
@@ -1224,8 +1409,47 @@ const ORD = { first: 0, "1st": 0, one: 0, top: 0, second: 1, "2nd": 1, two: 1, t
 
 function localCommand(text) {
   const t = text.toLowerCase().replace(/[.!?,]/g, "").replace(/^(hey |ok |okay )?jarvis /, "").replace(/^please /, "").trim();
-  if (/^(close|hide|dismiss|exit|go back|back)( the)?( news| headlines| deck| stories| weather| forecast| that| this| it)?$/.test(t) && S.focus) {
-    closeFocus(); reply("Done."); return true;
+  if (/^(close|hide|dismiss|exit|go back|back|minimi[sz]e|shrink|make it smaller|exit full ?screen)( the)?( news| headlines| deck| stories| weather| forecast| recipe| page| guide| timer| timers| video| player| that| this| it)?$/.test(t) && (S.focus || Music.big)) {
+    if (Music.big) Music.setBig(false);
+    if (S.focus) closeFocus();
+    reply("Done."); return true;
+  }
+  // "focus on the timer", "make the news full screen", "make it take up the whole page"
+  const wantsFocus = /\b(focus|zoom|concentrate|full ?screen|big screen|whole (page|screen)|entire (page|screen)|expand|enlarge|maximi[sz]e|bigger|blow (it|that) up)\b/.test(t)
+    || /^(show|pull up|bring up|open)( me)?( the| my)? (timer|timers|countdown)$/.test(t);
+  if (wantsFocus) {
+    const target = /\b(timers?|countdown|reminders?)\b/.test(t) ? "timer" : /\b(news|headlines?|stories)\b/.test(t) ? "news"
+      : /\b(weather|forecast)\b/.test(t) ? "weather" : /\b(recipe|page|steps|guide|document|doc|plan|list|draft|instructions)\b/.test(t) ? "doc"
+      : /\b(music|video|song|player|youtube)\b/.test(t) ? "music" : S.lastThing || (Music.active() ? "music" : Timers.list.length ? "timer" : "");
+    if (target === "music") { if (!Music.active()) { reply("Nothing's playing right now. Say play, then a song or artist."); return true; } Music.setBig(true); reply("Here you go."); return true; }
+    if (target === "doc" && !Doc.kind) { reply("There's no page open yet. Ask me for a recipe or a guide."); return true; }
+    if (target === "news") { const n = S.news && S.news.items; if (!n || !n.length) return false; openDeck(S.news.cat, n); reply("Here are the headlines."); return true; }
+    if (target === "weather") { if (!S.weather) return false; openWeather(); reply("Here's the weather."); return true; }
+    if (target) { openFocus(target); reply(target === "timer" ? (Timers.list.length ? "Focusing on your timer." : "There's no timer running yet.") : "Here you go."); return true; }
+  }
+  // music controls
+  if (Music.active()) {
+    if (/^(pause|stop|hold)( the| that)?( music| song| video| track| it| playing)?( for a (sec|second|moment))?$/.test(t) || /^(pause|stop) (the )?(music|song|video)/.test(t)) { Music.pause(); reply("Paused."); return true; }
+    if (/^(resume|unpause|continue|play|keep playing|carry on)( the)?( music| song| video| it| playing)?( again)?$/.test(t)) { Music.resume(); reply("Resuming."); return true; }
+    if (/^(next|skip)( song| track| one| video| this| it)?$|^(play )?(the )?next (song|track|one|video)$|^skip (this|that)( song| track)?$/.test(t)) { Music.next(); reply("Skipping."); return true; }
+    if (/^(previous|last|go back)( song| track| one| video)?$|^play (the )?(previous|last) (song|track|one)$/.test(t)) { Music.prev(); reply("Going back."); return true; }
+    if (/\b(turn (it|the music|the volume) up|louder|volume up|increase (the )?volume)\b/.test(t)) { Music.setVolume(Music.volume + 20); reply("Turning it up."); return true; }
+    if (/\b(turn (it|the music|the volume) down|quieter|softer|volume down|lower (the )?volume|decrease (the )?volume)\b/.test(t)) { Music.setVolume(Music.volume - 25); reply("Turning it down."); return true; }
+    if (/^(close|stop|turn off|end|kill)( the)? (music|player|song|video)$|^stop playing( music)?$/.test(t)) { Music.close(); reply("Music off."); return true; }
+  }
+  // reading a recipe or guide aloud, one step at a time
+  if (Doc.kind) {
+    let m2;
+    if (/^(next|next step|what'?s next|and then|then what|what do i do next|done|ok next|okay next)$/.test(t)) { Doc.readStep(Doc.step + 1); return true; }
+    if (/^(previous|previous step|go back|back a step|last step|step back)$/.test(t)) { Doc.readStep(Doc.step - 1); return true; }
+    if (/^(repeat|repeat that|say that again|again|what was that)$/.test(t) && Doc.step >= 0) { Doc.readStep(Doc.step); return true; }
+    if (/^(read|start|begin|go through|walk me through)( me)?( the)?( steps| instructions| method| recipe| it)?( from the (start|beginning))?$|^(first step|start from the beginning|what'?s the first step)$/.test(t)) { Doc.readStep(0); return true; }
+    if ((m2 = t.match(/^(?:read |go to |what'?s |what is )?(?:the )?step (\d+|one|two|three|four|five|six|seven|eight|nine|ten)$/))) { Doc.readStep((+m2[1] || NUMWORD[m2[1]]) - 1); return true; }
+    if (/^(read|what are|tell me|list|what do i need)( me)?( the)?( ingredients| things i need| stuff i need| ingredients again)?$|^what do i need$/.test(t) && /ingredient|need/.test(t)) {
+      const items = Doc.sideItems();
+      reply(items.length ? "You'll need " + items.map((x) => x.replace(/\*/g, "")).join(", ").replace(/, ([^,]*)$/, ", and $1") + "." : "This page doesn't have a list of things you need.");
+      return true;
+    }
   }
   const m = t.match(/^(?:open|read|show|pull up)(?: me)?(?: the)? (first|second|third|fourth|fifth|1st|2nd|3rd|4th|5th|top|last) (?:one|story|article|headline|link)$/);
   if (m && S.lastNews.length) {
@@ -1240,6 +1464,7 @@ function localCommand(text) {
   }
   return false;
 }
+const NUMWORD = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10 };
 function reply(text) {
   addMsg("jarvis", text);
   S.history.push({ role: "assistant", content: text });
@@ -1251,6 +1476,7 @@ async function send(text) {
   text = String(text || "").trim();
   if (!text || S.state === "locked" || S.state === "booting") return;
   interrupt();
+  if (!(T.start && T.heard && !T.first && performance.now() - T.heard < 3000)) { startTiming(); T.heard = T.start; } // typed
   addMsg("you", text);
   if (localCommand(text)) return;
   S.history.push({ role: "user", content: text });
@@ -1258,14 +1484,19 @@ async function send(text) {
   setState("thinking", "Thinking…");
   const ctrl = new AbortController();
   S.chatCtrl = ctrl;
-  const speaker = prefs.voice ? new Speaker({ onSentence: highlightStory, onDone: () => { if (S.speaker === speaker) { S.speaker = null; afterTurn(); } } }) : null;
-  S.speaker = speaker;
   const msg = addMsg("jarvis", "");
   msg.txt.innerHTML = '<span class="typing"><span></span><span></span><span></span></span>';
-  let full = "", spoken = 0, memory = "", first = 0;
+  let full = "", spoken = 0, memory = "", first = 0, gotDoc = false, docError = "";
+  // With the voice on, the reply is written out word by word as it's spoken, not all at once beforehand.
+  const speaker = prefs.voice ? new Speaker({
+    onSentence: highlightStory,
+    onReveal: (said) => { msg.txt.textContent = said.trim(); scrollLog(); },
+    onDone: () => { const all = visible(full).trim(); if (all) msg.txt.textContent = all; if (S.speaker === speaker) { S.speaker = null; afterTurn(); } },
+  }) : null;
+  S.speaker = speaker;
   const pump = (final) => {
     const vis = visible(full);
-    if (vis.trim()) msg.txt.textContent = vis.trim();
+    if (vis.trim() && !speaker) msg.txt.textContent = vis.trim();
     scrollLog();
     if (!speaker) return;
     const rest = vis.slice(spoken), boundary = /[.!?…]+["'”’)\]]*\s+|\n+/g;
@@ -1294,11 +1525,14 @@ async function send(text) {
         const ev = JSON.parse(line);
         if (ev.error) throw new Error(ev.error);
         if (ev.ui) handleUi(ev.ui, msg);
+        if (ev.doc) { gotDoc = true; Doc.append(ev.doc); }
+        if (ev.doc_error) docError = ev.doc_error;
         if (ev.memory) memory = ev.memory;
-        if (ev.delta) { if (!first) first = performance.now(); full += ev.delta; pump(false); }
+        if (ev.delta) { if (!first) { first = performance.now(); mark("first"); } full += ev.delta; pump(false); }
       }
     }
     pump(true);
+    if (gotDoc || docError) Doc.finish(docError ? "Couldn't finish the page: " + docError : "");
     const answer = visible(full).trim();
     if (!answer) throw new Error("The model sent back an empty reply.");
     S.history.push({ role: "assistant", content: memory || answer });
@@ -1320,10 +1554,12 @@ function handleUi(ev, msg) {
     case "news":
       S.lastNews = ev.items.slice(0, 8);
       setNews(ev.category, ev.items);
-      if (ev.deck) openDeck(ev.category, ev.items);
+      if (ev.deck) openDeck(ev.category, ev.items, ev.title, ev.source);
       break;
-    case "weather": S.weather = ev.data; S.weatherError = false; renderWeather(); if (ev.focus) openWeather(); break;
-    case "timer": Timers.add(ev); toast(ev.remind ? "Reminder set" : "Timer set", `${ev.label} · ${fmtDur(ev.seconds)}`, "i-timer"); break;
+    case "doc": Doc.open(ev); break;
+    case "music": Music.play(ev.items, ev.query); break;
+    case "weather": S.weather = ev.data; S.weatherError = false; renderWeather(); if (ev.focus) { S.lastThing = "weather"; openWeather(); } break;
+    case "timer": S.lastThing = "timer"; Timers.add(ev); toast(ev.remind ? "Reminder set" : "Timer set", `${ev.label} · ${fmtDur(ev.seconds)}`, "i-timer"); break;
     case "timer_cancel": Timers.clear(); break;
     case "opened": toast("Opened " + ev.label, ev.detail || "", "i-ext"); attachReceipt(msg, ev); break;
     case "sources": attachSources(msg, ev.items); break;
@@ -1378,6 +1614,7 @@ const Timers = {
       if (li) { $(".t-left", li).textContent = fmtClock(left); $(".t-fill", li).style.strokeDashoffset = 100 - (100 * left) / (t.total * 1000); }
       if (left <= 0) { this.remove(t.id); this.fire(t); }
     }
+    if (S.focus === "timer") tickTimerFocus();
   },
   fire(t) {
     SFX.chime();
@@ -1386,6 +1623,25 @@ const Timers = {
     announce(t.remind ? `Reminder: ${t.label}.` : `Time's up. Your ${label} is done.`);
   },
 };
+function renderTimerFocus() {
+  const list = Timers.list;
+  $("#fxt").innerHTML = list.length ? `
+    <div class="fxt-ring"><svg viewBox="0 0 100 100"><circle class="fxt-track" cx="50" cy="50" r="46"/><circle class="fxt-fill" id="fxt-fill" cx="50" cy="50" r="46" pathLength="100"/></svg>
+      <div class="fxt-mid"><div class="fxt-time" id="fxt-time">--:--</div><div class="fxt-label">${esc(list[0].label)}</div></div></div>
+    ${list.length > 1 ? `<div class="fxt-more">${list.slice(1).map((t) => `<span data-fxt="${t.id}">${esc(t.label)}<b>--:--</b></span>`).join("")}</div>` : ""}`
+    : `<div class="fxt-empty">No timers running. Say “set a timer for 10 minutes”.</div>`;
+  S.fxtFirst = list.length ? list[0].id : null;
+  tickTimerFocus();
+}
+function tickTimerFocus() {
+  const list = Timers.list, now = Date.now();
+  if ((list[0] && list[0].id) !== S.fxtFirst || $$("[data-fxt]").length !== Math.max(0, list.length - 1)) return renderTimerFocus();
+  if (!list.length) return;
+  const t = list[0], left = Math.max(0, t.end - now);
+  $("#fxt-time").textContent = fmtClock(left);
+  $("#fxt-fill").style.strokeDashoffset = 100 - (100 * left) / (t.total * 1000);
+  for (const o of list.slice(1)) { const el = $(`[data-fxt="${o.id}"] b`); if (el) el.textContent = fmtClock(Math.max(0, o.end - now)); }
+}
 $("#timers").addEventListener("click", (e) => { const b = e.target.closest("[data-cancel]"); if (b) Timers.remove(b.dataset.cancel); });
 setInterval(() => Timers.tick(), 500);
 
@@ -1427,10 +1683,11 @@ function skeletonNews() {
   $("#stories").innerHTML = Array.from({ length: 5 }, () => '<li style="display:flex;gap:12px;padding:8px"><div class="skel" style="width:58px;height:58px;border-radius:12px;flex:none"></div><div style="flex:1"><div class="skel" style="height:11px;margin-top:6px"></div><div class="skel" style="height:11px;width:70%;margin-top:8px"></div><div class="skel" style="height:8px;width:30%;margin-top:10px"></div></div></li>').join("");
 }
 
-function openDeck(cat, items) {
-  const deck = $("#deck");
-  $("#deck-title").textContent = CAT_TITLE[cat] || "Headlines";
+function openDeck(cat, items, title = "", source = "") {
+  $("#deck-title").textContent = title || CAT_TITLE[cat] || "Headlines";
+  $("#deck-eyebrow").textContent = "Headlines · " + (source || "BBC News");
   $("#deck-tabs").innerHTML = tabsHtml(cat);
+  S.lastThing = "news";
   $("#deck-grid").innerHTML = items.slice(0, 11).map((it, i) => {
     const img = safeUrl(it.image);
     return `<a class="dcard${i === 0 ? " lead" : ""}" style="--i:${i}" href="${esc(safeUrl(it.link) || "#")}" target="_blank" rel="noopener" data-title="${esc(it.title)}">
@@ -1442,6 +1699,174 @@ function openDeck(cat, items) {
 }
 function closeDeck() { if (S.focus === "news") closeFocus(); }
 
+/* ============================================================== pages (recipes, guides, plans) */
+// The page streams in as Markdown; it's re-drawn as it arrives, and only new pieces animate in.
+const SIDE_RE = /ingredient|you'?ll need|what you need|materials|equipment|tools|shopping|packing/i;
+const Doc = {
+  md: "", kind: "", title: "", image: "", shown: 0, step: -1, timer: 0, done: false,
+  open(ev) {
+    Object.assign(this, { md: "", kind: ev.kind, title: ev.title || "Page", image: ev.image || "", shown: 0, step: -1, done: false });
+    $("#doc-eyebrow").textContent = { recipe: "Recipe", guide: "Step by step", plan: "Plan", writing: "Draft" }[ev.kind] || "Page";
+    $("#doc-title").textContent = this.title;
+    $("#doc-foot").textContent = ev.kind === "recipe" ? "Say “next step” or “read the ingredients” · Esc to close" : ev.kind === "writing" ? "Esc to close" : "Say “next step” · Esc to close";
+    S.lastThing = "doc";
+    this.render();
+    openFocus("doc");
+  },
+  append(text) { this.md += text; if (!this.timer) this.timer = setTimeout(() => { this.timer = 0; this.render(); }, 120); },
+  finish(error) { this.done = true; clearTimeout(this.timer); this.timer = 0; this.render(error); },
+  parse() {
+    const d = { title: "", desc: "", meta: [], sections: [] };
+    let sec = null;
+    for (const raw of this.md.split("\n")) {
+      const line = raw.trim();
+      if (!line) continue;
+      let m;
+      if ((m = line.match(/^#\s+(.+)/))) { d.title = m[1]; continue; }
+      if ((m = line.match(/^META:\s*(.+)/i))) { d.meta = m[1].split("|").map((x) => x.trim()).filter(Boolean); continue; }
+      if ((m = line.match(/^#{2,4}\s+(.+)/))) { sec = { h: m[1].replace(/[:*]+$/g, ""), items: [] }; d.sections.push(sec); continue; }
+      const item = (m = line.match(/^\d+[.)]\s+(.+)/)) ? { t: "ol", x: m[1] } : (m = line.match(/^[-*•]\s+(.+)/)) ? { t: "ul", x: m[1] } : { t: "p", x: line };
+      if (!sec) { if (item.t === "p" && !d.desc && !d.sections.length) { d.desc = item.x; continue; } sec = { h: "", items: [] }; d.sections.push(sec); }
+      sec.items.push(item);
+    }
+    return d;
+  },
+  steps() { const out = []; for (const sec of this.parse().sections) for (const it of sec.items) if (it.t === "ol") out.push(it.x); return out; },
+  sideItems() { for (const sec of this.parse().sections) if (SIDE_RE.test(sec.h)) return sec.items.map((i) => i.x); return []; },
+  render(error) {
+    const d = this.parse(), el = $("#doc");
+    if (d.title) $("#doc-title").textContent = d.title.replace(/\*/g, "");
+    let n = 0;
+    const fresh = () => (n++ >= this.shown ? " in" : "");
+    const inline = (x) => esc(x).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/\*(.+?)\*/g, "<i>$1</i>");
+    const prose = this.kind === "writing" || this.kind === "plan" && !d.sections.some((x) => SIDE_RE.test(x.h));
+    el.classList.toggle("prose", prose && !this.image);
+    const side = [], main = [];
+    if (!prose || this.image) {
+      if (this.image) side.push(`<img class="doc-hero" src="${esc(safeUrl(this.image))}" alt="" onerror="this.remove()">`);
+      if (d.desc) side.push(`<p class="doc-desc${fresh()}">${inline(d.desc)}</p>`);
+      if (d.meta.length) side.push(`<div class="doc-meta${fresh()}">${d.meta.map((x) => `<span>${esc(x)}</span>`).join("")}</div>`);
+    } else if (d.desc) main.push(`<p class="doc-desc${fresh()}">${inline(d.desc)}</p>`);
+    let stepNo = 0;
+    for (const sec of d.sections) {
+      if (SIDE_RE.test(sec.h) && !prose) {
+        side.push(`<div class="doc-card${fresh()}"><h4>${esc(sec.h)}</h4><ul>${sec.items.map((i) => `<li class="${fresh()}">${inline(i.x)}</li>`).join("")}</ul></div>`);
+        continue;
+      }
+      if (/tips?|notes?|variations?/i.test(sec.h) && !prose) {
+        main.push(`<div class="doc-card plain${fresh()}"><h4>${esc(sec.h)}</h4><ul>${sec.items.map((i) => `<li class="${fresh()}">${inline(i.x)}</li>`).join("")}</ul></div>`);
+        continue;
+      }
+      if (sec.h) main.push(`<h3 class="${fresh()}">${esc(sec.h)}</h3>`);
+      for (const it of sec.items) {
+        if (it.t === "ol") { const k = stepNo++; main.push(`<div class="doc-step${fresh()}${k === this.step ? " reading" : ""}" data-step="${k}"><b>${k + 1}</b><p>${inline(it.x)}</p></div>`); }
+        else if (it.t === "ul") main.push(`<div class="doc-bul${fresh()}">${inline(it.x)}</div>`);
+        else main.push(`<p class="doc-p${fresh()}">${inline(it.x)}</p>`);
+      }
+    }
+    if (error) main.push(`<p class="doc-err">${esc(error)}</p>`);
+    else if (!this.done) main.push('<div class="doc-wait"><i></i><i></i><i></i></div>');
+    const ticked = new Set($$("#doc .doc-card li.done").map((li) => li.textContent));
+    el.innerHTML = (side.length ? `<div class="doc-side">${side.join("")}</div>` : "") + `<div class="doc-main">${main.join("")}</div>`;
+    $$("#doc .doc-card li").forEach((li) => { if (ticked.has(li.textContent)) li.classList.add("done"); });
+    this.shown = n;
+  },
+  readStep(i) {
+    const steps = this.steps();
+    if (!steps.length) return reply(this.done ? "This page doesn't have numbered steps." : "The steps are still coming in. One moment.");
+    if (i >= steps.length) return reply("That was the last step." + (this.kind === "recipe" ? " Enjoy!" : ""));
+    this.step = Math.max(0, i);
+    $$("#doc .doc-step").forEach((el) => el.classList.toggle("reading", +el.dataset.step === this.step));
+    const el = $(`#doc .doc-step[data-step="${this.step}"]`);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    reply(`Step ${this.step + 1}. ${steps[this.step].replace(/\*/g, "")}`);
+  },
+};
+$("#doc").addEventListener("click", (e) => {
+  const li = e.target.closest(".doc-card:not(.plain) li");
+  if (li) li.classList.toggle("done");
+  const st = e.target.closest(".doc-step");
+  if (st) { Doc.step = +st.dataset.step; $$("#doc .doc-step").forEach((el) => el.classList.toggle("reading", el === st)); }
+});
+
+/* ============================================================== music: YouTube, played inside the page */
+const Music = {
+  items: [], i: 0, yt: null, ready: null, big: false, playing: false, volume: 100, query: "",
+  api() {
+    if (this.ready) return this.ready;
+    this.ready = new Promise((resolve, reject) => {
+      window.onYouTubeIframeAPIReady = () => resolve();
+      const sc = document.createElement("script");
+      sc.src = "https://www.youtube.com/iframe_api";
+      sc.onerror = () => { this.ready = null; reject(new Error("YouTube didn't load")); };
+      document.head.append(sc);
+    });
+    return this.ready;
+  },
+  async play(items, query) {
+    this.items = items || []; this.i = 0; this.query = query || "";
+    S.lastThing = "music";
+    $("#player").hidden = false;
+    try { await this.api(); } catch { return this.fallback(); }
+    this.load();
+  },
+  load() {
+    const it = this.items[this.i];
+    if (!it) return this.fallback();
+    $("#pl-title").textContent = it.title;
+    $("#pl-channel").textContent = [it.channel, it.length].filter(Boolean).join(" · ");
+    if (this.yt && this.yt.loadVideoById) { this.yt.loadVideoById(it.id); this.applyVolume(); return; }
+    this.yt = new YT.Player("yt", {
+      videoId: it.id, host: "https://www.youtube.com",
+      playerVars: { autoplay: 1, playsinline: 1, rel: 0, modestbranding: 1, origin: location.origin },
+      events: {
+        onReady: (e) => { this.applyVolume(); e.target.playVideo(); },
+        onError: () => { this.i++; this.load(); }, // not allowed to play here: try the next match
+        onStateChange: (e) => { this.playing = e.data === 1 || e.data === 3; this.icon(); if (e.data === 0) this.next(); },
+      },
+    });
+  },
+  fallback() {
+    // YouTube wouldn't play any match inside the page: offer a link rather than opening a tab unasked
+    this.close();
+    const url = "https://www.youtube.com/results?search_query=" + encodeURIComponent(this.query);
+    const m = addMsg("jarvis", "YouTube wouldn't let that play inside the page.");
+    const el = document.createElement("a");
+    el.className = "src"; el.href = url; el.target = "_blank"; el.rel = "noopener";
+    el.innerHTML = `<svg class="i"><use href="#i-play"/></svg><span>Watch on YouTube · ${esc(this.query)}</span>`;
+    if (m.attach) m.attach.append(el);
+  },
+  icon() { $("#pl-play-ico").setAttribute("d", this.playing ? "M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" : "M8 5.5l10.5 6.5L8 18.5z"); $("#pl-play").setAttribute("aria-label", this.playing ? "Pause" : "Play"); },
+  active() { return !$("#player").hidden && !!this.yt; },
+  pause() { if (this.yt && this.yt.pauseVideo) this.yt.pauseVideo(); },
+  resume() { if (this.yt && this.yt.playVideo) this.yt.playVideo(); },
+  toggle() { this.playing ? this.pause() : this.resume(); },
+  next() { if (this.i + 1 < this.items.length) { this.i++; this.load(); } else if (this.yt) this.yt.seekTo(0); },
+  prev() { if (this.i > 0) { this.i--; this.load(); } else if (this.yt) this.yt.seekTo(0); },
+  setVolume(v) { this.volume = Math.max(5, Math.min(100, v)); this.applyVolume(); },
+  // quieter while Jarvis is listening or talking, so you can hear each other
+  applyVolume() { if (this.yt && this.yt.setVolume) this.yt.setVolume(["listening", "speaking"].includes(S.state) ? Math.min(this.volume, 15) : this.volume); },
+  setBig(on) {
+    this.big = on;
+    if (on && S.focus) closeFocus();
+    $("#player").classList.toggle("big", on);
+    document.body.classList.toggle("music-big", on);
+  },
+  close() {
+    this.setBig(false);
+    if (this.yt && this.yt.destroy) { try { this.yt.destroy(); } catch {} }
+    this.yt = null;
+    $("#player").hidden = true;
+    $(".pl-video").innerHTML = '<div id="yt"></div>';
+    this.playing = false;
+  },
+};
+$("#pl-play").addEventListener("click", () => Music.toggle());
+$("#pl-next").addEventListener("click", () => Music.next());
+$("#pl-prev").addEventListener("click", () => Music.prev());
+$("#pl-big").addEventListener("click", () => Music.setBig(!Music.big));
+$("#pl-close").addEventListener("click", () => Music.close());
+
 /* ============================================================== focus views */
 function setClip(view, rect, radius) {
   const st = view.style;
@@ -1452,9 +1877,16 @@ function setClip(view, rect, radius) {
   st.setProperty("--fl", Math.max(0, rect.left) + "px");
   st.setProperty("--frad", radius + "px");
 }
-const FOCUS = { news: () => [$("#deck"), $(".news-card")], weather: () => [$("#fx-weather"), $("#wx-card")] };
+const FOCUS = {
+  news: () => [$("#deck"), $(".news-card")], weather: () => [$("#fx-weather"), $("#wx-card")],
+  doc: () => [$("#fx-doc"), $(".convo")], timer: () => [$("#fx-timer"), $("#timers-card")],
+};
+// where a view grows from and shrinks back to: its dashboard card, or the conversation if that card is hidden
+function sourceRect(el) { return (el && el.offsetParent ? el : $(".convo")).getBoundingClientRect(); }
 function openFocus(kind) {
   if (S.focus === kind) return;
+  if (kind === "timer") renderTimerFocus();
+  if (Music.big) Music.setBig(false);
   if (S.focus) { const [old] = FOCUS[S.focus](); old.classList.remove("open"); old.hidden = true; }
   const [view, source] = FOCUS[kind]();
   S.focus = kind;
@@ -1463,7 +1895,7 @@ function openFocus(kind) {
   view.hidden = false;
   view.classList.add("instant");
   view.classList.remove("open");
-  setClip(view, source.getBoundingClientRect(), 22);
+  setClip(view, sourceRect(source), 22);
   void view.offsetWidth;
   view.classList.remove("instant");
   document.body.classList.add("focused");
@@ -1476,7 +1908,7 @@ function closeFocus() {
   S.deckOpen = false;
   document.body.classList.remove("focused");
   view.classList.remove("open");
-  setClip(view, source.getBoundingClientRect(), 22);
+  setClip(view, sourceRect(source), 22);
   Orb.toMain();
   $("#fx-caption").classList.remove("on");
   setTimeout(() => { if (S.focus !== kind) view.hidden = true; }, 850);
@@ -2203,6 +2635,7 @@ addEventListener("keydown", (e) => {
   if (S.state === "booting") { if (["Escape", "Enter", " "].includes(e.key)) { e.preventDefault(); skipBoot(); } return; }
   if (e.key === "Escape") {
     if (!$("#settings").hidden) return closeSettings();
+    if (Music.big) Music.setBig(false);
     if (S.focus) closeFocus();
     interrupt();
     setState("idle", "Standing by.");
