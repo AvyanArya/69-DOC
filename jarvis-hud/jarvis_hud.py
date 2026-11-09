@@ -71,7 +71,7 @@ if LANGUAGE.startswith("en") and CONFIG.speech.model in ("tiny", "base", "small"
 VOICE_SPEED = float(CONFIG.speech.voice_speed or 1.0)
 HISTORY_TURNS = 20
 MAX_BODY_BYTES = 25 * 1024 * 1024
-HUD_VERSION = "2.9"
+HUD_VERSION = "3.0"
 USER_AGENT = f"OpenJarvisHUD/{HUD_VERSION} (+https://github.com/open-jarvis/OpenJarvis)"
 IS_MAC = sys.platform == "darwin"
 # The voice runs on the CPU by default: fast enough on Apple Silicon, and it leaves the GPU to the language model.
@@ -341,12 +341,64 @@ DOC_PROMPTS = {
     "research": ("Using the live web notes below, write a clear briefing on: {q}. Use exactly this format, in English, no other text:\n"
                  "# <title>\n<two sentence summary>\n## Key points\n- <point>\n...\n## Details\n<short paragraphs>\n"
                  "Use '| a | b |' tables if comparing things or prices. Only state facts that are in the notes; say if something is unclear."),
+    "revision": ("Make a revision timetable from this request: {q}\n{facts}\nUse exactly this format, in English, with no other text:\n"
+                 "# <short title, e.g. Further Maths test: Ch.6-8>\n<one sentence on the approach>\nMETA: <test day and date> | <total hours> | <focus>\n"
+                 "## <first day, e.g. Today: Monday 9 November>\n- <start time, e.g. 16:30> | <chapter and topic> | <exactly what to do: which questions, how many, what to check> | <minutes> min\n...\n"
+                 "## <second day>\n...\n## Night before / morning of the test\n- <short tip>\n...\n"
+                 "Rules: mostly exam-question practice, timed, then marking against the mark scheme and redoing mistakes. "
+                 "Use 25 to 50 minute blocks with short breaks between them. Don't schedule anything before the start time given. "
+                 "Cover every chapter, spend more time on anything the student said they're unsure about or want to focus on, "
+                 "and name the real question files listed above."),
     "writing": ("Write this for the user: {q}. Use exactly this format, in English:\n# <short title>\n"
                 "Then the text itself, in plain paragraphs (headings only if they genuinely help)."),
 }
 
 
+WEEKDAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+
+
+def revision_facts(request: str, handler=None) -> str:
+    """Dates, the time now, and the real question files, for a revision timetable."""
+    t = request.lower()
+    now = datetime.now()
+    when = re.search(r"\b(?:on|this|next|by)?\s*(" + "|".join(WEEKDAYS) + r")\b", t)
+    test_day = None
+    if when:
+        ahead = (WEEKDAYS.index(when[1]) - now.weekday()) % 7 or 7
+        test_day = now + timedelta(days=ahead)
+    elif "tomorrow" in t and not re.search(r"today and tomorrow|tomorrow and", t):
+        test_day = now + timedelta(days=1)
+    days = []
+    if re.search(r"\btoday\b", t) or not test_day:
+        days.append(now)
+    if re.search(r"\btomorrow\b", t) or (test_day and (test_day - now).days >= 1):
+        days.append(now + timedelta(days=1))
+    if test_day:
+        days = [d for d in days if d.date() < test_day.date()] or [now]
+    start = (now + timedelta(minutes=30 - now.minute % 30 + 15)).strftime("%H:%M")
+    lines = [f"It is now {now:%A %d %B, %H:%M}. Plan these days: " + ", ".join(f"{d:%A %d %B}" + (f" (today, from {start})" if d.date() == now.date() else " (after school, from 16:30)") for d in days) + ".",
+             (f"The test is on {test_day:%A %d %B}." if test_day else "")]
+    nums = chapter_numbers(t)
+    if nums and "further" in t:
+        try:
+            found = further_chapters(t, nums)
+            if found["sets"]:
+                lines.append("Question files available (questions with the mark scheme at the back): " + "; ".join(x["name"] for x in found["sets"]) + ".")
+                if handler:
+                    handler._line({"ui": {"type": "papers_ready", **found}})
+        except Exception:
+            pass
+    if re.search(r"\b(plane|planes|three equations|geometric)\b", t):
+        lines.append("They specifically want to understand the geometric interpretation of three linear equations in three unknowns "
+                     "(three planes: meeting at a point, a sheaf, a prism, or with no common point), so include a block on that.")
+    return "\n".join(x for x in lines if x)
+
+
 def doc_title(kind: str, subject: str) -> str:
+    if kind == "revision":
+        nums = chapter_numbers(subject)
+        what = ("Further Maths" if "further" in subject else (_first(PMT_SUBJECTS, subject) or "").title())
+        return f"{what} revision" + (f": Ch.{nums[0]}–{nums[-1]}" if len(nums) > 1 else f": Ch.{nums[0]}" if nums else "")
     if kind == "itinerary":
         not_places = {"do", "see", "go", "visit", "january", "february", "march", "april", "may", "june", "july", "august",
                       "september", "october", "november", "december", "spring", "summer", "autumn", "winter", "the summer",
@@ -365,6 +417,9 @@ def doc_title(kind: str, subject: str) -> str:
 
 def doc_request(t: str) -> tuple[str, str] | None:
     """Is this a request for something to read on screen? Returns (kind, subject)."""
+    if (re.search(r"\b(revision|revise|revising|study|studying|prep|preparation|cram)\b.{0,50}\b(timetable|time ?table|plan|schedule|time|times|session|sessions|slots?)\b", t)
+            or re.search(r"\b(timetable|plan|schedule)\b.{0,80}\b(test|exam|mock|assessment)\b", t)) and re.search(r"\b(test|exam|mock|assessment|chapter|topic|revis)", t):
+        return "revision", t.strip(" ?.!")
     if re.search(r"\b(itinerary|itineraries|trip plan|travel plan|day trip|weekend (in|away)|things to do in|what to do in|places to (visit|see) in|"
                  r"(plan|planning|organi[sz]e) (a |my |the |our )?(\d+[- ]day |one[- ]day |two[- ]day |three[- ]day )?(trip|holiday|vacation|day out|weekend|visit|city break|tour))\b", t):
         return "itinerary", t.strip(" ?.!")
@@ -863,6 +918,65 @@ def pmt_find(req: dict) -> dict:
     return {"title": " / ".join(titles), "course": course, "page": chosen[0][0], "sets": sets[:40]}
 
 
+def chapter_numbers(t: str) -> list[int]:
+    """'chapters 6, 7 and 8' / 'chapter 6 to 8' / 'ch 6' → [6, 7, 8]."""
+    m = re.search(r"\b(?:chapters?|ch\.?|topics?)\s*((?:\d+|" + "|".join(NUMBERS) + r")(?:\s*(?:,|and|&|to|-|through)\s*(?:\d+|" + "|".join(NUMBERS) + r"))*)", t)
+    if not m:
+        return []
+    nums = [int(x) if x.isdigit() else NUMBERS[x] for x in re.findall(r"\d+|" + "|".join(NUMBERS), m[1])]
+    if re.search(r"\d\s*(to|-|through)\s*\d", m[1]) and len(nums) == 2 and nums[0] < nums[1] <= nums[0] + 10:
+        nums = list(range(nums[0], nums[1] + 1))
+    return sorted(set(n for n in nums if 0 < n < 40))
+
+
+FURTHER_PAGES = {"core pure": "further-core-pure", "mechanics": "further-mechanics", "statistics": "further-statistics",
+                 "pure": "further-additional-pure", "decision": "further-decision"}
+
+
+def further_chapters(t: str, numbers: list[int], board: str = "edexcel") -> dict:
+    """Further Maths (Edexcel/AQA) chapter question files: the questions with their mark scheme at the back."""
+    part = next((v for k, v in FURTHER_PAGES.items() if k in t and k != "pure"), "further-core-pure")
+    page = f"{PMT}/maths-revision/{part}/"
+    folder = "/" + ("AQA" if board == "aqa" else "Edexcel") + "/"
+    links = pmt_links(page)
+    files = [h for h, _ in links if "/Topic-Qs/" in h and folder in h and h.lower().endswith(".pdf")]
+    want_book = "CP2" if re.search(r"\b(cp ?2|core pure 2|year 2|second year|year 13)\b", t) else ""
+    sets = []
+    for n in numbers:
+        found = [h for h in files if re.search(rf"/Ch\.{n}\s", h)]
+        if len(found) > 1:  # Core Pure 1 and 2 both have a chapter n: pick the one whose name the student used, else CP1
+            generic = {"equations", "equation", "functions", "numbers", "methods", "series", "with", "further", "pure", "maths"}
+            said = set(re.findall(r"[a-z]{4,}", t)) - generic
+            named = [h for h in found if (set(re.findall(r"[a-z]{4,}", urllib.parse.unquote(h).rsplit("/", 1)[-1].lower())) - generic) & said]
+            found = named or [h for h in found if (want_book or "CP1") in h] or found
+        for h in found[:1]:
+            name = urllib.parse.unquote(h).rsplit("/", 1)[-1][:-4]
+            book = re.search(r"/(CP\d|FP\d|[A-Z]{1,3}\d)/", h)
+            sets.append({"name": name, "group": ((book[1] + " · ") if book else "") + "questions + mark scheme", "qp": h, "ms": h, "combined": True})
+    return {"title": "Further Maths " + ", ".join(f"Ch.{n}" for n in numbers), "course": "Edexcel A-level Further Maths · Core Pure",
+            "page": page, "sets": sets}
+
+
+def pdf_mark_scheme_page(url: str) -> int:
+    """The page a combined questions-and-answers PDF's mark scheme starts on (1-based), or 0."""
+    def load() -> int:
+        try:
+            import pypdf
+        except ImportError:
+            pdf_text(url, 10)
+            import pypdf
+        reader = pypdf.PdfReader(io.BytesIO(http_get(urllib.parse.quote(urllib.parse.unquote(url), safe=":/?&=,()"), timeout=25)))
+        for i, page in enumerate(reader.pages):
+            if re.search(r"mark\s*scheme", (page.extract_text() or "")[:400], re.I):
+                return i + 1
+        return 0
+
+    try:
+        return cached(("mspage", url), 86400, load)
+    except Exception:
+        return 0
+
+
 def pmt_from_page(page: str, name: str, course: str) -> dict:
     """Question sets from one Physics & Maths Tutor topic page (the one Preppr links), narrowed to a sub-topic if named."""
     links = pmt_links(page)
@@ -878,6 +992,16 @@ def pmt_from_page(page: str, name: str, course: str) -> dict:
 
 def pmt_route(t: str, prefs: dict | None = None) -> dict | None:
     req = pmt_request(t)
+    nums = chapter_numbers(t)
+    if req and nums and re.search(r"\bfurther\b", t + " " + str(((prefs or {}).get("pmt") or {}).get("subject", ""))):
+        try:
+            found = further_chapters(t, nums, req.get("board") or "edexcel")
+        except Exception:
+            found = {"sets": []}
+        if found["sets"]:
+            say = (f"Here are the questions for {', '.join(x['name'] for x in found['sets'])} from Physics and Maths Tutor. "
+                   "The mark scheme is at the back of each file; it's open alongside.")
+            return {"say": say, "memory": say, "ui": [{"type": "papers", **found}]}
     hint = (prefs or {}).get("pmt") or {}
     if hint.get("page") and (req or re.search(r"\bquestions?\b", t)):
         # Preppr knows the student's course and links the exact topic page
@@ -1270,7 +1394,8 @@ def route(text: str, prefs: dict) -> dict | None:
     t = re.sub(r"^(hey\s+)?(jarvis|jarvas|travis)\b[,.!]?\s*", "", t)  # the tail of a wake phrase
     if not t:
         return None
-    papers = pmt_route(t, prefs)
+    wanted = doc_request(t)
+    papers = None if (wanted and wanted[0] == "revision") else pmt_route(t, prefs)  # a timetable request beats "open the questions"
     if papers:
         return papers
     when = day_request(t)
@@ -1426,6 +1551,7 @@ def route(text: str, prefs: dict) -> dict | None:
                  "lesson": f"Let's go through {subject}. I've put the lesson on screen; ask me anything about it, or say quiz me.",
                  "itinerary": "I'm checking the web and putting together your itinerary now. It's coming up on screen.",
                  "research": "I'm reading up on that now. The briefing is coming up on screen.",
+                 "revision": "Okay. I'll find the right questions and put a revision timetable together. It's coming up on screen.",
                  "guide": "Here's a step-by-step guide. I've put it on screen.",
                  "plan": "Here you go. I've put it on screen.",
                  "writing": "Here's a draft. I've put it on screen."}[kind]
@@ -2146,6 +2272,11 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json(200, {"items": fetch_news(query.get("cat", "top"), 12)})
             if url.path == "/api/weather":
                 return self._json(200, fetch_weather(query.get("city", "")[:60], query.get("units", "auto")))
+            if url.path == "/api/mspage":
+                target = query.get("url", "")
+                if not target.startswith("https://pmt.physicsandmathstutor.com/"):
+                    return self._json(400, {"error": "bad url"})
+                return self._json(200, {"page": pdf_mark_scheme_page(target)})
             if url.path == "/api/image":
                 return self._json(200, {"url": wiki_image(query.get("q", "")[:120])})
             if url.path == "/api/read":
@@ -2274,7 +2405,10 @@ class Handler(BaseHTTPRequestHandler):
         doc = routed["doc"]
         for piece in re.findall(r"\S+\s*", routed["say"]):
             self._line({"delta": piece})
-        prompt = DOC_PROMPTS[doc["kind"]].format(q=doc["request"])
+        if doc["kind"] == "revision":
+            prompt = DOC_PROMPTS["revision"].format(q=doc["request"], facts=revision_facts(doc["request"], self))
+        else:
+            prompt = DOC_PROMPTS[doc["kind"]].format(q=doc["request"])
         if doc["kind"] in ("itinerary", "research") or (doc["kind"] in ("plan", "guide") and re.search(
                 r"\b(price|cost|budget|cheap|best|trip|travel|buy|ticket|open|hotel|flight|deal|2\d{3})\b", doc["request"])):
             self._line({"doc_status": "Searching the web and reading pages…"})

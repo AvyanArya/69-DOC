@@ -82,6 +82,10 @@ Then you can say:
 | "Walk me through question 1" / "I'm stuck on 2b" | Jarvis reads the question paper and mark scheme on screen and tutors you through it, hint first |
 | "Teach me circular motion" / "Explain how a transformer works" | A lesson page that covers your specification points, taught aloud section by section |
 | "Open my revision plan" / "Open my flashcards" / "Open Preppr" | Opens that part of Preppr inside Jarvis |
+| "Make me a revision timetable for today and tomorrow for my test on Wednesday on chapters 6, 7 and 8 of Further Maths" | A timed revision timetable built around the real Physics & Maths Tutor question files for those chapters, talked through as it's made, and added to your Preppr plan with the test |
+| "Open the questions" | Opens those chapters' questions; when a file has its mark scheme at the back, the mark-scheme side opens at that page |
+
+Only one Jarvis tab listens and talks at a time; if you open another, the first goes quiet and offers **Use Jarvis here**. Over full-screen views, a pill at the top left shows whether Jarvis is listening (with your voice level), thinking or speaking. Music dips a little while Jarvis talks, and more only while you're talking.
 
 Any long answer opens as a page instead of a block of text, and while Jarvis builds a page it talks you through it as it goes. You can close or minimise a page that's still being written and come back to it from the shelf.
 
