@@ -38,12 +38,19 @@ Choose a voice from the list. George, a warm British voice, is the default. Then
 | "Next set" / "Hide the mark scheme" / "Show the mark scheme" | Moves through the question sets, or hides the answers while you work |
 | "Give me study tips for physics" / "Teach me electromagnetic induction" | A study plan or a lesson page with key ideas, a worked example and questions to try |
 | "Quiz me on waves" | Jarvis asks one question at a time and tells you how you did |
+| "Make a London trip itinerary" / "Plan a 3-day trip to Paris" | Searches the web, reads the top pages in the background, and builds a day-by-day page with times, photos, prices, a budget table and its sources |
+| "Research the best laptops for students" / "Compare the iPhone 16 and Pixel 9" | A briefing page written from live web pages, with sources you can read inside Jarvis |
+| "Open the first source" (or tap a source) | Reads that web page inside Jarvis as a clean page, no browser tab |
+| "Minimise" / "Open my London itinerary again" | Puts a page away on the shelf above the message bar and brings it back later. Pages are kept between sessions |
+| "Give me an overview of my day" / "What's on my calendar tomorrow?" | Your calendar events, due reminders and unread Mail count, on a page (Mac Calendar and Reminders) |
+| "Move the weather to the right" / "Put the news at the top" | Rearranges the dashboard. You can also drag any card by its title |
+| "Conversation mode on" / "Stop listening" | Keeps listening after each reply, so you don't need to say "Jarvis" each time. Also the Conversation switch next to the message bar |
 | "Open the second one" | Opens that story in your browser |
 | "Pull up the weather" / "Will it rain tomorrow in London?" | Opens the full weather view for your city or any city |
 | "Close" | Closes the news or weather view |
 | "Set a timer for 10 minutes" / "Remind me to check the oven in 15 minutes" | Countdown card, chime and a spoken alert |
 | "Open YouTube" / "Open Spotify" / "Go to apple.com" | Opens Mac apps and websites |
-| "Play lo-fi beats" | Plays it from YouTube in a small player in the corner |
+| "Play lo-fi beats" | Plays it from YouTube in a small player in the corner. If the browser blocks it from starting, tap **▶ Tap to play**. With **Settings → Music from → Spotify app**, it plays in the Spotify app on your Mac instead and the corner card controls it |
 | "Pause" / "Next song" / "Turn it up" / "Stop the music" | Controls the player. Music quietens while you and Jarvis talk |
 | "Google best pizza near me" | Opens a Google search |
 | "Look up the tallest building in the world" | Searches the web and answers, with source links |
@@ -51,6 +58,10 @@ Choose a voice from the list. George, a warm British voice, is the default. Then
 | Anything else | Normal conversation with your local model |
 
 Say **"Hey Jarvis"**, press **Space**, tap the orb, or **clap twice** to talk. To **interrupt**, just start talking while Jarvis is speaking (or press Space). It stops and listens. Headphones make interrupting most reliable, because then Jarvis can't hear itself. Press **Esc** to stop or close a full-screen view. **Conversation mode** keeps listening after each reply.
+
+Interrupting works on laptop speakers too: Jarvis learns how loudly its own voice comes back into the microphone and treats anything clearly above that as you. Under the Systems panel, the **Interrupt** line says what it heard each time it checked.
+
+**Your calendar:** the first time you ask about your day, macOS asks whether Terminal may access Calendars and Reminders; allow it. To check it from Terminal: `~/.openjarvis/.venv/bin/python ~/.openjarvis/hud/jarvis_hud.py --check-calendar`. If you said no, turn it on in System Settings → Privacy & Security → Calendars (and Reminders).
 
 "Hey Jarvis" is heard on your Mac in two ways: the openWakeWord detector, which installs itself on first start, plus a quick double-check with speech recognition for anything short that might be the name. So it works even when the detector misses your voice. The **Wake** row in the Systems panel shows whether it's listening, and Settings → Behaviour shows what it last heard.
 

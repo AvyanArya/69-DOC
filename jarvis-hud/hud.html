@@ -261,6 +261,10 @@ body[data-state=listening] .mic{background:linear-gradient(135deg,var(--mint),va
 body[data-state=listening] .mic::after{border-color:rgba(110,240,184,.65)}
 .command input{flex:1;min-width:0;padding:0 6px;background:none;border:0;outline:0;font-size:15px;font-weight:300}
 .command input::placeholder{color:var(--t3)}
+.convo-btn{display:flex;align-items:center;gap:7px;flex:none;padding:7px 12px;border-radius:999px;font:500 10px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--t3);border:1px solid var(--stroke);transition:all .3s}
+.convo-btn i{width:7px;height:7px;border-radius:50%;background:var(--t3);transition:all .3s}
+.convo-btn[aria-pressed="true"]{color:var(--t1);border-color:rgba(var(--ice-rgb),.45);background:rgba(var(--ice-rgb),.1)}
+.convo-btn[aria-pressed="true"] i{background:var(--mint);box-shadow:0 0 8px var(--mint)}
 .kbd{font:500 10px var(--mono);letter-spacing:.1em;color:var(--t3);padding:6px 10px;border-radius:9px;border:1px solid var(--stroke);white-space:nowrap}
 .send{width:42px;height:42px;border-radius:50%;flex:none;display:grid;place-items:center;color:var(--t2);background:rgba(255,255,255,.05);transition:all .35s var(--ease)}
 .send:hover{color:var(--t1);background:rgba(var(--ice-rgb),.16)}
@@ -340,6 +344,43 @@ body.focused .fx-caption.on{opacity:1;transform:translate(-50%,0)}
 .doc-wait{display:flex;gap:6px;padding:20px 4px}.doc-wait i{width:8px;height:8px;border-radius:50%;background:var(--ice);opacity:.3;animation:blink 1.1s infinite}.doc-wait i:nth-child(2){animation-delay:.2s}.doc-wait i:nth-child(3){animation-delay:.4s}
 .doc-err{color:var(--rose);font-size:14px}
 @media (max-width:900px){.doc{grid-template-columns:minmax(0,1fr)}.doc-side{position:static}}
+
+/* itinerary and day timelines */
+.day-block{display:flex;flex-direction:column;gap:10px}
+.day-block h3{margin-top:14px}
+.stop{display:grid;grid-template-columns:118px 64px minmax(0,1fr) auto;align-items:center;gap:16px;padding:12px 18px 12px 12px;border-radius:20px;background:var(--glass);border:1px solid var(--stroke)}
+.stop.noimg{grid-template-columns:64px minmax(0,1fr) auto;padding-left:18px}
+.stop img,.stop .ph{width:118px;height:80px;border-radius:14px;object-fit:cover;background:linear-gradient(135deg,rgba(var(--ice-rgb),.12),rgba(var(--violet-rgb),.12))}
+.st-time{font:400 15px var(--mono);color:var(--ice);letter-spacing:.02em}
+.stop b{display:block;font-weight:400;font-size:16px;line-height:1.35}
+.stop p{margin-top:3px;font-size:13.5px;line-height:1.5;color:var(--t2)}
+.st-price{padding:6px 11px;border-radius:999px;font:500 11px var(--mono);white-space:nowrap;color:var(--t1);background:rgba(var(--violet-rgb),.12);border:1px solid rgba(var(--violet-rgb),.3)}
+.doc-table{width:100%;border-collapse:collapse;border-radius:16px;overflow:hidden;font-size:14px}
+.doc-table th{padding:10px 14px;text-align:left;font:500 10.5px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ice);background:rgba(var(--ice-rgb),.06)}
+.doc-table td{padding:10px 14px;border-top:1px solid var(--stroke);color:var(--t1)}
+.doc-status{display:flex;align-items:center;gap:10px;font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ice)}
+.doc-src button,.doc-src a{display:flex;flex-direction:column;gap:2px;width:100%;padding:8px 4px;text-align:left;color:var(--t1);text-decoration:none;border-radius:10px}
+.doc-src button:hover,.doc-src a:hover{background:rgba(255,255,255,.04)}
+.doc-src small{font:400 10px var(--mono);color:var(--t3)}
+@media (max-width:900px){.stop{grid-template-columns:64px minmax(0,1fr)}.stop img,.stop .ph,.st-price{display:none}}
+
+/* minimised pages: a shelf above the command bar */
+.dock{flex-direction:column;align-items:center;gap:10px}
+.shelf{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;max-width:min(980px,100%)}
+.shelf[hidden]{display:none}
+.shelf button{display:flex;align-items:center;gap:8px;padding:7px 8px 7px 13px;border-radius:999px;font-size:12px;color:var(--t1);background:var(--glass-2);border:1px solid var(--stroke-2);transition:all .3s}
+.shelf button:hover{border-color:rgba(var(--ice-rgb),.45)}
+.shelf button i{font-style:normal;font:500 9.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ice)}
+.shelf button span.x{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;color:var(--t3)}
+.shelf button span.x:hover{color:var(--t1);background:rgba(255,255,255,.08)}
+
+/* rearranging the dashboard */
+.col .card-h,.col .hero-greet{cursor:grab}
+.card.drag-ghost{opacity:.35}
+.col.drop-target{outline:1px dashed rgba(var(--ice-rgb),.35);outline-offset:6px;border-radius:24px}
+.pl-tap{position:absolute;inset:0;z-index:2;display:grid;place-items:center;font-size:14px;color:#fff;background:rgba(0,0,0,.55)}
+.pl-tap[hidden]{display:none}
+.pl-art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 
 /* past-paper questions with the mark scheme alongside */
 .pap{flex:1;min-height:0;display:grid;grid-template-columns:250px minmax(0,1fr) minmax(0,1fr);gap:16px}
@@ -678,9 +719,11 @@ body.music-big::after{content:"";position:fixed;inset:0;z-index:44;background:rg
   </main>
 
   <footer class="dock reveal" style="--d:5">
+    <div class="shelf" id="shelf" hidden aria-label="Pages you've minimised"></div>
     <form class="command" id="command" autocomplete="off">
       <button class="mic" id="mic" type="button" aria-label="Talk to Jarvis"><svg class="i"><use href="#i-mic"/></svg></button>
       <input id="input" placeholder="Ask Jarvis anything…" aria-label="Message Jarvis" enterkeyhint="send">
+      <button class="convo-btn" id="convo-btn" type="button" aria-pressed="false" title="Conversation mode: keep listening after each reply, no need to say Jarvis"><i></i>Conversation</button>
       <span class="kbd">SPACE TO TALK</span>
       <button class="send" type="submit" aria-label="Send"><svg class="i"><use href="#i-send"/></svg></button>
     </form>
@@ -752,7 +795,7 @@ body.music-big::after{content:"";position:fixed;inset:0;z-index:44;background:rg
 
 <!-- Music -->
 <div class="player corner-br" id="player" hidden aria-label="Music player">
-  <div class="pl-video"><div id="yt"></div></div>
+  <div class="pl-video"><div id="yt"></div><button class="pl-tap" id="pl-tap" type="button" hidden>▶ Tap to play</button></div>
   <div class="pl-bar">
     <div class="pl-meta"><b id="pl-title">Loading…</b><span id="pl-channel">YouTube</span></div>
     <button type="button" id="pl-prev" aria-label="Previous"><svg viewBox="0 0 24 24"><path d="M7 6h2v12H7zM19 6v12l-9-6z"/></svg></button>
@@ -777,7 +820,8 @@ body.music-big::after{content:"";position:fixed;inset:0;z-index:44;background:rg
   <div class="voices" id="voices"></div>
   <div class="field" style="margin-top:12px"><span>Speaking speed</span><div class="seg" id="set-speed"><button type="button" data-s="0.92">Relaxed</button><button type="button" data-s="1">Natural</button><button type="button" data-s="1.1">Brisk</button></div></div>
   <h3 style="margin-top:18px">Behaviour</h3>
-  <label class="sw"><div>Conversation mode<small>Keep listening after each reply</small></div><input type="checkbox" data-pref="convo"></label>
+  <div class="field"><span>Music from</span><div class="seg" id="set-music"><button type="button" data-m="youtube">YouTube</button><button type="button" data-m="spotify">Spotify app</button></div></div>
+  <label class="sw"><div>Conversation mode<small>Keep listening after each reply, so you don't need to say “Jarvis” each time</small></div><input type="checkbox" data-pref="convo"></label>
   <label class="sw"><div>"Hey Jarvis"<small id="wake-hint">Say it any time to start talking</small></div><input type="checkbox" data-pref="wake"></label>
   <div class="field"><span>Wait for me to finish</span><div class="seg" id="set-patience"><button type="button" data-p="quick">Quick</button><button type="button" data-p="normal">Normal</button><button type="button" data-p="patient">Patient</button></div></div>
   <label class="sw"><div>Interrupt by talking<small>Start speaking to cut Jarvis off (best with headphones)</small></div><input type="checkbox" data-pref="bargeIn"></label>
@@ -933,7 +977,7 @@ function onMic(samples) {
   if (S.state === "speaking" && prefs.bargeIn) {
     checkBargeIn(rms, dt);
     if (wakeReady() && S.status.wake === "online") feedWake(samples, 0, dt, true); // "Jarvis" always cuts in
-  } else { barge.time = 0; barge.env = 0; }
+  } else { if (barge.peak) bargeSummary(); barge.time = 0; barge.env = 0; barge.strong = 0; }
   if (S.state === "idle" && prefs.wake && wakeReady()) feedWake(samples, rms, dt);
   else if (wake.burst) wake.burst = null;
   if (S.state === "listening" && rec) {
@@ -961,7 +1005,8 @@ function onMic(samples) {
     }
     // (finishing has to wait for that transcript anyway, so hold until it's in and says you're done)
     if (rec.speech && rec.silent > wait && (!rec.early || rec.earlyDone || rec.silent > wait + 3)) { if (rec.voiced >= 0.25) finishListening(); else { rec.speech = false; rec.silent = 0; rec.voiced = 0; } }
-    else if (!rec.speech && rec.waited > (rec.fromWake ? 8 : 7)) cancelListening(rec.fromWake ? "Standing by." : "I didn't hear anything. Press Space when you're ready.");
+    // in conversation mode it waits a good while for you to reply, then goes quiet until you say "Hey Jarvis"
+    else if (!rec.speech && rec.waited > (rec.convo ? 30 : rec.fromWake ? 8 : 7)) cancelListening(rec.convo ? "Standing by. Say “Hey Jarvis” when you need me." : rec.fromWake ? "Standing by." : "I didn't hear anything. Press Space when you're ready.");
     else if (rec.total > 40) finishListening();
     return;
   }
@@ -976,31 +1021,52 @@ function onMic(samples) {
 // leaking back from the speakers, Jarvis stops and listens. "Stop" or "be quiet" just stops it.
 const recent = []; // the last few seconds of microphone audio
 const STOP_RE = /\b(stop|wait|hold on|hang on|shut up|be quiet|quiet|pause|enough|cancel|never ?mind|okay okay)\b/i;
-const barge = { time: 0, env: 0, out: 0, busy: false, next: 0, buf: new Float32Array(256) };
+// On laptop speakers Jarvis's own voice comes back into the microphone, often louder than yours. So it learns
+// how loud that echo is compared with what it's playing, and treats sound clearly above it as you talking.
+let echoGain = 0.3;
+try { echoGain = Math.min(2, Math.max(0.02, +localStorage.getItem("jarvis.echo") || 0.3)); } catch {}
+const barge = { time: 0, env: 0, out: 0, busy: false, next: 0, peak: 0, checks: 0, buf: new Float32Array(512) };
 function checkBargeIn(rms, dt) {
   let out = 0;
   if (outAnalyser) { outAnalyser.getFloatTimeDomainData(barge.buf); for (const v of barge.buf) out += v * v; out = Math.sqrt(out / barge.buf.length); }
-  const fall = Math.exp(-dt / 0.25);
+  const fall = Math.exp(-dt / 0.3);
   barge.env = Math.max(rms, barge.env * fall);
   barge.out = Math.max(out, barge.out * fall);
-  const needed = Math.max(0.006, noiseFloor * 3);
-  barge.time = barge.env > needed ? barge.time + dt : Math.max(0, barge.time - dt);
-  if (barge.time < 0.35 || barge.busy || performance.now() < barge.next || !(S.status && S.status.ears === "online")) return;
-  barge.busy = true; barge.time = 0;
-  const speaker = S.speaker, clip = recent.slice(-Math.ceil(1.4 / dt));
+  const echo = echoGain * barge.out, needed = Math.max(0.006, noiseFloor * 3, echo * 1.15);
+  // learn the echo level, only while Jarvis is actually making sound (not in the gaps between sentences).
+  // It follows the echo quickly, but moments well above it (you talking) only nudge it.
+  if (out > 0.02 && barge.out > 0.02) {
+    const ratio = barge.env / barge.out, rate = barge.env < needed * 1.2 ? 0.03 : 0.006;
+    echoGain = Math.min(2, Math.max(0.03, echoGain + (ratio - echoGain) * rate));
+  }
+  const level = barge.env / needed;
+  barge.peak = Math.max(barge.peak, level);
+  barge.time = level > 1 ? barge.time + dt : Math.max(0, barge.time - dt);
+  barge.strong = level > 1.8 ? (barge.strong || 0) + dt : 0;
+  if (barge.time < 0.3 || barge.busy || performance.now() < barge.next || !(S.status && S.status.ears === "online")) return;
+  barge.busy = true; barge.time = 0; barge.checks++;
+  const speaker = S.speaker, clip = recent.slice(-Math.ceil(1.4 / dt)), strong = barge.strong > 0.25 && !Music.playing;
   fetch("/api/wake/confirm", { method: "POST", body: toPcm16(clip).buffer })
     .then((r) => r.json())
     .then((d) => {
       if (S.speaker !== speaker || S.state !== "speaking" || !speaker) return;
       const text = (d.text || "").trim();
-      if (!text) return;
-      if (isEcho(text, speaker.said)) { bargeNote(`heard "${text.slice(0, 50)}", but it was my own voice, so I kept going.`); return; }
-      bargeNote(`heard "${text.slice(0, 50)}", so I stopped.`);
-      if (STOP_RE.test(text) && text.split(/\s+/).length <= 4) { interrupt(); setState("idle", "Okay."); return; }
+      // clearly louder than my own echo counts as you even if no words come through; words that are mine don't
+      if (!text && !strong) return;
+      if (text && isEcho(text, speaker.said)) { bargeNote(`heard "${text.slice(0, 50)}", but it was my own voice, so I kept going.`); return; }
+      bargeNote(text ? `heard "${text.slice(0, 50)}", so I stopped.` : "heard you talking over me, so I stopped.");
+      if (text && STOP_RE.test(text) && text.split(/\s+/).length <= 4) { interrupt(); setState("idle", "Okay."); return; }
       startListening(recent.slice(-Math.ceil(2.2 / dt)));
     })
     .catch(() => {})
-    .finally(() => { barge.busy = false; barge.next = performance.now() + 900; }); // keep speech recognition from running non-stop
+    .finally(() => { barge.busy = false; barge.next = performance.now() + 1000; });
+}
+// when a reply ends without being interrupted, say how close the microphone came, so problems are easy to spot
+function bargeSummary() {
+  if (!prefs.bargeIn || !barge.peak) return;
+  try { localStorage.setItem("jarvis.echo", echoGain.toFixed(3)); } catch {}
+  if (!barge.checks) bargeNote(`didn't hear anyone talking over me (loudest sound was ${Math.round(Math.min(barge.peak, 9.99) * 100)}% of what counts as you).`);
+  barge.peak = 0; barge.checks = 0;
 }
 // what the interrupt check last decided, shown under the Systems panel
 function bargeNote(text) { const el = $("#barge-note"); if (el) el.textContent = "Interrupt: " + text; }
@@ -1158,13 +1224,18 @@ function startListening(preroll, fromWake = false) {
     return;
   }
   interrupt();
-  rec = { chunks: preroll ? preroll : [], speech: !!preroll, silent: 0, waited: 0, total: preroll ? 0.3 : 0, voiced: preroll ? 0.3 : 0, fromWake };
+  rec = { chunks: preroll ? preroll : [], speech: !!preroll, silent: 0, waited: 0, total: preroll ? 0.3 : 0, voiced: preroll ? 0.3 : 0, fromWake, convo: fromWake === "convo" };
   setState("listening", "Listening…");
   SFX.listen();
   wake.pcm = []; wake.filled = 0; wake.burst = null;
   fetch("/api/warm", { method: "POST" }).catch(() => {}); // load the model while you're still talking
 }
 function cancelListening(msg) { rec = null; setState("idle", msg); }
+function setConvo(on) {
+  prefs.convo = on; savePrefs();
+  $("#convo-btn").setAttribute("aria-pressed", String(on));
+  $$('[data-pref="convo"]').forEach((i) => (i.checked = on));
+}
 // How long each step of a reply takes, shown under the Systems panel so slow steps are easy to spot.
 const T = { start: 0, heard: 0, first: 0, voice: 0 };
 function mark(step) {
@@ -1188,7 +1259,7 @@ async function finishListening() {
     const data = await (r.early || transcribeClip(r.chunks));
     if (data.error) throw new Error(data.error);
     mark("heard");
-    if (!data.text) { afterTurn(r.fromWake ? "Standing by." : "I didn't catch that. Press Space to try again.", false); return; }
+    if (!data.text) { if (r.convo) { startListening(null, "convo"); return; } afterTurn(r.fromWake ? "Standing by." : "I didn't catch that. Press Space to try again.", false); return; }
     if (WAKE_RE.test(data.text) && !afterWakeWord(data.text).replace(/\W/g, "")) { startListening(null, true); setCaption("Yes?"); return; } // just the name
     send(data.text);
   } catch (err) { fault(err); }
@@ -1450,7 +1521,7 @@ function interrupt() {
 function afterTurn(caption = "Standing by.", relisten = true) {
   $$(".reading").forEach((el) => el.classList.remove("reading"));
   setState("idle", caption);
-  if (relisten && prefs.convo && S.micOk) setTimeout(() => { if (S.state === "idle") startListening(); }, 500);
+  if (relisten && prefs.convo && S.micOk) setTimeout(() => { if (S.state === "idle") startListening(null, "convo"); }, 350);
 }
 function fault(err) {
   const m = addMsg("jarvis", String((err && err.message) || err));
@@ -1485,6 +1556,7 @@ function attachSources(msg, items) {
     if (!href) continue;
     const a = document.createElement("a");
     a.className = "src"; a.href = href; a.target = "_blank"; a.rel = "noopener";
+    a.addEventListener("click", (e) => { if (e.metaKey || e.ctrlKey || e.shiftKey) return; e.preventDefault(); Reader.open(href); });
     a.innerHTML = `<svg class="i"><use href="#i-globe"/></svg><span>${esc(s.domain || s.title)}</span>`;
     a.title = s.title;
     msg.attach.append(a);
@@ -1509,6 +1581,38 @@ function localCommand(text) {
     if (Music.big) Music.setBig(false);
     if (S.focus) closeFocus();
     reply("Done."); return true;
+  }
+  // minimising and reopening pages
+  if (/^(minimi[sz]e|put (it|this|that) away|save (it|this|that)( for later)?|keep (it|this|that)( for later)?|hide (it|this|that)|park (it|this))( the (page|recipe|itinerary|questions|research))?( for later)?$/.test(t) && S.focus) {
+    if (S.focus === "doc" && Doc.md.trim()) Shelf.keep(Doc.snapshot());
+    closeFocus(); reply("Minimised. Say open it again, or tap it above the message bar."); return true;
+  }
+  if (/^(open|show|bring back|bring up|pull up|reopen|go back to)( me)?( it| that)? ?(again|back)?$/.test(t) && Shelf.items.length) { Shelf.open(Shelf.items[0].id); reply("Here it is."); return true; }
+  if (/\b(open|show|bring back|bring up|pull up|reopen|go back to)\b.*\b(my|the|that)\b.*\b(again|back|from before|earlier)?/.test(t) && Shelf.items.length) {
+    const hit = Shelf.find(t.replace(/\b(open|show|bring|back|bring up|pull up|reopen|again|the|my|that|from|before|earlier|page)\b/g, " "));
+    if (hit && !/\b(news|weather|timer|music|calendar|day)\b/.test(t)) { Shelf.open(hit.id); reply("Here's your " + (hit.title || "page") + "."); return true; }
+  }
+  // "open the first source" → read it here
+  const src = t.match(/^(?:open|read|show)(?: me)? (?:the )?(first|second|third|fourth|1st|2nd|3rd|4th|last) (?:source|link|result|article)$/);
+  if (src) {
+    const list = S.focus === "doc" && Doc.sources.length ? Doc.sources : S.lastSources || [];
+    const item = list[ORD[src[1]] < 0 ? list.length - 1 : ORD[src[1]]];
+    if (item) { Reader.open(item.url); reply("Opening it."); return true; }
+  }
+  // rearranging the dashboard: "move the weather to the right", "put the news at the top"
+  const mvCard = t.match(/\b(?:move|put|place|drag|shift)\b.*?\b(weather|news|headlines|conversation|chat|systems|system|timers?|greeting|hero)\b(?: card)?\b.*?\b(left|right|top|bottom|up|down)\b/);
+  if (mvCard && !/\b(corner)\b/.test(t)) {
+    const key = { headlines: "news", chat: "convo", conversation: "convo", system: "systems", timer: "timers", timers: "timers", greeting: "hero", weather: "wx" }[mvCard[1]] || mvCard[1];
+    const side = /\bleft\b/.test(t) ? "left" : /\bright\b/.test(t) ? "right" : "";
+    const where = /\b(top|up)\b/.test(t) ? "top" : /\b(bottom|down)\b/.test(t) ? "bottom" : side ? "top" : "";
+    if (key !== "timers" || !/\b(corner)\b/.test(t)) { if (Layout.move(key, side, where)) { reply("Done."); return true; } }
+  }
+  // conversation mode by voice
+  if (/\b(conversation mode|keep listening|talk without (saying )?(jarvis|the wake word)|let'?s (have a )?(chat|talk|conversation))\b/.test(t) && !/\b(off|stop|end|disable|turn off)\b/.test(t)) {
+    setConvo(true); reply("Conversation mode is on. Just talk, no need to say Jarvis. Say stop listening when you're done."); return true;
+  }
+  if (/\b(stop listening|conversation mode off|turn off conversation mode|end (the )?conversation|that'?s all for now|stop conversation mode)\b/.test(t)) {
+    setConvo(false); interrupt(); addMsg("jarvis", "Okay, I'll wait for “Hey Jarvis”."); setState("idle", "Standing by."); if (prefs.voice) speak("Okay. Say Hey Jarvis when you need me."); return true;
   }
   // moving things: "put the timer in the top right", "move the music to the bottom left"
   const place = /\b(put|move|place|stick|pin|drag|show|keep|bring)\b/.test(t) && /\b(top|bottom|upper|lower|left|right|corner|over|on top)\b/.test(t);
@@ -1632,7 +1736,7 @@ async function send(text) {
   try {
     const res = await fetch("/api/chat", {
       method: "POST", headers: { "Content-Type": "application/json" }, signal: ctrl.signal,
-      body: JSON.stringify({ messages: S.history, prefs: { name: userName(), city: prefs.city, units: prefs.units } }),
+      body: JSON.stringify({ messages: S.history, prefs: { name: userName(), city: prefs.city, units: prefs.units, music: prefs.music || "youtube" } }),
     });
     if (!res.ok || !res.body) throw new Error("The Jarvis server returned " + res.status + ".");
     const reader = res.body.getReader(), dec = new TextDecoder();
@@ -1649,7 +1753,9 @@ async function send(text) {
         const ev = JSON.parse(line);
         if (ev.error) throw new Error(ev.error);
         if (ev.ui) handleUi(ev.ui, msg);
-        if (ev.doc) { gotDoc = true; Doc.append(ev.doc); }
+        if (ev.doc) { gotDoc = true; if (Doc.status) Doc.status = ""; Doc.append(ev.doc); }
+        if (ev.doc_status !== undefined) Doc.setStatus(ev.doc_status);
+        if (ev.doc_sources) Doc.setSources(ev.doc_sources);
         if (ev.doc_error) docError = ev.doc_error;
         if (ev.memory) memory = ev.memory;
         if (ev.delta) { if (!first) { first = performance.now(); mark("first"); } full += ev.delta; pump(false); }
@@ -1681,13 +1787,15 @@ function handleUi(ev, msg) {
       if (ev.deck) openDeck(ev.category, ev.items, ev.title, ev.source);
       break;
     case "papers": Papers.open(ev); break;
+    case "page": Doc.open(ev); Doc.md = ev.md || ""; Doc.finish(); break;
+    case "spotify": Music.spotify(ev.now); break;
     case "doc": Doc.open(ev); break;
     case "music": Music.play(ev.items, ev.query); break;
     case "weather": S.weather = ev.data; S.weatherError = false; renderWeather(); if (ev.focus) { S.lastThing = "weather"; openWeather(); } break;
     case "timer": S.lastThing = "timer"; Timers.add(ev); updatePip(); toast(ev.remind ? "Reminder set" : "Timer set", `${ev.label} · ${fmtDur(ev.seconds)}`, "i-timer"); break;
     case "timer_cancel": Timers.clear(); break;
     case "opened": toast("Opened " + ev.label, ev.detail || "", "i-ext"); attachReceipt(msg, ev); break;
-    case "sources": attachSources(msg, ev.items); break;
+    case "sources": attachSources(msg, ev.items); S.lastSources = ev.items; break;
   }
 }
 
@@ -1831,16 +1939,28 @@ const SIDE_RE = /ingredient|you'?ll need|what you need|materials|equipment|tools
 const Doc = {
   md: "", kind: "", title: "", image: "", shown: 0, step: -1, timer: 0, done: false,
   open(ev) {
-    Object.assign(this, { md: "", kind: ev.kind, title: ev.title || "Page", image: ev.image || "", shown: 0, step: -1, done: false });
-    $("#doc-eyebrow").textContent = { recipe: "Recipe", guide: "Step by step", plan: "Plan", writing: "Draft", lesson: "Lesson" }[ev.kind] || "Page";
+    Object.assign(this, { md: "", kind: ev.kind, title: ev.title || "Page", image: ev.image || "", shown: 0, step: -1, done: false,
+      sources: [], status: "", url: ev.url || "", id: ev.id || "p" + Date.now().toString(36) });
+    $("#doc-eyebrow").textContent = { recipe: "Recipe", guide: "Step by step", plan: "Plan", writing: "Draft", lesson: "Lesson",
+      itinerary: "Itinerary · live web", research: "Research · live web", day: "Your day", reader: "Reader" }[ev.kind] || "Page";
     $("#doc-title").textContent = this.title;
-    $("#doc-foot").textContent = ev.kind === "recipe" ? "Say “next step” or “read the ingredients” · Esc to close" : ev.kind === "writing" ? "Esc to close" : "Say “next step” · Esc to close";
+    $("#doc-foot").textContent = ev.kind === "recipe" ? "Say “next step” or “read the ingredients” · “minimise” to keep it for later"
+      : ["itinerary", "research", "reader", "day"].includes(ev.kind) ? "Ask follow-up questions · say “minimise” to keep it for later · Esc to close"
+      : "Say “next step” · “minimise” to keep it for later · Esc to close";
     S.lastThing = "doc";
     this.render();
     openFocus("doc");
   },
   append(text) { this.md += text; if (!this.timer) this.timer = setTimeout(() => { this.timer = 0; this.render(); }, 120); },
-  finish(error) { this.done = true; clearTimeout(this.timer); this.timer = 0; this.render(error); },
+  finish(error) { this.done = true; this.status = ""; clearTimeout(this.timer); this.timer = 0; this.render(error); if (!error && this.md.trim()) Shelf.keep(this.snapshot()); },
+  setStatus(text) { this.status = text; this.render(); },
+  setSources(items) { this.sources = items || []; this.render(); },
+  snapshot() { return { id: this.id, type: "doc", title: $("#doc-title").textContent, kind: this.kind, data: { md: this.md, kind: this.kind, title: this.title, image: this.image, sources: this.sources, url: this.url } }; },
+  restore(d, id) {
+    this.open({ kind: d.kind, title: d.title, image: d.image, url: d.url, id });
+    this.md = d.md; this.sources = d.sources || [];
+    this.finish();
+  },
   parse() {
     const d = { title: "", desc: "", meta: [], sections: [] };
     let sec = null;
@@ -1851,7 +1971,9 @@ const Doc = {
       if ((m = line.match(/^#\s+(.+)/))) { d.title = m[1]; continue; }
       if ((m = line.match(/^META:\s*(.+)/i))) { d.meta = m[1].split("|").map((x) => x.trim()).filter(Boolean); continue; }
       if ((m = line.match(/^#{2,4}\s+(.+)/))) { sec = { h: m[1].replace(/[:*]+$/g, ""), items: [] }; d.sections.push(sec); continue; }
-      const item = (m = line.match(/^\d+[.)]\s+(.+)/)) ? { t: "ol", x: m[1] } : (m = line.match(/^[-*•]\s+(.+)/)) ? { t: "ul", x: m[1] } : { t: "p", x: line };
+      if (/^\|?\s*:?-{2,}/.test(line)) continue; // a table's |---|---| line
+      const item = (m = line.match(/^\d+[.)]\s+(.+)/)) ? { t: "ol", x: m[1] } : (m = line.match(/^[-*•]\s+(.+)/)) ? { t: "ul", x: m[1] }
+        : line.startsWith("|") ? { t: "row", x: line, cells: line.replace(/^\||\|$/g, "").split("|").map((c) => c.trim()) } : { t: "p", x: line };
       if (!sec) { if (item.t === "p" && !d.desc && !d.sections.length) { d.desc = item.x; continue; } sec = { h: "", items: [] }; d.sections.push(sec); }
       sec.items.push(item);
     }
@@ -1865,7 +1987,8 @@ const Doc = {
     let n = 0;
     const fresh = () => (n++ >= this.shown ? " in" : "");
     const inline = (x) => esc(x).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/\*(.+?)\*/g, "<i>$1</i>");
-    const prose = this.kind === "writing" || this.kind === "plan" && !d.sections.some((x) => SIDE_RE.test(x.h));
+    if (this.kind === "itinerary" && !this.placeHint) this.placeHint = (this.title || "").replace(/\s*itinerary$/i, "");
+    const prose = ["writing", "reader"].includes(this.kind) || (this.kind === "plan" && !d.sections.some((x) => SIDE_RE.test(x.h)));
     el.classList.toggle("prose", prose && !this.image);
     const side = [], main = [];
     if (!prose || this.image) {
@@ -1883,12 +2006,39 @@ const Doc = {
         main.push(`<div class="doc-card plain${fresh()}"><h4>${esc(sec.h)}</h4><ul>${sec.items.map((i) => `<li class="${fresh()}">${inline(i.x)}</li>`).join("")}</ul></div>`);
         continue;
       }
+      const timeline = (this.kind === "itinerary" && /^day\b/i.test(sec.h)) || (this.kind === "day" && /schedule/i.test(sec.h));
+      if (timeline) {
+        main.push(`<div class="day-block"><h3 class="${fresh()}">${esc(sec.h)}</h3>`);
+        for (const it of sec.items) {
+          const c = it.x.split("|").map((x) => x.trim());
+          if (c.length < 2) { main.push(`<div class="doc-bul${fresh()}">${inline(it.x)}</div>`); continue; }
+          const [time, place, what = "", price = ""] = c, photo = this.kind === "itinerary";
+          const q = place + (this.placeHint ? ", " + this.placeHint : ""), src = photo ? Photos.get(q) : "";
+          main.push(`<div class="stop${photo ? "" : " noimg"}${fresh()}">${photo ? (src ? `<img src="${esc(src)}" alt="" onerror="this.className='ph';this.removeAttribute('src')">` : `<div class="ph" data-photo="${esc(q)}"></div>`) : ""}
+            <div class="st-time">${esc(time)}</div><div><b>${inline(place)}</b>${what ? `<p>${inline(what)}</p>` : ""}</div>${price ? `<span class="st-price">${esc(price)}</span>` : "<span></span>"}</div>`);
+        }
+        main.push("</div>");
+        continue;
+      }
+      if (sec.items.some((i) => i.t === "row")) {
+        const rows = sec.items.filter((i) => i.t === "row");
+        if (sec.h) main.push(`<h3 class="${fresh()}">${esc(sec.h)}</h3>`);
+        main.push(`<div class="doc-card${fresh()}" style="padding:0;overflow:hidden"><table class="doc-table"><tr>${rows[0].cells.map((c) => `<th>${inline(c)}</th>`).join("")}</tr>${rows.slice(1).map((r) => `<tr>${r.cells.map((c) => `<td>${inline(c)}</td>`).join("")}</tr>`).join("")}</table></div>`);
+        for (const it of sec.items.filter((i) => i.t !== "row")) main.push(`<p class="doc-p${fresh()}">${inline(it.x)}</p>`);
+        continue;
+      }
       if (sec.h) main.push(`<h3 class="${fresh()}">${esc(sec.h)}</h3>`);
       for (const it of sec.items) {
         if (it.t === "ol") { const k = stepNo++; main.push(`<div class="doc-step${fresh()}${k === this.step ? " reading" : ""}" data-step="${k}"><b>${k + 1}</b><p>${inline(it.x)}</p></div>`); }
         else if (it.t === "ul") main.push(`<div class="doc-bul${fresh()}">${inline(it.x)}</div>`);
         else main.push(`<p class="doc-p${fresh()}">${inline(it.x)}</p>`);
       }
+    }
+    if (this.status) main.unshift(`<div class="doc-status"><span class="doc-wait" style="padding:0"><i></i><i></i><i></i></span>${esc(this.status)}</div>`);
+    if (this.sources.length || this.url) {
+      const list = this.url ? `<a href="${esc(safeUrl(this.url))}" target="_blank" rel="noopener">Open the original ↗<small>${esc(this.url.replace(/^https?:\/\/(www\.)?/, "").split("/")[0])}</small></a>`
+        : this.sources.map((x) => `<button type="button" data-read="${esc(x.url)}">${esc(x.title)}<small>${esc(x.domain)}</small></button>`).join("");
+      side.push(`<div class="doc-card doc-src plain"><h4>${this.url ? "Source" : "Sources · tap to read here"}</h4>${list}</div>`);
     }
     if (error) main.push(`<p class="doc-err">${esc(error)}</p>`);
     else if (!this.done) main.push('<div class="doc-wait"><i></i><i></i><i></i></div>');
@@ -1899,6 +2049,7 @@ const Doc = {
     if (oldHero && newHero && oldHero.getAttribute("src") === newHero.getAttribute("src")) newHero.replaceWith(oldHero);
     $$("#doc .doc-card li").forEach((li) => { if (ticked.has(li.textContent)) li.classList.add("done"); });
     this.shown = n;
+    Photos.fill();
   },
   readStep(i) {
     const steps = this.steps();
@@ -1911,17 +2062,143 @@ const Doc = {
     reply(`Step ${this.step + 1}. ${steps[this.step].replace(/\*/g, "")}`);
   },
 };
+// photos for places in an itinerary, looked up once each
+const Photos = {
+  cache: new Map(), pending: new Set(),
+  get(q) { return this.cache.get(q) || ""; },
+  fill() {
+    for (const el of $$("#doc [data-photo]")) {
+      const q = el.dataset.photo;
+      if (this.cache.has(q)) { if (this.cache.get(q)) el.outerHTML = `<img src="${esc(this.cache.get(q))}" alt="">`; continue; }
+      if (this.pending.has(q) || this.pending.size > 7) continue;
+      this.pending.add(q);
+      fetch("/api/image?q=" + encodeURIComponent(q)).then((r) => r.json()).then((d) => { this.cache.set(q, d.url || ""); })
+        .catch(() => this.cache.set(q, "")).finally(() => { this.pending.delete(q); this.fill(); });
+    }
+  },
+};
+// open any web page as a clean page inside Jarvis (read in the background, no browser tab)
+const Reader = {
+  async open(url) {
+    Doc.open({ kind: "reader", title: "Opening…", url });
+    Doc.setStatus("Reading the page…");
+    try {
+      const d = await (await fetch("/api/read?url=" + encodeURIComponent(url))).json();
+      if (d.error || !d.paragraphs || !d.paragraphs.length) throw new Error(d.error || "That page didn't have readable text.");
+      Doc.image = d.image || "";
+      Doc.md = `# ${d.title}\n${d.site}\n` + d.paragraphs.join("\n");
+      Doc.finish();
+      S.history.push({ role: "assistant", content: `I opened ${d.title} (${d.site}). It says:\n` + d.paragraphs.join("\n").slice(0, 2500) });
+    } catch (err) { Doc.finish(String(err.message || err)); }
+  },
+};
 $("#doc").addEventListener("click", (e) => {
+  const rd = e.target.closest("[data-read]");
+  if (rd) { Reader.open(rd.dataset.read); return; }
   const li = e.target.closest(".doc-card:not(.plain) li");
   if (li) li.classList.toggle("done");
   const st = e.target.closest(".doc-step");
   if (st) { Doc.step = +st.dataset.step; $$("#doc .doc-step").forEach((el) => el.classList.toggle("reading", el === st)); }
 });
 
+/* ============================================================== the shelf: pages you minimised, to reopen later */
+const Shelf = {
+  items: (() => { try { return JSON.parse(localStorage.getItem("jarvis.pages") || "[]"); } catch { return []; } })(),
+  save() { try { localStorage.setItem("jarvis.pages", JSON.stringify(this.items.slice(0, 10))); } catch {} this.render(); },
+  keep(entry) { this.items = [entry, ...this.items.filter((x) => x.id !== entry.id)].slice(0, 10); this.save(); },
+  remove(id) { this.items = this.items.filter((x) => x.id !== id); this.save(); },
+  open(id) {
+    const it = this.items.find((x) => x.id === id);
+    if (!it) return false;
+    if (it.type === "papers") Papers.open(it.data); else Doc.restore(it.data, it.id);
+    return true;
+  },
+  // "open my London itinerary again" → the best match by words in the title or kind
+  find(text) {
+    const words = new Set(text.toLowerCase().match(/[a-z0-9]{3,}/g) || []);
+    let best = null, score = 0;
+    for (const it of this.items) {
+      const hay = new Set(((it.title || "") + " " + (it.kind || "")).toLowerCase().match(/[a-z0-9]{3,}/g) || []);
+      const sc = [...words].filter((w) => hay.has(w) || hay.has(w.replace(/s$/, ""))).length;
+      if (sc > score) { best = it; score = sc; }
+    }
+    return best;
+  },
+  render() {
+    const el = $("#shelf"), open = S.focus === "doc" ? Doc.id : null;
+    const items = this.items.filter((x) => x.id !== open).slice(0, 6);
+    el.hidden = !items.length;
+    const tag = { recipe: "Recipe", itinerary: "Trip", research: "Research", papers: "Questions", lesson: "Lesson", day: "Day", reader: "Page", plan: "Plan", guide: "Guide", writing: "Draft" };
+    el.innerHTML = items.map((x) => `<button type="button" data-shelf="${esc(x.id)}" title="Reopen"><i>${esc(tag[x.kind] || "Page")}</i>${esc((x.title || "Page").slice(0, 34))}<span class="x" data-unshelf="${esc(x.id)}" title="Remove">×</span></button>`).join("");
+  },
+};
+$("#shelf").addEventListener("click", (e) => {
+  const x = e.target.closest("[data-unshelf]");
+  if (x) { e.stopPropagation(); Shelf.remove(x.dataset.unshelf); return; }
+  const b = e.target.closest("[data-shelf]");
+  if (b) Shelf.open(b.dataset.shelf);
+});
+
+/* ============================================================== rearranging the dashboard: drag a card by its title */
+const Layout = {
+  key(card) {
+    return card.dataset.key || (card.dataset.key = card.id ? card.id.replace(/-card$/, "") : card.classList.contains("news-card") ? "news"
+      : card.classList.contains("convo") ? "convo" : card.classList.contains("sys-card") ? "systems" : $("#hero-greet", card) ? "hero" : "card" + $$(".col .card").indexOf(card));
+  },
+  cards() { return $$(".col.left > .card, .col.right > .card"); },
+  save() {
+    const order = { left: $$(".col.left > .card").map((c) => this.key(c)), right: $$(".col.right > .card").map((c) => this.key(c)) };
+    try { localStorage.setItem("jarvis.layout", JSON.stringify(order)); } catch {}
+  },
+  restore() {
+    let order = null;
+    try { order = JSON.parse(localStorage.getItem("jarvis.layout") || "null"); } catch {}
+    const all = Object.fromEntries(this.cards().map((c) => [this.key(c), c]));
+    if (!order) return;
+    for (const side of ["left", "right"]) for (const k of order[side] || []) if (all[k]) $(".col." + side).append(all[k]);
+  },
+  move(key, side, where) {
+    const card = this.cards().find((c) => this.key(c) === key);
+    if (!card) return false;
+    const col = $(".col." + (side || (card.parentElement.classList.contains("left") ? "left" : "right")));
+    if (where === "top") col.prepend(card); else col.append(card);
+    this.save();
+    return true;
+  },
+};
+Layout.restore();
+Shelf.render();
+(function dragCards() {
+  let card = null, ph = null;
+  document.addEventListener("pointerdown", (e) => {
+    const handle = e.target.closest(".col .card-h, .col .hero-greet");
+    if (!handle || e.button !== 0 || e.target.closest("button, a, input")) return;
+    card = handle.closest(".card");
+    card.classList.add("drag-ghost");
+    $$(".col.left, .col.right").forEach((c) => c.classList.add("drop-target"));
+    e.preventDefault();
+  });
+  document.addEventListener("pointermove", (e) => {
+    if (!card) return;
+    const col = document.elementsFromPoint(e.clientX, e.clientY).map((el) => el.closest && el.closest(".col.left, .col.right")).find(Boolean);
+    if (!col) return;
+    const after = [...col.children].filter((c) => c.classList.contains("card") && c !== card).find((c) => e.clientY < c.getBoundingClientRect().top + c.offsetHeight / 2);
+    if (after) col.insertBefore(card, after); else col.append(card);
+  });
+  document.addEventListener("pointerup", () => {
+    if (!card) return;
+    card.classList.remove("drag-ghost");
+    $$(".drop-target").forEach((c) => c.classList.remove("drop-target"));
+    card = null;
+    Layout.save();
+  });
+})();
+
 /* ============================================================== past papers: questions and mark scheme side by side */
 const Papers = {
   sets: [], i: 0, ms: true, page: "",
   open(ev) {
+    Shelf.keep({ id: "pmt-" + (ev.page || ev.title), type: "papers", title: ev.title, kind: "papers", data: ev });
     this.sets = ev.sets || []; this.i = 0; this.page = ev.page || "";
     $("#pap-eyebrow").textContent = "Physics & Maths Tutor · " + (ev.course || "");
     $("#pap-title").textContent = ev.title || "Questions";
@@ -2023,6 +2300,7 @@ const Music = {
     return this.ready;
   },
   async play(items, query) {
+    if (this.mode === "spotify") { clearInterval(this.poll); this.mode = ""; $(".pl-video").innerHTML = '<div id="yt"></div><button class="pl-tap" id="pl-tap" type="button" hidden>▶ Tap to play</button>'; }
     this.items = items || []; this.i = 0; this.query = query || "";
     S.lastThing = "music";
     $("#player").hidden = false;
@@ -2032,6 +2310,10 @@ const Music = {
   load() {
     const it = this.items[this.i];
     if (!it) return this.fallback();
+    this.mode = "youtube";
+    clearTimeout(this.startCheck);
+    // if the browser blocked it from starting by itself, offer a big play button instead of silence
+    this.startCheck = setTimeout(() => { if (!this.playing && this.yt && !$("#player").hidden) $("#pl-tap").hidden = false; }, 4500);
     $("#pl-title").textContent = it.title;
     $("#pl-channel").textContent = [it.channel, it.length].filter(Boolean).join(" · ");
     if (this.yt && this.yt.loadVideoById) { this.yt.loadVideoById(it.id); this.applyVolume(); return; }
@@ -2041,7 +2323,7 @@ const Music = {
       events: {
         onReady: (e) => { this.applyVolume(); e.target.playVideo(); },
         onError: () => { this.i++; this.load(); }, // not allowed to play here: try the next match
-        onStateChange: (e) => { this.playing = e.data === 1 || e.data === 3; this.icon(); if (e.data === 0) this.next(); },
+        onStateChange: (e) => { this.playing = e.data === 1 || e.data === 3; if (this.playing) $("#pl-tap").hidden = true; this.icon(); if (e.data === 0) this.next(); },
       },
     });
   },
@@ -2056,13 +2338,33 @@ const Music = {
     if (m.attach) m.attach.append(el);
   },
   icon() { $("#pl-play-ico").setAttribute("d", this.playing ? "M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" : "M8 5.5l10.5 6.5L8 18.5z"); $("#pl-play").setAttribute("aria-label", this.playing ? "Pause" : "Play"); },
-  active() { return !$("#player").hidden && !!this.yt; },
-  pause() { if (this.yt && this.yt.pauseVideo) this.yt.pauseVideo(); },
-  resume() { if (this.yt && this.yt.playVideo) this.yt.playVideo(); },
+  active() { return !$("#player").hidden && (!!this.yt || this.mode === "spotify"); },
+  // the Spotify app on this Mac, controlled through Jarvis's server
+  spotify(now) {
+    this.mode = "spotify";
+    if (this.yt && this.yt.destroy) { try { this.yt.destroy(); } catch {} this.yt = null; }
+    $("#player").hidden = false;
+    S.lastThing = "music";
+    this.showSpotify(now || {});
+    clearInterval(this.poll);
+    this.poll = setInterval(() => { if (this.mode !== "spotify" || $("#player").hidden) return clearInterval(this.poll); this.sp(""); }, 4000);
+  },
+  showSpotify(n) {
+    if (!n.ok) { $("#pl-title").textContent = "Spotify"; $("#pl-channel").textContent = "Open Spotify on this Mac"; return; }
+    this.playing = n.state === "playing"; this.icon();
+    $("#pl-title").textContent = n.title || "Spotify"; $("#pl-channel").textContent = "Spotify" + (n.artist ? " · " + n.artist : "");
+    $(".pl-video").innerHTML = (n.art ? `<img class="pl-art" src="${esc(safeUrl(n.art))}" alt="">` : '<div class="pl-art" style="background:#111"></div>') + '<button class="pl-tap" id="pl-tap" type="button" hidden>▶ Tap to play</button>';
+  },
+  sp(action) {
+    return fetch("/api/spotify", action ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action }) } : {})
+      .then((r) => r.json()).then((n) => this.showSpotify(n)).catch(() => {});
+  },
+  pause() { if (this.mode === "spotify") return this.sp("pause"); if (this.yt && this.yt.pauseVideo) this.yt.pauseVideo(); },
+  resume() { if (this.mode === "spotify") return this.sp("play"); if (this.yt && this.yt.playVideo) this.yt.playVideo(); },
   toggle() { this.playing ? this.pause() : this.resume(); },
-  next() { if (this.i + 1 < this.items.length) { this.i++; this.load(); } else if (this.yt) this.yt.seekTo(0); },
-  prev() { if (this.i > 0) { this.i--; this.load(); } else if (this.yt) this.yt.seekTo(0); },
-  setVolume(v) { this.volume = Math.max(5, Math.min(100, v)); this.applyVolume(); },
+  next() { if (this.mode === "spotify") return this.sp("next"); if (this.i + 1 < this.items.length) { this.i++; this.load(); } else if (this.yt) this.yt.seekTo(0); },
+  prev() { if (this.mode === "spotify") return this.sp("previous"); if (this.i > 0) { this.i--; this.load(); } else if (this.yt) this.yt.seekTo(0); },
+  setVolume(v) { if (this.mode === "spotify") return this.sp(v > this.volume ? "up" : "down"); this.volume = Math.max(5, Math.min(100, v)); this.applyVolume(); },
   // quieter while Jarvis is listening or talking, so you can hear each other
   applyVolume() { if (this.yt && this.yt.setVolume) this.yt.setVolume(["listening", "speaking"].includes(S.state) ? Math.min(this.volume, 15) : this.volume); },
   setBig(on) {
@@ -2073,16 +2375,18 @@ const Music = {
     updatePip();
   },
   close() {
+    if (this.mode === "spotify") { this.sp("pause"); clearInterval(this.poll); this.mode = ""; }
     this.setBig(false);
     if (this.yt && this.yt.destroy) { try { this.yt.destroy(); } catch {} }
     this.yt = null;
     $("#player").hidden = true;
-    $(".pl-video").innerHTML = '<div id="yt"></div>';
+    $(".pl-video").innerHTML = '<div id="yt"></div><button class="pl-tap" id="pl-tap" type="button" hidden>▶ Tap to play</button>';
     updatePip();
     this.playing = false;
   },
 };
 $("#pl-play").addEventListener("click", () => Music.toggle());
+$(".pl-video").addEventListener("click", (e) => { if (e.target.closest("#pl-tap")) { $("#pl-tap").hidden = true; Music.resume(); } });
 $("#pl-next").addEventListener("click", () => Music.next());
 $("#pl-prev").addEventListener("click", () => Music.prev());
 $("#pl-big").addEventListener("click", () => Music.setBig(!Music.big));
@@ -2131,6 +2435,7 @@ function openFocus(kind) {
 }
 function closeFocus() {
   if (!S.focus) return;
+  setTimeout(() => Shelf.render(), 0);
   setTimeout(updatePip, 0);
   const kind = S.focus, [view, source] = FOCUS[kind]();
   S.focus = null;
@@ -2700,6 +3005,7 @@ function openSettings() {
   $("#set-city").value = prefs.city;
   $$("#set-units button").forEach((b) => b.classList.toggle("on", b.dataset.u === prefs.units));
   $$("#set-patience button").forEach((b) => b.classList.toggle("on", b.dataset.p === (prefs.patience || "normal")));
+  $$("#set-music button").forEach((b) => b.classList.toggle("on", b.dataset.m === (prefs.music || "youtube")));
   $$("[data-pref]").forEach((i) => (i.checked = !!prefs[i.dataset.pref]));
   $$("#set-speed button").forEach((b) => b.classList.toggle("on", parseFloat(b.dataset.s) === (prefs.speed || 1)));
   loadVoices();
@@ -2803,6 +3109,12 @@ $("#settings-btn").addEventListener("click", (e) => { e.stopPropagation(); $("#s
 document.addEventListener("click", (e) => { if (!$("#settings").hidden && !e.target.closest("#settings")) closeSettings(); });
 $("#set-name").addEventListener("input", (e) => { prefs.name = e.target.value.trim(); savePrefs(); heroSub(); });
 $("#set-city").addEventListener("change", (e) => { prefs.city = e.target.value.trim(); savePrefs(); S.weather = null; loadWeather(); });
+$("#set-music").addEventListener("click", (e) => {
+  const b = e.target.closest("button");
+  if (!b) return;
+  prefs.music = b.dataset.m; savePrefs();
+  $$("#set-music button").forEach((x) => x.classList.toggle("on", x === b));
+});
 $("#set-patience").addEventListener("click", (e) => {
   const b = e.target.closest("button");
   if (!b) return;
@@ -2851,6 +3163,13 @@ $("#boot-skip").addEventListener("click", () => skipBoot());
 
 $("#orb").addEventListener("click", talk);
 $("#mic").addEventListener("click", talk);
+$("#convo-btn").setAttribute("aria-pressed", String(!!prefs.convo));
+$("#convo-btn").addEventListener("click", () => {
+  setConvo(!prefs.convo);
+  toast(prefs.convo ? "Conversation mode on" : "Conversation mode off", prefs.convo ? "I'll keep listening after each reply." : "Say “Hey Jarvis” or press Space to talk.", "i-chat");
+  if (prefs.convo && S.state === "idle") startListening(null, "convo");
+});
+$$('[data-pref="convo"]').forEach((i) => i.addEventListener("change", () => $("#convo-btn").setAttribute("aria-pressed", String(i.checked))));
 $("#command").addEventListener("submit", (e) => { e.preventDefault(); const t = $("#input").value; $("#input").value = ""; send(t); });
 document.addEventListener("click", (e) => { const b = e.target.closest("[data-say]"); if (b) { b.blur(); send(b.dataset.say); } });
 $("#news-tabs").addEventListener("click", (e) => { const b = e.target.closest("[data-cat]"); if (b) loadNews(b.dataset.cat); });

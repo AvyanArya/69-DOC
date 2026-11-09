@@ -44,7 +44,7 @@ import urllib.request
 import wave
 import webbrowser
 import xml.etree.ElementTree as ET
-from datetime import datetime
+from datetime import datetime, timedelta
 from email.utils import parsedate_to_datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -71,7 +71,7 @@ if LANGUAGE.startswith("en") and CONFIG.speech.model in ("tiny", "base", "small"
 VOICE_SPEED = float(CONFIG.speech.voice_speed or 1.0)
 HISTORY_TURNS = 20
 MAX_BODY_BYTES = 25 * 1024 * 1024
-HUD_VERSION = "2.7"
+HUD_VERSION = "2.8"
 USER_AGENT = f"OpenJarvisHUD/{HUD_VERSION} (+https://github.com/open-jarvis/OpenJarvis)"
 IS_MAC = sys.platform == "darwin"
 # The voice runs on the CPU by default: fast enough on Apple Silicon, and it leaves the GPU to the language model.
@@ -332,13 +332,48 @@ DOC_PROMPTS = {
                "META: <level, e.g. GCSE or A-level> | <minutes to learn>\n"
                "## Key ideas\n- <idea>\n...\n## Step by step\n1. <step>\n...\n## Worked example\n<a short worked example>\n"
                "## Common mistakes\n- <mistake and how to avoid it>\n...\n## Check yourself\n- <question to try>\n..."),
+    "itinerary": ("Make a day-by-day itinerary for: {q}. Use real places. Where the live web notes give prices, opening "
+                  "times or tips, use them. Use exactly this format, in English, with no other text:\n"
+                  "# <title>\n<one sentence summary>\nMETA: <number of days> | <rough total budget per person> | <best for>\n"
+                  "## Day 1: <theme>\n- <time, e.g. 09:00> | <place name> | <what to do there, one sentence> | <price, or Free>\n...\n"
+                  "## Day 2: <theme>\n...\n## Budget\n| Item | Cost |\n|---|---|\n| <item> | <cost> |\n...\n"
+                  "## Tips\n- <short practical tip>\n...\nFour to six stops a day. If no number of days is given, make it two days."),
+    "research": ("Using the live web notes below, write a clear briefing on: {q}. Use exactly this format, in English, no other text:\n"
+                 "# <title>\n<two sentence summary>\n## Key points\n- <point>\n...\n## Details\n<short paragraphs>\n"
+                 "Use '| a | b |' tables if comparing things or prices. Only state facts that are in the notes; say if something is unclear."),
     "writing": ("Write this for the user: {q}. Use exactly this format, in English:\n# <short title>\n"
                 "Then the text itself, in plain paragraphs (headings only if they genuinely help)."),
 }
 
 
+def doc_title(kind: str, subject: str) -> str:
+    if kind == "itinerary":
+        not_places = {"do", "see", "go", "visit", "january", "february", "march", "april", "may", "june", "july", "august",
+                      "september", "october", "november", "december", "spring", "summer", "autumn", "winter", "the summer",
+                      "the winter", "the spring", "the autumn", "my family", "my friends"}
+        found = [x for x in re.findall(r"\b(?:to|in|around|of)\s+([a-z][a-z .'-]+?)(?=\s+(?:for|in|with|on|over|this|next|trip|itinerary|during)\b|$)", subject)
+                 if x.strip() not in not_places]
+        place = [None, found[-1]] if found else None
+        if not place:  # "a london trip itinerary"
+            before = re.search(r"((?:[a-z']+ ){0,2})(?:trip|itinerary|holiday|weekend|city break)\b", subject)
+            words = [w for w in (before[1].split() if before else []) if w not in {
+                "a", "an", "the", "my", "our", "make", "plan", "create", "day", "days", "one", "two", "three", "weekend", "week", "’"} and not w.isdigit()]
+            return (" ".join(words).title() + " itinerary") if words else "Itinerary"
+        return place[1].title() + " itinerary"
+    return subject[:1].upper() + subject[1:]
+
+
 def doc_request(t: str) -> tuple[str, str] | None:
     """Is this a request for something to read on screen? Returns (kind, subject)."""
+    if re.search(r"\b(itinerary|itineraries|trip plan|travel plan|day trip|weekend (in|away)|things to do in|what to do in|places to (visit|see) in|"
+                 r"(plan|planning|organi[sz]e) (a |my |the |our )?(\d+[- ]day |one[- ]day |two[- ]day |three[- ]day )?(trip|holiday|vacation|day out|weekend|visit|city break|tour))\b", t):
+        return "itinerary", t.strip(" ?.!")
+    m = re.search(r"\b(?:research|look into|dig into|investigate|find out (?:everything|more|all) about|do some research (?:on|into)|deep dive (?:on|into))\s+(.+)", t)
+    if m:
+        return "research", m[1].strip(" ?.!")
+    m = re.search(r"\bcompare (.+)", t)
+    if m and re.search(r"\b(and|vs|versus|with|or)\b", m[1]):
+        return "research", "compare " + m[1].strip(" ?.!")
     m = re.search(r"\b(?:a |the |me a |me the )?recipe (?:for|of|on) (.+)", t) or re.search(r"\b(.+?) recipe\b", t) \
         or re.search(r"\bhow (?:do (?:i|you)|to|can i|should i) (?:make|cook|bake|prepare) (.+)", t)
     if m:
@@ -354,6 +389,11 @@ def doc_request(t: str) -> tuple[str, str] | None:
         or re.search(r"\b(?:teach me(?: about| how to| how)?|help me understand|give me a lesson on|lesson on|walk me through)\s+(.+)", t)
     if m and m[1].strip(" ?.!"):
         return "lesson", m[1].strip(" ?.!")
+    m = re.search(r"\b(?:make|create|build|write|draw up|put together|prepare|give me|show me|plan)(?: me| us)? (?:a |an |the |my |some )?"
+                  r"((?:[\w'-]+ ){0,5}(?:plan|schedule|timetable|checklist|routine|budget|packing list|shopping list|to-?do list|"
+                  r"meal plan|workout|study plan|revision plan|outline|cheat sheet|guide|summary|overview|comparison)\b.*)", t)
+    if m:
+        return ("guide" if "guide" in m[1] else "plan"), m[1].strip(" ?.!")
     m = re.search(r"\b(?:give me|show me|make me|write me|create|put together|draw up|plan) (?:a |an |the |some )?"
                   r"((?:step[- ]by[- ]step )?(?:guide|plan|workout|itinerary|checklist|schedule|routine|list|timetable|"
                   r"study plan|meal plan|packing list|shopping list|outline|cheat sheet)\b.*)", t)
@@ -367,6 +407,185 @@ def doc_request(t: str) -> tuple[str, str] | None:
     if m and not re.search(r"\b(you|jarvis|timer|weather|news)\b", m[1]):
         return "guide", "how to " + m[1].strip(" ?.!")
     return None
+
+
+# --------------------------------------------------------------------------- your day (Calendar, Reminders, Mail on the Mac)
+
+_eventkit = {"store": None, "events": None, "reminders": None, "error": ""}
+
+
+def _eventkit_store():
+    """Calendar access through macOS's own calendar database (installs PyObjC's EventKit bridge if needed)."""
+    if _eventkit["store"] is not None or _eventkit["error"]:
+        return _eventkit["store"]
+    if sys.platform != "darwin":
+        _eventkit["error"] = "calendars are only available on a Mac"
+        return None
+    try:
+        try:
+            import EventKit  # noqa: F401
+        except ImportError:
+            uv = shutil.which("uv") or os.path.expanduser("~/.local/bin/uv")
+            subprocess.run([uv, "pip", "install", "--python", sys.executable, "pyobjc-framework-EventKit"],
+                           capture_output=True, timeout=300, check=True)
+            import EventKit  # noqa: F401
+        import EventKit
+
+        store = EventKit.EKEventStore.alloc().init()
+        for kind, attr in ((EventKit.EKEntityTypeEvent, "events"), (EventKit.EKEntityTypeReminder, "reminders")):
+            done, granted = threading.Event(), [False]
+
+            def callback(ok, _err, granted=granted, done=done):
+                granted[0] = bool(ok)
+                done.set()
+
+            full = "requestFullAccessToEventsWithCompletion_" if attr == "events" else "requestFullAccessToRemindersWithCompletion_"
+            if hasattr(store, full):
+                getattr(store, full)(callback)
+            else:
+                store.requestAccessToEntityType_completion_(kind, callback)
+            done.wait(60)
+            _eventkit[attr] = granted[0]
+        _eventkit["store"] = store
+        return store
+    except Exception as exc:
+        _eventkit["error"] = f"{type(exc).__name__}: {exc}"[:160]
+        return None
+
+
+def _to_dt(nsdate) -> datetime:
+    return datetime.fromtimestamp(nsdate.timeIntervalSince1970())
+
+
+def calendar_events(day: datetime) -> list[dict] | None:
+    """The day's events from every calendar on this Mac (iCloud, Google, Outlook… whatever Calendar shows)."""
+    store = _eventkit_store()
+    if store is not None and _eventkit["events"]:
+        import Foundation
+
+        start = day.replace(hour=0, minute=0, second=0, microsecond=0)
+        end = start + timedelta(days=1)
+        ns = lambda d: Foundation.NSDate.dateWithTimeIntervalSince1970_(d.timestamp())
+        pred = store.predicateForEventsWithStartDate_endDate_calendars_(ns(start), ns(end), None)
+        out = []
+        for e in store.eventsMatchingPredicate_(pred) or []:
+            out.append({"title": str(e.title() or "Busy"), "start": _to_dt(e.startDate()).isoformat(), "end": _to_dt(e.endDate()).isoformat(),
+                        "allDay": bool(e.isAllDay()), "location": str(e.location() or ""), "calendar": str(e.calendar().title() or "")})
+        return sorted(out, key=lambda x: (not x["allDay"], x["start"]))
+    return None
+
+
+def due_reminders() -> list[dict] | None:
+    store = _eventkit_store()
+    if store is None or not _eventkit["reminders"]:
+        return None
+    import Foundation
+
+    end = datetime.now().replace(hour=23, minute=59)
+    pred = store.predicateForIncompleteRemindersWithDueDateStarting_ending_calendars_(
+        None, Foundation.NSDate.dateWithTimeIntervalSince1970_(end.timestamp()), None)
+    done, found = threading.Event(), []
+
+    def callback(items):
+        for r in items or []:
+            due = r.dueDateComponents()
+            found.append({"title": str(r.title() or ""), "list": str(r.calendar().title() or ""),
+                          "due": (f"{due.hour():02d}:{due.minute():02d}" if due is not None and 0 <= due.hour() < 24 else "")})
+        done.set()
+
+    store.fetchRemindersMatchingPredicate_completion_(pred, callback)
+    done.wait(15)
+    return found[:20]
+
+
+def unread_mail() -> int | None:
+    """Unread messages in Mail, only if Mail is already open (so Jarvis never launches it)."""
+    if sys.platform != "darwin":
+        return None
+    script = 'if application "Mail" is running then tell application "Mail" to return unread count of inbox'
+    try:
+        out = subprocess.run(["osascript", "-e", script], capture_output=True, text=True, timeout=6).stdout.strip()
+        return int(out) if out.isdigit() else None
+    except Exception:
+        return None
+
+
+def day_overview(prefs: dict, when: str = "today") -> dict:
+    day = datetime.now() + (timedelta(days=1) if when == "tomorrow" else timedelta())
+    events, reminders = calendar_events(day), due_reminders() if when == "today" else None
+    mail = unread_mail() if when == "today" else None
+    if events is None and reminders is None:
+        why = _eventkit["error"] or "Jarvis wasn't given access to your calendar"
+        return {"say": ("I can't see your calendar yet: " + why + ". On your Mac, open System Settings, Privacy and Security, "
+                        "Calendars, and allow Terminal, then restart Jarvis."), "ui": []}
+    lines, md = [], [f"# {'Your day' if when == 'today' else 'Tomorrow'}", day.strftime("%A %-d %B")]
+    meta = []
+    timed = [e for e in events or [] if not e["allDay"]]
+    if events is not None:
+        meta.append(f"{len(events)} event{'s' if len(events) != 1 else ''}")
+    if reminders:
+        meta.append(f"{len(reminders)} reminder{'s' if len(reminders) != 1 else ''}")
+    if mail:
+        meta.append(f"{mail} unread email{'s' if mail != 1 else ''}")
+    if meta:
+        md.append("META: " + " | ".join(meta))
+    if events:
+        md.append("## Schedule")
+        for e in events:
+            t = "All day" if e["allDay"] else datetime.fromisoformat(e["start"]).strftime("%H:%M")
+            md.append(f"- {t} | {e['title']} | {e['location'] or e['calendar']} | " + ("" if e["allDay"] else "until " + datetime.fromisoformat(e["end"]).strftime("%H:%M")))
+        first = timed[0] if timed else None
+        lines.append(f"You've got {len(events)} thing{'s' if len(events) != 1 else ''} on {when}"
+                     + (f", starting with {first['title']} at {_clock(datetime.fromisoformat(first['start']))}." if first else "."))
+    elif events is not None:
+        lines.append(f"Your calendar's clear {when}.")
+        md.append("## Schedule\n- Nothing on your calendar")
+    if reminders:
+        md.append("## Reminders")
+        md += [f"- {r['title']}" + (f" ({r['due']})" if r["due"] else "") for r in reminders]
+        lines.append(f"You have {len(reminders)} reminder{'s' if len(reminders) != 1 else ''} due, including {reminders[0]['title']}.")
+    if mail:
+        lines.append(f"And {mail} unread email{'s' if mail != 1 else ''} in Mail.")
+    return {"say": " ".join(lines), "memory": " ".join(lines) + "\n" + "\n".join(md),
+            "ui": [{"type": "page", "kind": "day", "title": "Your day" if when == "today" else "Tomorrow", "md": "\n".join(md)}]}
+
+
+# --------------------------------------------------------------------------- Spotify (the Mac app, controlled with AppleScript)
+
+
+def spotify_installed() -> bool:
+    return sys.platform == "darwin" and bool(find_app("spotify"))
+
+
+def spotify(script: str) -> str:
+    out = subprocess.run(["osascript", "-e", f'tell application "Spotify"\n{script}\nend tell'], capture_output=True, text=True, timeout=8)
+    return out.stdout.strip()
+
+
+def spotify_find(query: str) -> str:
+    """A Spotify link for a song, artist or playlist, found with a web search."""
+    for kind in ("track", "playlist", "album", "artist"):
+        try:
+            from ddgs import DDGS
+
+            for hit in DDGS(timeout=8).text(f"{query} site:open.spotify.com/{kind}", max_results=5):
+                m = re.search(r"open\.spotify\.com/(track|playlist|album|artist)/([A-Za-z0-9]{22})", hit.get("href", ""))
+                if m:
+                    return f"spotify:{m[1]}:{m[2]}"
+        except Exception:
+            break
+    return ""
+
+
+def spotify_now() -> dict:
+    if not spotify_installed():
+        return {"ok": False}
+    try:
+        raw = spotify('if it is running then\nreturn (player state as string) & "\\t" & (name of current track) & "\\t" & (artist of current track) & "\\t" & (artwork url of current track) & "\\t" & (sound volume as string)\nend if')
+        state, name, artist, art, volume = (raw.split("\t") + ["", "", "", "", ""])[:5]
+        return {"ok": bool(raw), "state": state, "title": name, "artist": artist, "art": art, "volume": volume}
+    except Exception:
+        return {"ok": False}
 
 
 # --------------------------------------------------------------------------- Physics & Maths Tutor
@@ -646,6 +865,52 @@ def web_lookup(query: str) -> list[dict]:
     return results
 
 
+def read_page(url: str, limit: int = 6000) -> dict:
+    """Fetch a web page in the background and pull out its readable text: what a person would read."""
+    def load() -> dict:
+        raw = http_get(url, timeout=10)
+        page = raw.decode("utf-8", "replace")
+        title = html.unescape((re.search(r"<title[^>]*>(.*?)</title>", page, re.S | re.I) or [None, ""])[1]).strip()
+        og = re.search(r'<meta[^>]+property="og:image"[^>]+content="([^"]+)"', page) or re.search(r'<meta[^>]+content="([^"]+)"[^>]+property="og:image"', page)
+        body = re.sub(r"(?is)<(script|style|noscript|svg|nav|footer|header|form|aside)[^>]*>.*?</\1>", " ", page)
+        paras = []
+        for m in re.finditer(r"(?is)<(p|h2|h3|li)(?:\s[^>]*)?>(.*?)</\1>", body):
+            text = " ".join(html.unescape(re.sub(r"<[^>]+>", " ", m[2])).split())
+            if len(text) >= 40 or (m[1].lower() in ("h2", "h3") and 3 <= len(text) <= 90):
+                paras.append(("## " if m[1].lower() in ("h2", "h3") else "") + text)
+        text, total = [], 0
+        for para in paras:
+            if total > limit:
+                break
+            text.append(para)
+            total += len(para)
+        return {"url": url, "title": title or _domain(url), "site": _domain(url), "image": og[1] if og else "", "paragraphs": text}
+
+    return cached(("read", url), 3600, load)
+
+
+def research(query: str, pages: int = 3) -> tuple[list[dict], str]:
+    """Search the web and read the top few pages in the background. Returns (sources, notes for the model)."""
+    results = web_lookup(query)[:5]
+    from concurrent.futures import ThreadPoolExecutor
+
+    def grab(r):
+        try:
+            return read_page(r["url"], 2200) if r.get("url") else None
+        except Exception:
+            return None
+
+    with ThreadPoolExecutor(pages) as pool:
+        read = list(pool.map(grab, results[:pages]))
+    notes = []
+    for i, r in enumerate(results):
+        detail = read[i] if i < len(read) and read[i] else None
+        body = " ".join(x.lstrip("# ") for x in (detail["paragraphs"] if detail else []))[:1800] or r.get("snippet", "")
+        notes.append(f"[{i + 1}] {r['title']} ({_domain(r['url'])}): {body}")
+    sources = [{"title": r["title"], "url": r["url"], "domain": _domain(r["url"])} for r in results]
+    return sources, "\n\n".join(notes)
+
+
 def _domain(url: str) -> str:
     return urllib.parse.urlsplit(url).netloc.removeprefix("www.")
 
@@ -842,6 +1107,9 @@ def route(text: str, prefs: dict) -> dict | None:
     papers = pmt_route(t)
     if papers:
         return papers
+    when = day_request(t)
+    if when:
+        return day_overview(prefs, when)
     now = datetime.now()
 
     if re.fullmatch(r"(stop|cancel|never ?mind|that'?s all|nothing|shush|be quiet|quiet)", t):
@@ -937,9 +1205,18 @@ def route(text: str, prefs: dict) -> dict | None:
     m = re.fullmatch(r"(?:play|put on|listen to|i want to (?:hear|listen to)|can you play|could you play) (?:me )?(?:some )?(.+?)(?: on (youtube|spotify))?", t)
     if m:
         what, where = m[1], m[2] or "youtube"
-        if where == "spotify" and find_app("spotify"):
+        if (where == "spotify" or prefs.get("music") == "spotify") and spotify_installed():
+            uri = spotify_find(what)
+            try:
+                if uri:
+                    spotify(f'activate\nplay track "{uri}"')
+                    time.sleep(1.2)
+                    now = spotify_now()
+                    return {"say": f"Playing {now.get('title') or what} on Spotify.", "ui": [{"type": "spotify", "now": now}]}
+            except Exception:
+                pass
             open_url("spotify:search:" + urllib.parse.quote(what))
-            return {"say": f"Here's {what} on Spotify.", "ui": [{"type": "opened", "label": "Spotify", "detail": what}]}
+            return {"say": f"I've opened Spotify at {what}; pick one to play.", "ui": [{"type": "spotify", "now": spotify_now()}]}
         try:
             videos = youtube_search(what)
         except Exception:
@@ -981,11 +1258,13 @@ def route(text: str, prefs: dict) -> dict | None:
         kind, subject = page
         intro = {"recipe": f"Here's a recipe for {subject}. I've put it on screen.",
                  "lesson": f"Let's go through {subject}. I've put the lesson on screen; ask me anything about it, or say quiz me.",
+                 "itinerary": "I'm checking the web and putting together your itinerary now. It's coming up on screen.",
+                 "research": "I'm reading up on that now. The briefing is coming up on screen.",
                  "guide": "Here's a step-by-step guide. I've put it on screen.",
                  "plan": "Here you go. I've put it on screen.",
                  "writing": "Here's a draft. I've put it on screen."}[kind]
         return {"say": intro, "doc": {"kind": kind, "subject": subject, "request": text.strip()},
-                "ui": [{"type": "doc", "kind": kind, "title": subject[:1].upper() + subject[1:],
+                "ui": [{"type": "doc", "kind": kind, "title": doc_title(kind, subject),
                         "image": wiki_image(subject) if kind == "recipe" else ""}]}
 
     m = re.fullmatch(r"(?:look up|search for|search the web for|search the internet for|search|find out|find information on|find info on)\s+(.+)", t)
@@ -1009,6 +1288,13 @@ def route(text: str, prefs: dict) -> dict | None:
                                                  for r in results[:4]]}],
         }
     return None
+
+
+def day_request(t: str) -> str:
+    if re.search(r"\b(overview of my day|my day|my schedule|my calendar|my agenda|what'?s on (my calendar|today|tomorrow)|what do i have (on )?(today|tomorrow)|"
+                 r"what'?s (my|the) plan (for )?(today|tomorrow)|am i (busy|free)|my (meetings|events|reminders)|what are my reminders)\b", t):
+        return "tomorrow" if "tomorrow" in t else "today"
+    return ""
 
 
 def briefing(prefs: dict) -> dict:
@@ -1666,6 +1952,15 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json(200, {"items": fetch_news(query.get("cat", "top"), 12)})
             if url.path == "/api/weather":
                 return self._json(200, fetch_weather(query.get("city", "")[:60], query.get("units", "auto")))
+            if url.path == "/api/image":
+                return self._json(200, {"url": wiki_image(query.get("q", "")[:120])})
+            if url.path == "/api/read":
+                target = query.get("url", "")
+                if not re.match(r"https?://", target):
+                    return self._json(400, {"error": "bad url"})
+                return self._json(200, read_page(target))
+            if url.path == "/api/spotify":
+                return self._json(200, spotify_now())
             if url.path == "/api/voices":
                 kokoro = _voice is not None and getattr(_voice, "backend_id", "kokoro") == "kokoro"
                 result = {
@@ -1706,6 +2001,13 @@ class Handler(BaseHTTPRequestHandler):
                     return self._json(503, {"error": "wake word unavailable"})
                 score = wake_score(body)
                 return self._json(200, {"score": round(score, 3), "wake": score >= WAKE_THRESHOLD})
+            if self.path == "/api/spotify":
+                action = json.loads(body or b"{}").get("action", "")
+                scripts = {"pause": "pause", "play": "play", "toggle": "playpause", "next": "next track", "previous": "previous track",
+                           "up": "set sound volume to (sound volume + 20)", "down": "set sound volume to (sound volume - 25)"}
+                if action in scripts and spotify_installed():
+                    spotify(scripts[action])
+                return self._json(200, spotify_now())
             if self.path == "/api/wake/confirm":
                 woke, text = wake_confirm(body)
                 return self._json(200, {"wake": woke, "text": text})
@@ -1775,12 +2077,24 @@ class Handler(BaseHTTPRequestHandler):
         doc = routed["doc"]
         for piece in re.findall(r"\S+\s*", routed["say"]):
             self._line({"delta": piece})
+        prompt = DOC_PROMPTS[doc["kind"]].format(q=doc["request"])
+        if doc["kind"] in ("itinerary", "research") or (doc["kind"] in ("plan", "guide") and re.search(
+                r"\b(price|cost|budget|cheap|best|trip|travel|buy|ticket|open|hotel|flight|deal|2\d{3})\b", doc["request"])):
+            self._line({"doc_status": "Searching the web and reading pages…"})
+            try:
+                sources, notes = research(doc["subject"] if doc["kind"] == "research" else doc["request"])
+            except Exception:
+                sources, notes = [], ""
+            if sources:
+                self._line({"doc_sources": sources})
+                prompt += "\n\nLive web notes (today):\n" + notes[:5000]
+            self._line({"doc_status": ""})
         payload = {
             "model": MODEL, "stream": True, "think": False, "keep_alive": "10m",
-            "options": {"num_ctx": 4096, "num_predict": 1100, "temperature": 0.4},
+            "options": {"num_ctx": 8192, "num_predict": 1400, "temperature": 0.4},
             "messages": [{"role": "system", "content": "You write clear, well organised pages for a screen. Follow the "
                                                        "requested format exactly. No preamble, no closing remarks."},
-                         {"role": "user", "content": DOC_PROMPTS[doc["kind"]].format(q=doc["request"])}],
+                         {"role": "user", "content": prompt}],
         }
         page = ""
         try:
@@ -1942,7 +2256,24 @@ def stop_old_copies() -> bool:
     return stopped
 
 
+def check_calendar() -> None:
+    """`jarvis_hud.py --check-calendar`: ask macOS for calendar access and print today's events."""
+    print("Asking macOS for access to Calendars and Reminders (allow it if a window appears)…")
+    events = calendar_events(datetime.now())
+    if events is None:
+        print("✗ No access: " + (_eventkit["error"] or "permission wasn't granted")
+              + ". System Settings → Privacy & Security → Calendars → allow Terminal.")
+        return
+    print(f"✓ {len(events)} event(s) today:")
+    for e in events:
+        print("   ", "all day" if e["allDay"] else e["start"][11:16], e["title"])
+    rem = due_reminders()
+    print(f"✓ {len(rem)} reminder(s) due" if rem is not None else "✗ Reminders: no access")
+
+
 def main() -> None:
+    if "--check-calendar" in sys.argv:
+        return check_calendar()
     if "--check-voice" in sys.argv:
         return check_voice()
     if "--elevenlabs" in sys.argv:
