@@ -71,7 +71,7 @@ if LANGUAGE.startswith("en") and CONFIG.speech.model in ("tiny", "base", "small"
 VOICE_SPEED = float(CONFIG.speech.voice_speed or 1.0)
 HISTORY_TURNS = 20
 MAX_BODY_BYTES = 25 * 1024 * 1024
-HUD_VERSION = "2.8"
+HUD_VERSION = "2.9"
 USER_AGENT = f"OpenJarvisHUD/{HUD_VERSION} (+https://github.com/open-jarvis/OpenJarvis)"
 IS_MAC = sys.platform == "darwin"
 # The voice runs on the CPU by default: fast enough on Apple Silicon, and it leaves the GPU to the language model.
@@ -385,6 +385,15 @@ def doc_request(t: str) -> tuple[str, str] | None:
         or re.search(r"\b(how (?:should|do|can) i (?:revise|study|prepare for (?:my |an |the )?exams?|focus|remember)\b.*)", t)
     if m:
         return "plan", (m[1] + (m[2] if m.lastindex and m.lastindex >= 2 else "")).strip(" ?.!")
+    m = re.match(r"(?:can you |could you |please |will you |i want you to |i need you to |i want to |i need to |help me )*"
+                 r"(?:explain|teach me(?: about| how to| how)?|tutor me (?:on|in|about)|help me (?:understand|learn|revise|with)|go through|"
+                 r"walk me through|break down|show me how|run me through|take me through|i don'?t (?:understand|get)|revise|learn(?: about)?)\s+(?:to me\s+)?(.{3,})", t) \
+        or re.match(r"((?:how|why) (?:does|do|is|are|did|can) .{6,}|what(?:'s| is| are) the difference between .+|"
+                    r"what (?:is|are) (?:the )?(?:law|laws|principle|theory|equation|formula|concept|process|stages|types|causes|effects) (?:of|for) .+)", t)
+    if m and not re.search(r"\b(timer|weather|news|music|song|calendar|reminder|my day|exam (?:date|time)|when is)\b", t):
+        subject = re.sub(r"\s+(?:to me|for me|please|step by step|in detail|properly|simply|like i'?m \w+|for my exams?)\b.*$", "", m[1]).strip(" ?.!")
+        if len(subject) >= 3:
+            return "lesson", subject
     m = re.search(r"\bexplain (?:to me )?(.+?)\s+(?:to me\s+)?(?:step by step|in detail|properly|simply|like i'?m \w+|for my exams?)\b", t) \
         or re.search(r"\b(?:teach me(?: about| how to| how)?|help me understand|give me a lesson on|lesson on|walk me through)\s+(.+)", t)
     if m and m[1].strip(" ?.!"):
@@ -407,6 +416,48 @@ def doc_request(t: str) -> tuple[str, str] | None:
     if m and not re.search(r"\b(you|jarvis|timer|weather|news)\b", m[1]):
         return "guide", "how to " + m[1].strip(" ?.!")
     return None
+
+
+# --------------------------------------------------------------------------- reading PDFs (the question paper on screen)
+
+
+def pdf_text(url: str, limit: int = 9000) -> str:
+    """The text of a PDF, so Jarvis can talk about the questions you're looking at (installs pypdf if needed)."""
+    def load() -> str:
+        try:
+            import pypdf
+        except ImportError:
+            uv = shutil.which("uv") or os.path.expanduser("~/.local/bin/uv")
+            subprocess.run([uv, "pip", "install", "--python", sys.executable, "pypdf"], capture_output=True, timeout=180, check=True)
+            import pypdf
+        reader = pypdf.PdfReader(io.BytesIO(http_get(urllib.parse.quote(urllib.parse.unquote(url), safe=":/?&=,()"), timeout=20)))
+        out = []
+        for page in reader.pages[:24]:
+            out.append(page.extract_text() or "")
+            if sum(map(len, out)) > limit:
+                break
+        text = re.sub(r"[ \t]+", " ", "\n".join(out))
+        text = re.sub(r"(?i)(turn over|do not write (in|outside) this (area|box|margin)|total for question \d+ is \d+ marks?)", " ", text)
+        return re.sub(r"\n\s*\n+", "\n", text)[:limit]
+
+    return cached(("pdf", url), 86400, load)
+
+
+def paper_context(paper: dict, question: str) -> str:
+    """Notes for the model when the student is working on a question paper and asks about it."""
+    if not paper or not paper.get("qp") or not re.match(r"https://pmt\.physicsandmathstutor\.com/", paper["qp"]):
+        return ""
+    if not re.search(r"\b(question|q ?\d|part|mark|answer|solve|work(ed)? out|walk|explain|help|stuck|hint|how (do|did|would)|why|this|that|it|first|second|next)\b", question.lower()):
+        return ""
+    try:
+        qp = pdf_text(paper["qp"], 8000)
+        ms = pdf_text(paper["ms"], 4000) if paper.get("ms") else ""
+    except Exception:
+        return ""
+    return (f"The student has this question paper open on screen: {paper.get('name', '')}.\n--- QUESTION PAPER (text) ---\n{qp}\n"
+            + (f"--- MARK SCHEME (text) ---\n{ms}\n" if ms else "")
+            + "Tutor them through it: work out which question they mean, explain the method step by step, and use the mark "
+              "scheme for the answer. Don't just give the final answer unless they ask; give a hint first if they're stuck.")
 
 
 # --------------------------------------------------------------------------- your day (Calendar, Reminders, Mail on the Mac)
@@ -457,8 +508,70 @@ def _to_dt(nsdate) -> datetime:
     return datetime.fromtimestamp(nsdate.timeIntervalSince1970())
 
 
+def _calendar_via_helper(day: datetime) -> dict | None:
+    """Ask a separate copy of this script for the calendar, so if macOS refuses or kills it, Jarvis carries on."""
+    try:
+        out = subprocess.run([sys.executable, str(Path(__file__).resolve()), "--calendar-json", day.strftime("%Y-%m-%d")],
+                             capture_output=True, text=True, timeout=90)
+        line = (out.stdout.strip().splitlines() or [""])[-1]
+        return json.loads(line) if line.startswith("{") else None
+    except Exception:
+        return None
+
+
+def _calendar_via_applescript(day: datetime) -> list[dict] | None:
+    """Fallback: ask the Calendar app directly (macOS asks once whether Terminal may control Calendar)."""
+    if sys.platform != "darwin":
+        return None
+    script = f'''
+set d0 to current date
+set year of d0 to {day.year}
+set month of d0 to {day.month}
+set day of d0 to {day.day}
+set time of d0 to 0
+set d1 to d0 + (1 * days)
+set out to ""
+tell application "Calendar"
+  repeat with c in calendars
+    try
+      repeat with e in (every event of c whose start date < d1 and end date > d0)
+        set loc to ""
+        try
+          set loc to location of e
+          if loc is missing value then set loc to ""
+        end try
+        set out to out & (summary of e) & tab & ((start date of e) as «class isot» as string) & tab & ((end date of e) as «class isot» as string) & tab & ((allday event of e) as string) & tab & loc & tab & (name of c) & linefeed
+      end repeat
+    end try
+  end repeat
+end tell
+return out'''
+    try:
+        res = subprocess.run(["osascript", "-e", script], capture_output=True, text=True, timeout=60)
+    except Exception:
+        return None
+    if res.returncode:
+        _eventkit["error"] = (res.stderr.strip().splitlines() or ["Calendar didn't answer"])[-1][:160]
+        return None
+    events = []
+    for line in res.stdout.splitlines():
+        parts = line.split("\t")
+        if len(parts) >= 6:
+            events.append({"title": parts[0] or "Busy", "start": parts[1], "end": parts[2], "allDay": parts[3] == "true",
+                           "location": parts[4], "calendar": parts[5]})
+    return sorted(events, key=lambda x: (not x["allDay"], x["start"]))
+
+
 def calendar_events(day: datetime) -> list[dict] | None:
     """The day's events from every calendar on this Mac (iCloud, Google, Outlook… whatever Calendar shows)."""
+    if sys.platform == "darwin" and "--calendar-json" not in sys.argv:
+        got = _calendar_via_helper(day)
+        if got and got.get("events") is not None:
+            _eventkit["reminders_cache"] = got.get("reminders")
+            return got["events"]
+        if got and got.get("error"):
+            _eventkit["error"] = got["error"]
+        return _calendar_via_applescript(day)
     store = _eventkit_store()
     if store is not None and _eventkit["events"]:
         import Foundation
@@ -476,6 +589,8 @@ def calendar_events(day: datetime) -> list[dict] | None:
 
 
 def due_reminders() -> list[dict] | None:
+    if sys.platform == "darwin" and "--calendar-json" not in sys.argv:
+        return _eventkit.get("reminders_cache")
     store = _eventkit_store()
     if store is None or not _eventkit["reminders"]:
         return None
@@ -624,6 +739,12 @@ def _first(patterns, text: str) -> str:
 
 def pmt_request(t: str) -> dict | None:
     """'questions for chapter 6 from physics and maths tutor' → what to look for."""
+    plain = re.search(r"\b(?:give me|find me|get me|open|show me|pull up|i want|i need|can i have|find)?\s*(?:some |a few |more |the )?"
+                      r"(?:practice |exam |past paper |topic |past |test )?questions (?:on|about|for|from) (?!chapter|topic|section|unit)(.+)", t)
+    if plain and not re.search(r"\b(physics ?(and|&|n) ?maths ?tutors?|pmt)\b", t):
+        bare = re.sub(r"\b(physics|maths|math|chemistry|biology|gcse|a ?level|aqa|edexcel|ocr)\b", " ", plain[1])
+        return {"subject": _first(PMT_SUBJECTS, t), "level": _first(PMT_LEVELS, t), "board": _first(PMT_BOARDS, t),
+                "number": None, "name": re.sub(r"(\s+(for|in|from|on|of|at|my|the))+$", "", " ".join(bare.split()).strip(" ?.!"))}
     if not re.search(r"\b(physics ?(and|&|n) ?maths ?tutors?|pmt|physics maths tutors?)\b", t) \
             and not (re.search(r"\b(questions?|past papers?|topic questions|exam questions|mark schemes?|worksheet)\b", t)
                      and re.search(r"\b(chapter|topic|section|unit|ch)\b", t)):
@@ -710,6 +831,19 @@ def pmt_find(req: dict) -> dict:
         words = set(re.findall(r"[a-z]{3,}", name))
         scored = sorted(((len(words & set(re.findall(r"[a-z]{3,}", t.lower()))), h, t) for h, t in topics), reverse=True)
         chosen = [(h, t) for score, h, t in scored[:1] if score]
+        if not chosen:
+            # the name may be a sub-topic ("circular motion"): look for question papers with that name inside every topic
+            from concurrent.futures import ThreadPoolExecutor
+
+            with ThreadPoolExecutor(8) as pool:
+                pages = list(pool.map(lambda ht: (ht, pmt_links(ht[0])), topics[:40]))
+            hits = []
+            for (h, t), links in pages:
+                for pair in _pairs(links):
+                    if len(words & set(re.findall(r"[a-z]{3,}", pair["name"].lower()))) >= max(1, len(words) - 1):
+                        hits.append(pair)
+            if hits:
+                return {"title": name.title(), "course": course, "page": course_url, "sets": hits[:40]}
     if not chosen:
         what = f"chapter {number}" if number else (name or "that topic")
         return {"error": f"I couldn't find {what} in {course} on Physics and Maths Tutor."}
@@ -729,8 +863,40 @@ def pmt_find(req: dict) -> dict:
     return {"title": " / ".join(titles), "course": course, "page": chosen[0][0], "sets": sets[:40]}
 
 
-def pmt_route(t: str) -> dict | None:
+def pmt_from_page(page: str, name: str, course: str) -> dict:
+    """Question sets from one Physics & Maths Tutor topic page (the one Preppr links), narrowed to a sub-topic if named."""
+    links = pmt_links(page)
+    sets = _pairs(links)
+    if not sets:
+        for sub in [h for h, _ in links if h.startswith(page) and h != page and h.count("/") == page.count("/") + 1][:8]:
+            sets += _pairs(pmt_links(sub))
+    words = set(re.findall(r"[a-z]{3,}", (name or "").lower())) - {"questions", "question", "and", "the"}
+    narrow = [x for x in sets if words and len(words & set(re.findall(r"[a-z]{3,}", x["name"].lower()))) >= max(1, len(words) - 1)]
+    title = next((txt for href, txt in links if href == page and txt), "") or (name or "Questions").title()
+    return {"title": (name or title).strip().title() if narrow else title, "course": course, "page": page, "sets": (narrow or sets)[:40]}
+
+
+def pmt_route(t: str, prefs: dict | None = None) -> dict | None:
     req = pmt_request(t)
+    hint = (prefs or {}).get("pmt") or {}
+    if hint.get("page") and (req or re.search(r"\bquestions?\b", t)):
+        # Preppr knows the student's course and links the exact topic page
+        if hint.get("subject") and hint.get("board"):
+            SETTINGS.setdefault("pmt_courses", {})[hint["subject"]] = {"level": hint.get("level") or "a-level", "board": hint["board"]}
+            SETTINGS["pmt_last_subject"] = hint["subject"]
+            _save_settings()
+        found = None
+        for attempt in range(2):  # one retry: the site occasionally drops a connection
+            try:
+                found = pmt_from_page(hint["page"], (req or {}).get("name") or hint.get("name", ""), hint.get("course", ""))
+                break
+            except Exception:
+                time.sleep(0.6)
+        if found is None:
+            return {"say": "I couldn't reach Physics and Maths Tutor just now.", "ui": []}
+        if found["sets"]:
+            say = f"Here are the {found['title']} questions from Physics and Maths Tutor, with the mark scheme alongside."
+            return {"say": say, "memory": say + f" The first set is {found['sets'][0]['name']}.", "ui": [{"type": "papers", **found}]}
     pending = _pmt_pending.get("req")
     if not req and pending and time.time() - _pmt_pending.get("at", 0) < 180 and len(t.split()) <= 8 \
             and (_first(PMT_LEVELS, t) or _first(PMT_BOARDS, t) or _first(PMT_SUBJECTS, t)):
@@ -1104,7 +1270,7 @@ def route(text: str, prefs: dict) -> dict | None:
     t = re.sub(r"^(hey\s+)?(jarvis|jarvas|travis)\b[,.!]?\s*", "", t)  # the tail of a wake phrase
     if not t:
         return None
-    papers = pmt_route(t)
+    papers = pmt_route(t, prefs)
     if papers:
         return papers
     when = day_request(t)
@@ -1263,7 +1429,12 @@ def route(text: str, prefs: dict) -> dict | None:
                  "guide": "Here's a step-by-step guide. I've put it on screen.",
                  "plan": "Here you go. I've put it on screen.",
                  "writing": "Here's a draft. I've put it on screen."}[kind]
-        return {"say": intro, "doc": {"kind": kind, "subject": subject, "request": text.strip()},
+        spec = prefs.get("topic") or {}
+        request = text.strip()
+        if kind == "lesson" and spec.get("points"):
+            request += (f"\n(This is {spec.get('subject', '')} topic '{spec.get('name', '')}'. Cover these specification points: "
+                        + "; ".join(str(x) for x in spec["points"][:14]) + ")")
+        return {"say": intro, "doc": {"kind": kind, "subject": subject, "request": request},
                 "ui": [{"type": "doc", "kind": kind, "title": doc_title(kind, subject),
                         "image": wiki_image(subject) if kind == "recipe" else ""}]}
 
@@ -1889,7 +2060,8 @@ def status_payload() -> dict:
         pass
     return {
         "brain": STATUS["brain"], "ears": STATUS["ears"], "voice": STATUS["voice"], "wake": STATUS["wake"],
-        "notes": list(STATUS["notes"].values()), "version": HUD_VERSION, "model": MODEL, "voice_id": _voice_id,
+        "notes": list(STATUS["notes"].values()), "version": HUD_VERSION,
+        "preppr": any((HERE / n).exists() for n in ("Preppr.html", "preppr.html")), "model": MODEL, "voice_id": _voice_id,
         "host": socket.gethostname().split(".")[0], "name": DEFAULT_NAME, "mac": IS_MAC,
         "cpu": cpu, "mem": mem, "battery": battery, "plugged": plugged,
         "uptime": round(time.time() - STARTED),
@@ -1903,8 +2075,25 @@ def status_payload() -> dict:
 def _prefs(raw) -> dict:
     raw = raw if isinstance(raw, dict) else {}
     units = raw.get("units") if raw.get("units") in ("celsius", "fahrenheit", "auto") else "auto"
-    return {"name": str(raw.get("name") or DEFAULT_NAME)[:40].strip(),
-            "city": str(raw.get("city") or "")[:60].strip(), "units": units}
+    out = {"name": str(raw.get("name") or DEFAULT_NAME)[:40].strip(),
+           "city": str(raw.get("city") or "")[:60].strip(), "units": units,
+           "music": "spotify" if raw.get("music") == "spotify" else "youtube"}
+    # the Preppr topic being studied, and the question paper on screen (only Physics & Maths Tutor PDFs are fetched)
+    topic = raw.get("topic") if isinstance(raw.get("topic"), dict) else {}
+    if topic:
+        out["topic"] = {"name": str(topic.get("name", ""))[:120], "subject": str(topic.get("subject", ""))[:60],
+                        "points": [str(x)[:200] for x in (topic.get("points") or [])[:20]]}
+    pmt = raw.get("pmt") if isinstance(raw.get("pmt"), dict) else {}
+    if pmt and str(pmt.get("page", "")).startswith("https://www.physicsandmathstutor.com/"):
+        board = str(pmt.get("board", "")).lower()
+        out["pmt"] = {"page": str(pmt["page"])[:300], "name": str(pmt.get("name", ""))[:120], "course": str(pmt.get("course", ""))[:120],
+                      "subject": re.sub(r"[^a-z-]", "", str(pmt.get("subject", "")).lower())[:30], "level": "a-level",
+                      "board": "edexcel" if "edexcel" in board or "pearson" in board else "aqa" if "aqa" in board else "ocr" if "ocr" in board else ""}
+    paper = raw.get("paper") if isinstance(raw.get("paper"), dict) else {}
+    if paper and str(paper.get("qp", "")).startswith("https://pmt.physicsandmathstutor.com/"):
+        out["paper"] = {"name": str(paper.get("name", ""))[:160], "qp": str(paper["qp"])[:600],
+                        "ms": str(paper.get("ms", ""))[:600] if str(paper.get("ms", "")).startswith("https://pmt.physicsandmathstutor.com/") else ""}
+    return out
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -1946,6 +2135,11 @@ class Handler(BaseHTTPRequestHandler):
                 if not PAGE_PATH.exists():
                     return self._send(500, b"hud.html is missing. Download it next to jarvis_hud.py.", "text/plain")
                 return self._send(200, PAGE_PATH.read_bytes(), "text/html; charset=utf-8")
+            if url.path in ("/preppr", "/preppr/"):
+                found = next((HERE / n for n in ("Preppr.html", "preppr.html") if (HERE / n).exists()), None)
+                if not found:
+                    return self._send(404, b"Put Preppr.html in the same folder as jarvis_hud.py.", "text/plain")
+                return self._send(200, found.read_bytes(), "text/html; charset=utf-8")
             if url.path == "/api/status":
                 return self._json(200, status_payload())
             if url.path == "/api/news":
@@ -2056,11 +2250,14 @@ class Handler(BaseHTTPRequestHandler):
             self._line({"done": True})
             return
         system = f"{persona(prefs)} The current local date and time is {datetime.now():%A %d %B %Y, %H:%M}."
+        tutoring = paper_context(prefs.get("paper") or {}, last)
+        if tutoring:
+            system += "\n\n" + tutoring + "\nFor this, you may use up to eight sentences."
         if routed and routed.get("context"):
             system += "\n\n" + routed["context"]
         payload = {
             "model": MODEL, "stream": True, "think": False, "keep_alive": "10m",
-            "options": {"num_ctx": 4096, "num_predict": 220, "temperature": 0.5},
+            "options": {"num_ctx": 8192 if tutoring else 4096, "num_predict": 420 if tutoring else 220, "temperature": 0.5},
             "messages": [{"role": "system", "content": system}, *turns],
         }
         try:
@@ -2260,6 +2457,7 @@ def check_calendar() -> None:
     """`jarvis_hud.py --check-calendar`: ask macOS for calendar access and print today's events."""
     print("Asking macOS for access to Calendars and Reminders (allow it if a window appears)…")
     events = calendar_events(datetime.now())
+    print("  (read through " + ("the Calendar app" if _eventkit.get("reminders_cache") is None and events is not None else "macOS's calendar database") + ")")
     if events is None:
         print("✗ No access: " + (_eventkit["error"] or "permission wasn't granted")
               + ". System Settings → Privacy & Security → Calendars → allow Terminal.")
@@ -2271,7 +2469,20 @@ def check_calendar() -> None:
     print(f"✓ {len(rem)} reminder(s) due" if rem is not None else "✗ Reminders: no access")
 
 
+def calendar_json() -> None:
+    """Helper mode: print today's events and reminders as one line of JSON (run by Jarvis itself)."""
+    day = datetime.strptime(sys.argv[sys.argv.index("--calendar-json") + 1], "%Y-%m-%d")
+    try:
+        events = calendar_events(day)
+        reminders = due_reminders() if events is not None or _eventkit["reminders"] else None
+        print(json.dumps({"events": events, "reminders": reminders, "error": _eventkit["error"]}))
+    except Exception as exc:
+        print(json.dumps({"events": None, "reminders": None, "error": f"{type(exc).__name__}: {exc}"[:160]}))
+
+
 def main() -> None:
+    if "--calendar-json" in sys.argv:
+        return calendar_json()
     if "--check-calendar" in sys.argv:
         return check_calendar()
     if "--check-voice" in sys.argv:

@@ -65,6 +65,26 @@ Interrupting works on laptop speakers too: Jarvis learns how loudly its own voic
 
 "Hey Jarvis" is heard on your Mac in two ways: the openWakeWord detector, which installs itself on first start, plus a quick double-check with speech recognition for anything short that might be the name. So it works even when the detector misses your voice. The **Wake** row in the Systems panel shows whether it's listening, and Settings → Behaviour shows what it last heard.
 
+## Studying with Preppr
+
+Jarvis can use Preppr, your revision hub, for tutoring: your subjects and exam boards, every topic's specification points and resources, your exam dates and your revision plan.
+
+1. Copy `Preppr.html` into `~/.openjarvis/hud/`, next to `jarvis_hud.py`, and restart Jarvis. (Jarvis serves it at http://localhost:8765/preppr. Your copy stays on your Mac and is never uploaded.)
+2. To bring your saved data across: in the Preppr you normally use, export a JSON backup from its settings. Then say "open Preppr" in Jarvis and import that backup there.
+
+Then you can say:
+
+| Say | What happens |
+|---|---|
+| "When's my next exam?" / "When is my next physics exam?" | From your Preppr exam timetable, with how many days are left |
+| "What should I revise today?" | Today's sessions from your Preppr revision plan (they also appear in "overview of my day") |
+| "Give me some questions on circular motion" | Opens the Physics & Maths Tutor questions for that topic, for your course, beside the mark scheme |
+| "Walk me through question 1" / "I'm stuck on 2b" | Jarvis reads the question paper and mark scheme on screen and tutors you through it, hint first |
+| "Teach me circular motion" / "Explain how a transformer works" | A lesson page that covers your specification points, taught aloud section by section |
+| "Open my revision plan" / "Open my flashcards" / "Open Preppr" | Opens that part of Preppr inside Jarvis |
+
+Any long answer opens as a page instead of a block of text, and while Jarvis builds a page it talks you through it as it goes. You can close or minimise a page that's still being written and come back to it from the shelf.
+
 ## Preview without installing
 
 Open `preview.html` in Chrome or Safari. It's a single file that runs with no server: press **Watch the demo** for a guided tour, or hold to unlock and try it yourself.
