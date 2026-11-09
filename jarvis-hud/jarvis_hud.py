@@ -71,7 +71,7 @@ if LANGUAGE.startswith("en") and CONFIG.speech.model in ("tiny", "base", "small"
 VOICE_SPEED = float(CONFIG.speech.voice_speed or 1.0)
 HISTORY_TURNS = 20
 MAX_BODY_BYTES = 25 * 1024 * 1024
-HUD_VERSION = "3.0"
+HUD_VERSION = "3.1"
 USER_AGENT = f"OpenJarvisHUD/{HUD_VERSION} (+https://github.com/open-jarvis/OpenJarvis)"
 IS_MAC = sys.platform == "darwin"
 # The voice runs on the CPU by default: fast enough on Apple Silicon, and it leaves the GPU to the language model.

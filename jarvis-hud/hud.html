@@ -916,7 +916,7 @@ function setCaption(t) {
 
 /* ============================================================== audio */
 let ctx = null, sfxGain = null, voiceGain = null, outAnalyser = null, micAnalyser = null, micLevel = 0;
-let rec = null, noiseFloor = 0.003;
+let rec = null, noiseFloor = 0.003, ambient = 0.003; // ambient: the room's usual loudness, TV and all
 
 function ensureAudio() {
   if (ctx) return ctx;
@@ -1034,8 +1034,16 @@ function onMic(samples) {
     if (rec.total < 0.22) return;
     // follow a smoothed loudness so soft word endings and short gaps between words don't count as you having stopped
     rec.env = Math.max(rms, (rec.env || 0) * Math.exp(-dt / 0.2));
-    const threshold = Math.max(0.005, noiseFloor * 2.5);
-    if (rec.env > threshold) {
+    // With a TV, music or chatter in the room it's never silent. So: you count as talking only when clearly louder than
+    // the room's usual level (you're nearer the mic than the TV), and a pause starts once the sound falls well below
+    // your own voice, rather than waiting for silence.
+    if (!rec.speech) ambient = ambient * 0.995 + rms * 0.005;
+    if (rec.speech) rec.peak = Math.max((rec.peak || 0) * Math.exp(-dt / 6), rec.env);
+    const start = Math.max(0.005, noiseFloor * 2.5, ambient * 2.6);
+    const threshold = rec.speech ? Math.max(start * 0.75, (rec.peak || 0) * 0.35) : start;
+    // starting to talk means staying above that level for a moment, so the odd loud word from a TV doesn't count
+    rec.onset = !rec.speech && rec.env > threshold ? (rec.onset || 0) + dt : 0;
+    if (rec.speech ? rec.env > threshold : rec.onset >= 0.2 || (rec.env > threshold && ambient < 0.004)) {
       if (rec.silent > 0.15) { rec.early = null; rec.earlyText = ""; rec.earlyDone = false; } // you carried on: the early transcript is out of date
       rec.speech = true; rec.silent = 0; rec.voiced += dt;
     } else if (rec.speech) rec.silent += dt;
@@ -1054,12 +1062,13 @@ function onMic(samples) {
     if (rec.speech && rec.silent > wait && (!rec.early || rec.earlyDone || rec.silent > wait + 3)) { if (rec.voiced >= 0.25) finishListening(); else { rec.speech = false; rec.silent = 0; rec.voiced = 0; } }
     // in conversation mode it waits a good while for you to reply, then goes quiet until you say "Hey Jarvis"
     else if (!rec.speech && rec.waited > (rec.convo ? 30 : rec.fromWake ? 8 : 7)) cancelListening(rec.convo ? "Standing by. Say “Hey Jarvis” when you need me." : rec.fromWake ? "Standing by." : "I didn't hear anything. Press Space when you're ready.");
-    else if (rec.total > 40) finishListening();
+    else if (rec.total > 25 || (rec.speech && rec.voiced > 18)) finishListening(); // never listen forever
     return;
   }
   if (S.state === "idle") {
     // background noise: drops quickly in quiet moments, rises only slowly, so your own voice doesn't count as noise
     noiseFloor = rms < noiseFloor ? noiseFloor * 0.9 + rms * 0.1 : Math.min(0.03, noiseFloor * 1.002 + 0.000005);
+    ambient = ambient * 0.995 + rms * 0.005;
     if (prefs.clap && S.micOk) detectClap(rms, peak);
   }
 }
@@ -1188,7 +1197,7 @@ function sendWake() {
     .then((r) => r.json())
     .then((d) => {
       if (!d.wake) return;
-      if (S.state === "speaking") { bargeNote('Heard "Jarvis", so I stopped.'); startListening(null, true); setCaption("Yes?"); return; }
+      if (S.state === "speaking") { bargeNote('Heard "Jarvis", so I stopped.'); startListening(null, true); atYourService(); return; }
       wakeUp("", wake.burst, false);
     })
     .catch(() => {})
@@ -1212,6 +1221,19 @@ function afterWakeWord(text) {
   return m ? text.slice(m.index + m[0].length).replace(/^[\s,.!?]+/, "").trim() : "";
 }
 // `complete`: the clip that was checked holds the whole burst of speech, so its words are the whole request
+// What Jarvis says when you call him: said while he's already listening, and taken out of what you say next.
+const AT_SERVICE = ["At your service.", "At your service, {name}.", "Yes, {name}?", "How may I help?", "I'm listening, {name}."];
+const SERVICE_RE = /^\W*(at your service|yes,? sir|yes,? \w+\?|how may i help( you)?|i'?m listening)(,? \w+)?[\s.,!?]*/i;
+function atYourService() {
+  setCaption("At your service.");
+  if (!prefs.voice || !ctx) return;
+  const n = userName(), pick = AT_SERVICE[Math.floor(Math.random() * AT_SERVICE.length)];
+  const line = n ? pick.replace("{name}", n) : pick.replace(/,? \{name\}/, "");
+  if (S.speaker) { S.speaker.cancel(); S.speaker = null; }
+  const sp = new Speaker({ keepState: true }); // speaks without leaving the listening state
+  sp.say(line); sp.end();
+  setCaption(line);
+}
 function wakeUp(text, burst, complete) {
   if (S.state !== "idle" || performance.now() < wake.cool) return;
   wake.cool = performance.now() + 2500;
@@ -1219,7 +1241,7 @@ function wakeUp(text, burst, complete) {
   if (complete && rest.split(/\s+/).filter(Boolean).length >= 2) { wake.burst = null; send(rest); return; } // "Hey Jarvis, what time is it?"
   if (burst && !complete) { startListening(burst.chunks.slice(), true); return; } // still mid-sentence: record all of it
   startListening(null, true);
-  setCaption("Yes?");
+  atYourService();
 }
 
 // Double-clap wake: a sharp, loud onset that dies away within ~60 ms, twice.
@@ -1307,7 +1329,9 @@ async function finishListening() {
     if (data.error) throw new Error(data.error);
     mark("heard");
     if (!data.text) { if (r.convo) { startListening(null, "convo"); return; } afterTurn(r.fromWake ? "Standing by." : "I didn't catch that. Press Space to try again.", false); return; }
-    if (WAKE_RE.test(data.text) && !afterWakeWord(data.text).replace(/\W/g, "")) { startListening(null, true); setCaption("Yes?"); return; } // just the name
+    data.text = data.text.replace(SERVICE_RE, "").trim(); // Jarvis's own "At your service", picked up by the mic
+    if (!data.text) { if (r.convo || r.fromWake) { startListening(null, r.convo ? "convo" : true); return; } afterTurn("Standing by.", false); return; }
+    if (WAKE_RE.test(data.text) && !afterWakeWord(data.text).replace(/\W/g, "")) { startListening(null, true); atYourService(); return; } // just the name
     send(data.text);
   } catch (err) { fault(err); }
 }
@@ -1316,7 +1340,20 @@ function unfinished(text) {
   const t = text.trim().toLowerCase();
   return /(\.\.\.|…|,|-)$/.test(t) || /\b(a|an|the|to|for|of|and|or|but|with|about|from|in|on|at|by|my|your|is|are|was|if|so|because|that|like|what|how|um|uh|can|could|would|should|please)$/.test(t.replace(/[.?!]+$/, ""));
 }
+// Keep only the part where you were talking: you're louder than a TV across the room, so trim the quieter
+// sound before your first loud moment and after your last (with a little margin so no word is clipped).
+function trimToSpeaker(chunks) {
+  if (chunks.length < 10) return chunks;
+  const lv = chunks.map((c) => { let s = 0; for (let i = 0; i < c.length; i++) s += c[i] * c[i]; return Math.sqrt(s / c.length); });
+  const sm = lv.map((_, i) => Math.max(...lv.slice(Math.max(0, i - 4), i + 5))); // smoothed over ~0.2 s
+  const top = Math.max(...sm), cut = top * 0.3, dt = chunks[0].length / ctx.sampleRate, pad = Math.ceil(0.35 / dt);
+  let a = sm.findIndex((v) => v > cut), b = sm.length - 1 - [...sm].reverse().findIndex((v) => v > cut);
+  if (a < 0) return chunks;
+  a = Math.max(0, a - pad); b = Math.min(chunks.length - 1, b + pad);
+  return chunks.slice(a, b + 1);
+}
 function transcribeClip(chunks) {
+  chunks = trimToSpeaker(chunks);
   return fetch("/api/stt", { method: "POST", headers: { "Content-Type": "audio/wav" }, body: encodeWav(chunks, ctx.sampleRate) })
     .then((res) => res.json()).catch((err) => ({ error: err.message }));
 }
@@ -1397,10 +1434,10 @@ function browserSay(text, onBoundary, retried = false) {
    while the current one plays and is scheduled to start the instant it ends, so there are no gaps
    and the voice keeps its rhythm across sentences. */
 class Speaker {
-  constructor({ onDone = null, onSentence = null, onReveal = null } = {}) {
+  constructor({ onDone = null, onSentence = null, onReveal = null, keepState = false } = {}) {
     this.queue = []; this.ended = false; this.cancelled = false; this.running = false;
     this.sources = []; this.timers = []; this.playEnd = 0; this.spoke = false; this.wake = null; this.rate = 0;
-    this.onDone = onDone; this.onSentence = onSentence; this.onReveal = onReveal;
+    this.onDone = onDone; this.onSentence = onSentence; this.onReveal = onReveal; this.keepState = keepState;
     this.revealed = ""; this.seq = 0; this.cur = -1; this.curText = "";
     // Use the server's voice whenever it has one, without waiting on any other check.
     this.local = !!(ctx && S.status && (S.status.voice === "online" || (S.status.eleven && prefs.voiceEngine !== "kokoro")));
@@ -1534,6 +1571,7 @@ class Speaker {
   }
   show(sentence) {
     if (this.cancelled) return;
+    if (this.keepState) return setCaption(sentence);
     setState("speaking", sentence);
     if (this.onSentence) this.onSentence(sentence);
   }

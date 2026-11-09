@@ -120,6 +120,8 @@ Start it:
 
 Your browser opens http://localhost:8765. The first launch downloads the speech models, so give it a few minutes. Run the download command again any time to update.
 
+Say "Hey Jarvis" and pause, and he answers "At your service" (or similar) and listens. With a TV, music or a fan on, he still notices when you've finished: you count as talking when you're clearly louder than the room, and anything quieter before and after your words is trimmed off.
+
 After you log in, Jarvis starts listening straight away. It waits for you to finish: a pause after something unfinished ("set a timer for…") doesn't count as the end, and **Settings → Wait for me to finish** makes it quicker or more patient.
 
 Replies are written out word by word as Jarvis says them. Under the Systems panel, **Last reply** shows how long each step took (transcribing, thinking, voice), so you can see what's slow.
