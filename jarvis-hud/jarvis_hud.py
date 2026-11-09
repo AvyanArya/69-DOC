@@ -71,7 +71,7 @@ if LANGUAGE.startswith("en") and CONFIG.speech.model in ("tiny", "base", "small"
 VOICE_SPEED = float(CONFIG.speech.voice_speed or 1.0)
 HISTORY_TURNS = 20
 MAX_BODY_BYTES = 25 * 1024 * 1024
-HUD_VERSION = "2.4"
+HUD_VERSION = "2.5"
 USER_AGENT = f"OpenJarvisHUD/{HUD_VERSION} (+https://github.com/open-jarvis/OpenJarvis)"
 IS_MAC = sys.platform == "darwin"
 # The voice runs on the CPU by default: fast enough on Apple Silicon, and it leaves the GPU to the language model.
@@ -548,7 +548,7 @@ def route(text: str, prefs: dict) -> dict | None:
                     "ui": [{"type": "timer", "seconds": seconds, "label": f"{label.capitalize()} timer"}]}
         return {"say": f"Timer set for {heard}.", "ui": [{"type": "timer", "seconds": seconds, "label": f"{timer_name(seconds)} timer"}]}
 
-    if re.search(r"\b(what('?s| is) the time|what time is it|time is it|current time|tell me the time)\b", t):
+    if re.search(r"\b(what('?s| is) the time|what time is it|what time|time is it|current time|tell me the time)\b", t):
         return {"say": f"It's {_clock(now)}.", "ui": []}
 
     if re.search(r"\b(what('?s| is) (the |today'?s )?date|what day is (it|today)|today'?s date|what'?s today)\b", t):
@@ -807,9 +807,36 @@ def transcribe(audio: bytes) -> str:
     model = getattr(_ears, "_ensure_model", None)
     if model is None:
         return _ears.transcribe(audio, format="wav", language=LANGUAGE).text or ""
-    segments, _info = model().transcribe(io.BytesIO(audio), language=LANGUAGE or None, beam_size=1,
-                                         vad_filter=True, condition_on_previous_text=False)
+    options = dict(language=LANGUAGE or None, beam_size=1, vad_filter=True, condition_on_previous_text=False)
+    try:
+        segments, _info = model().transcribe(io.BytesIO(audio), hotwords="Jarvis", **options)  # hear "Jarvis", not "Harvest"
+    except TypeError:  # older faster-whisper
+        segments, _info = model().transcribe(io.BytesIO(audio), **options)
     return "".join(seg.text for seg in segments).strip()
+
+
+def pcm_wav(pcm: bytes, rate: int = 16000) -> bytes:
+    buf = io.BytesIO()
+    with wave.open(buf, "wb") as w:
+        w.setnchannels(1)
+        w.setsampwidth(2)
+        w.setframerate(rate)
+        w.writeframes(pcm[: len(pcm) // 2 * 2])
+    return buf.getvalue()
+
+
+# How Whisper tends to write "Jarvis" in a short clip, with or without "hey"
+WAKE_WORDS = re.compile(r"\b(jarvis|jarvas|jarvus|jarves|jervis|javis|jarvi|garvis|charvis|jarbis)\b"
+                        r"|\b(hey|hi|okay|ok|yo)[,.!]?\s+(travis|harvest|davis|jervis|service|jarv\w*)\b", re.I)
+
+
+def wake_confirm(pcm: bytes) -> tuple[bool, str]:
+    """Second opinion on a possible "Hey Jarvis": transcribe the clip and look for the name."""
+    if _ears is None:
+        return False, ""
+    with _ears_lock:
+        text = transcribe(pcm_wav(pcm))
+    return bool(WAKE_WORDS.search(text)), text
 
 
 def warm_ears() -> None:
@@ -874,7 +901,7 @@ def _kokoro(device: str):
 
 _wake = None
 _wake_lock = threading.Lock()
-WAKE_THRESHOLD = float(os.environ.get("JARVIS_HUD_WAKE_THRESHOLD", "0.6"))
+WAKE_THRESHOLD = float(os.environ.get("JARVIS_HUD_WAKE_THRESHOLD", "0.5"))
 
 
 def warm_wake() -> None:
@@ -889,16 +916,19 @@ def warm_wake() -> None:
             if not os.path.exists(uv):
                 raise RuntimeError("openWakeWord isn't installed")
             print("  Installing the \"Hey Jarvis\" wake word detector (one time)…")
-            subprocess.run([uv, "pip", "install", "--python", sys.executable, "openwakeword==0.4.0"],
-                           check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            done = subprocess.run([uv, "pip", "install", "--python", sys.executable, "openwakeword==0.4.0"],
+                                  capture_output=True, text=True)
+            if done.returncode:
+                last = (done.stderr or done.stdout).strip().splitlines()[-1:] or ["unknown error"]
+                raise RuntimeError("installing openWakeWord failed: " + last[0][:160])
             import openwakeword  # noqa: F401
         from openwakeword.model import Model
 
         _wake = Model(wakeword_model_paths=[openwakeword.models["hey_jarvis"]["model_path"]])
         STATUS["wake"] = "online"
     except Exception as exc:
-        STATUS["wake"] = "offline"
-        STATUS["notes"]["wake"] = f"\"Hey Jarvis\" is unavailable ({type(exc).__name__}). Press Space or tap the orb to talk."
+        STATUS["wake"] = "fallback"  # the page still listens for "Jarvis" using speech recognition
+        print(f"  \"Hey Jarvis\" detector unavailable ({exc}); using speech recognition to listen for it instead.")
 
 
 def wake_score(pcm: bytes) -> float:
@@ -1208,7 +1238,7 @@ def status_payload() -> dict:
         pass
     return {
         "brain": STATUS["brain"], "ears": STATUS["ears"], "voice": STATUS["voice"], "wake": STATUS["wake"],
-        "notes": list(STATUS["notes"].values()), "model": MODEL, "voice_id": _voice_id,
+        "notes": list(STATUS["notes"].values()), "version": HUD_VERSION, "model": MODEL, "voice_id": _voice_id,
         "host": socket.gethostname().split(".")[0], "name": DEFAULT_NAME, "mac": IS_MAC,
         "cpu": cpu, "mem": mem, "battery": battery, "plugged": plugged,
         "uptime": round(time.time() - STARTED),
@@ -1311,6 +1341,9 @@ class Handler(BaseHTTPRequestHandler):
                     return self._json(503, {"error": "wake word unavailable"})
                 score = wake_score(body)
                 return self._json(200, {"score": round(score, 3), "wake": score >= WAKE_THRESHOLD})
+            if self.path == "/api/wake/confirm":
+                woke, text = wake_confirm(body)
+                return self._json(200, {"wake": woke, "text": text})
             if self.path == "/api/warm":
                 warm_model_soon()
                 return self._json(200, {"ok": True})

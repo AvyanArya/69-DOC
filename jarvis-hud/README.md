@@ -41,7 +41,7 @@ Choose a voice from the list. George, a warm British voice, is the default. Then
 
 Say **"Hey Jarvis"**, press **Space**, tap the orb, or **clap twice** to talk. To **interrupt**, just start talking while Jarvis is speaking (or press Space). It stops and listens. Headphones make interrupting most reliable, because then Jarvis can't hear itself. Press **Esc** to stop or close the deck. **Conversation mode** keeps listening after each reply.
 
-The "Hey Jarvis" detector (openWakeWord) runs on your Mac and installs itself the first time you start the new version.
+"Hey Jarvis" is heard on your Mac in two ways: the openWakeWord detector, which installs itself on first start, plus a quick double-check with speech recognition for anything short that might be the name. So it works even when the detector misses your voice. The **Wake** row in the Systems panel shows whether it's listening, and Settings → Behaviour shows what it last heard.
 
 ## Preview without installing
 

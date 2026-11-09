@@ -536,6 +536,7 @@ body.focused .fx-caption.on{opacity:1;transform:translate(-50%,0)}
           <div id="svc-brain" class="starting"><i></i>Core<em id="svc-brain-d">starting</em></div>
           <div id="svc-ears" class="starting"><i></i>Ears<em>speech recognition</em></div>
           <div id="svc-voice" class="starting"><i></i>Voice<em id="svc-voice-d">text to speech</em></div>
+          <div id="svc-wake" class="starting"><i></i>Wake<em id="svc-wake-d">"Hey Jarvis"</em></div>
         </div>
         <div class="notes" id="notes"></div>
       </section>
@@ -619,7 +620,7 @@ body.focused .fx-caption.on{opacity:1;transform:translate(-50%,0)}
   <div class="field" style="margin-top:12px"><span>Speaking speed</span><div class="seg" id="set-speed"><button type="button" data-s="0.92">Relaxed</button><button type="button" data-s="1">Natural</button><button type="button" data-s="1.1">Brisk</button></div></div>
   <h3 style="margin-top:18px">Behaviour</h3>
   <label class="sw"><div>Conversation mode<small>Keep listening after each reply</small></div><input type="checkbox" data-pref="convo"></label>
-  <label class="sw"><div>"Hey Jarvis"<small>Say it any time to start talking</small></div><input type="checkbox" data-pref="wake"></label>
+  <label class="sw"><div>"Hey Jarvis"<small id="wake-hint">Say it any time to start talking</small></div><input type="checkbox" data-pref="wake"></label>
   <label class="sw"><div>Interrupt by talking<small>Start speaking to cut Jarvis off (best with headphones)</small></div><input type="checkbox" data-pref="bargeIn"></label>
   <label class="sw"><div>Clap twice to wake<small>Two claps start listening</small></div><input type="checkbox" data-pref="clap"></label>
   <label class="sw"><div>Spoken replies<small>Read answers out loud</small></div><input type="checkbox" data-pref="voice"></label>
@@ -771,7 +772,8 @@ function onMic(samples) {
   if (recent.length > Math.ceil(0.8 / dt)) recent.shift();
   if (S.state === "speaking" && prefs.bargeIn) { checkBargeIn(rms, dt); }
   else { barge.time = 0; barge.env = 0; barge.out = 0; }
-  if (S.state === "idle" && prefs.wake && S.status && S.status.wake === "online") feedWake(samples);
+  if (S.state === "idle" && prefs.wake && wakeReady()) feedWake(samples, rms, dt);
+  else if (wake.burst) wake.burst = null;
   if (S.state === "listening" && rec) {
     rec.chunks.push(new Float32Array(samples));
     rec.total += dt;
@@ -782,7 +784,7 @@ function onMic(samples) {
     else if (rec.speech) rec.silent += dt;
     else rec.waited += dt;
     if (rec.speech && rec.silent > 0.8) { if (rec.voiced >= 0.25) finishListening(); else { rec.speech = false; rec.silent = 0; rec.voiced = 0; } }
-    else if (!rec.speech && rec.waited > 6) cancelListening("I didn't hear anything. Press Space when you're ready.");
+    else if (!rec.speech && rec.waited > 6) cancelListening(rec.fromWake ? "Standing by." : "I didn't hear anything. Press Space when you're ready.");
     else if (rec.total > 30) finishListening();
     return;
   }
@@ -808,20 +810,77 @@ function checkBargeIn(rms, dt) {
   if (barge.time > 0.35) { barge.time = 0; barge.env = 0; startListening(recent.slice()); }
 }
 
-// ---- "Hey Jarvis": stream 16 kHz audio to the on-device wake word detector while idle
-const wake = { pcm: [], pos: 0, busy: false, cool: 0 };
-function feedWake(samples) {
-  const ratio = ctx.sampleRate / 16000;
-  for (; wake.pos < samples.length; wake.pos += ratio) wake.pcm.push(Math.max(-1, Math.min(1, samples[wake.pos | 0])) * 32767);
-  wake.pos -= samples.length;
-  if (wake.pcm.length < 6400 || wake.busy || performance.now() < wake.cool) return;
+// ---- "Hey Jarvis": an on-device detector listens all the time, and speech recognition double-checks
+// anything short that might be the name, so it still works for voices and accents the detector misses.
+const WAKE_RATE = 16000;
+const WAKE_RE = /\b(jarvis|jarvas|jarvus|jarves|jervis|javis|jarvi|garvis|charvis|jarbis)\b|\b(hey|hi|okay|ok|yo)[,.!]?\s+(travis|harvest|davis|jervis|service|jarv\w*)\b/i;
+const wake = { pcm: [], ring: new Int16Array(WAKE_RATE * 3), at: 0, filled: 0, acc: 0, n: 0, pos: 0, busy: false, checking: false, cool: 0, burst: null, heard: "" };
+function wakeReady() {
+  return !!(S.status && S.status.ears === "online" && (S.status.wake === "online" || S.status.wake === "fallback"));
+}
+function lastWakeAudio(seconds) {
+  const n = Math.min(wake.filled, Math.round(seconds * WAKE_RATE)), out = new Int16Array(n);
+  for (let i = 0; i < n; i++) out[i] = wake.ring[(wake.at - n + i + wake.ring.length) % wake.ring.length];
+  return out;
+}
+function feedWake(samples, rms, dt) {
+  // average down to 16 kHz (plain decimation folds hiss into the speech band and confuses the detector)
+  const ratio = ctx.sampleRate / WAKE_RATE;
+  for (let i = 0; i < samples.length; i++) {
+    wake.acc += samples[i]; wake.n++;
+    if (++wake.pos >= ratio) {
+      wake.pos -= ratio;
+      const v = Math.round(Math.max(-1, Math.min(1, wake.acc / wake.n)) * 32767);
+      wake.acc = 0; wake.n = 0;
+      wake.ring[wake.at] = v; wake.at = (wake.at + 1) % wake.ring.length; wake.filled = Math.min(wake.filled + 1, wake.ring.length);
+      if (S.status.wake === "online") wake.pcm.push(v);
+    }
+  }
+  // a burst of speech: remember it from just before it started, and double-check its first couple of seconds
+  const loud = rms > Math.max(0.012, Math.min(noiseFloor, 0.02) * 3.5);
+  if (loud && !wake.burst) wake.burst = { len: 0, quiet: 0, voiced: 0, checked: false, chunks: recent.slice(-Math.ceil(0.3 / dt)) };
+  const b = wake.burst;
+  if (b) {
+    b.len += dt; b.chunks.push(new Float32Array(samples));
+    if (loud) { b.quiet = 0; b.voiced += dt; } else b.quiet += dt;
+    const ended = b.quiet > 0.7;
+    if (!b.checked && b.voiced >= 0.25 && (ended || b.len >= 1.8)) { b.checked = true; confirmWake(b, ended); }
+    if (ended || b.len > 10) wake.burst = null;
+  }
+  if (S.status.wake !== "online" || wake.pcm.length < 6400 || wake.busy) return;
   const chunk = Int16Array.from(wake.pcm.splice(0, wake.pcm.length));
   wake.busy = true;
   fetch("/api/wake", { method: "POST", body: chunk.buffer })
     .then((r) => r.json())
-    .then((d) => { if (d.wake && S.state === "idle") { wake.cool = performance.now() + 2500; startListening(); } })
+    .then((d) => { if (d.wake) wakeUp("", wake.burst, false); })
     .catch(() => {})
     .finally(() => { wake.busy = false; });
+}
+function confirmWake(burst, complete) {
+  if (wake.checking || performance.now() < wake.cool) return;
+  wake.checking = true;
+  fetch("/api/wake/confirm", { method: "POST", body: lastWakeAudio(Math.min(burst.len + 0.3, 2.6)).buffer })
+    .then((r) => r.json())
+    .then((d) => {
+      if (d.text) { wake.heard = d.text; const h = $("#wake-hint"); if (h) h.textContent = `Last heard: "${d.text.slice(0, 60)}"`; }
+      if (d.wake) wakeUp(d.text || "", burst, complete);
+    })
+    .catch(() => {})
+    .finally(() => { wake.checking = false; });
+}
+function afterWakeWord(text) {
+  const m = WAKE_RE.exec(text || "");
+  return m ? text.slice(m.index + m[0].length).replace(/^[\s,.!?]+/, "").trim() : "";
+}
+// `complete`: the clip that was checked holds the whole burst of speech, so its words are the whole request
+function wakeUp(text, burst, complete) {
+  if (S.state !== "idle" || performance.now() < wake.cool) return;
+  wake.cool = performance.now() + 2500;
+  const rest = afterWakeWord(text);
+  if (complete && rest.split(/\s+/).filter(Boolean).length >= 2) { wake.burst = null; send(rest); return; } // "Hey Jarvis, what time is it?"
+  if (burst && !complete) { startListening(burst.chunks.slice(), true); return; } // still mid-sentence: record all of it
+  startListening(null, true);
+  setCaption("Yes?");
 }
 
 // Double-clap wake: a sharp, loud onset that dies away within ~60 ms, twice.
@@ -866,17 +925,17 @@ function encodeWav(chunks, inRate, outRate = 16000) {
 }
 
 /* ============================================================== listening */
-function startListening(preroll) {
+function startListening(preroll, fromWake = false) {
   if (!S.micOk) { setCaption("The microphone is off. Allow it in your browser's address bar, then reload."); return; }
   if (S.status && S.status.ears !== "online") {
     setCaption(S.status.ears === "offline" ? "Speech recognition isn't working. See the Systems panel." : "My ears are still warming up. One moment.");
     return;
   }
   interrupt();
-  rec = { chunks: preroll ? preroll : [], speech: !!preroll, silent: 0, waited: 0, total: preroll ? 0.3 : 0, voiced: preroll ? 0.3 : 0 };
+  rec = { chunks: preroll ? preroll : [], speech: !!preroll, silent: 0, waited: 0, total: preroll ? 0.3 : 0, voiced: preroll ? 0.3 : 0, fromWake };
   setState("listening", "Listening…");
   SFX.listen();
-  wake.pcm = [];
+  wake.pcm = []; wake.filled = 0; wake.burst = null;
   fetch("/api/warm", { method: "POST" }).catch(() => {}); // load the model while you're still talking
 }
 function cancelListening(msg) { rec = null; setState("idle", msg); }
@@ -890,7 +949,8 @@ async function finishListening() {
     const res = await fetch("/api/stt", { method: "POST", headers: { "Content-Type": "audio/wav" }, body: encodeWav(r.chunks, ctx.sampleRate) });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
-    if (!data.text) { afterTurn("I didn't catch that. Press Space to try again.", false); return; }
+    if (!data.text) { afterTurn(r.fromWake ? "Standing by." : "I didn't catch that. Press Space to try again.", false); return; }
+    if (WAKE_RE.test(data.text) && !afterWakeWord(data.text).replace(/\W/g, "")) { startListening(null, true); setCaption("Yes?"); return; } // just the name
     send(data.text);
   } catch (err) { fault(err); }
 }
@@ -1581,10 +1641,13 @@ function renderStatus(st) {
   for (const k of ["brain", "ears", "voice"]) $("#svc-" + k).className = st[k];
   $(".sys-card").classList.toggle("degraded", ["brain", "ears", "voice"].some((k) => st[k] !== "online") || st.notes.length > 0);
   $("#svc-brain-d").textContent = st.model;
+  const wk = !prefs.wake ? "offline" : st.wake === "fallback" ? "online" : st.wake || "offline";
+  $("#svc-wake").className = wk;
+  $("#svc-wake-d").textContent = !prefs.wake ? "off in Settings" : st.wake === "online" ? "say \u201cHey Jarvis\u201d" : st.wake === "fallback" ? "via speech recognition" : st.wake === "loading" || st.wake === "starting" ? "loading" : "unavailable";
   $("#svc-voice-d").textContent = st.eleven && prefs.voiceEngine !== "kokoro" ? "ElevenLabs" : st.voice === "online" ? "on-device · " + (st.voice_id || "").replace("_", " ") : "browser voice";
   $("#uptime").textContent = "UP " + fmtUptime(st.uptime).toUpperCase();
   $("#notes").innerHTML = st.notes.map((n) => `<p>${esc(n)}</p>`).join("");
-  $("#set-foot").innerHTML = `Model ${esc(st.model)} · Voice ${esc(st.voice_id || "browser")}<br>Host ${esc(st.host)} · OpenJarvis HUD 2.0`;
+  $("#set-foot").innerHTML = `Model ${esc(st.model)} · Voice ${esc(st.voice_id || "browser")}<br>Host ${esc(st.host)} · OpenJarvis HUD ${esc(st.version || "")}`;
   if (S.state === "locked") $("#lock-hello").textContent = userName() ? `Welcome back, ${userName()}` : "Welcome back";
   if ($("#hero-name").textContent !== (userName() || "there")) heroSub();
 }
