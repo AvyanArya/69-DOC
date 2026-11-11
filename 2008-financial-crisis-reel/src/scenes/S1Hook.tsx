@@ -78,7 +78,7 @@ const DIVE = heroPoint(HERO_HEAD.x + HERO_HEAD.w * 0.5, HERO_HEAD.y + HERO_HEAD.
 const CIRCLE = (() => {
   const cx = HERO_HEAD.x + HERO_HEAD.w / 2;
   const cy = HERO_HEAD.y + HERO_HEAD.h / 2 + 2;
-  const rx = HERO_HEAD.w / 2 + 18;
+  const rx = HERO_HEAD.w / 2 + 9;
   const ry = HERO_HEAD.h / 2 + 34;
   const pts: string[] = [];
   const N = 96;
@@ -232,7 +232,7 @@ const Storm: React.FC = () => {
           }}
         >
           {SHEETS.map((sh, i) => (
-            <Paper key={i} sh={sh} i={i} t={t} focus={cam.focus} circle={circle} diving={cam.tau > 0.2} />
+            <Paper key={i} sh={sh} i={i} t={t} focus={cam.focus} circle={circle} diving={cam.tau > 0.37} />
           ))}
         </div>
       </AbsoluteFill>
@@ -330,15 +330,15 @@ const Through: React.FC = () => {
             <AbsoluteFill style={{ opacity: real }}>
               <ParallaxLayers
                 name="wall_street"
-                cam={{ zoom: z, y: lerp(60, 0, settle) * 0 + (z - 1) * 60, brightness: lerp(1.25, 1, prog(tau, 0.7, 1)), dolly: lerp(0, 26, prog(t, zoomEnd - 0.3, cut)) }}
+                cam={{ zoom: z, y: (z - 1) * 60, brightness: lerp(1.25, 1, prog(tau, 0.7, 1)) }}
+                fgOrigin="20% 62%"
                 fg={{
-                  zoom: lerp(1.32, 1.07, settle) + 0.03 * prog(t, zoomEnd, cut),
-                  x: lerp(-96, -16, settle) - 16 * prog(t, zoomEnd, cut),
-                  y: lerp(96, 22, settle),
-                  blur: lerp(7, 0.6, settle),
+                  // the statue is close to the lens: it arrives larger and keeps growing faster than the street behind it
+                  zoom: lerp(1.3, 1.045, settle) + 0.05 * prog(t, zoomEnd, cut),
+                  blur: lerp(7, 0.5, settle),
                   brightness: 0.86,
                 }}
-                bgBlur={lerp(3, 0, prog(tau, 0.75, 1))}
+                bgBlur={lerp(3, 0.6, prog(tau, 0.75, 1))}
               />
             </AbsoluteFill>
           ) : null}

@@ -158,6 +158,8 @@ const MoneyFlow: React.FC<{ t: number; t0: number; t1: number }> = ({ t, t0, t1 
   const pop = (d: number) => E.outBack(prog(t, t0 + d, t0 + d + 0.35));
   return (
     <AbsoluteFill style={{ opacity: a }}>
+      {/* darken the picture behind the diagram so the line-work reads */}
+      <AbsoluteFill style={{ background: "radial-gradient(ellipse 78% 34% at 50% 48%, rgba(8,8,9,.78) 0%, rgba(8,8,9,.55) 60%, rgba(8,8,9,0) 100%)" }} />
       {/* loans arc over the top, repayments trickle back underneath */}
       <svg width={W} height={H} style={{ position: "absolute", inset: 0 }}>
         <path d={`M${bank[0] + 70},${bank[1] - 70} Q540,${bank[1] - 420} ${home[0] - 70},${home[1] - 70}`} fill="none" stroke={C.paper} strokeOpacity={0.35} strokeWidth={2.5} strokeDasharray="4 12" />
@@ -169,14 +171,14 @@ const MoneyFlow: React.FC<{ t: number; t0: number; t1: number }> = ({ t, t0, t1 
       {Array.from({ length: 6 }, (_, i) => (
         <Bill key={i} coin p={prog(t, t0 + 0.55 + i * 0.26, t0 + 1.75 + i * 0.26)} from={[home[0] - 70, home[1] + 90]} to={[bank[0] + 70, bank[1] + 90]} lift={-105} />
       ))}
-      <div style={{ position: "absolute", left: bank[0] - 95, top: bank[1] - 95, transform: `scale(${pop(0)})` }}>
-        <BankIcon size={190} />
+      <div style={{ position: "absolute", left: bank[0] - 105, top: bank[1] - 105, transform: `scale(${pop(0)})` }}>
+        <BankIcon size={210} />
         <Label style={{ textAlign: "center", marginTop: 20 }} size={30}>
           BANK
         </Label>
       </div>
-      <div style={{ position: "absolute", left: home[0] - 95, top: home[1] - 95, transform: `scale(${pop(0.12)})` }}>
-        <HouseIcon size={190} />
+      <div style={{ position: "absolute", left: home[0] - 105, top: home[1] - 105, transform: `scale(${pop(0.12)})` }}>
+        <HouseIcon size={210} />
         <Label style={{ textAlign: "center", marginTop: 20 }} size={30}>
           BORROWER
         </Label>

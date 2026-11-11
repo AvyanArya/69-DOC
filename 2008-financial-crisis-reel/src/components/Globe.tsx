@@ -136,7 +136,8 @@ export const Globe: React.FC<{
       const w: V3 = [A[0] * s0 + B[0] * s1, A[1] * s0 + B[1] * s1, A[2] * s0 + B[2] * s1];
       const p = view(w, lon, lat);
       const rr = 1 + lift * Math.sin(Math.PI * k);
-      const vis = p[2] > 0 || Math.hypot(p[0], p[1]) * rr > 1.0;
+      // visible on the near side, or just over the horizon where the lifted arc clears the limb
+      const vis = p[2] > 0 || (p[2] > -0.2 && Math.hypot(p[0], p[1]) * rr > 1.0);
       if (vis) {
         const x = cx + p[0] * r * rr;
         const y = cy - p[1] * r * rr;

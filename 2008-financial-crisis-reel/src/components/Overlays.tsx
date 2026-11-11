@@ -29,7 +29,18 @@ export const ArchiveTag: React.FC<{ a: number; place: string; date: string; cred
   kind = "ARCHIVE",
 }) =>
   a > 0.002 ? (
-    <div style={{ position: "absolute", left: SAFE.left, top, opacity: a, transform: `translateX(${(1 - a) * -18}px)` }}>
+    <div
+      style={{
+        position: "absolute",
+        left: SAFE.left - 18,
+        top: top - 14,
+        padding: "14px 70px 14px 18px",
+        // soft dark plate so the credit stays legible over bright pictures
+        background: "linear-gradient(90deg, rgba(8,8,9,.74) 0%, rgba(8,8,9,.56) 62%, rgba(8,8,9,0) 100%)",
+        opacity: a,
+        transform: `translateX(${(1 - a) * -18}px)`,
+      }}
+    >
       <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
         <div style={{ width: 5, height: 62, background: C.red }} />
         <div>
@@ -37,7 +48,7 @@ export const ArchiveTag: React.FC<{ a: number; place: string; date: string; cred
           <div style={{ fontFamily: F.mono, fontWeight: 500, fontSize: 22, letterSpacing: 2.4, color: C.paper, opacity: 0.92, marginTop: 4, textShadow: "0 2px 12px rgba(0,0,0,.9)" }}>{date}</div>
         </div>
       </div>
-      <div style={{ fontFamily: F.sans, fontWeight: 500, fontSize: 17, letterSpacing: 0.6, color: "#fff", opacity: 0.62, marginTop: 10, marginLeft: 19, textShadow: "0 1px 8px rgba(0,0,0,.9)" }}>
+      <div style={{ fontFamily: F.sans, fontWeight: 500, fontSize: 17, letterSpacing: 0.6, color: "#fff", opacity: 0.78, marginTop: 10, marginLeft: 19, textShadow: "0 1px 8px rgba(0,0,0,.9)" }}>
         {kind} · {credit}
       </div>
     </div>

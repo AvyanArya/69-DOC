@@ -79,8 +79,8 @@ export const ParallaxPhoto: React.FC<{ name: string; cam: Cam; style?: React.CSS
 };
 
 /**
- * Two-plane version for pictures with a clear foreground subject (cut out with the depth map, background
- * painted in behind it). The planes move independently, so the parallax is clean even for larger moves.
+ * Two-plane version for pictures with a clear foreground subject (cut out with the depth map and laid over
+ * the original photograph). The subject scales independently of the scene behind it: real parallax.
  */
 export const ParallaxLayers: React.FC<{
   name: string;
@@ -88,22 +88,32 @@ export const ParallaxLayers: React.FC<{
   /** extra foreground movement relative to the background */
   fg: { x?: number; y?: number; zoom?: number; blur?: number; brightness?: number };
   bgBlur?: number;
+  /**
+   * Point the foreground scales about, as CSS percentages of the picture. Keep it INSIDE the subject and
+   * keep fg.zoom ≥ 1: the cut-out then always covers the hole it left in the background plate.
+   */
+  fgOrigin?: string;
   style?: React.CSSProperties;
-}> = ({ name, cam, fg, bgBlur = 0, style }) => {
+}> = ({ name, cam, fg, bgBlur = 0, fgOrigin = "50% 50%", style }) => {
   const id = "pl" + useId().replace(/[^a-zA-Z0-9]/g, "");
   const moving = (cam.truckX ?? 0) !== 0 || (cam.truckY ?? 0) !== 0 || (cam.dolly ?? 0) !== 0;
-  const fgCam: Cam = { ...cam, x: (cam.x ?? 0) + (fg.x ?? 0), y: (cam.y ?? 0) + (fg.y ?? 0), zoom: (cam.zoom ?? 1) * (fg.zoom ?? 1) };
   const fgFilter = [fg.blur ? `blur(${fg.blur}px)` : "", `brightness(${(cam.brightness ?? 1) * (fg.brightness ?? 1)})`].join(" ").trim();
   return (
     <div style={{ position: "absolute", inset: 0, overflow: "hidden", ...style }}>
-      {moving ? <Displace id={id} name={`${name}_bg`} cam={cam} /> : null}
+      {moving ? <Displace id={id} name={name} cam={cam} /> : null}
+      {/* The back plate is the untouched photograph. Because the cut-out only ever grows (fg.zoom ≥ 1 about a
+          point inside the subject) it always covers the subject underneath, so no in-painting is ever seen
+          and any imperfection in the depth matte reveals the same pixels it was cut from. */}
       <div style={{ ...frame(cam), filter: cssFilter({ ...cam, blur: (cam.blur ?? 0) + bgBlur }) }}>
         <div style={{ width: IW, height: IH, filter: moving ? `url(#${id})` : undefined }}>
-          <Img src={staticFile(`img/${name}_bg.jpg`)} style={{ width: IW, height: IH, display: "block" }} />
+          <Img src={staticFile(`img/${name}.jpg`)} style={{ width: IW, height: IH, display: "block" }} />
         </div>
       </div>
-      <div style={{ ...frame(fgCam), transformOrigin: "30% 85%", filter: fgFilter || undefined }}>
-        <Img src={staticFile(`img/${name}_fg.webp`)} style={{ width: IW, height: IH, display: "block" }} />
+      {/* same camera as the background, plus its own scale about a point inside the subject */}
+      <div style={{ ...frame(cam), filter: fgFilter || undefined }}>
+        <div style={{ width: IW, height: IH, transformOrigin: fgOrigin, transform: `translate(${fg.x ?? 0}px, ${fg.y ?? 0}px) scale(${fg.zoom ?? 1})` }}>
+          <Img src={staticFile(`img/${name}_fg.webp`)} style={{ width: IW, height: IH, display: "block" }} />
+        </div>
       </div>
     </div>
   );
