@@ -3,6 +3,7 @@ import { AbsoluteFill, Composition, useCurrentFrame } from "remotion";
 import { Fonts } from "./Fonts";
 import { FrontPage, WikinewsPage } from "./papers/FrontPage";
 import { PAGE_H, PAGE_W, PAPERS, WIKI_H, WIKINEWS } from "./papers/specs";
+import { BrandingSheet } from "./Branding";
 import { Reel } from "./Reel";
 import { TL } from "./lib/timeline";
 
@@ -29,6 +30,7 @@ const WikinewsPages: React.FC = () => {
 export const Root: React.FC = () => (
   <>
     <Composition id="Reel" component={Reel} durationInFrames={TL.durationInFrames} fps={TL.fps} width={1080} height={1920} />
+    <Composition id="Branding" component={BrandingSheet} durationInFrames={1} fps={30} width={1920} height={980} />
     <Composition id="FrontPages" component={FrontPages} durationInFrames={PAPERS.length} fps={30} width={PAGE_W} height={PAGE_H} />
     <Composition id="WikinewsPages" component={WikinewsPages} durationInFrames={WIKINEWS.length} fps={30} width={PAGE_W} height={WIKI_H} />
   </>
