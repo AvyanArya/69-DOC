@@ -220,7 +220,7 @@ const Human: React.FC<{ t: number }> = ({ t }) => {
       {which === 1 ? <Stat a={pop} big={lost.toFixed(1)} unit="MILLION" line="U.S. JOBS LOST · 2008–2010" src="Source: U.S. Bureau of Labor Statistics (nonfarm payrolls, Dec 2007 – Feb 2010)" /> : null}
       {which === 2 ? <Stat a={pop} big="2.8" unit="MILLION" line="FORECLOSURE FILINGS IN 2009 ALONE" src="Source: RealtyTrac, U.S. properties receiving a foreclosure filing in 2009" /> : null}
       {which === 0 ? <ArchiveTag a={clamp(p * 6)} place="EMPTY OFFICES" date="" credit="Carl Lender · CC BY 2.0" kind="PHOTO" /> : null}
-      {which === 1 ? <ArchiveTag a={clamp(p * 6)} place="JOB FAIR QUEUE" date="NEW YORK · MARCH 2009" credit="Photo: arvind grover · CC BY-SA 2.0" /> : null}
+      {which === 1 ? <ArchiveTag a={clamp(p * 6)} place="JOB FAIR" date="MARCH 2009" credit="Photo: arvind grover · CC BY-SA 2.0" /> : null}
       {which === 2 ? <ArchiveTag a={clamp(p * 6)} place="FORECLOSED HOME" date="UNITED STATES · AUGUST 2008" credit="Photo: Joguldi · CC BY 2.0" /> : null}
       <Flash a={0.7 * (1 - prog(t, starts[which], starts[which] + 0.09))} />
     </AbsoluteFill>

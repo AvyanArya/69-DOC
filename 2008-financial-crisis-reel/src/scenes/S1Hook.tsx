@@ -117,7 +117,9 @@ const RedCircle: React.FC<{ p: number }> = ({ p }) => {
   );
 };
 
-const Paper: React.FC<{ sh: Sheet; i: number; t: number; focus: number; circle: number }> = ({ sh, i, t, focus, circle }) => {
+const Paper: React.FC<{ sh: Sheet; i: number; t: number; focus: number; circle: number; diving: boolean }> = ({ sh, i, t, focus, circle, diving }) => {
+  // once the camera is inside the hero page nothing else can be seen: skip the rest (keeps the dive fast to render)
+  if (diving && !sh.hero) return null;
   const p = prog(t, sh.t0, sh.t0 + sh.dur);
   if (p <= 0) return null;
   const e = E.outQuart(p);
@@ -150,12 +152,14 @@ const Paper: React.FC<{ sh: Sheet; i: number; t: number; focus: number; circle: 
         width: PAGE_W,
         height: sh.h,
         transform: `translate3d(${x + settle}px, ${y + settle * 0.6}px, ${z}px) rotateZ(${sh.rot + spin}deg) rotateX(${rx}deg) rotateY(${ry}deg) scale(${sh.s})`,
-        filter: `blur(${blur.toFixed(2)}px) brightness(${bright.toFixed(3)})`,
+        // CSS filters force huge off-screen textures at high zoom, so only blur when it is visible
+        filter: blur > 0.12 && !diving ? `blur(${blur.toFixed(2)}px)` : undefined,
         boxShadow: "0 26px 60px rgba(0,0,0,.62), 0 3px 9px rgba(0,0,0,.5)",
         backfaceVisibility: "hidden",
       }}
     >
       <Img src={staticFile(`papers/${sh.img}.jpg`)} style={{ width: PAGE_W, height: sh.h, display: "block" }} />
+      {bright < 0.995 ? <div style={{ position: "absolute", inset: 0, background: "#000", opacity: 1 - bright }} /> : null}
       {sh.hero ? <RedCircle p={circle} /> : null}
     </div>
   );
@@ -191,7 +195,7 @@ const useCamera = (t: number) => {
     fy = lerp(fy, DIVE.y, d);
     py = lerp(py, 900, d);
     const anticip = -0.05 * Math.sin(Math.PI * prog(tau, 0, 0.16)); // tiny pull back before the push
-    scale *= Math.exp(anticip + 5.6 * E.inCubic(prog(tau, 0.04, 0.5)));
+    scale *= Math.exp(anticip + 4.3 * E.inCubic(prog(tau, 0.04, 0.5)));
   }
   // jolts: each sheet landing nudges the camera, the hero hits hardest
   let sx = 0;
@@ -228,7 +232,7 @@ const Storm: React.FC = () => {
           }}
         >
           {SHEETS.map((sh, i) => (
-            <Paper key={i} sh={sh} i={i} t={t} focus={cam.focus} circle={circle} />
+            <Paper key={i} sh={sh} i={i} t={t} focus={cam.focus} circle={circle} diving={cam.tau > 0.2} />
           ))}
         </div>
       </AbsoluteFill>
@@ -450,7 +454,7 @@ export const S1Hook: React.FC = () => {
   const zoomStart = cue("s1.zoomStart");
   const zoomEnd = cue("s1.zoomEnd");
   // real temporal motion blur while things move fast; none once the moves are slow
-  const samples = t < 2.25 ? 8 : t >= zoomStart - 0.04 && t < zoomStart + (zoomEnd - zoomStart) * 0.86 ? 12 : 1;
+  const samples = t < 2.25 ? 6 : t >= zoomStart - 0.04 && t < zoomStart + (zoomEnd - zoomStart) * 0.86 ? 10 : 1;
   return (
     <AbsoluteFill style={{ background: C.black }}>
       <MotionBlur samples={samples} shutter={0.62}>
