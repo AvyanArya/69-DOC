@@ -65,6 +65,7 @@ def main():
     os.makedirs(RAW, exist_ok=True)
     for key, a in manifest["assets"].items():
         if only and key not in only: continue
+        if a.get("manual"): continue      # excerpted by hand (see the note in the manifest)
         dest = os.path.join(RAW, a["file"])
         if os.path.exists(dest) and os.path.getsize(dest) > 2000:
             continue

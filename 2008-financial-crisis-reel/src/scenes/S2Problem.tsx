@@ -45,6 +45,19 @@ const Rewind: React.FC = () => {
         }}
       />
       <AbsoluteFill style={{ transform: `translate(${k.x}px, ${k.y}px) scale(${push})` }}>
+        {/* a clock running backwards */}
+        <svg width={W} height={700} style={{ position: "absolute", left: 0, top: 0, opacity: 0.2 * prog(t, s.start + 0.1, s.start + 0.6) }}>
+          <g transform="translate(540 452)" fill="none" stroke={C.ink} strokeLinecap="round">
+            <circle r={178} strokeWidth={5} />
+            <circle r={164} strokeWidth={1.5} />
+            {Array.from({ length: 60 }, (_, i) => (
+              <line key={i} x1={0} y1={i % 5 === 0 ? -140 : -152} x2={0} y2={-160} strokeWidth={i % 5 === 0 ? 5 : 2} transform={`rotate(${i * 6})`} />
+            ))}
+            <line x1={0} y1={18} x2={0} y2={-92} strokeWidth={9} transform={`rotate(${300 - roll * 90 - (t - s.start) * 4})`} />
+            <line x1={0} y1={24} x2={0} y2={-134} strokeWidth={5} transform={`rotate(${40 - roll * 720 - (t - s.start) * 50})`} />
+            <circle r={9} fill={C.ink} />
+          </g>
+        </svg>
         {/* kicker */}
         <div style={{ position: "absolute", left: 0, width: W, top: 706, textAlign: "center", fontFamily: F.mono, fontWeight: 700, fontSize: 30, letterSpacing: 10, color: C.red }}>
           <span style={{ opacity: labelA, position: "absolute", left: 0, width: W }}>TO UNDERSTAND WHY</span>

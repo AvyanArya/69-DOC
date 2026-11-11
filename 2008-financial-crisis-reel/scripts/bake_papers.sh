@@ -14,7 +14,7 @@ for i in "${!IDS[@]}"; do
 done
 WIKI=(17sep2008 16sep2008 18sep2008 25sep2008 26sep2008)
 for i in "${!WIKI[@]}"; do
-  scale=1.25; [ "${WIKI[$i]}" = "17sep2008" ] && scale=2
+  scale=1.25; [ "${WIKI[$i]}" = "17sep2008" ] && scale=2.4
   npx remotion still out/bundle WikinewsPages "public/papers/wikinews_${WIKI[$i]}.jpg" --frame="$i" --scale="$scale" --image-format=jpeg --jpeg-quality=92 "${BX[@]}" --log=error
 done
 ls -la public/papers

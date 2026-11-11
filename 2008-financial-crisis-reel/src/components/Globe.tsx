@@ -8,6 +8,8 @@ const RAD = Math.PI / 180;
 /** Financial centres used by the map sequences: [longitude, latitude]. */
 export const CITIES = {
   nyc: [-74.0, 40.7],
+  washington: [-77.0, 38.9],
+  berlin: [13.4, 52.5],
   toronto: [-79.4, 43.7],
   saopaulo: [-46.6, -23.5],
   reykjavik: [-21.9, 64.1],
@@ -46,7 +48,23 @@ const view = (v: V3, lon0: number, lat0: number): V3 => {
 };
 
 export type GlobeArc = { from: CityId; to: CityId; p: number; color?: string; width?: number; lift?: number };
-export type GlobeNode = { city: CityId; a: number; color?: string; label?: string; pulse?: number; size?: number; labelSide?: "l" | "r" };
+export type GlobeNode = {
+  city: CityId;
+  a: number;
+  color?: string;
+  label?: string;
+  pulse?: number;
+  size?: number;
+  labelSide?: "l" | "r";
+  /** nudge the label away from the dot (px); a leader line is drawn when it is moved vertically */
+  dx?: number;
+  dy?: number;
+  labelSize?: number;
+  labelFont?: string;
+  labelColor?: string;
+  /** small second line under the label */
+  sub?: string;
+};
 
 export const Globe: React.FC<{
   cx: number;
@@ -141,31 +159,51 @@ export const Globe: React.FC<{
     );
   });
 
-  const nodeEls = nodes.map((n, i) => {
-    if (n.a <= 0) return null;
-    const p = view(vec(CITIES[n.city][0], CITIES[n.city][1]), lon, lat);
-    if (p[2] <= 0.03) return null;
-    const x = cx + p[0] * r;
-    const y = cy - p[1] * r;
+  const placed = nodes
+    .map((n) => {
+      if (n.a <= 0) return null;
+      const p = view(vec(CITIES[n.city][0], CITIES[n.city][1]), lon, lat);
+      if (p[2] <= 0.03) return null;
+      return { n, x: cx + p[0] * r, y: cy - p[1] * r, z: p[2], sz: (n.size ?? 9) * (0.75 + 0.25 * p[2]), fade: n.a * clamp(p[2] * 5) };
+    })
+    .filter((q): q is NonNullable<typeof q> => q !== null);
+
+  const nodeEls = placed.map(({ n, x, y, sz, fade }, i) => {
     const col = n.color ?? C.green;
-    const sz = (n.size ?? 9) * (0.75 + 0.25 * p[2]);
     const pulse = n.pulse ?? 0;
-    const fade = n.a * clamp(p[2] * 5);
-    const right = (n.labelSide ?? "r") === "r";
     return (
       <g key={i} opacity={fade}>
         {pulse > 0 && pulse < 1 ? <circle cx={x} cy={y} r={sz + pulse * 46} fill="none" stroke={col} strokeWidth={3} opacity={(1 - pulse) * 0.9} /> : null}
         <circle cx={x} cy={y} r={sz * 2.1} fill={col} opacity={0.25} />
         <circle cx={x} cy={y} r={sz} fill={col} />
         <circle cx={x} cy={y} r={sz * 0.42} fill="#fff" opacity={0.9} />
-        {n.label ? (
+      </g>
+    );
+  });
+
+  const labelEls = placed.map(({ n, x, y, sz, fade }, i) => {
+    if (!n.label) return null;
+    const right = (n.labelSide ?? "r") === "r";
+    const big = n.labelSize ?? 23;
+    return (
+      <g key={i} opacity={fade}>
+        {n.dy ? <line x1={x} y1={y} x2={x + (right ? sz + 8 : -sz - 8) + (n.dx ?? 0)} y2={y + n.dy} stroke="#fff" strokeOpacity={0.55} strokeWidth={1.6} /> : null}
+        <text
+          x={x + (right ? sz + 12 : -sz - 12) + (n.dx ?? 0)}
+          y={y + big * 0.36 + (n.dy ?? 0)}
+          textAnchor={right ? "start" : "end"}
+          style={{ fontFamily: n.labelFont ?? F.sans, fontWeight: 800, fontSize: big, letterSpacing: n.labelFont ? 1 : 2, fill: n.labelColor ?? "#fff", paintOrder: "stroke", stroke: "rgba(8,8,9,.88)", strokeWidth: 7 }}
+        >
+          {n.label}
+        </text>
+        {n.sub ? (
           <text
-            x={x + (right ? sz + 12 : -sz - 12)}
-            y={y + 8}
+            x={x + (right ? sz + 12 : -sz - 12) + (n.dx ?? 0)}
+            y={y + big * 0.36 + (n.dy ?? 0) + 24}
             textAnchor={right ? "start" : "end"}
-            style={{ fontFamily: F.sans, fontWeight: 800, fontSize: 23, letterSpacing: 2, fill: "#fff", paintOrder: "stroke", stroke: "rgba(8,8,9,.85)", strokeWidth: 6 }}
+            style={{ fontFamily: F.sans, fontWeight: 700, fontSize: 17, letterSpacing: 2, fill: "#fff", opacity: 0.8, paintOrder: "stroke", stroke: "rgba(8,8,9,.88)", strokeWidth: 6 }}
           >
-            {n.label}
+            {n.sub}
           </text>
         ) : null}
       </g>
@@ -203,6 +241,7 @@ export const Globe: React.FC<{
       <circle cx={cx} cy={cy} r={r} fill="none" stroke={C.paper} strokeOpacity={0.22} strokeWidth={1.5} />
       {arcEls}
       {nodeEls}
+      {labelEls}
     </svg>
   );
 };
