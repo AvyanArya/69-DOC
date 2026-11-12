@@ -12,8 +12,8 @@ export const Watermark: React.FC = () => {
   const a = prog(t, 0.35, 0.9) * (1 - prog(t, cue("outro.start") - 0.6, cue("outro.start") - 0.1));
   if (a <= 0) return null;
   return (
-    <div style={{ position: "absolute", right: 38, bottom: 300, opacity: 0.74 * a, filter: "drop-shadow(0 2px 6px rgba(0,0,0,.85))", pointerEvents: "none" }}>
-      <Logo id="B" compact size={0.78} />
+    <div style={{ position: "absolute", right: 34, bottom: 140, opacity: 0.8 * a, filter: "drop-shadow(0 2px 6px rgba(0,0,0,.85))", pointerEvents: "none" }}>
+      <Logo id="B" compact size={1.1} />
     </div>
   );
 };
