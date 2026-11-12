@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cookies & storage | Lumera</title>
-<meta name="description" content="Lumera sets no cookies. Here is what it does store, and what it loads from elsewhere.">
+<meta name="description" content="Lumera sets one cookie, to keep you logged in. Here is what it stores in your browser, and what it loads from elsewhere.">
 <link rel="icon" type="image/png" href="assets/brand/favicon-64.png">
 <link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png">
 <meta name="theme-color" content="#0E0D14">
@@ -1279,7 +1279,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
         
         <div class="hero-text">
         <h1 class="page-title">Cookies <span class="grad">& storage</span></h1>
-        <p class="page-lede">Lumera sets no cookies at all. It does keep your figures on your own device, and it can load fonts and video from other companies, so both are explained here.</p>
+        <p class="page-lede">Lumera sets one cookie, to keep you logged in, and no tracking of any kind. Your figures are stored encrypted on our servers; a few preferences live in your browser. All of it is listed here.</p>
         <div class="page-actions"><a class="hero-secondary liquid-glass" style="padding:1rem 1.9rem" href="privacy.html">Privacy Policy</a></div>
         </div>
     </div>
@@ -1315,7 +1315,9 @@ use them; it is saved to your account and cleared when you log out</td></tr>
 <tr><td>Dismissed prompts</td><td><code>lumera_streak_snooze</code>, <code>lumera_seen_update</code></td><td>So a prompt you closed stays closed</td></tr>
 <tr><td>Pages opened in this browser</td><td><code>lumera_analytics</code></td><td>A count of the pages you open, kept only in
 this browser for the app&rsquo;s own activity view. It is never sent to us</td></tr>
-<tr><td>Your choice about the video</td><td><code>lumera_consent_thirdparty</code></td><td>Remembers whether you switched it off</td></tr>
+<tr><td>Chats with Lumi</td><td><code>lumera_chats</code></td><td>Your assistant conversations, kept only in this browser so you can reread them. Cleared when you log out</td></tr>
+<tr><td>Translations</td><td><code>lumera_mt_&hellip;</code></td><td>Interface text already translated into your language, so it is not fetched again</td></tr>
+<tr><td>Your choice about the video</td><td><code>lumera_video_choice</code></td><td>Remembers whether you switched it off</td></tr>
 </table>
 <p>None of this is sent anywhere. If you use an offline copy of Lumera opened from a file, your
 profile and figures are also kept here, under <code>lumera_v2</code> and <code>lumera_accounts</code>.</p>
@@ -1408,7 +1410,10 @@ loads, and this page will be rewritten.</p>
    cookie is involved: the preference is first-party local storage.
    ============================================================ */
 (function () {
-    var KEY = 'lumera_consent_thirdparty';
+    // A choice made from the Cookies page. (lumera_consent_thirdparty was the
+    // old pop-up's key; it is cleared so a stale choice cannot hide the video.)
+    var KEY = 'lumera_video_choice';
+    try { localStorage.removeItem('lumera_consent_thirdparty'); } catch (e) {}
     var box = document.getElementById('consent');
 
     function read() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
@@ -1424,11 +1429,10 @@ loads, and this page will be rewritten.</p>
         write(answer);
         if (box) box.removeAttribute('data-open');
         if (answer === 'no') disableThirdParty();
+        else if (answer === 'yes') { var v = document.getElementById('bgVideo'); if (v && !v.getAttribute('src')) { v.src = v.getAttribute('data-src'); v.style.display = ''; document.documentElement.removeAttribute('data-thirdparty'); } }
     }
 
-    var saved = read();
-    // The notice is gone, so an old 'Turn it off' choice can't be undone: forget it.
-    if (saved) { try { localStorage.removeItem(KEY); } catch (e) {} }
+    if (read() === 'no') disableThirdParty();
 
     if (box) {
         box.querySelectorAll('[data-consent]').forEach(function (b) {

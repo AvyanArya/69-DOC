@@ -77,6 +77,8 @@ Questions go to %(contact)s.</p>
 <tr><td>Names of subscriptions you add</td><td>Our servers, with your figures; the company name also goes into a shared, anonymous list of company logos</td><td>To show the right logo</td></tr>
 <tr><td>Paid plans you ask to hear about, if you press <em>Notify me</em> on the pricing page</td><td>Our servers, with your email address</td><td>To email you once when that plan launches. Leave the waitlist from the same button at any time</td></tr>
 <tr><td>Error reports if the app crashes: the error message, the page and the browser type</td><td>Our servers</td><td>To find and fix faults. Never includes your figures</td></tr>
+<tr><td>Feedback you send with the <em>Feedback</em> button: the message, the page you were on, your browser type, and your account or the contact you type</td><td>Our servers</td><td>To fix problems and improve Lumera. Read only by the Lumera team</td></tr>
+<tr><td>If you ask to reset your password: a one-time link, stored only as a hash and valid for an hour</td><td>Our servers; the email goes through our email provider</td><td>To let you choose a new password</td></tr>
 <tr><td>Your IP address and request details</td><td>Seen by our hosting provider, and briefly held in memory to limit repeated login attempts</td><td>Unavoidable part of delivering the service and keeping it secure</td></tr>
 </table>
 <p>We do not ask for your bank login, card number, national insurance or social security number,
@@ -104,9 +106,10 @@ keeping the service safe and working. Community posts are published because you 
 <table>
 <tr><th>Service</th><th>What it receives</th><th>When</th></tr>
 <tr><td>Our hosting provider (%(host)s)</td><td>Your IP address and request details, and the encrypted data we store</td><td>Whenever you use Lumera</td></tr>
-<tr><td>Amazon CloudFront</td><td>Your IP address</td><td>When the background video on the home page loads, unless you switch it off</td></tr>
+<tr><td>Amazon CloudFront</td><td>Your IP address</td><td>When the background video on the home page loads</td></tr>
+<tr><td>Email provider (Resend)</td><td>Your email address, name and the reset link</td><td>Only when you ask for a password reset</td></tr>
 <tr><td>Exchange-rate API (open.er-api.com)</td><td>A request for currency rates. No personal data, no figures</td><td>Inside the app, when rates refresh</td></tr>
-<tr><td>Translation API (Google Translate, MyMemory)</td><td>The interface text being translated. Do not use translation on anything private</td><td>Inside the app, when you switch language</td></tr>
+<tr><td>Translation API (Google Translate, MyMemory)</td><td>Interface text only. Lumera never sends amounts or other figures, your name or email, or other members&rsquo; posts. You can switch automatic translation off in Settings</td><td>Inside the app, when you switch language</td></tr>
 <tr><td>Logo services (Logo.dev, Brandfetch, DuckDuckGo, Google)</td><td>A company name or website, sent <strong>by our server</strong>. When you use Lumera with an account they do not receive your IP address or anything about you. In the offline copy, or if our server is unavailable, your browser asks Google&rsquo;s or DuckDuckGo&rsquo;s public icon service for the company&rsquo;s website icon directly, which shows them your IP address and that website name</td><td>The first time anyone adds a subscription from a company we do not have a logo for</td></tr>
 </table>
 <p>We do not sell, rent, share or broker your data, and we do not run advertising.</p>
@@ -261,7 +264,9 @@ use them; it is saved to your account and cleared when you log out</td></tr>
 <tr><td>Dismissed prompts</td><td><code>lumera_streak_snooze</code>, <code>lumera_seen_update</code></td><td>So a prompt you closed stays closed</td></tr>
 <tr><td>Pages opened in this browser</td><td><code>lumera_analytics</code></td><td>A count of the pages you open, kept only in
 this browser for the app&rsquo;s own activity view. It is never sent to us</td></tr>
-<tr><td>Your choice about the video</td><td><code>lumera_consent_thirdparty</code></td><td>Remembers whether you switched it off</td></tr>
+<tr><td>Chats with Lumi</td><td><code>lumera_chats</code></td><td>Your assistant conversations, kept only in this browser so you can reread them. Cleared when you log out</td></tr>
+<tr><td>Translations</td><td><code>lumera_mt_&hellip;</code></td><td>Interface text already translated into your language, so it is not fetched again</td></tr>
+<tr><td>Your choice about the video</td><td><code>lumera_video_choice</code></td><td>Remembers whether you switched it off</td></tr>
 </table>
 <p>None of this is sent anywhere. If you use an offline copy of Lumera opened from a file, your
 profile and figures are also kept here, under <code>lumera_v2</code> and <code>lumera_accounts</code>.</p>

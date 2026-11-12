@@ -9,6 +9,8 @@ class HttpError extends Error {
   }
 }
 const fail = (status, message, code) => { throw new HttpError(status, message, code); };
+// A malformed %-escape in a URL is the client's mistake, not a server error.
+const safeDecode = (s) => { try { return decodeURIComponent(s); } catch (e) { return fail(400, 'Malformed URL.'); } };
 
 function createRouter() {
   const routes = [];
@@ -25,7 +27,7 @@ function createRouter() {
       pathMatched = true;
       if (r.method !== method) continue;
       const params = {};
-      r.keys.forEach((k, i) => { params[k] = decodeURIComponent(m[i + 1]); });
+      r.keys.forEach((k, i) => { params[k] = safeDecode(m[i + 1]); });
       return { route: r, params };
     }
     return pathMatched ? { methodNotAllowed: true } : null;
@@ -82,7 +84,8 @@ function parseCookies(header) {
     const i = part.indexOf('=');
     if (i < 0) return;
     const k = part.slice(0, i).trim();
-    if (k) out[k] = decodeURIComponent(part.slice(i + 1).trim());
+    if (!k) return;
+    try { out[k] = decodeURIComponent(part.slice(i + 1).trim()); } catch (e) { /* ignore a malformed cookie */ }
   });
   return out;
 }
@@ -96,13 +99,19 @@ function cookie(name, value, { maxAge, secure }) {
 
 // Fixed-window counters per client and bucket. Enough to blunt password
 // guessing and spam from one address; put a real limiter in front for scale.
+// The map is capped so a flood of distinct addresses cannot exhaust memory.
+const LIMITER_MAX_KEYS = 100000;
 function createLimiter() {
   const hits = new Map();
   setInterval(() => { const now = Date.now(); for (const [k, v] of hits) if (v.reset < now) hits.delete(k); }, 60000).unref();
   return (key, max, windowMs) => {
     const now = Date.now();
     const v = hits.get(key);
-    if (!v || v.reset < now) { hits.set(key, { n: 1, reset: now + windowMs }); return true; }
+    if (!v || v.reset < now) {
+      if (hits.size >= LIMITER_MAX_KEYS) hits.delete(hits.keys().next().value);
+      hits.set(key, { n: 1, reset: now + windowMs });
+      return true;
+    }
     v.n += 1;
     return v.n <= max;
   };
@@ -126,6 +135,19 @@ const intId = (v) => {
   if (!Number.isInteger(n) || n <= 0) fail(400, 'Invalid id.');
   return n;
 };
+// New passwords: 10 to 200 characters, and not one of the passwords that
+// appear first in every leaked-password list.
+const COMMON_PASSWORDS = new Set(['1234567890', '12345678910', '0123456789', 'password12', 'password123',
+  'password1234', 'qwertyuiop', 'iloveyou12', '1q2w3e4r5t', 'qwerty1234', 'qwerty12345', 'abcdefghij',
+  'aaaaaaaaaa', '1111111111', 'letmein123', 'welcome123', 'football12', 'lumera1234', 'lumera12345']);
+const newPassword = (v) => {
+  const s = typeof v === 'string' ? v : '';
+  if (s.length < 10) fail(400, 'Use a password of at least 10 characters.');
+  if (s.length > 200) fail(400, 'That password is too long.');
+  if (COMMON_PASSWORDS.has(s.toLowerCase()) || /^(.)\1+$/.test(s)) fail(400, 'That password is too easy to guess. Try a short phrase instead.');
+  return s;
+};
+
 // Only https links to LinkedIn are accepted where the UI asks for LinkedIn.
 const linkedin = (v) => {
   const s = typeof v === 'string' ? v.trim() : '';
@@ -137,4 +159,4 @@ const linkedin = (v) => {
   return u.toString();
 };
 
-module.exports = { HttpError, fail, createRouter, readJson, send, parseCookies, cookie, createLimiter, str, email, intId, linkedin };
+module.exports = { HttpError, fail, safeDecode, createRouter, readJson, send, parseCookies, cookie, createLimiter, str, email, intId, linkedin, newPassword };

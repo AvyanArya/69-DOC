@@ -17,13 +17,26 @@ function readConfig(db) {
   return out;
 }
 
-function register(router, { db, companies, limit, version, requireUser }) {
+function register(router, { db, config, mailer, companies, limit, version, requireUser }) {
+  // Used by the host's health check and by the app to find the server.
+  // 503 if the database cannot be read, so a broken instance is taken out.
   router.get('/api/health', async (ctx) => {
-    send(ctx.res, 200, { ok: true, service: 'lumera', version, time: Date.now() });
+    let dbOk = true;
+    try { db.prepare('SELECT 1').get(); } catch (e) { dbOk = false; }
+    send(ctx.res, dbOk ? 200 : 503, { ok: dbOk, service: 'lumera', version, env: config.APP_ENV, time: Date.now() });
   });
 
+  // Admin-managed content, plus the server features the app should show.
   router.get('/api/config', async (ctx) => {
-    send(ctx.res, 200, readConfig(db), { 'Cache-Control': 'no-cache' });
+    send(ctx.res, 200, {
+      ...readConfig(db),
+      server: {
+        env: config.APP_ENV,
+        mail: mailer.enabled,
+        feedback: config.FEEDBACK_ENABLED,
+        supportEmail: config.SUPPORT_EMAIL || null,
+      },
+    }, { 'Cache-Control': 'no-cache' });
   });
 
   // Lookups can trigger outbound requests, so they need a signed-in member.

@@ -1406,7 +1406,10 @@ pre-contract information shown at checkout. Delete this note once that is in pla
    cookie is involved: the preference is first-party local storage.
    ============================================================ */
 (function () {
-    var KEY = 'lumera_consent_thirdparty';
+    // A choice made from the Cookies page. (lumera_consent_thirdparty was the
+    // old pop-up's key; it is cleared so a stale choice cannot hide the video.)
+    var KEY = 'lumera_video_choice';
+    try { localStorage.removeItem('lumera_consent_thirdparty'); } catch (e) {}
     var box = document.getElementById('consent');
 
     function read() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
@@ -1422,11 +1425,10 @@ pre-contract information shown at checkout. Delete this note once that is in pla
         write(answer);
         if (box) box.removeAttribute('data-open');
         if (answer === 'no') disableThirdParty();
+        else if (answer === 'yes') { var v = document.getElementById('bgVideo'); if (v && !v.getAttribute('src')) { v.src = v.getAttribute('data-src'); v.style.display = ''; document.documentElement.removeAttribute('data-thirdparty'); } }
     }
 
-    var saved = read();
-    // The notice is gone, so an old 'Turn it off' choice can't be undone: forget it.
-    if (saved) { try { localStorage.removeItem(KEY); } catch (e) {} }
+    if (read() === 'no') disableThirdParty();
 
     if (box) {
         box.querySelectorAll('[data-consent]').forEach(function (b) {

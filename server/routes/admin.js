@@ -4,7 +4,7 @@ const { fail, send, readJson, str, intId } = require('../http');
 const { readConfig, CONFIG_KEYS } = require('./public');
 const { newToken, tokenId } = require('../security');
 
-function register(router, { db, requireAdmin, companies, audit }) {
+function register(router, { db, config, requireAdmin, companies, audit, mailer }) {
   const n = (sql, ...a) => db.prepare(sql).get(...a).n;
 
   router.get('/api/admin/overview', requireAdmin, async (ctx) => {
@@ -21,6 +21,8 @@ function register(router, { db, requireAdmin, companies, audit }) {
       openErrors: n("SELECT COUNT(*) AS n FROM reports WHERE status = 'open' AND kind = 'error'"),
       companies: n('SELECT COUNT(*) AS n FROM companies'),
       companiesMissing: n("SELECT COUNT(*) AS n FROM companies WHERE status = 'missing'"),
+      openFeedback: n("SELECT COUNT(*) AS n FROM feedback WHERE status = 'open'"),
+      server: { env: config.APP_ENV, mail: mailer.enabled, feedback: config.FEEDBACK_ENABLED, sitePassword: !!config.SITE_PASSWORD },
       waitlist: db.prepare('SELECT plan, COUNT(*) AS n FROM waitlist GROUP BY plan').all()
         .reduce((o, r) => { o[r.plan] = r.n; return o; }, {}),
     });
@@ -74,7 +76,14 @@ function register(router, { db, requireAdmin, companies, audit }) {
     db.prepare('INSERT INTO password_resets (id, user_id, created_by, created_at, expires_at) VALUES (?, ?, ?, ?, ?)')
       .run(tokenId(token), id, ctx.user.id, now, now + 3600e3);
     audit(ctx.user.id, 'user.reset-link', u.email);
-    send(ctx.res, 200, { path: '/app.html#/reset?token=' + token, expiresAt: now + 3600e3 });
+    const pathAndHash = '/app.html#/reset?token=' + token;
+    let emailed = false;
+    if (mailer.enabled) {
+      const full = db.prepare('SELECT name, email FROM users WHERE id = ?').get(id);
+      const m = mailer.resetEmail({ name: full.name, url: mailer.link(pathAndHash), minutes: 60 });
+      emailed = (await mailer.send({ to: full.email, ...m })).sent;
+    }
+    send(ctx.res, 200, { path: pathAndHash, expiresAt: now + 3600e3, emailed });
   });
 
   router.delete('/api/admin/users/:id', requireAdmin, async (ctx) => {
@@ -111,7 +120,7 @@ function register(router, { db, requireAdmin, companies, audit }) {
 
   router.delete('/api/admin/posts/:id', requireAdmin, async (ctx) => {
     const id = intId(ctx.params.id);
-    db.prepare('DELETE FROM posts WHERE id = ?').run(id);
+    if (!db.prepare('DELETE FROM posts WHERE id = ?').run(id).changes) fail(404, 'No such post.');
     db.prepare("UPDATE reports SET status = 'resolved', resolved_at = ? WHERE kind = 'post' AND target_id = ? AND status = 'open'").run(Date.now(), id);
     audit(ctx.user.id, 'post.delete', String(id));
     send(ctx.res, 200, { ok: true });
@@ -134,7 +143,7 @@ function register(router, { db, requireAdmin, companies, audit }) {
     const id = intId(ctx.params.id);
     const b = await readJson(ctx.req);
     const status = b.status === 'open' ? 'open' : 'resolved';
-    db.prepare('UPDATE reports SET status = ?, resolved_at = ? WHERE id = ?').run(status, status === 'resolved' ? Date.now() : null, id);
+    if (!db.prepare('UPDATE reports SET status = ?, resolved_at = ? WHERE id = ?').run(status, status === 'resolved' ? Date.now() : null, id).changes) fail(404, 'No such report.');
     if (b.hideTarget) {
       const r = db.prepare('SELECT kind, target_id FROM reports WHERE id = ?').get(id);
       if (r && r.kind === 'post') db.prepare('UPDATE posts SET hidden = 1 WHERE id = ?').run(r.target_id);
@@ -203,6 +212,25 @@ function register(router, { db, requireAdmin, companies, audit }) {
       audit(ctx.user.id, 'config.' + k, '');
     }
     send(ctx.res, 200, readConfig(db));
+  });
+
+  // ---- team feedback ----
+  router.get('/api/admin/feedback', requireAdmin, async (ctx) => {
+    const status = ctx.query.get('status') === 'resolved' ? 'resolved' : 'open';
+    const rows = db.prepare(`SELECT f.id, f.kind, f.message, f.page, f.contact, f.user_agent, f.status, f.created_at,
+        f.resolved_at, u.email, u.name FROM feedback f LEFT JOIN users u ON u.id = f.user_id
+      WHERE f.status = ? ORDER BY f.id DESC LIMIT 300`).all(status);
+    send(ctx.res, 200, { feedback: rows });
+  });
+
+  router.patch('/api/admin/feedback/:id', requireAdmin, async (ctx) => {
+    const id = intId(ctx.params.id);
+    const b = await readJson(ctx.req);
+    const status = b.status === 'open' ? 'open' : 'resolved';
+    const r = db.prepare('UPDATE feedback SET status = ?, resolved_at = ? WHERE id = ?').run(status, status === 'resolved' ? Date.now() : null, id);
+    if (!r.changes) fail(404, 'No such feedback.');
+    audit(ctx.user.id, 'feedback.' + status, String(id));
+    send(ctx.res, 200, { ok: true });
   });
 
   router.get('/api/admin/audit', requireAdmin, async (ctx) => {

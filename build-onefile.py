@@ -11,6 +11,10 @@ folder to keep together. Run after build-site.py:
 
 import base64
 import os
+import importlib.util as _ilu
+_spec = _ilu.spec_from_file_location('build_app', os.path.join(os.path.dirname(os.path.abspath(__file__)), 'build-app.py'))
+APPBUILD = _ilu.module_from_spec(_spec)
+_spec.loader.exec_module(APPBUILD)
 import re
 import sys
 
@@ -169,7 +173,7 @@ def compile_jsx(source):
         "const code=fs.readFileSync(%s,'utf8');"
         "const out=babel.transform(code,{presets:['react'],compact:false,comments:false}).code;"
         "fs.writeFileSync(%s,out);"
-        % (json.dumps(os.path.join(ROOT, '_vendor', 'babel.js')),
+        % (json.dumps(os.path.join(ROOT, 'node_modules', '@babel', 'standalone', 'babel.min.js')),
            json.dumps(src_path), json.dumps(out_path))
     )
     subprocess.run(['node', '-e', script], check=True, cwd=ROOT,
@@ -281,16 +285,22 @@ window.__SS = (function () {
     # Inline the runtime the app loads from a CDN. A file opened from disk
     # cannot always reach the network, and a blob: document has no base URL
     # to resolve a relative fallback against, so the libraries travel with it.
+    # Tailwind is compiled to CSS at build time (the same way as the hosted
+    # app, see build-app.py) instead of shipping its in-browser compiler.
+    tw = re.search(r'<!-- Tailwind \(Play CDN\) -->\s*<script src="https://cdn\.tailwindcss\.com"></script>\s*'
+                   r'<script>\s*tailwind\.config\s*=\s*(\{.*?\n  \})\s*</script>\n?', doc, re.S)
+    if tw:
+        css = APPBUILD.compile_css(doc, tw.group(1))
+        doc = doc[:tw.start()] + doc[tw.end():]
+        doc = doc.replace('</head>', '<style>' + css + '</style>\n</head>', 1)
+    nm = os.path.join(ROOT, 'node_modules')
     vendor = [
-        (r'<script crossorigin src="https://unpkg\.com/react@[^"]*"[^>]*></script>', 'react.js'),
-        (r'<script crossorigin src="https://unpkg\.com/react-dom@[^"]*"[^>]*></script>', 'react-dom.js'),
-        (r'<script src="https://unpkg\.com/@babel/standalone[^"]*"[^>]*></script>', 'babel.js'),
-        (r'<script src="https://cdn\.tailwindcss\.com[^"]*"></script>', 'tailwind.js'),
+        (r'<script crossorigin src="https://unpkg\.com/react@[^"]*"[^>]*></script>', os.path.join(nm, 'react', 'umd', 'react.production.min.js')),
+        (r'<script crossorigin src="https://unpkg\.com/react-dom@[^"]*"[^>]*></script>', os.path.join(nm, 'react-dom', 'umd', 'react-dom.production.min.js')),
     ]
-    for pattern, lib in vendor:
-        path = os.path.join(ROOT, '_vendor', lib)
+    for pattern, path in vendor:
         if not os.path.exists(path):
-            continue
+            raise SystemExit('build-onefile.py: %s is missing. Run `npm ci` first.' % os.path.relpath(path, ROOT))
         # Library sources contain both "</script>" and "<script>" inside string
         # literals. Either one ends the tag they are inlined into as far as the
         # HTML parser is concerned, which silently drops the rest of the file.

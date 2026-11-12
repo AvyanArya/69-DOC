@@ -1286,14 +1286,14 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
 </div>
 
 <main class="rest" id="main">
-    <section class="section tight"><div class="grid-3"><div class="panel lg-panel reveal"><div class="plan-head"><h3 style="margin:0">Free</h3><span class="pill now">Current</span></div><p>Available now</p><ul class="plan-list"><li>Monthly expense review</li><li>Financial health score</li><li>Budget &amp; savings tools</li><li>Market news</li><li>Limited AI assistant</li></ul></div><div class="panel lg-panel reveal"><div class="plan-head"><h3 style="margin:0">Pro</h3><span class="pill">Future</span></div><p>Coming soon</p><ul class="plan-list"><li>Advanced AI coach</li><li>Unlimited simulations</li><li>Full benchmark analytics</li><li>Monthly reports</li><li>Subscription &amp; debt tools</li></ul></div><div class="panel lg-panel reveal"><div class="plan-head"><h3 style="margin:0">Premium</h3><span class="pill">Future</span></div><p>Coming soon</p><ul class="plan-list"><li>Portfolio analytics</li><li>Family budgeting</li><li>Tax optimisation</li><li>Priority AI</li><li>Advisor-ready summaries</li></ul></div></div></section>
+    <section class="section tight"><div class="grid-3"><div class="panel lg-panel reveal"><div class="plan-head"><h3 style="margin:0">Free</h3><span class="pill now">Current</span></div><p>Available now</p><ul class="plan-list"><li>Monthly expense review</li><li>Financial health score</li><li>Budget &amp; savings tools</li><li>Subscription leak detector</li><li>Lumi, your money assistant</li></ul></div><div class="panel lg-panel reveal"><div class="plan-head"><h3 style="margin:0">Pro</h3><span class="pill">Future</span></div><p>Coming soon</p><ul class="plan-list"><li>Advanced AI coach</li><li>Unlimited simulations</li><li>Full benchmark analytics</li><li>Monthly reports</li><li>Subscription &amp; debt tools</li></ul></div><div class="panel lg-panel reveal"><div class="plan-head"><h3 style="margin:0">Premium</h3><span class="pill">Future</span></div><p>Coming soon</p><ul class="plan-list"><li>Portfolio analytics</li><li>Family budgeting</li><li>Tax optimisation</li><li>Priority AI</li><li>Advisor-ready summaries</li></ul></div></div></section>
     <section class="section">
         <div class="sec-head left reveal">
             <div class="eyebrow">Questions</div>
             <h2 class="sec-title">The things people <span class="grad">ask first</span></h2>
             
         </div>
-        <div class="grid-2"><div class="panel lg-panel reveal"><h3>Is the free plan really free?</h3><p>Yes. Every tool listed under Free is available now, with no card and no trial clock.</p></div><div class="panel lg-panel reveal"><h3>Do I need to connect my bank?</h3><p>No. Lumera never asks for banking credentials. You enter what you want it to see.</p></div><div class="panel lg-panel reveal"><h3>Is this financial advice?</h3><p>No. Lumera is educational: it explains, benchmarks and projects, but never recommends a product.</p></div><div class="panel lg-panel reveal"><h3>What happens to my data?</h3><p>It lives in your browser. You can export or delete everything at any time.</p></div></div>
+        <div class="grid-2"><div class="panel lg-panel reveal"><h3>Is the free plan really free?</h3><p>Yes. Every tool listed under Free is available now, with no card and no trial clock.</p></div><div class="panel lg-panel reveal"><h3>Do I need to connect my bank?</h3><p>No. Lumera never asks for banking credentials. You enter what you want it to see.</p></div><div class="panel lg-panel reveal"><h3>Is this financial advice?</h3><p>No. Lumera is educational: it explains, benchmarks and projects, but never recommends a product.</p></div><div class="panel lg-panel reveal"><h3>What happens to my data?</h3><p>Your figures are stored encrypted on our servers so they follow you between devices. You can export or delete everything at any time from Settings.</p></div></div>
     </section>
 
 
@@ -1371,7 +1371,10 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
    cookie is involved: the preference is first-party local storage.
    ============================================================ */
 (function () {
-    var KEY = 'lumera_consent_thirdparty';
+    // A choice made from the Cookies page. (lumera_consent_thirdparty was the
+    // old pop-up's key; it is cleared so a stale choice cannot hide the video.)
+    var KEY = 'lumera_video_choice';
+    try { localStorage.removeItem('lumera_consent_thirdparty'); } catch (e) {}
     var box = document.getElementById('consent');
 
     function read() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
@@ -1387,11 +1390,10 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
         write(answer);
         if (box) box.removeAttribute('data-open');
         if (answer === 'no') disableThirdParty();
+        else if (answer === 'yes') { var v = document.getElementById('bgVideo'); if (v && !v.getAttribute('src')) { v.src = v.getAttribute('data-src'); v.style.display = ''; document.documentElement.removeAttribute('data-thirdparty'); } }
     }
 
-    var saved = read();
-    // The notice is gone, so an old 'Turn it off' choice can't be undone: forget it.
-    if (saved) { try { localStorage.removeItem(KEY); } catch (e) {} }
+    if (read() === 'no') disableThirdParty();
 
     if (box) {
         box.querySelectorAll('[data-consent]').forEach(function (b) {

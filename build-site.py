@@ -550,7 +550,7 @@ def build():
         actions=[('Start free', 'app.html#/signup', True), ('See the features', 'features.html', False)]))
 
     PLANS = [('Free', 'Available now', True,
-              ['Monthly expense review', 'Financial health score', 'Budget &amp; savings tools', 'Market news', 'Limited AI assistant']),
+              ['Monthly expense review', 'Financial health score', 'Budget &amp; savings tools', 'Subscription leak detector', 'Lumi, your money assistant']),
              ('Pro', 'Coming soon', False,
               ['Advanced AI coach', 'Unlimited simulations', 'Full benchmark analytics', 'Monthly reports', 'Subscription &amp; debt tools']),
              ('Premium', 'Coming soon', False,
@@ -569,7 +569,7 @@ def build():
               panels([('Is the free plan really free?', 'Yes. Every tool listed under Free is available now, with no card and no trial clock.'),
                       ('Do I need to connect my bank?', 'No. Lumera never asks for banking credentials. You enter what you want it to see.'),
                       ('Is this financial advice?', 'No. Lumera is educational: it explains, benchmarks and projects, but never recommends a product.'),
-                      ('What happens to my data?', 'It lives in your browser. You can export or delete everything at any time.')], 2)),
+                      ('What happens to my data?', 'Your figures are stored encrypted on our servers so they follow you between devices. You can export or delete everything at any time from Settings.')], 2)),
         actions=[('Start free', 'app.html#/signup', True), ('Open the app', 'app.html#/login', False)]))
 
     # ---- legal ----
@@ -592,11 +592,11 @@ def build():
         actions=[('Privacy Policy', 'privacy.html', False), ('Refunds', 'refunds.html', False)]))
 
     made.append(page('cookies.html', 'Cookies & storage | Lumera',
-        'Lumera sets no cookies. Here is what it does store, and what it loads from elsewhere.',
+        'Lumera sets one cookie, to keep you logged in. Here is what it stores in your browser, and what it loads from elsewhere.',
         ('#0f766e', '#14b8a6', '#5eead4'),
         'Cookies', '& storage',
-        'Lumera sets no cookies at all. It does keep your figures on your own device, and it can '
-        'load fonts and video from other companies, so both are explained here.',
+        'Lumera sets one cookie, to keep you logged in, and no tracking of any kind. Your figures are '
+        'stored encrypted on our servers; a few preferences live in your browser. All of it is listed here.',
         '    <section class="section tight">' + _legal.COOKIES + '</section>\n',
         actions=[('Privacy Policy', 'privacy.html', False)]))
 
@@ -608,6 +608,17 @@ def build():
         'terms that will apply if the paid plans launch.',
         '    <section class="section tight">' + _legal.REFUNDS + '</section>\n',
         actions=[('Pricing', 'pricing.html', False), ('Terms', 'terms.html', False)]))
+
+    # ---- 404: served for any unknown address, so links are root-relative ----
+    made.append(page('404.html', 'Page not found | Lumera', 'That page does not exist.',
+        ('#6d28d9', '#8b5cf6', '#c4b5fd'),
+        'This page', 'is not here',
+        'The link may be old, or the address mistyped. Everything Lumera has is one click away.',
+        '',
+        actions=[('Go to the home page', 'index.html', True), ('Open the app', 'app.html', False)]))
+    p404 = os.path.join(ROOT, '404.html')
+    html = open(p404).read().replace('<head>', '<head>\n<base href="/">\n<meta name="robots" content="noindex">', 1)
+    open(p404, 'w').write(html)
 
     return made
 

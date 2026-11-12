@@ -1,7 +1,7 @@
 'use strict';
 // The signed-in member's own data: questionnaire answers and figures
 // (encrypted at rest), export, password change and account deletion.
-const { fail, send, readJson } = require('../http');
+const { fail, send, readJson, newPassword } = require('../http');
 const { encrypt, decrypt, hashPassword, verifyPassword } = require('../security');
 const { userView } = require('./auth');
 
@@ -12,7 +12,12 @@ const STATE_KEYS = ['profile', 'expenses', 'balances', 'onboarded', 'lastUpdated
 // Paid plans a member can ask to hear about. Admins see the list in the portal.
 const PLANS = ['Pro', 'Premium'];
 
-function register(router, { db, key, requireUser }) {
+function register(router, { db, key, limit, requireUser }) {
+  // Password checks are deliberately slow (scrypt), so they are rate limited
+  // per account as well as being behind a session.
+  const slow = (ctx, bucket) => {
+    if (!limit(`${bucket}:${ctx.user.id}`, 10, 15 * 60e3)) fail(429, 'Too many attempts. Please wait a few minutes.');
+  };
   const readState = (userId) => {
     const row = db.prepare('SELECT payload, updated_at FROM user_state WHERE user_id = ?').get(userId);
     if (!row) return { state: null, updatedAt: 0 };
@@ -68,10 +73,10 @@ function register(router, { db, key, requireUser }) {
   });
 
   router.put('/api/me/password', requireUser, async (ctx) => {
+    slow(ctx, 'pw');
     const b = await readJson(ctx.req);
-    if (!verifyPassword(String(b.current || ''), ctx.user.password_hash)) fail(400, 'Your current password is not right.');
-    const next = String(b.next || '');
-    if (next.length < 10) fail(400, 'Use a password of at least 10 characters.');
+    if (!verifyPassword(String(b.current || '').slice(0, 200), ctx.user.password_hash)) fail(400, 'Your current password is not right.');
+    const next = newPassword(b.next);
     db.prepare('UPDATE users SET password_hash = ? WHERE id = ?').run(hashPassword(next), ctx.user.id);
     // Sign out every other device.
     db.prepare('DELETE FROM sessions WHERE user_id = ? AND id != ?').run(ctx.user.id, ctx.sessionId);
@@ -81,8 +86,9 @@ function register(router, { db, key, requireUser }) {
   // Erasure (UK GDPR art. 17). Cascades remove state, posts, likes, replies,
   // connections, waitlist entries and sessions.
   router.delete('/api/me', requireUser, async (ctx) => {
+    slow(ctx, 'del');
     const b = await readJson(ctx.req);
-    if (!verifyPassword(String(b.password || ''), ctx.user.password_hash)) fail(400, 'Enter your password to delete your account.');
+    if (!verifyPassword(String(b.password || '').slice(0, 200), ctx.user.password_hash)) fail(400, 'Enter your password to delete your account.');
     db.prepare('DELETE FROM users WHERE id = ?').run(ctx.user.id);
     ctx.res.setHeader('Set-Cookie', 'lm_sid=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0');
     send(ctx.res, 200, { ok: true });

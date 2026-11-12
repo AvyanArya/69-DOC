@@ -9,7 +9,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-pairs=("lumera.html:public/lumera.html" "landing.html:public/index.html" "admin-portal.html:public/admin.html" "admin-portal.html:public/admin-portal.html" "ui-styles.html:public/ui-styles.html" "worlds.html:public/worlds.html" "leaf.html:public/leaf.html" "atlas.html:public/atlas.html" "shield.html:public/shield.html" "forge.html:public/forge.html" "features.html:public/features.html" "how-it-works.html:public/how-it-works.html" "team.html:public/team.html" "about.html:public/about.html" "pricing.html:public/pricing.html" "privacy.html:public/privacy.html" "refunds.html:public/refunds.html" "cookies.html:public/cookies.html" "terms.html:public/terms.html")
+pairs=("lumera.html:public/lumera.html" "landing.html:public/index.html" "admin-portal.html:public/admin.html" "admin-portal.html:public/admin-portal.html" "ui-styles.html:public/ui-styles.html" "worlds.html:public/worlds.html" "leaf.html:public/leaf.html" "atlas.html:public/atlas.html" "shield.html:public/shield.html" "forge.html:public/forge.html" "features.html:public/features.html" "how-it-works.html:public/how-it-works.html" "team.html:public/team.html" "about.html:public/about.html" "pricing.html:public/pricing.html" "privacy.html:public/privacy.html" "refunds.html:public/refunds.html" "cookies.html:public/cookies.html" "terms.html:public/terms.html" "404.html:public/404.html" "robots.txt:public/robots.txt")
 
 if [[ "${1:-}" == "--check" ]]; then
   status=0
@@ -22,9 +22,11 @@ if [[ "${1:-}" == "--check" ]]; then
   done
   if ! diff -rq assets public/assets >/dev/null 2>&1; then echo "OUT OF SYNC: public/assets is behind assets"; status=1; fi
   if ! diff -rq previews public/previews >/dev/null 2>&1; then echo "OUT OF SYNC: public/previews is behind previews"; status=1; fi
-  # public/app.html is Lumera.html with its JSX compiled (build-app.py).
-  tmp="$(mktemp -d)"; python3 build-app.py "$tmp/app.html" >/dev/null
-  if ! diff -q "$tmp/app.html" public/app.html >/dev/null 2>&1; then echo "OUT OF SYNC: public/app.html is behind Lumera.html"; status=1; fi
+  # public/app.html, app.css and vendor/ are the production build of Lumera.html (build-app.py).
+  tmp="$(mktemp -d)"; python3 build-app.py "$tmp" >/dev/null
+  for f in app.html app.css vendor/react.production.min.js vendor/react-dom.production.min.js; do
+    if ! diff -q "$tmp/$f" "public/$f" >/dev/null 2>&1; then echo "OUT OF SYNC: public/$f is behind Lumera.html"; status=1; fi
+  done
   rm -rf "$tmp"
   [[ $status -eq 0 ]] && echo "public/ is in sync with source."
   exit $status
@@ -36,7 +38,7 @@ for p in "${pairs[@]}"; do
   cp "$src" "$dst"
   echo "synced $src -> $dst"
 done
-# the app, with its JSX compiled ahead of time
+# the app: JSX and Tailwind compiled ahead of time, React served locally
 python3 build-app.py
 # fonts and brand artwork used by every page
 rm -rf public/assets && cp -R assets public/assets && echo "synced assets/ -> public/assets/"

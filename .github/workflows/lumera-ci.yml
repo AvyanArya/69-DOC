@@ -1,0 +1,47 @@
+name: Lumera CI
+
+# Runs on every push and pull request that touches Lumera:
+#   1. public/ matches the source (the deployable build is not stale)
+#   2. API and security tests
+#   3. end-to-end browser checks against a real server
+on:
+  push:
+    paths: ['Lumera.html', 'landing.html', 'admin-portal.html', 'build-*.py', 'legal-content.py', 'team.json',
+            'server/**', 'public/**', 'assets/**', 'e2e/**', 'scripts/**', 'package*.json', 'sync-public.sh',
+            'Dockerfile', '.github/workflows/lumera-ci.yml']
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install build and test tools
+        run: npm ci
+      - name: public/ is in sync with the source
+        run: ./sync-public.sh --check
+      - name: API and security tests
+        run: npm test
+      - name: Install Chromium for the browser checks
+        run: npx playwright install --with-deps chromium
+      - name: End-to-end checks
+        run: npm run e2e
+      - name: Keep screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-screenshots
+          path: e2e/out/
+      - name: Docker image builds
+        run: docker build -t lumera-ci .

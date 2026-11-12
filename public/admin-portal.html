@@ -224,6 +224,7 @@
       <button class="navi" data-only="server" data-tab="users" data-icon="user">Accounts</button>
       <button class="navi" data-only="server" data-tab="posts" data-icon="chats">Community</button>
       <button class="navi" data-only="server" data-tab="reports" data-icon="flag">Reports <span class="count" id="repCount" hidden></span></button>
+      <button class="navi" data-only="server" data-tab="teamfeedback" data-icon="message">Team feedback <span class="count" id="fbCount" hidden></span></button>
     </div>
     <div class="navg" data-only="local">
       <div class="label">Analytics</div>
@@ -296,7 +297,7 @@ let MODE = null, ME = null, SYS = {};            // MODE is 'server' or 'local' 
 const SERVER_EMPTY = {};
 // Tabs that only make sense with or without the server.
 const LOCAL_ONLY = ['dashboard','insights','usage','offers','brand','feedback','trends','market','permissions'];
-const SERVER_ONLY = ['overview','users','posts','reports','companies','audit'];
+const SERVER_ONLY = ['overview','users','posts','reports','teamfeedback','companies','audit'];
 
 /* Web Crypto only exists in a secure context, so opening this file from disk
    or inside a frame left crypto.subtle undefined, sha256b64 threw, and every
@@ -504,7 +505,7 @@ function render(){
   ({ dashboard:renderDashboard, insights:renderInsights, usage:renderUsage, updates:renderUpdates, news:renderNews,
      offers:renderOffers, feedback:renderFeedback, features:renderFeatures, trends:renderTrends, market:renderMarket,
      about:renderAbout, brand:renderBrand, sections:renderSections, permissions:renderPermissions,
-     overview:renderOverview, users:renderUsers, posts:renderPosts, reports:renderReports, companies:renderCompanies, audit:renderAudit }[ACTIVE_TAB]
+     overview:renderOverview, users:renderUsers, posts:renderPosts, reports:renderReports, teamfeedback:renderTeamFeedback, companies:renderCompanies, audit:renderAudit }[ACTIVE_TAB]
    || (MODE === 'server' ? renderOverview : renderDashboard))();
   document.getElementById('updatedAt').textContent = `Updated ${new Date().toLocaleTimeString()}`;
 }
@@ -609,9 +610,9 @@ function renderUsage(){
 const UPDATES_SEED = [
   { id:'u1', date:'May 2026', tag:'Live now', status:'published', title:'Live currency conversion + 10 currencies', body:'Switch display currency and every value recalculates at live exchange rates, with country flags.', published_at:0 },
   { id:'u2', date:'May 2026', tag:'Live now', status:'published', title:'7 languages with auto-translation', body:'Interface and dynamic text translate across English, Arabic, Urdu, Hindi, French, Spanish and German.', published_at:0 },
-  { id:'u3', date:'Jun 2026', tag:'Live now', status:'published', title:'Retirement Centre, Global Markets globe & World Monitor', body:'A retirement projection hub, an interactive markets globe you can spin, and a world-intelligence monitor linking the most trusted live sources.', published_at:0 },
-  { id:'u4', date:'Jun 2026', tag:'Live now', status:'published', title:'Streak rewards, custom entries & Knowledge Hub', body:'Daily check-in rewards, your own budget categories and subscriptions, and a curated shelf of the best places to learn.', published_at:0 },
-  { id:'u5', date:'Next', tag:'Coming', status:'published', title:'Live market data & headlines', body:'Real-time prices and news via a market-data provider (see the integration guide).', published_at:0 },
+  { id:'u3', date:'Nov 2026', tag:'Live now', status:'published', title:'Password reset by email, and a safer sign-in', body:'Reset your own password from the login page, and every account is protected by rate limits and encrypted storage.', published_at:0 },
+  { id:'u4', date:'Jun 2026', tag:'Live now', status:'published', title:'Streak rewards and custom entries', body:'Daily check-in rewards, plus your own budget categories and subscriptions.', published_at:0 },
+  { id:'u5', date:'Next', tag:'Coming', status:'published', title:'Leaf, Atlas, Shield and Forge', body:'Four new worlds for learning, markets, protection and careers. They open one at a time.', published_at:0 },
 ];
 (function migrateUpdates(){ let arr=loadJSON(UPDATES,null); if(!Array.isArray(arr)||arr.length===0){ saveJSON(UPDATES, UPDATES_SEED); } })();
 
@@ -832,7 +833,8 @@ function getLayout(){
     missing.forEach(r=>{ seenItem[r]=1; });
   });
   const moved=(Array.isArray(saved.moved)?saved.moved:[]).filter(r=>WORLD_PAGES.some(p=>p[0]===r));
-  return { worlds, sections, moved };
+  const launched={}; WORLDS.forEach(w=>{ launched[w[0]] = !!(saved.launched && saved.launched[w[0]]); });
+  return { worlds, sections, moved, launched };
 }
 
 function putLayout(l){ saveJSON(LAYOUT,l); broadcast(LAYOUT); render(); }
@@ -844,7 +846,7 @@ function renderSections(){
   const pages=L.sections.reduce((n,s)=>n+s.items.length,0);
 
   const worldCard=([k,name,tag,colour,desc])=>{
-    const on=L.worlds[k]!==false;
+    const on=L.worlds[k]!==false; const live=!!(L.launched&&L.launched[k]);
     return `<div style="display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid var(--line);flex-wrap:wrap;">
       <span style="width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-weight:700;
         background:${colour}22;color:${colour};">${name[0]}</span>
@@ -852,7 +854,8 @@ function renderSections(){
         <span style="font-size:14px;font-weight:600;">${escapeHtml(name)}</span>
         <span class="faint" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-left:8px;">${escapeHtml(tag)}</span>
         <span class="faint" style="display:block;font-size:12px;">${escapeHtml(desc)}</span></span>
-      <span style="display:flex;gap:6px;">
+      <span style="display:flex;gap:6px;align-items:center;">
+        <button onclick="setLaunched('${k}',${!live})" title="${live?'Launched: members can use it':'Not launched: members see Coming soon'}" style="border:1px solid ${live?'#D97706':'var(--line)'};background:${live?'#D97706':'transparent'};color:${live?'#fff':'var(--muted)'};border-radius:99px;padding:5px 12px;font-size:11.5px;font-weight:700;cursor:pointer;">${live?'Launched':'Coming soon'}</button>
         <button onclick="setWorld('${k}',false)" style="border:1px solid ${!on?'#6E6F88':'var(--line)'};background:${!on?'#6E6F88':'transparent'};color:${!on?'#fff':'var(--muted)'};border-radius:99px;padding:5px 12px;font-size:11.5px;font-weight:600;cursor:pointer;">Off</button>
         <button onclick="setWorld('${k}',true)" style="border:1px solid ${on?'#16A34A':'var(--line)'};background:${on?'#16A34A':'transparent'};color:${on?'#fff':'var(--muted)'};border-radius:99px;padding:5px 12px;font-size:11.5px;font-weight:600;cursor:pointer;">On</button>
       </span></div>`;
@@ -916,6 +919,9 @@ function renderSections(){
 }
 
 function setWorld(k,on){ const L=getLayout(); L.worlds[k]=!!on; putLayout(L); }
+// Launching a world opens its tools to every member. Until then its pages show "Coming soon".
+function setLaunched(k,on){ if(on && !confirm('Launch this world for every member? Its pages stop showing "Coming soon".')) return;
+  const L=getLayout(); L.launched=L.launched||{}; L.launched[k]=!!on; putLayout(L); }
 function toggleSection(si){ const L=getLayout(); if(!L.sections[si]) return; L.sections[si].on=!L.sections[si].on; putLayout(L); }
 function moveSection(si,dir){ const L=getLayout(); const j=si+dir;
   if(j<0 || j>=L.sections.length) return;
@@ -1443,13 +1449,16 @@ function previewApi(method, path){
     toast('Preview only: example data, nothing is saved.'); return { ok:true, company:EX.companies[0] };
   }
   if(p === '/api/health') return { ok:true, service:'lumera', version:'preview', time:NOWMS };
-  if(p === '/api/auth/me') return { user:EX.user };
-  if(p === '/api/admin/overview') return { users:4, admins:1, disabled:1, activeThisWeek:3, onboarded:3, posts:2, hiddenPosts:0, openReports:1, openErrors:1, companies:3, companiesMissing:1, waitlist:{ Pro:12, Premium:5 } };
+  if(p === '/api/auth/me' || p === '/api/auth/session') return { user:EX.user };
+  if(p === '/api/admin/overview') return { openFeedback:2, server:{ env:'preview', mail:false, feedback:true, sitePassword:true }, users:4, admins:1, disabled:1, activeThisWeek:3, onboarded:3, posts:2, hiddenPosts:0, openReports:1, openErrors:1, companies:3, companiesMissing:1, waitlist:{ Pro:12, Premium:5 } };
   if(p === '/api/admin/users') return { users:EX.users, more:false };
   if(p === '/api/admin/posts') return { posts:EX.posts };
   if(p === '/api/admin/reports') return { reports: u.searchParams.get('status') === 'resolved' ? [] : EX.reports[u.searchParams.get('kind') === 'error' ? 'error' : 'member'] };
   if(p === '/api/admin/companies') return { companies:EX.companies };
   if(p === '/api/admin/audit') return { entries:EX.audit };
+  if(p === '/api/admin/feedback') return { feedback: u.searchParams.get('status') === 'resolved' ? [] : [
+    { id:41, kind:'bug', message:'On my phone the goals page jumps when I scroll. (example)', page:'/goals', contact:'', email:'maya@example.com', user_agent:'Example browser', status:'open', created_at:NOWMS-2*3600e3 },
+    { id:42, kind:'idea', message:'Could the dashboard show last month next to this month? (example)', page:'/dashboard', contact:'Theo', email:null, user_agent:'', status:'open', created_at:NOWMS-DAYMS }] };
   if(p === '/api/admin/config') return { flags:null, layout:null, updates:null, news:null, about:null };
   if(p === '/api/admin/waitlist') return { entries:[{ plan:'Pro', name:'Maya (example)', email:'maya@example.com', created_at:NOWMS-DAYMS }] };
   return {};
@@ -1606,6 +1615,7 @@ async function refreshCounts(){
   if(MODE !== 'server' || !ME) return;
   try{
     const o = await API.get('/api/admin/overview');
+    { const fb = document.getElementById('fbCount'); if(fb){ fb.hidden = !o.openFeedback; fb.textContent = o.openFeedback || ''; } }
     const n = o.openReports + o.openErrors, el = document.getElementById('repCount');
     if(el){ el.hidden = !n; el.textContent = n; }
   }catch(e){}
@@ -1639,7 +1649,12 @@ function renderOverview(){
         <div class="card"><div class="eyebrow">System status</div>
           <div class="toolbar"><span class="pill live"><span class="live-dot"></span> Server ${escapeHtml(SYS.version || 'online')}</span>
             <span class="pill">${SYS.time ? 'Checked ' + escapeHtml(fmtWhen(SYS.time)) : ''}</span></div>
-          <p class="muted" style="margin:10px 0 0;font-size:13px;">Logo lookups, sessions and the database are served by this server. See BACKEND.md for configuration.</p>
+          ${o.server ? `<div class="toolbar" style="margin-top:8px">
+            <span class="pill ${o.server.env === 'production' ? 'gold' : ''}">${escapeHtml(o.server.env || '')}</span>
+            <span class="pill ${o.server.mail ? 'live' : 'unp'}">Email ${o.server.mail ? 'on' : 'off'}</span>
+            <span class="pill">${o.server.feedback ? 'Feedback button on' : 'Feedback button off'}</span>
+            <span class="pill">${o.server.sitePassword ? 'Site password on' : 'No site password'}</span></div>` : ''}
+          <p class="muted" style="margin:10px 0 0;font-size:13px;">${o.server && !o.server.mail ? 'Email is off, so members cannot reset their own password: issue reset links from Accounts. ' : ''}See BACKEND.md for configuration.</p>
         </div>
         <div class="card"><div class="eyebrow">Plan waitlist</div>
           <p class="muted" style="margin:0 0 12px;font-size:13px;">Members who asked to be emailed when a paid plan launches.</p>
@@ -1731,7 +1746,7 @@ async function resetLink(id){
     const r = await API.post(`/api/admin/users/${id}/reset-link`);
     const url = new URL(r.path, location.href).href;
     document.body.appendChild(mkModal(`<h3>Password reset link</h3>
-      <p class="muted" style="font-size:13.5px;margin:0 0 12px;line-height:1.55;">Send this to <strong>${escapeHtml(u.email)}</strong> yourself. It works once and expires at ${escapeHtml(fmtWhen(r.expiresAt))}. Lumera does not email it.</p>
+      <p class="muted" style="font-size:13.5px;margin:0 0 12px;line-height:1.55;">${r.emailed ? `We emailed this link to <strong>${escapeHtml(u.email)}</strong>. You can also copy it below.` : `Send this to <strong>${escapeHtml(u.email)}</strong> yourself (email is not switched on).`} It works once and expires at ${escapeHtml(fmtWhen(r.expiresAt))}.</p>
       <label class="sr-only" for="rlUrl">Reset link</label>
       <input id="rlUrl" readonly value="${escapeHtml(url)}" onclick="this.select()"/>
       <div class="acts"><button class="btn ghost" onclick="closeModal()">Done</button><button class="btn gold" onclick="copyField('rlUrl')">Copy link</button></div>`));
@@ -1804,6 +1819,26 @@ function renderReports(){
     return `<div class="card" style="margin-bottom:14px;"><div class="toolbar">
         <div class="seg" role="group" aria-label="Report type">${segK}</div><div class="seg" role="group" aria-label="Report status">${segS}</div></div></div>
       <div class="card">${list || `<p class="empty">${R_STATE.status === 'open' ? 'Nothing open. ' : ''}${R_STATE.kind === 'error' ? 'No app errors here.' : 'No member reports here.'}</p>`}</div>`;
+  });
+}
+
+/* ---- team feedback (the "Feedback" button in the app) ---- */
+const FB_STATE = { status:'open' };
+function renderTeamFeedback(){
+  const segS = [['open','Open'],['resolved','Resolved']].map(([k, l])=>`<button class="${FB_STATE.status === k ? 'on' : ''}" onclick="FB_STATE.status='${k}';render()">${l}</button>`).join('');
+  const KIND = { bug:['Bug','#F43F5E'], idea:['Idea','#F59E0B'], opinion:['Opinion','#8B5CF6'] };
+  serverView('teamfeedback', 'Team feedback', 'What people sent with the Feedback button: bugs, ideas and opinions, newest first.', async()=>{
+    const r = await API.get(`/api/admin/feedback?status=${FB_STATE.status}`);
+    const list = r.feedback.map(f=>{ const k = KIND[f.kind] || [f.kind,'#888'];
+      return `<div class="upd"><div class="ic" style="background:${k[1]}22;color:${k[1]}">${escapeHtml(k[0][0])}</div><div class="body">
+        <div class="meta"><span class="pill" style="background:${k[1]}22;color:${k[1]}">${escapeHtml(k[0])}</span><span>${fmtWhen(f.created_at)}</span>${f.page ? `<code>${escapeHtml(f.page)}</code>` : ''}<span>${escapeHtml(f.email || f.contact || 'Not signed in')}</span></div>
+        <p class="desc" style="white-space:pre-wrap">${escapeHtml(f.message)}</p>
+        ${f.user_agent ? `<p class="desc faint" style="font-size:11.5px;">${escapeHtml(f.user_agent)}</p>` : ''}</div>
+        <div class="acts">${f.status === 'open'
+          ? `<button class="btn sm" onclick="act(API.patch('/api/admin/feedback/${f.id}',{status:'resolved'}),'Marked done.')">Done</button>`
+          : `<button class="btn sm ghost" onclick="act(API.patch('/api/admin/feedback/${f.id}',{status:'open'}),'Reopened.')">Reopen</button>`}</div></div>`; }).join('');
+    return `<div class="card" style="margin-bottom:14px;"><div class="toolbar"><div class="seg" role="group" aria-label="Feedback status">${segS}</div></div></div>
+      <div class="card">${list || `<p class="empty">${FB_STATE.status === 'open' ? 'Nothing open. ' : ''}No feedback here yet.</p>`}</div>`;
   });
 }
 
@@ -1921,7 +1956,15 @@ document.querySelectorAll('[data-icon]').forEach(el=>{
 });
 
 (async function boot(){
-  const server = await detectServer();
+  let server = await detectServer();
+  // On the hosted site the portal only ever works against the server. The
+  // local "team key" mode is for the offline preview files.
+  const hosted = /^https?:$/.test(location.protocol) && !PREVIEW;
+  for(let i = 0; hosted && !server && i < 2; i++){ await new Promise(r=>setTimeout(r, 1500)); server = await detectServer(); }
+  if(hosted && !server){
+    document.body.innerHTML = '<main style="min-height:100vh;display:grid;place-items:center;padding:24px;font-family:system-ui,sans-serif;color:#eee;background:#16122C"><div style="max-width:420px;text-align:center"><h1 style="font-weight:600">Cannot reach the Lumera server</h1><p style="opacity:.8">The admin portal needs the server. Check your connection and try again.</p><button onclick="location.reload()" style="margin-top:12px;padding:10px 18px;border-radius:999px;border:0;background:#9D7CFF;color:#fff;font-weight:600;cursor:pointer">Try again</button></div></main>';
+    return;
+  }
   MODE = server ? 'server' : 'local';
   document.body.setAttribute('data-mode', MODE);
   if(PREVIEW) document.body.insertAdjacentHTML('afterbegin', '<div role="note" style="position:sticky;top:0;z-index:200;text-align:center;padding:8px 12px;font-size:12.5px;font-weight:700;background:linear-gradient(90deg,#9D7CFF,#F08BC4);color:#fff">Admin portal preview · example data only, not connected to a server</div>');
@@ -1934,7 +1977,7 @@ document.querySelectorAll('[data-icon]').forEach(el=>{
   }
   gateMsg('Sign in with an admin account.');
   try{
-    const me = await API.get('/api/auth/me');
+    const me = await API.get('/api/auth/session');
     if(me && me.user && me.user.role === 'admin'){ await enterServer(me.user); return; }
     if(me && me.user) document.getElementById('gErrS').textContent = `You are signed in as ${me.user.email}, which does not have admin access. Sign in with an admin account.`;
   }catch(e){ /* not signed in */ }

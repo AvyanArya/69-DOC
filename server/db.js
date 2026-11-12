@@ -149,13 +149,43 @@ const MIGRATIONS = [
     PRIMARY KEY (user_id, plan)
   );
   `,
+  // 4: indexes for the lookups and cascading deletes that scanned whole
+  // tables, self-service reset links, and team feedback
+  `
+  CREATE INDEX posts_user ON posts(user_id);
+  CREATE INDEX replies_user ON replies(user_id);
+  CREATE INDEX post_likes_user ON post_likes(user_id);
+  CREATE INDEX connections_target ON connections(target_id);
+  CREATE INDEX reports_target ON reports(kind, target_id);
+  CREATE INDEX password_resets_user ON password_resets(user_id);
+  CREATE INDEX audit_log_at ON audit_log(at);
+
+  -- 'admin': issued from the portal. 'self': requested from "Forgot password".
+  ALTER TABLE password_resets ADD COLUMN kind TEXT NOT NULL DEFAULT 'admin' CHECK (kind IN ('admin','self'));
+
+  CREATE TABLE feedback (
+    id          INTEGER PRIMARY KEY,
+    user_id     INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    kind        TEXT NOT NULL CHECK (kind IN ('bug','idea','opinion')),
+    message     TEXT NOT NULL,
+    page        TEXT NOT NULL DEFAULT '',
+    contact     TEXT NOT NULL DEFAULT '',
+    user_agent  TEXT NOT NULL DEFAULT '',
+    status      TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open','resolved')),
+    created_at  INTEGER NOT NULL,
+    resolved_at INTEGER
+  );
+  CREATE INDEX feedback_status ON feedback(status, created_at DESC);
+  `,
 ];
 
 function open(file) {
   if (file !== ':memory:') fs.mkdirSync(path.dirname(file), { recursive: true });
   const db = new DatabaseSync(file);
   db.exec('PRAGMA foreign_keys = ON;');
-  if (file !== ':memory:') db.exec('PRAGMA journal_mode = WAL;');
+  // Wait for a lock rather than failing at once if a backup is reading.
+  db.exec('PRAGMA busy_timeout = 5000;');
+  if (file !== ':memory:') db.exec('PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL;');
   db.exec('CREATE TABLE IF NOT EXISTS schema_migrations (version INTEGER PRIMARY KEY, applied_at INTEGER NOT NULL);');
   const done = new Set(db.prepare('SELECT version FROM schema_migrations').all().map((r) => r.version));
   MIGRATIONS.forEach((sql, i) => {

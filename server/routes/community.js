@@ -117,6 +117,7 @@ function register(router, { db, requireUser, limit, audit }) {
   // ---- replies ----
   router.get('/api/community/posts/:id/replies', requireUser, async (ctx) => {
     const id = intId(ctx.params.id);
+    if (!db.prepare('SELECT 1 FROM posts WHERE id = ? AND hidden = 0').get(id)) fail(404, 'That post no longer exists.');
     const rows = db.prepare(`SELECT r.id, r.body, r.created_at, r.user_id,
         COALESCE(cp.display_name, u.name) AS author, COALESCE(cp.headline, '') AS headline
       FROM replies r JOIN users u ON u.id = r.user_id LEFT JOIN community_profiles cp ON cp.user_id = r.user_id
