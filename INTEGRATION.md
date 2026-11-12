@@ -1,6 +1,14 @@
 # Lumera — Going Live: Mock → Production Integration Guide
 
-> **Update:** Lumera now has its own server (see [BACKEND.md](BACKEND.md)) for accounts, encrypted saved figures, the community, subscription logos and the admin portal. The sections below still apply to social sign-in (OAuth), live market data and product analytics, which the server does not provide yet.
+> **Historical planning document; do not follow it as written.** Lumera now
+> runs its own server: accounts, saved figures (Steps 1 and 6), the
+> community, email password resets and the admin portal are built and tested.
+> See **BACKEND.md** (architecture and security), **DEPLOY.md** (staging,
+> production, rollback) and **LAUNCH.md** (what is left). Steps 2 and 4
+> (live market data and news) apply only when the Atlas world is launched;
+> Step 7 (translation) is item 11 in LAUNCH.md.
+
+
 
 Lumera currently runs as a **single offline `Lumera.html` file**. That's perfect for design, demos and testing, but three things genuinely **cannot** run inside one static file and need a tiny backend or third‑party service + API keys:
 
