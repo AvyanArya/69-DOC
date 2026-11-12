@@ -79,7 +79,9 @@ export const Globe: React.FC<{
   glow?: string;
   /** 0..1 – tints the whole sphere (used when the losses take over) */
   alarm?: number;
-}> = ({ cx, cy, r, lon, lat, arcs = [], nodes = [], dotColor = C.paper, dotOpacity = 0.62, glow = "rgba(239,233,220,.20)", alarm = 0 }) => {
+  /** cap on how far arcs rise above the surface (fraction of the radius) */
+  maxLift?: number;
+}> = ({ cx, cy, r, lon, lat, arcs = [], nodes = [], dotColor = C.paper, dotOpacity = 0.62, glow = "rgba(239,233,220,.20)", alarm = 0, maxLift = 9 }) => {
   const id = "g" + useId().replace(/[^a-zA-Z0-9]/g, "");
   // land: one path of zero-length round-capped segments = thousands of dots in a single element
   let front = "";
@@ -123,7 +125,7 @@ export const Globe: React.FC<{
     const A = vec(CITIES[a.from][0], CITIES[a.from][1]);
     const B = vec(CITIES[a.to][0], CITIES[a.to][1]);
     const om = Math.acos(clamp(A[0] * B[0] + A[1] * B[1] + A[2] * B[2], -1, 1));
-    const lift = a.lift ?? 0.1 + om * 0.13;
+    const lift = Math.min(a.lift ?? 0.1 + om * 0.13, maxLift);
     const N = 44;
     const upto = clamp(a.p) * N;
     let d = "";

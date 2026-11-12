@@ -353,7 +353,7 @@ const Contagion: React.FC<{ t: number }> = ({ t }) => {
     <AbsoluteFill style={{ background: C.coal, opacity: prog(t, t0, t0 + 0.25) }}>
       <AbsoluteFill style={{ background: `radial-gradient(ellipse 80% 55% at 50% 46%, rgba(176,20,30,${0.1 + 0.3 * p}) 0%, rgba(176,20,30,0) 100%)` }} />
       <AbsoluteFill style={{ transform: `translate(${kx}px, ${ky + (1 - rise) * 300}px) scale(${lerp(0.88, 1.03, E.outCubic(p))})`, transformOrigin: "50% 52%" }}>
-        <Globe cx={GLOBE.cx} cy={1000} r={380} lon={spin} lat={26} arcs={arcs} nodes={nodes} alarm={0.25 + 0.75 * p} glow="rgba(212,34,46,.34)" dotColor="#F0D9D2" />
+        <Globe cx={GLOBE.cx} cy={1000} r={380} lon={spin} lat={26} arcs={arcs} nodes={nodes} alarm={0.25 + 0.75 * p} glow="rgba(212,34,46,.34)" dotColor="#F0D9D2" maxLift={0.2} />
       </AbsoluteFill>
       <div style={{ position: "absolute", left: 0, width: W, top: 290, textAlign: "center", transform: `translate(${kx * 0.5}px, ${ky * 0.5}px)` }}>
         <div style={{ fontFamily: F.mono, fontWeight: 700, fontSize: 25, letterSpacing: 7, color: C.redBright, opacity: rise }}>CONTAGION</div>

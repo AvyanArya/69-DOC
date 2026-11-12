@@ -273,7 +273,7 @@ const ROUTES: [CityId, number, string?, ("l" | "r")?][] = [
   ["tokyo", 0.92, "TOKYO", "r"],
   ["sydney", 1.0],
 ];
-export const GLOBE = { cx: 540, cy: 975, r: 410 };
+export const GLOBE = { cx: 540, cy: 1000, r: 380 };
 
 const WorldBeat: React.FC<{ t: number }> = ({ t }) => {
   const t0 = cue("s3.sold");
@@ -293,7 +293,7 @@ const WorldBeat: React.FC<{ t: number }> = ({ t }) => {
   return (
     <AbsoluteFill style={{ opacity: prog(t, t0, t0 + 0.3) }}>
       <AbsoluteFill style={{ transform: `translateY(${(1 - rise) * 420}px) scale(${lerp(0.82, 1, rise)})`, transformOrigin: "50% 50%" }}>
-        <Globe {...GLOBE} lon={spin} lat={24} arcs={arcs} nodes={nodes} />
+        <Globe {...GLOBE} lon={spin} lat={24} arcs={arcs} nodes={nodes} maxLift={0.2} />
       </AbsoluteFill>
       <div style={{ position: "absolute", left: 0, width: W, top: 372, textAlign: "center", fontFamily: F.serif, fontWeight: 900, fontStyle: "italic", fontSize: 58, color: C.paper, opacity: prog(t, t0 + 0.35, t0 + 0.75), letterSpacing: 0.5 }}>
         Sold around the world.
