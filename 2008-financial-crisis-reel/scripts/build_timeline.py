@@ -25,6 +25,7 @@ PLAN = [
 ]
 WRONG_PAUSE = 0.90     # silence between the last word and "THEY WERE WRONG."
 WRONG_HOLD = 2.95      # card + fade to black
+OUTRO = 3.6            # Capital Decoded brand card
 
 scenes, words, t = {}, {}, 0.0
 for key, vkey, lead, tail in PLAN:
@@ -132,6 +133,8 @@ cues = {
     "s7.silence": scenes["s7"]["voEnd"] + 0.12,
     "s7.wrong": wrong_t,
     "s7.fadeOut": total - 1.05,
+    "outro.start": total,
+    "outro.end": total + OUTRO,
 }
 cues = {k: round(v, 3) for k, v in cues.items()}
 
@@ -171,8 +174,8 @@ def phrases(key):
 
 out = {
     "fps": FPS,
-    "duration": round(total, 3),
-    "durationInFrames": int(round(total * FPS)),
+    "duration": round(total + OUTRO, 3),
+    "durationInFrames": int(round((total + OUTRO) * FPS)),
     "scenes": scenes,
     "words": words,
     "captions": {k: phrases(k) for k in words},

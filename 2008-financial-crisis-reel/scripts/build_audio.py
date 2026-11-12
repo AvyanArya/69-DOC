@@ -128,11 +128,23 @@ OST = {  # eighth-note ostinato cells
 
 def compose():
     rh, pad, pno = Midi(), Midi(), Midi()
+    KEY = [CUE["s1.title"], CUE["s4.worth"], CUE["s5.bankruptcy"], CUE["s7.wrong"]]
+    near_key = lambda t: any(abs(t - k) < 0.06 for k in KEY)
     for ch, prog in ((PIZZ, 45), (CELLO, 42), (CELESTA, 8), (TIMP, 47), (TAIKO, 116)):
         rh.program(ch, prog)
     for ch, prog in ((STR, 48), (TREM, 44), (HORN, 60), (BRASS, 61), (BASS, 43), (CHOIR, 52)):
         pad.program(ch, prog)
     pno.program(PIANO, 0)
+    _chord = pno.chord
+
+    def pchord(ch, t, dur, pitches, vel):
+        # low piano "stabs" become a soft held note away from the turning points (they read as repeated booms)
+        low = min(N(p) if isinstance(p, str) else p for p in pitches) <= N("A1")
+        if low and vel >= 90 and not near_key(t):
+            return _chord(ch, t, dur, [p for p in pitches if (N(p) if isinstance(p, str) else p) > N("A1")] or ["D2"], vel * 0.55)
+        return _chord(ch, t, dur, pitches, vel)
+
+    pno.chord = pchord
 
     def ost(t0, t1, cell, v0, v1, ch=CELLO, up=0, dur=0.17):
         k, t = 0, t0
@@ -141,14 +153,30 @@ def compose():
             rh.note(ch, t, dur, N(cell[k % len(cell)]) + up, v)
             t += EIGHTH; k += 1
 
+    _note = rh.note
+
+    def rnote(ch, t, dur, pitch, vel):
+        if ch == TIMP and dur >= 0.55 and not near_key(t):
+            vel *= 0.5
+        return _note(ch, t, dur, pitch, vel)
+
+    rh.note = rnote
+
     def roll(t0, t1, pitch, v0, v1, ch=TIMP, step=0.052):
         t = t0
         while t < t1:
             rh.note(ch, t, 0.08, pitch, v0 + (v1 - v0) * ((t - t0) / (t1 - t0)) ** 1.6)
             t += step
 
+    KEY = [CUE["s1.title"], CUE["s4.worth"], CUE["s5.bankruptcy"], CUE["s7.wrong"]]
+    near_key = lambda t: any(abs(t - k) < 0.06 for k in KEY)
+
     def taiko(t, v):
-        rh.note(TAIKO, t, 0.5, "A2", v); rh.note(TAIKO, t + 0.004, 0.5, "D3", v * 0.85)
+        # big drums only on the four turning points; elsewhere a light, varied frame-drum tap
+        if near_key(t):
+            rh.note(TAIKO, t, 0.5, "A2", v); rh.note(TAIKO, t + 0.004, 0.5, "D3", v * 0.85)
+        else:
+            rh.note(TAIKO, t, 0.3, ["E3", "F3", "G3"][int(t * 7) % 3], v * 0.42)
 
     def hold(ch, t0, t1, pitches, vel, e0=None, e1=None):
         pad.chord(ch, t0, t1 - t0, pitches, vel)
@@ -353,7 +381,15 @@ def effects(hall_ir):
         if bell:
             fx.add(A.typebell(), t1 + 0.05, v * 0.5)
 
+    KEYS = [CUE["s1.title"], CUE["s4.worth"]]
+
     def big(t, level=1.0, sec=1.8, f0=104, f1=40, pre=0.45):
+        if not any(abs(t - k) < 0.06 for k in KEYS):
+            # a lighter accent instead of another sub boom: varied pitch so it never repeats exactly
+            f = 150 + 60 * ((t * 13.7) % 1)
+            imp.add(A.hit(0.45, f, f * 0.5, 0.6), t, 0.231 * level)
+            fx.add(A.pan_sweep(A.whoosh(0.35, 700, 3800, 0.85, 1.2, 0.2), -0.2, 0.2), t - 0.3, 0.3 * level)
+            return
         if pre:
             imp.add(A.reverse_swell(pre, ir=hall_ir), t - pre, 0.8 * level)
         imp.add(A.boom(sec, f0, f1), t, 1.25 * level)
@@ -372,7 +408,7 @@ def effects(hall_ir):
         fx.add(A.paper_flap(0.2, rng.uniform(0.8, 1.3)), t0 + 0.06, 0.55, p)
         fx.add(A.paper_flap(0.16, rng.uniform(0.8, 1.3)), t0 + dur * 0.38, 0.42, p * 0.5)
         fx.add(A.paper_slap(), t0 + dur * 0.7, 0.5 if not hero else 1.0, p * 0.3)
-    imp.add(A.hit(0.7, 110, 46, 0.5), 1.1 + 0.82 * 0.72, 0.62)             # the hero sheet lands
+    imp.add(A.hit(0.7, 110, 46, 0.5), 1.1 + 0.82 * 0.72, 0.341)             # the hero sheet lands
     fx.add(A.pan(A.rustle(1.2, 70), 0), 1.85, 0.4)
     amb.add(A.pan(A.drone(2.4, 36.7, 0.2) * A.hann_env(2.4, 0.75, 0.8), 0), 1.75, 0.9)
     tickrun(2.1, 3.95, 0.5, 0.42)
@@ -388,7 +424,7 @@ def effects(hall_ir):
     imp.add(A.reverse_swell(0.3, ir=hall_ir), z0 + zl * 0.74 - 0.3, 0.6)
     imp.add(A.boom(1.5, 100, 40), z0 + zl * 0.74, 0.95)
     fx.add(A.pan_sweep(A.whoosh(0.7, 4000, 300, 0.2, 0.9, 0.3), 0.3, -0.3), z0 + zl * 0.72, 0.5)                 # air settling
-    fx.add(A.shutter(), c["s1.cutLehman"], 0.9); imp.add(A.hit(0.6, 100, 44, 0.3), c["s1.cutLehman"], 0.5)
+    fx.add(A.shutter(), c["s1.cutLehman"], 0.9); imp.add(A.hit(0.6, 100, 44, 0.3), c["s1.cutLehman"], 0.275)
     big(c["s1.title"], 1.0, 2.0)
     fx.add(A.pan_sweep(A.whoosh(0.3, 600, 5000, 0.7), -0.3, 0.3), c["s1.titleOut"], 0.6)
 
@@ -403,7 +439,7 @@ def effects(hall_ir):
     tickrun(r0, r1, 0.09, 0.26, 1.5, alt=False, bus=fx)
     for k in range(3):
         fx.add(A.clack(1.0 - k * 0.08), r0 + (k + 1) * step - 0.03, 0.85)
-        imp.add(A.hit(0.35, 90, 50, 0.2), r0 + (k + 1) * step - 0.03, 0.3 + 0.12 * k)
+        imp.add(A.hit(0.35, 90, 50, 0.2), r0 + (k + 1) * step - 0.03, 0.165 + 0.12 * k)
     b0 = c["s2.banks"] - 0.32
     fx.add(A.pan_sweep(A.whoosh(0.45, 300, 4200, 0.5), 0, 0), b0, 0.7)
     for k in range(9):
@@ -414,7 +450,7 @@ def effects(hall_ir):
         fx.add(A.pan_sweep(A.paper_slide(0.36), pn * 2, pn), at, 0.6)
         fx.add(A.paper_slap(), at + 0.3, 0.75, pn)
     for k, key in enumerate(("s2.stamp1", "s2.stamp2", "s2.stamp3")):
-        fx.add(A.stamp(), c[key], 1.15, [-0.25, 0.25, 0.0][k]); imp.add(A.hit(0.4, 95, 48, 0.2), c[key], 0.42)
+        fx.add(A.stamp(), c[key], 1.15, [-0.25, 0.25, 0.0][k]); imp.add(A.hit(0.4, 95, 48, 0.2), c[key], 0.231)
     fx.add(A.marker(0.4, 0.9), c["s2.barely"] + 0.22, 0.75, 0.2); fx.add(A.marker(0.34, 0.9), c["s2.barely"] + 0.72, 0.75, 0.25)
     fx.add(A.pan_sweep(A.whoosh(0.4, 500, 5200, 0.6), -0.2, 0.2), c["s2.term"] - 0.14, 0.75)
     big(c["s2.subprime"], 0.8, 1.4, pre=0.3)
@@ -429,7 +465,7 @@ def effects(hall_ir):
     for k in range(9):
         fx.add(A.pop(0.4, 640 + k * 20), s3 + 0.45 + k * 0.05, 0.22, -0.5 + k * 0.12)
     fx.add(A.pan_sweep(A.whoosh(0.3, 300, 3000, 0.6), 0, 0), c["s3.keep"] - 0.12, 0.45)
-    fx.add(A.marker(0.3, 1.2), c["s3.keep"] + 0.4, 1.0); imp.add(A.hit(0.45, 100, 50, 0.3), c["s3.keep"] + 0.66, 0.5)
+    fx.add(A.marker(0.3, 1.2), c["s3.keep"] + 0.4, 1.0); imp.add(A.hit(0.45, 100, 50, 0.3), c["s3.keep"] + 0.66, 0.275)
     bund = c["s3.bundled"]
     fx.add(A.pan_sweep(A.whoosh(0.55, 500, 5000, 0.5), -0.5, 0.5), bund - 0.5, 0.5)
     for i in range(0, 150, 2):                                                       # 150 sheets raining onto the pile
@@ -438,12 +474,12 @@ def effects(hall_ir):
         fx.add(A.paper_slap(0.07), at + 0.4, 0.22, rng.uniform(-0.2, 0.2))
     tickrun(bund + 0.15, bund + 1.75, 0.045, 0.13, 1.9, alt=False, bus=fx)          # the counter spinning
     fx.add(A.pan(A.rise_tone(1.6, 200, 520, 0.16), 0), bund + 0.15, 1.0)
-    imp.add(A.hit(0.6, 100, 44, 0.4), c["s3.together"] + 0.4, 0.75)
+    imp.add(A.hit(0.6, 100, 44, 0.4), c["s3.together"] + 0.4, 0.413)
     fx.add(A.pan(A.shimmer(0.7, 740), 0), c["s3.products"] - 0.02, 0.22)
     fx.add(A.clack(0.7), c["s3.products"] + 0.48, 0.8)
     fx.add(A.pan(A.shimmer(0.9, 1175), 0), c["s3.products"] + 0.55, 0.1)
     big(c["s3.mbs"], 0.62, 1.3, pre=0.25)
-    fx.add(A.stamp(), c["s3.securities"], 1.2, 0.2); imp.add(A.hit(0.4, 95, 48, 0.25), c["s3.securities"], 0.48)
+    fx.add(A.stamp(), c["s3.securities"], 1.2, 0.2); imp.add(A.hit(0.4, 95, 48, 0.25), c["s3.securities"], 0.264)
     sold = c["s3.sold"]
     fx.add(A.pan_sweep(A.whoosh(0.6, 300, 4500, 0.55), 0.5, -0.5), sold - 0.1, 0.7)
     penta = [587.3, 698.5, 784.0, 880.0, 1046.5, 1174.7, 1396.9]
@@ -454,7 +490,7 @@ def effects(hall_ir):
 
     # ── 4 ────────────────────────────────────────────────────────────────────────
     s4 = S["s4"]
-    fx.add(A.shutter(), s4 - 0.02, 0.7); imp.add(A.hit(0.7, 90, 40, 0.2), s4, 0.5)
+    fx.add(A.shutter(), s4 - 0.02, 0.7); imp.add(A.hit(0.7, 90, 40, 0.2), s4, 0.275)
     amb.add(A.pan(A.drone(4.4, 36.7, 0.3, 5) * A.hann_env(4.4, 0.6, 0.6), 0), s4, 0.8)
     fx.add(A.stamp(1.3), c["s4.defaulting"], 1.5); big(c["s4.defaulting"], 0.7, 1.3, pre=0.25)
     fx.add(A.pan_sweep(A.paper_slide(0.45), -0.5, 0.5), c["s4.house"] - 0.02, 0.8)
@@ -462,7 +498,7 @@ def effects(hall_ir):
     fx.add(A.pan(A.glide(0.62, 620, 92), 0), c["s4.fell"], 0.42)
     big(c["s4.fell"] + 0.62, 0.72, 1.4, pre=0.0)
     sud, worth = c["s4.suddenly"], c["s4.worth"]
-    fx.add(A.pan_sweep(A.whoosh(0.4, 400, 4200, 0.6), 0.4, -0.4), sud - 0.16, 0.7); imp.add(A.hit(0.7, 100, 42, 0.4), sud, 0.7)
+    fx.add(A.pan_sweep(A.whoosh(0.4, 400, 4200, 0.6), 0.4, -0.4), sud - 0.16, 0.7); imp.add(A.hit(0.7, 100, 42, 0.4), sud, 0.385)
     for k in range(1, 7):
         ft = sud + 0.55 + k * (worth - 0.12 - sud - 0.55) / 6
         fx.add(A.clack(1.0 - k * 0.07), ft - 0.03, 0.9, 0.3); fx.add(A.ping(520 * (0.89 ** k), 0.5, dark=True), ft, 0.2, 0.3)
@@ -471,7 +507,7 @@ def effects(hall_ir):
     fx.add(A.pan(A.crack(0.5, 140, 0.8), 0), worth, 0.7)
     for k in range(42):
         fx.add(A.paper_flap(0.14, rng.uniform(0.8, 1.6)), worth + 0.05 + rng.uniform(0, 1.5) ** 1.2, 0.3, rng.uniform(-0.9, 0.9))
-    imp.add(A.hit(0.5, 100, 46, 0.4), worth + 0.3, 0.5)
+    imp.add(A.hit(0.5, 100, 46, 0.4), worth + 0.3, 0.275)
     loss, s5 = c["s4.losses"], S["s5"]
     fx.add(A.pan_sweep(A.whoosh(0.6, 250, 3600, 0.6), -0.4, 0.4), loss - 0.1, 0.7)
     amb.add(A.pan(A.drone(s5 - loss, 36.7, 0.55, 9) * np.linspace(0.3, 1.0, n(s5 - loss)) ** 1.5, 0), loss, 1.25)
@@ -479,7 +515,7 @@ def effects(hall_ir):
         fx.add(A.ping([311.1, 293.7, 329.6, 277.2][k % 4] * (2 if k % 3 == 0 else 1), 0.7, dark=True), loss + 0.25 + d * 1.9 + 0.5, 0.26, rng.uniform(-0.7, 0.7))
     n3 = (s5 - 0.25 - loss - 0.5) / 3
     for k in range(3):
-        imp.add(A.hit(0.7, 110, 44, 0.5), loss + 0.5 + k * n3, 0.55 + 0.15 * k); fx.add(A.clack(1.0 + 0.1 * k), loss + 0.5 + k * n3, 0.7)
+        imp.add(A.hit(0.7, 110, 44, 0.5), loss + 0.5 + k * n3, 0.303 + 0.15 * k); fx.add(A.clack(1.0 + 0.1 * k), loss + 0.5 + k * n3, 0.7)
     fx.add(A.pan(A.riser(1.7, 180, 7000), 0), s5 - 1.72, 0.85)
 
     # ── 5 ────────────────────────────────────────────────────────────────────────
@@ -487,7 +523,7 @@ def effects(hall_ir):
     tickrun(s5 + 0.42, c["s5.lehman"] - 0.2, 1.0, 0.55, 0.9)
     typing(s5 + 0.45, s5 + 0.95, 13, 0.5); typing(s5 + 1.0, s5 + 1.9, 25, 0.5, bell=True)
     fx.add(A.tick(1.8), s5 + 0.58, 0.3, 0.3); fx.add(A.tick(1.8), s5 + 0.72, 0.3, 0.3)          # viewfinder locks on
-    big(c["s5.lehman"], 0.72, 1.3, pre=0.25); imp.add(A.hit(0.8, 105, 42, 0.4), c["s5.lehman"] + 0.18, 0.7)
+    big(c["s5.lehman"], 0.72, 1.3, pre=0.25); imp.add(A.hit(0.8, 105, 42, 0.4), c["s5.lehman"] + 0.18, 0.385)
     typing(c["s5.lehman"] + 0.54, c["s5.bankruptcy"] - 0.22, 17, 0.5)
     bk = c["s5.bankruptcy"]
     imp.add(A.reverse_swell(0.6, 73.4, hall_ir), bk - 0.6, 1.0)
@@ -520,10 +556,10 @@ def effects(hall_ir):
     fx.add(A.pan_sweep(A.paper_slide(0.4), -0.4, 0.2), c["s6.credit"], 0.7); fx.add(A.paper_slap(), c["s6.credit"] + 0.34, 0.7)
     fz = c["s6.froze"]
     fx.add(A.pan(A.crack(0.6, 170, 1.25), 0), fz, 0.75); fx.add(A.pan(A.shimmer(1.0, 2093), 0), fz, 0.16)
-    imp.add(A.hit(0.5, 130, 60, 0.9), fz, 0.6)
+    imp.add(A.hit(0.5, 130, 60, 0.9), fz, 0.330)
     fx.add(A.pan(A.crack(0.5, 40, 1.4), 0), fz + 0.35, 0.3)
     for key in ("s6.millions", "s6.jobs", "s6.homes"):
-        fx.add(A.shutter(), c[key] - 0.01, 0.95); imp.add(A.hit(0.8, 100, 42, 0.5), c[key], 0.8)
+        fx.add(A.shutter(), c[key] - 0.01, 0.95); imp.add(A.hit(0.8, 100, 42, 0.5), c[key], 0.440)
     gov = c["s6.governments"]
     fx.add(A.pan_sweep(A.paper_slide(0.4), 0.4, -0.1), gov, 0.7); fx.add(A.paper_slap(), gov + 0.34, 0.7)
     big(c["s6.stepIn"], 0.7, 1.4, pre=0.25); fx.add(A.pan(A.shimmer(1.2, 932.3), 0), c["s6.stepIn"], 0.14)
@@ -531,7 +567,7 @@ def effects(hall_ir):
     fx.add(A.pan_sweep(A.whoosh(0.55, 300, 4200, 0.6), 0.4, -0.4), g0 - 0.05, 0.6)
     for k, d in enumerate((0.1, 0.42, 0.7, 0.98)):
         fx.add(A.ping([932.3, 1174.7, 1396.9, 1864.7][k], 1.0), g0 + 0.42 + d, 0.26, [-0.5, -0.1, 0.4, 0.2][k])
-        imp.add(A.hit(0.35, 90, 50, 0.2), g0 + 0.42 + d, 0.26)
+        imp.add(A.hit(0.35, 90, 50, 0.2), g0 + 0.42 + d, 0.143)
     v0 = c["s6.collapsing"] - 0.12
     s7 = S["s7"]
     fx.add(A.clack(0.6), v0, 0.8); fx.add(A.pan_sweep(A.whoosh(0.3, 800, 3000, 0.5), 0, 0), v0 - 0.12, 0.4)
@@ -556,7 +592,7 @@ def effects(hall_ir):
     imp.add(A.boom(1.2, 170, 52, drive=3.0), wrong, 0.6)
     amb.add(A.pan(A.lp(A.white(2.8), 65, 4) * A.env(2.8, 0.01, 1.6, 3), 0), wrong, 2.2)
     for k in range(9):                                                                # the tower coming down, far away
-        imp.add(A.hit(0.5, 80, 40, 0.1), wrong + 0.25 + k * 0.13 + rng.uniform(0, 0.05), 0.2 * (1 - k / 11), rng.uniform(-0.5, 0.5))
+        imp.add(A.hit(0.5, 80, 40, 0.1), wrong + 0.25 + k * 0.13 + rng.uniform(0, 0.028), 0.2 * (1 - k / 11), rng.uniform(-0.5, 0.5))
     return fx, imp, amb
 
 
@@ -662,11 +698,21 @@ def main():
     bed_bus = beds * duck_fx * music_gate[:, None] * 0.24
     mix = vo_st * 1.0 + music_bus + sfx_bus + imp_bus + bed_bus
 
-    # closing fade
-    f0 = int(CUE["s7.fadeOut"] * SR); f1 = int((DUR - 0.08) * SR)
+    # the film fades out before the brand card; the card has its own sting
+    f0 = int(CUE["s7.fadeOut"] * SR); f1 = int(CUE["outro.start"] * SR)
     fadec = np.ones(NS); fadec[f0:f1] = np.cos(np.linspace(0, np.pi / 2, f1 - f0)) ** 2; fadec[f1:] = 0
-    stems = {"narration": vo_st * fadec[:, None], "music": music_bus * fadec[:, None], "effects": (sfx_bus + imp_bus + bed_bus) * fadec[:, None]}
-    mix = mix * fadec[:, None]
+    o = CUE["outro.start"]; ob = Bus()
+    ob.add(A.pan_sweep(A.whoosh(0.5, 300, 4000, 0.7), -0.3, 0.3), o - 0.2, 0.5)
+    ob.add(A.hit(0.9, 120, 55, 0.4), o + 0.1, 0.55)
+    for k, f in enumerate((293.7, 440.0, 587.3, 698.5)):
+        ob.add(A.ping(f, 2.6, 0.9), o + 0.12 + k * 0.03, 0.22, [-0.3, 0.3, -0.1, 0.1][k])
+    ob.add(A.pan_sweep(A.whoosh(0.4, 900, 6000, 0.6, 1.4), -0.5, 0.5), o + 0.45, 0.35)
+    ob.add(A.pan(A.shimmer(1.6, 587.3), 0), o + 0.5, 0.12)
+    ob.add(A.pop(0.6, 640), o + 1.05, 0.3)
+    outro = ob.b + A.convolve(ob.b, hall)[:NS] * 0.35
+    e0 = int((DUR - 0.5) * SR); outro[e0:] *= np.linspace(1, 0, NS - e0)[:, None]
+    stems = {"narration": vo_st * fadec[:, None], "music": music_bus * fadec[:, None], "effects": (sfx_bus + imp_bus + bed_bus) * fadec[:, None] + outro * 0.8}
+    mix = mix * fadec[:, None] + outro * 0.8
     mix = mix[: n(DUR)]
 
     # master: glue, loudness to −14 LUFS (Instagram's target), true peak under −1 dBTP

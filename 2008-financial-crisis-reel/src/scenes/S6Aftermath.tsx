@@ -299,13 +299,13 @@ const Rescue: React.FC<{ t: number }> = ({ t }) => {
       {a2 ? (
         <AbsoluteFill style={{ opacity: prog(t, g0, g0 + 0.25) * (1 - prog(t, coll - 0.05, coll + 0.2)) }}>
           <AbsoluteFill style={{ transform: `translateY(${(1 - rise) * 380}px) scale(${lerp(0.84, 1, rise) + 0.03 * prog(t, g0, coll)})`, transformOrigin: "50% 45%" }}>
-            <Globe cx={540} cy={860} r={440} lon={lerp(-52, -30, E.inOutQuad(prog(t, g0, coll + 0.2)))} lat={32} nodes={nodes} glow="rgba(47,158,92,.26)" />
+            <Globe cx={540} cy={950} r={410} lon={lerp(-52, -30, E.inOutQuad(prog(t, g0, coll + 0.2)))} lat={32} nodes={nodes} glow="rgba(47,158,92,.26)" />
           </AbsoluteFill>
           <div style={{ position: "absolute", left: 0, width: W, top: 286, textAlign: "center" }}>
             <div style={{ fontFamily: F.mono, fontWeight: 700, fontSize: 25, letterSpacing: 7, color: C.green }}>OCTOBER 2008</div>
             <div style={{ fontFamily: F.serif, fontWeight: 900, fontSize: 76, lineHeight: 1.05, color: C.paper, marginTop: 8 }}>Governments step in.</div>
           </div>
-          <div style={{ position: "absolute", left: 0, width: W, top: 1338, textAlign: "center", fontFamily: F.sans, fontWeight: 500, fontSize: 17, color: "#fff", opacity: 0.55 }}>Headline size of the bank rescue packages announced in October 2008</div>
+          <div style={{ position: "absolute", left: 0, width: W, top: 1386, textAlign: "center", fontFamily: F.sans, fontWeight: 500, fontSize: 17, color: "#fff", opacity: 0.55 }}>Headline size of the bank rescue packages announced in October 2008</div>
         </AbsoluteFill>
       ) : null}
 

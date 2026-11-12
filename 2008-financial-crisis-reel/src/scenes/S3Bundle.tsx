@@ -218,14 +218,14 @@ const StackBeat: React.FC<{ t: number }> = ({ t }) => {
             <polygon points={`${P(-a, b, hBox * 0.6)} ${P(a, b, hBox * 0.6)} ${P(a, b, hBox * 0.46)} ${P(-a, b, hBox * 0.46)}`} fill={C.red} />
             <polygon points={`${P(a, -b, hBox * 0.6)} ${P(a, b, hBox * 0.6)} ${P(a, b, hBox * 0.46)} ${P(a, -b, hBox * 0.46)}`} fill={C.redDeep} />
             {/* lettering set into the left face */}
-            <g transform={`matrix(${COS},${-SIN},0,1,${lA[0]},${lA[1]})`}>
-              <text x={22} y={hBox * 0.27} style={{ fontFamily: F.serif, fontWeight: 900, fontSize: 96, fill: C.ink }}>
+            <g transform={`matrix(${COS},${SIN},0,1,${lA[0]},${lA[1]})`}>
+              <text x={a} y={hBox * 0.27} textAnchor="middle" style={{ fontFamily: F.serif, fontWeight: 900, fontSize: 74, fill: C.ink }}>
                 MBS
               </text>
-              <text x={24} y={hBox * 0.5} style={{ fontFamily: F.sans, fontWeight: 800, fontSize: 22, letterSpacing: 3, fill: "#fff" }}>
-                4,499 LOANS · 1 SECURITY
+              <text x={a} y={hBox * 0.5} textAnchor="middle" style={{ fontFamily: F.sans, fontWeight: 800, fontSize: 21, letterSpacing: 2, fill: "#fff" }}>
+                4,499 LOANS
               </text>
-              <text x={24} y={hBox * 0.78} style={{ fontFamily: F.mono, fontWeight: 600, fontSize: 21, letterSpacing: 1.5, fill: C.ink, opacity: 0.7 }}>
+              <text x={a} y={hBox * 0.78} textAnchor="middle" style={{ fontFamily: F.mono, fontWeight: 600, fontSize: 17, letterSpacing: 1, fill: C.ink, opacity: 0.7 }}>
                 SERIES 2006-NC2
               </text>
             </g>
@@ -273,7 +273,7 @@ const ROUTES: [CityId, number, string?, ("l" | "r")?][] = [
   ["tokyo", 0.92, "TOKYO", "r"],
   ["sydney", 1.0],
 ];
-export const GLOBE = { cx: 540, cy: 890, r: 452 };
+export const GLOBE = { cx: 540, cy: 975, r: 410 };
 
 const WorldBeat: React.FC<{ t: number }> = ({ t }) => {
   const t0 = cue("s3.sold");
@@ -298,7 +298,7 @@ const WorldBeat: React.FC<{ t: number }> = ({ t }) => {
       <div style={{ position: "absolute", left: 0, width: W, top: 372, textAlign: "center", fontFamily: F.serif, fontWeight: 900, fontStyle: "italic", fontSize: 58, color: C.paper, opacity: prog(t, t0 + 0.35, t0 + 0.75), letterSpacing: 0.5 }}>
         Sold around the world.
       </div>
-      <div style={{ position: "absolute", left: 60, width: 960, top: 1322, display: "flex", justifyContent: "center", gap: 14, flexWrap: "wrap" }}>
+      <div style={{ position: "absolute", left: 60, width: 960, top: 458, display: "flex", justifyContent: "center", gap: 14, flexWrap: "wrap" }}>
         {BUYERS.map((bname, i) => {
           const q = E.outBack(prog(t, t0 + 0.9 + i * 0.16, t0 + 1.2 + i * 0.16));
           return (

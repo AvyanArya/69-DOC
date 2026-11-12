@@ -220,8 +220,8 @@ const Product: React.FC<{ t: number }> = ({ t }) => {
           <polygon points={`${P(-a, -b, hB)} ${P(a, -b, hB)} ${P(a, b, hB)} ${P(-a, b, hB)}`} fill="#F4EFE3" />
           <polygon points={`${P(-a, b, hB * 0.6)} ${P(a, b, hB * 0.6)} ${P(a, b, hB * 0.46)} ${P(-a, b, hB * 0.46)}`} fill={C.red} />
           <polygon points={`${P(a, -b, hB * 0.6)} ${P(a, b, hB * 0.6)} ${P(a, b, hB * 0.46)} ${P(a, -b, hB * 0.46)}`} fill={C.redDeep} />
-          <g transform={`matrix(${COS},${-SIN},0,1,${lA[0]},${lA[1]})`}>
-            <text x={22} y={hB * 0.27} style={{ fontFamily: F.serif, fontWeight: 900, fontSize: 96, fill: C.ink }}>
+          <g transform={`matrix(${COS},${SIN},0,1,${lA[0]},${lA[1]})`}>
+            <text x={a} y={hB * 0.27} textAnchor="middle" style={{ fontFamily: F.serif, fontWeight: 900, fontSize: 74, fill: C.ink }}>
               MBS
             </text>
           </g>
@@ -352,14 +352,14 @@ const Contagion: React.FC<{ t: number }> = ({ t }) => {
   return (
     <AbsoluteFill style={{ background: C.coal, opacity: prog(t, t0, t0 + 0.25) }}>
       <AbsoluteFill style={{ background: `radial-gradient(ellipse 80% 55% at 50% 46%, rgba(176,20,30,${0.1 + 0.3 * p}) 0%, rgba(176,20,30,0) 100%)` }} />
-      <AbsoluteFill style={{ transform: `translate(${kx}px, ${ky + (1 - rise) * 300}px) scale(${lerp(0.88, 1.03, E.outCubic(p))})`, transformOrigin: "50% 41%" }}>
-        <Globe cx={GLOBE.cx} cy={790} r={410} lon={spin} lat={26} arcs={arcs} nodes={nodes} alarm={0.25 + 0.75 * p} glow="rgba(212,34,46,.34)" dotColor="#F0D9D2" />
+      <AbsoluteFill style={{ transform: `translate(${kx}px, ${ky + (1 - rise) * 300}px) scale(${lerp(0.88, 1.03, E.outCubic(p))})`, transformOrigin: "50% 52%" }}>
+        <Globe cx={GLOBE.cx} cy={1000} r={380} lon={spin} lat={26} arcs={arcs} nodes={nodes} alarm={0.25 + 0.75 * p} glow="rgba(212,34,46,.34)" dotColor="#F0D9D2" />
       </AbsoluteFill>
       <div style={{ position: "absolute", left: 0, width: W, top: 290, textAlign: "center", transform: `translate(${kx * 0.5}px, ${ky * 0.5}px)` }}>
         <div style={{ fontFamily: F.mono, fontWeight: 700, fontSize: 25, letterSpacing: 7, color: C.redBright, opacity: rise }}>CONTAGION</div>
       </div>
       {/* loss counter – IMF estimates, each larger than the last */}
-      <div style={{ position: "absolute", left: 0, width: W, top: 1228, textAlign: "center", opacity: prog(t, t0 + 0.5, t0 + 0.7), transform: `translate(${kx * 0.7}px, ${ky * 0.7}px)` }}>
+      <div style={{ position: "absolute", left: 0, width: W, top: 352, textAlign: "center", opacity: prog(t, t0 + 0.5, t0 + 0.7), transform: `translate(${kx * 0.7}px, ${ky * 0.7}px)` }}>
         <Label size={23} style={{ opacity: 0.7 }}>
           ESTIMATED LOSSES · IMF
         </Label>

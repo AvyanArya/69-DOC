@@ -4,6 +4,7 @@ import { Vignette } from "./components/Overlays";
 import { Fonts } from "./Fonts";
 import { useT } from "./lib/time";
 import { TL } from "./lib/timeline";
+import { Outro, Watermark } from "./components/Brand";
 import { Captions } from "./components/Captions";
 import { S1Hook } from "./scenes/S1Hook";
 import { S2Problem } from "./scenes/S2Problem";
@@ -37,8 +38,10 @@ export const Reel: React.FC = () => {
           const sc = TL.scenes[key];
           return t >= sc.start - PRE && t < sc.end + POST ? <Scene key={key} /> : null;
         })}
+        <Outro />
         <Vignette />
         <Captions />
+        <Watermark />
       </AbsoluteFill>
     </Fonts>
   );
