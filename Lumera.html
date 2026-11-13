@@ -7,7 +7,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self' blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com; style-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self' https://open.er-api.com https://api.mymemory.translated.net https://translate.googleapis.com; img-src 'self' data: blob: https:;" />
 <link rel="icon" type="image/png" href="assets/brand/favicon-64.png"/>
 <link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png"/>
-<title>Lumera | Your financial intelligence, in one place.</title>
+<title>Lumera, Your personal financial intelligence system</title>
 <meta name="description" content="Lumera turns one month of financial behaviour into a clear action plan. Benchmark your spending, understand the invisible patterns behind your money, and invest with confidence. Educational guidance, privacy-first." />
 
 <!-- Fonts, self-hosted (SIL Open Font License): Instrument Serif for
@@ -590,36 +590,12 @@
 
   .soon-pill{ display:inline-block; font-size:9.5px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; padding:3px 7px; border-radius:999px;
     color:#1A1206; background:linear-gradient(100deg,#F5D78A,#EBC77A); box-shadow:0 0 0 1px rgba(255,255,255,.25), 0 4px 12px -4px rgba(235,199,122,.7); white-space:nowrap; }
-  /* The dock is about 60px tall and floats max(14px, safe area) above the bottom edge. */
-  :root{ --dock-top: calc(60px + max(14px, env(safe-area-inset-bottom))); }
-  main#main.dock-pad{ padding-bottom:calc(var(--dock-top) + 24px); }
-  .demo-banner{ position:fixed; z-index:70; right:14px; bottom:calc(var(--dock-top) + 10px); display:flex; align-items:center; gap:5px; padding:3px 8px 3px 7px; border-radius:999px;
+  .demo-banner{ position:fixed; z-index:70; right:14px; bottom:14px; display:flex; align-items:center; gap:5px; padding:3px 8px 3px 7px; border-radius:999px;
     font-size:10px; font-weight:600; color:rgb(var(--c-charcoal)); background:rgba(22,21,33,.82); border:1px solid rgba(255,255,255,.14);
     backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
-  .streak-chip{ border-radius:18px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.10); }
-  .streak-sub{ color:rgba(255,255,255,.74); }
-  .anim-fadeOut{ animation:streakOut .26s ease both; }
-  @keyframes streakOut{ to{ opacity:0; transform:translateY(8px); } }
-  .streak-claim{ min-height:34px; border-radius:999px; }
-  .streak-x{ width:34px; height:34px; color:rgba(255,255,255,.72); }
-  .streak-x:hover{ color:#fff; background:rgba(255,255,255,.08); }
   .demo-banner svg{ color:#F5C77A; flex-shrink:0; }
   .demo-banner-cta{ margin-left:4px; font-weight:700; font-size:10px; padding:1px 7px; border-radius:999px; background:rgba(255,255,255,.12); }
   .demo-banner-cta:hover{ background:rgba(255,255,255,.2); }
-  /* With the demo pill above the dock, leave room for it too. */
-  .demo-banner ~ main#main.dock-pad{ padding-bottom:calc(var(--dock-top) + 52px); }
-  /* Touch screens: every control is at least 44px. Buttons grow; small text
-     links and pills keep their look and get an invisible 44px hit area. */
-  @media (pointer: coarse){
-    .skip-link{ min-height:44px; display:inline-flex; align-items:center; }
-    .lg-topbar button{ min-height:44px; min-width:44px; }
-    .lg-searchicon{ height:44px; min-width:44px; }
-    .btn{ min-height:44px; }
-    .streak-x{ width:44px; height:44px; }
-    [role="dialog"][aria-label="Menu"] button{ min-height:44px; min-width:44px; }
-    .demo-banner-cta, main#main button.text-xs:not(.btn){ position:relative; }
-    .demo-banner-cta::after, main#main button.text-xs:not(.btn)::after{ content:""; position:absolute; left:-4px; right:-4px; top:50%; height:44px; transform:translateY(-50%); }
-  }
   /* ---- header search bar ---- */
   .lg-searchicon{ display:flex; align-items:center; gap:0; height:40px; width:40px; padding:0 11px; border-radius:999px; overflow:hidden; white-space:nowrap;
     color:rgb(var(--c-charcoal)); background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12); transition:width .3s cubic-bezier(.22,1,.36,1), background .2s ease; }
@@ -661,18 +637,18 @@
   /* ---- the ground: volumetric light that drifts very slowly ---- */
   html[data-skin="glass"] .atmo{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;
     background:
-      radial-gradient(1200px 820px at 10% -14%, rgba(var(--glow,157,124,255),.25), transparent 62%),
-      radial-gradient(980px 760px at 104% 18%, rgba(236,72,153,.12), transparent 64%),
-      radial-gradient(1100px 760px at 46% 124%, rgba(251,191,36,.10), transparent 62%),
-      radial-gradient(900px 700px at -6% 80%, rgba(45,212,191,.10), transparent 60%),
-      radial-gradient(700px 500px at 70% 55%, rgba(99,102,241,.08), transparent 60%),
+      radial-gradient(1200px 820px at 10% -14%, rgba(var(--glow,157,124,255),.70), transparent 62%),
+      radial-gradient(980px 760px at 104% 18%, rgba(236,72,153,.45), transparent 64%),
+      radial-gradient(1100px 760px at 46% 124%, rgba(251,191,36,.34), transparent 62%),
+      radial-gradient(900px 700px at -6% 80%, rgba(45,212,191,.36), transparent 60%),
+      radial-gradient(700px 500px at 70% 55%, rgba(99,102,241,.30), transparent 60%),
       var(--lg-ground); }
-  html[data-skin="glass"] .atmo .aurora{ position:absolute; border-radius:50%; filter:blur(90px); opacity:.25; will-change:transform; }
+  html[data-skin="glass"] .atmo .aurora{ position:absolute; border-radius:50%; filter:blur(90px); opacity:.75; will-change:transform; }
   html[data-skin="glass"] .atmo .a1{ width:42vw; height:42vw; min-width:380px; min-height:380px; top:-16vw; left:-10vw;
     background:radial-gradient(circle, rgba(var(--glow,157,124,255),.9), transparent 66%); animation:lg-drift-a 70s ease-in-out infinite alternate; }
   html[data-skin="glass"] .atmo .a2{ width:36vw; height:36vw; min-width:340px; min-height:340px; top:30vh; right:-14vw;
     background:radial-gradient(circle, rgba(110,108,246,.85), transparent 66%); animation:lg-drift-b 84s ease-in-out infinite alternate; }
-  html[data-skin="glass"] .atmo .a3{ width:30vw; height:30vw; min-width:280px; min-height:280px; bottom:-14vw; left:30vw; opacity:.06;
+  html[data-skin="glass"] .atmo .a3{ width:30vw; height:30vw; min-width:280px; min-height:280px; bottom:-14vw; left:30vw; opacity:.16;
     background:radial-gradient(circle, rgba(235,199,122,.9), transparent 68%); animation:lg-drift-a 96s ease-in-out infinite alternate-reverse; }
   @keyframes lg-drift-a{ to{ transform:translate3d(6vw,4vh,0) scale(1.08); } }
   @keyframes lg-drift-b{ to{ transform:translate3d(-5vw,-6vh,0) scale(1.06); } }
@@ -691,6 +667,11 @@
     position:sticky; top:14px; height:calc(100vh - 28px); margin:14px 0 14px 14px; border-radius:28px; overflow:hidden;
   }
   html[data-skin="glass"] .lg-sidebar nav{ flex:1 1 auto; min-height:0; overflow-y:auto; scrollbar-width:thin; }
+  .fam-soon{ pointer-events:none; user-select:none; border-radius:14px; overflow:hidden; }
+  .fam-soon > button{ filter:saturate(.55) brightness(.8); opacity:.6; }
+  .fam-ribbon{ position:absolute; z-index:3; left:50%; top:50%; transform:translate(-50%,-50%) rotate(-24deg); white-space:nowrap;
+    padding:7px 70px; font-size:13px; font-weight:800; letter-spacing:.16em; text-transform:uppercase; color:#1A1206;
+    background:linear-gradient(100deg,#FCD34D,#F59E0B); box-shadow:0 8px 24px rgba(0,0,0,.45); }
   html[data-skin="glass"] .lg-sidebar .sidebar-foot{ flex:none; border-top:1px solid rgba(255,255,255,.08); }
   html[data-skin="glass"] .lg-topbar{
     position:sticky; top:14px; z-index:30; margin:0 14px 0; border-radius:22px;
@@ -763,34 +744,25 @@
     box-shadow:var(--lg-rim), var(--lg-depth-3);
     backdrop-filter:blur(24px) saturate(140%); -webkit-backdrop-filter:blur(24px) saturate(140%);
   }
-  /* Workspace: a calm, deep violet panel that sits close to the ground.
-     Static: no animated gradient, no colour blobs. The score ring is the focal point. */
+  /* Workspace v19: a living, colourful hero */
   html[data-skin="glass"][data-theme][data-mode] .lg-workspace.ws-live.ws-live{
-    background:linear-gradient(160deg,#2A1B52,#1C1438) !important;
-    border:1px solid rgba(255,255,255,.10);
-    box-shadow:0 24px 60px -32px rgba(0,0,0,.75), inset 0 1px 0 rgba(255,255,255,.05);
+    background:linear-gradient(125deg,#5B21B6,#7C3AED 22%,#C026D3 46%,#DB2777 64%,#F59E0B 88%,#7C3AED) !important;
+    background-size:320% 320% !important; animation:ws-shift 18s ease-in-out infinite alternate;
+    border:1px solid rgba(255,255,255,.28); box-shadow:0 30px 70px -30px rgba(192,38,211,.75), inset 0 1px 0 rgba(255,255,255,.35);
   }
-  .ws-live .lg-inset{ background:rgba(255,255,255,.04) !important; border-color:rgba(255,255,255,.10) !important; }
-  .ws-live .text-muted,.ws-live .text-faint{ color:rgba(255,255,255,.80) !important; }
-  .ws-eyebrow{ color:rgba(255,255,255,.78); }
-  .ws-greet{ background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.10); color:rgba(255,255,255,.86); }
-  /* Stat tiles: a quiet glass surface, an accent number and a 2px top line. */
-  .ws-tile{ border-radius:18px; padding:16px; color:#fff; position:relative; overflow:hidden;
-    background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.10);
-    box-shadow:inset 0 2px 0 var(--tile-accent,#A78BFA);
-    transition:transform .3s cubic-bezier(.2,.8,.2,1), border-color .3s ease; }
-  .ws-tile:hover{ transform:translateY(-2px); border-color:rgba(255,255,255,.16); }
-  .ws-tile .ws-num{ color:var(--tile-accent,#C4B5FD); }
-  .ws-tile .ws-lab{ color:rgba(255,255,255,.78); }
-  .ws-tile .ws-unit{ color:rgba(255,255,255,.72); }
-  .ws-tile .ws-note{ color:rgba(255,255,255,.86); }
+  @keyframes ws-shift{ 0%{background-position:0% 40%} 100%{background-position:100% 60%} }
+  .ws-blob{ position:absolute; border-radius:50%; filter:blur(40px); opacity:.55; z-index:-1; pointer-events:none; animation:ws-float 12s ease-in-out infinite alternate; }
+  @keyframes ws-float{ to{ transform:translate3d(30px,-24px,0) scale(1.12); } }
+  .ws-live .lg-inset{ background:rgba(20,8,40,.28) !important; border-color:rgba(255,255,255,.22) !important; }
+  .ws-live .text-muted,.ws-live .text-faint{ color:rgba(255,255,255,.82) !important; }
+  .ws-tile{ border-radius:20px; padding:16px; color:#fff; position:relative; overflow:hidden; transition:transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s; }
+  .ws-tile:hover{ transform:translateY(-6px) rotate(-.5deg); }
+  .ws-tile::after{ content:""; position:absolute; inset:0; background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.28) 50%,transparent 70%); transform:translateX(-120%); animation:ws-shine 6s ease-in-out infinite; }
+  @keyframes ws-shine{ 60%,100%{ transform:translateX(120%); } }
   .ws-ring circle.fg{ transition:stroke-dashoffset 1.4s cubic-bezier(.2,.8,.2,1); }
-  /* Hero actions and the status pill: low-contrast outlined pills. */
-  .ws-btn, .ws-live .lg-pill{ background:transparent !important; color:rgba(255,255,255,.80) !important; border:1px solid rgba(255,255,255,.14) !important; box-shadow:none !important; }
-  .ws-btn:hover{ background:rgba(255,255,255,.06) !important; color:#fff !important; border-color:rgba(255,255,255,.22) !important; }
-  .ws-live .lg-pill .ws-sep{ width:1px; height:12px; background:rgba(255,255,255,.16); }
-  .ws-live .lg-orb{ box-shadow:0 0 0 3px rgba(255,255,255,.06); }
-  @media (prefers-reduced-motion: reduce){ .ws-tile, .ws-ring circle.fg{ transition:none; } .ws-tile:hover{ transform:none; } }
+  .ws-btn{ background:rgba(255,255,255,.18) !important; color:#fff !important; border:1px solid rgba(255,255,255,.3) !important; }
+  .ws-btn:hover{ background:rgba(255,255,255,.3) !important; }
+  @media (prefers-reduced-motion: reduce){ .lg-workspace.ws-live,.ws-blob,.ws-tile::after{ animation:none; } }
   .sub-card{ transition:transform .3s cubic-bezier(.2,.8,.2,1); }
   .sub-card:hover{ transform:translateY(-5px); }
   .ready-card{ transition:transform .35s cubic-bezier(.2,.8,.2,1); }
@@ -1123,14 +1095,14 @@ function WsRing({ value=0, size=118 }){
   const [on,setOn]=useState(false); useEffect(()=>{ const t=setTimeout(()=>setOn(true),60); return ()=>clearTimeout(t); },[]);
   return <div className="relative shrink-0 ws-ring" style={{width:size,height:size}}>
     <svg width={size} height={size} className="-rotate-90" aria-hidden="true">
-      <defs><linearGradient id="wsg" x1="0" x2="1"><stop offset="0" stopColor="#8E7BFF"/><stop offset="1" stopColor="#DDD3FF"/></linearGradient></defs>
-      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,.10)" strokeWidth="10"/>
+      <defs><linearGradient id="wsg" x1="0" x2="1"><stop offset="0" stopColor="#FDE68A"/><stop offset="1" stopColor="#ffffff"/></linearGradient></defs>
+      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,.22)" strokeWidth="10"/>
       <circle className="fg" cx={size/2} cy={size/2} r={r} fill="none" stroke="url(#wsg)" strokeWidth="10" strokeLinecap="round"
-        strokeDasharray={c} strokeDashoffset={on?c*(1-clamp(value,0,100)/100):c} style={{filter:'drop-shadow(0 0 6px rgba(167,139,250,.55))'}}/>
+        strokeDasharray={c} strokeDashoffset={on?c*(1-clamp(value,0,100)/100):c} style={{filter:'drop-shadow(0 0 8px rgba(253,230,138,.8))'}}/>
     </svg>
     <div className="absolute inset-0 grid place-items-center text-center"><div>
       <div className="font-display tnum text-[2.6rem] leading-none text-white">{value?Math.round(v):'–'}</div>
-      <div className="text-[10px] text-white/75">of 100</div></div></div>
+      <div className="text-[10px] text-white/80">of 100</div></div></div>
   </div>;
 }
 /* Animated counter hook */
@@ -2144,7 +2116,7 @@ function Logo({ size=22, light=false, sub=false, stacked=false, tagline=false })
       {mark}
       <div className="mt-2">{word}</div>
       {(sub||tagline) && <div className={cx('text-[9px] tracking-[.3em] uppercase mt-2.5 text-center', light?'text-cream/70':'text-faint')}>
-        Your financial intelligence, in one place.</div>}
+        All financial intelligence. One place.</div>}
     </div>
   );
   return (
@@ -2658,22 +2630,27 @@ function Sidebar(){
             {core.map(navBtn)}
           </div>
           {products.length>0 && <div className="mb-4">
-            <div className="px-3 mb-1.5 text-[10px] tracking-[.22em] uppercase text-faint whitespace-nowrap">Lumera family</div>
-            {/* Not launched yet: listed like any other item, with its mascot, but inert. */}
-            <div aria-disabled="true">
+            <div className="px-3 mb-2 flex items-center justify-between gap-2"><span className="text-[10px] tracking-[.18em] uppercase text-faint whitespace-nowrap">Lumera family</span>
+              <span className="text-[9px] font-extrabold uppercase tracking-wider rounded-full px-2 py-0.5 whitespace-nowrap" style={{background:'linear-gradient(100deg,#FCD34D,#F59E0B)',color:'#1A1206'}}>Not out yet</span></div>
+            {/* Not launched yet: shown under a diagonal "Coming soon" band, and inert. */}
+            <div className="relative fam-soon" aria-disabled="true">
+            <span className="fam-ribbon" aria-hidden="true">Coming soon</span>
             {products.map(s=>{
               const active = app.product===s.key;
               return <button key={s.key} tabIndex={-1} disabled
-                className="w-full flex items-center gap-3 rounded-xl px-3 py-2 mb-0.5 text-sm border border-transparent text-charcoal cursor-default"
+                className={cx('w-full flex items-center gap-3 rounded-xl px-3 py-2.5 mb-1.5 text-sm transition-all duration-300 border',
+                  !s.live&&'opacity-50 cursor-default', s.live&&'hover:-translate-y-0.5')}
                 style={active
-                  ? {background:HERO_GRAD[s.key], color:'#fff', boxShadow:`0 8px 20px ${s.accent}55`}
-                  : undefined}
-                title={s.name+' is coming soon'}>
-                <MascotAvatar kind={s.key} color={active?'#ffffff':s.accent} size={30}/>
+                  ? {background:HERO_GRAD[s.key], color:'#fff', borderColor:'transparent', boxShadow:`0 8px 20px ${s.accent}55`}
+                  : {background:s.accent+'14', borderColor:s.accent+'44', color:'rgb(var(--c-charcoal))'}}
+                title={s.live?('Open '+s.name):''}>
+                <MascotAvatar kind={s.key} color={active?'#ffffff':s.accent} size={32}/>
                 <span className="flex-1 text-left leading-tight">
-                  <span className="block font-medium">{s.name}</span>
-                  <span className="block text-[11px] text-muted" style={active?{color:'rgba(255,255,255,.85)'}:undefined}>{s.tag}</span></span>
-                <span className="text-[10px] text-muted">Soon<span className="sr-only">: not available yet</span></span>
+                  <span className="block font-semibold">{s.name}</span>
+                  <span className="block text-[10px]" style={{color:active?'rgba(255,255,255,.85)':s.accent}}>{s.tag}</span></span>
+                {s.live
+                  ? <Icon name="arrowR" size={14} style={{color:active?'#fff':s.accent}}/>
+                  : null}
               </button>; })}
             </div>
           </div>}
@@ -2898,7 +2875,7 @@ function Dock(){
 
 function MobileMenu(){
   const app = useApp(); const { t } = app; if(!app.mobileMenu) return null;
-  return <div className="lg:hidden fixed inset-0 z-[100]">
+  return <div className="lg:hidden fixed inset-0 z-50">
     <div className="absolute inset-0 bg-charcoal/40 anim-fadeIn" onClick={()=>app.setMobileMenu(false)}/>
     <div role="dialog" aria-label="Menu" className="absolute left-2.5 top-2.5 bottom-2.5 w-[min(84vw,300px)] bg-cream shadow-lift p-4 overflow-y-auto anim-scaleIn lg-glass rounded-[26px]">
       <div className="flex items-center justify-between mb-4"><Logo size={16}/><button onClick={()=>app.setMobileMenu(false)} aria-label="Close menu" className="grid place-items-center h-9 w-9 rounded-lg hover:bg-sand"><Icon name="x"/></button></div>
@@ -2981,8 +2958,8 @@ function AppShell({ children }){
     <div className="flex-1 min-w-0 flex flex-col">
       <TopBar/>
       <DemoBanner/>
-      {/* bottom padding (.dock-pad) keeps the last panel clear of the dock */}
-      <main id="main" ref={ref} tabIndex={-1} className="dock-pad flex-1 px-4 sm:px-6 lg:px-8 py-6 max-w-[1200px] w-full mx-auto outline-none">{children}</main>
+      {/* bottom padding keeps the last panel clear of the dock */}
+      <main id="main" ref={ref} tabIndex={-1} className="flex-1 px-4 sm:px-6 lg:px-8 py-6 pb-32 max-w-[1200px] w-full mx-auto outline-none">{children}</main>
     </div>
     <Dock/><MobileMenu/><Guide/>
   </div>;
@@ -4184,48 +4161,45 @@ function Dashboard(){
   // Until there is an income there is nothing to score; show that plainly.
   const hasData = m.income>1;
   return <AppShell>
-    {app.user && app.onboarded && <DailyCheckIn/>}
     {/* ===== Active workspace: the one raised surface on the page ===== */}
     <section aria-labelledby="ws-title" className="lg-workspace ws-live lux-card !p-5 sm:!p-7 mb-6 text-white">
+      <span className="ws-blob" aria-hidden="true" style={{width:260,height:260,top:-80,left:-60,background:'#22D3EE'}}/>
+      <span className="ws-blob" aria-hidden="true" style={{width:220,height:220,bottom:-90,right:'30%',background:'#FDE047',animationDelay:'-5s'}}/>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2.5"><span className="lg-orb" aria-hidden="true"/>
-          <span className="text-[11px] tracking-[.22em] uppercase font-bold ws-eyebrow">Active workspace</span>
+          <span className="text-[11px] tracking-[.22em] uppercase font-bold text-white/90">Active workspace</span>
           <button onClick={()=>app.nav('/review')} className="btn ws-btn px-3 py-1.5 text-xs ml-2"><Icon name="refresh" size={13}/>Update my figures</button>
           <button onClick={()=>app.nav('/twin')} className="btn ws-btn px-3 py-1.5 text-xs"><Icon name="user" size={13}/>Financial Twin</button></div>
-        {/* One quiet status pill: when the figures were updated, then the level. */}
-        <span className="lg-pill flex-wrap"><span className={cx('lg-orb', !updated||stale?'warn':'')} aria-hidden="true"/>{updatedLabel}
-          {app.mode==='spark' && <Fragment><span className="ws-sep" aria-hidden="true"/>
-            <span className="inline-flex items-center gap-2" title={`${lvlNext-(app.xp||0)} XP to level ${lvl+1}`}>Level {lvl}
-              <span className="inline-block w-12 h-1 rounded-full overflow-hidden bg-white/15" aria-hidden="true"><span className="block h-full rounded-full" style={{width:Math.max(6,lvlPct)+'%',background:'#C4B5FD'}}/></span>
-              <span className="tnum">{app.xp||0} XP</span></span></Fragment>}
-        </span>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="lg-pill ws-btn"><span className={cx('lg-orb', !updated||stale?'warn':'')} aria-hidden="true"/>{updatedLabel}</span>
+          {app.mode==='spark' && <span className="lg-pill ws-btn" title={`${lvlNext-(app.xp||0)} XP to level ${lvl+1}`}>Level {lvl}
+            <span className="inline-block w-14 h-1.5 rounded-full overflow-hidden bg-white/25" aria-hidden="true"><span className="block h-full rounded-full bg-white" style={{width:Math.max(6,lvlPct)+'%'}}/></span>
+            <span className="tnum">{app.xp||0} XP</span></span>}
+        </div>
       </div>
       <div className="grid lg:grid-cols-[1.1fr_1fr] gap-6 lg:gap-8 mt-5 items-center">
         <div className="min-w-0">
           <div className="flex items-center gap-3">
             <Mascot kind="lumera" color="#ffffff" size={64}/>
-            <div className="ws-greet rounded-2xl rounded-bl-sm px-3.5 py-2 text-sm">{greet}{app.profile.name?`, ${app.profile.name}`:''}. {hasData?(m.overall>=70?'You are on a roll.':'Let’s level up your money today.'):'Add your income and I’ll score you.'}</div>
+            <div className="rounded-2xl rounded-bl-sm bg-white/20 border border-white/30 px-3.5 py-2 text-sm font-medium">{greet}{app.profile.name?`, ${app.profile.name}`:''}! {hasData?(m.overall>=70?'You are on a roll. 🎉':'Let’s level up your money today. 🚀'):'Add your income and I’ll score you. ✨'}</div>
           </div>
-          <h1 id="ws-title" className="font-display text-[2.3rem] sm:text-[3rem] leading-[1.02] mt-3" style={{color:'rgba(255,255,255,.90)',fontWeight:400}}>Your money, <span style={{color:'#C4B5FD'}}>today</span>.</h1>
+          <h1 id="ws-title" className="font-display text-[2.3rem] sm:text-[3rem] leading-[1.02] mt-3" style={{color:'rgba(255,255,255,.82)',fontWeight:400}}>Your money, <span style={{color:'rgba(253,230,138,.85)'}}>today</span>.</h1>
           <div className="flex items-center gap-5 mt-5">
             <WsRing value={hasData?m.overall:0}/>
             <div>
-              <div className="text-[10.5px] tracking-[.2em] uppercase font-bold ws-eyebrow">Health score</div>
+              <div className="text-[10.5px] tracking-[.2em] uppercase font-bold text-white/85">Health score</div>
               <div className="text-lg font-semibold mt-1">{hasData?scoreLabel:'Add your income to get a score'}</div>
               <button onClick={()=>app.nav('/recommendations')} className="btn ws-btn px-3 py-1.5 text-xs mt-2">See how to raise it <Icon name="arrowR" size={12}/></button>
             </div>
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3 gap-3">
-          {figures.map(([label,value,unit,note],i)=>{
-            // Violet is the only accent; the safety net turns a muted amber only
-            // when it is genuinely short of three months.
-            const warn = i===1 && hasData && m.efMonths<3;
-            return <div key={label} className="ws-tile min-w-0" style={{'--tile-accent':warn?'#E9B872':'#C4B5FD',animation:`fadeUp .6s ${.1+i*.12}s both`}}>
-              <div className="ws-lab text-[10px] tracking-[.14em] uppercase font-bold leading-tight">{label}</div>
-              <div className="ws-num font-display tnum text-[2.1rem] sm:text-[2.4rem] leading-none mt-2 truncate">{hasData?value:'–'}</div>
-              <div className="ws-unit text-[11px] mt-1">{unit}</div>
-              {hasData && <div className="ws-note text-[11.5px] mt-2 leading-snug">{note}</div>}
+          {figures.map(([label,value,unit,note],i)=>{ const g=[['#10B981','#0D9488'],['#3B82F6','#6366F1'],['#F59E0B','#EF4444']][i];
+            return <div key={label} className="ws-tile min-w-0" style={{background:`linear-gradient(150deg,${g[0]},${g[1]})`,boxShadow:`0 18px 36px -18px ${g[1]}`,animation:`fadeUp .6s ${.1+i*.12}s both`}}>
+              <div className="text-[10px] tracking-[.14em] uppercase font-bold text-white/90 leading-tight">{label}</div>
+              <div className="font-display tnum text-[2.1rem] sm:text-[2.4rem] leading-none mt-2 truncate">{hasData?value:'–'}</div>
+              <div className="text-[11px] text-white/85 mt-1">{unit}</div>
+              {hasData && <div className="text-[11.5px] text-white/95 mt-2 leading-snug font-medium">{note}</div>}
             </div>; })}
         </div>
       </div>
@@ -7114,24 +7088,67 @@ function DailyCheckIn(){
 
   const streak=app.profile.streak||0;
   const shown=claimed?streak:streak+1;
+  const best=Math.max(app.profile.streakBest||0, shown);
   const tier=nextTier(claimed?streak:streak);
   const toGo=Math.max(0,tier.at-shown);
+  const pct=Math.min(100, Math.round(shown/tier.at*100));
+  const days=Array.from({length:7},(_,i)=>{
+    const back=6-i; const d=new Date(); d.setDate(d.getDate()-back);
+    return { key:d.toISOString().slice(0,10), letter:'SMTWTFS'[d.getDay()],
+             done: back===0 ? claimed : back < streak, isToday: back===0 };
+  });
   const claim=()=>{ app.checkIn(); if(app.awardXp) app.awardXp(10); setClaimed(true);
     try{ localStorage.setItem('lumera_streak_snooze',today); }catch(e){}
     setTimeout(()=>dismiss(), 2600); };   // celebrate briefly, then get out of the way
 
-  // A slim banner at the top of the dashboard: the streak, the next milestone,
-  // a Claim button and a close button. It sits in the page, so it never covers
-  // the content, the dock or the menu.
-  return <div className={cx('mb-4', leaving?'anim-fadeOut':'anim-fadeUp')} role="status">
-    <div className="streak-chip flex items-center gap-2.5 pl-3.5 pr-1.5 py-1.5">
-      <span className="text-lg leading-none" aria-hidden="true">{claimed?'🎉':'🔥'}</span>
-      <div className="min-w-0 flex-1 leading-tight">
-        <div className="text-[13px] font-semibold text-white tnum whitespace-nowrap">{shown}-day streak{claimed?' secured':''}</div>
-        <div className="text-[11px] streak-sub truncate">{toGo===0?`${tier.label} unlocked`:`${toGo} to ${tier.label} · +${tier.xp} XP`}</div>
+  // Sits a clear step below the floating top bar rather than tucked against it.
+  return <div className={cx('fixed z-[125] right-3 sm:right-5 top-[5.5rem] w-[min(92vw,330px)]',
+      leaving?'anim-slideOutR':'anim-slideIn')} role="status">
+    <div className="lux-card !p-0 overflow-hidden shadow-lift">
+      <div className="relative px-4 py-3 flex items-center gap-3 overflow-hidden"
+        style={{background:'linear-gradient(120deg,#F59E0B,#EF4444 70%,#B91C1C)'}}>
+        <div className="ember-field" aria-hidden="true">
+          {Array.from({length:5},(_,i)=><span key={i} className="ember" style={{left:(10+i*19)+'%',
+            animationDelay:(i*0.5)+'s', animationDuration:(3.2+(i%3)*0.6)+'s'}}/>)}
+        </div>
+        <span className={cx('relative text-3xl leading-none', claimed?'anim-pop':'flame-pulse')}>{claimed?'🎉':'🔥'}</span>
+        <div className="relative flex-1 leading-tight">
+          <div className="font-serif text-xl text-white tnum">{shown} day{shown===1?'':'s'}</div>
+          <div className="text-[10px] uppercase tracking-[.18em] text-white/85">
+            {claimed?'Streak secured':'Streak on the line'}</div>
+        </div>
+        <button onClick={dismiss} className="relative text-white/75 hover:text-white shrink-0"
+          aria-label="Dismiss"><Icon name="x" size={15}/></button>
       </div>
-      {!claimed && <button onClick={claim} className="btn btn-gold streak-claim px-3.5 text-[12.5px] shrink-0">Claim +10 XP</button>}
-      <button onClick={dismiss} className="streak-x grid place-items-center rounded-full shrink-0" aria-label="Dismiss streak reminder"><Icon name="x" size={14}/></button>
+
+      <div className="p-4">
+        <div className="flex justify-between gap-1">{days.map(d=>
+          <div key={d.key} className="flex-1 text-center">
+            <div className={cx('grid place-items-center h-7 rounded-lg text-[11px] transition-all duration-500',
+              d.isToday&&!d.done&&'ring-2 ring-gold/60')}
+              style={d.done
+                ? {background:'linear-gradient(135deg,#F59E0B,#EF4444)',color:'#fff'}
+                : {background:'rgb(var(--c-sand))',color:'rgb(var(--c-faint))'}}>{d.done?'🔥':'·'}</div>
+            <div className="text-[9px] text-faint mt-0.5">{d.letter}</div>
+          </div>)}
+        </div>
+
+        <div className="flex items-center gap-2 mt-3">
+          <span className="text-base">{tier.emoji}</span>
+          <div className="flex-1 leading-tight">
+            <div className="text-[12px] font-semibold text-charcoal">{tier.label} at {tier.at} days</div>
+            <div className="text-[10px] text-faint">{toGo===0?'Unlocked':`${toGo} to go · +${tier.xp} XP`} · best {best}</div>
+          </div>
+          <div className="tnum text-[12px] font-semibold text-gold">{pct}%</div>
+        </div>
+        <div className="h-1.5 rounded-full bg-sand mt-2 overflow-hidden">
+          <div className="h-full rounded-full transition-all duration-[1200ms] shimmer-bar"
+            style={{width:pct+'%', background:'linear-gradient(90deg,#F59E0B,#EF4444)'}}/>
+        </div>
+
+        {!claimed && <button onClick={claim} className="btn btn-gold w-full mt-3 py-2 text-[13px]">
+          Claim today · +10 XP</button>}
+      </div>
     </div>
   </div>;
 }
@@ -11801,7 +11818,8 @@ function App(){
     {/* Both popups belong on the dashboard, not on whatever page you happen to land on. */}
     {user && !redirect && product==='leaf' && <WordOfDayPopup/>}
     {/* not while someone is answering the questionnaire */}
-    {/* The daily streak banner lives inside the dashboard page itself. */}
+    {/* Dashboard only: on other pages the card covered their header actions. */}
+    {user && onboarded && !redirect && path==='/dashboard' && <DailyCheckIn/>}
     {user && !user.demo && !redirect && path==='/dashboard' && <WhatsNewPopup/>}
     {apiMode==='server' && SERVER_INFO.feedback && !redirect && <FeedbackButton/>}
     {showLogout && <div className="fixed inset-0 z-[150] grid place-items-center p-4">

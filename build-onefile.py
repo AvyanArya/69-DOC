@@ -32,7 +32,7 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 
 # The pages, in nav order. Each becomes #/<key>.
 PAGES = [
-    ('home', 'landing.html', 'Lumera | Your financial intelligence, in one place.'),
+    ('home', 'landing.html', 'Lumera | All financial intelligence. One place.'),
     ('worlds', 'worlds.html', 'The Lumera family'),
     ('leaf', 'leaf.html', 'Leaf by Lumera'),
     ('atlas', 'atlas.html', 'Atlas by Lumera'),
@@ -70,9 +70,6 @@ _sa = landing.index('/* ========================================================
 _sb = landing.index('})();', landing.index('items.forEach(el => io.observe(el));', _sa)) + 5
 sections_js = landing[_sa:_sb]
 
-_ma = landing.index('/* ============================================================\n   Mobile menu. Every .navbar')
-menu_js = landing[_ma:landing.index('/* end mobile menu */', _ma)]
-
 _ja = landing.index('/* ============================================================\n   Third-party content switch.')
 consent_js = landing[_ja:landing.index('})();', landing.index('data-consent-reopen', _ja)) + 5]
 
@@ -82,11 +79,8 @@ footer = landing[landing.index('    <footer class="site-footer">'):
 
 # accent triples, read back out of each generated page
 def accents(key):
-    # The page's own triple is the LAST one: the shared stylesheet that comes
-    # first carries the default violet, and taking the first match painted
-    # every world page violet.
-    m = re.findall(r'--accent-a: (#\w+); --accent-b: (#\w+); --accent-c: (#\w+)', src[key])
-    return m[-1] if m else ('#6366f1', '#a855f7', '#fcd34d')
+    m = re.search(r'--accent-a: (#\w+); --accent-b: (#\w+); --accent-c: (#\w+)', src[key])
+    return m.groups() if m else ('#6366f1', '#a855f7', '#fcd34d')
 
 
 def body_of(key):
@@ -326,12 +320,10 @@ window.__SS = (function () {
     return base64.b64encode(doc.encode('utf-8')).decode('ascii')
 
 
-APP_B64 = payload('Lumera.html')
-ADMIN_B64 = payload('admin-portal.html')
 PAYLOADS = '''
 <script id="payload-app" type="text/plain">%s</script>
 <script id="payload-admin" type="text/plain">%s</script>
-''' % (APP_B64, ADMIN_B64)
+''' % (payload('Lumera.html'), payload('admin-portal.html'))
 
 sections = []
 for key, fname, title in PAGES:
@@ -385,29 +377,14 @@ ROUTER = '''<script>
         var rest = (location.hash || '').replace(/^#\/(app|admin)\/?/, '');
         return rest ? '/' + rest : '/';
     }
-    /* The payload is either inline (the single file) or, in the hosted copy,
-       a separate file named by data-src that is fetched only when someone
-       opens the app or the portal, so the landing page stays light. */
-    function decode(b64) {
-        var bin = atob(b64);
-        var bytes = new Uint8Array(bin.length);
-        for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-        return new TextDecoder('utf-8').decode(bytes);
-    }
-    function loadPayload(node, done) {
-        var inline = node.textContent.trim();
-        if (inline || !node.getAttribute('data-src')) { done(inline ? decode(inline) : null); return; }
-        fetch(node.getAttribute('data-src'), { credentials: 'same-origin' })
-            .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
-            .then(function (t) { done(t); }, function () { done(null); });
-    }
-    var WAIT = '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
-        '<body style="margin:0;min-height:100vh;display:grid;place-items:center;background:#110E22;color:#CFC8EA;' +
-        'font:500 14px/1.5 Manrope,system-ui,sans-serif;letter-spacing:.02em">';
     function frameFor(which) {
         if (frames[which]) return frames[which];
         var node = document.getElementById('payload-' + which);
         if (!node) return null;
+        var bin = atob(node.textContent.trim());
+        var bytes = new Uint8Array(bin.length);
+        for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        var html = new TextDecoder('utf-8').decode(bytes);
 
         var f = document.createElement('iframe');
         f.className = 'app-frame';
@@ -423,25 +400,13 @@ ROUTER = '''<script>
            storage throws. Written into the frame it shares this page's origin
            and behaves like the file you opened. The tick matters: the frame's
            own about:blank load would otherwise clear what we just wrote. */
-        var seq = 0;   /* only the latest write lands: never the loading screen over the app */
-        function put(html) {
-            var mine = ++seq;
-            setTimeout(function () {
-                if (mine !== seq) return;
-                var d = f.contentDocument || (f.contentWindow && f.contentWindow.document);
-                if (!d) return;
-                d.open();
-                d.write(html);
-                d.close();
-            }, 0);
-        }
-        var loaded = false;
-        loadPayload(node, function (html) {
-            loaded = true;
-            put(html || WAIT + '<p style="max-width:22rem;padding:0 1.5rem;text-align:center">' +
-                'Lumera could not load. Check your connection, then reload the page.</p>');
-        });
-        if (!loaded) put(WAIT + '<p role="status">Loading Lumera…</p>');
+        setTimeout(function () {
+            var d = f.contentDocument || (f.contentWindow && f.contentWindow.document);
+            if (!d) return;
+            d.open();
+            d.write(html);
+            d.close();
+        }, 0);
 
         frames[which] = f;
         return f;
@@ -579,10 +544,10 @@ ROUTER = '''<script>
     if (track) {
         var LOGOS = [
             { name: 'Lumera', guide: 'lumi',     c: '#9D7CFF' },
-            { name: 'Leaf',   guide: 'sprout',   c: '#20B257' },
-            { name: 'Atlas',  guide: 'nova',     c: '#2D68E2' },
-            { name: 'Shield', guide: 'sentinel', c: '#94A8C8' },
-            { name: 'Forge',  guide: 'blaze',    c: '#E38F11' }
+            { name: 'Leaf',   guide: 'sprout',   c: '#22C55E' },
+            { name: 'Atlas',  guide: 'nova',     c: '#3B82F6' },
+            { name: 'Shield', guide: 'sentinel', c: '#94A3B8' },
+            { name: 'Forge',  guide: 'blaze',    c: '#E0A94E' }
         ];
         var row = LOGOS.map(function (l) {
             return '<div class="logo-item"><span class="icon" style="background:radial-gradient(circle at 50% 78%,' + l.c + '66,' + l.c + '1A 70%);box-shadow:inset 0 0 0 1px ' + l.c + '55">'
@@ -598,7 +563,7 @@ out = '''<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lumera | Your financial intelligence, in one place.</title>
+<title>Lumera | All financial intelligence. One place.</title>
 <meta name="description" content="Lumera turns one month of your behaviour into a clear, benchmarked plan. Four worlds, one financial life.">
 %s%s
 %s
@@ -627,7 +592,7 @@ out = '''<!DOCTYPE html>
 </html>
 ''' % (head_links, style, sub_style, EXTRA_CSS, atmo, consent_box, NAV,
        '\n\n'.join(sections), hashify(footer), PAYLOADS,
-       ROUTER + '\n<script>' + sections_js + '</script>\n<script>' + consent_js + '</script>\n<script>' + menu_js + '</script>')
+       ROUTER + '\n<script>' + sections_js + '</script>\n<script>' + consent_js + '</script>')
 
 # Images become data-asset references resolved from one map; fonts and the
 # favicon are inlined where they stand.
@@ -637,21 +602,3 @@ out = out.replace('</body>', ASSET_MAP_JS + '\n</body>', 1)
 path = os.path.join(ROOT, 'lumera.html')
 open(path, 'w').write(out)
 print('built lumera.html  (%d KB, %d pages)' % (len(out) // 1024, len(PAGES)))
-
-# The hosted copy (static/): the same page, with the app and the portal moved
-# into files beside it that are fetched only when opened. Plain text files, so
-# opening one directly shows text rather than a half-working page.
-import hashlib
-static_dir = os.path.join(ROOT, 'static')
-os.makedirs(static_dir, exist_ok=True)
-split = out
-for which, b64 in (('app', APP_B64), ('admin', ADMIN_B64)):
-    html = base64.b64decode(b64).decode('utf-8')
-    name = 'payload-%s.txt' % which
-    open(os.path.join(static_dir, name), 'w', encoding='utf-8').write(html)
-    ver = hashlib.sha256(html.encode('utf-8')).hexdigest()[:10]
-    tag = '<script id="payload-%s" type="text/plain">%s</script>' % (which, b64)
-    assert split.count(tag) == 1, 'payload tag not found once: ' + which
-    split = split.replace(tag, '<script id="payload-%s" type="text/plain" data-src="%s?v=%s"></script>' % (which, name, ver))
-open(os.path.join(static_dir, 'index.html'), 'w').write(split)
-print('built static/  (index.html %d KB; payload-app.txt and payload-admin.txt load on demand)' % (len(split) // 1024))

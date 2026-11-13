@@ -58,11 +58,11 @@ SUB_CSS = '''
     color: transparent; -webkit-text-fill-color: transparent;
     background-image: var(--lg-sweep);
 }
-.page-lede { color: hsl(var(--hero-sub)); font-size: 1.1rem; line-height: 1.75; max-width: 40rem; margin-top: 1.1rem; }
+.page-lede { color: hsl(var(--hero-sub)); opacity: .8; font-size: 1.1rem; line-height: 1.75; max-width: 40rem; margin-top: 1.1rem; }
 .page-actions { display: flex; flex-wrap: wrap; gap: .8rem; margin-top: 2rem; }
 .section.tight { padding-top: 3.5rem; }
 .sec-head.left { margin-left: 0; text-align: left; }
-.prose p { color: hsl(var(--hero-sub)); line-height: 1.75; font-size: .97rem; }
+.prose p { color: hsl(var(--hero-sub)); opacity: .78; line-height: 1.75; font-size: .97rem; }
 .prose p + p { margin-top: .9rem; }
 .person { display: flex; gap: 1rem; align-items: flex-start; }
 .person .avatar {
@@ -70,17 +70,18 @@ SUB_CSS = '''
     display: grid; place-items: center; font-weight: 700; font-size: 1.1rem;
     background-image: linear-gradient(160deg, var(--accent-b), var(--accent-a));
 }
-.person .role { font-size: .72rem; letter-spacing: .18em; text-transform: uppercase; color: hsl(var(--hero-sub)); margin-top: .15rem; }
+.person .role { font-size: .72rem; letter-spacing: .18em; text-transform: uppercase; color: hsl(var(--foreground)/.5); margin-top: .15rem; }
 .tool-list { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: .6rem 1.5rem; margin-top: 1.4rem; }
-.tool-list li { display: flex; gap: .6rem; align-items: flex-start; font-size: .95rem; color: #fff; line-height: 1.6; }
+.tool-list li { display: flex; gap: .6rem; align-items: flex-start; font-size: .95rem; color: #fff; opacity: .92; line-height: 1.6; }
 .tool-list li::before { content: ""; flex: 0 0 auto; width: 6px; height: 6px; margin-top: .58rem; border-radius: 50%; background: var(--accent-b); }
 /* Vibrant pages: every page is lit in its own accent colours. */
-body::before {
+body {
     background:
         radial-gradient(1300px 900px at -5% -10%, color-mix(in srgb, var(--accent-b) 70%, transparent), transparent 60%),
         radial-gradient(1100px 800px at 105% 25%, color-mix(in srgb, var(--accent-a) 60%, transparent), transparent 62%),
         radial-gradient(1000px 800px at 40% 115%, color-mix(in srgb, var(--accent-c) 30%, transparent), transparent 62%),
         linear-gradient(180deg, #16122C, #110E22);
+    background-attachment: fixed;
 }
 .page-top .wash { opacity: .9; }
 .page-title .grad { background-image: linear-gradient(100deg, var(--accent-c), var(--accent-b) 55%, #ffffff); }
@@ -89,7 +90,7 @@ body::before {
     border-color: color-mix(in srgb, var(--accent-b) 38%, rgba(255,255,255,.08));
 }
 .rest .panel h3, .rest .eyebrow { color: color-mix(in srgb, var(--accent-c) 70%, #ffffff); }
-.soon-banner { display: inline-block; margin-bottom: 1rem; padding: .32rem .75rem; border-radius: 999px; font-size: .66rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: #1A1206; background: linear-gradient(100deg,#FCD34D,#F5B642); }
+.soon-banner { display: inline-block; margin-bottom: 1rem; padding: .45rem .95rem; border-radius: 999px; font-size: .78rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: #1A1206; background: linear-gradient(100deg,#FCD34D,#F59E0B); box-shadow: 0 8px 22px -8px #F59E0B; }
 .page-hero.has-art { display: grid; grid-template-columns: minmax(180px, 320px) 1fr; gap: 2.5rem; align-items: center; }
 .hero-mascot { width: 100%; height: auto; pointer-events: none;
     filter: drop-shadow(0 30px 60px color-mix(in srgb, var(--accent-b) 75%, transparent)); animation: heroFloat 6s ease-in-out infinite; }
@@ -120,7 +121,7 @@ body::before {
 }
 .consent[data-open] { display: block; }
 .consent h2 { font-family: var(--font-display); font-size: 1.05rem; font-weight: 500; margin-bottom: .4rem; }
-.consent p { font-size: .88rem; line-height: 1.65; color: hsl(var(--hero-sub)); }
+.consent p { font-size: .88rem; line-height: 1.65; color: hsl(var(--hero-sub)); opacity: .85; }
 .consent p a { color: hsl(var(--foreground)); text-decoration: underline; text-underline-offset: 3px; }
 .consent-actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1rem; }
 .consent-actions button {
@@ -157,7 +158,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
     margin: 2.8rem 0 .9rem; scroll-margin-top: 2rem;
 }
 .legal h3 { font-family: var(--font-display); font-weight: 500; font-size: 1.08rem; margin: 1.6rem 0 .5rem; }
-.legal p, .legal li { color: hsl(var(--hero-sub)); line-height: 1.8; font-size: .97rem; }
+.legal p, .legal li { color: hsl(var(--hero-sub)); opacity: .82; line-height: 1.8; font-size: .97rem; }
 .legal p + p { margin-top: .9rem; }
 .legal ul, .legal ol { margin: .8rem 0 .8rem 1.2rem; }
 .legal li { margin-bottom: .45rem; }
@@ -171,7 +172,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
     color: hsl(var(--hero-sub));
 }
 .legal th { color: hsl(var(--foreground)); font-weight: 600; font-size: .8rem; letter-spacing: .04em; }
-.legal .updated { font-size: .82rem; color: hsl(var(--hero-sub)); margin-bottom: 1.5rem; }
+.legal .updated { font-size: .82rem; color: hsl(var(--foreground) / .55); margin-bottom: 1.5rem; }
 .legal .toc { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1.5rem 0 0; padding: 0; list-style: none; }
 .legal .toc li { margin: 0; }
 .legal .toc a {
@@ -185,21 +186,16 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
     background: rgba(252, 211, 77, .13); color: #fcd34d;
     border-radius: 5px; padding: .05em .4em; font-weight: 600;
     font-size: .95em; white-space: normal; overflow-wrap: anywhere;
-    /* one unit: moves to the next line whole, wraps inside only when longer than a line */
-    display: inline-block; max-width: 100%; line-height: 1.4;
 }
 .callout {
     border-radius: 16px; padding: 1.1rem 1.3rem; margin: 1.6rem 0;
     background: rgba(255,255,255,.03);
 }
-.callout p { margin: 0; }
+.callout p { margin: 0; opacity: .85; }
 </style>
 '''
 
-_mj = SRC.index('/* ============================================================\n   Mobile menu. Every .navbar')
-MENU_JS = SRC[_mj:SRC.index('/* end mobile menu */', _mj)]
-
-SCRIPT = '<script>\n' + CONSENT_JS + '\n' + MENU_JS + '''
+SCRIPT = '<script>\n' + CONSENT_JS + '''
 
 (function () {
     var y = document.getElementById('year');
@@ -295,7 +291,7 @@ def page(fname, title, desc, accents, head, grad, lede, body, actions=None):
 </body>
 </html>
 ''' % (title, desc, HEAD_LINKS, STYLE, a, b, c, SUB_CSS, ATMO, NAV,
-       (' has-art' if mascot else ''), mascot, ('<span class="soon-banner">Coming soon &middot; not out yet</span>' if fname in ('leaf.html', 'atlas.html', 'shield.html', 'forge.html') else ''), head, grad, lede, actions_html, body, FOOTER, CONSENT_HTML, SCRIPT)
+       (' has-art' if mascot else ''), mascot, ('<span class="soon-banner">Coming soon &middot; not out yet</span>' if mascot else ''), head, grad, lede, actions_html, body, FOOTER, CONSENT_HTML, SCRIPT)
 
     open(os.path.join(ROOT, fname), 'w').write(html)
     return fname
@@ -488,88 +484,43 @@ def build():
     # My Team. Photos and details arrive person by person; anyone without a
     # photo yet shows their initials.
     import json as _json
-    TEAM = [(t['name'], t['role'], t['quote'], t['why'], t['photo'], t['words'], t['interests'], t.get('focus'))
+    TEAM = [(t['name'], t['role'], t['quote'], t['why'], t['photo'], t['words'], t['interests'])
             for t in _json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'team.json'), encoding='utf-8'))]
     import html as _html
-
-    def framing(focus):
-        """Zoom each photo around the face so every portrait reads at the same
-        scale, the face sitting about 40% down the frame. focus = [x, y, zoom],
-        fractions of the photo; the origin keeps the frame fully covered."""
-        if not focus:
-            return ''
-        fx, fy, z = focus
-        if z <= 1.01:
-            return ' style="object-position:%d%% %d%%"' % (fx * 100, fy * 100)
-        tx, ty = 0.5, 0.40
-        ox = min(1, max(0, (tx - z * fx) / (1 - z)))
-        oy = min(1, max(0, (ty - z * fy) / (1 - z)))
-        return ' style="object-position:%d%% %d%%;transform:scale(%.2f);transform-origin:%.1f%% %.1f%%"' % (
-            fx * 100, fy * 100, z, ox * 100, oy * 100)
-
-    def member(n, role, quote, why, img, words, interests, focus):
+    def member(n, role, quote, why, img, words, interests):
         e = _html.escape
         initials = ''.join(w[0] for w in n.split())[:2]
-        pic = (('<img src="assets/team/%s.webp" alt="%s" loading="lazy"%s>' % (img, e(n), framing(focus)))
-               if img else '<span class="initials" aria-hidden="true">%s</span>' % initials)
+        pic = ('<img src="assets/team/%s.webp" alt="%s" loading="lazy">' % (img, e(n))) if img else '<span class="initials">%s</span>' % initials
         chips = ''.join('<span class="chip">%s</span>' % e(w) for w in words)
-        more = ''.join([
+        return ('<article class="member lg-panel reveal"><div class="portrait">%s</div><div class="info"><h3>%s</h3>'
+                '<div class="role">%s</div>%s%s%s%s</div></article>') % (
+            pic, e(n), e(role) or 'Role coming soon',
             ('<p class="quote">&ldquo;%s&rdquo;</p>' % e(quote)) if quote else '',
-            ('<p class="into"><b>Into:</b> %s</p>' % e(' · '.join(interests))) if interests else '',
-            ('<p class="why">&ldquo;%s&rdquo;</p>' % e(why)) if why else ''])
-        return ('<article class="member lg-panel reveal"><div class="portrait%s">%s</div><div class="info"><h3>%s</h3>'
-                '<div class="role">%s</div>%s%s</div></article>') % (
-            '' if img else ' none', pic, e(n), e(role) or 'Role to be announced',
             ('<div class="chips">%s</div>' % chips) if chips else '',
-            ('<details class="more"><summary>More about %s</summary>%s</details>' % (e(n.split()[0]), more)) if more else '')
+            ('<p><b>Into:</b> %s</p>' % e(' · '.join(interests))) if interests else '',
+            ('<p class="why">&ldquo;%s&rdquo;</p>' % e(why)) if why else '')
     team_cards = ''.join(member(*t) for t in TEAM)
-    team_css = ('<style>'
-        '.team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:18px;align-items:stretch}'
+    team_css = ('<style>.team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px}'
         '.member{padding:0;overflow:hidden;display:flex;flex-direction:column}'
-        # one frame for everyone: the same aspect ratio, the same violet grade
-        '.member .portrait{position:relative;aspect-ratio:4/5;flex:none;overflow:hidden;display:grid;place-items:center;'
-        'background:radial-gradient(120% 90% at 50% 20%,rgba(157,124,255,.42),rgba(40,26,86,.9) 75%)}'
-        '.member .portrait img{width:100%;height:100%;object-fit:cover;filter:saturate(.86) contrast(1.04) brightness(.96)}'
-        '.member .portrait::after{content:"";position:absolute;inset:0;pointer-events:none;'
-        'background:linear-gradient(180deg,rgba(120,92,255,.10) 0%,rgba(60,36,140,.08) 55%,rgba(16,10,40,.55) 100%)}'
-        '.member .initials{font-family:var(--font-display);font-size:3.2rem;color:#fff;opacity:.92;letter-spacing:.02em}'
-        '.member .info{padding:1rem 1.1rem 1.15rem;flex:1;display:flex;flex-direction:column}'
-        '.member h3{font-family:var(--font-display);font-weight:400;font-size:1.6rem;line-height:1.1;margin:0}'
-        '.member .role{font-size:.85rem;color:#D4C2FF;margin-top:.25rem}'
-        '.member p{font-size:.88rem;line-height:1.55;margin:.55rem 0 0;color:hsl(var(--hero-sub))}'
-        '.member .quote,.member .why{font-style:italic}'
-        '.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:.65rem}'
-        '.chips .chip{font-size:.72rem;font-weight:700;padding:.25rem .6rem;border-radius:99px;background:rgba(198,168,255,.18);color:#E2D6FF}'
-        '.member .more summary{list-style:none;cursor:pointer;margin-top:.7rem;font-size:.8rem;font-weight:600;color:#D4C2FF;'
-        'display:inline-flex;align-items:center;gap:.35rem;min-height:32px}'
-        '.member .more summary::-webkit-details-marker{display:none}'
-        '.member .more summary::after{content:"+";font-size:1rem;line-height:1}'
-        '.member .more[open] summary::after{content:"\\2212"}'
-        # wide screens: everything shown, no toggle
-        '@media (min-width:721px){.member .more>summary{display:none}}'
-        # phones: two compact columns
-        '@media (max-width:720px){.team-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}'
-        '.member .info{padding:.7rem .75rem .8rem}.member h3{font-size:1.18rem}.member .role{font-size:.74rem;line-height:1.35}'
-        '.chips{gap:4px;margin-top:.5rem}.chips .chip{font-size:.64rem;padding:.2rem .45rem}'
-        '.member .initials{font-size:2.4rem}.member p{font-size:.8rem}'
-        '.member .more summary{min-height:44px;margin-top:.2rem}.member .more{margin-top:auto}}'
-        '</style>')
-
-    team_js = ('<script>(function(){var mq=window.matchMedia("(min-width: 721px)");function sync(){'
-        '[].forEach.call(document.querySelectorAll(".member .more"),function(d){d.open=mq.matches;});}'
-        'sync();mq.addEventListener?mq.addEventListener("change",sync):mq.addListener(sync);})();</script>')
+        '.member .portrait{aspect-ratio:4/5;flex:none;display:grid;place-items:center;background:linear-gradient(150deg,rgba(157,124,255,.35),rgba(235,199,122,.15))}'
+        '.member .portrait img{width:100%;height:100%;object-fit:cover;object-position:50% 30%}'
+        '.member .initials{font-family:var(--font-display);font-size:3rem;color:#fff}'
+        '.member .info{padding:1rem 1.1rem 1.2rem}.member h3{font-family:var(--font-display);font-weight:400;font-size:1.7rem;margin:0}'
+        '.member .role{font-size:.85rem;color:#C6A8FF;margin-top:.2rem}.member .quote{font-style:italic;opacity:.85;margin:.6rem 0 0;font-size:.88rem}'
+        '.member p{font-size:.88rem;line-height:1.55;margin:.5rem 0 0;opacity:.85}.member .why{font-style:italic;opacity:.75}'
+        '.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:.6rem}.chips .chip{font-size:.72rem;font-weight:700;padding:.25rem .6rem;border-radius:99px;background:rgba(198,168,255,.18);color:#D9C8FF}</style>')
     made.append(page('team.html', 'Our Team | Lumera', 'The people building Lumera.',
         ('#7c3aed', '#a855f7', '#f0abfc'),
         'Our Team:', 'the people building Lumera',
         'Students and early-career builders who want financial understanding to be for everyone.',
-        team_css + '    <section class="section tight"><div class="team-grid">' + team_cards + '</div>' + team_js + '</section>\n'
+        team_css + '    <section class="section tight"><div class="team-grid">' + team_cards + '</div></section>\n'
         + sec('Why we are building it', 'Financial clarity,', 'made accessible',
               'Lumera exists to give students and early-career professionals the financial intelligence that used to be reserved for the wealthy.',
               actions_row([('Read about Lumera', 'about.html', True),
                            ('See the team in the app', 'app.html#/team', False)])),
         actions=[('About Lumera', 'about.html', True)]))
 
-    made.append(page('about.html', 'About Lumera | Your financial intelligence, in one place.',
+    made.append(page('about.html', 'About Lumera | All financial intelligence. One place.',
         'Lumera turns the financial intelligence once reserved for the wealthy into something anyone can use.',
         ('#7c3aed', '#a855f7', '#f0abfc'),
         'Financial clarity,', 'made accessible',
