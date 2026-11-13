@@ -751,11 +751,17 @@
     border:1px solid rgba(255,255,255,.28); box-shadow:0 30px 70px -30px rgba(192,38,211,.75), inset 0 1px 0 rgba(255,255,255,.35);
   }
   @keyframes ws-shift{ 0%{background-position:0% 40%} 100%{background-position:100% 60%} }
+  /* V23: the same colours, slightly less bright. A faint veil over the
+     gradient and the blobs; the text and buttons sit above it. */
+  html[data-skin="glass"][data-theme][data-mode] .lg-workspace.ws-live.ws-live::after{
+    content:""; position:absolute; inset:0; z-index:-1; border-radius:inherit; pointer-events:none;
+    background:rgba(16,8,36,.15); }
   .ws-blob{ position:absolute; border-radius:50%; filter:blur(40px); opacity:.55; z-index:-1; pointer-events:none; animation:ws-float 12s ease-in-out infinite alternate; }
   @keyframes ws-float{ to{ transform:translate3d(30px,-24px,0) scale(1.12); } }
   .ws-live .lg-inset{ background:rgba(20,8,40,.28) !important; border-color:rgba(255,255,255,.22) !important; }
   .ws-live .text-muted,.ws-live .text-faint{ color:rgba(255,255,255,.82) !important; }
   .ws-tile{ border-radius:20px; padding:16px; color:#fff; position:relative; overflow:hidden; transition:transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s; }
+  .ws-tile{ backdrop-filter:blur(10px) saturate(120%); -webkit-backdrop-filter:blur(10px) saturate(120%); }   /* V23: translucent tiles */
   .ws-tile:hover{ transform:translateY(-6px) rotate(-.5deg); }
   .ws-tile::after{ content:""; position:absolute; inset:0; background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.28) 50%,transparent 70%); transform:translateX(-120%); animation:ws-shine 6s ease-in-out infinite; }
   @keyframes ws-shine{ 60%,100%{ transform:translateX(120%); } }
@@ -4195,7 +4201,8 @@ function Dashboard(){
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3 gap-3">
           {figures.map(([label,value,unit,note],i)=>{ const g=[['#10B981','#0D9488'],['#3B82F6','#6366F1'],['#F59E0B','#EF4444']][i];
-            return <div key={label} className="ws-tile min-w-0" style={{background:`linear-gradient(150deg,${g[0]},${g[1]})`,boxShadow:`0 18px 36px -18px ${g[1]}`,animation:`fadeUp .6s ${.1+i*.12}s both`}}>
+            // V23: the same three colours as a translucent tint over the hero, like tinted glass
+            return <div key={label} className="ws-tile min-w-0" style={{background:`linear-gradient(150deg,${g[0]}5C,${g[1]}3D), rgba(20,10,44,.30)`,border:`1px solid ${g[0]}73`,boxShadow:`0 14px 30px -20px ${g[1]}, inset 0 1px 0 rgba(255,255,255,.14)`,animation:`fadeUp .6s ${.1+i*.12}s both`}}>
               <div className="text-[10px] tracking-[.14em] uppercase font-bold text-white/90 leading-tight">{label}</div>
               <div className="font-display tnum text-[2.1rem] sm:text-[2.4rem] leading-none mt-2 truncate">{hasData?value:'–'}</div>
               <div className="text-[11px] text-white/85 mt-1">{unit}</div>
