@@ -1488,8 +1488,9 @@ the country where you live.</p>
     function write(v) { try { localStorage.setItem(KEY, v); } catch (e) {} }
 
     function disableThirdParty() {
-        var v = document.getElementById('bgVideo');
-        if (v) { v.pause(); v.removeAttribute('src'); v.load(); v.style.display = 'none'; }
+        [].forEach.call(document.querySelectorAll('.bg-video'), function (v) {
+            v.pause(); v.removeAttribute('src'); v.load(); v.style.display = 'none';
+        });
         document.documentElement.setAttribute('data-thirdparty', 'off');
     }
 

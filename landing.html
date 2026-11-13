@@ -1396,8 +1396,11 @@ a.lg-panel:hover, .lg-panel.lift:hover {
         btn.addEventListener('click', function () {
             var off = !window.__motionOn();
             root.setAttribute('data-motion', off ? 'on' : 'off');
-            var v = document.getElementById('bgVideo');
-            if (v) { if (off) { var p = v.play(); if (p && p.catch) p.catch(function () {}); } else { v.pause(); } }
+            if (window.__bgMotion) window.__bgMotion(off);
+            else {
+                var v = document.getElementById('bgVideo');
+                if (v) { if (off) { var p = v.play(); if (p && p.catch) p.catch(function () {}); } else { v.pause(); } }
+            }
             label();
         });
         if (reduce) label();
@@ -1405,46 +1408,92 @@ a.lg-panel:hover, .lg-panel.lift:hover {
 })();
 
 /* ============================================================
-   Background video: a hand-driven fade loop.
-   0.5s in at the start, 0.5s out at the end, then a clean restart.
+   Background video: one continuous loop, never dark.
+   The clip's last frame does not match its first, so a plain restart
+   would jump. Two copies are stacked instead: just before the top one
+   ends, the copy underneath starts from the beginning and the top one
+   dissolves away. Only the very first appearance fades in.
    ============================================================ */
 (function () {
-    const video = document.getElementById('bgVideo');
-    if (!video) return;
+    var a = document.getElementById('bgVideo');
+    if (!a) return;
+    var XF = 1.4, FIRST = 0.6;               // seconds of overlap; first fade-in
+    var front = a, back = null, swapping = false, t0 = null, raf = null;
+    var motionOn = function () {
+        if (window.__motionOn) return window.__motionOn();
+        try { return !window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return true; }
+    };
+    var play = function (v) { var p = v.play(); if (p && p.catch) p.catch(function () {}); };
 
-    const FADE = 0.5;   // seconds
-    let raf = null;
-
-    function tick() {
-        const d = video.duration;
-        if (d && isFinite(d)) {
-            const t = video.currentTime;
-            let o = 1;
-            if (t < FADE) o = t / FADE;
-            else if (t > d - FADE) o = Math.max(0, (d - t) / FADE);
-            video.style.opacity = String(o);
-        }
-        raf = requestAnimationFrame(tick);
+    function makeBack() {
+        if (back || !a.getAttribute('src')) return;
+        back = a.cloneNode(false);
+        back.removeAttribute('id');
+        back.preload = 'auto';
+        back.style.opacity = '0';
+        back.style.zIndex = '0';
+        front.style.zIndex = '1';
+        a.parentNode.insertBefore(back, a.nextSibling);
+        back.addEventListener('ended', onEnded);
     }
+    function swap() {
+        front.pause(); front.style.opacity = '0';
+        var old = front; front = back; back = old;
+        front.style.zIndex = '1'; back.style.zIndex = '0'; front.style.opacity = '1';
+        swapping = false;
+    }
+    function beginSwap() {
+        swapping = true;
+        back.currentTime = 0; back.style.opacity = '1';
+        play(back);
+    }
+    function tick(now) {
+        raf = requestAnimationFrame(tick);
+        if (!motionOn()) return;
+        var d = front.duration;
+        if (!d || !isFinite(d)) return;
+        if (t0 === null) t0 = now;
+        var left = d - front.currentTime;
+        if (!swapping) {
+            front.style.opacity = String(Math.min(1, (now - t0) / (FIRST * 1000)));
+            if (back && left <= XF) beginSwap();
+        } else {
+            front.style.opacity = String(Math.max(0, Math.min(1, left / XF)));
+            if (front.ended || left <= 0.04) swap();
+        }
+    }
+    // A background tab can skip frames; if the top copy ends unseen, cut over.
+    function onEnded(e) {
+        if (e.target !== front) return;
+        if (!back) { front.currentTime = 0; play(front); return; }
+        if (!swapping) beginSwap();
+        swap();
+    }
+    a.addEventListener('ended', onEnded);
 
+    // After the video was switched off and on again (Cookies page), start over
+    // from the original element.
+    function reset() {
+        [front, back].forEach(function (v) { if (v && v !== a && v.parentNode) v.parentNode.removeChild(v); });
+        front = a; back = null; swapping = false;
+    }
     function start() {
-        video.currentTime = 0;
-        video.style.opacity = '0';
-        const p = video.play();
-        if (p && p.catch) p.catch(() => {});
+        if ((back && back !== a && !back.getAttribute('src')) || (front !== a && !front.getAttribute('src'))) reset();
+        makeBack();
+        if (window.__showMotionToggle) window.__showMotionToggle();
+        if (!motionOn()) { front.style.opacity = '1'; return; }
+        play(front);
         if (raf === null) raf = requestAnimationFrame(tick);
     }
+    a.addEventListener('loadedmetadata', start);
+    if (a.readyState >= 1) start();
 
-    video.addEventListener('loadedmetadata', function () {
-        if (window.__showMotionToggle) window.__showMotionToggle();
-        if (window.__motionOn && !window.__motionOn()) { video.style.opacity = '1'; return; }
-        start();
-    });
-    video.addEventListener('ended', () => {
-        video.style.opacity = '0';
-        setTimeout(start, 100);
-    });
-    if (video.readyState >= 1) start();
+    window.__bgResume = function () { if (motionOn()) window.__bgMotion(true); };
+    // The motion button pauses and resumes whichever copy is showing.
+    window.__bgMotion = function (on) {
+        if (on) { play(front); if (swapping && back) play(back); if (raf === null) raf = requestAnimationFrame(tick); front.style.opacity = '1'; }
+        else { front.pause(); if (back) back.pause(); }
+    };
 })();
 
 /* ============================================================
@@ -1714,8 +1763,9 @@ a.lg-panel:hover, .lg-panel.lift:hover {
     function write(v) { try { localStorage.setItem(KEY, v); } catch (e) {} }
 
     function disableThirdParty() {
-        var v = document.getElementById('bgVideo');
-        if (v) { v.pause(); v.removeAttribute('src'); v.load(); v.style.display = 'none'; }
+        [].forEach.call(document.querySelectorAll('.bg-video'), function (v) {
+            v.pause(); v.removeAttribute('src'); v.load(); v.style.display = 'none';
+        });
         document.documentElement.setAttribute('data-thirdparty', 'off');
     }
 

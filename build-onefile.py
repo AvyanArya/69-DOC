@@ -482,7 +482,10 @@ ROUTER = '''<script>
         observed = reveal(current);
 
         var video = current.querySelector('video.bg-video');
-        if (video) { var p = video.play(); if (p && p.catch) p.catch(function () {}); }
+        if (video) {
+            if (window.__bgResume) window.__bgResume();   /* the loop plays the copy on show, unless motion is reduced */
+            else if (!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) { var p = video.play(); if (p && p.catch) p.catch(function () {}); }
+        }
     }
 
     var ticking = false;
@@ -512,33 +515,88 @@ ROUTER = '''<script>
    Landing extras: the video fade loop and the logo marquee.
    ============================================================ */
 (function () {
-    var video = document.getElementById('bgVideo');
-    if (video) {
-        var FADE = 0.5, raf = null;
-        var tick = function () {
-            var d = video.duration;
-            if (d && isFinite(d)) {
-                var t = video.currentTime, o = 1;
-                if (t < FADE) o = t / FADE;
-                else if (t > d - FADE) o = Math.max(0, (d - t) / FADE);
-                video.style.opacity = String(o);
-            }
+    /* Background video: one continuous loop, never dark (see landing.html). */
+    (function () {
+        var a = document.getElementById('bgVideo');
+        if (!a) return;
+        var XF = 1.4, FIRST = 0.6;               // seconds of overlap; first fade-in
+        var front = a, back = null, swapping = false, t0 = null, raf = null;
+        var motionOn = function () {
+            if (window.__motionOn) return window.__motionOn();
+            try { return !window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return true; }
+        };
+        var play = function (v) { var p = v.play(); if (p && p.catch) p.catch(function () {}); };
+
+        function makeBack() {
+            if (back || !a.getAttribute('src')) return;
+            back = a.cloneNode(false);
+            back.removeAttribute('id');
+            back.preload = 'auto';
+            back.style.opacity = '0';
+            back.style.zIndex = '0';
+            front.style.zIndex = '1';
+            a.parentNode.insertBefore(back, a.nextSibling);
+            back.addEventListener('ended', onEnded);
+        }
+        function swap() {
+            front.pause(); front.style.opacity = '0';
+            var old = front; front = back; back = old;
+            front.style.zIndex = '1'; back.style.zIndex = '0'; front.style.opacity = '1';
+            swapping = false;
+        }
+        function beginSwap() {
+            swapping = true;
+            back.currentTime = 0; back.style.opacity = '1';
+            play(back);
+        }
+        function tick(now) {
             raf = requestAnimationFrame(tick);
-        };
-        var start = function () {
-            video.currentTime = 0;
-            video.style.opacity = '0';
-            var p = video.play();
-            if (p && p.catch) p.catch(function () {});
+            if (!motionOn()) return;
+            var d = front.duration;
+            if (!d || !isFinite(d)) return;
+            if (t0 === null) t0 = now;
+            var left = d - front.currentTime;
+            if (!swapping) {
+                front.style.opacity = String(Math.min(1, (now - t0) / (FIRST * 1000)));
+                if (back && left <= XF) beginSwap();
+            } else {
+                front.style.opacity = String(Math.max(0, Math.min(1, left / XF)));
+                if (front.ended || left <= 0.04) swap();
+            }
+        }
+        // A background tab can skip frames; if the top copy ends unseen, cut over.
+        function onEnded(e) {
+            if (e.target !== front) return;
+            if (!back) { front.currentTime = 0; play(front); return; }
+            if (!swapping) beginSwap();
+            swap();
+        }
+        a.addEventListener('ended', onEnded);
+
+        // After the video was switched off and on again (Cookies page), start over
+        // from the original element.
+        function reset() {
+            [front, back].forEach(function (v) { if (v && v !== a && v.parentNode) v.parentNode.removeChild(v); });
+            front = a; back = null; swapping = false;
+        }
+        function start() {
+            if ((back && back !== a && !back.getAttribute('src')) || (front !== a && !front.getAttribute('src'))) reset();
+            makeBack();
+            if (window.__showMotionToggle) window.__showMotionToggle();
+            if (!motionOn()) { front.style.opacity = '1'; return; }
+            play(front);
             if (raf === null) raf = requestAnimationFrame(tick);
+        }
+        a.addEventListener('loadedmetadata', start);
+        if (a.readyState >= 1) start();
+
+        window.__bgResume = function () { if (motionOn()) window.__bgMotion(true); };
+    // The motion button pauses and resumes whichever copy is showing.
+        window.__bgMotion = function (on) {
+            if (on) { play(front); if (swapping && back) play(back); if (raf === null) raf = requestAnimationFrame(tick); front.style.opacity = '1'; }
+            else { front.pause(); if (back) back.pause(); }
         };
-        video.addEventListener('loadedmetadata', start);
-        video.addEventListener('ended', function () {
-            video.style.opacity = '0';
-            setTimeout(start, 100);
-        });
-        if (video.readyState >= 1) start();
-    }
+    })();
 
     var track = document.getElementById('marqueeTrack');
     if (track) {
