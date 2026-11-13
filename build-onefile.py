@@ -32,7 +32,7 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 
 # The pages, in nav order. Each becomes #/<key>.
 PAGES = [
-    ('home', 'landing.html', 'Lumera | All financial intelligence. One place.'),
+    ('home', 'landing.html', 'Lumera | Your financial intelligence, in one place.'),
     ('worlds', 'worlds.html', 'The Lumera family'),
     ('leaf', 'leaf.html', 'Leaf by Lumera'),
     ('atlas', 'atlas.html', 'Atlas by Lumera'),
@@ -70,6 +70,9 @@ _sa = landing.index('/* ========================================================
 _sb = landing.index('})();', landing.index('items.forEach(el => io.observe(el));', _sa)) + 5
 sections_js = landing[_sa:_sb]
 
+_ma = landing.index('/* ============================================================\n   Mobile menu. Every .navbar')
+menu_js = landing[_ma:landing.index('/* end mobile menu */', _ma)]
+
 _ja = landing.index('/* ============================================================\n   Third-party content switch.')
 consent_js = landing[_ja:landing.index('})();', landing.index('data-consent-reopen', _ja)) + 5]
 
@@ -79,8 +82,11 @@ footer = landing[landing.index('    <footer class="site-footer">'):
 
 # accent triples, read back out of each generated page
 def accents(key):
-    m = re.search(r'--accent-a: (#\w+); --accent-b: (#\w+); --accent-c: (#\w+)', src[key])
-    return m.groups() if m else ('#6366f1', '#a855f7', '#fcd34d')
+    # The page's own triple is the LAST one: the shared stylesheet that comes
+    # first carries the default violet, and taking the first match painted
+    # every world page violet.
+    m = re.findall(r'--accent-a: (#\w+); --accent-b: (#\w+); --accent-c: (#\w+)', src[key])
+    return m[-1] if m else ('#6366f1', '#a855f7', '#fcd34d')
 
 
 def body_of(key):
@@ -544,10 +550,10 @@ ROUTER = '''<script>
     if (track) {
         var LOGOS = [
             { name: 'Lumera', guide: 'lumi',     c: '#9D7CFF' },
-            { name: 'Leaf',   guide: 'sprout',   c: '#22C55E' },
-            { name: 'Atlas',  guide: 'nova',     c: '#3B82F6' },
-            { name: 'Shield', guide: 'sentinel', c: '#94A3B8' },
-            { name: 'Forge',  guide: 'blaze',    c: '#E0A94E' }
+            { name: 'Leaf',   guide: 'sprout',   c: '#20B257' },
+            { name: 'Atlas',  guide: 'nova',     c: '#2D68E2' },
+            { name: 'Shield', guide: 'sentinel', c: '#94A8C8' },
+            { name: 'Forge',  guide: 'blaze',    c: '#E38F11' }
         ];
         var row = LOGOS.map(function (l) {
             return '<div class="logo-item"><span class="icon" style="background:radial-gradient(circle at 50% 78%,' + l.c + '66,' + l.c + '1A 70%);box-shadow:inset 0 0 0 1px ' + l.c + '55">'
@@ -563,7 +569,7 @@ out = '''<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lumera | All financial intelligence. One place.</title>
+<title>Lumera | Your financial intelligence, in one place.</title>
 <meta name="description" content="Lumera turns one month of your behaviour into a clear, benchmarked plan. Four worlds, one financial life.">
 %s%s
 %s
@@ -592,7 +598,7 @@ out = '''<!DOCTYPE html>
 </html>
 ''' % (head_links, style, sub_style, EXTRA_CSS, atmo, consent_box, NAV,
        '\n\n'.join(sections), hashify(footer), PAYLOADS,
-       ROUTER + '\n<script>' + sections_js + '</script>\n<script>' + consent_js + '</script>')
+       ROUTER + '\n<script>' + sections_js + '</script>\n<script>' + consent_js + '</script>\n<script>' + menu_js + '</script>')
 
 # Images become data-asset references resolved from one map; fonts and the
 # favicon are inlined where they stand.
