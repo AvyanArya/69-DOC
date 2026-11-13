@@ -1147,6 +1147,46 @@ body {
 .card-mascot { display: block; width: 76px; height: 76px; object-fit: contain; object-position: center 40%; margin-bottom: .6rem;
     filter: drop-shadow(0 10px 20px rgba(0,0,0,.4)); transition: transform .35s ease; }
 .panel:hover .card-mascot { transform: translateY(-4px) scale(1.06); }
+/* V24: livelier pages. Cards take turns in the world colours, each section
+   glows in its own colour, a slow aurora drifts behind the page, and a
+   mascot peeks over every section heading. */
+.rest::before {
+    content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background:
+        radial-gradient(40vw 34vw at 16% 28%, rgba(244,114,182,.20), transparent 70%),
+        radial-gradient(42vw 36vw at 86% 60%, rgba(45,212,191,.16), transparent 70%),
+        radial-gradient(38vw 30vw at 50% 98%, rgba(251,191,36,.15), transparent 70%);
+    animation: auroraDrift 36s ease-in-out infinite alternate;
+}
+@keyframes auroraDrift { 50% { transform: translate3d(3vw,-2vh,0) scale(1.05); } 100% { transform: translate3d(-3vw,2vh,0) scale(1.02); } }
+.rest .section { position: relative; }
+.rest .section::before {
+    content: ""; position: absolute; inset: 4% 0 8%; z-index: -1; pointer-events: none;
+    background: radial-gradient(60% 55% at 50% 50%, color-mix(in srgb, var(--sg, #A78BFA) 22%, transparent), transparent 72%);
+}
+.rest .section:nth-of-type(4n+2)::before { --sg: #F472B6; }
+.rest .section:nth-of-type(4n+3)::before { --sg: #2DD4BF; }
+.rest .section:nth-of-type(4n+4)::before { --sg: #FBBF24; }
+.rest div.panel.lg-panel {
+    --pc: #A78BFA; --accent-b: var(--pc);
+    background: linear-gradient(160deg, color-mix(in srgb, var(--pc) 32%, transparent), color-mix(in srgb, var(--pc) 8%, transparent) 72%), rgba(28,22,50,.66);
+    border-color: color-mix(in srgb, var(--pc) 46%, rgba(255,255,255,.08));
+    box-shadow: inset 0 3px 0 color-mix(in srgb, var(--pc) 80%, #ffffff), 0 22px 44px -30px var(--pc);
+}
+.rest div.panel.lg-panel:nth-child(5n+2) { --pc: #F472B6; }
+.rest div.panel.lg-panel:nth-child(5n+3) { --pc: #34D399; }
+.rest div.panel.lg-panel:nth-child(5n+4) { --pc: #FBBF24; }
+.rest div.panel.lg-panel:nth-child(5n+5) { --pc: #60A5FA; }
+.rest div.panel.lg-panel h3 { color: color-mix(in srgb, var(--pc) 50%, #ffffff); }
+.rest div.panel.lg-panel:hover { border-color: var(--pc); box-shadow: inset 0 3px 0 var(--pc), 0 30px 56px -26px var(--pc); }
+.rest .sec-head { position: relative; padding-right: 100px; }
+.sec-peek {
+    position: absolute; right: 0; top: -14px; width: 86px; height: auto; pointer-events: none;
+    filter: drop-shadow(0 14px 22px rgba(0,0,0,.45)); transform-origin: 50% 100%; animation: peekBob 5.5s ease-in-out infinite;
+}
+@keyframes peekBob { 0%,100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-9px) rotate(4deg); } }
+@media (max-width: 720px) { .rest .sec-head { padding-right: 62px; } .sec-peek { width: 56px; top: -6px; } }
+@media (prefers-reduced-motion: reduce) { .rest::before, .sec-peek { animation: none; } }
 @media (max-width: 720px) {
     .page-hero { padding: 3.5rem 1.25rem .5rem; }
     .tool-list { grid-template-columns: 1fr; }
@@ -1289,6 +1329,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
 <style>.team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px}.member{padding:0;overflow:hidden;display:flex;flex-direction:column}.member .portrait{aspect-ratio:4/5;flex:none;display:grid;place-items:center;background:linear-gradient(150deg,rgba(157,124,255,.35),rgba(235,199,122,.15))}.member .portrait img{width:100%;height:100%;object-fit:cover;object-position:50% 30%}.member .initials{font-family:var(--font-display);font-size:3rem;color:#fff}.member .info{padding:1rem 1.1rem 1.2rem}.member h3{font-family:var(--font-display);font-weight:400;font-size:1.7rem;margin:0}.member .role{font-size:.85rem;color:#C6A8FF;margin-top:.2rem}.member .quote{font-style:italic;opacity:.85;margin:.6rem 0 0;font-size:.88rem}.member p{font-size:.88rem;line-height:1.55;margin:.5rem 0 0;opacity:.85}.member .why{font-style:italic;opacity:.75}.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:.6rem}.chips .chip{font-size:.72rem;font-weight:700;padding:.25rem .6rem;border-radius:99px;background:rgba(198,168,255,.18);color:#D9C8FF}</style>    <section class="section tight"><div class="team-grid"><article class="member lg-panel reveal"><div class="portrait"><img src="assets/team/avyan-arya.webp" alt="Avyan Arya" loading="lazy"></div><div class="info"><h3>Avyan Arya</h3><div class="role">Founder &amp; CEO</div><p class="quote">&ldquo;In the future, I want to build a legacy that outlives me.&rdquo;</p><div class="chips"><span class="chip">Ambitious</span><span class="chip">Curious</span><span class="chip">Collaborative</span></div><p><b>Into:</b> MUN · Boxing · Cars · Perfumes · Watches · Aspiring private banker</p><p class="why">&ldquo;Helping my mum with finances and my sister with her future career made me think: why not make this guidance accessible to everyone? Someone had to do it.&rdquo;</p></div></article><article class="member lg-panel reveal"><div class="portrait"><img src="assets/team/ernie-engmann.webp" alt="Ernie Engmann" loading="lazy"></div><div class="info"><h3>Ernie Engmann</h3><div class="role">Operations &amp; Executive Associate</div><p class="quote">&ldquo;In the future, I want to live in a small boat by the beach.&rdquo;</p><div class="chips"><span class="chip">Helpful</span><span class="chip">Driven</span><span class="chip">Reliable</span></div><p><b>Into:</b> Music · Football · Cooking · Hanging out with friends · Future doctor</p><p class="why">&ldquo;I like Lumera because it helps target a very large real-life problem within young people.&rdquo;</p></div></article><article class="member lg-panel reveal"><div class="portrait"><img src="assets/team/alaya-ahmad.webp" alt="Alaya Ahmad" loading="lazy"></div><div class="info"><h3>Alaya Ahmad</h3><div class="role">Outreach &amp; Marketing Associate</div><p class="quote">&ldquo;In the future, I want to work in motorsport.&rdquo;</p><div class="chips"><span class="chip">Creative</span><span class="chip">Passionate</span><span class="chip">Dedicated</span></div><p><b>Into:</b> Formula 1 · Music · Watching movies · Reading · Future psychologist</p></div></article><article class="member lg-panel reveal"><div class="portrait"><img src="assets/team/william-iantorno.webp" alt="William Iantorno" loading="lazy"></div><div class="info"><h3>William Iantorno</h3><div class="role">Outreach &amp; Marketing Associate</div><p class="quote">&ldquo;In the future, I want to publish my own book.&rdquo;</p><div class="chips"><span class="chip">Innovative</span><span class="chip">Curious</span><span class="chip">Ambitious</span></div><p><b>Into:</b> Reading · Writing · History · Gaming · Lawyer · Author</p></div></article><article class="member lg-panel reveal"><div class="portrait"><span class="initials">RV</span></div><div class="info"><h3>Reaan Verma</h3><div class="role">UI &amp; UX Designer</div></div></article><article class="member lg-panel reveal"><div class="portrait"><span class="initials">JJ</span></div><div class="info"><h3>Jonathan Jebin Thomas</h3><div class="role">UI &amp; UX Designer</div></div></article><article class="member lg-panel reveal"><div class="portrait"><span class="initials">AR</span></div><div class="info"><h3>Aarav Raney</h3><div class="role">UI &amp; UX Designer</div></div></article><article class="member lg-panel reveal"><div class="portrait"><img src="assets/team/rishit-dhanak.webp" alt="Rishit Dhanak" loading="lazy"></div><div class="info"><h3>Rishit Dhanak</h3><div class="role">Market Research Associate</div><p class="quote">&ldquo;In the future, I want to be a trillionaire.&rdquo;</p><div class="chips"><span class="chip">Motivated</span><span class="chip">Innovative</span><span class="chip">Adaptable</span></div><p><b>Into:</b> Lifting · Padel · Private equity · Markets</p><p class="why">&ldquo;I like how Lumera is integrating AI to make finance more accessible and easy to understand.&rdquo;</p></div></article><article class="member lg-panel reveal"><div class="portrait"><img src="assets/team/zafar-masud.webp" alt="Zafar Masud" loading="lazy"></div><div class="info"><h3>Zafar Masud</h3><div class="role">Market Research Associate</div><p class="quote">&ldquo;In the future, I want to own a bookstore in central London.&rdquo;</p><div class="chips"><span class="chip">Aspiring</span><span class="chip">Resourceful</span><span class="chip">Dependable</span></div><p><b>Into:</b> Investment banking &amp; strategy · Rugby · Tennis · Tracking the markets</p><p class="why">&ldquo;I like Lumera because it’s inclusive of everyone, regardless of gender, race, or age, meaning that people aren’t shut out of financial services; we actually get a real bridge into them.&rdquo;</p></div></article><article class="member lg-panel reveal"><div class="portrait"><img src="assets/team/muhammad-suleman.webp" alt="Muhammad Suleman" loading="lazy"></div><div class="info"><h3>Muhammad Suleman</h3><div class="role">Growth &amp; Strategy Associate</div><p class="quote">&ldquo;In the future, I want to continue exploring new ideas and opportunities.&rdquo;</p><div class="chips"><span class="chip">Ambitious</span><span class="chip">Curious</span><span class="chip">Strategic</span></div><p><b>Into:</b> Finance · Engineering &amp; strategy · Consulting · Business · Solving complex problems</p></div></article><article class="member lg-panel reveal"><div class="portrait"><img src="assets/team/zaid-qadri.webp" alt="Zaid Qadri" loading="lazy"></div><div class="info"><h3>Zaid Qadri</h3><div class="role">Growth &amp; Strategy Associate</div><p class="quote">&ldquo;In the future, I want to work in finance.&rdquo;</p><div class="chips"><span class="chip">Hardworking</span><span class="chip">Compassionate</span><span class="chip">Ambitious</span></div><p><b>Into:</b> Cricket · Football · Chess · Reading · Economics</p></div></article><article class="member lg-panel reveal"><div class="portrait"><img src="assets/team/aryaman-aggarwal.webp" alt="Aryaman Aggarwal" loading="lazy"></div><div class="info"><h3>Aryaman Aggarwal</h3><div class="role">Outreach &amp; Marketing Associate</div></div></article></div></section>
     <section class="section">
         <div class="sec-head left reveal">
+            <img class="sec-peek" src="assets/brand/nova.webp" alt="" aria-hidden="true">
             <div class="eyebrow">Why we are building it</div>
             <h2 class="sec-title">Financial clarity, <span class="grad">made accessible</span></h2>
             <p class="sec-sub">Lumera exists to give students and early-career professionals the financial intelligence that used to be reserved for the wealthy.</p>

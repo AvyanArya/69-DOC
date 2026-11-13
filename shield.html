@@ -1147,6 +1147,46 @@ body {
 .card-mascot { display: block; width: 76px; height: 76px; object-fit: contain; object-position: center 40%; margin-bottom: .6rem;
     filter: drop-shadow(0 10px 20px rgba(0,0,0,.4)); transition: transform .35s ease; }
 .panel:hover .card-mascot { transform: translateY(-4px) scale(1.06); }
+/* V24: livelier pages. Cards take turns in the world colours, each section
+   glows in its own colour, a slow aurora drifts behind the page, and a
+   mascot peeks over every section heading. */
+.rest::before {
+    content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background:
+        radial-gradient(40vw 34vw at 16% 28%, rgba(244,114,182,.20), transparent 70%),
+        radial-gradient(42vw 36vw at 86% 60%, rgba(45,212,191,.16), transparent 70%),
+        radial-gradient(38vw 30vw at 50% 98%, rgba(251,191,36,.15), transparent 70%);
+    animation: auroraDrift 36s ease-in-out infinite alternate;
+}
+@keyframes auroraDrift { 50% { transform: translate3d(3vw,-2vh,0) scale(1.05); } 100% { transform: translate3d(-3vw,2vh,0) scale(1.02); } }
+.rest .section { position: relative; }
+.rest .section::before {
+    content: ""; position: absolute; inset: 4% 0 8%; z-index: -1; pointer-events: none;
+    background: radial-gradient(60% 55% at 50% 50%, color-mix(in srgb, var(--sg, #A78BFA) 22%, transparent), transparent 72%);
+}
+.rest .section:nth-of-type(4n+2)::before { --sg: #F472B6; }
+.rest .section:nth-of-type(4n+3)::before { --sg: #2DD4BF; }
+.rest .section:nth-of-type(4n+4)::before { --sg: #FBBF24; }
+.rest div.panel.lg-panel {
+    --pc: #A78BFA; --accent-b: var(--pc);
+    background: linear-gradient(160deg, color-mix(in srgb, var(--pc) 32%, transparent), color-mix(in srgb, var(--pc) 8%, transparent) 72%), rgba(28,22,50,.66);
+    border-color: color-mix(in srgb, var(--pc) 46%, rgba(255,255,255,.08));
+    box-shadow: inset 0 3px 0 color-mix(in srgb, var(--pc) 80%, #ffffff), 0 22px 44px -30px var(--pc);
+}
+.rest div.panel.lg-panel:nth-child(5n+2) { --pc: #F472B6; }
+.rest div.panel.lg-panel:nth-child(5n+3) { --pc: #34D399; }
+.rest div.panel.lg-panel:nth-child(5n+4) { --pc: #FBBF24; }
+.rest div.panel.lg-panel:nth-child(5n+5) { --pc: #60A5FA; }
+.rest div.panel.lg-panel h3 { color: color-mix(in srgb, var(--pc) 50%, #ffffff); }
+.rest div.panel.lg-panel:hover { border-color: var(--pc); box-shadow: inset 0 3px 0 var(--pc), 0 30px 56px -26px var(--pc); }
+.rest .sec-head { position: relative; padding-right: 100px; }
+.sec-peek {
+    position: absolute; right: 0; top: -14px; width: 86px; height: auto; pointer-events: none;
+    filter: drop-shadow(0 14px 22px rgba(0,0,0,.45)); transform-origin: 50% 100%; animation: peekBob 5.5s ease-in-out infinite;
+}
+@keyframes peekBob { 0%,100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-9px) rotate(4deg); } }
+@media (max-width: 720px) { .rest .sec-head { padding-right: 62px; } .sec-peek { width: 56px; top: -6px; } }
+@media (prefers-reduced-motion: reduce) { .rest::before, .sec-peek { animation: none; } }
 @media (max-width: 720px) {
     .page-hero { padding: 3.5rem 1.25rem .5rem; }
     .tool-list { grid-template-columns: 1fr; }
@@ -1289,6 +1329,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
     <section class="section tight"><div class="grid-2"><div class="panel lg-panel reveal"><h3>Credit</h3><p>What actually moves a score, and the order to do things in.</p></div><div class="panel lg-panel reveal"><h3>Debt</h3><p>Avalanche and snowball side by side on your real numbers.</p></div><div class="panel lg-panel reveal"><h3>Insurance</h3><p>A risk score, then only the cover that matches it.</p></div><div class="panel lg-panel reveal"><h3>Retirement</h3><p>Projections that survive inflation, not just a compound-interest toy.</p></div><div class="panel lg-panel reveal"><h3>Emergency Fund</h3><p>Your true safety number and the fastest way to reach it.</p></div><div class="panel lg-panel reveal"><h3>Credit Cards</h3><p>How cards really work, and how to use one without paying for it.</p></div><div class="panel lg-panel reveal"><h3>Net Worth</h3><p>What you own and owe on one line, tracked month to month.</p></div><div class="panel lg-panel reveal"><h3>Safety Benchmarks</h3><p>How protected you are compared with people like you.</p></div></div></section>
     <section class="section">
         <div class="sec-head left reveal">
+            <img class="sec-peek" src="assets/brand/lumi.webp" alt="" aria-hidden="true">
             <div class="eyebrow">What is inside</div>
             <h2 class="sec-title">The tools <span class="grad">you get</span></h2>
             <p class="sec-sub">Shield is not out yet. These are the tools it will have when it arrives.</p>
@@ -1297,6 +1338,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
     </section>
     <section class="section">
         <div class="sec-head left reveal">
+            <img class="sec-peek" src="assets/brand/sprout.webp" alt="" aria-hidden="true">
             <div class="eyebrow">The rest of the family</div>
             <h2 class="sec-title">It does not <span class="grad">stop here</span></h2>
             <p class="sec-sub">The other three worlds are on their way too.</p>

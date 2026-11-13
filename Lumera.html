@@ -762,6 +762,213 @@
   .ws-live .text-muted,.ws-live .text-faint{ color:rgba(255,255,255,.82) !important; }
   .ws-tile{ border-radius:20px; padding:16px; color:#fff; position:relative; overflow:hidden; transition:transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s; }
   .ws-tile, .tint-box{ backdrop-filter:blur(10px) saturate(120%); -webkit-backdrop-filter:blur(10px) saturate(120%); }   /* V23: translucent boxes */
+
+  /* ================= V24 ================= */
+  /* Page heroes: each page in its own colours, the same recipe as the dashboard hero. */
+  .page-hero{ position:relative; overflow:hidden; isolation:isolate; border-radius:30px; padding:26px 20px 24px; color:#fff;
+    background:linear-gradient(125deg, var(--h1), var(--h2) 52%, var(--h3)); background-size:220% 220%;
+    animation:ws-shift 22s ease-in-out infinite alternate;
+    border:1px solid rgba(255,255,255,.24); box-shadow:0 30px 70px -38px var(--h2), inset 0 1px 0 rgba(255,255,255,.3); }
+  @media (min-width:640px){ .page-hero{ padding:34px 34px 32px; } }
+  .page-hero::after{ content:""; position:absolute; inset:0; z-index:-1; background:rgba(16,8,36,.16); pointer-events:none; }
+  .page-hero .ph-blob{ position:absolute; z-index:-1; border-radius:50%; filter:blur(48px); pointer-events:none; animation:ws-float 14s ease-in-out infinite alternate; }
+  .page-hero .ph-blob.a{ width:270px; height:270px; top:-100px; left:-80px; background:#22D3EE; opacity:.36; }
+  .page-hero .ph-blob.b{ width:250px; height:250px; bottom:-120px; right:16%; background:#FDE047; opacity:.26; animation-delay:-6s; }
+  .page-hero .ph-eyebrow{ display:inline-flex; align-items:center; gap:.6rem; font-size:11px; font-weight:700; letter-spacing:.22em; text-transform:uppercase; color:rgba(255,255,255,.92); }
+  .page-hero .ph-eyebrow::before{ content:""; width:24px; height:1px; background:rgba(255,255,255,.7); }
+  .page-hero .ph-accent{ color:#FDE68A; }
+  .page-hero .lede{ text-shadow:0 1px 14px rgba(20,8,40,.35); }
+  .page-hero .topbar-pill{ background:rgba(255,255,255,.14); border-color:rgba(255,255,255,.26); }
+  .page-hero .btn-ghost{ background:rgba(255,255,255,.14) !important; border-color:rgba(255,255,255,.3) !important; color:#fff !important; }
+  .ph-art{ display:flex; justify-content:center; }
+  .ph-art > *{ width:100%; }
+  @media (prefers-reduced-motion: reduce){ .page-hero, .page-hero .ph-blob{ animation:none; } }
+
+  /* Centred rows of boxes: a short last row sits in the middle, not off to the left. */
+  .grid-center{ display:flex; flex-wrap:wrap; justify-content:center; }
+  .grid-center > *{ flex:0 0 100%; min-width:0; }
+  @media (min-width:640px){ .grid-center.gc-sm2 > *{ flex-basis:calc((100% - var(--gc-gap,1rem)) / 2); } }
+  @media (min-width:1024px){ .grid-center.gc-lg2 > *{ flex-basis:calc((100% - var(--gc-gap,1rem)) / 2); } }
+  @media (min-width:1280px){ .grid-center.gc-xl3 > *{ flex-basis:calc((100% - 2 * var(--gc-gap,1rem)) / 3); } }
+  .grid-center > .gc-full{ flex-basis:100% !important; }
+
+  /* Budget jars */
+  .jar-row{ display:flex; justify-content:center; align-items:flex-end; gap:clamp(8px,2.6vw,22px); }
+  .jar{ margin:0; display:flex; flex-direction:column; align-items:center; flex:1 1 0; max-width:116px; min-width:0; }
+  .jar svg{ width:100%; height:auto; overflow:visible; filter:drop-shadow(0 16px 20px rgba(12,6,40,.4)); }
+  .jar-fill{ transition:transform 1.3s cubic-bezier(.2,.8,.2,1); }
+  .jar-wave{ animation:jarWave 3.6s linear infinite; }
+  @keyframes jarWave{ to{ transform:translateX(50px); } }
+  .jar-drop{ animation:jarDrop 1.9s ease-in infinite; } .jar-drop.d2{ animation-delay:.95s; }
+  @keyframes jarDrop{ 0%{ transform:translateY(0); opacity:0 } 15%{ opacity:1 } 100%{ transform:translateY(40px); opacity:0 } }
+  .jar figcaption{ text-align:center; margin-top:8px; line-height:1.3; }
+  .jar figcaption b{ display:block; font-size:13.5px; color:#fff; }
+  .jar figcaption span{ display:block; font-size:11.5px; color:#fff; text-shadow:0 1px 8px rgba(20,8,40,.45); }
+  .jar figcaption i{ font-style:normal; opacity:.75; }
+  .jar figcaption em{ display:inline-block; margin-top:6px; font-style:normal; font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:999px; background:rgba(255,255,255,.18); color:#fff; white-space:nowrap; }
+  .jar figcaption em.bad{ background:#FFE4E6; color:#9F1239; } .jar figcaption em.warn{ background:#FEF3C7; color:#92400E; } .jar figcaption em.ok{ background:#D1FAE5; color:#065F46; }
+
+  /* Safety shield */
+  .shield-wrap{ display:flex; align-items:center; justify-content:center; gap:22px; flex-wrap:wrap; }
+  .shield-svg{ width:clamp(130px,32vw,176px); height:auto; filter:drop-shadow(0 20px 28px rgba(8,10,48,.5)); }
+  .shield-band{ transform-box:fill-box; transform-origin:bottom; transition:transform 1s cubic-bezier(.2,.8,.2,1); }
+  .shield-next{ animation:bandPulse 2.2s ease-in-out infinite; }
+  @keyframes bandPulse{ 50%{ opacity:.35; } }
+  .shield-legend{ min-width:170px; }
+  .sl-kicker{ font-size:10.5px; letter-spacing:.2em; text-transform:uppercase; font-weight:700; color:rgba(255,255,255,.85); }
+  .sl-big{ font-family:'Instrument Serif',serif; font-size:3rem; line-height:1; color:#fff; margin-top:4px; }
+  .sl-big span{ font-family:'Manrope',sans-serif; font-size:14px; color:rgba(255,255,255,.88); }
+  .sl-sub{ font-size:13px; color:rgba(255,255,255,.9); margin:6px 0 10px; }
+  .sl-row{ display:flex; justify-content:space-between; gap:16px; font-size:13px; padding:6px 0; border-top:1px solid rgba(255,255,255,.2); color:rgba(255,255,255,.9); }
+  .sl-row b{ color:#fff; }
+
+  /* Goals journey */
+  .journey{ display:grid; gap:12px; padding:16px 16px 12px; border-radius:22px; background:rgba(12,8,36,.24); border:1px solid rgba(255,255,255,.18); }
+  .jr-kicker{ font-size:10.5px; letter-spacing:.2em; text-transform:uppercase; font-weight:700; color:rgba(255,255,255,.85); }
+  .jr-top{ display:flex; justify-content:space-between; gap:10px; font-size:13px; color:#fff; }
+  .jr-top b{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .jr-track{ position:relative; height:32px; margin:0 14px 0 4px; }
+  .jr-road{ position:absolute; left:0; right:0; top:50%; height:6px; margin-top:-3px; border-radius:99px; background:repeating-linear-gradient(90deg, rgba(255,255,255,.45) 0 9px, transparent 9px 16px); }
+  .jr-done{ position:absolute; left:0; top:50%; height:6px; margin-top:-3px; border-radius:99px; background:linear-gradient(90deg,#FDE68A,#FFFFFF); box-shadow:0 0 12px rgba(253,230,138,.8); transition:width 1.3s cubic-bezier(.2,.8,.2,1); }
+  .jr-flag{ position:absolute; top:-1px; transform:translateX(-50%); color:rgba(255,255,255,.45); }
+  .jr-flag.on{ color:#FDE68A; }
+  .jr-finish{ position:absolute; right:-16px; top:50%; transform:translateY(-55%); font-size:18px; line-height:1; }
+  .jr-walker{ position:absolute; top:50%; transform:translate(-50%,-50%); transition:left 1.3s cubic-bezier(.2,.8,.2,1); filter:drop-shadow(0 4px 8px rgba(0,0,0,.35)); }
+  .jr-sub{ font-size:11.5px; color:rgba(255,255,255,.85); margin-top:-2px; }
+  .jr-more{ font-size:12px; color:rgba(255,255,255,.85); text-align:center; }
+
+  /* Subscription shelf */
+  .shelf{ display:grid; gap:12px; }
+  .shelf-stage{ display:flex; align-items:flex-end; gap:12px; }
+  .shelf-unit{ flex:1 1 auto; min-width:0; }
+  .shelf-row{ display:flex; align-items:flex-end; justify-content:center; gap:6px; padding:0 6px; min-height:112px; }
+  .cart{ position:relative; flex:1 1 0; min-width:22px; max-width:46px; height:96px; border-radius:10px 10px 6px 6px; padding:6px 0 8px;
+    display:flex; flex-direction:column; align-items:center; gap:5px; color:#fff; cursor:pointer; transform-origin:bottom center;
+    background:linear-gradient(180deg, color-mix(in srgb, var(--c) 92%, white), var(--c)); box-shadow:inset 0 1px 0 rgba(255,255,255,.5), inset -3px 0 0 rgba(0,0,0,.14), 0 10px 16px -10px rgba(0,0,0,.6);
+    transition:transform .3s cubic-bezier(.2,.8,.2,1), opacity .3s, filter .3s; }
+  .cart:hover, .cart:focus-visible{ transform:translateY(-6px); }
+  .cart.review{ transform:rotate(-7deg); box-shadow:0 0 0 2px #FDE68A, 0 0 18px rgba(253,230,138,.7); }
+  .cart.review:hover{ transform:rotate(-7deg) translateY(-6px); }
+  .cart.paused{ opacity:.55; filter:grayscale(.7); }
+  .cart-mono{ font-size:10.5px; font-weight:800; letter-spacing:.02em; line-height:1; background:rgba(0,0,0,.22); border-radius:6px; padding:3px 4px; }
+  .cart-name{ flex:1; min-height:0; writing-mode:vertical-rl; transform:rotate(180deg); font-size:10.5px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-shadow:0 1px 2px rgba(0,0,0,.35); }
+  .cart-led{ width:7px; height:7px; border-radius:50%; box-shadow:0 0 8px currentColor, 0 0 0 2px rgba(0,0,0,.25); }
+  .shelf-plank{ height:11px; border-radius:6px; background:linear-gradient(180deg, rgba(255,255,255,.75), rgba(255,255,255,.35)); box-shadow:0 12px 18px -10px rgba(0,0,0,.55); }
+  .shelf-empty{ align-self:center; font-size:13px; color:rgba(255,255,255,.9); }
+  .bin{ position:relative; flex:0 0 74px; display:flex; flex-direction:column; align-items:center; }
+  .bin-items{ position:relative; height:40px; width:60px; margin-bottom:-24px; z-index:0; }
+  .bin-chip{ position:absolute; left:50%; bottom:var(--y,0); width:26px; height:32px; margin-left:-13px; border-radius:6px; display:grid; place-items:center; font-size:9.5px; font-weight:800; color:#fff; background:var(--c); transform:rotate(var(--r)); box-shadow:0 4px 8px rgba(0,0,0,.35); }
+  .bin-svg{ position:relative; z-index:1; width:64px; height:auto; }
+  .bin-label{ font-size:11px; color:#fff; margin-top:4px; white-space:nowrap; }
+  .shelf-meter{ padding:12px 14px; border-radius:18px; background:rgba(12,8,36,.24); border:1px solid rgba(255,255,255,.18); }
+  .sm-top{ display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; font-size:12.5px; color:rgba(255,255,255,.9); }
+  .sm-top b{ color:#fff; }
+  .sm-bar{ height:8px; border-radius:99px; background:rgba(255,255,255,.18); margin:8px 0; overflow:hidden; }
+  .sm-bar i{ display:block; height:100%; border-radius:99px; background:linear-gradient(90deg,#FDE68A,#4ADE80); transition:width .8s ease; }
+  .sm-key{ display:flex; flex-wrap:wrap; gap:4px 12px; font-size:11px; color:rgba(255,255,255,.88); }
+  .sm-key span{ display:inline-flex; align-items:center; gap:5px; }
+  .sm-key i{ width:7px; height:7px; border-radius:50%; display:inline-block; }
+  .sm-key .sm-tip{ margin-left:auto; }
+
+  /* Twin trading card */
+  .tcard-wrap{ display:grid; place-items:center; perspective:900px; padding:4px 0; }
+  .tcard{ --rx:0deg; --ry:0deg; --hx:50%; position:relative; width:min(236px,100%); aspect-ratio:5/7; border-radius:20px; padding:9px;
+    background:linear-gradient(140deg,#FDE68A,#F472B6 30%,#818CF8 62%,#22D3EE 92%); transform:rotateX(var(--rx)) rotateY(var(--ry)); transition:transform .25s ease;
+    box-shadow:0 30px 50px -24px rgba(12,6,40,.8), 0 0 0 1px rgba(255,255,255,.4); transform-style:preserve-3d; }
+  .tcard-in{ height:100%; border-radius:13px; padding:12px 12px 10px; display:flex; flex-direction:column; color:#fff;
+    background:radial-gradient(120% 70% at 50% 0%, color-mix(in srgb, var(--t) 55%, transparent), transparent 70%), linear-gradient(170deg,#2A1758,#140B2E); }
+  .tc-top{ display:flex; justify-content:space-between; align-items:center; }
+  .tc-rar{ font-size:10.5px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
+  .tc-pow{ font-family:'Instrument Serif',serif; font-size:1.7rem; line-height:1; }
+  .tc-pow small{ font-family:'Manrope',sans-serif; font-size:9px; font-weight:800; letter-spacing:.12em; margin-left:3px; opacity:.85; }
+  .tc-art{ display:grid; place-items:center; height:30%; min-height:70px; margin:4px 0 2px; border-radius:12px; background:radial-gradient(circle at 50% 70%, rgba(255,255,255,.22), transparent 70%); }
+  .tc-name{ font-family:'Instrument Serif',serif; font-size:1.3rem; line-height:1.05; text-align:center; }
+  .tc-tag{ font-size:10.5px; text-align:center; color:#FDE68A; margin:3px 0 8px; }
+  .tc-stats{ display:grid; gap:4px; margin-top:auto; }
+  .tc-stat{ display:grid; grid-template-columns:62px 1fr 22px; align-items:center; gap:6px; font-size:10px; color:rgba(255,255,255,.88); }
+  .tc-stat i{ height:5px; border-radius:99px; background:rgba(255,255,255,.16); overflow:hidden; }
+  .tc-stat b{ display:block; height:100%; border-radius:99px; background:linear-gradient(90deg,#A78BFA,#F0ABFC); }
+  .tc-stat em{ font-style:normal; font-weight:700; text-align:right; color:#fff; }
+  .tc-holo{ position:absolute; inset:0; border-radius:20px; pointer-events:none; mix-blend-mode:overlay;
+    background:linear-gradient(115deg, transparent 32%, rgba(255,255,255,.55) 46%, transparent 60%); background-size:260% 260%; background-position:var(--hx) 50%; }
+  @media (prefers-reduced-motion: reduce){ .tcard{ transition:none; transform:none; } }
+
+  /* Quest board */
+  .qb{ padding:14px; border-radius:22px; background:rgba(12,8,36,.24); border:1px solid rgba(255,255,255,.18); }
+  .qb-head{ display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:baseline; margin-bottom:12px; }
+  .qb-head span{ font-size:10.5px; letter-spacing:.2em; text-transform:uppercase; font-weight:700; color:rgba(255,255,255,.88); }
+  .qb-head b{ font-size:12.5px; color:#fff; }
+  .qb-notes{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; }
+  .qnote{ position:relative; display:flex; flex-direction:column; gap:6px; border-radius:12px; padding:16px 12px 12px; background:var(--paper); color:#1E1533;
+    transform:rotate(var(--r)); box-shadow:0 16px 24px -16px rgba(0,0,0,.6); transition:transform .25s ease; }
+  .qnote:hover{ transform:rotate(0deg) translateY(-3px); }
+  .qnote::before{ content:""; position:absolute; top:-6px; left:50%; width:13px; height:13px; margin-left:-6.5px; border-radius:50%;
+    background:radial-gradient(circle at 35% 35%, #fff, var(--pin) 62%); box-shadow:0 2px 4px rgba(0,0,0,.45); }
+  .qn-stars{ font-size:12px; color:var(--pin); letter-spacing:1px; } .qn-stars s{ text-decoration:none; opacity:.25; }
+  .qn-title{ font-size:13.5px; font-weight:700; line-height:1.3; }
+  .qn-reward{ font-size:11.5px; font-weight:700; color:#065F46; }
+  .qn-go{ margin-top:auto; align-self:flex-start; display:inline-flex; align-items:center; gap:4px; font-size:12px; font-weight:700; color:#fff; background:#1E1533; border-radius:999px; padding:6px 11px; }
+  .qn-go:hover{ background:#3B2A6B; }
+  .qb-empty{ text-align:center; color:#fff; font-size:14px; padding:20px; border-radius:18px; background:rgba(12,8,36,.24); }
+
+  /* Net worth scale */
+  .nw-scale{ width:min(100%,380px); height:auto; margin:0 auto; display:block; filter:drop-shadow(0 18px 24px rgba(12,6,40,.4)); overflow:visible; }
+  .nw-beam, .nw-pan{ transition:transform 1.4s cubic-bezier(.3,1.5,.5,1); }
+  .nw-l{ font:700 10px 'Manrope',sans-serif; letter-spacing:.14em; text-transform:uppercase; fill:rgba(255,255,255,.88); }
+  .nw-v{ font:400 20px 'Instrument Serif',serif; fill:#fff; }
+  .nw-net{ font:400 22px 'Instrument Serif',serif; fill:#FDE68A; }
+
+  /* Money home */
+  .home-card{ position:relative; overflow:hidden; isolation:isolate; border-radius:30px; padding:20px 18px; color:#fff;
+    background:linear-gradient(180deg,#312E81 0%,#6D28D9 52%,#DB2777 100%); border:1px solid rgba(255,255,255,.22);
+    box-shadow:0 30px 70px -38px rgba(109,40,217,.9), inset 0 1px 0 rgba(255,255,255,.25); }
+  @media (min-width:640px){ .home-card{ padding:26px 28px; } }
+  .home-card::after{ content:""; position:absolute; inset:0; z-index:-1; background:rgba(16,8,36,.16); }
+  .home-stars{ position:absolute; inset:0; z-index:-1; opacity:.8; background-image:
+    radial-gradient(1.5px 1.5px at 8% 14%, #fff, transparent), radial-gradient(1px 1px at 22% 30%, #fff, transparent), radial-gradient(1.5px 1.5px at 37% 10%, #fff, transparent),
+    radial-gradient(1px 1px at 55% 22%, #fff, transparent), radial-gradient(1.5px 1.5px at 70% 8%, #fff, transparent), radial-gradient(1px 1px at 86% 18%, #fff, transparent), radial-gradient(1px 1px at 94% 34%, #fff, transparent); }
+  .home-svg{ width:100%; height:auto; display:block; overflow:visible; }
+  .home-svg .hp{ cursor:pointer; outline:none; }
+  .home-svg .hp:focus-visible{ filter:drop-shadow(0 0 6px #FDE68A); }
+  .home-svg .hp.built:hover{ filter:brightness(1.08) drop-shadow(0 0 6px rgba(255,255,255,.6)); }
+  .home-svg .gh, .home-svg .gh *{ fill:rgba(255,255,255,.06); stroke:rgba(255,255,255,.6); stroke-width:1.6; stroke-dasharray:5 4; }
+  .home-svg .hp.ghost:hover .gh, .home-svg .hp.ghost:hover .gh *{ stroke:#FDE68A; fill:rgba(253,230,138,.12); }
+  .home-svg .fresh{ animation:partPop .9s cubic-bezier(.3,1.6,.5,1) both; transform-box:fill-box; transform-origin:center bottom; }
+  @keyframes partPop{ 0%{ transform:scale(.6); opacity:0 } 100%{ transform:scale(1); opacity:1 } }
+  .home-svg .smoke circle{ animation:smoke 3.2s ease-out infinite; transform-box:fill-box; transform-origin:center; }
+  .home-svg .smoke circle:nth-child(2){ animation-delay:1s; } .home-svg .smoke circle:nth-child(3){ animation-delay:2s; }
+  @keyframes smoke{ 0%{ opacity:0; transform:translateY(10px) scale(.5) } 30%{ opacity:.85 } 100%{ opacity:0; transform:translateY(-14px) scale(1.25) } }
+  .home-svg .flag-cloth{ animation:flagWave 1.6s ease-in-out infinite alternate; transform-box:fill-box; transform-origin:left center; }
+  @keyframes flagWave{ to{ transform:scaleX(.82) skewY(4deg); } }
+  .home-svg .drip{ animation:jarDrop 1.7s ease-in infinite; } .home-svg .drip.d2{ animation-delay:.85s; }
+  .home-svg .win-glow{ animation:winGlow 3s ease-in-out infinite alternate; }
+  @keyframes winGlow{ to{ opacity:.55; } }
+  .home-svg .flower{ animation:sway 3.4s ease-in-out infinite alternate; transform-box:fill-box; transform-origin:center bottom; }
+  @keyframes sway{ from{ transform:rotate(-3deg) } to{ transform:rotate(3deg) } }
+  .home-lumi{ filter:drop-shadow(0 6px 10px rgba(0,0,0,.35)); }
+  .home-panel{ padding:16px; border-radius:22px; background:rgba(12,8,36,.32); border:1px solid rgba(255,255,255,.16); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); }
+  .hp-kicker{ font-size:10.5px; letter-spacing:.2em; text-transform:uppercase; font-weight:700; color:rgba(255,255,255,.85); }
+  .hp-big{ font-size:1.9rem; line-height:1.05; margin-top:4px; color:#fff; }
+  .hp-bar{ height:7px; border-radius:99px; background:rgba(255,255,255,.18); margin:10px 0; overflow:hidden; }
+  .hp-bar i{ display:block; height:100%; border-radius:99px; background:linear-gradient(90deg,#FDE68A,#F472B6); transition:width 1s ease; }
+  .hp-next{ font-size:13px; color:rgba(255,255,255,.9); line-height:1.45; }
+  .hp-next b{ color:#FDE68A; }
+  .hp-list{ display:grid; grid-template-columns:1fr 1fr; gap:4px 6px; margin-top:12px; }
+  @media (max-width:359px){ .hp-list{ grid-template-columns:1fr; } }
+  .hp-item{ width:100%; display:flex; align-items:center; gap:9px; text-align:left; padding:6px 8px; border-radius:12px; color:rgba(255,255,255,.88); transition:background .2s; min-height:40px; }
+  .hp-item:hover{ background:rgba(255,255,255,.1); }
+  .hp-tick{ flex:0 0 22px; height:22px; border-radius:50%; display:grid; place-items:center; border:1.5px dashed rgba(255,255,255,.55); color:rgba(255,255,255,.8); }
+  .hp-item.on .hp-tick{ border:0; background:#4ADE80; color:#052E16; }
+  .hp-name{ flex:1; min-width:0; font-size:13px; font-weight:600; color:#fff; }
+  .hp-name small{ display:block; font-size:11px; font-weight:500; color:rgba(255,255,255,.8); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .hp-item.on .hp-name small{ color:#BBF7D0; }
+  .hp-tool{ font-size:11px; color:rgba(255,255,255,.8); white-space:nowrap; }
+  @media (pointer: coarse){ .hp-item{ min-height:44px; } .qn-go{ min-height:44px; padding:0 14px; } .jr-track{ min-height:44px; } }
+
+  @media (prefers-reduced-motion: reduce){
+    .jar-wave, .jar-drop, .shield-next, .home-svg .smoke circle, .home-svg .flag-cloth, .home-svg .drip, .home-svg .win-glow, .home-svg .flower, .home-svg .fresh{ animation:none; }
+    .jar-fill, .shield-band, .jr-done, .jr-walker, .nw-beam, .nw-pan, .cart, .qnote{ transition:none; }
+  }
   .ws-tile:hover{ transform:translateY(-6px) rotate(-.5deg); }
   .ws-tile::after{ content:""; position:absolute; inset:0; background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.28) 50%,transparent 70%); transform:translateX(-120%); animation:ws-shine 6s ease-in-out infinite; }
   @keyframes ws-shine{ 60%,100%{ transform:translateX(120%); } }
@@ -2972,11 +3179,45 @@ function AppShell({ children }){
 }
 
 /* Page header used across app pages */
-function PageHead({ eyebrow, title, desc, action }){
-  // A page opens the way the landing page does: a small tracked eyebrow,
-  // a large display title whose closing words carry the brand gradient, then
-  // the sub-copy. The action sits on the same baseline, right.
+/* V24: every app page opens on its own coloured hero, in the dashboard's
+   palette (a moving gradient, two soft colour blobs, a faint veil), and most
+   carry a picture of their own data on the right. */
+const PAGE_HUES = {
+  '/budget':['#047857','#0D9488','#7C3AED'], '/goals':['#0369A1','#4F46E5','#8B5CF6'],
+  '/emergency':['#1D4ED8','#4F46E5','#7C3AED'], '/subscriptions':['#BE123C','#C026D3','#7C3AED'],
+  '/networth':['#B45309','#DB2777','#7C3AED'], '/simulator':['#6D28D9','#C026D3','#DB2777'],
+  '/twin':['#4338CA','#9333EA','#DB2777'], '/recommendations':['#6D28D9','#DB2777','#D97706'],
+  '/benchmarks':['#0E7490','#4F46E5','#8B5CF6'], '/assistant':['#4338CA','#7C3AED','#C026D3'],
+  '/chats':['#4338CA','#6D28D9','#C026D3'], '/community':['#BE185D','#7C3AED','#4F46E5'],
+  '/pricing':['#6D28D9','#C026D3','#F59E0B'], '/privacy':['#1D4ED8','#6D28D9','#9333EA'],
+  '/terms':['#3730A3','#6D28D9','#9333EA'], '/settings':['#4338CA','#6D28D9','#9333EA'],
+  '/updates':['#A21CAF','#7C3AED','#4F46E5'], '/resources':['#0F766E','#4F46E5','#8B5CF6'],
+  '/badges':['#B45309','#DB2777','#8B5CF6'], '/team':['#6D28D9','#C026D3','#DB2777'],
+};
+const PAGE_HUE_DEFAULT = ['#5B21B6','#7C3AED','#C026D3'];
+function PageHead({ eyebrow, title, desc, action, art, plain }){
+  const app = useApp();
   const words = typeof title==='string' ? title.trim().split(' ') : null;
+  if(!plain){
+    const accent = words && words.length>2
+      ? <>{words.slice(0,-2).join(' ')} <span className="ph-accent">{words.slice(-2).join(' ')}</span></>
+      : title;
+    const path = String((app&&app.route)||'').split('?')[0];
+    const h = PAGE_HUES[path] || PAGE_HUE_DEFAULT;
+    return <section className="page-hero mb-8" style={{'--h1':h[0],'--h2':h[1],'--h3':h[2]}}>
+      <span className="ph-blob a" aria-hidden="true"/><span className="ph-blob b" aria-hidden="true"/>
+      <div className={cx('relative grid gap-7 items-center', art&&'lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]')}>
+        <div className="min-w-0">
+          {eyebrow&&<div className="ph-eyebrow mb-3">{eyebrow}</div>}
+          <h1 className="font-serif text-[2rem] sm:text-[2.6rem] leading-[1.06]" style={{color:'#fff'}}>{accent}</h1>
+          {desc&&<p className="lede mt-3 leading-relaxed max-w-2xl" style={{color:'rgba(255,255,255,.9)'}}>{desc}</p>}
+          {action&&<div className="mt-5 min-w-0 ph-action">{action}</div>}
+        </div>
+        {art&&<div className="min-w-0 ph-art">{art}</div>}
+      </div>
+    </section>;
+  }
+  // The plain header (used below the dashboard's own hero).
   const head = words && words.length>2
     ? <>{words.slice(0,-2).join(' ')} <span className="gold-text">{words.slice(-2).join(' ')}</span></>
     : title;
@@ -2991,6 +3232,220 @@ function PageHead({ eyebrow, title, desc, action }){
       {action&&<div className="w-full min-w-0 sm:w-auto sm:shrink-0">{action}</div>}
     </div>
   </div>;
+}
+
+/* ============================================================
+   V24 · PAGE PICTURES
+   Each tool shows its own numbers as a picture: budget jars that fill
+   and overflow, a safety shield that charges, goals as a journey, a
+   subscription shelf with a bin, a collectible twin card, a quest board
+   and a balance scale. All of them read the page's real figures.
+   ============================================================ */
+const useArtId = (p) => useMemo(()=>p+Math.random().toString(36).slice(2,8),[]);
+function useGrowIn(){ const [on,setOn]=useState(false); useEffect(()=>{ const t=setTimeout(()=>setOn(true),90); return ()=>clearTimeout(t); },[]); return on; }
+
+const JAR_COL = { Needs:['#BFDBFE','#3B82F6'], Wants:['#FBCFE8','#EC4899'], Savings:['#A7F3D0','#10B981'], Debt:['#FDE68A','#F59E0B'] };
+const JAR_PATH = 'M32 18 H68 V30 Q88 36 88 58 V128 Q88 144 72 144 H28 Q12 144 12 128 V58 Q12 36 32 30 Z';
+function BudgetJars({ buckets, fmt }){
+  const uid = useArtId('jar'); const on = useGrowIn();
+  return <div className="jar-row">
+    {buckets.map((b,i)=>{
+      const r = b.limit>0 ? b.actual/b.limit : 0; const isSave = b.name==='Savings';
+      const over = !isSave && r>1.001; const short = isSave && r<0.999;
+      const fill = clamp(r,0,1); const lvl = 34 + 110*(1-fill);
+      const c = JAR_COL[b.name] || ['#DDD6FE','#8B5CF6']; const id = uid+i;
+      const state = over ? 'Over the limit' : isSave ? (short ? 'Filling up' : 'Full') : 'Within plan';
+      return <figure key={b.name} className="jar" role="img" aria-label={`${b.name}: ${fmt.money(b.actual)} of ${fmt.money(b.limit)}. ${state}.`}>
+        <svg viewBox="0 0 100 160" aria-hidden="true">
+          <defs>
+            <linearGradient id={id+'g'} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor={c[0]}/><stop offset="1" stopColor={c[1]}/></linearGradient>
+            <clipPath id={id+'c'}><path d={JAR_PATH}/></clipPath>
+          </defs>
+          <path d={JAR_PATH} fill="rgba(255,255,255,.12)"/>
+          <g clipPath={`url(#${id}c)`}>
+            <g className="jar-fill" style={{transform:`translateY(${on?lvl:160}px)`}}>
+              <path className="jar-wave" d="M-50 0 Q-37.5 -7 -25 0 T0 0 T25 0 T50 0 T75 0 T100 0 T125 0 T150 0 V170 H-50 Z" fill={`url(#${id}g)`}/>
+            </g>
+          </g>
+          <path d={JAR_PATH} fill="none" stroke="rgba(255,255,255,.85)" strokeWidth="2.4" strokeLinejoin="round"/>
+          <rect x="27" y="7" width="46" height="13" rx="4.5" fill="rgba(255,255,255,.7)"/>
+          <path d="M22 62 Q19 92 23 122" stroke="rgba(255,255,255,.5)" strokeWidth="4" strokeLinecap="round" fill="none"/>
+          {over && <g fill={c[1]}>
+            {/* overflowing: a stream over the lip, down the side, into a puddle */}
+            <path d="M58 16 Q66 9 72 15 Q78 22 91 30 Q95 34 94 44 L94 136 Q94 140 91.5 140 Q89 140 89 136 L89 46 Q89 37 85 34 Q74 26 66 21 Q61 19 58 16 Z" opacity=".95"/>
+            <ellipse cx="88" cy="150" rx="15" ry="4" opacity=".75"/>
+            <circle className="jar-drop" cx="91.5" cy="118" r="3"/><circle className="jar-drop d2" cx="91.5" cy="118" r="2.4"/>
+          </g>}
+        </svg>
+        <figcaption><b>{b.name}</b><span className="tnum">{fmt.compact(b.actual)} <i>of</i> {fmt.compact(b.limit)}</span>
+          <em className={over?'bad':short?'warn':'ok'}>{state}</em></figcaption>
+      </figure>; })}
+  </div>;
+}
+
+const SHIELD_PATH = 'M70 8 L124 28 V74 C124 112 100 138 70 150 C40 138 16 112 16 74 V28 Z';
+function SafetyShield({ current, ess, months, fmt }){
+  const uid = useArtId('sh'); const on = useGrowIn();
+  const have = ess>0 ? current/ess : 0; const n = Math.max(1, Math.round(months));
+  const top=8, bot=150, band=(bot-top)/n, gap=n>8?1.6:2.4; const full = have>=n;
+  return <div className="shield-wrap">
+    <svg className="shield-svg" viewBox="0 0 140 158" role="img" aria-label={`Safety shield: ${have.toFixed(1)} of ${n} months charged`}>
+      <defs>
+        <clipPath id={uid+'c'}><path d={SHIELD_PATH}/></clipPath>
+        <linearGradient id={uid+'g'} x1="0" y1="1" x2="0" y2="0"><stop offset="0" stopColor="#22D3EE"/><stop offset="1" stopColor="#E0E7FF"/></linearGradient>
+      </defs>
+      <path d={SHIELD_PATH} fill="rgba(255,255,255,.10)"/>
+      <g clipPath={`url(#${uid}c)`}>
+        {Array.from({length:n},(_,i)=>{ const y=bot-(i+1)*band+gap/2, hgt=band-gap; const f=clamp(have-i,0,1);
+          const next = !full && i===Math.floor(have);
+          return <g key={i}>
+            <rect x="0" y={y} width="140" height={hgt} fill="rgba(255,255,255,.07)"/>
+            {next && <rect className="shield-next" x="0" y={y} width="140" height={hgt} fill="rgba(255,255,255,.16)"/>}
+            {f>0 && <rect className="shield-band" x="0" y={y} width="140" height={hgt} fill={`url(#${uid}g)`}
+              style={{transform:`scaleY(${on?f:0})`, transitionDelay:(i*0.1)+'s'}}/>}
+          </g>; })}
+      </g>
+      <path d={SHIELD_PATH} fill="none" stroke="rgba(255,255,255,.9)" strokeWidth="2.6" strokeLinejoin="round"/>
+      <path d="M70 19 L113 35 V74 C113 104 95 126 70 138" fill="none" stroke="rgba(255,255,255,.28)" strokeWidth="1.6"/>
+      {full && <path d="M50 80 L64 94 L92 62" fill="none" stroke="#fff" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round"/>}
+    </svg>
+    <div className="shield-legend">
+      <div className="sl-kicker">Shield charge</div>
+      <div className="sl-big tnum">{have.toFixed(1)}<span> of {n} months</span></div>
+      <div className="sl-sub">{full ? 'Fully charged. Life’s surprises are covered.' : `${(n-have).toFixed(1)} months still to charge`}</div>
+      <div className="sl-row"><span>In the fund</span><b className="tnum">{fmt.money(current)}</b></div>
+      <div className="sl-row"><span>Full charge</span><b className="tnum">{fmt.money(ess*n)}</b></div>
+    </div>
+  </div>;
+}
+
+function GoalsJourney({ goals, fmt }){
+  const on = useGrowIn(); const list = goals.slice(0,4);
+  if(!list.length) return null;
+  return <div className="journey">
+    <div className="jr-kicker">Your journeys</div>
+    {list.map(g=>{ const pct = clamp(g.target>0 ? g.current/g.target*100 : 0, 0, 100); const done = pct>=100;
+      return <div key={g.id} className="jr-lane">
+        <div className="jr-top"><b>{g.name}</b><span className="tnum">{round(pct)}%</span></div>
+        <div className="jr-track" role="img" aria-label={`${g.name}: ${round(pct)}% of the way, ${fmt.money(g.current)} of ${fmt.money(g.target)}`}>
+          <span className="jr-road"/>
+          <span className="jr-done" style={{width:(on?pct:0)+'%'}}/>
+          {[25,50,75].map(p=><span key={p} className={cx('jr-flag', pct>=p&&'on')} style={{left:p+'%'}} aria-hidden="true">
+            <svg viewBox="0 0 12 16" width="12" height="16"><path d="M2 15V2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/><path d="M2.6 2.4h7.2l-2.1 2.6 2.1 2.6H2.6z" fill="currentColor"/></svg></span>)}
+          <span className="jr-finish" aria-hidden="true">{done?'🏆':'🏁'}</span>
+          <span className="jr-walker" style={{left:(on?pct:0)+'%'}} aria-hidden="true"><MascotAvatar kind="lumera" color="#ffffff" size={30}/></span>
+        </div>
+        <div className="jr-sub tnum">{fmt.compact(g.current)} saved · {fmt.compact(Math.max(0,g.target-g.current))} to go</div>
+      </div>; })}
+    {goals.length>4 && <div className="jr-more">+{goals.length-4} more below</div>}
+  </div>;
+}
+
+const CART_HUES = ['#F43F5E','#22C55E','#38BDF8','#F59E0B','#A78BFA','#2DD4BF','#F472B6','#FB923C','#818CF8','#4ADE80'];
+function SubShelf({ subs, fmt, onOpen }){
+  const hueOf = (s)=>CART_HUES[Math.max(0,subs.indexOf(s))%CART_HUES.length];
+  const shelf = subs.filter(s=>s.verdict!=='cancelled'); const binned = subs.filter(s=>s.verdict==='cancelled');
+  const total = sum(subs.map(s=>s.cost)); const saved = sum(subs.filter(s=>s.verdict==='cancelled'||s.verdict==='paused').map(s=>s.cost));
+  const LED = { active:'#4ADE80', review:'#FBBF24', paused:'#CBD5E1' };
+  const word = { active:'kept', review:'to review', paused:'paused' };
+  return <div className="shelf">
+    <div className="shelf-stage">
+      <div className="shelf-unit">
+        <div className="shelf-row">
+          {shelf.map(s=><button key={s.id} type="button" className={cx('cart', s.verdict)} onClick={()=>onOpen(s.id)} style={{'--c':hueOf(s)}}
+            aria-label={`${s.name}, ${fmt.money(s.cost)} a month, ${word[s.verdict]||'kept'}. Open details`} title={`${s.name} · ${fmt.money(s.cost)} a month`}>
+            <span className="cart-mono">{monogramOf(s.name)}</span>
+            <span className="cart-name">{s.name}</span>
+            <span className="cart-led" style={{background:LED[s.verdict]||LED.active}}/>
+          </button>)}
+          {!shelf.length && <span className="shelf-empty">Shelf cleared</span>}
+        </div>
+        <div className="shelf-plank"/>
+      </div>
+      <div className="bin" role="img" aria-label={`${binned.length} cancelled`}>
+        <div className="bin-items" aria-hidden="true">{binned.slice(-5).map((s,i)=><span key={s.id} className="bin-chip" style={{'--c':hueOf(s),'--r':((i%2?1:-1)*(10+i*6))+'deg','--y':(i*-7)+'px'}}>{monogramOf(s.name)}</span>)}</div>
+        <svg viewBox="0 0 64 66" className="bin-svg" aria-hidden="true">
+          <path d="M9 18 H55 L50 62 Q49.5 64 47.5 64 H16.5 Q14.5 64 14 62 Z" fill="rgba(255,255,255,.18)" stroke="rgba(255,255,255,.85)" strokeWidth="2.2" strokeLinejoin="round"/>
+          <path d="M24 28 V54 M32 28 V54 M40 28 V54" stroke="rgba(255,255,255,.55)" strokeWidth="2" strokeLinecap="round"/>
+          <rect x="5" y="10" width="54" height="8" rx="3" fill="rgba(255,255,255,.85)"/><rect x="25" y="5" width="14" height="6" rx="2" fill="rgba(255,255,255,.85)"/>
+        </svg>
+        <span className="bin-label tnum">{binned.length} cancelled</span>
+      </div>
+    </div>
+    <div className="shelf-meter">
+      <div className="sm-top"><span>Plugged so far</span><b className="tnum">{fmt.money(saved)}/mo · {fmt.money(saved*12)}/yr</b></div>
+      <div className="sm-bar"><i style={{width:(total>0?clamp(saved/total*100,0,100):0)+'%'}}/></div>
+      <div className="sm-key"><span><i style={{background:LED.active}}/>Keep</span><span><i style={{background:LED.review}}/>Review</span><span><i style={{background:LED.paused}}/>Paused</span><span className="sm-tip">Tap a cartridge to open it</span></div>
+    </div>
+  </div>;
+}
+
+function TwinCard({ m, a, tone }){
+  const ref = useRef(null);
+  const stats = [['Saving',m.scores.savingsRate],['Safety',m.scores.emergencyFund],['Debt control',m.scores.debtPressure],['Spending',m.scores.spendingEfficiency],['Investing',m.scores.investmentReadiness]];
+  const rar = m.overall>=80?['Legendary','#FDE68A']:m.overall>=68?['Epic','#F5D0FE']:m.overall>=55?['Rare','#BFDBFE']:['Common','#E5E7EB'];
+  const still = ()=>{ try{ return matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){ return true; } };
+  const move = (e)=>{ const el=ref.current; if(!el || still() || e.pointerType==='touch') return; const r=el.getBoundingClientRect();
+    const x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5;
+    el.style.setProperty('--ry',(x*18)+'deg'); el.style.setProperty('--rx',(-y*18)+'deg'); el.style.setProperty('--hx',(50+x*90)+'%'); };
+  const leave = ()=>{ const el=ref.current; if(!el) return; ['--ry','--rx'].forEach(k=>el.style.setProperty(k,'0deg')); el.style.setProperty('--hx','50%'); };
+  return <div className="tcard-wrap">
+    <div ref={ref} className="tcard" onPointerMove={move} onPointerLeave={leave} style={{'--t':tone}}
+      role="img" aria-label={`Twin card: ${a.name}, ${rar[0]}, power ${m.overall}. ${stats.map(([l,v])=>l+' '+Math.round(v)).join(', ')}.`}>
+      <div className="tcard-in">
+        <div className="tc-top"><span className="tc-rar" style={{color:rar[1]}}>★ {rar[0]}</span><span className="tc-pow tnum">{m.overall}<small>PWR</small></span></div>
+        <div className="tc-art"><Mascot kind="lumera" color={tone} size={62} float={false}/></div>
+        <div className="tc-name">{a.name}</div>
+        <div className="tc-tag">{a.tag}</div>
+        <div className="tc-stats">{stats.map(([l,v])=><div key={l} className="tc-stat"><span>{l}</span><i><b style={{width:clamp(v,0,100)+'%'}}/></i><em className="tnum">{Math.round(v)}</em></div>)}</div>
+      </div>
+      <span className="tc-holo" aria-hidden="true"/>
+    </div>
+  </div>;
+}
+
+function QuestBoard({ insights, fmt, onGo }){
+  const top = insights.slice(0,3); const reclaim = sum(insights.map(i=>i.impact||0));
+  const paper = { High:['#FFE4E6','#E11D48'], Medium:['#FEF3C7','#D97706'], Low:['#DCFCE7','#16A34A'] };
+  if(!top.length) return <div className="qb-empty">Board clear. No quests right now.</div>;
+  return <div className="qb">
+    <div className="qb-head"><span>Quest board</span><b className="tnum">{insights.length} quest{insights.length===1?'':'s'}{reclaim>0?` · up to ${fmt.money(reclaim)}/mo`:''}</b></div>
+    <div className="qb-notes">{top.map((q,i)=>{ const p=paper[q.priority]||paper.Medium; const st=q.priority==='High'?3:q.priority==='Medium'?2:1;
+      return <div key={i} className="qnote" style={{'--paper':p[0],'--pin':p[1],'--r':[-2.4,1.8,-1.2][i]+'deg'}}>
+        <div className="qn-stars"><span aria-hidden="true">{'★'.repeat(st)}<s>{'★'.repeat(3-st)}</s></span><span className="sr-only">{q.priority} priority</span></div>
+        <div className="qn-title">{q.title}</div>
+        {q.impact>0 && <div className="qn-reward tnum">Reward +{fmt.money(q.impact)}/mo</div>}
+        {q.tool && <button type="button" className="qn-go" onClick={()=>onGo(q.tool)}>Start quest <Icon name="arrowR" size={12}/></button>}
+      </div>; })}</div>
+  </div>;
+}
+
+function NetWorthScale({ assets, liab, fmt }){
+  const on = useGrowIn(); const tot = (assets+liab)||1;
+  const tilt = clamp((liab-assets)/tot*16, -16, 16); const ang = on ? tilt : 0;
+  const C=[160,52], L=108, rad=ang*Math.PI/180;
+  const lx=C[0]-L*Math.cos(rad), ly=C[1]-L*Math.sin(rad), rx=C[0]+L*Math.cos(rad), ry=C[1]+L*Math.sin(rad);
+  const mx=Math.max(assets,liab,1); const nA=assets>0?clamp(Math.round(assets/mx*6),1,6):0, nL=liab>0?clamp(Math.round(liab/mx*6),1,6):0;
+  const Pan=({x,y,kind,n,label,val})=><g className="nw-pan" style={{transform:`translate(${x}px,${y}px)`}}>
+    <path d="M0 0 L-34 58 M0 0 L34 58" stroke="rgba(255,255,255,.75)" strokeWidth="1.6"/>
+    {Array.from({length:n},(_,i)=> kind==='own'
+      ? <ellipse key={i} cx="0" cy={51-i*7} rx="21" ry="5.2" fill="#FCD34D" stroke="#B45309" strokeWidth="1.2"/>
+      : <rect key={i} x="-17" y={44.5-i*7} width="34" height="6.5" rx="1.6" fill="#FDA4AF" stroke="#9F1239" strokeWidth="1.2"/>)}
+    <path d="M-42 58 Q0 82 42 58 Z" fill="rgba(255,255,255,.9)"/>
+    <text x="0" y="98" textAnchor="middle" className="nw-l">{label}</text>
+    <text x="0" y="116" textAnchor="middle" className="nw-v">{val}</text>
+  </g>;
+  return <svg className="nw-scale" viewBox="0 0 320 236" role="img" aria-label={`Balance scale: you own ${fmt.money(assets)} and owe ${fmt.money(liab)}. Net worth ${fmt.money(assets-liab)}.`}>
+    <path d="M124 222 H196 L186 206 H134 Z" fill="rgba(255,255,255,.85)"/>
+    <rect x="155" y="58" width="10" height="150" rx="3" fill="rgba(255,255,255,.75)"/>
+    <g className="nw-beam" style={{transform:`rotate(${ang}deg)`, transformOrigin:`${C[0]}px ${C[1]}px`}}>
+      <rect x={C[0]-L-6} y={C[1]-3.5} width={2*L+12} height="7" rx="3.5" fill="#fff"/>
+    </g>
+    <circle cx={C[0]} cy={C[1]} r="9" fill="#FDE68A" stroke="#fff" strokeWidth="2.5"/>
+    <Pan x={lx} y={ly} kind="own" n={nA} label="You own" val={fmt.compact(assets)}/>
+    <Pan x={rx} y={ry} kind="owe" n={nL} label="You owe" val={fmt.compact(liab)}/>
+    <text x="160" y="24" textAnchor="middle" className="nw-net tnum">Net {fmt.compact(assets-liab)}</text>
+  </svg>;
 }
 
 /* Empty state */
@@ -4063,13 +4518,14 @@ function Recommendations(){
   // it. The reasoning sits one click away, so the list stays short.
   return <AppShell>
     <PageHead eyebrow="AI recommendations" title="What to do next, and why."
-      desc="Short, ranked actions from your own numbers. Tap How for the steps."/>
+      desc="Short, ranked actions from your own numbers. Tap How for the steps."
+      art={<QuestBoard insights={insights} fmt={fmt} onGo={app.nav}/>}/>
     {insights.length>0 && <div className="flex flex-wrap items-center gap-2 mb-4">
       <span className="lg-pill"><span className="lg-orb warn" aria-hidden="true"/>{insights.filter(i=>i.priority==='High').length} high priority</span>
       <span className="lg-pill">{insights.length} action{insights.length===1?'':'s'}</span>
       {reclaim>0 && <span className="lg-pill tint">Up to {fmt.money(reclaim)}/mo to reclaim</span>}
     </div>}
-    <div className="grid lg:grid-cols-2 gap-3">
+    <div className="grid-center gc-lg2 gap-3" style={{'--gc-gap':'.75rem'}}>
       {insights.map((ins,i)=>{ const hi=ins.priority==='High'; const isOpen=open===i;
         const yearly=(ins.impact||0)*12, five=fvYearly(ins.impact||0,5,0.05,0)[5];
         return <div key={i} className="lux-card !p-4 flex flex-col">
@@ -4093,7 +4549,7 @@ function Recommendations(){
             {ins.impact>0 && <div className="text-[12px] text-faint mt-2">Kept up for 5 years: <b className="text-saged tnum">{fmt.money(five)}</b></div>}
           </div>}
         </div>; })}
-      {!insights.length && <Card hover={false} className="lg:col-span-2 text-center py-10">
+      {!insights.length && <Card hover={false} className="gc-full text-center py-10">
         <div className="font-display text-2xl text-charcoal">Nothing urgent right now</div>
         <p className="text-sm text-muted mt-1">Your numbers look healthy. Come back after your next monthly update.</p></Card>}
     </div>
@@ -4130,6 +4586,164 @@ function HabitsStrip(){
     </div>
   </Card>;
 }
+/* ============================================================
+   V24 · YOUR MONEY HOME
+   Like a tool bench that gains a tool each time you use one: every tool
+   adds a part of the house, and the parts reflect your real figures
+   (the roof fills with your safety-net months, the garden grows with
+   your savings rate, the pipes drip while unused subscriptions run).
+   ============================================================ */
+const HOME_PARTS = [
+  { k:'foundation', to:'/review',          name:'Foundation',     tool:'Monthly review' },
+  { k:'walls',      to:'/budget',          name:'Walls',          tool:'Budget' },
+  { k:'roof',       to:'/emergency',       name:'Roof',           tool:'Emergency fund' },
+  { k:'door',       to:'/goals',           name:'Door & windows', tool:'Goals' },
+  { k:'pipes',      to:'/subscriptions',   name:'Sealed pipes',   tool:'Subscriptions' },
+  { k:'garden',     to:'/simulator',       name:'Garden',         tool:'Wealth Simulator' },
+  { k:'solar',      to:'/networth',        name:'Solar panels',   tool:'Net worth' },
+  { k:'chimney',    to:'/twin',            name:'Chimney',        tool:'Financial Twin' },
+  { k:'flag',       to:'/recommendations', name:'Flag',           tool:'Recommendations' },
+];
+const HOME_KEY = 'lumera_home_built', HOME_SEEN = 'lumera_home_seen';
+const readList = (k)=>{ try{ const v=JSON.parse(localStorage.getItem(k)); return Array.isArray(v)?v:[]; }catch(e){ return []; } };
+function markHomeBuilt(path){
+  const p = HOME_PARTS.find(x=>x.to===path); if(!p) return;
+  const cur = readList(HOME_KEY); if(cur.includes(p.k)) return;
+  try{ localStorage.setItem(HOME_KEY, JSON.stringify([...cur, p.k])); }catch(e){}
+}
+// One clickable group per part: built parts are drawn in colour, missing ones as a dashed outline.
+function HomePart({ p, b, isFresh, note, onGo, children, ghost }){
+  // Click or tap a part to open its tool; the list beside the house is the
+  // keyboard and screen-reader control for the same thing.
+  return <g className={cx('hp', b?'built':'ghost', b&&isFresh&&'fresh')} onClick={()=>onGo(p)}>
+    <title>{b?`${p.name} · built with ${p.tool}`:`${p.name} · open ${p.tool} to build`}</title>
+    {b ? children : ghost}
+  </g>;
+}
+function MoneyHome(){
+  const app = useApp(); const m = app.metrics; const fmt = app.fmt; const assets = useAssets();
+  const hasData = m.income>1;
+  const built = useMemo(()=>{ const b=new Set(readList(HOME_KEY)); if(hasData) b.add('foundation'); return b; },[hasData]);
+  // Parts built since you last looked pop in once.
+  const [fresh] = useState(()=>{ const seen=new Set(readList(HOME_SEEN)); return new Set([...built].filter(k=>!seen.has(k))); });
+  useEffect(()=>{ try{ localStorage.setItem(HOME_SEEN, JSON.stringify([...built])); }catch(e){} },[built]);
+  const goals = lsRead('lumera_goals') || (isDemo(app)?SEED_GOALS:[]);
+  const subs = lsRead('lumera_subs') || (isDemo(app)?SEED_SUBS:[]);
+  const leaks = (Array.isArray(subs)?subs:[]).filter(s=>(s.freq==='Never'||s.freq==='Rarely') && s.verdict!=='cancelled' && s.verdict!=='paused').length;
+  const roofRows = hasData ? clamp(Math.round(m.efMonths/3*6),1,6) : 1;
+  const flowers = hasData ? clamp(Math.round(m.savingsRate*100/3),1,7) : 1;
+  const lit = clamp(Array.isArray(goals)?goals.length:0, 0, 2);
+  const has = (k)=>built.has(k);
+  const nb = HOME_PARTS.filter(p=>has(p.k)).length;
+  const next = HOME_PARTS.find(p=>!has(p.k));
+  const note = { roof: hasData?`${m.efMonths.toFixed(1)} of 3 months`:'', garden: hasData?`${round(m.savingsRate*100)}% saved`:'',
+    pipes: leaks?`${leaks} still dripping`:'No leaks', door: Array.isArray(goals)&&goals.length?`${goals.length} goal${goals.length===1?'':'s'}`:'' };
+  const go = (p)=>app.nav(p.to);
+  const P = (k)=>HOME_PARTS.find(x=>x.k===k);
+  const hp = (k)=>({ p:P(k), b:has(k), isFresh:fresh.has(k), note:note[k], onGo:go });
+  const roofClip = useArtId('roof');
+  return <section className="home-card mb-6" aria-labelledby="home-title">
+    <div className="home-stars" aria-hidden="true"/>
+    <div className="relative grid lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] gap-5 items-center">
+      <div className="min-w-0">
+        <svg className="home-svg" viewBox="0 0 400 330" role="img" aria-label={`Your money home: ${nb} of ${HOME_PARTS.length} parts built. The list beside it opens each tool.`}>
+          <defs>
+            <linearGradient id="hmSoil" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#7C3AED"/><stop offset=".5" stopColor="#4C1D95"/><stop offset="1" stopColor="#4C1D95" stopOpacity="0"/></linearGradient>
+            <linearGradient id="hmGround" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#4ADE80"/><stop offset="1" stopColor="#059669"/></linearGradient>
+            <linearGradient id="hmWall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#FAF5FF"/><stop offset="1" stopColor="#DDD6FE"/></linearGradient>
+            <linearGradient id="hmRoof" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#F472B6"/><stop offset="1" stopColor="#BE185D"/></linearGradient>
+            <radialGradient id="hmGlow"><stop offset="0" stopColor="#FDE68A" stopOpacity=".9"/><stop offset="1" stopColor="#FDE68A" stopOpacity="0"/></radialGradient>
+            <clipPath id={roofClip}><path d="M88 152 L200 72 L312 152 Z"/></clipPath>
+          </defs>
+          {/* the plot of land is always there */}
+          {/* the plot of land is always there: a little floating island */}
+          <path d="M24 266 Q200 246 376 266 Q366 284 320 292 Q262 304 236 318 Q214 330 200 340 Q186 330 164 318 Q138 304 80 292 Q34 284 24 266 Z" fill="url(#hmSoil)"/>
+          <path d="M150 300 L160 316 M246 300 L238 318 M200 306 V330" stroke="rgba(255,255,255,.12)" strokeWidth="2" strokeLinecap="round"/>
+          <path d="M22 262 Q200 238 378 262 Q386 268 372 272 Q200 286 28 272 Q14 268 22 262 Z" fill="url(#hmGround)"/>
+          <path d="M191 256 H209 L216 280 H184 Z" fill="rgba(255,255,255,.3)"/>
+
+          <HomePart {...hp('garden')} ghost={<g className="gh"><ellipse cx="56" cy="262" rx="38" ry="7"/><ellipse cx="372" cy="262" rx="22" ry="6"/></g>}>
+            {[28,46,64,82,358,374,390].slice(0,flowers).map((x,i)=><g key={x} className="flower" style={{animationDelay:(i*.3)+'s'}}>
+              <path d={`M${x} 262 Q${x+2} 248 ${x} ${238-(i%3)*6}`} stroke="#16A34A" strokeWidth="2.4" fill="none" strokeLinecap="round"/>
+              <circle cx={x} cy={236-(i%3)*6} r="6" fill={['#F472B6','#FDE047','#60A5FA','#F9A8D4','#C4B5FD','#FCA5A5','#FDBA74'][i]}/>
+              <circle cx={x} cy={236-(i%3)*6} r="2.2" fill="#FFF7ED"/></g>)}
+          </HomePart>
+
+          <HomePart {...hp('foundation')} ghost={<rect className="gh" x="86" y="236" width="228" height="20" rx="4"/>}>
+            <rect x="86" y="236" width="228" height="20" rx="4" fill="#E2E8F0"/>
+            {[114,142,170,198,226,254,282].map((x,i)=><path key={x} d={`M${x} ${i%2?236:246} V${i%2?246:256}`} stroke="#94A3B8" strokeWidth="1.4"/>)}
+            <path d="M86 246 H314" stroke="#94A3B8" strokeWidth="1.4"/>
+          </HomePart>
+
+          <HomePart {...hp('walls')} ghost={<rect className="gh" x="102" y="150" width="196" height="86"/>}>
+            <rect x="102" y="150" width="196" height="86" fill="url(#hmWall)"/>
+            <path d="M102 150 H298" stroke="#C4B5FD" strokeWidth="2"/>
+          </HomePart>
+
+          <HomePart {...hp('door')} ghost={<g className="gh"><rect x="182" y="184" width="36" height="52" rx="6"/><rect x="122" y="166" width="42" height="34" rx="4"/><rect x="236" y="166" width="42" height="34" rx="4"/></g>}>
+            {[[122,166],[236,166]].map(([x,y],i)=><g key={x}>
+              {i<lit && <circle cx={x+21} cy={y+17} r="34" fill="url(#hmGlow)" className="win-glow"/>}
+              <rect x={x} y={y} width="42" height="34" rx="4" fill={i<lit?'#FDE68A':'#C7D2FE'} stroke="#8B5CF6" strokeWidth="2.4"/>
+              <path d={`M${x+21} ${y} V${y+34} M${x} ${y+17} H${x+42}`} stroke="#8B5CF6" strokeWidth="2"/></g>)}
+            <rect x="182" y="184" width="36" height="52" rx="6" fill="#F59E0B"/>
+            <rect x="188" y="191" width="24" height="16" rx="3" fill="rgba(255,255,255,.28)"/>
+            <circle cx="211" cy="214" r="2.8" fill="#FFF7ED"/>
+          </HomePart>
+
+          <HomePart {...hp('pipes')} ghost={<path className="gh" d="M298 154 H308 V236" fill="none"/>}>
+            <path d="M296 154 H308 V238" fill="none" stroke="#E2E8F0" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"/>
+            {leaks>0 && <g fill="#7DD3FC"><circle className="drip" cx="308" cy="244" r="3"/><circle className="drip d2" cx="308" cy="244" r="2.4"/></g>}
+          </HomePart>
+
+          {/* the chimney sits behind the roof */}
+          <HomePart {...hp('chimney')} ghost={<rect className="gh" x="244" y="86" width="20" height="44"/>}>
+            <g className="smoke" fill="rgba(255,255,255,.7)"><circle cx="254" cy="72" r="6"/><circle cx="260" cy="58" r="7.5"/><circle cx="252" cy="42" r="9"/></g>
+            <rect x="244" y="88" width="20" height="44" fill="#FB7185"/><rect x="240" y="82" width="28" height="8" rx="2" fill="#E11D48"/>
+          </HomePart>
+
+          <HomePart {...hp('roof')} ghost={<path className="gh" d="M88 152 L200 72 L312 152 Z"/>}>
+            <g clipPath={`url(#${roofClip})`}>
+              <rect x="80" y="70" width="240" height="84" fill="rgba(255,255,255,.2)"/>
+              {Array.from({length:6},(_,i)=>{ const y=152-(i+1)*(80/6); return <g key={i}>
+                {i<roofRows && <rect x="80" y={y} width="240" height={80/6+.5} fill="url(#hmRoof)" className="tile-row" style={{animationDelay:(i*.08)+'s'}}/>}
+                <path d={`M80 ${y} H320`} stroke="rgba(80,7,36,.35)" strokeWidth="1.2"/></g>; })}
+            </g>
+            <path d="M84 154 L200 70 L316 154" fill="none" stroke="#9D174D" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"/>
+          </HomePart>
+
+          <HomePart {...hp('solar')} ghost={<g className="gh" transform="rotate(-35.5 140 124)"><rect x="110" y="120" width="56" height="15" rx="2"/></g>}>
+            <g transform="rotate(-35.5 140 124)">
+              <rect x="110" y="120" width="56" height="15" rx="2" fill="#1E3A8A" stroke="#93C5FD" strokeWidth="1.5"/>
+              <path d="M124 120 V135 M138 120 V135 M152 120 V135 M110 127.5 H166" stroke="#93C5FD" strokeWidth="1"/>
+            </g>
+          </HomePart>
+
+          <HomePart {...hp('flag')} ghost={<path className="gh" d="M200 70 V34 M200 36 L226 42 L200 48" fill="none"/>}>
+            <path d="M200 70 V30" stroke="#fff" strokeWidth="2.6" strokeLinecap="round"/>
+            <path className="flag-cloth" d="M201 31 Q214 27 228 34 Q215 40 201 45 Z" fill="#FDE047"/>
+          </HomePart>
+
+          {has('foundation') && assets.mascot_lumera && <image href={assets.mascot_lumera} x="318" y="198" width="42" height="58" className="home-lumi"/>}
+        </svg>
+      </div>
+      <div className="home-panel min-w-0">
+        <div className="hp-kicker">Your money home</div>
+        <h2 id="home-title" className="hp-big font-display">{nb===HOME_PARTS.length?'Fully built':`${nb} of ${HOME_PARTS.length} parts built`}</h2>
+        <div className="hp-bar" aria-hidden="true"><i style={{width:(nb/HOME_PARTS.length*100)+'%'}}/></div>
+        <p className="hp-next">{next ? <>Each tool you use adds a part. Next: open <b>{next.tool}</b> to add the {next.name.toLowerCase()}.</> : 'Every part is built. Keep it in shape with your monthly review.'}</p>
+        <ul className="hp-list">
+          {HOME_PARTS.map(p=>{ const b=has(p.k); return <li key={p.k}>
+            <button type="button" onClick={()=>go(p)} className={cx('hp-item', b&&'on')}>
+              <span className="hp-tick" aria-hidden="true">{b?<Icon name="check" size={12} sw={2.6}/>:<Icon name="plus" size={12} sw={2.4}/>}</span>
+              <span className="hp-name">{p.name}<small>{b ? (note[p.k] || `Built with ${p.tool}`) : `Open ${p.tool}`}</small></span>
+              <span className="sr-only">{b?'built':'not built yet'}</span>
+            </button></li>; })}
+        </ul>
+      </div>
+    </div>
+  </section>;
+}
+
 function Dashboard(){
   const app = useApp(); const fmt = app.fmt; const m = app.metrics; const ref = useReveal();
   const [tab,setTab]=useState('All'); const [showAll,setShowAll]=useState(false); const [after,setAfter]=useState(false);
@@ -4212,7 +4826,10 @@ function Dashboard(){
       </div>
     </section>
 
-    <PageHead eyebrow="Your monthly review" title="Financial health, decoded."
+    {/* V24: the house that builds as you use each tool */}
+    <MoneyHome/>
+
+    <PageHead plain eyebrow="Your monthly review" title="Financial health, decoded."
       desc="A complete read on where you stand, benchmarked, scored, and turned into a plan you can act on this week."
       action={<Btn variant="ghost" icon="sliders" to="/simulator">Simulate a change</Btn>}/>
 
@@ -4489,7 +5106,8 @@ function FinancialTwin(){
   };
   return <AppShell>
     <PageHead eyebrow="AI Financial Twin" title="Meet the version of you your money describes."
-      desc="A profile built from your own figures: your strengths, your blind spots, and your single best next move."/>
+      desc="A profile built from your own figures: your strengths, your blind spots, and your single best next move."
+      art={<TwinCard m={m} a={a} tone={tone}/>}/>
 
     {/* The twin itself: a lit, lighter surface rather than a black slab */}
     <section aria-labelledby="twin-name" className="relative overflow-hidden rounded-[30px] p-7 sm:p-10 mb-5 anim-scaleIn"
@@ -5295,7 +5913,8 @@ function Budget(){
   const segColors={Needs:COLORS.charcoal,Wants:COLORS.clay,Savings:COLORS.sage,Debt:COLORS.sky};
   return <AppShell>
     <PageHead eyebrow="Budget planner" title="A plan your month can actually keep."
-      desc="Pick a framework, see your real spending against it, and adjust. Budgets fail when they’re too strict, these are realistic."/>
+      desc="Pick a framework, see your real spending against it, and adjust. Budgets fail when they’re too strict, these are realistic."
+      art={<BudgetJars buckets={buckets} fmt={fmt}/>}/>
     <div className="grid lg:grid-cols-3 gap-4 mb-4">
       <Card className="lg:col-span-2">
         <Eyebrow className="mb-3">Choose a template</Eyebrow>
@@ -5428,14 +6047,15 @@ function Goals(){
   return <AppShell>
     <PageHead eyebrow="Savings goals" title="Give your money a destination."
       desc="Named goals you can feel progress toward. Lumera works out exactly what to set aside each month."
-      action={<Btn variant="gold" icon="plus" onClick={()=>setShow(s=>!s)}>New goal</Btn>}/>
+      action={<Btn variant="gold" icon="plus" onClick={()=>setShow(s=>!s)}>New goal</Btn>}
+      art={<GoalsJourney goals={goals} fmt={fmt}/>}/>
     {show && <Card className="mb-4 anim-fadeUp"><div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <label className="block"><span className="text-sm text-charcoal/85 mb-1.5 block">Goal name</span><input value={draft.name} onChange={e=>setDraft(d=>({...d,name:e.target.value}))} placeholder="e.g. New laptop" className="w-full rounded-xl border border-line bg-cream px-3 py-2.5 focus:border-gold focus:outline-none"/></label>
       <NumberField id="target" label="Target amount" value={draft.target} onChange={(k,v)=>setDraft(d=>({...d,target:v}))}/>
       <NumberField id="current" label="Already saved" value={draft.current} onChange={(k,v)=>setDraft(d=>({...d,current:v}))}/>
       <label className="block"><span className="text-sm text-charcoal/85 mb-1.5 block">Target date</span><input type="month" value={draft.deadline} onChange={e=>setDraft(d=>({...d,deadline:e.target.value}))} className="w-full rounded-xl border border-line bg-cream px-3 py-2.5 focus:border-gold focus:outline-none"/></label>
     </div><div className="flex gap-2 mt-4"><Btn variant="gold" onClick={add}>Add goal</Btn><Btn variant="ghost" onClick={()=>setShow(false)}>Cancel</Btn></div></Card>}
-    <div className="grid sm:grid-cols-2 gap-4">
+    <div className="grid-center gc-sm2 gap-4" style={{'--gc-gap':'1rem'}}>
       {goals.map(g=>{ const pct=clamp(g.current/g.target*100,0,100); const mo=monthsUntil(g.deadline); const need=Math.max(0,(g.target-g.current)/mo); const done=pct>=100;
         return <Card key={g.id} hover className="relative overflow-hidden !p-0">
           <div className="relative h-32 overflow-hidden">
@@ -5477,7 +6097,8 @@ function Emergency(){
   const perMonth = gap>0? gap/12:0;
   return <AppShell>
     <PageHead eyebrow="Emergency fund calculator" title="Know your true safety number."
-      desc="An emergency fund is the foundation everything else rests on. Let’s size yours for your real life."/>
+      desc="An emergency fund is the foundation everything else rests on. Let’s size yours for your real life."
+      art={<SafetyShield current={current} ess={ess} months={months} fmt={fmt}/>}/>
     <div className="grid lg:grid-cols-2 gap-4">
       <Card><Eyebrow className="mb-4">Your situation</Eyebrow>
         <div className="space-y-4">
@@ -5639,7 +6260,8 @@ function Subscriptions(){
   return <AppShell>
     <PageHead eyebrow="Subscription waste detector" title="Find the leaks you forgot you’re paying."
       desc="The quiet renewals add up faster than any single big purchase. Decide keep, review, or cancel."
-      action={<button onClick={()=>setShowAdd(s=>!s)} className="btn btn-gold px-3 py-2 text-sm"><Icon name="plus" size={14}/>Add subscription</button>}/>
+      action={<button onClick={()=>setShowAdd(s=>!s)} className="btn btn-gold px-3 py-2 text-sm"><Icon name="plus" size={14}/>Add subscription</button>}
+      art={<SubShelf subs={subs} fmt={fmt} onOpen={setOpenSub}/>}/>
     {showAdd && <Card className="mb-4 anim-fadeUp"><Eyebrow className="mb-3">Add a subscription</Eyebrow>
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <label className="block"><span className="text-xs text-charcoal/85 mb-1 block">Name</span><input value={nsub.name} onChange={e=>setNsub(s=>({...s,name:e.target.value}))} placeholder="e.g. Disney+" className="w-full rounded-lg border border-line bg-card px-3 py-2 text-sm focus:border-gold focus:outline-none"/></label>
@@ -5657,7 +6279,7 @@ function Subscriptions(){
           <div className="font-serif text-[1.9rem] leading-none mt-2 tnum"><AnimatedNumber value={v} money/></div></div>)}
     </div>
     {/* One card per subscription: logo, name, cost, usage, a swap, and a decision */}
-    <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4 stagger">
+    <div className="grid-center gc-sm2 gc-xl3 gap-4 stagger" style={{'--gc-gap':'1rem'}}>
       {subs.map(s=>{
         const dead = s.freq==='Never'||s.freq==='Rarely';
         const hue = s.verdict==='cancelled' ? '#F43F5E' : s.verdict==='paused' ? '#94A3B8'
@@ -5930,7 +6552,8 @@ function NetWorth(){
   const debtRatio=assets>0?liab/assets:0;
   return <AppShell>
     <PageHead eyebrow="Net worth tracker" title="The one number that ties it all together."
-      desc="Assets minus liabilities, tracked over time so you can watch the line bend upward."/>
+      desc="Assets minus liabilities, tracked over time so you can watch the line bend upward."
+      art={<NetWorthScale assets={assets} liab={liab} fmt={fmt}/>}/>
     <div className="grid lg:grid-cols-3 gap-4 mb-4">
       <Card className="lg:col-span-2"><div className="flex items-center justify-between mb-1"><Eyebrow>Net worth</Eyebrow><Pill tone="sage"><Icon name="arrowUp" size={12}/> +{fmt.compact(net-history[0])} (6 mo)</Pill></div>
         <div className="font-serif text-4xl text-charcoal tnum mb-2"><AnimatedNumber value={net} money/></div>
@@ -11720,6 +12343,8 @@ function App(){
   const awardXp = useCallback((n,silent)=>{ setXp(x=>{ const v=x+(n||0); saveSynced('lumera_spark_xp', v); return v; }); if(!silent) setQuestBurst(b=>b+1); },[]);
   const completeQuest = useCallback((id,silent)=>{ setQuests(qs=>{ const next=qs.map(q=>{ if(q.id===id&&!q.done){ awardXp(q.xp,silent); return {...q,done:true}; } return q; });
     try{ localStorage.setItem('lumera_spark_quests', JSON.stringify({day:new Date().toISOString().slice(0,10), list:next})); }catch(e){} return next; }); },[awardXp]);
+  // V24 money home: opening a tool adds its part of the house.
+  useEffect(()=>{ markHomeBuilt(route.split('?')[0]); },[route]);
   // Quest VERIFICATION: a quest only completes when you actually visit its tool, no free check-offs.
   useEffect(()=>{ const path=route.split('?')[0]; const q=quests.find(x=>!x.done && x.to===path); if(q) completeQuest(q.id,true); },[route, quests, completeQuest]);
   useEffect(()=>{ LA.start({ lang, cur:profile.currency, user:user?user.email:'guest' }); },[]);
