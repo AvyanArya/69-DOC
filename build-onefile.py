@@ -326,10 +326,12 @@ window.__SS = (function () {
     return base64.b64encode(doc.encode('utf-8')).decode('ascii')
 
 
+APP_B64 = payload('Lumera.html')
+ADMIN_B64 = payload('admin-portal.html')
 PAYLOADS = '''
 <script id="payload-app" type="text/plain">%s</script>
 <script id="payload-admin" type="text/plain">%s</script>
-''' % (payload('Lumera.html'), payload('admin-portal.html'))
+''' % (APP_B64, ADMIN_B64)
 
 sections = []
 for key, fname, title in PAGES:
@@ -383,14 +385,29 @@ ROUTER = '''<script>
         var rest = (location.hash || '').replace(/^#\/(app|admin)\/?/, '');
         return rest ? '/' + rest : '/';
     }
+    /* The payload is either inline (the single file) or, in the hosted copy,
+       a separate file named by data-src that is fetched only when someone
+       opens the app or the portal, so the landing page stays light. */
+    function decode(b64) {
+        var bin = atob(b64);
+        var bytes = new Uint8Array(bin.length);
+        for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        return new TextDecoder('utf-8').decode(bytes);
+    }
+    function loadPayload(node, done) {
+        var inline = node.textContent.trim();
+        if (inline || !node.getAttribute('data-src')) { done(inline ? decode(inline) : null); return; }
+        fetch(node.getAttribute('data-src'), { credentials: 'same-origin' })
+            .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
+            .then(function (t) { done(t); }, function () { done(null); });
+    }
+    var WAIT = '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
+        '<body style="margin:0;min-height:100vh;display:grid;place-items:center;background:#110E22;color:#CFC8EA;' +
+        'font:500 14px/1.5 Manrope,system-ui,sans-serif;letter-spacing:.02em">';
     function frameFor(which) {
         if (frames[which]) return frames[which];
         var node = document.getElementById('payload-' + which);
         if (!node) return null;
-        var bin = atob(node.textContent.trim());
-        var bytes = new Uint8Array(bin.length);
-        for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-        var html = new TextDecoder('utf-8').decode(bytes);
 
         var f = document.createElement('iframe');
         f.className = 'app-frame';
@@ -406,13 +423,25 @@ ROUTER = '''<script>
            storage throws. Written into the frame it shares this page's origin
            and behaves like the file you opened. The tick matters: the frame's
            own about:blank load would otherwise clear what we just wrote. */
-        setTimeout(function () {
-            var d = f.contentDocument || (f.contentWindow && f.contentWindow.document);
-            if (!d) return;
-            d.open();
-            d.write(html);
-            d.close();
-        }, 0);
+        var seq = 0;   /* only the latest write lands: never the loading screen over the app */
+        function put(html) {
+            var mine = ++seq;
+            setTimeout(function () {
+                if (mine !== seq) return;
+                var d = f.contentDocument || (f.contentWindow && f.contentWindow.document);
+                if (!d) return;
+                d.open();
+                d.write(html);
+                d.close();
+            }, 0);
+        }
+        var loaded = false;
+        loadPayload(node, function (html) {
+            loaded = true;
+            put(html || WAIT + '<p style="max-width:22rem;padding:0 1.5rem;text-align:center">' +
+                'Lumera could not load. Check your connection, then reload the page.</p>');
+        });
+        if (!loaded) put(WAIT + '<p role="status">Loading Lumera…</p>');
 
         frames[which] = f;
         return f;
@@ -608,3 +637,21 @@ out = out.replace('</body>', ASSET_MAP_JS + '\n</body>', 1)
 path = os.path.join(ROOT, 'lumera.html')
 open(path, 'w').write(out)
 print('built lumera.html  (%d KB, %d pages)' % (len(out) // 1024, len(PAGES)))
+
+# The hosted copy (static/): the same page, with the app and the portal moved
+# into files beside it that are fetched only when opened. Plain text files, so
+# opening one directly shows text rather than a half-working page.
+import hashlib
+static_dir = os.path.join(ROOT, 'static')
+os.makedirs(static_dir, exist_ok=True)
+split = out
+for which, b64 in (('app', APP_B64), ('admin', ADMIN_B64)):
+    html = base64.b64decode(b64).decode('utf-8')
+    name = 'payload-%s.txt' % which
+    open(os.path.join(static_dir, name), 'w', encoding='utf-8').write(html)
+    ver = hashlib.sha256(html.encode('utf-8')).hexdigest()[:10]
+    tag = '<script id="payload-%s" type="text/plain">%s</script>' % (which, b64)
+    assert split.count(tag) == 1, 'payload tag not found once: ' + which
+    split = split.replace(tag, '<script id="payload-%s" type="text/plain" data-src="%s?v=%s"></script>' % (which, name, ver))
+open(os.path.join(static_dir, 'index.html'), 'w').write(split)
+print('built static/  (index.html %d KB; payload-app.txt and payload-admin.txt load on demand)' % (len(split) // 1024))

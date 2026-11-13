@@ -185,6 +185,8 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
     background: rgba(252, 211, 77, .13); color: #fcd34d;
     border-radius: 5px; padding: .05em .4em; font-weight: 600;
     font-size: .95em; white-space: normal; overflow-wrap: anywhere;
+    /* one unit: moves to the next line whole, wraps inside only when longer than a line */
+    display: inline-block; max-width: 100%; line-height: 1.4;
 }
 .callout {
     border-radius: 16px; padding: 1.1rem 1.3rem; margin: 1.6rem 0;
