@@ -8,20 +8,24 @@
 # Environment: CONCURRENCY (default 4) · BROWSER_EXECUTABLE (Chrome Headless Shell; Remotion downloads one if unset)
 set -euo pipefail
 cd "$(dirname "$0")/.."
-OUT=2008_financial_crisis_reel.mp4
+COMP="${COMP:-Reel}"
+OUT="${OUT:-2008_financial_crisis_reel.mp4}"
+MIX="${MIX:-public/audio/mix.wav}"
+SIZE="${SIZE:-1080x1920}"
+PIC="out/${COMP}_picture.mp4"
 BROWSER="${BROWSER_EXECUTABLE:-/opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell}"
 BX=(); [ -x "$BROWSER" ] && BX=(--browser-executable="$BROWSER")
 mkdir -p out
 
 if [[ " $* " == *" --audio "* ]]; then
   python3 scripts/build_timeline.py
-  python3 scripts/build_audio.py
+  python3 scripts/build_audio.py; python3 scripts/build_audio_v2.py
 fi
 
 if [[ " $* " != *" --finish "* ]]; then
   npx remotion bundle src/index.ts --out-dir out/bundle >/dev/null
   # picture only, near-lossless: grain and the final encode happen in the next step
-  npx remotion render out/bundle Reel out/reel_picture.mp4 --muted --concurrency="${CONCURRENCY:-4}" \
+  npx remotion render out/bundle "$COMP" "$PIC" --muted --concurrency="${CONCURRENCY:-4}" \
       --image-format=jpeg --jpeg-quality=95 --crf=10 --x264-preset=medium --timeout=600000 "${BX[@]}" --log=error
 fi
 
@@ -29,8 +33,8 @@ fi
 # so it reads as grain and not as sensor noise.
 # Remotion's master is full-range BT.601 (JPEG frames); convert it properly to limited-range BT.709.
 # Encode: H.264 High, yuv420p, 30 fps, AAC 48 kHz – what Instagram expects for a 1080x1920 Reel.
-ffmpeg -v error -stats -y -i out/reel_picture.mp4 -i public/audio/mix.wav -filter_complex "
-  color=c=gray:s=1080x1920:r=30,format=gray,noise=alls=34:allf=t+u,gblur=sigma=0.75[grain];
+ffmpeg -v error -stats -y -i "$PIC" -i "$MIX" -filter_complex "
+  color=c=gray:s=$SIZE:r=30,format=gray,noise=alls=34:allf=t+u,gblur=sigma=0.75[grain];
   [0:v]scale=in_color_matrix=bt601:out_color_matrix=bt709:in_range=full:out_range=limited,format=yuv420p[pic];
   [grain]format=yuv420p[g2];
   [pic][g2]blend=c0_mode=overlay:c0_opacity=0.30:c1_mode=normal:c1_opacity=1:c2_mode=normal:c2_opacity=1:shortest=1,format=yuv420p[v]" \

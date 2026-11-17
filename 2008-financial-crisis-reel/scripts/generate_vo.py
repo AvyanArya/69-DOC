@@ -14,7 +14,7 @@ import numpy as np, soundfile as sf
 from scipy import signal
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUT = os.path.join(ROOT, "public", "audio", "vo")
+OUT = os.path.join(ROOT, "public", "audio", os.environ.get("VO_DIR", "vo"))
 SR = 48000
 
 def trim(x, sr, thresh=0.012, pad=0.035):
@@ -78,10 +78,10 @@ def timings(cfg):
         segs, _ = model.transcribe(x16, word_timestamps=True, beam_size=5, condition_on_previous_text=False,
                                    initial_prompt="Lehman Brothers, subprime mortgages, mortgage-backed securities.")
         words = [{"w": w.word.strip(), "s": round(w.start, 3), "e": round(w.end, 3)} for s in segs for w in s.words]
-        out["scenes"][name] = {"file": f"audio/vo/{name}.wav", "duration": round(dur, 3), "words": words,
+        out["scenes"][name] = {"file": f"audio/{os.path.basename(OUT)}/{name}.wav", "duration": round(dur, 3), "words": words,
                                "script": " ".join(t for t, _ in lines)}
         print(f"{name:20s} {dur:6.2f}s  | " + " ".join(w["w"] for w in words))
-    with open(os.path.join(ROOT, "src", "data", "vo.json"), "w") as f:
+    with open(os.path.join(ROOT, "src", "data", os.environ.get("VO_JSON", "vo.json")), "w") as f:
         json.dump(out, f, indent=1)
 
 if __name__ == "__main__":
@@ -89,6 +89,6 @@ if __name__ == "__main__":
     ap.add_argument("--model-dir", default=os.environ.get("KOKORO_DIR", os.path.join(ROOT, ".cache", "kokoro")))
     ap.add_argument("--timings-only", action="store_true")
     args = ap.parse_args()
-    cfg = json.load(open(os.path.join(ROOT, "scripts", "vo_script.json")))
+    cfg = json.load(open(os.path.join(ROOT, "scripts", os.environ.get("VO_SCRIPT", "vo_script.json"))))
     if not args.timings_only: synth(args, cfg)
     timings(cfg)

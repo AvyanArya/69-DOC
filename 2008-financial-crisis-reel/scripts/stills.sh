@@ -12,7 +12,7 @@ i=0; files=()
 for t in "$@"; do
   f=$(python3 -c "print(int(round($t*30)))")
   o=$(printf "out/stills/%s_%02d.jpg" "$NAME" "$i")
-  npx remotion still out/bundle Reel "$o" --frame="$f" --scale="$SCALE" --image-format=jpeg --jpeg-quality=88 "${BX[@]}" --log=error
+  npx remotion still out/bundle "${COMP:-Reel}" "$o" --frame="$f" --scale="$SCALE" --image-format=jpeg --jpeg-quality=88 "${BX[@]}" --log=error
   files+=("$o"); i=$((i+1))
 done
 python3 - "$NAME" "${files[@]}" <<'PY'

@@ -81,7 +81,10 @@ export const Globe: React.FC<{
   alarm?: number;
   /** cap on how far arcs rise above the surface (fraction of the radius) */
   maxLift?: number;
-}> = ({ cx, cy, r, lon, lat, arcs = [], nodes = [], dotColor = C.paper, dotOpacity = 0.62, glow = "rgba(239,233,220,.20)", alarm = 0, maxLift = 9 }) => {
+  /** size of the drawing surface (defaults to the vertical frame) */
+  w?: number;
+  h?: number;
+}> = ({ cx, cy, r, lon, lat, arcs = [], nodes = [], dotColor = C.paper, dotOpacity = 0.62, glow = "rgba(239,233,220,.20)", alarm = 0, maxLift = 9, w = 1080, h = 1920 }) => {
   const id = "g" + useId().replace(/[^a-zA-Z0-9]/g, "");
   // land: one path of zero-length round-capped segments = thousands of dots in a single element
   let front = "";
@@ -214,7 +217,7 @@ export const Globe: React.FC<{
   });
 
   return (
-    <svg width={1080} height={1920} style={{ position: "absolute", inset: 0, overflow: "visible" }}>
+    <svg width={w} height={h} style={{ position: "absolute", inset: 0, overflow: "visible" }}>
       <defs>
         <radialGradient id={id + "s"} cx="38%" cy="32%" r="78%">
           <stop offset="0%" stopColor="#2b2b2f" />
