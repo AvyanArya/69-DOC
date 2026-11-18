@@ -1,0 +1,71 @@
+# Render Blueprint: a private staging service for the team, and production.
+# They share nothing: separate services, disks (databases), encryption keys
+# and URLs. Create it from the Render dashboard: New → Blueprint → this repo.
+# Secrets are marked sync: false, so Render asks for them and they never live
+# in the repository. See DEPLOY.md.
+services:
+  - type: web
+    name: lumera-staging
+    runtime: docker
+    plan: starter            # a persistent disk needs a paid instance
+    branch: main
+    autoDeploy: true
+    healthCheckPath: /api/health
+    disk:
+      name: lumera-staging-data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: APP_ENV
+        value: staging
+      - key: TRUST_PROXY
+        value: "true"
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: FEEDBACK_ENABLED
+        value: "true"
+      - key: SITE_PASSWORD          # what the team types to open the preview
+        sync: false
+      - key: DATA_ENCRYPTION_KEY    # openssl rand -hex 32 (staging's own key)
+        sync: false
+      - key: ADMIN_EMAILS
+        sync: false
+      - key: PUBLIC_URL             # e.g. https://lumera-staging.onrender.com
+        sync: false
+      - key: SUPPORT_EMAIL
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+
+  - type: web
+    name: lumera-production
+    runtime: docker
+    plan: starter
+    branch: production       # deploys only when you push the production branch
+    autoDeploy: false        # and only when you press Deploy
+    healthCheckPath: /api/health
+    disk:
+      name: lumera-production-data
+      mountPath: /data
+      sizeGB: 5
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: TRUST_PROXY
+        value: "true"
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: DATA_ENCRYPTION_KEY    # a different key from staging; back it up
+        sync: false
+      - key: ADMIN_EMAILS
+        sync: false
+      - key: PUBLIC_URL             # e.g. https://lumera.example
+        sync: false
+      - key: SUPPORT_EMAIL
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: MAIL_FROM
+        sync: false
