@@ -38,7 +38,7 @@ security details are in [BACKEND.md](BACKEND.md).
 | 16 | Low | **Inline scripts in the CSP** | The policy allows inline scripts because the pages carry them inline. Moving them into files would allow a stricter policy. |
 | 17 | Low | **Paid plans** | Pro and Premium show "Coming soon" with a working waitlist. Payments (Stripe) are not built. |
 | 18 | Low | **The four worlds** | Leaf, Atlas, Shield and Forge show "Coming soon", even by URL. Before launching one, replace its example data (markets, news, IPOs) with real sources, then switch it on in Sections & layout. |
-| 19 | Low | **Offline team keys** | The offline single-file build's admin key hashes are unsalted SHA-256. They only unlock that file's local storage, never server data. |
+| 19 | Done | **Offline team keys removed** | The portal is server-only, the public single file no longer carries it, and `?preview=1` no longer opens the preview. The four old team keys are public (their hashes are in git history): if any of them is used as a password elsewhere, change it there. |
 
 ## Already done and verified
 

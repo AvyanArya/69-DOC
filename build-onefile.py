@@ -320,10 +320,38 @@ window.__SS = (function () {
     return base64.b64encode(doc.encode('utf-8')).decode('ascii')
 
 
+# The admin portal is a server tool and is not part of this public file: it
+# would ship the portal's code to every visitor, and it cannot run without
+# the server anyway. #/admin shows a short note instead. The real portal is
+# kept beside the design previews (git-ignored) so build-previews.py can still
+# make the admin preview, which runs on example data.
+_admin_b64 = payload('admin-portal.html')
+os.makedirs(os.path.join(ROOT, 'dist-previews'), exist_ok=True)
+open(os.path.join(ROOT, 'dist-previews', '.admin-payload.b64'), 'w').write(_admin_b64)
+ADMIN_NOTICE = '''<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex"><title>Lumera admin</title>
+<style>
+  html,body{ margin:0; min-height:100%; background:#16122C; color:#ECEAF6; font:16px/1.6 Manrope,system-ui,sans-serif; }
+  main{ min-height:100vh; display:grid; place-items:center; padding:24px; box-sizing:border-box; }
+  .card{ max-width:26rem; text-align:center; padding:32px 28px; border-radius:22px;
+    background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.12); }
+  h1{ margin:0 0 8px; font:400 2rem/1.1 'Instrument Serif',Georgia,serif; color:#fff; }
+  p{ margin:0; color:#CFC8EA; }
+  a{ display:inline-block; margin-top:22px; padding:12px 22px; border-radius:999px; font-weight:700; text-decoration:none;
+    color:#17110A; background:linear-gradient(100deg,#FCD34D,#F5B642); }
+  a:focus-visible{ outline:3px solid #fff; outline-offset:3px; }
+</style></head>
+<body><main><div class="card">
+  <h1>Admin portal</h1>
+  <p>The admin portal isn&rsquo;t part of the public site. It runs on the Lumera server, where admins sign in with their own accounts.</p>
+  <a href="#/" target="_top">Back to Lumera</a>
+</div></main></body></html>
+'''
 PAYLOADS = '''
 <script id="payload-app" type="text/plain">%s</script>
 <script id="payload-admin" type="text/plain">%s</script>
-''' % (payload('Lumera.html'), payload('admin-portal.html'))
+''' % (payload('Lumera.html'), base64.b64encode(ADMIN_NOTICE.encode('utf-8')).decode('ascii'))
 
 sections = []
 for key, fname, title in PAGES:

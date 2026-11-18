@@ -29,10 +29,15 @@ PREVIEWS = [
 def main():
     os.makedirs(OUT, exist_ok=True)
     one = open(os.path.join(ROOT, 'lumera.html'), encoding='utf-8').read()
+    # The public single file carries only a note at #/admin; the admin preview
+    # gets the real portal back (it runs on example data in preview mode).
+    admin_b64 = open(os.path.join(OUT, '.admin-payload.b64'), encoding='ascii').read()
+    a = one.index('<script id="payload-admin" type="text/plain">') + len('<script id="payload-admin" type="text/plain">')
+    with_admin = one[:a] + admin_b64 + one[one.index('</script>', a):]
     for name, route, flag in PREVIEWS:
         boot = '<script>if(!location.hash||location.hash==="#")history.replaceState(null,"","%s");%s</script>' % (
             route, ('window.%s=true;' % flag) if flag else '')
-        doc = one.replace('<head>', '<head>\n' + boot, 1)
+        doc = (with_admin if flag == '__LUMERA_ADMIN_PREVIEW' else one).replace('<head>', '<head>\n' + boot, 1)
         open(os.path.join(OUT, name + '.html'), 'w', encoding='utf-8').write(doc)
         print('built dist-previews/%s.html' % name)
     # The style showcase, with its fonts and logo inlined.

@@ -143,12 +143,18 @@ the same tab.
   issues a link from **Accounts → Reset link** and sends it.
 - Either way, resetting signs the member out of every device.
 
-### Offline files
+### No server, no portal
 
-The offline single-file build (`lumera.html`, opened from disk) includes the
-portal with a **team key** screen that edits only that browser's storage. On
-the hosted site the portal always uses the server. The role key hashes are in
-`ROLE_KEY_HASHES` in `admin-portal.html`.
+The admin portal only runs against the server. Opened from disk or on a
+static host it says it needs the server. The single-file build (`lumera.html`)
+does not include the portal at all: its `#/admin` route shows a short note.
+There are no offline team keys (they were checked in the browser, so anyone
+could get past them, and their hashes were public).
+
+The design preview (`previews/admin.html`, and `dist-previews/` from
+`build-previews.py`) runs the real portal on example data, with nothing
+saved. Only that preview page can switch preview mode on; the portal ignores
+link parameters such as `?preview=1`.
 
 ## 6. Data
 
