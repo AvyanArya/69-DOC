@@ -920,21 +920,23 @@
 
   /* Money home */
   .home-card{ position:relative; overflow:hidden; isolation:isolate; border-radius:30px; padding:20px 18px; color:#fff;
-    background:linear-gradient(180deg,#312E81 0%,#6D28D9 52%,#DB2777 100%); border:1px solid rgba(255,255,255,.22);
-    box-shadow:0 30px 70px -38px rgba(109,40,217,.9), inset 0 1px 0 rgba(255,255,255,.25); }
+    background:radial-gradient(120% 90% at 30% 20%,#4C1D95 0%,#2E1065 55%,#1E1B4B 100%); border:1px solid rgba(255,255,255,.2);
+    box-shadow:0 30px 70px -38px rgba(109,40,217,.9), inset 0 1px 0 rgba(255,255,255,.22); }
   @media (min-width:640px){ .home-card{ padding:26px 28px; } }
-  .home-card::after{ content:""; position:absolute; inset:0; z-index:-1; background:rgba(16,8,36,.16); }
-  .home-stars{ position:absolute; inset:0; z-index:-1; opacity:.8; background-image:
-    radial-gradient(1.5px 1.5px at 8% 14%, #fff, transparent), radial-gradient(1px 1px at 22% 30%, #fff, transparent), radial-gradient(1.5px 1.5px at 37% 10%, #fff, transparent),
-    radial-gradient(1px 1px at 55% 22%, #fff, transparent), radial-gradient(1.5px 1.5px at 70% 8%, #fff, transparent), radial-gradient(1px 1px at 86% 18%, #fff, transparent), radial-gradient(1px 1px at 94% 34%, #fff, transparent); }
+  /* faint isometric drafting grid, like a blueprint sheet */
+  .home-card::before{ content:""; position:absolute; inset:0; z-index:-1; opacity:.16; pointer-events:none;
+    background-image:repeating-linear-gradient(30deg,#A5B4FC 0 1px,transparent 1px 22px),repeating-linear-gradient(150deg,#A5B4FC 0 1px,transparent 1px 22px);
+    -webkit-mask-image:radial-gradient(70% 70% at 35% 50%,#000,transparent); mask-image:radial-gradient(70% 70% at 35% 50%,#000,transparent); }
+  .home-card::after{ content:""; position:absolute; left:-10%; top:20%; width:60%; height:70%; z-index:-1; pointer-events:none;
+    background:radial-gradient(closest-side,rgba(236,72,153,.35),transparent); filter:blur(10px); }
   .home-svg{ width:100%; height:auto; display:block; overflow:visible; }
-  .home-svg .hp{ cursor:pointer; outline:none; }
-  .home-svg .hp:focus-visible{ filter:drop-shadow(0 0 6px #FDE68A); }
-  .home-svg .hp.built:hover{ filter:brightness(1.08) drop-shadow(0 0 6px rgba(255,255,255,.6)); }
-  .home-svg .gh, .home-svg .gh *{ fill:rgba(255,255,255,.06); stroke:rgba(255,255,255,.6); stroke-width:1.6; stroke-dasharray:5 4; }
-  .home-svg .hp.ghost:hover .gh, .home-svg .hp.ghost:hover .gh *{ stroke:#FDE68A; fill:rgba(253,230,138,.12); }
+  .home-svg .hp{ cursor:pointer; outline:none; transition:filter .2s; }
+  .home-svg .hp.built:hover{ filter:brightness(1.1) drop-shadow(0 0 8px rgba(253,230,138,.75)); }
+  /* not built yet: a cyan blueprint */
+  .home-svg .bp, .home-svg .bp *{ fill:rgba(125,211,252,.07); stroke:#7DD3FC; stroke-width:1.3; stroke-dasharray:4 3; stroke-linejoin:round; }
+  .home-svg .hp.ghost:hover .bp, .home-svg .hp.ghost:hover .bp *{ stroke:#FDE68A; fill:rgba(253,230,138,.16); stroke-dasharray:none; }
   .home-svg .fresh{ animation:partPop .9s cubic-bezier(.3,1.6,.5,1) both; transform-box:fill-box; transform-origin:center bottom; }
-  @keyframes partPop{ 0%{ transform:scale(.6); opacity:0 } 100%{ transform:scale(1); opacity:1 } }
+  @keyframes partPop{ 0%{ transform:translateY(-14px); opacity:0 } 100%{ transform:none; opacity:1 } }
   .home-svg .smoke circle{ animation:smoke 3.2s ease-out infinite; transform-box:fill-box; transform-origin:center; }
   .home-svg .smoke circle:nth-child(2){ animation-delay:1s; } .home-svg .smoke circle:nth-child(3){ animation-delay:2s; }
   @keyframes smoke{ 0%{ opacity:0; transform:translateY(10px) scale(.5) } 30%{ opacity:.85 } 100%{ opacity:0; transform:translateY(-14px) scale(1.25) } }
@@ -943,8 +945,18 @@
   .home-svg .drip{ animation:jarDrop 1.7s ease-in infinite; } .home-svg .drip.d2{ animation-delay:.85s; }
   .home-svg .win-glow{ animation:winGlow 3s ease-in-out infinite alternate; }
   @keyframes winGlow{ to{ opacity:.55; } }
-  .home-svg .flower{ animation:sway 3.4s ease-in-out infinite alternate; transform-box:fill-box; transform-origin:center bottom; }
-  @keyframes sway{ from{ transform:rotate(-3deg) } to{ transform:rotate(3deg) } }
+  .home-svg .tree{ animation:sway 3.4s ease-in-out infinite alternate; transform-box:fill-box; transform-origin:center bottom; }
+  @keyframes sway{ from{ transform:rotate(-2deg) } to{ transform:rotate(2deg) } }
+  .home-hint{ text-align:center; font-size:11.5px; color:rgba(255,255,255,.7); margin-top:2px; }
+  @media (pointer: coarse){ .home-hint{ display:none; } }
+  .home-tip{ position:absolute; z-index:5; width:260px; pointer-events:none; padding:11px 13px 10px; border-radius:16px;
+    background:rgba(255,255,255,.97); color:#2E1065; box-shadow:0 18px 40px -16px rgba(15,5,40,.7); animation:tipIn .14s ease-out; }
+  @keyframes tipIn{ from{ opacity:0; transform:translateY(4px) } }
+  .home-tip .ht-top{ display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:14px; }
+  .ht-chip{ font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:3px 8px; border-radius:99px; background:#E0F2FE; color:#075985; }
+  .ht-chip.on{ background:#DCFCE7; color:#166534; }
+  .home-tip p{ font-size:12.5px; line-height:1.45; margin-top:5px; color:#3B0764; }
+  .home-tip .ht-go{ margin-top:7px; font-size:11.5px; font-weight:700; color:#A21CAF; }
   .home-lumi{ filter:drop-shadow(0 6px 10px rgba(0,0,0,.35)); }
   .home-panel{ padding:16px; border-radius:22px; background:rgba(12,8,36,.32); border:1px solid rgba(255,255,255,.16); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); }
   .hp-kicker{ font-size:10.5px; letter-spacing:.2em; text-transform:uppercase; font-weight:700; color:rgba(255,255,255,.85); }
@@ -966,7 +978,7 @@
   @media (pointer: coarse){ .hp-item{ min-height:44px; } .qn-go{ min-height:44px; padding:0 14px; } .jr-track{ min-height:44px; } }
 
   @media (prefers-reduced-motion: reduce){
-    .jar-wave, .jar-drop, .shield-next, .home-svg .smoke circle, .home-svg .flag-cloth, .home-svg .drip, .home-svg .win-glow, .home-svg .flower, .home-svg .fresh{ animation:none; }
+    .jar-wave, .jar-drop, .shield-next, .home-svg .smoke circle, .home-svg .flag-cloth, .home-svg .drip, .home-svg .win-glow, .home-svg .tree, .home-svg .fresh, .home-tip{ animation:none; }
     .jar-fill, .shield-band, .jr-done, .jr-walker, .nw-beam, .nw-pan, .cart, .qnote{ transition:none; }
   }
   .ws-tile:hover{ transform:translateY(-6px) rotate(-.5deg); }
@@ -4611,120 +4623,157 @@ function markHomeBuilt(path){
   const cur = readList(HOME_KEY); if(cur.includes(p.k)) return;
   try{ localStorage.setItem(HOME_KEY, JSON.stringify([...cur, p.k])); }catch(e){}
 }
-// One clickable group per part: built parts are drawn in colour, missing ones as a dashed outline.
-function HomePart({ p, b, isFresh, note, onGo, children, ghost }){
-  // Click or tap a part to open its tool; the list beside the house is the
-  // keyboard and screen-reader control for the same thing.
-  return <g className={cx('hp', b?'built':'ghost', b&&isFresh&&'fresh')} onClick={()=>onGo(p)}>
-    <title>{b?`${p.name} · built with ${p.tool}`:`${p.name} · open ${p.tool} to build`}</title>
-    {b ? children : ghost}
+/* The house is drawn in true isometric projection from simple 3D boxes, so
+   every face lines up and shares one light (top brightest, the front-left
+   face next, the right face darkest). Parts not built yet are drawn as a
+   cyan blueprint. */
+const ISO_K = 21, ISO_OX = 196, ISO_OY = 64;
+const isoP = (x,y,z)=>[ISO_OX+(x-y)*ISO_K*0.866, ISO_OY+(x+y)*ISO_K*0.5-z*ISO_K];
+const isoPts = (pts)=>pts.map(q=>isoP(q[0],q[1],q[2]).map(n=>n.toFixed(1)).join(',')).join(' ');
+const roofZ = (x)=>5.3-(x-4.5)*(2.2/2.8);              // height of the right roof plane at x
+function IsoBox({ x0,x1,y0,y1,z0,z1, top, front, right, stroke }){
+  return <g strokeLinejoin="round" stroke={stroke||'none'} strokeWidth={stroke?1:0}>
+    <polygon points={isoPts([[x1,y0,z0],[x1,y1,z0],[x1,y1,z1],[x1,y0,z1]])} fill={right}/>
+    <polygon points={isoPts([[x0,y1,z0],[x1,y1,z0],[x1,y1,z1],[x0,y1,z1]])} fill={front}/>
+    <polygon points={isoPts([[x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]])} fill={top}/>
+  </g>;
+}
+// A built part is drawn in colour; a missing one as a blueprint. Hovering
+// either shows what it means and what to do; clicking opens its tool.
+function HomePart({ p, b, isFresh, onGo, onHover, children, ghost }){
+  return <g className={cx('hp', b?'built':'ghost', b&&isFresh&&'fresh')} onClick={()=>onGo(p)}
+    onPointerEnter={e=>onHover(p.k,e)} onPointerMove={e=>onHover(p.k,e)} onPointerLeave={()=>onHover(null)}>
+    {b ? children : <g className="bp">{ghost}</g>}
   </g>;
 }
 function MoneyHome(){
   const app = useApp(); const m = app.metrics; const fmt = app.fmt; const assets = useAssets();
   const hasData = m.income>1;
   const built = useMemo(()=>{ const b=new Set(readList(HOME_KEY)); if(hasData) b.add('foundation'); return b; },[hasData]);
-  // Parts built since you last looked pop in once.
   const [fresh] = useState(()=>{ const seen=new Set(readList(HOME_SEEN)); return new Set([...built].filter(k=>!seen.has(k))); });
   useEffect(()=>{ try{ localStorage.setItem(HOME_SEEN, JSON.stringify([...built])); }catch(e){} },[built]);
   const goals = lsRead('lumera_goals') || (isDemo(app)?SEED_GOALS:[]);
   const subs = lsRead('lumera_subs') || (isDemo(app)?SEED_SUBS:[]);
+  const nGoals = Array.isArray(goals)?goals.length:0;
   const leaks = (Array.isArray(subs)?subs:[]).filter(s=>(s.freq==='Never'||s.freq==='Rarely') && s.verdict!=='cancelled' && s.verdict!=='paused').length;
-  const roofRows = hasData ? clamp(Math.round(m.efMonths/3*6),1,6) : 1;
-  const flowers = hasData ? clamp(Math.round(m.savingsRate*100/3),1,7) : 1;
-  const lit = clamp(Array.isArray(goals)?goals.length:0, 0, 2);
+  const efTarget = Math.max(0, (m.essentialsTotal||0)*3), efHave = app.balances.emergencyFund||0;
+  const roofRows = hasData ? clamp(Math.round(m.efMonths/3*6),0,6) : 0;
+  const plants = hasData ? clamp(Math.round(m.savingsRate*100/3),1,7) : 1;
+  const lit = clamp(nGoals,0,3);
   const has = (k)=>built.has(k);
   const nb = HOME_PARTS.filter(p=>has(p.k)).length;
   const next = HOME_PARTS.find(p=>!has(p.k));
   const note = { roof: hasData?`${m.efMonths.toFixed(1)} of 3 months`:'', garden: hasData?`${round(m.savingsRate*100)}% saved`:'',
-    pipes: leaks?`${leaks} still dripping`:'No leaks', door: Array.isArray(goals)&&goals.length?`${goals.length} goal${goals.length===1?'':'s'}`:'' };
+    pipes: leaks?`${leaks} still dripping`:'No leaks', door: nGoals?`${nGoals} goal${nGoals===1?'':'s'}`:'' };
+  // What each part means, and what to do next: shown on hover.
+  const hint = (k)=>{ const b=has(k); switch(k){
+    case 'foundation': return b ? 'Your figures are in. Update them each month to keep the foundation solid.' : 'Do your monthly review: enter your income and spending to lay the foundation.';
+    case 'walls': return b ? 'Your budget holds the walls up. Keep Needs and Wants inside your plan.' : 'Open Budget and pick a plan for your month to raise the walls.';
+    case 'roof': return !b ? 'Open the Emergency fund calculator to start the roof. Every half-month of savings adds a row of tiles.'
+      : roofRows>=6 ? 'Roof finished: three months of essentials are saved.'
+      : `${roofRows} of 6 rows tiled (${m.efMonths.toFixed(1)} of 3 months saved). Save ${fmt.money(Math.max(0,efTarget-efHave))} more to finish it.`;
+    case 'door': return b ? `${nGoals} goal${nGoals===1?'':'s'} set. Each goal lights a window, up to three.` : 'Set a savings goal to fit the door. Each goal lights a window.';
+    case 'pipes': return !b ? 'Review your subscriptions to fit the pipes.' : leaks ? `${leaks} subscription${leaks===1?'':'s'} you barely use ${leaks===1?'is':'are'} still running. Cancel or pause ${leaks===1?'it':'them'} to stop the drip.` : 'No leaks: every subscription you keep, you use.';
+    case 'garden': return !b ? 'Try the Wealth Simulator to plant the garden. It grows with your savings rate.' : `${round(m.savingsRate*100)}% of your income saved. Every 3% adds a plant; 15% or more fills the garden.`;
+    case 'solar': return b ? 'Your net worth is tracked. The panels power the rest of the house.' : 'Track your net worth to fit the solar panels.';
+    case 'chimney': return b ? 'You’ve met your Financial Twin, so the fire is lit.' : 'Meet your Financial Twin to light the fire.';
+    case 'flag': return b ? 'You’ve read your recommendations. Keep acting on them.' : 'Open your recommendations to raise the flag.';
+    default: return ''; } };
   const go = (p)=>app.nav(p.to);
   const P = (k)=>HOME_PARTS.find(x=>x.k===k);
-  const hp = (k)=>({ p:P(k), b:has(k), isFresh:fresh.has(k), note:note[k], onGo:go });
+  const cardRef = useRef(null);
+  const [tip, setTip] = useState(null);
+  const onHover = (k,e)=>{ if(!k){ setTip(null); return; } const r=cardRef.current&&cardRef.current.getBoundingClientRect(); if(!r) return;
+    setTip({ k, x:e.clientX-r.left, y:e.clientY-r.top, w:r.width }); };
+  const hp = (k)=>({ p:P(k), b:has(k), isFresh:fresh.has(k), onGo:go, onHover });
   const roofClip = useArtId('roof');
-  return <section className="home-card mb-6" aria-labelledby="home-title">
-    <div className="home-stars" aria-hidden="true"/>
+  // geometry (units): plot 0..10 × 0..9.4; house 2..7 × 2..6.5
+  const W0=2, W1=7, Y0=2, Y1=6.5, Z0=0.5, Z1=3.2;
+  const roofPlane = (xa,xb,ya,yb)=>[[xa,ya,roofZ(xa)],[xb,ya,roofZ(xb)],[xb,yb,roofZ(xb)],[xa,yb,roofZ(xa)]];
+  const treeSpots = [[0.9,7.6],[1.3,4.4],[8.4,8.4],[9.2,6.9],[0.7,5.9],[8.8,4.6],[1.6,8.7]];
+  const tree = (x,y,i)=>{ const [sx,sy]=isoP(x,y,0); const h=i%2?20:26;
+    return <g key={i} className="tree" style={{animationDelay:(i*.4)+'s'}}>
+      <ellipse cx={sx} cy={sy} rx="7" ry="3.2" fill="rgba(6,40,24,.35)"/>
+      <rect x={sx-1.6} y={sy-9} width="3.2" height="9" rx="1" fill="#92400E"/>
+      <circle cx={sx} cy={sy-h+4} r={i%2?8:10} fill="#16A34A"/>
+      <circle cx={sx-2.5} cy={sy-h+1} r={i%2?5:6.5} fill="#4ADE80"/>
+    </g>; };
+  return <section ref={cardRef} className="home-card mb-6" aria-labelledby="home-title">
     <div className="relative grid lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] gap-5 items-center">
       <div className="min-w-0">
-        <svg className="home-svg" viewBox="0 0 400 330" role="img" aria-label={`Your money home: ${nb} of ${HOME_PARTS.length} parts built. The list beside it opens each tool.`}>
+        <svg className="home-svg" viewBox="0 0 410 300" role="img" aria-label={`Your money home: ${nb} of ${HOME_PARTS.length} parts built. Hover a part to see what to do; the list beside it opens each tool.`}>
           <defs>
-            <linearGradient id="hmSoil" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#7C3AED"/><stop offset=".5" stopColor="#4C1D95"/><stop offset="1" stopColor="#4C1D95" stopOpacity="0"/></linearGradient>
-            <linearGradient id="hmGround" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#4ADE80"/><stop offset="1" stopColor="#059669"/></linearGradient>
-            <linearGradient id="hmWall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#FAF5FF"/><stop offset="1" stopColor="#DDD6FE"/></linearGradient>
-            <linearGradient id="hmRoof" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#F472B6"/><stop offset="1" stopColor="#BE185D"/></linearGradient>
-            <radialGradient id="hmGlow"><stop offset="0" stopColor="#FDE68A" stopOpacity=".9"/><stop offset="1" stopColor="#FDE68A" stopOpacity="0"/></radialGradient>
-            <clipPath id={roofClip}><path d="M88 152 L200 72 L312 152 Z"/></clipPath>
+            <clipPath id={roofClip}><polygon points={isoPts(roofPlane(4.5,7.35,1.7,6.85))}/></clipPath>
+            <radialGradient id="hmGlow"><stop offset="0" stopColor="#FDE68A" stopOpacity=".85"/><stop offset="1" stopColor="#FDE68A" stopOpacity="0"/></radialGradient>
           </defs>
-          {/* the plot of land is always there */}
-          {/* the plot of land is always there: a little floating island */}
-          <path d="M24 266 Q200 246 376 266 Q366 284 320 292 Q262 304 236 318 Q214 330 200 340 Q186 330 164 318 Q138 304 80 292 Q34 284 24 266 Z" fill="url(#hmSoil)"/>
-          <path d="M150 300 L160 316 M246 300 L238 318 M200 306 V330" stroke="rgba(255,255,255,.12)" strokeWidth="2" strokeLinecap="round"/>
-          <path d="M22 262 Q200 238 378 262 Q386 268 372 272 Q200 286 28 272 Q14 268 22 262 Z" fill="url(#hmGround)"/>
-          <path d="M191 256 H209 L216 280 H184 Z" fill="rgba(255,255,255,.3)"/>
+          {/* the plot: always there */}
+          <IsoBox x0={0} x1={10} y0={0} y1={9.4} z0={-0.7} z1={0} top="#2FB57A" front="#7A4E2D" right="#5C3A21"/>
+          <polygon points={isoPts([[4.05,6.6,0],[4.95,6.6,0],[4.95,9.4,0],[4.05,9.4,0]])} fill="#E7D7B8" opacity=".9"/>
 
-          <HomePart {...hp('garden')} ghost={<g className="gh"><ellipse cx="56" cy="262" rx="38" ry="7"/><ellipse cx="372" cy="262" rx="22" ry="6"/></g>}>
-            {[28,46,64,82,358,374,390].slice(0,flowers).map((x,i)=><g key={x} className="flower" style={{animationDelay:(i*.3)+'s'}}>
-              <path d={`M${x} 262 Q${x+2} 248 ${x} ${238-(i%3)*6}`} stroke="#16A34A" strokeWidth="2.4" fill="none" strokeLinecap="round"/>
-              <circle cx={x} cy={236-(i%3)*6} r="6" fill={['#F472B6','#FDE047','#60A5FA','#F9A8D4','#C4B5FD','#FCA5A5','#FDBA74'][i]}/>
-              <circle cx={x} cy={236-(i%3)*6} r="2.2" fill="#FFF7ED"/></g>)}
+          <HomePart {...hp('garden')} ghost={treeSpots.slice(0,3).map(([x,y],i)=>{ const [sx,sy]=isoP(x,y,0); return <g key={i}><ellipse cx={sx} cy={sy} rx="8" ry="3.5"/><circle cx={sx} cy={sy-16} r="9"/></g>; })}>
+            {treeSpots.slice(0,plants).map(([x,y],i)=>tree(x,y,i))}
           </HomePart>
 
-          <HomePart {...hp('foundation')} ghost={<rect className="gh" x="86" y="236" width="228" height="20" rx="4"/>}>
-            <rect x="86" y="236" width="228" height="20" rx="4" fill="#E2E8F0"/>
-            {[114,142,170,198,226,254,282].map((x,i)=><path key={x} d={`M${x} ${i%2?236:246} V${i%2?246:256}`} stroke="#94A3B8" strokeWidth="1.4"/>)}
-            <path d="M86 246 H314" stroke="#94A3B8" strokeWidth="1.4"/>
+          <HomePart {...hp('foundation')} ghost={<IsoBox x0={1.7} x1={7.3} y0={1.7} y1={6.8} z0={0} z1={Z0}/>}>
+            <IsoBox x0={1.7} x1={7.3} y0={1.7} y1={6.8} z0={0} z1={Z0} top="#EEF2F7" front="#CBD5E1" right="#94A3B8"/>
           </HomePart>
 
-          <HomePart {...hp('walls')} ghost={<rect className="gh" x="102" y="150" width="196" height="86"/>}>
-            <rect x="102" y="150" width="196" height="86" fill="url(#hmWall)"/>
-            <path d="M102 150 H298" stroke="#C4B5FD" strokeWidth="2"/>
+          <HomePart {...hp('walls')} ghost={<IsoBox x0={W0} x1={W1} y0={Y0} y1={Y1} z0={Z0} z1={Z1}/>}>
+            <IsoBox x0={W0} x1={W1} y0={Y0} y1={Y1} z0={Z0} z1={Z1} top="#EDE9FE" front="#F5F3FF" right="#D9D2FB"/>
+            {/* the gable end above the front wall */}
+            <polygon points={isoPts([[W0,Y1,Z1],[W1,Y1,Z1],[4.5,Y1,5.3]])} fill="#F5F3FF"/>
+            <polyline points={isoPts([[W0,Y1,Z0],[W0,Y1,Z1]])} stroke="#C4B5FD" strokeWidth="1"/>
           </HomePart>
 
-          <HomePart {...hp('door')} ghost={<g className="gh"><rect x="182" y="184" width="36" height="52" rx="6"/><rect x="122" y="166" width="42" height="34" rx="4"/><rect x="236" y="166" width="42" height="34" rx="4"/></g>}>
-            {[[122,166],[236,166]].map(([x,y],i)=><g key={x}>
-              {i<lit && <circle cx={x+21} cy={y+17} r="34" fill="url(#hmGlow)" className="win-glow"/>}
-              <rect x={x} y={y} width="42" height="34" rx="4" fill={i<lit?'#FDE68A':'#C7D2FE'} stroke="#8B5CF6" strokeWidth="2.4"/>
-              <path d={`M${x+21} ${y} V${y+34} M${x} ${y+17} H${x+42}`} stroke="#8B5CF6" strokeWidth="2"/></g>)}
-            <rect x="182" y="184" width="36" height="52" rx="6" fill="#F59E0B"/>
-            <rect x="188" y="191" width="24" height="16" rx="3" fill="rgba(255,255,255,.28)"/>
-            <circle cx="211" cy="214" r="2.8" fill="#FFF7ED"/>
+          <HomePart {...hp('door')} ghost={<g><polygon points={isoPts([[4.05,Y1,Z0],[4.95,Y1,Z0],[4.95,Y1,2.15],[4.05,Y1,2.15]])}/>
+              <polygon points={isoPts([[W1,2.6,1.4],[W1,3.7,1.4],[W1,3.7,2.5],[W1,2.6,2.5]])}/><polygon points={isoPts([[W1,4.6,1.4],[W1,5.7,1.4],[W1,5.7,2.5],[W1,4.6,2.5]])}/>
+              <polygon points={isoPts([[2.6,Y1,1.4],[3.5,Y1,1.4],[3.5,Y1,2.5],[2.6,Y1,2.5]])}/></g>}>
+            {[[W1,2.6,3.7],[W1,4.6,5.7]].map(([x,ya,yb],i)=><g key={i}>
+              {i<lit && <circle cx={isoP(x,(ya+yb)/2,1.95)[0]} cy={isoP(x,(ya+yb)/2,1.95)[1]} r="20" fill="url(#hmGlow)" className="win-glow"/>}
+              <polygon points={isoPts([[x,ya,1.4],[x,yb,1.4],[x,yb,2.5],[x,ya,2.5]])} fill={i<lit?'#FDE68A':'#A5B4FC'} stroke="#7C3AED" strokeWidth="1.4"/>
+              <polyline points={isoPts([[x,(ya+yb)/2,1.4],[x,(ya+yb)/2,2.5]])} stroke="#7C3AED" strokeWidth="1.1"/></g>)}
+            {2<lit && <circle cx={isoP(3.05,Y1,1.95)[0]} cy={isoP(3.05,Y1,1.95)[1]} r="18" fill="url(#hmGlow)" className="win-glow"/>}
+            <polygon points={isoPts([[2.6,Y1,1.4],[3.5,Y1,1.4],[3.5,Y1,2.5],[2.6,Y1,2.5]])} fill={2<lit?'#FDE68A':'#A5B4FC'} stroke="#7C3AED" strokeWidth="1.4"/>
+            <polygon points={isoPts([[4.05,Y1,Z0],[4.95,Y1,Z0],[4.95,Y1,2.15],[4.05,Y1,2.15]])} fill="#F59E0B" stroke="#B45309" strokeWidth="1.2"/>
+            <circle cx={isoP(4.8,Y1,1.25)[0]} cy={isoP(4.8,Y1,1.25)[1]} r="1.6" fill="#FFF7ED"/>
           </HomePart>
 
-          <HomePart {...hp('pipes')} ghost={<path className="gh" d="M298 154 H308 V236" fill="none"/>}>
-            <path d="M296 154 H308 V238" fill="none" stroke="#E2E8F0" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"/>
-            {leaks>0 && <g fill="#7DD3FC"><circle className="drip" cx="308" cy="244" r="3"/><circle className="drip d2" cx="308" cy="244" r="2.4"/></g>}
+          <HomePart {...hp('pipes')} ghost={<polyline points={isoPts([[7.35,6.85,3.0],[7.35,6.85,0.5]])} fill="none"/>}>
+            <polyline points={isoPts([[7.35,1.7,3.0],[7.35,6.85,3.0],[7.35,6.85,0.55]])} fill="none" stroke="#E2E8F0" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"/>
+            {leaks>0 && <g fill="#7DD3FC"><circle className="drip" cx={isoP(7.35,6.85,0.5)[0]} cy={isoP(7.35,6.85,0.5)[1]+3} r="2.4"/><circle className="drip d2" cx={isoP(7.35,6.85,0.5)[0]} cy={isoP(7.35,6.85,0.5)[1]+3} r="1.9"/></g>}
           </HomePart>
 
-          {/* the chimney sits behind the roof */}
-          <HomePart {...hp('chimney')} ghost={<rect className="gh" x="244" y="86" width="20" height="44"/>}>
-            <g className="smoke" fill="rgba(255,255,255,.7)"><circle cx="254" cy="72" r="6"/><circle cx="260" cy="58" r="7.5"/><circle cx="252" cy="42" r="9"/></g>
-            <rect x="244" y="88" width="20" height="44" fill="#FB7185"/><rect x="240" y="82" width="28" height="8" rx="2" fill="#E11D48"/>
-          </HomePart>
-
-          <HomePart {...hp('roof')} ghost={<path className="gh" d="M88 152 L200 72 L312 152 Z"/>}>
+          <HomePart {...hp('roof')} ghost={<g><polygon points={isoPts(roofPlane(4.5,7.35,1.7,6.85))}/><polygon points={isoPts([[1.65,6.85,Z1-0.1],[7.35,6.85,Z1-0.1],[4.5,6.85,5.3]])}/></g>}>
+            {/* tile rows fill from the eave up, one row per half-month saved */}
+            <polygon points={isoPts(roofPlane(4.5,7.35,1.7,6.85))} fill="#F9D2E4"/>
             <g clipPath={`url(#${roofClip})`}>
-              <rect x="80" y="70" width="240" height="84" fill="rgba(255,255,255,.2)"/>
-              {Array.from({length:6},(_,i)=>{ const y=152-(i+1)*(80/6); return <g key={i}>
-                {i<roofRows && <rect x="80" y={y} width="240" height={80/6+.5} fill="url(#hmRoof)" className="tile-row" style={{animationDelay:(i*.08)+'s'}}/>}
-                <path d={`M80 ${y} H320`} stroke="rgba(80,7,36,.35)" strokeWidth="1.2"/></g>; })}
+              {Array.from({length:6},(_,i)=>{ const xa=7.35-(i+1)*(2.85/6), xb=7.35-i*(2.85/6);
+                return <g key={i}>{i<roofRows && <polygon points={isoPts(roofPlane(xa,xb,1.7,6.85))} fill={i%2?'#DB2777':'#EC4899'} className="tile-row"/>}
+                  <polyline points={isoPts([[xa,1.7,roofZ(xa)],[xa,6.85,roofZ(xa)]])} stroke="rgba(80,7,36,.35)" strokeWidth="1"/></g>; })}
             </g>
-            <path d="M84 154 L200 70 L316 154" fill="none" stroke="#9D174D" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"/>
+            {/* the roof's front edge, over the gable */}
+            <polyline points={isoPts([[1.65,6.85,Z1-0.1],[4.5,6.85,5.3],[7.35,6.85,Z1-0.1]])} fill="none" stroke="#9D174D" strokeWidth="4" strokeLinejoin="round" strokeLinecap="round"/>
           </HomePart>
 
-          <HomePart {...hp('solar')} ghost={<g className="gh" transform="rotate(-35.5 140 124)"><rect x="110" y="120" width="56" height="15" rx="2"/></g>}>
-            <g transform="rotate(-35.5 140 124)">
-              <rect x="110" y="120" width="56" height="15" rx="2" fill="#1E3A8A" stroke="#93C5FD" strokeWidth="1.5"/>
-              <path d="M124 120 V135 M138 120 V135 M152 120 V135 M110 127.5 H166" stroke="#93C5FD" strokeWidth="1"/>
-            </g>
+          <HomePart {...hp('chimney')} ghost={<IsoBox x0={5.6} x1={6.2} y0={3.0} y1={3.6} z0={roofZ(6.2)} z1={6.1}/>}>
+            <g className="smoke" fill="rgba(255,255,255,.75)">{[0,1,2].map(i=>{ const [sx,sy]=isoP(5.9,3.3,6.4+i*0.75); return <circle key={i} cx={sx+i*3} cy={sy} r={4+i*1.6}/>; })}</g>
+            <IsoBox x0={5.6} x1={6.2} y0={3.0} y1={3.6} z0={roofZ(6.2)} z1={6.1} top="#FDA4AF" front="#FB7185" right="#E11D48"/>
           </HomePart>
 
-          <HomePart {...hp('flag')} ghost={<path className="gh" d="M200 70 V34 M200 36 L226 42 L200 48" fill="none"/>}>
-            <path d="M200 70 V30" stroke="#fff" strokeWidth="2.6" strokeLinecap="round"/>
-            <path className="flag-cloth" d="M201 31 Q214 27 228 34 Q215 40 201 45 Z" fill="#FDE047"/>
+          <HomePart {...hp('solar')} ghost={<polygon points={isoPts(roofPlane(5.2,6.6,4.0,6.1))}/>}>
+            <polygon points={isoPts(roofPlane(5.2,6.6,4.0,6.1))} fill="#1E3A8A" stroke="#93C5FD" strokeWidth="1.1"/>
+            {[4.7,5.4].map(y=><polyline key={y} points={isoPts([[5.2,y,roofZ(5.2)],[6.6,y,roofZ(6.6)]])} stroke="#93C5FD" strokeWidth=".8"/>)}
+            <polyline points={isoPts([[5.9,4.0,roofZ(5.9)],[5.9,6.1,roofZ(5.9)]])} stroke="#93C5FD" strokeWidth=".8"/>
           </HomePart>
 
-          {has('foundation') && assets.mascot_lumera && <image href={assets.mascot_lumera} x="318" y="198" width="42" height="58" className="home-lumi"/>}
+          <HomePart {...hp('flag')} ghost={<g><polyline points={isoPts([[4.5,6.6,5.3],[4.5,6.6,7.0]])}/><polygon points={isoPts([[4.5,6.6,7.0],[4.5,7.6,6.75],[4.5,6.6,6.45]])}/></g>}>
+            <polyline points={isoPts([[4.5,6.6,5.3],[4.5,6.6,7.05]])} stroke="#fff" strokeWidth="2" strokeLinecap="round"/>
+            <polygon className="flag-cloth" points={isoPts([[4.5,6.6,7.0],[4.5,7.7,6.72],[4.5,6.6,6.42]])} fill="#FDE047"/>
+          </HomePart>
+
+          {has('foundation') && assets.mascot_lumera && (()=>{ const [sx,sy]=isoP(6.2,8.6,0); return <image href={assets.mascot_lumera} x={sx-17} y={sy-46} width="34" height="47" className="home-lumi"/>; })()}
         </svg>
+        <div className="home-hint" aria-hidden="true">Hover any part to see what it needs</div>
       </div>
       <div className="home-panel min-w-0">
         <div className="hp-kicker">Your money home</div>
@@ -4733,14 +4782,20 @@ function MoneyHome(){
         <p className="hp-next">{next ? <>Each tool you use adds a part. Next: open <b>{next.tool}</b> to add the {next.name.toLowerCase()}.</> : 'Every part is built. Keep it in shape with your monthly review.'}</p>
         <ul className="hp-list">
           {HOME_PARTS.map(p=>{ const b=has(p.k); return <li key={p.k}>
-            <button type="button" onClick={()=>go(p)} className={cx('hp-item', b&&'on')}>
+            <button type="button" onClick={()=>go(p)} className={cx('hp-item', b&&'on')} title={hint(p.k)}>
               <span className="hp-tick" aria-hidden="true">{b?<Icon name="check" size={12} sw={2.6}/>:<Icon name="plus" size={12} sw={2.4}/>}</span>
               <span className="hp-name">{p.name}<small>{b ? (note[p.k] || `Built with ${p.tool}`) : `Open ${p.tool}`}</small></span>
-              <span className="sr-only">{b?'built':'not built yet'}</span>
+              <span className="sr-only">{b?'built. ':'not built yet. '}{hint(p.k)}</span>
             </button></li>; })}
         </ul>
       </div>
     </div>
+    {tip && (()=>{ const pp=P(tip.k), b=has(tip.k); const left=clamp(tip.x+16, 8, tip.w-268);
+      return <div className="home-tip" style={{left, top:tip.y+18}} role="tooltip">
+        <div className="ht-top"><b>{pp.name}</b><span className={cx('ht-chip', b&&'on')}>{b?'Built':'To build'}</span></div>
+        <p>{hint(tip.k)}</p>
+        <div className="ht-go">Click to open {pp.tool}</div>
+      </div>; })()}
   </section>;
 }
 
@@ -11758,11 +11813,13 @@ function DemoCommunity(){
         <span className="rounded-full px-2.5 py-1 text-[11px] font-bold" style={{background:'rgba(0,0,0,.2)'}}>Example posts and members</span>
         <a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" className="ml-auto inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[13px] font-bold" style={{background:'#ffffff',color:'#6D28D9'}}>LinkedIn <Icon name="arrowR" size={12} className="-rotate-45"/></a>
       </div>
-      <div className="flex gap-4 overflow-x-auto no-scrollbar mt-5 pb-1">
+      {/* Padding inside the scroller leaves room for the ring to grow on hover
+          (a sideways scroller clips anything that grows past its box). */}
+      <div className="flex gap-4 overflow-x-auto no-scrollbar mt-3 py-2.5 px-1.5 -mx-1.5">
         {DEMO_MEMBERS.map(mem=>{ const on=connected.includes(mem.name);
           return <button key={mem.name} onClick={()=>toggleConn(mem.name)} aria-pressed={on} title={on?'Connected':'Connect'} className="shrink-0 w-[76px] text-center group">
-            <span className="block mx-auto rounded-full p-[3px] transition group-hover:scale-105" style={{background:on?'#fff':'conic-gradient(#FDE047,#F472B6,#60A5FA,#34D399,#FDE047)'}}>
-              <span className="block rounded-full p-[2px]" style={{background:'#5B1C8F'}}><Avatar name={mem.name} size={60}/></span></span>
+            <span className="mx-auto grid place-items-center rounded-full transition-transform duration-200 group-hover:scale-105" style={{width:70,height:70,background:on?'#fff':'conic-gradient(#FDE047,#F472B6,#60A5FA,#34D399,#FDE047)'}}>
+              <span className="grid place-items-center rounded-full" style={{width:64,height:64,background:'#5B1C8F'}}><Avatar name={mem.name} size={60}/></span></span>
             <span className="block text-[11.5px] font-semibold mt-1.5 truncate">{mem.name.split(' ')[0]}</span>
             <span className="block text-[10px] text-white/80">{on?'✓ Connected':'Connect'}</span>
           </button>; })}

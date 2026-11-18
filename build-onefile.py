@@ -678,7 +678,7 @@ out = '''<!DOCTYPE html>
 </html>
 ''' % (head_links, style, sub_style, EXTRA_CSS, atmo, consent_box, NAV,
        '\n\n'.join(sections), hashify(footer), PAYLOADS,
-       ROUTER + '\n<script>' + sections_js + '</script>\n<script>' + consent_js + '</script>')
+       ROUTER + '\n<script>' + sections_js + '</script>\n<script>' + consent_js + '</script>\n<script>' + open(os.path.join(ROOT, 'site-fx.js'), encoding='utf-8').read() + '</script>')
 
 # Images become data-asset references resolved from one map; fonts and the
 # favicon are inlined where they stand.

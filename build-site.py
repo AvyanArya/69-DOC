@@ -235,7 +235,10 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
 </style>
 '''
 
-SCRIPT = '<script>\n' + CONSENT_JS + '''
+FX_CSS = open(os.path.join(ROOT, 'site-fx.css'), encoding='utf-8').read()
+FX_JS = open(os.path.join(ROOT, 'site-fx.js'), encoding='utf-8').read()
+SUB_CSS = SUB_CSS.replace('</style>', FX_CSS + '\n</style>', 1) if '</style>' in SUB_CSS else SUB_CSS + FX_CSS
+SCRIPT = '<script>\n' + CONSENT_JS + '\n' + FX_JS + '''
 
 (function () {
     var y = document.getElementById('year');
@@ -443,6 +446,100 @@ STEPS = [
 ]
 
 
+# ---------------------------------------------------------------- V27 pieces
+import html as _h
+_IMG = {'leaf': 'sprout', 'atlas': 'nova', 'shield': 'sentinel', 'forge': 'blaze', 'hub': 'lumi'}
+_COL = {'leaf': ('#16A34A', '#86EFAC'), 'atlas': ('#2563EB', '#93C5FD'), 'shield': ('#64748B', '#CBD5E1'),
+        'forge': ('#D97706', '#FCD34D'), 'hub': ('#7C3AED', '#F0ABFC')}
+
+
+def collect_card(c, c2, name, num, art, kind, txt, foot_l, foot_r, back, label, photo=False, chips=''):
+    """A collectible card: front and back, flips on press, tilts under the pointer."""
+    return ('<button type="button" class="cc" aria-pressed="false" aria-label="%s" style="--c:%s;--c2:%s"><span class="cc-in">'
+            '<span class="cc-face cc-front">'
+            '<span class="cc-top"><span class="cc-name">%s</span><span class="cc-num">%s</span></span>'
+            '<span class="cc-art%s">%s</span>'
+            '<span class="cc-type">%s</span>%s'
+            '<span class="cc-txt">%s</span>'
+            '<span class="cc-foot"><span>%s</span><span>%s</span></span></span>'
+            '<span class="cc-face cc-back">%s<span class="cc-turn">Tap to turn back</span></span>'
+            '</span></button>') % (label, c, c2, name, num, ' photo' if photo else '', art, kind, chips, txt, foot_l, foot_r, back)
+
+
+def world_deck(worlds):
+    out = []
+    for i, w in enumerate(worlds):
+        c, c2 = _COL[w['key']]
+        back = ('<span class="cc-h">What %s will hold</span><span class="cc-scroll"><span class="cc-list">%s</span></span>'
+                % (w['name'], ''.join('<span>%s</span>' % t for t, _ in w['tools'])))
+        card = collect_card(c, c2, w['name'], 'No. %02d / %02d' % (i + 1, len(worlds)),
+                            '<img src="assets/brand/%s.webp" alt="">' % _IMG[w['key']], w['tag'],
+                            w['lede'].split('.')[0] + '.', '%d tools' % len(w['tools']), 'Coming soon', back,
+                            '%s card: %s. Press to flip and see its tools.' % (w['name'], w['tag']))
+        out.append('<div class="cc-slot reveal">%s<a class="cc-link" style="--c2:%s" href="%s.html">Explore %s &rarr;</a></div>'
+                   % (card, c2, w['key'], w['name']))
+    return '<div class="cc-deck">' + ''.join(out) + '</div>'
+
+
+def orbit(worlds):
+    n = len(worlds)
+    pl = ''.join(('<div class="pl" style="--a:%ddeg"><a class="pl-body" href="%s.html" style="--c:%s;--c2:%s">'
+                  '<span class="pl-ball"><img src="assets/brand/%s.webp" alt=""></span>'
+                  '<span class="pl-name">%s</span><span class="pl-tag">%s</span></a></div>')
+                 % (i * 360 // n - 90, w['key'], _COL[w['key']][0], _COL[w['key']][1], _IMG[w['key']], w['name'], w['tag'])
+                 for i, w in enumerate(worlds))
+    return ('<div class="orbit reveal"><div class="orbit-hub"><img src="assets/brand/lumi.webp" alt=""><b>Lumera</b><small>Live now</small></div>'
+            '<div class="orbit-ring">%s</div></div><p class="fx-hint">Hover a world to stop the orbit. Each one opens its page.</p>' % pl)
+
+
+def world_strip(worlds):
+    return '<div class="wstrip">' + ''.join(
+        '<a class="reveal" href="%s.html" style="--c:%s"><img src="assets/brand/%s.webp" alt=""><span><b>%s</b><small>%s</small></span></a>'
+        % (w['key'], _COL[w['key']][0], _IMG[w['key']], w['name'], w['tag']) for w in worlds) + '</div>'
+
+
+PROBLEMS = [  # (the problem in your words, feature index in FEATURES, world)
+    ("I don't know what kind of spender I am", 0, 'hub'),
+    ("I can't picture where my habits lead", 1, 'hub'),
+    ("Is my spending even normal?", 2, 'hub'),
+    ("I'm paying for things I forgot about", 6, 'hub'),
+    ("My money runs out before the month does", 8, 'hub'),
+    ("I have a money question and no one to ask", 5, 'hub'),
+    ("One surprise bill would wreck my month", 7, 'shield'),
+    ("I owe money and don't know what to pay first", 10, 'shield'),
+    ("I can't tell if I'm getting anywhere", 9, 'shield'),
+    ("Investing feels like a closed club", 3, 'atlas'),
+    ("Market news goes over my head", 4, 'atlas'),
+    ("None of my friends talk about money", 11, 'hub'),
+]
+_WNAME = {'hub': 'Part of the Lumera hub', 'leaf': 'Part of Leaf', 'atlas': 'Part of Atlas (coming soon)',
+          'shield': 'Part of Shield (coming soon)', 'forge': 'Part of Forge (coming soon)'}
+
+
+def picker():
+    chips = ''.join('<button type="button" class="pk-chip" role="tab" aria-selected="%s" data-i="%d" style="--c:%s">%s</button>'
+                    % ('true' if i == 0 else 'false', i, _COL[w][0], _h.escape(q)) for i, (q, f, w) in enumerate(PROBLEMS))
+    cards = ''.join(('<div class="pk-card" role="tabpanel" data-i="%d" style="--c:%s"%s><div class="pk-kicker">The fix</div>'
+                     '<h3>%s</h3><p>%s</p><span class="pk-world"><img src="assets/brand/%s.webp" alt="">%s</span>'
+                     '<span class="pk-big" aria-hidden="true">%02d</span></div>')
+                    % (i, _COL[w][0], '' if i == 0 else ' hidden', FEATURES[f][0], FEATURES[f][1], _IMG[w], _WNAME[w], f + 1)
+                    for i, (q, f, w) in enumerate(PROBLEMS))
+    return ('<div class="picker reveal"><div class="pk-chips" role="tablist" aria-label="Pick a money problem">%s</div>'
+            '<div class="pk-out" aria-live="polite">%s</div></div>' % (chips, cards))
+
+
+def savings_sim():
+    return ('<div class="sim reveal"><div>'
+            '<label>Put aside each month <output data-o="m">£150</output><input type="range" min="10" max="1000" step="10" value="150" data-k="m" aria-label="Amount each month"></label>'
+            '<label>For <output data-o="y">10 years</output><input type="range" min="1" max="40" value="10" data-k="y" aria-label="Number of years"></label>'
+            '<p style="margin:0;font-size:1rem;line-height:1.5">Growth adds <b data-o="gap" style="color:#FDE68A">£5,293</b> on top of what you put in.</p></div>'
+            '<div class="sim-bars" aria-live="polite">'
+            '<div class="sim-bar cash"><i></i><b data-o="cash">£18,000</b><small>Kept as cash</small></div>'
+            '<div class="sim-bar grow"><i></i><b data-o="grow">£23,293</b><small>Growing at 5% a year</small></div></div>'
+            '<p class="sim-note">An illustration at a steady 5% a year, not a forecast or advice. Real returns go up and down. '
+            'The Wealth Simulator in the app uses your own figures.</p></div>')
+
+
 # ---------------------------------------------------------------- the pages
 WORLD_CARD = ('<a class="panel lg-panel world-card reveal" href="{key}.html" style="text-decoration:none;color:inherit;background:linear-gradient(165deg,{c}55,{c}1A 70%),rgba(26,22,44,.7) !important;border-color:{c}AA !important;box-shadow:0 22px 44px -26px {c}">'
               '<span class="wash" style="background:{c}"></span>'
@@ -477,10 +574,10 @@ def build():
         ('#8E7BFF', '#6E6CF6', '#EBC77A'),
         'Four worlds,', 'coming soon',
         'Lumera is the hub, and it is live now. These four worlds are coming soon: none of them is out yet. Here is what each one will hold.',
-        '    <section class="section tight"><div class="grid-4">' + world_cards(WORLDS) + '</div></section>\n'
+        '    <section class="section tight">' + world_deck(WORLDS) + '<p class="fx-hint">Tap a card to flip it and see what that world will hold.</p></section>\n'
         + sec('Everything in one place', 'One account,', 'every world',
-              'Sign up once. Your figures, streak and progress follow you across all four.',
-              actions_row([('Start your 30-day review', 'app.html#/signup', True)])),
+              'Lumera is the hub in the middle. Sign up once, and your figures, streak and progress will follow you to every world as it opens.',
+              orbit(WORLDS) + '<div class="fx-center">' + actions_row([('Start your 30-day review', 'app.html#/signup', True)]) + '</div>'),
         actions=[('Start free', 'app.html#/signup', True), ('Open the app', 'app.html#/login', False)]))
 
     for w in WORLDS:
@@ -503,30 +600,59 @@ def build():
         ('#4f46e5', '#8b5cf6', '#c4b5fd'),
         'Everything your money needs,', 'in one calm place',
         'Not another budgeting tab. A financial operating system that understands the invisible patterns behind your spending.',
-        '    <section class="section tight">' + panels(FEATURES, 3) + '</section>\n'
+        '    <section class="section tight">' + picker() + '</section>\n'
+        + sec('Try one now', 'Small habits,', 'big numbers',
+              'Drag the sliders. This is a taste of the Wealth Simulator.', savings_sim())
         + sec('Where they live', 'Split across', 'four worlds',
               'Every feature belongs to a world, so the app stays calm instead of showing you all of it at once.',
-              '<div class="grid-4">' + world_cards(WORLDS, MINI_CARD) + '</div>'),
+              world_strip(WORLDS)),
         actions=[('Start free', 'app.html#/signup', True), ('How it works', 'how-it-works.html', False)]))
 
-    steps_html = '<div class="grid-3">' + ''.join(
-        '<div class="panel lg-panel reveal"><span class="step-n">%02d</span><h3>%s</h3><p>%s</p></div>'
-        % (i + 1, t, d) for i, (t, d) in enumerate(STEPS)) + '</div>'
+    LOG = ['Groceries £24', 'Bus £2.80', 'Coffee £3.40', 'Streaming £10.99', 'Lunch £7.50', 'Phone £15', 'Takeaway £18',
+           'Groceries £31', 'Gym £25', 'Bus £2.80', 'Cinema £11', 'Coffee £3.40', 'Rent £650', 'Lunch £6.20', 'Music £10.99',
+           'Groceries £27', 'Haircut £14', 'Takeaway £22', 'Bus £5.60', 'Gift £20', 'Coffee £3.40', 'Groceries £29', 'Books £9',
+           'Lunch £8', 'Taxi £12', 'Takeaway £16', 'Groceries £25', 'Cloud storage £2.99']
+    DOT = ['#22C55E', '#38BDF8', '#F59E0B', '#EC4899', '#A78BFA', '#F472B6', '#FB923C']
+    import json as _j
+    cal = ''.join('<span class="mo-day" style="--d:%s">%d</span>' % (DOT[i % len(DOT)], i + 1) for i in range(30))
+    rail = ''.join('<div class="mo-step%s"><b>Step %d</b><span>%s</span></div>' % (' on' if i == 0 else '', i + 1, t) for i, (t, d) in enumerate(STEPS))
+    phases = ''.join('<div class="mo-phase"%s><h3>%s</h3><p>%s</p></div>' % ('' if i == 0 else ' hidden', t, d) for i, (t, d) in enumerate(STEPS))
+    month_html = ('<div class="month reveal" data-log="%s"><div>' % _h.escape(_j.dumps(LOG)) + '<div class="mo-rail">' + rail + '</div>'
+                  '<div class="mo-cal" aria-hidden="true">' + cal + '</div>'
+                  '<div class="mo-ctrl"><button type="button" class="fx-btn mo-play">Play the month</button>'
+                  '<input type="range" min="1" max="30" value="6" aria-label="Day of the month"></div></div>'
+                  '<div class="mo-read" aria-live="polite"><div class="mo-dnum">Day 6 <small>of 30</small></div>' + phases +
+                  '<div class="mo-log"></div>'
+                  '<div class="mo-phase" hidden></div>'
+                  '<div class="mo-score"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="10"/>'
+                  '<circle class="ring-fg" cx="50" cy="50" r="42" fill="none" stroke="#5EEAD4" stroke-width="10" stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="264" transform="rotate(-90 50 50)"/>'
+                  '<text x="50" y="57" text-anchor="middle" fill="#fff" font-size="24" font-weight="700">71</text></svg>'
+                  '<p style="font-size:.85rem">Alex (example) finishes the month with a health score of 71. The ring fills on day 30.</p></div>'
+                  '</div></div>')
+    envelope = ('<div class="env-wrap reveal"><button type="button" class="env" aria-expanded="false" aria-label="Open the example results envelope">'
+                '<span class="env-back"></span>'
+                '<span class="env-card c1"><b>Health score</b><strong>71 / 100</strong><p>One number from seven benchmarked pillars, so progress is visible month to month.</p></span>'
+                '<span class="env-card c2"><b>Your biggest leak</b><strong>Takeaways</strong><p>The single category costing you most against people like you.</p></span>'
+                '<span class="env-card c3"><b>A 30-day plan</b><strong>3 moves</strong><p>Sized to your actual income, not generic advice.</p></span>'
+                '<span class="env-front"><span>Your results &middot; Alex (example)</span></span><span class="env-flap"></span><span class="env-seal">L</span>'
+                '</button><div class="env-label">Tap the envelope to open your example results</div></div>')
+    nevers = ('<div class="never">'
+              '<div class="never-card reveal"><span class="stamp">NEVER</span><h3>Ask for your bank login</h3><p>You type in what you want Lumera to see. Nothing is pulled from your bank.</p></div>'
+              '<div class="never-card reveal"><span class="stamp">NEVER</span><h3>Recommend a product</h3><p>Lumera explains and benchmarks. It is educational, not financial advice.</p></div>'
+              '</div>')
     made.append(page('how-it-works.html', 'How it works | Lumera',
         'Three steps, thirty days: track, compare, and get your plan.',
         ('#0f766e', '#14b8a6', '#5eead4'),
         'Three steps,', 'thirty days',
         'One month of ordinary behaviour is enough to tell you what is actually going on with your money. Here is the whole process.',
-        '    <section class="section tight">' + steps_html + '</section>\n'
+        sec('Scrub through a month', 'Thirty days', 'in ten seconds',
+            'Drag the slider or press play to follow Alex (example), a made-up user, through the month.', month_html)
         + sec('What you get at the end', 'A plan,', 'not a chart',
-              'A score you can move, the leaks worth closing first, and the order to do them in.',
-              panels([('A health score', 'One number from seven benchmarked pillars, so progress is visible month to month.'),
-                      ('Your biggest leak', 'The single category costing you most against people like you.'),
-                      ('A 30-day plan', 'Three or four moves, sized to your actual income, not generic advice.')], 3))
+              'A score you can move, the leaks worth closing first, and the order to do them in.', envelope)
         + sec('What it never does', 'No bank login.', 'No advice.',
               'Lumera is educational. It explains and benchmarks; it never recommends a product or asks for banking credentials.',
-              actions_row([('Start your 30-day review', 'app.html#/signup', True),
-                           ('Read the privacy page', 'privacy.html', False)])),
+              nevers + actions_row([('Start your 30-day review', 'app.html#/signup', True),
+                                    ('Read the privacy page', 'privacy.html', False)])),
         actions=[('Start free', 'app.html#/signup', True), ('See the features', 'features.html', False)]))
 
     # My Team. Photos and details arrive person by person; anyone without a
@@ -535,33 +661,33 @@ def build():
     TEAM = [(t['name'], t['role'], t['quote'], t['why'], t['photo'], t['words'], t['interests'])
             for t in _json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'team.json'), encoding='utf-8'))]
     import html as _html
-    def member(n, role, quote, why, img, words, interests):
-        e = _html.escape
+    FACES = ''.join(('<span><img src="assets/team/%s.webp" alt="%s" loading="lazy"></span>' % (t[4], _h.escape(t[0]))) if t[4] else '<span>%s</span>' % ''.join(w[0] for w in t[0].split())[:2] for t in TEAM)
+    PAL = [('#7C3AED', '#F0ABFC'), ('#DB2777', '#FBCFE8'), ('#2563EB', '#93C5FD'), ('#16A34A', '#86EFAC'),
+           ('#D97706', '#FCD34D'), ('#0D9488', '#5EEAD4'), ('#C026D3', '#F5D0FE'), ('#E11D48', '#FECDD3')]
+    def member(i, n, role, quote, why, img, words, interests):
+        e = _h.escape
+        c, c2 = PAL[i % len(PAL)]
         initials = ''.join(w[0] for w in n.split())[:2]
-        pic = ('<img src="assets/team/%s.webp" alt="%s" loading="lazy">' % (img, e(n))) if img else '<span class="initials">%s</span>' % initials
-        chips = ''.join('<span class="chip">%s</span>' % e(w) for w in words)
-        return ('<article class="member lg-panel reveal"><div class="portrait">%s</div><div class="info"><h3>%s</h3>'
-                '<div class="role">%s</div>%s%s%s%s</div></article>') % (
-            pic, e(n), e(role) or 'Role coming soon',
-            ('<p class="quote">&ldquo;%s&rdquo;</p>' % e(quote)) if quote else '',
-            ('<div class="chips">%s</div>' % chips) if chips else '',
-            ('<p><b>Into:</b> %s</p>' % e(' · '.join(interests))) if interests else '',
-            ('<p class="why">&ldquo;%s&rdquo;</p>' % e(why)) if why else '')
-    team_cards = ''.join(member(*t) for t in TEAM)
-    team_css = ('<style>.team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px}'
-        '.member{padding:0;overflow:hidden;display:flex;flex-direction:column}'
-        '.member .portrait{aspect-ratio:4/5;flex:none;display:grid;place-items:center;background:linear-gradient(150deg,rgba(157,124,255,.35),rgba(235,199,122,.15))}'
-        '.member .portrait img{width:100%;height:100%;object-fit:cover;object-position:50% 30%}'
-        '.member .initials{font-family:var(--font-display);font-size:3rem;color:#fff}'
-        '.member .info{padding:1rem 1.1rem 1.2rem}.member h3{font-family:var(--font-display);font-weight:400;font-size:1.7rem;margin:0}'
-        '.member .role{font-size:.85rem;color:#C6A8FF;margin-top:.2rem}.member .quote{font-style:italic;opacity:.85;margin:.6rem 0 0;font-size:.88rem}'
-        '.member p{font-size:.88rem;line-height:1.55;margin:.5rem 0 0;opacity:.85}.member .why{font-style:italic;opacity:.75}'
-        '.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:.6rem}.chips .chip{font-size:.72rem;font-weight:700;padding:.25rem .6rem;border-radius:99px;background:rgba(198,168,255,.18);color:#D9C8FF}</style>')
+        art = ('<img src="assets/team/%s.webp" alt="" loading="lazy">' % img) if img else '<span class="initials">%s</span>' % initials
+        chips = ('<span class="cc-chips">%s</span>' % ''.join('<span>%s</span>' % e(w) for w in words)) if words else ''
+        first = n.split()[0]
+        back = '<span class="cc-h">%s</span><span class="cc-scroll">' % e(n)
+        if quote: back += '<span class="cc-quote">&ldquo;%s&rdquo;</span>' % e(quote)
+        if why: back += '<span class="cc-p"><b>Why Lumera:</b> %s</span>' % e(why)
+        if interests: back += '<span class="cc-p"><b>Into:</b> %s</span>' % e(' · '.join(interests))
+        if not (quote or why or interests): back += '<span class="cc-p">More about %s soon.</span>' % e(first)
+        back += '</span>'
+        card = collect_card(c, c2, e(n), 'No. %02d' % (i + 1), art, e(role) or 'Role coming soon',
+                            '', 'Lumera team', 'Tap to flip', back,
+                            '%s, %s. Press to flip and read more.' % (e(n), e(role) or 'team member'), photo=bool(img), chips=chips)
+        return '<div class="cc-slot reveal">%s</div>' % card
+    team_cards = ''.join(member(i, *t) for i, t in enumerate(TEAM))
     made.append(page('team.html', 'Our Team | Lumera', 'The people building Lumera.',
         ('#7c3aed', '#a855f7', '#f0abfc'),
         'Our Team:', 'the people building Lumera',
-        'Students and early-career builders who want financial understanding to be for everyone.',
-        team_css + '    <section class="section tight"><div class="team-grid">' + team_cards + '</div></section>\n'
+        'Students and early-career builders who want financial understanding to be for everyone. Collect the set: every card flips.',
+        '    <section class="section tight"><div class="cc-deck">' + team_cards + '</div>'
+        '<div class="fx-center"><button type="button" class="fx-btn" data-fx-flipall>Flip every card</button></div></section>\n'
         + sec('Why we are building it', 'Financial clarity,', 'made accessible',
               'Lumera exists to give students and early-career professionals the financial intelligence that used to be reserved for the wealthy.',
               actions_row([('Read about Lumera', 'about.html', True),
@@ -573,28 +699,35 @@ def build():
         ('#7c3aed', '#a855f7', '#f0abfc'),
         'Financial clarity,', 'made accessible',
         'Lumera turns the financial intelligence once reserved for the wealthy into something anyone can use. Clear, calm, and jargon-free.',
-        '    <section class="section tight"><div class="grid-2">'
-        '<div class="panel lg-panel reveal"><div class="eyebrow">Our mission</div><div class="prose">'
-        '<p>Lumera exists to give students and early-career professionals the financial intelligence that used to be '
-        'reserved for the wealthy. No jargon, no complexity, just clarity.</p></div></div>'
-        '<div class="panel lg-panel reveal"><div class="eyebrow">The problem we solve</div><div class="prose">'
-        '<p>Most people do not understand their money, not because they are bad with it, but because no one ever taught '
-        'them. Lumera closes that gap with tools that explain themselves.</p></div></div>'
-        '</div></section>\n'
+        '    <section class="section tight"><div class="ba reveal">'
+        '<div class="ba-side ba-before"><div class="eyebrow">The problem we solve</div><p>Most people do not understand their money, not because they are bad with it, '
+        'but because no one ever taught them.</p></div>'
+        '<div class="ba-side ba-after"><div class="eyebrow" style="color:#fff">Our mission</div><p>Lumera closes that gap with tools that explain themselves. '
+        'No jargon, no complexity, just clarity.</p></div>'
+        '<input type="range" min="4" max="96" value="50" aria-label="Slide between the problem and our mission"><span class="ba-line"></span></div>'
+        '<p class="fx-hint">Drag across to move from the problem to the mission.</p></section>\n'
         + sec('What Lumera gives you', 'Six things it does', 'from day one', '',
-              panels([('Benchmark clarity', 'See every spending category against realistic ranges for your income and region.'),
-                      ('A learning engine', 'Two-minute lessons, quizzes and a glossary that turn jargon into confidence.'),
-                      ('Real tools', 'Budget, goals, net worth, debt payoff, credit, investing and a wealth simulator.'),
-                      ('Markets, decoded', 'Live-style markets, a world monitor and plain-English news with the why.'),
-                      ('A career head-start', 'Finance careers, universities, CV lab and interview prep.'),
-                      ('A community', 'Connect with others on the same path and share opportunities.')], 3))
-        + sec('Who it is for', 'Built for people', 'starting out', '',
-              panels([('Students', 'Build money habits early, while the stakes are low and the upside is decades long.'),
-                      ('Young professionals', 'Turn your first real income into a foundation for lasting wealth.'),
-                      ('Anyone starting out', 'It is never too late to start your financial journey.')], 3))
+              '<div class="bento">'
+              '<div class="b-wide reveal" style="--c:#7C3AED"><img src="assets/brand/lumi.webp" alt=""><span class="b-n">01</span><h3>Benchmark clarity</h3><p>See every spending category against realistic ranges for your income and region.</p></div>'
+              '<div class="b-tall reveal" style="--c:#16A34A"><img src="assets/brand/sprout.webp" alt=""><span class="b-n">02</span><h3>A learning engine</h3><p>Two-minute lessons, quizzes and a glossary that turn jargon into confidence.</p></div>'
+              '<div class="reveal" style="--c:#DB2777"><span class="b-n">03</span><h3>Real tools</h3><p>Budget, goals, net worth, debt payoff, credit, investing and a wealth simulator.</p></div>'
+              '<div class="reveal" style="--c:#2563EB"><img src="assets/brand/nova.webp" alt=""><span class="b-n">04</span><h3>Markets, decoded</h3><p>Live-style markets, a world monitor and plain-English news with the why.</p></div>'
+              '<div class="reveal" style="--c:#D97706"><img src="assets/brand/blaze.webp" alt=""><span class="b-n">05</span><h3>A career head-start</h3><p>Finance careers, universities, CV lab and interview prep.</p></div>'
+              '<div class="reveal" style="--c:#0D9488"><span class="b-n">06</span><h3>A community</h3><p>Connect with others on the same path and share opportunities.</p></div>'
+              '</div>')
+        + sec('Who it is for', 'Built for people', 'starting out', 'Pick the one that sounds most like you.',
+              '<div class="persona reveal"><div class="ps-tabs" role="tablist" aria-label="Who Lumera is for">'
+              '<button type="button" class="ps-tab" role="tab" aria-selected="true" data-i="0" style="--c:#16A34A"><img src="assets/brand/sprout.webp" alt=""><b>Students</b></button>'
+              '<button type="button" class="ps-tab" role="tab" aria-selected="false" tabindex="-1" data-i="1" style="--c:#D97706"><img src="assets/brand/blaze.webp" alt=""><b>Young professionals</b></button>'
+              '<button type="button" class="ps-tab" role="tab" aria-selected="false" tabindex="-1" data-i="2" style="--c:#7C3AED"><img src="assets/brand/lumi.webp" alt=""><b>Anyone starting out</b></button>'
+              '</div><div class="ps-stage" aria-live="polite">'
+              '<div class="ps-panel" role="tabpanel" data-i="0"><img src="assets/brand/sprout.webp" alt=""><div class="ps-say"><b>Students</b><p>Build money habits early, while the stakes are low and the upside is decades long.</p></div></div>'
+              '<div class="ps-panel" role="tabpanel" data-i="1" hidden><img src="assets/brand/blaze.webp" alt=""><div class="ps-say"><b>Young professionals</b><p>Turn your first real income into a foundation for lasting wealth.</p></div></div>'
+              '<div class="ps-panel" role="tabpanel" data-i="2" hidden><img src="assets/brand/lumi.webp" alt=""><div class="ps-say"><b>Anyone starting out</b><p>It is never too late to start your financial journey.</p></div></div>'
+              '</div></div>')
         + sec('Our Team', 'The people', 'building it',
-              'Roles, bios and photos are managed in the admin portal.',
-              actions_row([('Meet the team', 'team.html', True)])),
+              'Students and early-career builders. Each one has a card you can flip.',
+              '<div class="faces reveal">' + FACES + '</div>' + actions_row([('Meet the team', 'team.html', True)])),
         actions=[('Start free', 'app.html#/signup', True), ('See the features', 'features.html', False)]))
 
     PLANS = [('Free', 'Available now', True,
@@ -603,21 +736,32 @@ def build():
               ['Advanced AI coach', 'Unlimited simulations', 'Full benchmark analytics', 'Monthly reports', 'Subscription &amp; debt tools']),
              ('Premium', 'Coming soon', False,
               ['Portfolio analytics', 'Family budgeting', 'Tax optimisation', 'Priority AI', 'Advisor-ready summaries'])]
-    plans_html = '<div class="grid-3">' + ''.join(
-        '<div class="panel lg-panel reveal"><div class="plan-head"><h3 style="margin:0">%s</h3>'
-        '<span class="pill%s">%s</span></div><p>%s</p><ul class="plan-list">%s</ul></div>'
-        % (n, ' now' if now else '', 'Current' if now else 'Future', b, ''.join('<li>%s</li>' % f for f in feats))
-        for n, b, now, feats in PLANS) + '</div>'
+    free = PLANS[0]
+    plans_html = ('<div class="plans"><div class="pass reveal"><div class="ps-k">Lumera pass &middot; %s</div><div class="ps-price">£0</div>'
+                  '<div class="ps-sub">%s. Forever, no card.</div><div class="ps-cut"></div><ul>%s</ul>'
+                  '<a class="ps-go" href="app.html#/signup">Start free</a></div>'
+                  % (free[0], free[1], ''.join('<li>%s</li>' % f for f in free[3])))
+    for (n, b, now, feats), c in zip(PLANS[1:], [('#7C3AED', '#F0ABFC'), ('#DB2777', '#FBCFE8')]):
+        plans_html += ('<button type="button" class="pack reveal" aria-expanded="false" style="--c:%s;--c2:%s" aria-label="%s plan, coming soon. Press to see what it will include.">'
+                       '<span class="pack-inside"><h3>%s</h3><span style="font-size:.8rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;opacity:.75">%s &middot; will include</span>'
+                       '<span class="pk-l">%s</span><span style="margin-top:auto;font-size:.8rem;opacity:.7">Tap to seal it again</span></span>'
+                       '<span class="pack-wrap"><span class="pack-seal">Coming<br>soon</span><h3>%s</h3><span class="pack-tear">Tap to peek inside</span></span></button>'
+                       % (c[0], c[1], n, n, b, ''.join('<span>%s</span>' % f for f in feats), n))
+    plans_html += '</div>'
+    FAQ = [('Is the free plan really free?', 'Yes. Every tool listed under Free is available now, with no card and no trial clock.'),
+           ('Do I need to connect my bank?', 'No. Lumera never asks for banking credentials. You enter what you want it to see.'),
+           ('Is this financial advice?', 'No. Lumera is educational: it explains, benchmarks and projects, but never recommends a product.'),
+           ('What happens to my data?', 'Your figures are stored encrypted on our servers so they follow you between devices. You can export or delete everything at any time from Settings.')]
+    chat = '<div class="chat">' + ''.join(
+        '<details class="chat-q reveal"%s><summary><span class="bubble-me">%s</span></summary>'
+        '<div class="chat-a"><img src="assets/brand/lumi.webp" alt="Lumi"><div class="bubble-lumi"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="ans">%s</span></div></div></details>'
+        % (' open' if i == 0 else '', q, a) for i, (q, a) in enumerate(FAQ)) + '</div>'
     made.append(page('pricing.html', 'Pricing | Lumera', 'Free today. Built for what is next.',
         ('#b45309', '#f59e0b', '#fcd34d'),
         'Free today.', 'Built for what is next.',
         'Everything you need for your first 30-day review costs nothing. Paid tiers arrive when the tools behind them do.',
         '    <section class="section tight">' + plans_html + '</section>\n'
-        + sec('Questions', 'The things people', 'ask first', '',
-              panels([('Is the free plan really free?', 'Yes. Every tool listed under Free is available now, with no card and no trial clock.'),
-                      ('Do I need to connect my bank?', 'No. Lumera never asks for banking credentials. You enter what you want it to see.'),
-                      ('Is this financial advice?', 'No. Lumera is educational: it explains, benchmarks and projects, but never recommends a product.'),
-                      ('What happens to my data?', 'Your figures are stored encrypted on our servers so they follow you between devices. You can export or delete everything at any time from Settings.')], 2)),
+        + sec('Questions', 'Ask Lumi', 'anything', 'Tap a question and Lumi answers.', chat),
         actions=[('Start free', 'app.html#/signup', True), ('Open the app', 'app.html#/login', False)]))
 
     # ---- legal ----
